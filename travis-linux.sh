@@ -26,6 +26,9 @@ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidget
 ninja || exit 1
 cpack || exit 1
 
+./generate_checksum_deb.sh
+./generate_checksum_rpm.sh
+
 # Run tests (wxgtk needs an X server running for the app to initialize)
 
 Xvfb :10 &

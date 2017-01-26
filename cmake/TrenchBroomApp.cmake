@@ -277,9 +277,15 @@ IF(WIN32)
         DESTINATION . COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "7Z")
     SET(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
+
+    SET(CPACK_PACKAGE_FILE_EXT "7z")
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.bat.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.bat" @ONLY)
 ELSEIF(APPLE)
     INSTALL(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "DragNDrop")
+
+    SET(CPACK_PACKAGE_FILE_EXT "dmg")
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.sh" @ONLY)
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # add architecture to filename
     SET(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
@@ -325,5 +331,11 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
     SET(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
     SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
+
+    SET(CPACK_PACKAGE_FILE_EXT "rpm")
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm.sh" @ONLY)
+
+    SET(CPACK_PACKAGE_FILE_EXT "deb")
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
 ENDIF()
 INCLUDE(CPack)
