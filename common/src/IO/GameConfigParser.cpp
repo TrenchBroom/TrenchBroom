@@ -49,7 +49,7 @@ namespace TrenchBroom {
             const String& name = root["name"].stringValue();
             const Path icon(root["icon"].stringValue());
             
-            const StringArray fileFormats = root["fileformats"].asStringList();
+            const StringArray fileFormats = root["fileformats"].asStringArray();
             const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
             const GameConfig::TextureConfig textureConfig = parseTextureConfig(root["textures"]);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(root["entities"]);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const Path::Array defFilePaths = Path::asPaths(value["definitions"].asStringList());
+            const Path::Array defFilePaths = Path::asPaths(value["definitions"].asStringArray());
             const StringSet modelFormats = value["modelformats"].asStringSet();
             const Color defaultColor = Color::parse(value["defaultcolor"].stringValue());
             
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                             "{}"
                             "]");
 
-            const GameConfig::FlagConfigList surfaceFlags = parseFlagConfig(value["surfaceflags"]);
+            const GameConfig::FlagConfigArray surfaceFlags = parseFlagConfig(value["surfaceflags"]);
             const GameConfig::FlagConfigArray contentFlags = parseFlagConfig(value["contentflags"]);
             
             return GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             using Model::GameConfig;
 
             if (value.null())
-                return GameConfig::FlagConfigList(0);
+                return GameConfig::FlagConfigArray(0);
             
             GameConfig::FlagConfigArray flags;
             for (size_t i = 0; i < value.length(); ++i) {
