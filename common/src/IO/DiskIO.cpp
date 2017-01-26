@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace IO {
         namespace Disk {
             bool doCheckCaseSensitive();
-            Path findCaseSensitivePath(const Path::Array& list, const Path& path);
+            Path findCaseSensitivePath(const Path::Array& array, const Path& path);
             Path fixCase(const Path& path);
             
             bool doCheckCaseSensitive() {
@@ -43,8 +43,8 @@ namespace TrenchBroom {
                 return caseSensitive;
             }
             
-            Path findCaseSensitivePath(const Path::Array& list, const Path& path) {
-                for (const Path& entry : list) {
+            Path findCaseSensitivePath(const Path::Array& array, const Path& path) {
+                for (const Path& entry : array) {
                     if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
                         return entry;
                 }
