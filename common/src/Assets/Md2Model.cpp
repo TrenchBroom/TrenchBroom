@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
+        Md2Model::Frame::Frame(const VertexArray& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
         m_bounds(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1()) {}
@@ -39,8 +39,8 @@ namespace TrenchBroom {
         BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
             BBox3f transformedBounds;
             
-            VertexList::const_iterator it = std::begin(m_vertices);
-            VertexList::const_iterator end = std::end(m_vertices);
+            VertexArray::const_iterator it = std::begin(m_vertices);
+            VertexArray::const_iterator end = std::end(m_vertices);
             
             transformedBounds.min = transformedBounds.max = transformation * it->v1;
             while (++it != end)
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return transformedBounds;
         }
 
-        const Md2Model::VertexList& Md2Model::Frame::vertices() const {
+        const Md2Model::VertexArray& Md2Model::Frame::vertices() const {
             return m_vertices;
         }
         
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameArray& frames) :
+        Md2Model::Md2Model(const String& name, const TextureArray& skins, const FrameArray& frames) :
         m_name(name),
         m_skins(new TextureCollection(name, skins)),
         m_frames(frames) {}
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            const TextureList& textures = m_skins->textures();
+            const TextureArray& textures = m_skins->textures();
             
             ensure(skinIndex < textures.size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             const Assets::Texture* skin = textures[skinIndex];
             const Frame* frame = m_frames[frameIndex];
             
-            const VertexList& vertices = frame->vertices();
+            const VertexArray& vertices = frame->vertices();
             const Renderer::IndexRangeMap& indices = frame->indices();
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
