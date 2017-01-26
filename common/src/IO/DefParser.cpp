@@ -210,8 +210,8 @@ namespace TrenchBroom {
             if (classInfo.hasColor()) {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
-                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
-                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
+                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeArray(), classInfo.modelDefinition());
+                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.attributeArray());
             }
             
             // base definition
