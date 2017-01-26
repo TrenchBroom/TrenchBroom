@@ -44,13 +44,13 @@ namespace TrenchBroom {
             
             Logger* m_logger;
             
-            TextureCollectionList m_collections;
+            TextureCollectionArray m_collections;
             
-            TextureCollectionList m_toPrepare;
-            TextureCollectionList m_toRemove;
+            TextureCollectionArray m_toPrepare;
+            TextureCollectionArray m_toRemove;
             
             TextureMap m_texturesByName;
-            TextureList m_textures;
+            TextureArray m_textures;
             
             int m_minFilter;
             int m_magFilter;
@@ -72,15 +72,15 @@ namespace TrenchBroom {
             void commitChanges();
             
             Texture* texture(const String& name) const;
-            const TextureList& textures() const;
-            const TextureCollectionList& collections() const;
+            const TextureArray& textures() const;
+            const TextureCollectionArray& collections() const;
             const StringArray collectionNames() const;
         private:
             void resetTextureMode();
             void prepare();
 
             void updateTextures();
-            TextureList textureList() const;
+            TextureArray textureArray() const;
         };
     }
 }
