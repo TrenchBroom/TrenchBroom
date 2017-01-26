@@ -80,8 +80,8 @@ namespace TrenchBroom {
             return m_hasSize;
         }
 
-        Assets::AttributeDefinitionArray EntityDefinitionClassInfo::attributeList() const {
-            return MapUtils::valueList(m_attributes);
+        Assets::AttributeDefinitionArray EntityDefinitionClassInfo::attributeArray() const {
+            return MapUtils::valueArray(m_attributes);
         }
         
         const Assets::AttributeDefinitionMap& EntityDefinitionClassInfo::attributeMap() const {
