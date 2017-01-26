@@ -61,7 +61,7 @@ namespace TrenchBroom {
             bool hasColor() const;
             const BBox3& size() const;
             bool hasSize() const;
-            Assets::AttributeDefinitionArray attributeList() const;
+            Assets::AttributeDefinitionArray attributeArray() const;
             const Assets::AttributeDefinitionMap& attributeMap() const;
             const Assets::ModelDefinition& modelDefinition() const;
             bool hasModelDefinition() const;
