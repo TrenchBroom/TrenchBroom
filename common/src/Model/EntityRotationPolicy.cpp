@@ -72,10 +72,10 @@ namespace TrenchBroom {
                     const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
                     
                     // x = yaw
-                    // y = pitch
+                    // y = -pitch
                     // z = roll
                     const FloatType roll  = +Math::radians(angles.z());
-                    const FloatType pitch = +Math::radians(angles.y());
+                    const FloatType pitch = -Math::radians(angles.y());
                     const FloatType yaw   = +Math::radians(angles.x());
                     return rotationMatrix(roll, pitch, yaw);
                 }
@@ -107,13 +107,14 @@ namespace TrenchBroom {
                 }
                 case RotationType_Euler: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
-                    const Vec3 pitchYawRoll(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, pitchYawRoll.rounded());
+                    const Vec3 nPitchYawRoll(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
+                    entity->addOrUpdateAttribute(info.attribute, nPitchYawRoll.rounded());
                     break;
                 }
                 case RotationType_Mangle: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
-                    entity->addOrUpdateAttribute(info.attribute, yawPitchRoll.rounded());
+                    const Vec3 yawNPitchRoll(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
+                    entity->addOrUpdateAttribute(info.attribute, yawNPitchRoll.rounded());
                     break;
                 }
                 case RotationType_None:
