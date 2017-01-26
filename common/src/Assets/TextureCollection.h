@@ -36,7 +36,7 @@ namespace TrenchBroom {
             
             bool m_loaded;
             IO::Path m_path;
-            TextureList m_textures;
+            TextureArray m_textures;
             
             size_t m_usageCount;
             
@@ -47,12 +47,12 @@ namespace TrenchBroom {
             Notifier0 usageCountDidChange;
         public:
             TextureCollection();
-            TextureCollection(const TextureList& textures);
+            TextureCollection(const TextureArray& textures);
             TextureCollection(const IO::Path& path);
-            TextureCollection(const IO::Path& path, const TextureList& textures);
+            TextureCollection(const IO::Path& path, const TextureArray& textures);
             virtual ~TextureCollection();
 
-            void addTextures(const TextureList& textures);
+            void addTextures(const TextureArray& textures);
             void addTexture(Texture* texture);
             
             bool loaded() const;
