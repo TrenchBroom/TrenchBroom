@@ -41,7 +41,7 @@ namespace TrenchBroom {
             MdlTimeArray m_times;
         public:
             MdlSkin(Texture* texture);
-            MdlSkin(const TextureList& textures, const MdlTimeArray& times);
+            MdlSkin(const TextureArray& textures, const MdlTimeArray& times);
             
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
@@ -59,15 +59,15 @@ namespace TrenchBroom {
         class MdlFrame : public MdlBaseFrame {
         public:
             typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-            typedef Vertex::List VertexList;
+            typedef Vertex::Array VertexArray;
         private:
             String m_name;
-            VertexList m_triangles;
+            VertexArray m_triangles;
             BBox3f m_bounds;
         public:
-            MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds);
+            MdlFrame(const String& name, const VertexArray& triangles, const BBox3f& bounds);
             const MdlFrame* firstFrame() const;
-            const VertexList& triangles() const;
+            const VertexArray& triangles() const;
             BBox3f bounds() const;
             BBox3f transformedBounds(const Mat4x4f& transformation) const;
         };
