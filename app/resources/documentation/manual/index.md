@@ -507,16 +507,18 @@ If you look closely at the clip above, you will notice that the entity in the pi
 - First, TrenchBroom looks at the entity's classname and its properties to determine its rotation type.
 	- If the entity does not have a classname, then its rotation remains unchanged.
 	- If the classname starts with "light", then TrenchBroom checks its properties.
-		- If it has a property named "mangle", then the value of the property consists of three separate angles.
+		- If it has a property named "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
 		- If it does not have a target property, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
 			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
 	- If the classname does not start with "light", and
 		- if the entity is not a point entity, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
+			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
 			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
 		- if the entity is a point entity, and if the origin of the entity's bounding box is at the center, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles.
+			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
+			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
 			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
 
 Finally, if TrenchBroom has found a property that contains the rotation angle of the entity, it adapts the value of that property according to the rotation being performed by the user. These rules are quite complicated because sadly, the entity definitions do not contain information about how rotations should be applied to entities. But in practice, they should just perform as expected when you work with the rotate tool in the editor.
