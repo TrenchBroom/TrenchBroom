@@ -74,11 +74,11 @@ namespace TrenchBroom {
             Assets::EntityModel* doParseModel();
             Assets::TextureCollection* parseTextures();
             TextureInfoArray parseTextureInfos();
-            Vec3f::List parseVertices();
+            Vec3f::Array parseVertices();
             EdgeInfoArray parseEdgeInfos();
             FaceInfoArray parseFaceInfos();
             FaceEdgeIndexArray parseFaceEdges();
-            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::List& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges);
+            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoArray& textureInfos, const Vec3f::Array& vertices, const EdgeInfoArray& edgeInfos, const FaceInfoArray& faceInfos, const FaceEdgeIndexArray& faceEdges);
             Vec2f textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const;
         };
     }
