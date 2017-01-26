@@ -26,7 +26,7 @@ cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidget
 ninja || exit 1
 cpack || exit 1
 
-./generate_checksum
+./generate_checksum.sh
 
 ./TrenchBroom-Test || exit 1
 

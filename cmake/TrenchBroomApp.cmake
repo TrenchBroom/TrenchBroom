@@ -333,9 +333,9 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     SET(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 
     SET(CPACK_PACKAGE_FILE_EXT "rpm")
-    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm" @ONLY)
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm.sh" @ONLY)
 
     SET(CPACK_PACKAGE_FILE_EXT "deb")
-    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb" @ONLY)
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
 ENDIF()
 INCLUDE(CPack)
