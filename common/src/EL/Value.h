@@ -292,7 +292,7 @@ namespace TrenchBroom {
             bool null() const;
             bool undefined() const;
             
-            const StringArray asStringList() const;
+            const StringArray asStringArray() const;
             const StringSet asStringSet() const;
             
             size_t length() const;
