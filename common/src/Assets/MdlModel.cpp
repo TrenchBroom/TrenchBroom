@@ -31,11 +31,11 @@
 namespace TrenchBroom {
     namespace Assets {
         MdlSkin::MdlSkin(Texture* texture) :
-        m_textures(TextureList(1, texture)) {
+        m_textures(TextureArray(1, texture)) {
             m_times.push_back(0.0f);
         }
         
-        MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeArray& times) :
+        MdlSkin::MdlSkin(const TextureArray& textures, const MdlTimeArray& times) :
         m_textures(textures),
         m_times(times) {
             assert(textures.size() == times.size());
@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         MdlBaseFrame::~MdlBaseFrame() {}
 
-        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds) :
+        MdlFrame::MdlFrame(const String& name, const VertexArray& triangles, const BBox3f& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_bounds(bounds) {}
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        const MdlFrame::VertexList& MdlFrame::triangles() const {
+        const MdlFrame::VertexArray& MdlFrame::triangles() const {
             return m_triangles;
         }
 
@@ -76,8 +76,8 @@ namespace TrenchBroom {
             if (m_triangles.empty())
                 return BBox3f(-8.0f, 8.0f);
             
-            VertexList::const_iterator it = std::begin(m_triangles);
-            VertexList::const_iterator end = std::end(m_triangles);
+            VertexArray::const_iterator it = std::begin(m_triangles);
+            VertexArray::const_iterator end = std::end(m_triangles);
             
             BBox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
 
             const Assets::Texture* texture = skin->firstPicture();
-            const MdlFrame::VertexList& vertices = frame->triangles();
+            const MdlFrame::VertexArray& vertices = frame->triangles();
             const size_t vertexCount = vertices.size();
             
             const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
