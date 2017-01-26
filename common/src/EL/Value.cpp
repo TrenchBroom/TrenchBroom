@@ -579,7 +579,7 @@ namespace TrenchBroom {
             return type() == Type_Undefined;
         }
 
-        const StringArray Value::asStringList() const {
+        const StringArray Value::asStringArray() const {
             const ArrayType& array = arrayValue();
             StringArray result;
             result.reserve(array.size());
