@@ -330,18 +330,18 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::MdlFrame* MdlParser::parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        Assets::MdlFrame* MdlParser::parseFrame(const char*& cursor, const MdlSkinTriangleArray& skinTriangles, const MdlSkinVertexArray& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
             char name[MdlLayout::SimpleFrameLength + 1];
             name[MdlLayout::SimpleFrameLength] = 0;
             cursor += MdlLayout::SimpleFrameName;
             readBytes(cursor, name, MdlLayout::SimpleFrameLength);
             
-            PackedFrameVertexList packedVertices(skinVertices.size());
+            PackedFrameVertexArray packedVertices(skinVertices.size());
             for (size_t i = 0; i < skinVertices.size(); ++i)
                 for (size_t j = 0; j < 4; ++j)
                     packedVertices[i][j] = static_cast<unsigned char>(*cursor++);
             
-            Vec3f::List positions(skinVertices.size());
+            Vec3f::Array positions(skinVertices.size());
             BBox3f bounds;
             
             positions[0] = unpackFrameVertex(packedVertices[0], origin, scale);
@@ -352,7 +352,7 @@ namespace TrenchBroom {
                 bounds.mergeWith(positions[i]);
             }
             
-            Assets::MdlFrame::VertexList frameTriangles;
+            Assets::MdlFrame::VertexArray frameTriangles;
             frameTriangles.reserve(skinTriangles.size());
             for (size_t i = 0; i < skinTriangles.size(); ++i) {
                 const MdlSkinTriangle& triangle = skinTriangles[i];
