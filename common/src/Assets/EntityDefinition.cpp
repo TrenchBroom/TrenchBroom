@@ -27,28 +27,6 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class CompareByName {
-        private:
-            bool m_shortName;
-        public:
-            CompareByName(const bool shortName) :
-            m_shortName(shortName) {}
-            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
-                if (m_shortName)
-                    return left->shortName() < right->shortName();
-                return left->name() < right->name();
-            }
-        };
-        
-        class CompareByUsage {
-        public:
-            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
-                if (left->usageCount() == right->usageCount())
-                    return left->name() < right->name();
-                return left->usageCount() > right->usageCount();
-            }
-        };
-
         EntityDefinition::~EntityDefinition() {}
         
         size_t EntityDefinition::index() const {
@@ -111,21 +89,16 @@ namespace TrenchBroom {
             return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
         }
         
-        struct FindAttributeDefinitionByName {
-            String name;
-            FindAttributeDefinitionByName(const String& i_name) : name(i_name) {}
-            
-            bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
-                return attributeDefinition->name() == name;
-            }
-        };
-
         const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
 
         const AttributeDefinition* EntityDefinition::attributeDefinition(const Model::AttributeName& attributeKey) const {
-            return VectorUtils::findIf(m_attributeDefinitions, FindAttributeDefinitionByName(attributeKey)).get();
+            const auto it = std::find_if(std::begin(m_attributeDefinitions), std::end(m_attributeDefinitions),
+                                         [attributeKey] (const AttributeDefinitionPtr& attributeDefinition) { return attributeDefinition->name() == attributeKey; });
+            if (it == std::end(m_attributeDefinitions))
+                return nullptr;
+            return it->get();
         }
 
         const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName) {
@@ -152,15 +125,21 @@ namespace TrenchBroom {
         EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
             EntityDefinitionList result;
             
-            for (EntityDefinition* definition : definitions) {
-                if (definition->type() == type)
-                    result.push_back(definition);
-            }
+            std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(result), [type] (EntityDefinition* definition) { return definition->type() == type; });
             
             if (order == Usage)
-                std::sort(std::begin(result), std::end(result), CompareByUsage());
+                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                    if (lhs->usageCount() == rhs->usageCount())
+                        return lhs->name() < rhs->name();
+                    return lhs->usageCount() > rhs->usageCount();
+                });
             else
-                std::sort(std::begin(result), std::end(result), CompareByName(false));
+                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                    const int strCmp = StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name());
+                    if (strCmp == 0)
+                        return lhs->usageCount() > rhs->usageCount();
+                    return strCmp < 0;
+                });
             
             return result;
         }

@@ -121,6 +121,14 @@ namespace StringUtils {
         std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
     }
     
+    int caseSensitiveCompare(const String& str1, const String& str2) {
+        return compare(str1, str2, CaseSensitiveCharCompare());
+    }
+    
+    int caseInsensitiveCompare(const String& str1, const String& str2) {
+        return compare(str1, str2, CaseInsensitiveCharCompare());
+    }
+
     bool caseSensitiveEqual(const String& str1, const String& str2) {
         return isEqual(str1, str2, CaseSensitiveCharCompare());
     }

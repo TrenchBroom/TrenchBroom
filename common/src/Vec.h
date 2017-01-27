@@ -348,6 +348,8 @@ public:
             v[i] = static_cast<T>(0.0);
     }
 
+    // We want this constructor to be non-explicit because it allows for quick conversions.
+    // cppcheck-suppress noExplicitConstructor
     template <typename U, size_t O>
     Vec(const Vec<U,O>& vec) {
         for (size_t i = 0; i < std::min(S,O); ++i)

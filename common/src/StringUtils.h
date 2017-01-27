@@ -161,6 +161,26 @@ namespace StringUtils {
         }
         return true;
     }
+
+    template <typename Cmp>
+    int compare(const String& str1, const String& str2, const Cmp& cmp) {
+        const size_t len = std::min(str1.length(), str2.length());
+        for (size_t i = 0; i < len; ++i) {
+            const int res = cmp(str1[i], str2[i]);
+            if (res < 0)
+                return -1;
+            if (res > 0)
+                return +1;
+        }
+        if (str1.length() < str2.length())
+            return -1;
+        if (str1.length() > str2.length())
+            return +1;
+        return 0;
+    }
+    
+    int caseSensitiveCompare(const String& str1, const String& str2);
+    int caseInsensitiveCompare(const String& str1, const String& str2);
     
     bool caseSensitiveEqual(const String& str1, const String& str2);
     bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2);

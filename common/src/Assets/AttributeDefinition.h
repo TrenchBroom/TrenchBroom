@@ -152,7 +152,7 @@ namespace TrenchBroom {
             FlagsAttributeOption::List m_options;
         public:
             FlagsAttributeDefinition(const String& name, const int defaultValue);
-            FlagsAttributeDefinition(const String& name);
+            explicit FlagsAttributeDefinition(const String& name);
 
             int defaultValue() const;
             const FlagsAttributeOption::List& options() const;
