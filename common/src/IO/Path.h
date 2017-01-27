@@ -40,6 +40,17 @@ namespace TrenchBroom {
                     return path.asString(m_separator);
                 }
             };
+            
+            template <typename StringLess>
+            class Less {
+            private:
+                StringLess m_less;
+            public:
+                bool operator()(const Path& lhs, const Path& rhs) const {
+                    return std::lexicographical_compare(std::begin(lhs.m_components), std::end(lhs.m_components),
+                                                        std::begin(rhs.m_components), std::end(rhs.m_components), m_less);
+                }
+            };
         private:
             static const String& separators();
             
@@ -48,7 +59,7 @@ namespace TrenchBroom {
             
             Path(bool absolute, const StringList& components);
         public:
-            Path(const String& path = "");
+            explicit Path(const String& path = "");
             
             Path operator+(const Path& rhs) const;
             int compare(const Path& rhs) const;
@@ -85,7 +96,7 @@ namespace TrenchBroom {
             Path makeCanonical() const;
             Path makeLowerCase() const;
             
-            static List makeAbsoluteAndCanonical(const List& paths, const String& relativePath);
+            static List makeAbsoluteAndCanonical(const List& paths, const Path& relativePath);
         private:
             static bool hasDriveSpec(const StringList& components);
             static bool hasDriveSpec(const String& component);

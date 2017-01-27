@@ -340,9 +340,9 @@ namespace TrenchBroom {
                 StringStream testCrashLogName;
                 testCrashLogName << crashLogPath.lastComponent().deleteExtension().asString() << "-" << index << ".txt";
                 
-                testCrashLogPath = crashLogPath.deleteLastComponent() + testCrashLogName.str();
+                testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path(testCrashLogName.str());
             }
-            return testCrashLogPath.deleteExtension().asString();
+            return testCrashLogPath.deleteExtension();
         }
         
         static bool inReportCrashAndExit = false;

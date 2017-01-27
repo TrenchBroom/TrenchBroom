@@ -59,7 +59,7 @@ namespace TrenchBroom {
             ModelSpecification defaultModelSpecification() const;
         private:
             ModelSpecification convertToModel(const EL::Value& value) const;
-            String path(const EL::Value& value) const;
+            IO::Path path(const EL::Value& value) const;
             size_t index(const EL::Value& value) const;
         };
     }

@@ -128,11 +128,11 @@ namespace TrenchBroom {
             return ModelSpecification();
         }
 
-        String ModelDefinition::path(const EL::Value& value) const {
+        IO::Path ModelDefinition::path(const EL::Value& value) const {
             if (value.type() != EL::Type_String)
-                return "";
+                return IO::Path();
             const String& path = value.stringValue();
-            return StringUtils::isPrefix(path, ":") ? path.substr(1) : path;
+            return IO::Path(StringUtils::isPrefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {

@@ -174,10 +174,10 @@ namespace TrenchBroom {
             }
         }
         
-        String Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const {
+        IO::Path Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const {
             StringStream str;
             str << mapBasename.asString() << "." << index << ".map";
-            return str.str();
+            return IO::Path(str.str());
         }
         
         size_t extractBackupNo(const IO::Path& path) {
