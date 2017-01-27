@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -291,5 +291,6 @@ namespace StringUtils {
         ASSERT_EQ(String("asdf"), StringUtils::unescape("\\asdf", "a"));
         ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\", ""));
         ASSERT_EQ(String("asdf\\"), StringUtils::unescape("asdf\\\\", ""));
+        ASSERT_EQ(String("asdf\\\\"), StringUtils::unescape("asdf\\\\\\\\", ""));
     }
 }

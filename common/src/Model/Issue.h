@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -54,6 +54,15 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual IssueType doGetType() const = 0;
             virtual const String doGetDescription() const = 0;
+        };
+
+        class AttributeIssue : public Issue {
+        public:
+            using Issue::Issue;
+            
+            virtual ~AttributeIssue();
+            virtual const AttributeName& attributeName() const = 0;
+            const AttributeValue& attributeValue() const;
         };
     }
 }

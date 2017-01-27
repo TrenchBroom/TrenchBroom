@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -191,6 +191,10 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)));
             return attrs;
+        }
+
+        String NodeSerializer::escapeEntityAttribute(const String& str) const {
+            return StringUtils::escape(str, "\"", '\\');
         }
     }
 }

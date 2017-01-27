@@ -1,6 +1,6 @@
 version: 2.0.0-appveyor-{build}
 install:
-- cinst pandoc 
+- cinst pandoc
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0-headers.7z' -OutFile 'headers.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_Dev.7z' -OutFile 'dev.7z'
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_ReleaseDLL.7z' -OutFile 'dll.7z'
@@ -14,26 +14,10 @@ install:
 - ps: 7z x dll.7z -oc:\wxWidgets-3.1.0
 - ps: 7z x pdb.7z -oc:\wxWidgets-3.1.0
 build_script:
-- ps: >-
-    $env:Path += ";c:\wxWidgets-3.1.0\lib\vc140_dll"
-
-    $env:WXWIN="c:\wxWidgets-3.1.0"
-
-    $env:Path += ";C:\Program Files (x86)\Pandoc"
-
-    mkdir cmakebuild
-
-    cd cmakebuild
-
-    cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
-
-    msbuild PACKAGE.vcxproj /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
-
-    if ($LastExitCode -ne 0) { throw "Building TrenchBroom failed" }
-
-    .\Release\TrenchBroom-Test.exe
+- cmd: call appveyor.bat
 artifacts:
 - path: cmakebuild\*.7z
+- path: cmakebuild\*.7z.md5
 deploy:
   description: 'release description'
   provider: GitHub

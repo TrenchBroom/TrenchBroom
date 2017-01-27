@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -646,6 +646,94 @@ namespace TrenchBroom {
             WorldReader reader(data, NULL);
             
             Model::World* world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+            
+            delete world;
+        }
+
+        TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"yay \\\"Mr. Robot!\\\"\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("yay \"Mr. Robot!\"", world->attribute("message").c_str());
+            
+            delete world;
+        }
+        
+        TEST(WorldReaderTest, parseAttributeWithUnescapedPathAndTrailingBackslash) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"path\" \"c:\\a\\b\\c\\\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
+            
+            delete world;
+        }
+        
+        TEST(WorldReaderTest, parseAttributeWithEscapedPathAndTrailingBackslash) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"path\" \"c:\\\\a\\\\b\\\\c\\\\\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
+            
+            delete world;
+        }
+        
+        TEST(WorldReaderTest, parseAttributeTrailingEscapedBackslash) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"test\\\\\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("test\\", world->attribute("message").c_str()); // The two backslashes are treated as one escaped backslash.
             
             delete world;
         }

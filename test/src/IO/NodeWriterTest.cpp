@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -372,6 +372,26 @@ namespace TrenchBroom {
                          result.c_str());
             
             delete brush;
+        }
+
+        
+        TEST(NodeWriterTest, writePropertiesWithQuotationMarks) {
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.addOrUpdateAttribute("message", "\"holy damn\", he said");
+            
+            StringStream str;
+            NodeWriter writer(&map, str);
+            writer.writeMap();
+            
+            const String result = str.str();
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
+                         "\"classname\" \"worldspawn\"\n"
+                         "\"message\" \"\\\"holy damn\\\", he said\"\n"
+                         "}\n", result.c_str());
         }
     }
 }

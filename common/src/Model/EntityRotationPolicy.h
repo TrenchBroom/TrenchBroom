@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -30,7 +30,8 @@ namespace TrenchBroom {
                 RotationType_None,
                 RotationType_Angle,
                 RotationType_AngleUpDown,
-                RotationType_Euler
+                RotationType_Euler,
+                RotationType_Mangle
             } RotationType;
 
             struct RotationInfo {
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             static RotationInfo rotationInfo(const Entity* entity);
             static void setAngle(Entity* entity, const AttributeName& attribute, const Vec3& direction);
             static FloatType getAngle(Vec3 direction);
+            static Vec3 getYawPitchRoll(const Mat4x4& transformation, const Mat4x4& rotation);
         };
     }
 }

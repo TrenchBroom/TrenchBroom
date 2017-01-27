@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
         
         void MapStreamSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
-            m_stream << "\"" << attribute.name() << "\" \"" << attribute.value() << "\"\n";
+            m_stream << "\"" << escapeEntityAttribute(attribute.name()) << "\" \"" << escapeEntityAttribute(attribute.value()) << "\"\n";
         }
         
         void MapStreamSerializer::doBeginBrush(const Model::Brush* brush) {

@@ -25,6 +25,9 @@ cd build
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
 ninja || exit 1
 cpack || exit 1
+
+./generate_checksum.sh
+
 ./TrenchBroom-Test || exit 1
 
 echo "Shared libraries used:"

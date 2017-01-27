@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -96,6 +96,13 @@ namespace TrenchBroom {
             const IssueType result = type;
             type = (type << 1);
             return result;
+        }
+
+        AttributeIssue::~AttributeIssue() {}
+
+        const AttributeValue& AttributeIssue::attributeValue() const {
+            const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+            return attributableNode->attribute(attributeName());
         }
     }
 }

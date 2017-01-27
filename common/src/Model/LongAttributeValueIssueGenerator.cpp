@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
+#include "Model/RemoveEntityAttributesQuickFix.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -32,55 +33,30 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class LongAttributeValueIssueGenerator::LongAttributeValueIssue : public Issue {
+        class LongAttributeValueIssueGenerator::LongAttributeValueIssue : public AttributeIssue {
         public:
             static const IssueType Type;
         private:
             const AttributeName m_attributeName;
         public:
             LongAttributeValueIssue(AttributableNode* node, const AttributeName& attributeName) :
-            Issue(node),
+            AttributeIssue(node),
             m_attributeName(attributeName) {}
             
-            const AttributeName& attributeName() const {
+            const AttributeName& attributeName() const override {
                 return m_attributeName;
             }
-            
-            const AttributeValue& attributeValue() const {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->attribute(m_attributeName);
-            }
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' is too long.";
             }
         };
         
         const IssueType LongAttributeValueIssueGenerator::LongAttributeValueIssue::Type = Issue::freeType();
-        
-        class LongAttributeValueIssueGenerator::RemoveLongAttributeValueIssueQuickFix : public IssueQuickFix {
-        private:
-        public:
-            RemoveLongAttributeValueIssueQuickFix() :
-            IssueQuickFix(LongAttributeValueIssue::Type, "Delete properties") {}
-        private:
-            void doApply(MapFacade* facade, const Issue* issue) const {
-                const PushSelection push(facade);
-                
-                const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                
-                // If world node is affected, the selection will fail, but if nothing is selected,
-                // the removeAttribute call will correctly affect worldspawn either way.
-                
-                facade->deselectAll();
-                facade->select(issue->node());
-                facade->removeAttribute(attrIssue->attributeName());
-            }
-        };
         
         class LongAttributeValueIssueGenerator::TruncateLongAttributeValueIssueQuickFix : public IssueQuickFix {
         private:
@@ -107,9 +83,9 @@ namespace TrenchBroom {
         };
         
         LongAttributeValueIssueGenerator::LongAttributeValueIssueGenerator(const size_t maxLength) :
-        IssueGenerator(LongAttributeValueIssue::Type, "Missing entity classname"),
+        IssueGenerator(LongAttributeValueIssue::Type, "Long entity property value"),
         m_maxLength(maxLength) {
-            addQuickFix(new RemoveLongAttributeValueIssueQuickFix());
+            addQuickFix(new RemoveEntityAttributesQuickFix(LongAttributeValueIssue::Type));
             addQuickFix(new TruncateLongAttributeValueIssueQuickFix(m_maxLength));
         }
         

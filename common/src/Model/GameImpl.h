@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -36,8 +36,6 @@ namespace TrenchBroom {
     namespace Model {
         class GameImpl : public Game {
         private:
-            typedef std::shared_ptr<IO::MapWriter> MapWriterPtr;
-            
             GameConfig& m_config;
             IO::Path m_gamePath;
             IO::Path::List m_additionalSearchPaths;
