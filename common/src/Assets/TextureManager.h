@@ -80,7 +80,6 @@ namespace TrenchBroom {
             void prepare();
 
             void updateTextures();
-            TextureList textureList() const;
         };
     }
 }
