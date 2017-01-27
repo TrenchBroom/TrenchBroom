@@ -47,8 +47,8 @@ namespace TrenchBroom {
             Notifier0 usageCountDidChange;
         public:
             TextureCollection();
-            TextureCollection(const TextureList& textures);
-            TextureCollection(const IO::Path& path);
+            explicit TextureCollection(const TextureList& textures);
+            explicit TextureCollection(const IO::Path& path);
             TextureCollection(const IO::Path& path, const TextureList& textures);
             virtual ~TextureCollection();
 
