@@ -1,5 +1,5 @@
 #/*
-Copyright (C) 2010-2016 Kristian Duske
+Copyright (C) 2010-2017 Kristian Duske
 
 This file is part of TrenchBroom.
 
