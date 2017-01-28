@@ -143,10 +143,10 @@ namespace TrenchBroom {
         }
         
         struct GroupRenderer::BuildColoredBoundsVertices {
-            VertexSpecs::P3C4::Vertex::List& vertices;
+            VertexSpecs::P3C4::Vertex::Array& vertices;
             Color color;
             
-            BuildColoredBoundsVertices(VertexSpecs::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredBoundsVertices(VertexSpecs::P3C4::Vertex::Array& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
             
@@ -157,9 +157,9 @@ namespace TrenchBroom {
         };
         
         struct GroupRenderer::BuildBoundsVertices {
-            VertexSpecs::P3::Vertex::List& vertices;
+            VertexSpecs::P3::Vertex::Array& vertices;
             
-            BuildBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
+            BuildBoundsVertices(VertexSpecs::P3::Vertex::Array& i_vertices) :
             vertices(i_vertices) {}
             
             void operator()(const Vec3& v1, const Vec3& v2) {
@@ -170,7 +170,7 @@ namespace TrenchBroom {
         
         void GroupRenderer::validateBounds() {
             if (m_overrideBoundsColor) {
-                VertexSpecs::P3::Vertex::List vertices;
+                VertexSpecs::P3::Vertex::Array vertices;
                 vertices.reserve(24 * m_groups.size());
                 
                 BuildBoundsVertices boundsBuilder(vertices);
@@ -182,7 +182,7 @@ namespace TrenchBroom {
                 
                 m_boundsRenderer = DirectEdgeRenderer(VertexArray::swap(vertices), GL_LINES);
             } else {
-                VertexSpecs::P3C4::Vertex::List vertices;
+                VertexSpecs::P3C4::Vertex::Array vertices;
                 vertices.reserve(24 * m_groups.size());
                 
                 for (const Model::Group* group : m_groups) {
