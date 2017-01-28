@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class IndexRangeMapBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
+            typedef typename Vertex::Array VertexArray;
             typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
         private:
             VertexListBuilder<VertexSpec> m_vertexListBuilder;
@@ -41,11 +41,11 @@ namespace TrenchBroom {
             m_vertexListBuilder(vertexCount),
             m_indexRange(indexRangeSize) {}
             
-            const VertexList& vertices() const {
+            const VertexArray& vertices() const {
                 return m_vertexListBuilder.vertices();
             }
             
-            VertexList& vertices() {
+            VertexArray& vertices() {
                 return m_vertexListBuilder.vertices();
             }
             
@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 add(GL_POINTS, m_vertexListBuilder.addPoint(v));
             }
             
-            void addPoints(const VertexList& vertices) {
+            void addPoints(const VertexArray& vertices) {
                 add(GL_POINTS, m_vertexListBuilder.addPoints(vertices));
             }
             
@@ -69,15 +69,15 @@ namespace TrenchBroom {
                 add(GL_LINES, m_vertexListBuilder.addLine(v1, v2));
             }
             
-            void addLines(const VertexList& vertices) {
+            void addLines(const VertexArray& vertices) {
                 add(GL_LINES, m_vertexListBuilder.addLines(vertices));
             }
             
-            void addLineStrip(const VertexList& vertices) {
+            void addLineStrip(const VertexArray& vertices) {
                 add(GL_LINE_STRIP, m_vertexListBuilder.addLineStrip(vertices));
             }
             
-            void addLineLoop(const VertexList& vertices) {
+            void addLineLoop(const VertexArray& vertices) {
                 add(GL_LINE_LOOP, m_vertexListBuilder.addLineLoop(vertices));
             }
             
@@ -85,15 +85,15 @@ namespace TrenchBroom {
                 add(GL_TRIANGLES, m_vertexListBuilder.addTriangle(v1, v2, v3));
             }
             
-            void addTriangles(const VertexList& vertices) {
+            void addTriangles(const VertexArray& vertices) {
                 add(GL_TRIANGLES, m_vertexListBuilder.addTriangles(vertices));
             }
             
-            void addTriangleFan(const VertexList& vertices) {
+            void addTriangleFan(const VertexArray& vertices) {
                 add(GL_TRIANGLE_FAN, m_vertexListBuilder.addTriangleFan(vertices));
             }
             
-            void addTriangleStrip(const VertexList& vertices) {
+            void addTriangleStrip(const VertexArray& vertices) {
                 add(GL_TRIANGLE_STRIP, m_vertexListBuilder.addTriangleStrip(vertices));
             }
             
@@ -101,15 +101,15 @@ namespace TrenchBroom {
                 add(GL_QUADS, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
             }
             
-            void addQuads(const VertexList& vertices) {
+            void addQuads(const VertexArray& vertices) {
                 add(GL_QUADS, m_vertexListBuilder.addQuads(vertices));
             }
             
-            void addQuadStrip(const VertexList& vertices) {
+            void addQuadStrip(const VertexArray& vertices) {
                 add(GL_QUAD_STRIP, m_vertexListBuilder.addQuadStrip(vertices));
             }
             
-            void addPolygon(const VertexList& vertices) {
+            void addPolygon(const VertexArray& vertices) {
                 add(GL_POLYGON, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
