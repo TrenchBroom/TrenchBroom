@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds);
         private:
-            static Vertex::List vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
+            static Vertex::Array vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
             
             void doPrepareVertices(Vbo& vertexVbo);
             void doRender(RenderContext& renderContext);
