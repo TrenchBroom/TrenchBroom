@@ -252,6 +252,10 @@ namespace StringUtils {
 		if (*patCur == '?' && strCur == strEnd)
 			return false;
 
+		// If the pattern is not consumed, and the current char is not a wildcard, and the pattern is not consumed.
+		if (strCur == strEnd)
+			return false;
+
         // If the pattern contains '?', or current characters of both strings match
         if (*patCur == '?' || eq(*patCur, *strCur))
             return matchesPattern(strCur + 1, strEnd, patCur + 1, patEnd, eq);
