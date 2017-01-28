@@ -35,7 +35,7 @@ namespace TrenchBroom {
             
             bool m_allowDynamicGrowth;
             size_t m_primStart;
-            typename T::Vertex::List m_vertices;
+            typename T::Vertex::Array m_vertices;
             IndexRangeArray m_indices;
             CountArray m_counts;
         public:
@@ -66,12 +66,12 @@ namespace TrenchBroom {
                 m_vertices.push_back(vertex);
             }
             
-            void addVertices(const typename T::Vertex::List& vertices) {
+            void addVertices(const typename T::Vertex::Array& vertices) {
                 assert(m_allowDynamicGrowth || vertices.size() <= m_vertices.capacity() - m_vertices.size());
                 VectorUtils::append(m_vertices, vertices);
             }
             
-            void addPrimitive(const typename T::Vertex::List& vertices) {
+            void addPrimitive(const typename T::Vertex::Array& vertices) {
                 addVertices(vertices);
                 endPrimitive();
             }
@@ -126,11 +126,11 @@ namespace TrenchBroom {
                 return m_counts;
             }
             
-            typename T::Vertex::List& vertices() {
+            typename T::Vertex::Array& vertices() {
                 return m_vertices;
             }
             
-            const typename T::Vertex::List& vertices() const {
+            const typename T::Vertex::Array& vertices() const {
                 return m_vertices;
             }
             
