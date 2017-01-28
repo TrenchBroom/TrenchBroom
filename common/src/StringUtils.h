@@ -52,7 +52,7 @@ namespace StringUtils {
     private:
         std::locale m_locale;
     public:
-        CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
+        explicit CaseInsensitiveCharCompare(std::locale loc = std::locale::classic()) :
         m_locale(loc) {}
         
         int operator()(const char& lhs, const char& rhs) const {
@@ -161,6 +161,26 @@ namespace StringUtils {
         }
         return true;
     }
+
+    template <typename Cmp>
+    int compare(const String& str1, const String& str2, const Cmp& cmp) {
+        const size_t len = std::min(str1.length(), str2.length());
+        for (size_t i = 0; i < len; ++i) {
+            const int res = cmp(str1[i], str2[i]);
+            if (res < 0)
+                return -1;
+            if (res > 0)
+                return +1;
+        }
+        if (str1.length() < str2.length())
+            return -1;
+        if (str1.length() > str2.length())
+            return +1;
+        return 0;
+    }
+    
+    int caseSensitiveCompare(const String& str1, const String& str2);
+    int caseInsensitiveCompare(const String& str1, const String& str2);
     
     bool caseSensitiveEqual(const String& str1, const String& str2);
     bool caseSensitiveEqual(const char* s1, const char* e1, const String& str2);
@@ -382,52 +402,6 @@ namespace StringUtils {
 
     StringList makeList(size_t count, const char* str1, ...);
     StringSet makeSet(size_t count, const char* str1, ...);
-    
-    template <typename Cmp>
-    class SimpleStringMatcher {
-    private:
-        typedef enum {
-            Mode_Exact,
-            Mode_Prefix,
-            Mode_Suffix
-        } Mode;
-        
-        Mode m_mode;
-        String m_pattern;
-    public:
-        SimpleStringMatcher(const String& pattern) {
-            assert(!pattern.empty());
-            if (pattern[0] == '*') {
-                m_mode = Mode_Suffix;
-                m_pattern = pattern.substr(1);
-            } else if (pattern.size() > 1 &&
-                       pattern[pattern.size() - 1] == '*' &&
-                       pattern[pattern.size() - 2] != '\\') {
-                m_mode = Mode_Prefix;
-                m_pattern = pattern.substr(0, pattern.size() - 1);
-            } else {
-                m_mode = Mode_Exact;
-                m_pattern = pattern;
-            }
-            m_pattern = StringUtils::replaceAll(m_pattern, "\\*", "*");
-            assert(!m_pattern.empty());
-        }
-        
-        bool matches(const String& str) const {
-            switch (m_mode) {
-                case Mode_Exact:
-                    return isEqual(str, m_pattern, Cmp());
-                case Mode_Prefix:
-                    return isPrefix(str, m_pattern, Cmp());
-                case Mode_Suffix:
-                    return isSuffix(str, m_pattern, Cmp());
-                switchDefault()
-            }
-        }
-    };
-    
-    typedef SimpleStringMatcher<CaseSensitiveCharCompare> CaseSensitiveStringMatcher;
-    typedef SimpleStringMatcher<CaseInsensitiveCharCompare> CaseInsensitiveStringMatcher;
 }
 
 #endif

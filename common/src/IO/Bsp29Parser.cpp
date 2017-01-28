@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 textures.push_back(texture);
             }
             
-            return new Assets::TextureCollection(m_name, textures);
+            return new Assets::TextureCollection(IO::Path(m_name), textures);
         }
         
         Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos() {

@@ -46,17 +46,20 @@ namespace TrenchBroom {
         
         class TextureNameEvaluator : public BrushFaceEvaluator {
         private:
-            StringUtils::CaseSensitiveStringMatcher m_matcher;
+            String m_pattern;
         public:
             TextureNameEvaluator(const String& pattern) :
-            m_matcher(pattern) {}
+            m_pattern(pattern) {}
         private:
             bool doEvaluate(const BrushFace* face) const {
                 const String& textureName = face->textureName();
+                String::const_iterator begin = std::begin(textureName);
+
                 const size_t pos = textureName.find_last_of('/');
-                if (pos == String::npos)
-                    return m_matcher.matches(textureName);
-                return m_matcher.matches(textureName.substr(pos + 1));
+                if (pos != String::npos)
+                    std::advance(begin, long(pos));
+                
+                return StringUtils::matchesPattern(begin, std::end(textureName), std::begin(m_pattern), std::end(m_pattern), StringUtils::CaseInsensitiveCharCompare());
             }
         };
         
@@ -74,17 +77,17 @@ namespace TrenchBroom {
         
         class EntityClassnameEvaluator : public BrushContentTypeEvaluator {
         private:
-            StringUtils::CaseSensitiveStringMatcher m_matcher;
+            String m_pattern;
         public:
             EntityClassnameEvaluator(const String& pattern) :
-            m_matcher(pattern) {}
+            m_pattern(pattern) {}
         private:
             bool doEvaluate(const Brush* brush) const {
                 const AttributableNode* entity = brush->entity();
                 if (entity == NULL)
                     return false;
                 
-                return m_matcher.matches(entity->classname());
+                return StringUtils::caseInsensitiveMatchesPattern(entity->classname(), m_pattern);
             }
         };
         

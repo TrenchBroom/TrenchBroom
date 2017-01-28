@@ -383,12 +383,6 @@ namespace TrenchBroom {
                 advance(str.size());
                 return curPos();
             }
-
-            void error(const char c) const {
-                ParserException e;
-                e << "Unexpected character '" << c << "'";
-                throw e;
-            }
             
             void errorIfEof() const {
                 m_state->errorIfEof();

@@ -53,6 +53,8 @@ namespace TrenchBroom {
         Lines m_lines;
     public:
         AttrString();
+        
+        // cppcheck-suppress noExplicitConstructor
         AttrString(const String& string);
         
         bool operator<(const AttrString& other) const;

@@ -51,7 +51,7 @@ namespace TrenchBroom {
         public:
             ModelDefinition();
             ModelDefinition(size_t line, size_t column);
-            ModelDefinition(const EL::Expression& expression);
+            explicit ModelDefinition(const EL::Expression& expression);
             
             void append(const ModelDefinition& other);
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             ModelSpecification defaultModelSpecification() const;
         private:
             ModelSpecification convertToModel(const EL::Value& value) const;
-            String path(const EL::Value& value) const;
+            IO::Path path(const EL::Value& value) const;
             size_t index(const EL::Value& value) const;
         };
     }

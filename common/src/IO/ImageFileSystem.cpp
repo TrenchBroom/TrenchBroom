@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
         void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
             ensure(file != NULL, "file is null");
-            const String filename = path.lastComponent().asString();
+            const Path filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
                 MapUtils::insertOrReplaceAndDelete(m_files, filename, file);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         bool ImageFileSystem::Directory::directoryExists(const Path& path) const {
             if (path.isEmpty())
                 return true;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
+            DirMap::const_iterator it = m_directories.find(path.firstComponent());
             if (it == std::end(m_directories))
                 return false;
             return it->second->directoryExists(path.deleteFirstComponent());
@@ -75,8 +75,8 @@ namespace TrenchBroom {
         
         bool ImageFileSystem::Directory::fileExists(const Path& path) const {
             if (path.length() == 1)
-                return m_files.count(path.asString()) > 0;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
+                return m_files.count(path) > 0;
+            DirMap::const_iterator it = m_directories.find(path.firstComponent());
             if (it == std::end(m_directories))
                 return false;
             return it->second->fileExists(path.deleteFirstComponent());
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         const ImageFileSystem::Directory& ImageFileSystem::Directory::findDirectory(const Path& path) const {
             if (path.isEmpty())
                 return *this;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent().asString());
+            DirMap::const_iterator it = m_directories.find(path.firstComponent());
             if (it == std::end(m_directories))
                 throw new FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
             return it->second->findDirectory(path.deleteFirstComponent());
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         const MappedFile::Ptr ImageFileSystem::Directory::findFile(const Path& path) const {
             assert(!path.isEmpty());
             
-            const String name = path.firstComponent().asString();
+            const Path name = path.firstComponent();
             if (path.length() == 1) {
                 FileMap::const_iterator it = m_files.find(name);
                 if (it == std::end(m_files))
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         ImageFileSystem::Directory& ImageFileSystem::Directory::findOrCreateDirectory(const Path& path) {
             if (path.isEmpty())
                 return *this;
-            const String name = path.firstComponent().asString();
+            const Path name = path.firstComponent();
             DirMap::iterator it = m_directories.lower_bound(name);
             if (it == std::end(m_directories) || name != it->first)
                 it = m_directories.insert(it, std::make_pair(name, new Directory(m_path + Path(name))));

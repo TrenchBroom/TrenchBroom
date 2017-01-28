@@ -1242,7 +1242,7 @@ namespace TrenchBroom {
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
-            setPath(DefaultDocumentName);
+            setPath(IO::Path(DefaultDocumentName));
         }
         
         void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {

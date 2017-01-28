@@ -346,7 +346,7 @@ namespace TrenchBroom {
             return Path(m_absolute, lcComponents);
         }
 
-        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const String& relativePath) {
+        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const Path& relativePath) {
             List result;
             result.reserve(paths.size());
             std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),

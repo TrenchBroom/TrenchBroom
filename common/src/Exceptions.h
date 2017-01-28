@@ -31,7 +31,7 @@ namespace TrenchBroom {
         std::string m_msg;
     public:
         Exception() noexcept {}
-        Exception(const std::string& str) noexcept : m_msg(str) {}
+        explicit Exception(const std::string& str) noexcept : m_msg(str) {}
 
         const char* what() const noexcept {
             return m_msg.c_str();
@@ -41,8 +41,7 @@ namespace TrenchBroom {
     template <class C>
     class ExceptionStream : public Exception {
     public:
-        ExceptionStream() noexcept {}
-        ExceptionStream(const std::string& str) noexcept : Exception(str) {}
+        using Exception::Exception;
         
         template <typename T>
         C& operator<< (T value) {
@@ -55,20 +54,17 @@ namespace TrenchBroom {
     
     class GeometryException : public ExceptionStream<GeometryException> {
     public:
-        GeometryException() noexcept {}
-        GeometryException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class EntityAttributeException : public ExceptionStream<EntityAttributeException> {
     public:
-        EntityAttributeException() noexcept {}
-        EntityAttributeException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
 
     class ParserException : public ExceptionStream<ParserException> {
     public:
-        ParserException() noexcept {}
-        ParserException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
         ParserException(const size_t line, const size_t column, const std::string& str = "") noexcept : ExceptionStream() {
             if (!str.empty())
                 *this << str << " ";
@@ -78,70 +74,59 @@ namespace TrenchBroom {
             
     class VboException : public ExceptionStream<VboException> {
     public:
-        VboException() noexcept {}
-        VboException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class PathException : public ExceptionStream<PathException> {
     public:
-        PathException() noexcept {}
-        PathException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class FileSystemException : public ExceptionStream<FileSystemException> {
     public:
-        FileSystemException() noexcept {}
-        FileSystemException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
         FileSystemException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
     };
             
     class FileNotFoundException : public ExceptionStream<FileNotFoundException> {
     public:
-        FileNotFoundException() noexcept {}
-        FileNotFoundException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
         FileNotFoundException(const std::string& str, const PathException& e) noexcept : ExceptionStream(str + " (" + e.what() + ")") {}
     };
     
     class AssetException : public ExceptionStream<AssetException> {
     public:
-        AssetException() noexcept {}
-        AssetException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
         
     class CommandProcessorException : public ExceptionStream<CommandProcessorException> {
     public:
-        CommandProcessorException() noexcept {}
-        CommandProcessorException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
 
     class RenderException : public ExceptionStream<RenderException> {
     public:
-        RenderException() noexcept {}
-        RenderException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class OctreeException : public ExceptionStream<OctreeException> {
     public:
-        OctreeException() noexcept {}
-        OctreeException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class GameException : public ExceptionStream<GameException> {
     public:
-        GameException() noexcept {}
-        GameException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class ResourceNotFoundException : public ExceptionStream<ResourceNotFoundException> {
     public:
-        ResourceNotFoundException() noexcept {}
-        ResourceNotFoundException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
             
     class FileFormatException : public ExceptionStream<FileFormatException> {
     public:
-        FileFormatException() noexcept {}
-        FileFormatException(const std::string& str) noexcept : ExceptionStream(str) {}
+        using ExceptionStream::ExceptionStream;
     };
 }
 
