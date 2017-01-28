@@ -213,13 +213,13 @@ namespace TrenchBroom {
                 return;
             
             static const float maxDistance2 = 500.0f * 500.0f;
-            const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
+            const Vec3f::Array arrow = arrowHead(9.0f, 6.0f);
             
             RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjectsTransparent();
             renderService.setForegroundColor(m_angleColor);
             
-            Vec3f::List vertices(3);
+            Vec3f::Array vertices(3);
             for (const Model::Entity* entity : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
@@ -248,9 +248,9 @@ namespace TrenchBroom {
             }
         }
 
-        Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
+        Vec3f::Array EntityRenderer::arrowHead(const float length, const float width) const {
             // clockwise winding
-            Vec3f::List result(3);
+            Vec3f::Array result(3);
             result[0] = Vec3f(0.0f,    width / 2.0f, 0.0f);
             result[1] = Vec3f(length,          0.0f, 0.0f);
             result[2] = Vec3f(0.0f,   -width / 2.0f, 0.0f);
@@ -258,10 +258,10 @@ namespace TrenchBroom {
         }
 
         struct EntityRenderer::BuildColoredSolidBoundsVertices {
-            VertexSpecs::P3NC4::Vertex::List& vertices;
+            VertexSpecs::P3NC4::Vertex::Array& vertices;
             Color color;
             
-            BuildColoredSolidBoundsVertices(VertexSpecs::P3NC4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredSolidBoundsVertices(VertexSpecs::P3NC4::Vertex::Array& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
             
@@ -274,10 +274,10 @@ namespace TrenchBroom {
         };
 
         struct EntityRenderer::BuildColoredWireframeBoundsVertices {
-            VertexSpecs::P3C4::Vertex::List& vertices;
+            VertexSpecs::P3C4::Vertex::Array& vertices;
             Color color;
             
-            BuildColoredWireframeBoundsVertices(VertexSpecs::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredWireframeBoundsVertices(VertexSpecs::P3C4::Vertex::Array& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
             
@@ -288,9 +288,9 @@ namespace TrenchBroom {
         };
         
         struct EntityRenderer::BuildWireframeBoundsVertices {
-            VertexSpecs::P3::Vertex::List& vertices;
+            VertexSpecs::P3::Vertex::Array& vertices;
             
-            BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
+            BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::Array& i_vertices) :
             vertices(i_vertices) {}
             
             void operator()(const Vec3& v1, const Vec3& v2) {
@@ -304,11 +304,11 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::validateBounds() {
-            VertexSpecs::P3NC4::Vertex::List solidVertices;
+            VertexSpecs::P3NC4::Vertex::Array solidVertices;
             solidVertices.reserve(36 * m_entities.size());
             
             if (m_overrideBoundsColor) {
-                VertexSpecs::P3::Vertex::List wireframeVertices;
+                VertexSpecs::P3::Vertex::Array wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
 
                 BuildWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
                 
                 m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
             } else {
-                VertexSpecs::P3C4::Vertex::List wireframeVertices;
+                VertexSpecs::P3C4::Vertex::Array wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
 
                 for (const Model::Entity* entity : m_entities) {
