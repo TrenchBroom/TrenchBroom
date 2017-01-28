@@ -31,8 +31,8 @@ namespace TrenchBroom {
         GridRenderer::GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds) :
         m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
 
-        GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const BBox3& worldBounds) {
-            Vertex::List result(4);
+        GridRenderer::Vertex::Array GridRenderer::vertices(const OrthographicCamera& camera, const BBox3& worldBounds) {
+            Vertex::Array result(4);
             
             const Camera::Viewport& viewport = camera.zoomedViewport();
             const float w = float(viewport.width) / 2.0f;
