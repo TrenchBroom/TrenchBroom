@@ -460,7 +460,14 @@ public: // Clipping
         bool success() const;
     };
 
+    /**
+     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     */
     ClipResult clip(const Plane<T,3>& plane);
+    
+    /**
+     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     */
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
 public: // Subtraction
     typedef std::list<Polyhedron> SubtractResult;
@@ -477,6 +484,9 @@ public: // Intersection
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
 
+    /**
+     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     */
     Seam intersectWithPlane(const Plane<T,3>& plane, Callback& callback);
     HalfEdge* findInitialIntersectingEdge(const Plane<T,3>& plane) const;
     HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback);

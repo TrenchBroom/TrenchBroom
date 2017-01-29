@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Clip_h
 #define TrenchBroom_Polyhedron_Clip_h
 
+#include "Exceptions.h"
+
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::ClipResult::ClipResult(const Type i_type) :
 type(i_type) {}
@@ -126,6 +128,10 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
         // edge belongs to the faces that we are going to clip away.
         Edge* seamEdge = currentEdge->edge();
         seamEdge->makeSecondEdge(currentEdge);
+        
+        if (!seam.empty() && seamEdge == seam.last())
+            throw GeometryException("Unable to compute a seam when intersecting polyhedron with plane");
+        
         seam.push_back(seamEdge);
         
     } while (currentEdge->destination() != stopVertex);
