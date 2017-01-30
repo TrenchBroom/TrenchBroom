@@ -191,13 +191,19 @@ private:
         return result;
     }
     
+    /**
+     Returns a set containing all vertices to be excluded from being moved. This includes the positions of all vertices of the minuend and the subtrahend.
+     */
     PositionSet findExcludedVertices() const {
         PositionSet result(VertexCmp(0.1));
-        SetUtils::makeSet(V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition()), result);
-        SetUtils::makeSet(V::asList(m_minuend.vertices().begin(), m_minuend.vertices().end(), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asList(std::begin(m_subtrahend.vertices()), std::end(m_subtrahend.vertices()), GetVertexPosition()), result);
+        SetUtils::makeSet(V::asList(std::begin(m_minuend.vertices()),    std::end(m_minuend.vertices()),    GetVertexPosition()), result);
         return result;
     }
     
+    /**
+     Finds all vertices of the given fragment that should be moved to a new position. Vertices having their position in the given exclude set are ignored.
+     */
     void findMoveableVertices(const Polyhedron& fragment, const PositionSet& exclude, MoveableVertices& result) const {
         const Vertex* firstVertex = fragment.vertices().front();
         const Vertex* currentVertex = firstVertex;
@@ -209,6 +215,9 @@ private:
         } while (currentVertex != firstVertex);
     }
     
+    /**
+     Returns a set of sets where each set contains the vertices of one fragment.
+     */
     FragmentVertexSet findFragmentVertices() const {
         FragmentVertexSet result;
         
