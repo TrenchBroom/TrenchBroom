@@ -31,7 +31,7 @@ namespace TrenchBroom {
             OrthographicCamera();
             OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
             
-            Vec3::List viewportVertices() const;
+            Vec3::Array viewportVertices() const;
         private:
             ProjectionType doGetProjectionType() const;
 
