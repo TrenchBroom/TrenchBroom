@@ -46,13 +46,13 @@ namespace TrenchBroom {
             static const float RectCornerRadius;
             
             struct Entry {
-                Vec2f::List vertices;
+                Vec2f::Array vertices;
                 Vec2f size;
                 Vec3f offset;
                 Color textColor;
                 Color backgroundColor;
 
-                Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
+                Entry(Vec2f::Array& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
             typedef std::vector<Entry> EntryArray;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             void doPrepareVertices(Vbo& vertexVbo);
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
             
-            void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);
+            void addEntry(const Entry& entry, bool onTop, TextVertex::Array& textVertices, RectVertex::Array& rectVertices);
             
             void doRender(RenderContext& renderContext);
             void render(EntryCollection& collection, RenderContext& renderContext);
