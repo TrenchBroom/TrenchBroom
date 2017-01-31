@@ -44,8 +44,8 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3C4::Vertex SpikeVertex;
             typedef VertexSpecs::P3C4::Vertex PointVertex;
             
-            SpikeVertex::List m_spikeVertices;
-            PointVertex::List m_pointVertices;
+            SpikeVertex::Array m_spikeVertices;
+            PointVertex::Array m_pointVertices;
             
             VertexArray m_spikeArray;
             VertexArray m_pointArray;
