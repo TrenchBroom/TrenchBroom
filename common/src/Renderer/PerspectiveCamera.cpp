@@ -86,8 +86,8 @@ namespace TrenchBroom {
         
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
             typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List triangleVertices(6);
-            Vertex::List lineVertices(8 * 2);
+            Vertex::Array triangleVertices(6);
+            Vertex::Array lineVertices(8 * 2);
             
             Vec3f verts[4];
             getFrustumVertices(size, verts);
