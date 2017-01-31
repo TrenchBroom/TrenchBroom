@@ -112,12 +112,12 @@ namespace TrenchBroom {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLine(Vertex(start), Vertex(end));
         }
         
-        void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(Vertex::fromLists(positions, positions.size()));
+        void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions) {
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(Vertex::fromArrays(positions, positions.size()));
         }
 
-        void PrimitiveRenderer::renderLineStrip(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::fromLists(positions, positions.size()));
+        void PrimitiveRenderer::renderLineStrip(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions) {
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::fromArrays(positions, positions.size()));
         }
 
         void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const OcclusionPolicy occlusionPolicy, const BBox3f& bounds) {
@@ -163,12 +163,12 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::fromLists(positions, positions.size()));
+        void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions) {
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::fromArrays(positions, positions.size()));
         }
 
-        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromLists(positions, positions.size()));
+        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions) {
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromArrays(positions, positions.size()));
         }
 
         void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {
