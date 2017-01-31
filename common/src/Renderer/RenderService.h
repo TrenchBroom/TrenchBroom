@@ -69,17 +69,17 @@ namespace TrenchBroom {
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
             
-            void renderPointHandles(const Vec3f::List& positions);
+            void renderPointHandles(const Vec3f::Array& positions);
             void renderPointHandle(const Vec3f& position);
             void renderPointHandleHighlight(const Vec3f& position);
             
             void renderLine(const Vec3f& start, const Vec3f& end);
-            void renderLines(const Vec3f::List& positions);
-            void renderLineStrip(const Vec3f::List& positions);
+            void renderLines(const Vec3f::Array& positions);
+            void renderLineStrip(const Vec3f::Array& positions);
             void renderCoordinateSystem(const BBox3f& bounds);
             
-            void renderPolygonOutline(const Vec3f::List& positions);
-            void renderFilledPolygon(const Vec3f::List& positions);
+            void renderPolygonOutline(const Vec3f::Array& positions);
+            void renderFilledPolygon(const Vec3f::Array& positions);
             
             void renderBounds(const BBox3f& bounds);
             
