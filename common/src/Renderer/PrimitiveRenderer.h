@@ -84,16 +84,16 @@ namespace TrenchBroom {
             TriangleMeshRendererMap m_triangleMeshRenderers;
         public:
             void renderLine(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end);
-            void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
-            void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions);
+            void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions);
             
             void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             
-            void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
-            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions);
+            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, const Vec3f::Array& positions);
         private:
             void doPrepareVertices(Vbo& vertexVbo);
             void prepareLines(Vbo& vertexVbo);
