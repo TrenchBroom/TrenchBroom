@@ -69,12 +69,12 @@ namespace TrenchBroom {
         class MeasureLines : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
-            Vec2f::List m_sizes;
+            Vec2f::Array m_sizes;
         public:
             MeasureLines(TextureFont& font) :
             m_font(font) {}
             
-            const Vec2f::List& sizes() const {
+            const Vec2f::Array& sizes() const {
                 return m_sizes;
             }
         private:
@@ -102,14 +102,14 @@ namespace TrenchBroom {
             bool m_clockwise;
             Vec2f m_offset;
             
-            const Vec2f::List& m_sizes;
+            const Vec2f::Array& m_sizes;
             Vec2f m_maxSize;
             
             size_t m_index;
             float m_y;
-            Vec2f::List m_vertices;
+            Vec2f::Array m_vertices;
         public:
-            MakeQuads(TextureFont& font, const bool clockwise, const Vec2f& offset, const Vec2f::List& sizes) :
+            MakeQuads(TextureFont& font, const bool clockwise, const Vec2f& offset, const Vec2f::Array& sizes) :
             m_font(font),
             m_clockwise(clockwise),
             m_offset(offset),
@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 m_y -= m_sizes.back().y();
             }
             
-            const Vec2f::List& vertices() const {
+            const Vec2f::Array& vertices() const {
                 return m_vertices;
             }
         private:
@@ -150,10 +150,10 @@ namespace TrenchBroom {
             }
         };
         
-        Vec2f::List TextureFont::quads(const AttrString& string, const bool clockwise, const Vec2f& offset) {
+        Vec2f::Array TextureFont::quads(const AttrString& string, const bool clockwise, const Vec2f& offset) {
             MeasureLines measureLines(*this);
             string.lines(measureLines);
-            const Vec2f::List& sizes = measureLines.sizes();
+            const Vec2f::Array& sizes = measureLines.sizes();
             
             MakeQuads makeQuads(*this, clockwise, offset, sizes);
             string.lines(makeQuads);
@@ -166,8 +166,8 @@ namespace TrenchBroom {
             return measureString.size();
         }
 
-        Vec2f::List TextureFont::quads(const String& string, const bool clockwise, const Vec2f& offset) {
-            Vec2f::List result;
+        Vec2f::Array TextureFont::quads(const String& string, const bool clockwise, const Vec2f& offset) {
+            Vec2f::Array result;
             result.reserve(string.length() * 4 * 2);
             
             int x = static_cast<int>(Math::round(offset.x()));
