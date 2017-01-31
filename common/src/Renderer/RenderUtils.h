@@ -55,23 +55,23 @@ namespace TrenchBroom {
             void after(const Assets::Texture* texture);
         };
 
-        Vec2f::List circle2D(float radius, size_t segments);
-        Vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
-        Vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);
+        Vec2f::Array circle2D(float radius, size_t segments);
+        Vec2f::Array circle2D(float radius, float startAngle, float angleLength, size_t segments);
+        Vec3f::Array circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);
         std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
-        Vec2f::List roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments);
-        Vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
+        Vec2f::Array roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments);
+        Vec2f::Array roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
         
         struct VertsAndNormals {
-            Vec3f::List vertices;
-            Vec3f::List normals;
+            Vec3f::Array vertices;
+            Vec3f::Array normals;
             
             VertsAndNormals(size_t vertexCount);
         };
         
-        Vec3f::List sphere3D(float radius, size_t iterations);
+        Vec3f::Array sphere3D(float radius, size_t iterations);
         VertsAndNormals circle3D(float radius, size_t segments);
         VertsAndNormals cylinder3D(float radius, float length, size_t segments);
         VertsAndNormals cone3D(float radius, float length, size_t segments);
