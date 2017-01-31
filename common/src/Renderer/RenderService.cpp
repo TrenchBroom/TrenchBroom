@@ -109,7 +109,7 @@ namespace TrenchBroom {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
         }
 
-        void RenderService::renderPointHandles(const Vec3f::List& positions) {
+        void RenderService::renderPointHandles(const Vec3f::Array& positions) {
             for (const Vec3f& position : positions)
                 renderPointHandle(position);
         }
@@ -126,11 +126,11 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, start, end);
         }
         
-        void RenderService::renderLines(const Vec3f::List& positions) {
+        void RenderService::renderLines(const Vec3f::Array& positions) {
             m_primitiveRenderer->renderLines(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
-        void RenderService::renderLineStrip(const Vec3f::List& positions) {
+        void RenderService::renderLineStrip(const Vec3f::Array& positions) {
             m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
@@ -158,11 +158,11 @@ namespace TrenchBroom {
             }
         }
         
-        void RenderService::renderPolygonOutline(const Vec3f::List& positions) {
+        void RenderService::renderPolygonOutline(const Vec3f::Array& positions) {
             m_primitiveRenderer->renderPolygon(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
-        void RenderService::renderFilledPolygon(const Vec3f::List& positions) {
+        void RenderService::renderFilledPolygon(const Vec3f::Array& positions) {
             m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
         }
 
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             const Vec3f p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
             const Vec3f p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
             
-            Vec3f::List positions;
+            Vec3f::Array positions;
             positions.reserve(12 * 2);
             positions.push_back(p1); positions.push_back(p2);
             positions.push_back(p1); positions.push_back(p3);
@@ -200,7 +200,7 @@ namespace TrenchBroom {
         }
         
         void RenderService::renderCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
+            const Vec3f::Array positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
         
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         }
         
         void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
+            const Vec3f::Array positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
         }
         
