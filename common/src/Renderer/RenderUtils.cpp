@@ -66,19 +66,19 @@ namespace TrenchBroom {
                 texture->deactivate();
         }
 
-        Vec2f::List circle2D(const float radius, const size_t segments) {
-            Vec2f::List vertices = circle2D(radius, 0.0f, Math::Cf::twoPi(), segments);
+        Vec2f::Array circle2D(const float radius, const size_t segments) {
+            Vec2f::Array vertices = circle2D(radius, 0.0f, Math::Cf::twoPi(), segments);
             vertices.push_back(Vec2f::Null);
             return vertices;
         }
 
-        Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
+        Vec2f::Array circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
-                return Vec2f::List();
+                return Vec2f::Array();
             
-            Vec2f::List vertices(segments + 1);
+            Vec2f::Array vertices(segments + 1);
             
             const float d = angleLength / segments;
             float a = startAngle;
@@ -91,13 +91,13 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        Vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
+        Vec3f::Array circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
-                return Vec3f::List();
+                return Vec3f::Array();
             
-            Vec3f::List vertices(segments + 1);
+            Vec3f::Array vertices(segments + 1);
             
             size_t x,y,z;
             switch (axis) {
@@ -153,16 +153,16 @@ namespace TrenchBroom {
             return 4 * (3 * cornerSegments + 3);
         }
 
-        Vec2f::List roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments) {
+        Vec2f::Array roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments) {
             return roundedRect2D(size.x(), size.y(), cornerRadius, cornerSegments);
         }
         
-        Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
+        Vec2f::Array roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
-            Vec2f::List vertices;
+            Vec2f::Array vertices;
             vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
             
@@ -285,9 +285,9 @@ namespace TrenchBroom {
             };
             
             typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
-            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
+            size_t midPoint(Vec3f::Array& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
             
-            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
+            size_t midPoint(Vec3f::Array& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
                 if (it == std::end(cache)) {
                     const Vec3f& vertex1 = vertices[index1];
@@ -303,13 +303,13 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3f::List sphere3D(const float radius, const size_t iterations) {
+        Vec3f::Array sphere3D(const float radius, const size_t iterations) {
             assert(radius > 0.0f);
             assert(iterations > 0);
             
             typedef std::vector<SphereBuilder::Triangle> TriangleArray;
             
-            Vec3f::List vertices;
+            Vec3f::Array vertices;
             TriangleArray triangles;
             
             // build initial icosahedron
@@ -373,7 +373,7 @@ namespace TrenchBroom {
                 triangles = newTriangles;
             }
             
-            Vec3f::List allVertices;
+            Vec3f::Array allVertices;
             allVertices.reserve(3 * triangles.size());
             
             for (SphereBuilder::Triangle& triangle : triangles) {
