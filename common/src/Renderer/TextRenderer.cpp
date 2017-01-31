@@ -38,7 +38,7 @@ namespace TrenchBroom {
         const size_t TextRenderer::RectCornerSegments = 3;
         const float TextRenderer::RectCornerRadius = 3.0f;
         
-        TextRenderer::Entry::Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
+        TextRenderer::Entry::Entry(Vec2f::Array& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
         size(i_size),
         offset(i_offset),
         textColor(i_textColor),
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
 
-            Vec2f::List vertices = font.quads(string, true);
+            Vec2f::Array vertices = font.quads(string, true);
             const float alphaFactor = computeAlphaFactor(renderContext, distance, onTop);
             const Vec2f size = font.measure(string);
             const Vec3f offset = position.offset(camera, size);
@@ -147,10 +147,10 @@ namespace TrenchBroom {
         }
         
         void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
-            TextVertex::List textVertices;
+            TextVertex::Array textVertices;
             textVertices.reserve(collection.textVertexCount);
             
-            RectVertex::List rectVertices;
+            RectVertex::Array rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
             
             for (const Entry& entry : collection.entries)
@@ -163,8 +163,8 @@ namespace TrenchBroom {
             collection.rectArray.prepare(vbo);
         }
 
-        void TextRenderer::addEntry(const Entry& entry, const bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
-            const Vec2f::List& stringVertices = entry.vertices;
+        void TextRenderer::addEntry(const Entry& entry, const bool onTop, TextVertex::Array& textVertices, RectVertex::Array& rectVertices) {
+            const Vec2f::Array& stringVertices = entry.vertices;
             const Vec2f& stringSize = entry.size;
             
             const Vec3f& offset = entry.offset;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 textVertices.push_back(TextVertex(Vec3f(position2 + offset, -offset.z()), texCoords, textColor));
             }
 
-            const Vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+            const Vec2f::Array rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
             for (size_t i = 0; i < rect.size(); ++i) {
                 const Vec2f& vertex = rect[i];
                 rectVertices.push_back(RectVertex(Vec3f(vertex + offset + stringSize / 2.0f, -offset.z()), rectColor));
