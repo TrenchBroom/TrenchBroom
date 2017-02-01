@@ -26,9 +26,9 @@ namespace TrenchBroom {
     namespace Renderer {
         class Transformation {
         private:
-            Mat4x4f::List m_projectionStack;
-            Mat4x4f::List m_viewStack;
-            Mat4x4f::List m_modelStack;
+            Mat4x4f::Array m_projectionStack;
+            Mat4x4f::Array m_viewStack;
+            Mat4x4f::Array m_modelStack;
         public:
             Transformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::Identity);
             ~Transformation();
