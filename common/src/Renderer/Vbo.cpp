@@ -85,7 +85,7 @@ namespace TrenchBroom {
                 throw e;
             }
 
-            VboBlockList::iterator it = findFreeBlock(capacity);
+            VboBlockArray::iterator it = findFreeBlock(capacity);
             if (it == std::end(m_freeBlocks)) {
                 increaseCapacityToAccomodate(capacity);
                 it = findFreeBlock(capacity);
