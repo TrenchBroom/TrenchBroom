@@ -92,7 +92,7 @@ namespace TrenchBroom {
             BrushFaceGeometry* m_geometry;
             
             mutable size_t m_vertexIndex;
-            mutable Vertex::List m_cachedVertices;
+            mutable Vertex::Array m_cachedVertices;
             mutable bool m_verticesValid;
         protected:
             BrushFaceAttributes m_attribs;
