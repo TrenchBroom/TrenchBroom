@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edges = entry.second;
+                const Edge3::Array& edges = entry.second;
                 for (size_t i = 0; i < edges.size(); ++i) {
                     const Edge3& edge = edges[i];
                     if (!brush->canSplitEdge(worldBounds, edge, m_delta))
