@@ -74,7 +74,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            EdgeVertex::List getHandleVertices(const InputState& inputState) const;
+            EdgeVertex::Array getHandleVertices(const InputState& inputState) const;
             
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
