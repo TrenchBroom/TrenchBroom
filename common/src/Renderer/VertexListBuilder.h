@@ -38,9 +38,9 @@ namespace TrenchBroom {
             };
 
             typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
+            typedef typename Vertex::Array VertexArray;
         private:
-            VertexList m_vertices;
+            VertexArray m_vertices;
             bool m_dynamicGrowth;
         public:
             VertexListBuilder(const size_t capacity) :
@@ -56,11 +56,11 @@ namespace TrenchBroom {
                 return m_vertices.size();
             }
             
-            const VertexList& vertices() const {
+            const VertexArray& vertices() const {
                 return m_vertices;
             }
             
-            VertexList& vertices() {
+            VertexArray& vertices() {
                 return m_vertices;
             }
             
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 return IndexData(index, 1);
             }
             
-            IndexData addPoints(const VertexList& vertices) {
+            IndexData addPoints(const VertexArray& vertices) {
                 return addVertices(vertices);
             }
             
@@ -87,17 +87,17 @@ namespace TrenchBroom {
                 return IndexData(index, 2);
             }
             
-            IndexData addLines(const VertexList& vertices) {
+            IndexData addLines(const VertexArray& vertices) {
                 assert(vertices.size() % 2 == 0);
                 return addVertices(vertices);
             }
             
-            IndexData addLineStrip(const VertexList& vertices) {
+            IndexData addLineStrip(const VertexArray& vertices) {
                 assert(vertices.size() >= 2);
                 return addVertices(vertices);
             }
             
-            IndexData addLineLoop(const VertexList& vertices) {
+            IndexData addLineLoop(const VertexArray& vertices) {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
             }
@@ -113,17 +113,17 @@ namespace TrenchBroom {
                 return IndexData(index, 3);
             }
             
-            IndexData addTriangles(const VertexList& vertices) {
+            IndexData addTriangles(const VertexArray& vertices) {
                 assert(vertices.size() % 3 == 0);
                 return addVertices(vertices);
             }
             
-            IndexData addTriangleFan(const VertexList& vertices) {
+            IndexData addTriangleFan(const VertexArray& vertices) {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
             }
             
-            IndexData addTriangleStrip(const VertexList& vertices) {
+            IndexData addTriangleStrip(const VertexArray& vertices) {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
             }
@@ -140,23 +140,23 @@ namespace TrenchBroom {
                 return IndexData(index, 4);
             }
             
-            IndexData addQuads(const VertexList& vertices) {
+            IndexData addQuads(const VertexArray& vertices) {
                 assert(vertices.size() % 4 == 0);
                 return addVertices(vertices);
             }
             
-            IndexData addQuadStrip(const VertexList& vertices) {
+            IndexData addQuadStrip(const VertexArray& vertices) {
                 assert(vertices.size() >= 4);
                 assert(vertices.size() % 2 == 0);
                 return addVertices(vertices);
             }
             
-            IndexData addPolygon(const VertexList& vertices) {
+            IndexData addPolygon(const VertexArray& vertices) {
                 assert(vertices.size() >= 3);
                 return addVertices(vertices);
             }
         private:
-            IndexData addVertices(const VertexList& vertices) {
+            IndexData addVertices(const VertexArray& vertices) {
                 assert(checkCapacity(vertices.size()));
                 
                 const size_t index = currentIndex();
