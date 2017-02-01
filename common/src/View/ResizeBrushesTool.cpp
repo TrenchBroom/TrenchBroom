@@ -198,7 +198,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::BrushFaceList ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
+        Model::BrushFaceArray ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
             Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
             
             MapDocumentSPtr document = lock(m_document);
