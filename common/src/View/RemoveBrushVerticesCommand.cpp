@@ -32,7 +32,7 @@ namespace TrenchBroom {
         RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const Model::VertexToBrushesMap& vertices) {
             Model::BrushArray brushes;
             Model::BrushVerticesMap brushVertices;
-            Vec3::List vertexPositions;
+            Vec3::Array vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
             return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
