@@ -48,7 +48,7 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                typedef typename VertexSpec::Vertex::Array VertexArray;
             private:
                 VboBlock* m_block;
                 size_t m_vertexCount;
@@ -91,17 +91,17 @@ namespace TrenchBroom {
                     }
                 }
             private:
-                virtual const VertexList& doGetVertices() const = 0;
+                virtual const VertexArray& doGetVertices() const = 0;
             };
             
             template <typename VertexSpec>
             class CopyHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                typedef typename VertexSpec::Vertex::Array VertexArray;
             private:
-                VertexList m_vertices;
+                VertexArray m_vertices;
             public:
-                CopyHolder(const VertexList& vertices) :
+                CopyHolder(const VertexArray& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
                 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
                     VectorUtils::clearToZero(m_vertices);
                 }
             private:
-                const VertexList& doGetVertices() const {
+                const VertexArray& doGetVertices() const {
                     return m_vertices;
                 }
             };
@@ -118,11 +118,11 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class SwapHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                typedef typename VertexSpec::Vertex::Array VertexArray;
             private:
-                VertexList m_vertices;
+                VertexArray m_vertices;
             public:
-                SwapHolder(VertexList& vertices) :
+                SwapHolder(VertexArray& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(0) {
                     using std::swap;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                     VectorUtils::clearToZero(m_vertices);
                 }
             private:
-                const VertexList& doGetVertices() const {
+                const VertexArray& doGetVertices() const {
                     return m_vertices;
                 }
             };
@@ -142,15 +142,15 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class RefHolder : public Holder<VertexSpec> {
             public:
-                typedef typename VertexSpec::Vertex::List VertexList;
+                typedef typename VertexSpec::Vertex::Array VertexArray;
             private:
-                const VertexList& m_vertices;
+                const VertexArray& m_vertices;
             public:
-                RefHolder(const VertexList& vertices) :
+                RefHolder(const VertexArray& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
             private:
-                const VertexList& doGetVertices() const {
+                const VertexArray& doGetVertices() const {
                     return m_vertices;
                 }
             };
