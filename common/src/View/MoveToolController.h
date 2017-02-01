@@ -172,7 +172,7 @@ namespace TrenchBroom {
                     stages[1] = vec * Vec3::PosY;
                     stages[2] = vec * Vec3::PosZ;
 
-                    Color::List colors(3);
+                    Color::Array colors(3);
                     colors[0] = pref(Preferences::XAxisColor);
                     colors[1] = pref(Preferences::YAxisColor);
                     colors[2] = pref(Preferences::ZAxisColor);
