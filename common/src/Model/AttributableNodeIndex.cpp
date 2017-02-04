@@ -100,7 +100,7 @@ namespace TrenchBroom {
             const AttributableNodeSet valueResult = m_valueIndex.queryExactMatches(value);
             
             if (nameResult.empty() || valueResult.empty())
-                return EmptyAttributableNodeList;
+                return EmptyAttributableNodeArray;
 
             AttributableNodeArray result;
             SetUtils::intersection(nameResult, valueResult, result);
