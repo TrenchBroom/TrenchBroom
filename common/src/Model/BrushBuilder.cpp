@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         Brush* BrushBuilder::createCuboid(const BBox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
-            BrushFaceList faces(6);
+            BrushFaceArray faces(6);
             // left face
             faces[0] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosY,
@@ -90,14 +90,14 @@ namespace TrenchBroom {
             return m_factory->createBrush(m_worldBounds, faces);
         }
  
-        Brush* BrushBuilder::createBrush(const Vec3::List& points, const String& textureName) const {
+        Brush* BrushBuilder::createBrush(const Vec3::Array& points, const String& textureName) const {
             return createBrush(Polyhedron3(points), textureName);
         }
 
         Brush* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const String& textureName) const {
             assert(polyhedron.closed());
             
-            BrushFaceList brushFaces;
+            BrushFaceArray brushFaces;
             
             const Polyhedron3::FaceList& faces = polyhedron.faces();
             Polyhedron3::FaceList::const_iterator fIt, fEnd;
