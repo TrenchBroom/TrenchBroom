@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return definition;
         }
         
-        AttributeValue AttributableNode::selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables) {
+        AttributeValue AttributableNode::selectAttributeValue(const AttributeName& name, const AttributableNodeArray& attributables) {
             AttributableNodeArray::const_iterator it = std::begin(attributables);
             AttributableNodeArray::const_iterator end = std::end(attributables);
             if (it == end)
