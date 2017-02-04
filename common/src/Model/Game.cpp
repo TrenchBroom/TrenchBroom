@@ -144,7 +144,7 @@ namespace TrenchBroom {
             return m_brushContentTypeBuilder;
         }
 
-        const BrushContentType::List& Game::brushContentTypes() const {
+        const BrushContentType::Array& Game::brushContentTypes() const {
             return doBrushContentTypes();
         }
 
