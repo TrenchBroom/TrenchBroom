@@ -131,7 +131,7 @@ namespace TrenchBroom {
         
         StringArray GameConfig::FlagsConfig::flagNames(const int mask) const {
             if (mask == 0)
-                return EmptyStringList;
+                return EmptyStringArray;
             
             StringArray names;
             for (size_t i = 0; i < flags.size(); ++i) {
