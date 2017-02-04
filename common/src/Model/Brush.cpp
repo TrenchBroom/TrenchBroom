@@ -831,14 +831,14 @@ namespace TrenchBroom {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 
-            const Vec3::Array vertexPositions = Edge3::asVertexList(edgePositions);
+            const Vec3::Array vertexPositions = Edge3::asVertexArray(edgePositions);
             return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
         }
         
         Edge3::Array Brush::moveEdges(const BBox3& worldBounds, const Edge3::Array& edgePositions, const Vec3& delta) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
             
-            const Vec3::Array vertexPositions = Edge3::asVertexList(edgePositions);
+            const Vec3::Array vertexPositions = Edge3::asVertexArray(edgePositions);
             moveVertices(worldBounds, vertexPositions, delta);
             
             Edge3::Array result;
@@ -865,14 +865,14 @@ namespace TrenchBroom {
             ensure(m_geometry != NULL, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
             
-            const Vec3::Array vertexPositions = Polygon3::asVertexList(facePositions);
+            const Vec3::Array vertexPositions = Polygon3::asVertexArray(facePositions);
             return doCanMoveVertices(worldBounds, vertexPositions, delta, false);
         }
         
         Polygon3::Array Brush::moveFaces(const BBox3& worldBounds, const Polygon3::Array& facePositions, const Vec3& delta) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
             
-            const Vec3::Array vertexPositions = Polygon3::asVertexList(facePositions);
+            const Vec3::Array vertexPositions = Polygon3::asVertexArray(facePositions);
             moveVertices(worldBounds, vertexPositions, delta);
             
             Polygon3::Array result;
