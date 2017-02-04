@@ -84,7 +84,7 @@ namespace TrenchBroom {
             BrushFace* findFace(const Vec3& normal) const;
             BrushFace* findFace(const Plane3& boundary) const;
             BrushFace* findFace(const Polygon3& vertices) const;
-            BrushFace* findFace(const Polygon3::List& candidates) const;
+            BrushFace* findFace(const Polygon3::Array& candidates) const;
             
             size_t faceCount() const;
             const BrushFaceArray& faces() const;
@@ -137,11 +137,11 @@ namespace TrenchBroom {
             VertexList vertices() const;
             
             bool hasVertex(const Vec3& position) const;
-            bool hasVertices(const Vec3::List positions) const;
+            bool hasVertices(const Vec3::Array positions) const;
             bool hasEdge(const Edge3& edge) const;
-            bool hasEdges(const Edge3::List& edges) const;
+            bool hasEdges(const Edge3::Array& edges) const;
             bool hasFace(const Polygon3& face) const;
-            bool hasFaces(const Polygon3::List& faces) const;
+            bool hasFaces(const Polygon3::Array& faces) const;
             
             bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
             bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4) const;
@@ -155,27 +155,27 @@ namespace TrenchBroom {
             BrushFaceArray incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
-            bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, const Vec3& delta) const;
-            Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+            bool canMoveVertices(const BBox3& worldBounds, const Vec3::Array& vertices, const Vec3& delta) const;
+            Vec3::Array moveVertices(const BBox3& worldBounds, const Vec3::Array& vertexPositions, const Vec3& delta);
 
             bool canAddVertex(const BBox3& worldBounds, const Vec3& position) const;
             BrushVertex* addVertex(const BBox3& worldBounds, const Vec3& position);
             
-            bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
-            void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
+            bool canRemoveVertices(const BBox3& worldBounds, const Vec3::Array& vertexPositions) const;
+            void removeVertices(const BBox3& worldBounds, const Vec3::Array& vertexPositions);
             
             bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
             void snapVertices(const BBox3& worldBounds, size_t snapTo);
 
             // edge operations
-            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
-            Edge3::List moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            bool canMoveEdges(const BBox3& worldBounds, const Edge3::Array& edgePositions, const Vec3& delta);
+            Edge3::Array moveEdges(const BBox3& worldBounds, const Edge3::Array& edgePositions, const Vec3& delta);
             bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             Vec3 splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
             
             // face operations
-            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
-            Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::Array& facePositions, const Vec3& delta);
+            Polygon3::Array moveFaces(const BBox3& worldBounds, const Polygon3::Array& facePositions, const Vec3& delta);
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
