@@ -96,7 +96,7 @@ namespace TrenchBroom {
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const;
         public: // brush content type
             const BrushContentTypeBuilder* brushContentTypeBuilder() const;
-            const BrushContentType::List& brushContentTypes() const;
+            const BrushContentType::Array& brushContentTypes() const;
         public: // mods
             StringArray availableMods() const;
             StringArray extractEnabledMods(const World* world) const;
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const = 0;
             
-            virtual const BrushContentType::List& doBrushContentTypes() const = 0;
+            virtual const BrushContentType::Array& doBrushContentTypes() const = 0;
             
             virtual StringArray doAvailableMods() const = 0;
             virtual StringArray doExtractEnabledMods(const World* world) const = 0;
