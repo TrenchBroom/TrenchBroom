@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Assets {
         void assertModelDefinition(const ModelSpecification& expected, IO::EntityDefinitionParser& parser, const String& entityPropertiesStr) {
             IO::TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
