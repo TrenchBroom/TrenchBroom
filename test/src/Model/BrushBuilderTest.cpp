@@ -37,7 +37,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(cube != NULL);
             ASSERT_EQ(BBox3d(-64.0, +64.0), cube->bounds());
             
-            const BrushFaceList& faces = cube->faces();
+            const BrushFaceArray& faces = cube->faces();
             ASSERT_EQ(6u, faces.size());
             
             for (size_t i = 0; i < faces.size(); ++i)
