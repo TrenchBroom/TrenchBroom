@@ -40,11 +40,11 @@ namespace TrenchBroom {
             source->addOrUpdateAttribute(AttributeNames::Target, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -63,15 +63,15 @@ namespace TrenchBroom {
             source2->addOrUpdateAttribute(AttributeNames::Target, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableNodeList& targets1 = source1->linkTargets();
+            const AttributableNodeArray& targets1 = source1->linkTargets();
             ASSERT_EQ(1u, targets1.size());
             ASSERT_EQ(target, targets1.front());
             
-            const AttributableNodeList& targets2 = source2->linkTargets();
+            const AttributableNodeArray& targets2 = source2->linkTargets();
             ASSERT_EQ(1u, targets2.size());
             ASSERT_EQ(target, targets2.front());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_EQ(2u, sources.size());
             ASSERT_TRUE(VectorUtils::contains(sources, source1));
             ASSERT_TRUE(VectorUtils::contains(sources, source2));
@@ -96,16 +96,16 @@ namespace TrenchBroom {
             target1->addOrUpdateAttribute(AttributeNames::Targetname, "target_name1");
             target2->addOrUpdateAttribute(AttributeNames::Targetname, "target_name2");
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
             ASSERT_TRUE(VectorUtils::contains(targets, target1));
             ASSERT_TRUE(VectorUtils::contains(targets, target2));
             
-            const AttributableNodeList& sources1 = target1->linkSources();
+            const AttributableNodeArray& sources1 = target1->linkSources();
             ASSERT_EQ(1u, sources1.size());
             ASSERT_EQ(source, sources1.front());
             
-            const AttributableNodeList& sources2 = target2->linkSources();
+            const AttributableNodeArray& sources2 = target2->linkSources();
             ASSERT_EQ(1u, sources2.size());
             ASSERT_EQ(source, sources2.front());
         }
@@ -122,11 +122,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -145,10 +145,10 @@ namespace TrenchBroom {
             
             source->addOrUpdateAttribute(AttributeNames::Target, "other_name");
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
         
@@ -166,10 +166,10 @@ namespace TrenchBroom {
             
             target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
 
@@ -187,10 +187,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(source);
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
 
             delete source;
@@ -210,10 +210,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(target);
             
-            const AttributableNodeList& targets = source->linkTargets();
+            const AttributableNodeArray& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->linkSources();
+            const AttributableNodeArray& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
             
             delete target;
@@ -230,11 +230,11 @@ namespace TrenchBroom {
             source->addOrUpdateAttribute(AttributeNames::Killtarget, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -251,11 +251,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -274,10 +274,10 @@ namespace TrenchBroom {
             
             source->addOrUpdateAttribute(AttributeNames::Killtarget, "other_name");
             
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
         
@@ -295,10 +295,10 @@ namespace TrenchBroom {
             
             target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
             
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
         
@@ -316,10 +316,10 @@ namespace TrenchBroom {
             
             world.defaultLayer()->removeChild(source);
             
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
             
             delete source;
@@ -339,10 +339,10 @@ namespace TrenchBroom {
             
             world.defaultLayer()->removeChild(target);
             
-            const AttributableNodeList& targets = source->killTargets();
+            const AttributableNodeArray& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableNodeList& sources = target->killSources();
+            const AttributableNodeArray& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
             
             delete target;
