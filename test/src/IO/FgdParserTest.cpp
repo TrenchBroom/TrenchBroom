@@ -36,7 +36,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("World entity"), definition->description());
             
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const Assets::AttributeDefinitionArray& attributes = definition->attributeDefinitions();
             ASSERT_EQ(6u, attributes.size());
             
             VectorUtils::clearAndDelete(definitions);
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
 
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const Assets::AttributeDefinitionArray& attributes = definition->attributeDefinitions();
             ASSERT_EQ(5u, attributes.size());
             
             VectorUtils::clearAndDelete(definitions);
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const Assets::AttributeDefinitionArray& attributes = definition->attributeDefinitions();
             ASSERT_EQ(9u, attributes.size());
 
             VectorUtils::clearAndDelete(definitions);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const Assets::AttributeDefinitionArray& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
             
             Assets::AttributeDefinitionPtr attribute = attributes[0];
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            const Assets::AttributeDefinitionArray& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size());
             
             Assets::AttributeDefinitionPtr attribute = attributes[0];
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -383,7 +383,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -439,7 +439,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -460,7 +460,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Long description 1"), choiceAttribute1->longDescription());
             ASSERT_FALSE(choiceAttribute1->hasDefaultValue());
             
-            const Assets::ChoiceAttributeOption::List& options1 = choiceAttribute1->options();
+            const Assets::ChoiceAttributeOption::Array& options1 = choiceAttribute1->options();
             ASSERT_EQ(3u, options1.size());
             ASSERT_EQ(String("0"), options1[0].value());
             ASSERT_EQ(String("Medieval"), options1[0].description());
@@ -480,7 +480,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
             ASSERT_EQ(1u, choiceAttribute2->defaultValue());
             
-            const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute1->options();
+            const Assets::ChoiceAttributeOption::Array& options2 = choiceAttribute1->options();
             ASSERT_EQ(3u, options2.size());
             ASSERT_EQ(String("0"), options2[0].value());
             ASSERT_EQ(String("Medieval"), options2[0].description());
@@ -507,7 +507,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -527,7 +527,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String(""), flagsAttribute->shortDescription());
             ASSERT_EQ(2560, flagsAttribute->defaultValue());
             
-            const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();
+            const Assets::FlagsAttributeOption::Array& options = flagsAttribute->options();
             ASSERT_EQ(4u, options.size());
             ASSERT_EQ(256, options[0].value());
             ASSERT_EQ(String("Not on Easy"), options[0].shortDescription());
@@ -620,7 +620,7 @@ namespace TrenchBroom {
             FgdParser parser(file, defaultColor);
             
             TestParserStatus status;
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            Assets::EntityDefinitionArray definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             VectorUtils::clearAndDelete(definitions);
