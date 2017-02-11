@@ -356,7 +356,7 @@ namespace TrenchBroom {
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
-            const BrushFaceList& faces = cube->faces();
+            const BrushFaceArray& faces = cube->faces();
             
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -374,7 +374,7 @@ namespace TrenchBroom {
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
-            const BrushFaceList& faces = cube->faces();
+            const BrushFaceArray& faces = cube->faces();
             
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
