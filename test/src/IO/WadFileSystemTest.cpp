@@ -28,7 +28,7 @@ namespace TrenchBroom {
         TEST(WadFileSystemTest, loadEntries) {
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("data/IO/Wad/cr8_czg.wad");
             WadFileSystem fs(wadPath);
-            const IO::Path::List files = fs.findItems(IO::Path(""));
+            const IO::Path::Array files = fs.findItems(IO::Path(""));
             
             ASSERT_EQ(21u, files.size());
             ASSERT_TRUE(VectorUtils::contains(files, IO::Path("blowjob_machine.D")));
