@@ -104,7 +104,7 @@ namespace TrenchBroom {
             const GameConfig expected("Quake",
                                       Path(""),
                                       Path("Quake/Icon.png"),
-                                      StringUtils::makeList(2, "Standard", "Valve"),
+                                      StringUtils::makeArray(2, "Standard", "Valve"),
                                       GameConfig::FileSystemConfig(Path("id1"), GameConfig::PackageFormatConfig("pak", "idpak")),
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(GameConfig::PackageFormatConfig("wad", "wad2")),
                                                                 GameConfig::PackageFormatConfig("D", "idmip"),
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                                                                StringUtils::makeSet(2, "mdl", "bsp"),
                                                                Color(0.6f, 0.6f, 0.6f, 1.0f)),
                                       GameConfig::FaceAttribsConfig(),
-                                      BrushContentType::List());
+                                      BrushContentType::Array());
             
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
@@ -322,7 +322,7 @@ namespace TrenchBroom {
             using Model::GameConfig;
             const GameConfig actual = parser.parse();
             
-            GameConfig::FlagConfigList surfaceFlags;
+            GameConfig::FlagConfigArray surfaceFlags;
             surfaceFlags.push_back(GameConfig::FlagConfig("light", "Emit light from the surface, brightness is specified in the 'value' field"));
             surfaceFlags.push_back(GameConfig::FlagConfig("slick", "The surface is slippery"));
             surfaceFlags.push_back(GameConfig::FlagConfig("sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead"));
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             surfaceFlags.push_back(GameConfig::FlagConfig("flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)"));
             surfaceFlags.push_back(GameConfig::FlagConfig("nodraw", "Used for non-fixed-size brush triggers and clip brushes"));
             
-            GameConfig::FlagConfigList contentFlags;
+            GameConfig::FlagConfigArray contentFlags;
             contentFlags.push_back(GameConfig::FlagConfig("solid", "Default for all brushes"));
             contentFlags.push_back(GameConfig::FlagConfig("window", "Brush is a window (not really used)"));
             contentFlags.push_back(GameConfig::FlagConfig("aux", "Unused by the engine"));
@@ -368,17 +368,17 @@ namespace TrenchBroom {
             const GameConfig expected("Quake 2",
                                       Path(""),
                                       Path("Quake2/Icon.png"),
-                                      StringUtils::makeList(1, "Quake2"),
+                                      StringUtils::makeArray(1, "Quake2"),
                                       GameConfig::FileSystemConfig(Path("baseq2"), GameConfig::PackageFormatConfig("pak", "idpak")),
                                       GameConfig::TextureConfig(GameConfig::TexturePackageConfig(Path("textures")),
                                                                 GameConfig::PackageFormatConfig("wal", "idwal"),
                                                                 Path("pics/colormap.pcx"),
                                                                 "_tb_textures"),
-                                      GameConfig::EntityConfig(Path::List(1, Path("Quake2/Quake2.fgd")),
+                                      GameConfig::EntityConfig(Path::Array(1, Path("Quake2/Quake2.fgd")),
                                                                StringUtils::makeSet(1, "md2"),
                                                                Color(0.6f, 0.6f, 0.6f, 1.0f)),
                                       GameConfig::FaceAttribsConfig(surfaceFlags, contentFlags),
-                                      BrushContentType::List());
+                                      BrushContentType::Array());
             
             ASSERT_EQ(expected.name(), actual.name());
             ASSERT_EQ(expected.path(), actual.path());
