@@ -1968,7 +1968,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < oldPositions.size(); ++i) {
                 for (size_t j = 0; j < oldPositions.size(); ++j) {
                     if (i != j) {
-                        ASSERT_FALSE(brush->canMoveVertices(worldBounds, Vec3d::List(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
+                        ASSERT_FALSE(brush->canMoveVertices(worldBounds, Vec3d::Array(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
                     }
                 }
             }
@@ -2125,7 +2125,7 @@ namespace TrenchBroom {
             Brush* minuend    = static_cast<Brush*>(IO::NodeReader::read(minuendStr, &world, worldBounds, status).front());
             Brush* subtrahend = static_cast<Brush*>(IO::NodeReader::read(subtrahendStr, &world, worldBounds, status).front());
             
-            const BrushList result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
+            const BrushArray result = minuend->subtract(world, worldBounds, "some_texture", subtrahend);
             ASSERT_FALSE(result.empty());
         }
         
@@ -2480,7 +2480,7 @@ namespace TrenchBroom {
             Brush* brush = builder.createCube(64.0, "asdf");
             
             
-            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, +32.0)));
+            brush->removeVertices(worldBounds, Vec3::Array(1, Vec3(+32.0, +32.0, +32.0)));
             
             ASSERT_EQ(7u, brush->vertexCount());
             ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
@@ -2493,7 +2493,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
             
             
-            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, +32.0, -32.0)));
+            brush->removeVertices(worldBounds, Vec3::Array(1, Vec3(+32.0, +32.0, -32.0)));
             
             ASSERT_EQ(6u, brush->vertexCount());
             ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
@@ -2506,7 +2506,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
             
             
-            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, +32.0)));
+            brush->removeVertices(worldBounds, Vec3::Array(1, Vec3(+32.0, -32.0, +32.0)));
             
             ASSERT_EQ(5u, brush->vertexCount());
             ASSERT_TRUE (brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
@@ -2519,7 +2519,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
             
 
-            brush->removeVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, -32.0)));
+            brush->removeVertices(worldBounds, Vec3::Array(1, Vec3(-32.0, -32.0, -32.0)));
             
             ASSERT_EQ(4u, brush->vertexCount());
             ASSERT_FALSE(brush->hasVertex(Vec3(-32.0, -32.0, -32.0)));
@@ -2532,10 +2532,10 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasVertex(Vec3(+32.0, +32.0, +32.0)));
 
             
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, -32.0, +32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, -32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(-32.0, +32.0, +32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::List(1, Vec3(+32.0, -32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::Array(1, Vec3(-32.0, -32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::Array(1, Vec3(-32.0, +32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::Array(1, Vec3(-32.0, +32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, Vec3::Array(1, Vec3(+32.0, -32.0, -32.0))));
             
             delete brush;
         }
