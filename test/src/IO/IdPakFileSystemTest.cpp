@@ -66,7 +66,7 @@ namespace TrenchBroom {
             ASSERT_THROW(fs.findItems(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItems(Path("pics/tag1.pcx")), FileSystemException);
             
-            Path::List items = fs.findItems(Path(""));
+            Path::Array items = fs.findItems(Path(""));
             ASSERT_EQ(4u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures")) != std::end(items));
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             ASSERT_THROW(fs.findItemsRecursively(Path("/pics/")), FileSystemException);
             ASSERT_THROW(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
             
-            Path::List items = fs.findItemsRecursively(Path(""));
+            Path::Array items = fs.findItemsRecursively(Path(""));
             ASSERT_EQ(16u, items.size());
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics")) != std::end(items));
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag1.pcx")) != std::end(items));
