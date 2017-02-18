@@ -340,13 +340,13 @@ TEST(VecTest, convexHull2dSimple) {
     const Vec3d p3(8.0, 0.0, 0.0);
     const Vec3d p4(0.0, 8.0, 0.0);
     
-    Vec3d::List points;
+    Vec3d::Array points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
     
-    const Vec3d::List hull = convexHull2D<double>(points);
+    const Vec3d::Array hull = convexHull2D<double>(points);
     ASSERT_EQ(4u, hull.size());
     ASSERT_VEC_EQ(p3, hull[0]);
     ASSERT_VEC_EQ(p2, hull[1]);
@@ -361,14 +361,14 @@ TEST(VecTest, convexHull2dSimpleWithInternalPoint) {
     const Vec3d p4(0.0, 8.0, 0.0);
     const Vec3d p5(4.0, 4.0, 0.0);
     
-    Vec3d::List points;
+    Vec3d::Array points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
     points.push_back(p5);
     
-    const Vec3d::List hull = convexHull2D<double>(points);
+    const Vec3d::Array hull = convexHull2D<double>(points);
     ASSERT_EQ(4u, hull.size());
     ASSERT_VEC_EQ(p3, hull[0]);
     ASSERT_VEC_EQ(p2, hull[1]);
@@ -383,14 +383,14 @@ TEST(VecTest, convexHull2dSimpleWithPointOnLine) {
     const Vec3d p4(0.0, 8.0, 0.0);
     const Vec3d p5(4.0, 0.0, 0.0);
     
-    Vec3d::List points;
+    Vec3d::Array points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
     points.push_back(p5);
     
-    const Vec3d::List hull = convexHull2D<double>(points);
+    const Vec3d::Array hull = convexHull2D<double>(points);
     ASSERT_EQ(4u, hull.size());
     ASSERT_VEC_EQ(p3, hull[0]);
     ASSERT_VEC_EQ(p2, hull[1]);
