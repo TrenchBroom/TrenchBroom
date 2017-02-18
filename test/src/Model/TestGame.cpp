@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
         
         void TestGame::doSetGamePath(const IO::Path& gamePath) {}
-        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {}
+        void TestGame::doSetAdditionalSearchPaths(const IO::Path::Array& searchPaths) {}
         
         CompilationConfig& TestGame::doCompilationConfig() {
             static CompilationConfig config;
@@ -62,24 +62,24 @@ namespace TrenchBroom {
         void TestGame::doWriteMap(World* world, const IO::Path& path) const {}
         void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
         
-        NodeList TestGame::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeArray TestGame::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceArray TestGame::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        void TestGame::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void TestGame::doWriteNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
         
-        void TestGame::doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const {
+        void TestGame::doWriteBrushFacesToStream(World* world, const BrushFaceArray& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }
@@ -94,43 +94,43 @@ namespace TrenchBroom {
             return false;
         }
         
-        IO::Path::List TestGame::doFindTextureCollections() const {
-            return IO::Path::List();
+        IO::Path::Array TestGame::doFindTextureCollections() const {
+            return IO::Path::Array();
         }
         
-        IO::Path::List TestGame::doExtractTextureCollections(const World* world) const {
-            return IO::Path::List();
+        IO::Path::Array TestGame::doExtractTextureCollections(const World* world) const {
+            return IO::Path::Array();
         }
         
-        void TestGame::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {}
+        void TestGame::doUpdateTextureCollections(World* world, const IO::Path::Array& paths) const {}
         
         bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
             return false;
         }
         
-        Assets::EntityDefinitionFileSpec::List TestGame::doAllEntityDefinitionFiles() const {
-            return Assets::EntityDefinitionFileSpec::List();
+        Assets::EntityDefinitionFileSpec::Array TestGame::doAllEntityDefinitionFiles() const {
+            return Assets::EntityDefinitionFileSpec::Array();
         }
         
         Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const World* world) const {
             return Assets::EntityDefinitionFileSpec();
         }
         
-        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path TestGame::doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const {
             return IO::Path();
         }
         
-        const BrushContentType::List& TestGame::doBrushContentTypes() const {
-            static const BrushContentType::List result;
+        const BrushContentType::Array& TestGame::doBrushContentTypes() const {
+            static const BrushContentType::Array result;
             return result;
         }
         
-        StringList TestGame::doAvailableMods() const {
-            return EmptyStringList;
+        StringArray TestGame::doAvailableMods() const {
+            return EmptyStringArray;
         }
         
-        StringList TestGame::doExtractEnabledMods(const World* world) const {
-            return EmptyStringList;
+        StringArray TestGame::doExtractEnabledMods(const World* world) const {
+            return EmptyStringArray;
         }
         
         String TestGame::doDefaultMod() const {
@@ -153,8 +153,8 @@ namespace TrenchBroom {
             return config;
         }
 
-        Assets::EntityDefinitionList TestGame::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
-            return Assets::EntityDefinitionList();
+        Assets::EntityDefinitionArray TestGame::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
+            return Assets::EntityDefinitionArray();
         }
         
         Assets::EntityModel* TestGame::doLoadEntityModel(const IO::Path& path) const {
