@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 mockDoPick(ray, pickResult);
             }
             
-            void doFindNodesContaining(const Vec3& point, NodeList& result) {
+            void doFindNodesContaining(const Vec3& point, NodeArray& result) {
                 mockDoFindNodesContaining(point, result);
             }
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 mockDoAccept(visitor);
             }
         
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
+            void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {}
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorDidChange, void());
             
             MOCK_CONST_METHOD2(mockDoPick, void(const Ray3&, PickResult&));
-            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const Vec3&, NodeList&));
+            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const Vec3&, NodeArray&));
             MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const Ray3&));
             
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
@@ -152,12 +152,12 @@ namespace TrenchBroom {
             virtual void doAncestorDidChange() {}
             
             virtual void doPick(const Ray3& ray, PickResult& pickResult) const {}
-            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) {}
+            virtual void doFindNodesContaining(const Vec3& point, NodeArray& result) {}
             virtual FloatType doIntersectWithRay(const Ray3& ray) const { return Math::nan<FloatType>(); }
 
             virtual void doAccept(NodeVisitor& visitor) {}
             virtual void doAccept(ConstNodeVisitor& visitor) const {}
-            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
+            virtual void doGenerateIssues(const IssueGenerator* generator, IssueArray& issues) {}
         };
         
         class DestroyableNode : public TestNode {
@@ -360,11 +360,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_1));
             ASSERT_FALSE(grandChild1_2->isAncestorOf(grandChild1_2));
             
-            ASSERT_TRUE(root.isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(child2->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(root.isAncestorOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isAncestorOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(child2->isAncestorOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(grandChild1_1->isAncestorOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
         
         TEST(NodeTest, isDescendantOf) {
@@ -409,11 +409,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_1));
             ASSERT_FALSE(grandChild1_2->isDescendantOf(grandChild1_2));
             
-            ASSERT_FALSE(root.isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(child2->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
-            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeList{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_FALSE(root.isDescendantOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child1->isDescendantOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(child2->isDescendantOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+            ASSERT_TRUE(grandChild1_1->isDescendantOf(NodeArray{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
     }
 }
