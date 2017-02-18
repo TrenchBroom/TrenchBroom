@@ -86,7 +86,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
             
-            Model::NodeList brushes;
+            Model::NodeArray brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->addNode(brush2, document->currentParent());
             
-            Model::NodeList brushes;
+            Model::NodeArray brushes;
             brushes.push_back(brush1);
             brushes.push_back(brush2);
             document->select(brushes);
