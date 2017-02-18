@@ -37,7 +37,7 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, split) {
-        StringList result;
+        StringArray result;
         
         result = split("", ' ');
         ASSERT_TRUE(result.empty());
@@ -102,7 +102,7 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, join) {
-        StringList components;
+        StringArray components;
         ASSERT_EQ(String(""), join(components, "/"));
 
         components.push_back("");
@@ -120,15 +120,15 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, escapeAndJoin) {
-        ASSERT_EQ(String(""), StringUtils::escapeAndJoin(EmptyStringList, ';'));
-        ASSERT_EQ(String("test"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test"), ';'));
-        ASSERT_EQ(String("test\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(1, "test\\"), ';'));
-        ASSERT_EQ(String("test1;test2"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1", "test2"), ';'));
-        ASSERT_EQ(String("test1\\;;test2\\\\"), StringUtils::escapeAndJoin(StringUtils::makeList(2, "test1;", "test2\\"), ';'));
+        ASSERT_EQ(String(""), StringUtils::escapeAndJoin(EmptyStringArray, ';'));
+        ASSERT_EQ(String("test"), StringUtils::escapeAndJoin(StringUtils::makeArray(1, "test"), ';'));
+        ASSERT_EQ(String("test\\\\"), StringUtils::escapeAndJoin(StringUtils::makeArray(1, "test\\"), ';'));
+        ASSERT_EQ(String("test1;test2"), StringUtils::escapeAndJoin(StringUtils::makeArray(2, "test1", "test2"), ';'));
+        ASSERT_EQ(String("test1\\;;test2\\\\"), StringUtils::escapeAndJoin(StringUtils::makeArray(2, "test1;", "test2\\"), ';'));
     }
 
     TEST(StringUtilsTest, splitAndUnscape) {
-        StringList result;
+        StringArray result;
         
         result = StringUtils::splitAndUnescape("", ';');
         ASSERT_TRUE(result.empty());
@@ -167,7 +167,7 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, sortCaseSensitive) {
-        StringList strs;
+        StringArray strs;
         strs.push_back("bam");
         strs.push_back("Asdf");
         strs.push_back("asdf");
@@ -185,7 +185,7 @@ namespace StringUtils {
     }
     
     TEST(StringUtilsTest, sortCaseInsensitive) {
-        StringList strs;
+        StringArray strs;
         strs.push_back("bam");
         strs.push_back("Asdf");
         strs.push_back("asdf");
