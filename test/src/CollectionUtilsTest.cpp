@@ -398,7 +398,7 @@ TEST(CollectionUtilsTest, vecSetContains) {
     const String ab("ab");
     const String c("c");
     
-    StringList set;
+    StringArray set;
     VectorUtils::setInsert(set, a);
     VectorUtils::setInsert(set, b);
     VectorUtils::setInsert(set, ab);
