@@ -467,7 +467,7 @@ TEST(MatTest, leftMultiplyWithVectorOneLessDimensionAndAssign) {
 }
 
 TEST(MatTest, rightMultiplyWithListOfVectors) {
-    Vec4d::List v;
+    Vec4d::Array v;
     v.push_back(Vec4d(1.0, 2.0, 3.0, 1.0));
     v.push_back(Vec4d(2.0, 3.0, 4.0, 1.0));
     v.push_back(Vec4d(3.0, 2.0, 7.0, 23.0));
@@ -477,18 +477,18 @@ TEST(MatTest, rightMultiplyWithListOfVectors) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
 
-    Vec4d::List r;
+    Vec4d::Array r;
     r.push_back(Vec4d(18.0, 46.0, 74.0, 102.0));
     r.push_back(Vec4d(24.0, 64.0, 104.0, 144.0));
     r.push_back(Vec4d(120.0, 260.0, 400.0, 540.0));
     
-    const Vec4d::List o = m * v;
+    const Vec4d::Array o = m * v;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
 }
 
 TEST(MatTest, leftMultiplyWithListOfVectors) {
-    Vec4d::List v;
+    Vec4d::Array v;
     v.push_back(Vec4d(1.0, 2.0, 3.0, 1.0));
     v.push_back(Vec4d(2.0, 3.0, 4.0, 1.0));
     v.push_back(Vec4d(3.0, 2.0, 3.0, 23.0));
@@ -498,18 +498,18 @@ TEST(MatTest, leftMultiplyWithListOfVectors) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     
-    Vec4d::List r;
+    Vec4d::Array r;
     r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0));
     r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0));
     r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0));
     
-    const Vec4d::List o = v * m;
+    const Vec4d::Array o = v * m;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
 }
 
 TEST(MatTest, leftMultiplyWithListOfVectorsAndAssign) {
-    Vec4d::List v;
+    Vec4d::Array v;
     v.push_back(Vec4d(1.0, 2.0, 3.0, 1.0));
     v.push_back(Vec4d(2.0, 3.0, 4.0, 1.0));
     v.push_back(Vec4d(3.0, 2.0, 3.0, 23.0));
@@ -519,7 +519,7 @@ TEST(MatTest, leftMultiplyWithListOfVectorsAndAssign) {
                     9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     
-    Vec4d::List r;
+    Vec4d::Array r;
     r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0));
     r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0));
     r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0));
@@ -530,7 +530,7 @@ TEST(MatTest, leftMultiplyWithListOfVectorsAndAssign) {
 }
 
 TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
-    Vec3d::List v;
+    Vec3d::Array v;
     v.push_back(Vec3d(1.0, 2.0, 3.0));
     v.push_back(Vec3d(2.0, 3.0, 4.0));
     v.push_back(Vec3d(3.0 / 23.0, 2.0 / 23.0, 7.0 / 23.0));
@@ -540,18 +540,18 @@ TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     
-    Vec3d::List r;
+    Vec3d::Array r;
     r.push_back(Vec4d(18.0, 46.0, 74.0, 102.0).overLast());
     r.push_back(Vec4d(24.0, 64.0, 104.0, 144.0).overLast());
     r.push_back(Vec4d(120.0, 260.0, 400.0, 540.0).overLast());
     
-    const Vec3d::List o = m * v;
+    const Vec3d::Array o = m * v;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
 }
 
 TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
-    Vec3d::List v;
+    Vec3d::Array v;
     v.push_back(Vec4d(1.0, 2.0, 3.0));
     v.push_back(Vec4d(2.0, 3.0, 4.0));
     v.push_back(Vec4d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
@@ -561,18 +561,18 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     
-    Vec3d::List r;
+    Vec3d::Array r;
     r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0).overLast());
     r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0).overLast());
     r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0).overLast());
     
-    const Vec3d::List o = v * m;
+    const Vec3d::Array o = v * m;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
 }
 
 TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimensionAndAssign) {
-    Vec3d::List v;
+    Vec3d::Array v;
     v.push_back(Vec4d(1.0, 2.0, 3.0));
     v.push_back(Vec4d(2.0, 3.0, 4.0));
     v.push_back(Vec4d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
@@ -582,7 +582,7 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimensionAndAssign) {
                     9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     
-    Vec3d::List r;
+    Vec3d::Array r;
     r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0).overLast());
     r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0).overLast());
     r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0).overLast());
