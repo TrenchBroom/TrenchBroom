@@ -35,7 +35,7 @@ namespace TrenchBroom {
             const String& doGameName() const;
             IO::Path doGamePath() const;
             void doSetGamePath(const IO::Path& gamePath);
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            void doSetAdditionalSearchPaths(const IO::Path::Array& searchPaths);
 
             CompilationConfig& doCompilationConfig();
             size_t doMaxPropertyLength() const;
@@ -45,27 +45,27 @@ namespace TrenchBroom {
             void doWriteMap(World* world, const IO::Path& path) const;
             void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
             
-            NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
-            BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
-            void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
-            void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
+            NodeArray doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            BrushFaceArray doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            void doWriteNodesToStream(World* world, const Model::NodeArray& nodes, std::ostream& stream) const;
+            void doWriteBrushFacesToStream(World* world, const BrushFaceArray& faces, std::ostream& stream) const;
             
             TexturePackageType doTexturePackageType() const;
             void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool doIsTextureCollection(const IO::Path& path) const;
-            IO::Path::List doFindTextureCollections() const;
-            IO::Path::List doExtractTextureCollections(const World* world) const;
-            void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const;
+            IO::Path::Array doFindTextureCollections() const;
+            IO::Path::Array doExtractTextureCollections(const World* world) const;
+            void doUpdateTextureCollections(World* world, const IO::Path::Array& paths) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
+            Assets::EntityDefinitionFileSpec::Array doAllEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const;
-            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
+            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::Array& searchPaths) const;
             
-            const BrushContentType::List& doBrushContentTypes() const;
+            const BrushContentType::Array& doBrushContentTypes() const;
             
-            StringList doAvailableMods() const;
-            StringList doExtractEnabledMods(const World* world) const;
+            StringArray doAvailableMods() const;
+            StringArray doExtractEnabledMods(const World* world) const;
             String doDefaultMod() const;
             
             ::StringMap doExtractGameEngineParameterSpecs(const World* world) const;
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;
 
-            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
+            Assets::EntityDefinitionArray doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
             Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const;
         };
     }
