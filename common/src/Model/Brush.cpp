@@ -981,6 +981,10 @@ namespace TrenchBroom {
             
             assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
             
+            // Will the result go out of world bounds?
+            if (!worldBounds.contains(result.bounds()))
+                return CanMoveVerticesResult::rejectVertexMove();
+            
             // Special case, takes care of the first column.
             if (moving.vertexCount() == vertexCount())
                 return CanMoveVerticesResult::acceptVertexMove(result);
@@ -993,10 +997,6 @@ namespace TrenchBroom {
                         return CanMoveVerticesResult::rejectVertexMove();
                 }
             }
-            
-            // Will the result go out of world bounds?
-            if (!worldBounds.contains(result.bounds()))
-                return CanMoveVerticesResult::rejectVertexMove();
             
             // Will the brush become invalid?
             if (!result.polyhedron())
