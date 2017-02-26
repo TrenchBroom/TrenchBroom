@@ -3276,5 +3276,21 @@ namespace TrenchBroom {
             delete snapshot;
             delete cube;
         }
+
+        TEST(BrushTest, moveVerticesPastWorldBounds) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+            
+            Model::Brush *brush1 = builder.createCube(128.0, "texture");
+            
+            Vec3::List allVertexPositions;
+            for (const auto vertex : brush1->vertices()) {
+                allVertexPositions.push_back(vertex->position());
+            }
+            
+            EXPECT_TRUE(brush1->canMoveVertices(worldBounds, allVertexPositions, Vec3(16,0,0)));
+            EXPECT_FALSE(brush1->canMoveVertices(worldBounds, allVertexPositions, Vec3(8192,0,0)));
+        }
     }
 }
