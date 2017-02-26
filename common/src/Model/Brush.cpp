@@ -581,10 +581,19 @@ namespace TrenchBroom {
             CanMoveBoundary canMove(testGeometry, testFaces);
             const bool inWorldBounds = worldBounds.contains(testGeometry.bounds()) && testGeometry.closed();
 
+            bool fullySpecified = true;
+            for (BrushFaceGeometry* current : testGeometry.faces()) {
+                if (current->payload() == nullptr) {
+                    fullySpecified = false;
+                    break;
+                }
+            }
+            
             restoreFaceLinks(m_geometry);
             delete testFace;
             
-            return (inWorldBounds &&
+            return (fullySpecified &&
+                    inWorldBounds &&
                     !canMove.brushEmpty() &&
                     !canMove.hasRedundandFaces() &&
                     !canMove.hasDroppedFaces());
