@@ -117,5 +117,37 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush1->selected());
             ASSERT_TRUE(brush2->selected());
         }
+        
+        static bool hasEmptyName(const Model::AttributeNameSet& names) {
+            for (const Model::AttributeName& name : names) {
+                if (name.empty())
+                    return true;
+            }
+            return false;
+        }
+        
+        TEST_F(GroupNodesTest, undoMoveGroupContainingBrushEntity) {
+            // Test for issue #1715
+            
+            Model::Brush* brush1 = createBrush();
+            document->addNode(brush1, document->currentParent());
+            
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1));
+            
+            document->select(VectorUtils::create<Model::Node*>(brush1));
+            
+            Model::Group* group = document->groupSelection("test");
+            ASSERT_TRUE(group->selected());
+            
+            ASSERT_TRUE(document->translateObjects(Vec3(16,0,0)));
+            
+            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+            
+            document->undoLastCommand();
+            
+            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+        }
     }
 }
