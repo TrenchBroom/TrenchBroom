@@ -29,8 +29,10 @@ namespace TrenchBroom {
         m_rotation(rotation) {}
 
         void EntitySnapshot::doRestore(const BBox3& worldBounds) {
-            m_entity->addOrUpdateAttribute(m_origin.name(), m_origin.value());
-            m_entity->addOrUpdateAttribute(m_rotation.name(), m_rotation.value());
+            if (!m_origin.name().empty())
+                m_entity->addOrUpdateAttribute(m_origin.name(), m_origin.value());
+            if (!m_rotation.name().empty())
+                m_entity->addOrUpdateAttribute(m_rotation.name(), m_rotation.value());
         }
     }
 }
