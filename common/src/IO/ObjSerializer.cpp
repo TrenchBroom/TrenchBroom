@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::writeFaces(const FaceArray& faces) {
-            for (const IndexedVertexList& face : faces) {
+            for (const IndexedVertexArray& face : faces) {
                 std::fprintf(m_stream, "f");
                 for (const IndexedVertex& vertex : face) {
                     std::fprintf(m_stream, " %u/%u/%u",
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             const size_t normalIndex = m_normals.index(normal);
             
             const Model::BrushFace::VertexList vertices = face->vertices();
-            IndexedVertexList indexedVertices;
+            IndexedVertexArray indexedVertices;
             indexedVertices.reserve(vertices.size());
             
             for (const Model::BrushVertex* vertex : vertices) {
