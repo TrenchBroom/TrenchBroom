@@ -409,18 +409,4 @@ size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
     return intersection.size();
 }
 
-template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::checkBoundary() const {
-    HalfEdge* first = m_boundary.front();
-    HalfEdge* current = first;
-    do {
-        if (current->face() != this)
-            return false;
-        if (current->edge() == NULL)
-            return false;
-        current = current->next();
-    } while (current != first);
-    return true;
-}
-
 #endif
