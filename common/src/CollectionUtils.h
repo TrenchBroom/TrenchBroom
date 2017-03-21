@@ -128,6 +128,16 @@ namespace ListUtils {
         delete item;
     }
 
+    template <typename T>
+    typename std::list<T>::iterator replace(std::list<T>& list, typename std::list<T>::iterator pos, std::list<T>& other) {
+        typedef typename std::list<T>::iterator::difference_type DiffType;
+        const DiffType count = DiffType(other.size());
+        if (count == 0)
+            return pos;
+        pos = list.erase(pos);
+        list.splice(pos, other);
+        return std::prev(pos, count);
+    }
 
     template <typename T>
     void clearAndDelete(std::list<T*>& list) {
@@ -932,6 +942,29 @@ namespace SetUtils {
         std::set_intersection(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), std::back_inserter(result));
     }
 
+    template <typename T, typename C>
+    bool intersectionEmpty(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        auto lhsIt = std::begin(lhs);
+        auto lhsEnd = std::end(lhs);
+        auto rhsIt = std::begin(rhs);
+        auto rhsEnd = std::end(rhs);
+        
+        const C cmp;
+        
+        while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
+            const T& l = *lhsIt;
+            const T& r = *rhsIt;
+            if (cmp(l,r)) {
+                ++lhsIt;
+            } else if (cmp(r,l)) {
+                ++rhsIt;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     template <typename T, typename C>
     const std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
         std::set<T, C> result;

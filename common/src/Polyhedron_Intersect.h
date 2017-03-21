@@ -28,6 +28,9 @@ Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(const Polyhedron& other) cons
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callback& callback) const {
+    if (!polyhedron() || !other.polyhedron())
+        return Polyhedron();
+    
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {
