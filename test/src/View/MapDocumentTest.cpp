@@ -135,5 +135,15 @@ namespace TrenchBroom {
             ASSERT_EQ(brush1ExpectedBounds, brush1->bounds());
             ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
         }
+        
+        TEST_F(MapDocumentTest, setTextureNull) {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCube(64.0f, Model::BrushFace::NoTextureName);
+            
+            document->addNode(brush1, document->currentParent());
+            document->select(brush1);
+            
+            document->setTexture(nullptr);
+        }
     }
 }

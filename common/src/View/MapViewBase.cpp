@@ -26,6 +26,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -980,7 +981,7 @@ namespace TrenchBroom {
             ensure(newGroup != NULL, "newGroup is null");
             
             Transaction transaction(document, "Add Objects to Group");
-            reparentNodes(nodes, newGroup);
+            reparentNodes(nodes, newGroup, true);
             document->deselectAll();
             document->select(newGroup);
         }
@@ -994,7 +995,7 @@ namespace TrenchBroom {
             Transaction transaction(document, "Remove Objects from Group");
             if (currentGroup->childCount() == nodes.size())
                 document->closeGroup();
-            reparentNodes(nodes, document->currentLayer());
+            reparentNodes(nodes, document->currentLayer(), true);
         }
 
         Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
@@ -1019,7 +1020,7 @@ namespace TrenchBroom {
             ensure(newParent != NULL, "newParent is null");
 
             const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
-            reparentNodes(nodes, newParent);
+            reparentNodes(nodes, newParent, false);
             document->select(newParent->children());
         }
         
@@ -1045,14 +1046,42 @@ namespace TrenchBroom {
             }
             return false;
         }
+        
+        class BrushesToEntities {
+        private:
+            const Model::World* m_world;
+        public:
+            BrushesToEntities(const Model::World* world) : m_world(world) {}
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true;  }
+            bool operator()(const Model::Entity* entity) const { return true; }
+            bool operator()(const Model::Brush* brush) const   { return brush->entity() == m_world; }
+        };
+        
+        static Model::NodeList collectEntitiesForBrushes(const Model::NodeList& selectedNodes, const Model::World *world) {
+            typedef Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched> BrushesToEntitiesVisitor;
+            
+            BrushesToEntitiesVisitor collect(world);
+            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
+            return collect.nodes();
+        }
 
-        void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent) {
+        void MapViewBase::reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, const bool preserveEntities) {
             ensure(newParent != NULL, "newParent is null");
 
             MapDocumentSPtr document = lock(m_document);
             Model::PushSelection pushSelection(document);
             
-            const Model::NodeList reparentableNodes = collectReparentableNodes(nodes, newParent);
+            Model::NodeList inputNodes;
+            if (preserveEntities) {
+                inputNodes = collectEntitiesForBrushes(nodes, document->world());
+            } else {
+                inputNodes = nodes;
+            }
+            
+            const Model::NodeList reparentableNodes = collectReparentableNodes(inputNodes, newParent);
             assert(!reparentableNodes.empty());
             
             StringStream name;

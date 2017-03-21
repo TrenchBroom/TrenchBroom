@@ -1033,24 +1033,27 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setTexture(Assets::Texture* texture) {
-            assert(texture != NULL);
-            
             const Model::BrushFaceList faces = allSelectedBrushFaces();
-            if (faces.empty()) {
-                if (currentTextureName() == texture->name())
-                    setCurrentTextureName(Model::BrushFace::NoTextureName);
-                else
-                    setCurrentTextureName(texture->name());
-            } else {
-                if (hasTexture(faces, texture)) {
-                    texture = NULL;
-                    setCurrentTextureName(Model::BrushFace::NoTextureName);
+            
+            if (texture != nullptr) {
+                if (faces.empty()) {
+                    if (currentTextureName() == texture->name())
+                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                    else
+                        setCurrentTextureName(texture->name());
                 } else {
-                    setCurrentTextureName(texture->name());
+                    if (hasTexture(faces, texture)) {
+                        texture = nullptr;
+                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                    } else {
+                        setCurrentTextureName(texture->name());
+                    }
                 }
-                
+            }
+            
+            if (!faces.empty()) {
                 Model::ChangeBrushFaceAttributesRequest request;
-                if (texture == NULL)
+                if (texture == nullptr)
                     request.unsetTexture();
                 else
                     request.setTexture(texture);
