@@ -30,6 +30,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+#include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
 #include "Model/Hit.h"
@@ -909,6 +910,21 @@ namespace TrenchBroom {
                 m_compass->render(renderBatch);
         }
         
+        static bool isEntity(const Model::Node* node) {
+            class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
+            private:
+                void doVisit(const Model::World* world)   { setResult(false); }
+                void doVisit(const Model::Layer* layer)   { setResult(false); }
+                void doVisit(const Model::Group* group)   { setResult(false); }
+                void doVisit(const Model::Entity* entity) { setResult(true); }
+                void doVisit(const Model::Brush* brush)   { setResult(false); }
+            };
+            
+            IsEntity visitor;
+            node->accept(visitor);
+            return visitor.result();
+        }
+        
         void MapViewBase::doShowPopupMenu() {
             if (!doBeforePopupMenu())
                 return;
@@ -935,7 +951,7 @@ namespace TrenchBroom {
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
             
-            if (newBrushParent == document->currentLayer()) {
+            if (!isEntity(newBrushParent)) {
                 menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
             } else {
                 menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
@@ -1036,6 +1052,19 @@ namespace TrenchBroom {
             
             if (newParent != NULL && newParent != document->world() && canReparentNodes(nodes, newParent))
                 return newParent;
+            
+            if (!nodes.empty()) {
+                Model::Node* lastNode = nodes.back();
+                
+                Model::Group* group = Model::findGroup(lastNode);
+                if (group != nullptr)
+                    return group;
+                
+                Model::Layer* layer = Model::findLayer(lastNode);
+                if (layer != nullptr)
+                    return layer;
+            }
+            
             return document->currentLayer();
         }
 
