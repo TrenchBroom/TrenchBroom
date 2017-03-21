@@ -35,6 +35,14 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const
     return result;
 }
 
+/**
+ The subtraction algorithm performs four steps.
+ 
+ 1. Clip the subtrahend into the minuend so that it is entirely contained in the minuend. If the subtrahend becomes empty, stop.
+ 2. Chop the minuend by clipping it with every face of the subtrahend. This creates a set of fragments.
+ 3. Remove the fragment that is identical to the original subtrahend.
+ 4. Simplify the fragments by attempting to move all of their vertices onto vertices of the original minuend and subtrahend.
+ */
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Subtract {
 private:
@@ -92,6 +100,11 @@ public:
         return m_fragments;
     }
 private:
+    /**
+     Clips the subrahend into the minuend.
+    
+     Returns true if the subtrahend is not empty, and false otherwise.
+     */
     bool clipSubtrahend() {
         Face* first = m_minuend.faces().front();
         Face* current = first;
@@ -104,6 +117,9 @@ private:
         return true;
     }
     
+    /**
+     Chop up the minuend by clipping it with every face of the subtrahend. This creates fragments.
+     */
     void chopMinuend() {
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
@@ -124,8 +140,11 @@ private:
         } while (currentFace != firstFace);
     }
     
+    /**
+     Remove the fragment that is identical to the subtrahend.
+     */
     void removeSubtrahend() {
-        const typename V::List vertices = V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition());
+        const typename V::List vertices = V::asList(std::begin(m_subtrahend.vertices()), std::end(m_subtrahend.vertices()), GetVertexPosition());
         
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
             const Polyhedron& fragment = *it;
@@ -137,151 +156,158 @@ private:
         assert(false);
     }
     
+    /**
+     Simplify the fragments by moving their vertices onto the vertices of the original minuend and subtrahend, if possible.
+     
+     We call the vertices of the original minuend or subtrahend the original vertices. All other vertices are called the new vertices.
+     */
     void simplify() {
-        FragmentVertexSet newFragments = buildNewFragments();
-        removeDuplicateFragments(newFragments);
-        rebuildFragments(newFragments);
+        moveAdditionalVertices();
+        removeDuplicateFragments();
     }
     
-    FragmentVertexSet buildNewFragments() {
-        FragmentVertexSet result;
+    typedef std::tuple<V, V> VertexMove;
+    typedef std::list<VertexMove> VertexMoveList;
+    
+    class Fragment {
+    public:
+        typedef std::list<Fragment> List;
+    private:
+        typename Polyhedron::List::iterator m_it;
+    public:
+        Fragment(const typename Polyhedron::List::iterator it) :
+        m_it(it) {}
         
-        const ClosestVertices closest = findClosestVertices();
-        if (closest.empty())
-            return findFragmentVertices();
+        VertexMoveList findVertexMoves(const PositionSet& excluded, const PositionSet& minuendVertices) const {
+            VertexMoveList result;
+            
+            const Polyhedron& fragment = *m_it;
+            if (fragment.polyhedron()) {
+                const Vertex* firstVertex = fragment.vertices().front();
+                const Vertex* currentVertex = firstVertex;
+                do {
+                    if (excluded.count(currentVertex->position()) == 0) {
+                        // Not every move is valid. If the fragments form a concave volume, we cannot just always perform these moves.
+                        
+                        const Vertex* destination = findClosestIncidentMinuendVertex(currentVertex, minuendVertices);
+                        if (destination != nullptr)
+                            result.push_back(std::make_tuple(currentVertex->position(), destination->position()));
+                    }
+                    currentVertex = currentVertex->next();
+                } while (currentVertex != firstVertex);
+            }
+            
+            return result;
+        }
         
+        const Vertex* findClosestIncidentMinuendVertex(const Vertex* vertex, const PositionSet& minuendVertices) const {
+            FloatType closestDistance2 = std::numeric_limits<FloatType>::max();
+            const Vertex* closestMinuendVertex = nullptr;
+            
+            const HalfEdge* firstEdge = vertex->leaving();
+            const HalfEdge* currentEdge = firstEdge;
+            do {
+                const Vertex* destination = currentEdge->destination();
+                const V& position = destination->position();
+                if (minuendVertices.count(position) != 0) {
+                    const FloatType distance2 = position.squaredDistanceTo(vertex->position());
+                    if (distance2 < closestDistance2)
+                        closestMinuendVertex = destination;
+                }
+                currentEdge = currentEdge->nextIncident();
+            } while (currentEdge != firstEdge);
+            return closestMinuendVertex;
+        }
+    };
+    
+    void moveAdditionalVertices() {
+        const PositionSet subtrahendVertices = getVertexPositionsAsSet(m_subtrahend);
+        const PositionSet minuendVertices = getVertexPositionsAsSet(m_minuend);
+        const PositionSet excludedVertices = SetUtils::merge(subtrahendVertices, minuendVertices);
+        
+        bool progress = true;
+        while (progress) {
+            progress = false;
+            typename Fragment::List workList = buildWorkList(excludedVertices);
+            for (const Fragment& fragment : workList) {
+                VertexMoveList vertexMoves = fragment.findVertexMoves(excludedVertices, minuendVertices);
+                for (const VertexMove& vertexMove : vertexMoves) {
+                    progress = true;
+                    Vec3 from, to;
+                    std::tie(from, to) = vertexMove;
+                    applyVertexMove(from, to);
+                }
+            }
+        }
+    }
+    
+    PositionSet getVertexPositionsAsSet(const Polyhedron& fragment) {
+        PositionSet result(VertexCmp(0.1));
+        SetUtils::makeSet(V::asList(std::begin(fragment.vertices()), std::end(fragment.vertices()), GetVertexPosition()), result);
+        return result;
+    }
+    
+    typename Fragment::List buildWorkList(const PositionSet& excluded) {
+        typename Fragment::List result;
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
             const Polyhedron& fragment = *it;
-            typename V::Set newFragmentVertices;
             
             const Vertex* firstVertex = fragment.vertices().front();
             const Vertex* currentVertex = firstVertex;
-            
             do {
-                const V& currentPosition = currentVertex->position();
-                typename ClosestVertices::const_iterator clIt = closest.find(currentPosition);
-                if (clIt != std::end(closest)) {
-                    const V& targetPosition = clIt->second;
-                    newFragmentVertices.insert(targetPosition);
-                } else {
-                    newFragmentVertices.insert(currentPosition);
+                const V& currentPos = currentVertex->position();
+                if (excluded.count(currentPos) == 0) {
+                    result.push_back(Fragment(it));
+                    break;
                 }
                 currentVertex = currentVertex->next();
             } while (currentVertex != firstVertex);
-            
-            result.insert(newFragmentVertices);
         }
-        
         return result;
     }
     
-    ClosestVertices findClosestVertices() {
-        MoveableVertices moveableVertices = findMoveableVertices();
-        FragmentVertexSet fragmentVertices = findFragmentVertices();
-        return findClosestVertices(moveableVertices, fragmentVertices);
+    void applyVertexMove(const V& fromPos, const V& toPos) {
+        for (Polyhedron& fragment : m_fragments) {
+            if (fragment.hasVertex(fromPos)) {
+                const typename V::List positions = fragment.vertexPositions();
+                fragment.clear();
+                
+                for (const V& vertex : positions) {
+                    if (vertex.equals(fromPos, 0.1))
+                        fragment.addPoint(toPos);
+                    else
+                        fragment.addPoint(vertex);
+                }
+            }
+        }
+    }
+
+    void removeInvalidFragments() {
+        auto it = std::begin(m_fragments);
+        while (it != std::end(m_fragments)) {
+            const Polyhedron& fragment = *it;
+            if (!fragment.polyhedron()) {
+                it = m_fragments.erase(it);
+            } else {
+                it = std::next(it);
+            }
+        }
     }
     
-    MoveableVertices findMoveableVertices() const {
-        const PositionSet exclude = findExcludedVertices();
-        MoveableVertices result(VertexCmp(0.1));
-        
-        for (const Polyhedron& fragment : m_fragments)
-            findMoveableVertices(fragment, exclude, result);
-        
-        return result;
+    void removeDuplicateFragments() {
+        FragmentVertexSet fragmentVertices = getFragmentVertices(m_fragments);
+        removeDuplicateFragments(fragmentVertices);
+        m_fragments = rebuildFragments(fragmentVertices);
     }
     
-    /**
-     Returns a set containing all vertices to be excluded from being moved. This includes the positions of all vertices of the minuend and the subtrahend.
-     */
-    PositionSet findExcludedVertices() const {
-        PositionSet result(VertexCmp(0.1));
-        SetUtils::makeSet(V::asList(std::begin(m_subtrahend.vertices()), std::end(m_subtrahend.vertices()), GetVertexPosition()), result);
-        SetUtils::makeSet(V::asList(std::begin(m_minuend.vertices()),    std::end(m_minuend.vertices()),    GetVertexPosition()), result);
-        return result;
-    }
-    
-    /**
-     Finds all vertices of the given fragment that should be moved to a new position. Vertices having their position in the given exclude set are ignored.
-     */
-    void findMoveableVertices(const Polyhedron& fragment, const PositionSet& exclude, MoveableVertices& result) const {
-        const Vertex* firstVertex = fragment.vertices().front();
-        const Vertex* currentVertex = firstVertex;
-        do {
-            const V& currentPosition = currentVertex->position();
-            if (exclude.count(currentPosition) == 0 && result.count(currentPosition) == 0)
-                result.insert(std::make_pair(currentPosition, m_minuend.findClosestVertex(currentPosition)->position()));
-            currentVertex = currentVertex->next();
-        } while (currentVertex != firstVertex);
-    }
-    
-    /**
-     Returns a set of sets where each set contains the vertices of one fragment.
-     */
-    FragmentVertexSet findFragmentVertices() const {
+    FragmentVertexSet getFragmentVertices(const Polyhedron::List& fragments) {
         FragmentVertexSet result;
-        
-        for (const Polyhedron& fragment : m_fragments) {
-            typename V::Set vertices(VertexCmp(0.1));
-            
-            const Vertex* firstVertex = fragment.vertices().front();
-            const Vertex* currentVertex = firstVertex;
-            do {
-                vertices.insert(currentVertex->position());
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
-            
+        for (const Polyhedron& fragment : fragments) {
+            typename V::Set vertices;
+            SetUtils::makeSet(V::asList(std::begin(fragment.vertices()), std::end(fragment.vertices()), GetVertexPosition()), vertices);
             result.insert(vertices);
         }
-        
         return result;
-    }
-    
-    ClosestVertices findClosestVertices(const MoveableVertices& vertices, FragmentVertexSet& fragments) {
-        ClosestVertices result;
-
-        for (const auto& entry : vertices) {
-            const V& vertexPosition = entry.first;
-            const V& targetPosition = entry.second;
-            
-            if (applyVertexMove(vertexPosition, targetPosition, fragments))
-                result[vertexPosition] = targetPosition;
-        }
-        
-        return result;
-    }
-    
-    bool applyVertexMove(const V& vertexPosition, const V& targetPosition, FragmentVertexSet& fragments) {
-        FragmentVertexSet newFragments;
-        for (const typename V::Set& vertices : fragments) {
-            typename V::Set newVertices = vertices;
-            
-            if (newVertices.erase(vertexPosition) > 0) {
-                newVertices.insert(targetPosition);
-                
-                Polyhedron newFragment(newVertices);
-                if (newFragment.polyhedron()) {
-                    if (newFragment.intersects(m_subtrahend))
-                        return false;
-                }
-            }
-            newFragments.insert(newVertices);
-        }
-        
-        using std::swap;
-        swap(fragments, newFragments);
-        
-        return true;
-    }
-    
-    bool containsIntersectingFragments(const List& fragments) const {
-        for (auto first = std::begin(fragments), end = std::end(fragments); first != end; ++first) {
-            for (auto second = std::next(first); second != end; ++second) {
-                if (first->intersects(*second))
-                    return true;
-            }
-        }
-        return false;
     }
     
     void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
@@ -309,28 +335,18 @@ private:
         using std::swap;
         swap(newFragments, result);
     }
-    
-    void rebuildFragments(const FragmentVertexSet& newFragments) {
-        m_fragments.clear();
-        
+
+    typename Polyhedron::List rebuildFragments(const FragmentVertexSet& newFragments) {
+        Polyhedron::List result;
         for (const typename V::Set& vertices : newFragments) {
             if (vertices.size() > 3) {
                 const Polyhedron fragment(vertices);
                 if (fragment.polyhedron())
-                    m_fragments.push_back(fragment);
+                    result.push_back(fragment);
             }
         }
+        return result;
     }
-};
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::Partition {
-private:
-    List& m_fragments;
-public:
-    Partition(List& fragments) :
-    m_fragments(fragments) {}
-    
 };
 
 template <typename T, typename FP, typename VP>
@@ -356,9 +372,7 @@ private:
         }
     };
     
-    typedef std::vector<typename Polyhedron::List::iterator> IndexList;
-    typedef std::map<size_t, typename NeighbourEntry::Set> Neighbours;
-    
+    // A merge group is just a set of indices into m_indices (see below). In effect, it is just a set of fragments.
     typedef std::set<size_t> MergeGroup;
     
     struct MergeGroupCmp {
@@ -386,16 +400,23 @@ private:
         }
     };
     
-    typedef std::set<MergeGroup, MergeGroupCmp> MergeGroups;
-    
+    // The fragments being processed.
     typename Polyhedron::List&  m_fragments;
-    const Callback& m_callback;
-    IndexList m_indices;
     
+    // A list mapping integral indices to iterators into the fragment list.
+    typedef std::vector<typename Polyhedron::List::iterator> IndexList;
+    IndexList m_indices;
+
     // Maps a polyhedron index (into m_indices) to the set of its mergeable neighbours.
     // Each entry in the set also stores the two shared faces between the neighbours.
+    typedef std::map<size_t, typename NeighbourEntry::Set> Neighbours;
     Neighbours m_neighbours;
+
+    // Contains a set of merge groups.
+    typedef std::set<MergeGroup, MergeGroupCmp> MergeGroups;
     MergeGroups m_mergeGroups;
+    
+    const Callback& m_callback;
 public:
     Merge(typename Polyhedron::List& fragments, const Callback& callback) :
     m_fragments(fragments),
@@ -404,7 +425,11 @@ public:
         merge();
     }
 private:
+    /**
+     Initialize m_indices.
+     */
     void initialize() {
+        m_indices.reserve(m_fragments.size());
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it)
             m_indices.push_back(it);
     }
@@ -512,8 +537,8 @@ private:
         NeighbourMap result;
         
         for (size_t index = 0; index < m_indices.size(); ++index) {
-            const typename Polyhedron::List::iterator fIt = m_indices[index];
-            const Polyhedron& fragment = *fIt;
+            const auto fragmentIt = m_indices[index];
+            const Polyhedron& fragment = *fragmentIt;
             Face* firstFace = fragment.faces().front();
             Face* currentFace = firstFace;
             do {
@@ -527,7 +552,7 @@ private:
         // Prune the map of invalid entries
         typename NeighbourMap::iterator it = std::begin(result);
         while (it != std::end(result)) {
-            typename NeighbourMap::iterator toRemove = it; ++it;
+            auto toRemove = it; ++it;
             if (toRemove->second.size() < 2)
                 result.erase(toRemove);
         }
@@ -535,10 +560,13 @@ private:
         return result;
     }
     
+    /**
+     Determines whether the polyhedron that contains the given face and the given neighbour can be merged. This is the case
+     if they form a convex volume. This can be checked by determining whether any face of the polyhedron other than the given
+     one can see any vertex of the given neighbour. If no such face exists, then the two polyhedra form a convex volume and
+     can be merged.
+     */
     bool mergeableNeighbours(const Face* sharedFace, const Polyhedron& neighbour) const {
-        // The two polyhedra which share the given faces can be merged if no vertex of one polyhedron is visible by any
-        // other face of the other polyhedron other than the shared face.
-        
         const Vertex* firstVertex = neighbour.vertices().front();
         
         const Face* currentFace = sharedFace->next(); // skip the shared face
@@ -551,6 +579,7 @@ private:
             } while (currentVertex != firstVertex);
             currentFace = currentFace->next();
         } while (currentFace != sharedFace);
+        
         return true;
     }
     
@@ -589,6 +618,18 @@ private:
         }
     }
     
+    
+    Polyhedron mergeGroup(const MergeGroup& group) const {
+        auto it = std::begin(group);
+        auto end = std::end(group);
+        
+        Polyhedron result = *m_indices[*it++];
+        while (it != end)
+            result.merge(*m_indices[*it++]);
+        
+        return result;
+    }
+
     /**
      Attempts to expand the given merge group that has the given polyhedron by adding to it every mergeable
      neighbour of the fragment at the given index.
@@ -635,20 +676,6 @@ private:
             }
         }
         return didExpand;
-    }
-    
-    Polyhedron mergeGroup(const MergeGroup& group) const {
-        MergeGroup::const_iterator it = std::begin(group);
-        MergeGroup::const_iterator end = std::end(group);
-        
-        Polyhedron result = *m_indices[*it];
-        ++it;
-        while (it != end) {
-            result.merge(*m_indices[*it]);
-            ++it;
-        }
-        
-        return result;
     }
     
     void partitionMergeGroups() {
@@ -717,6 +744,96 @@ private:
             }
         }
     }
+
+    class FragmentNode;
+    class FragmentEdge {
+    public:
+        typedef std::set<FragmentEdge*> Set;
+    private:
+        FragmentNode* m_node1;
+        FragmentNode* m_node2;
+        Face* m_face1;
+        Face* m_face2;
+    public:
+        FragmentEdge(FragmentNode* node1, FragmentNode* node2) :
+        m_node1(node1),
+        m_node2(node2) {
+            assert(m_node1 != nullptr);
+            assert(m_node2 != nullptr);
+        }
+        
+        FragmentNode* node1() {
+            return m_node1;
+        }
+        
+        const FragmentNode* node1() const {
+            return m_node1;
+        }
+        
+        FragmentNode* node2() {
+            return m_node2;
+        }
+        
+        const FragmentNode* node2() const {
+            return m_node2;
+        }
+    };
+    
+    class FragmentNode {
+    private:
+        Polyhedron m_fragment;
+        typename FragmentEdge::Set m_edges;
+    public:
+        explicit FragmentNode(const Polyhedron& fragment) :
+        m_fragment(fragment) {}
+        
+        Polyhedron& fragment() {
+            return m_fragment;
+        }
+        
+        const Polyhedron& fragment() const {
+            return m_fragment;
+        }
+        
+        const typename FragmentEdge::Set& edges() {
+            return m_edges;
+        }
+        
+        const typename FragmentEdge::Set& edges() const {
+            return m_edges;
+        }
+        
+        FragmentEdge* split(const Plane3& plane) {
+            // Recursively split neighbours in two phases
+            // First, split all nodes into two (on descent)
+            // Second, replace the edges (on going up)
+        }
+    };
+    
+    /**
+     
+     Two nodes are mergeable iff they are connected with an edge!
+     
+     */
+    class FragmentGraph {
+    private:
+        FragmentNode m_head;
+    public:
+        explicit FragmentGraph(const Polyhedron& initial) :
+        m_head(FragmentNode(initial)) {}
+        
+        FragmentEdge& split(FragmentNode& node, const Plane3& plane) {
+            
+        }
+        
+        void merge(FragmentEdge& edge) {
+            
+        }
+        
+        void remove(FragmentNode& node) {
+            
+        }
+    };
 };
 
 #endif /* Polyhedron_Subtract_h */
