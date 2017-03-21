@@ -156,5 +156,15 @@ namespace TrenchBroom {
             Model::Node* brush3 = entity->children()[0];            
             ASSERT_EQ(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), brush3->bounds());
         }
+
+        TEST_F(MapDocumentTest, setTextureNull) {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCube(64.0f, Model::BrushFace::NoTextureName);
+            
+            document->addNode(brush1, document->currentParent());
+            document->select(brush1);
+            
+            document->setTexture(nullptr);
+        }
     }
 }
