@@ -3277,11 +3277,25 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(BrushTest, moveVerticesPastWorldBounds) {
+        TEST(BrushTest, resizePastWorldBounds) {
             const BBox3 worldBounds(8192.0);
             World world(MapFormat::Standard, NULL, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
+            Model::Brush *brush1 = builder.createBrush(Vec3::List{Vec3(64, -64, 16), Vec3(64, 64, 16), Vec3(64, -64, -16), Vec3(64, 64, -16), Vec3(48, 64, 16), Vec3(48, 64, -16)}, "texture");
+            
+            Model::BrushFace *rightFace = brush1->findFace(Vec3(1,0,0));
+            ASSERT_NE(nullptr, rightFace);
+            
+            EXPECT_TRUE(brush1->canMoveBoundary(worldBounds, rightFace, Vec3(16,0,0)));
+            EXPECT_FALSE(brush1->canMoveBoundary(worldBounds, rightFace, Vec3(8000,0,0)));
+        }
+
+        TEST(BrushTest, moveVerticesPastWorldBounds) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+
             Model::Brush *brush1 = builder.createCube(128.0, "texture");
             
             Vec3::List allVertexPositions;
