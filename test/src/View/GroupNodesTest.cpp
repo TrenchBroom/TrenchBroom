@@ -118,6 +118,29 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush2->selected());
         }
         
+        TEST_F(GroupNodesTest, pasteInGroup) {
+            // https://github.com/kduske/TrenchBroom/issues/1734
+            
+            const String data("{"
+                              "\"classname\" \"light\""
+                              "\"origin\" \"0 0 0\""
+                              "}");
+            
+            Model::Brush* brush = createBrush();
+            document->addNode(brush, document->currentParent());
+            document->select(brush);
+            
+            Model::Group* group = document->groupSelection("test");
+            document->openGroup(group);
+            
+            ASSERT_EQ(PT_Node, document->paste(data));
+            ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
+            ASSERT_EQ(1, document->selectedNodes().entityCount());
+            
+            Model::Entity* light = document->selectedNodes().entities().front();
+            ASSERT_EQ(group, light->parent());
+        }
+
         static bool hasEmptyName(const Model::AttributeNameSet& names) {
             for (const Model::AttributeName& name : names) {
                 if (name.empty())
