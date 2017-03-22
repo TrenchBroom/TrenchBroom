@@ -914,9 +914,17 @@ namespace TrenchBroom {
             // The nodelist is either empty or contains only brushes.
             const Model::NodeList toRemove = selectedNodes().nodes();
             
+            // We could be merging brushes that have different parents; use the parent of the first brush.
+            Model::Node* parent;
+            if (!selectedNodes().brushes().empty()) {
+                parent = selectedNodes().brushes().front()->parent();
+            } else {
+                parent = currentParent();
+            }
+            
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
-            addNode(brush, currentParent());
+            addNode(brush, parent);
             removeNodes(toRemove);
             select(brush);
             return true;

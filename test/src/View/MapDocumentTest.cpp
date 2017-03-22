@@ -22,6 +22,7 @@
 #include "TestUtils.h"
 #include "MathUtils.h"
 #include "Model/Brush.h"
+#include "Model/Entity.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
 #include "Model/MapFormat.h"
@@ -136,6 +137,26 @@ namespace TrenchBroom {
             ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
         }
         
+        TEST_F(MapDocumentTest, csgConvexMerge) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            
+            Model::Brush* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(32, 64, 64)), "texture");
+            Model::Brush* brush2 = builder.createCuboid(BBox3(Vec3(32, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, entity);
+            document->addNode(brush2, entity);
+            ASSERT_EQ(2, entity->children().size());
+            
+            document->select(Model::NodeList { brush1, brush2 });
+            ASSERT_TRUE(document->csgConvexMerge());
+            ASSERT_EQ(1, entity->children().size());
+            
+            Model::Node* brush3 = entity->children()[0];            
+            ASSERT_EQ(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), brush3->bounds());
+        }
+
         TEST_F(MapDocumentTest, setTextureNull) {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::Brush *brush1 = builder.createCube(64.0f, Model::BrushFace::NoTextureName);
