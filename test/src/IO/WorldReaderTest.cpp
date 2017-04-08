@@ -737,6 +737,29 @@ namespace TrenchBroom {
             
             delete world;
         }
+        
+        // https://github.com/kduske/TrenchBroom/issues/1739
+        TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"line1\\nline2\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("line1\\nline2", world->attribute("message").c_str());
+            
+            delete world;
+        }
 
         /*
         TEST(WorldReaderTest, parseIssueIgnoreFlags) {

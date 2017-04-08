@@ -393,5 +393,25 @@ namespace TrenchBroom {
                          "\"message\" \"\\\"holy damn\\\", he said\"\n"
                          "}\n", result.c_str());
         }
+        
+        // https://github.com/kduske/TrenchBroom/issues/1739
+        TEST(NodeWriterTest, writePropertiesWithNewlineEscapeSequence) {            
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.addOrUpdateAttribute("message", "holy damn\\nhe said");
+            
+            StringStream str;
+            NodeWriter writer(&map, str);
+            writer.writeMap();
+            
+            const String result = str.str();
+            ASSERT_STREQ("// entity 0\n"
+                         "{\n"
+                         "\"classname\" \"worldspawn\"\n"
+                         "\"message\" \"holy damn\\nhe said\"\n"
+                         "}\n", result.c_str());
+        }
     }
 }
