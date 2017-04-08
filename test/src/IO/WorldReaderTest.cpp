@@ -667,7 +667,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("yay \"Mr. Robot!\"", world->attribute("message").c_str());
+            ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", world->attribute("message").c_str());
             
             delete world;
         }
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
+            ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", world->attribute("path").c_str());
             
             delete world;
         }
@@ -733,7 +733,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("test\\", world->attribute("message").c_str()); // The two backslashes are treated as one escaped backslash.
+            ASSERT_STREQ("test\\\\", world->attribute("message").c_str()); // The two backslashes are treated as one escaped backslash.
             
             delete world;
         }
