@@ -194,7 +194,19 @@ namespace TrenchBroom {
         }
 
         String NodeSerializer::escapeEntityAttribute(const String& str) const {
-            return StringUtils::escape(str, "\"", '\\');
+            // just escape bare " characters
+            StringStream ss;
+            const size_t length = str.length();
+            for (size_t i=0; i<length; i++) {
+                if (str[i] == '"') {
+                    // if the " is not prefixed by a backslash, insert one.
+                    if (i == 0 || str[i-1] != '\\') {
+                        ss << '\\';
+                    }
+                }
+                ss << str[i];
+            }
+            return ss.str();
         }
     }
 }
