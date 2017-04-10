@@ -49,16 +49,16 @@ namespace TrenchBroom {
             return collection.release();
         }
 
-        FileTextureCollectionLoader::FileTextureCollectionLoader(const IO::Path::List& searchPaths) :
+        FileTextureCollectionLoader::FileTextureCollectionLoader(const IO::Path::Array& searchPaths) :
         m_searchPaths(searchPaths) {}
 
-        MappedFile::List FileTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
+        MappedFile::Array FileTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
             const Path wadPath = Disk::resolvePath(m_searchPaths, path);
             
             WadFileSystem wadFS(wadPath);
-            const Path::List paths = wadFS.findItems(Path(""), FileExtensionMatcher(extension));
+            const Path::Array paths = wadFS.findItems(Path(""), FileExtensionMatcher(extension));
             
-            MappedFile::List result;
+            MappedFile::Array result;
             result.reserve(paths.size());
             
             std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
@@ -70,10 +70,10 @@ namespace TrenchBroom {
         DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(const FileSystem& gameFS) :
         m_gameFS(gameFS) {}
 
-        MappedFile::List DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
-            const Path::List paths = m_gameFS.findItems(path, FileExtensionMatcher(extension));
+        MappedFile::Array DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const String& extension) {
+            const Path::Array paths = m_gameFS.findItems(path, FileExtensionMatcher(extension));
             
-            MappedFile::List result;
+            MappedFile::Array result;
             result.reserve(paths.size());
             
             std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
