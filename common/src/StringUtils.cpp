@@ -241,6 +241,26 @@ namespace StringUtils {
         }
         return buffer.str();
     }
+    
+    String escapeIfNecessary(const String& str, const String& chars, char esc) {
+        if (str.empty())
+            return str;
+        
+        StringStream buffer;
+        const size_t length = str.length();
+        for (size_t i = 0; i < length; ++i) {
+            const char c = str[i];
+            const bool cNeedsEscaping = (chars.find(c) != String::npos);
+            if (cNeedsEscaping) {
+                // if `c` is not prefixed by `esc`, insert an `esc`
+                if (i == 0 || str[i - 1] != esc) {
+                    buffer << esc;
+                }
+            }
+            buffer << c;
+        }
+        return buffer.str();
+    }
 
     String unescape(const String& str, const String& chars, const char esc) {
         if (str.empty())
