@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::validate() {
-            Vertex::List links;
+            Vertex::Array links;
             getLinks(links);
             m_entityLinks = VertexArray::swap(links);
             m_valid = true;
@@ -109,9 +109,9 @@ namespace TrenchBroom {
         private:
             const Color& m_defaultColor;
             const Color& m_selectedColor;
-            Vertex::List& m_links;
+            Vertex::Array& m_links;
         protected:
-            CollectLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::Array& links) :
             m_editorContext(editorContext),
             m_defaultColor(defaultColor),
             m_selectedColor(selectedColor),
@@ -141,7 +141,7 @@ namespace TrenchBroom {
         
         class EntityLinkRenderer::CollectAllLinksVisitor : public CollectLinksVisitor {
         public:
-            CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::Array& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
             void visitEntity(Model::Entity* entity) {
@@ -163,7 +163,7 @@ namespace TrenchBroom {
         private:
             Model::NodeSet m_visited;
         public:
-            CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::Array& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
             void visitEntity(Model::Entity* entity) {
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         
         class EntityLinkRenderer::CollectDirectSelectedLinksVisitor : public CollectLinksVisitor {
         public:
-            CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::Array& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
             void visitEntity(Model::Entity* entity) {
@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::Entity* source, const Model::AttributableNodeArray& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             }
         };
         
-        void EntityLinkRenderer::getLinks(Vertex::List& links) const {
+        void EntityLinkRenderer::getLinks(Vertex::Array& links) const {
             View::MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             switch (editorContext.entityLinkMode()) {
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityLinkRenderer::getAllLinks(Vertex::List& links) const {
+        void EntityLinkRenderer::getAllLinks(Vertex::Array& links) const {
             View::MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             
@@ -264,7 +264,7 @@ namespace TrenchBroom {
             collectSelectedLinks(visitor);
         }
         
-        void EntityLinkRenderer::getDirectSelectedLinks(Vertex::List& links) const {
+        void EntityLinkRenderer::getDirectSelectedLinks(Vertex::Array& links) const {
             View::MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             
