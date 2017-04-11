@@ -76,7 +76,7 @@ namespace TrenchBroom {
             Vec2f::Array positions = circle2D(radius, startAngle, angleLength, segments);
             if (m_filled)
                 positions.push_back(Vec2f::Null);
-            Vertex::Array vertices = Vertex::fromLists(positions, positions.size());
+            Vertex::Array vertices = Vertex::fromArrays(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }
         
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             Vec3f::Array positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (m_filled)
                 positions.push_back(Vec3f::Null);
-            Vertex::Array vertices = Vertex::fromLists(positions, positions.size());
+            Vertex::Array vertices = Vertex::fromArrays(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }
     }
