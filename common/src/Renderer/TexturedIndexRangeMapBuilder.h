@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TexturedIndexRangeMapBuilder {
         public:
             typedef typename VertexSpec::Vertex Vertex;
-            typedef typename Vertex::List VertexList;
+            typedef typename Vertex::Array VertexArray;
             typedef Assets::Texture Texture;
         private:
             typedef typename VertexListBuilder<VertexSpec>::IndexData IndexData;
@@ -45,11 +45,11 @@ namespace TrenchBroom {
             m_vertexListBuilder(vertexCount),
             m_indexRange(indexRangeSize) {}
             
-            const VertexList& vertices() const {
+            const VertexArray& vertices() const {
                 return m_vertexListBuilder.vertices();
             }
             
-            VertexList& vertices() {
+            VertexArray& vertices() {
                 return m_vertexListBuilder.vertices();
             }
             
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 add(texture, GL_POINTS, m_vertexListBuilder.addPoint(v));
             }
             
-            void addPoints(const Texture* texture, const VertexList& vertices) {
+            void addPoints(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_POINTS, m_vertexListBuilder.addPoints(vertices));
             }
             
@@ -74,15 +74,15 @@ namespace TrenchBroom {
                 add(texture, GL_LINES, m_vertexListBuilder.addLine(v1, v2));
             }
             
-            void addLines(const Texture* texture, const VertexList& vertices) {
+            void addLines(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_LINES, m_vertexListBuilder.addLines(vertices));
             }
             
-            void addLineStrip(const Texture* texture, const VertexList& vertices) {
+            void addLineStrip(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_LINE_STRIP, m_vertexListBuilder.addLineStrip(vertices));
             }
             
-            void addLineLoop(const Texture* texture, const VertexList& vertices) {
+            void addLineLoop(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_LINE_LOOP, m_vertexListBuilder.addLineLoop(vertices));
             }
             
@@ -90,15 +90,15 @@ namespace TrenchBroom {
                 add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangle(v1, v2, v3));
             }
             
-            void addTriangles(const Texture* texture, const VertexList& vertices) {
+            void addTriangles(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_TRIANGLES, m_vertexListBuilder.addTriangles(vertices));
             }
             
-            void addTriangleFan(const Texture* texture, const VertexList& vertices) {
+            void addTriangleFan(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_TRIANGLE_FAN, m_vertexListBuilder.addTriangleFan(vertices));
             }
             
-            void addTriangleStrip(const Texture* texture, const VertexList& vertices) {
+            void addTriangleStrip(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_TRIANGLE_STRIP, m_vertexListBuilder.addTriangleStrip(vertices));
             }
             
@@ -106,15 +106,15 @@ namespace TrenchBroom {
                 add(texture, GL_QUADS, m_vertexListBuilder.addQuad(v1, v2, v3, v4));
             }
             
-            void addQuads(const Texture* texture, const VertexList& vertices) {
+            void addQuads(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_QUADS, m_vertexListBuilder.addQuads(vertices));
             }
             
-            void addQuadStrip(const Texture* texture, const VertexList& vertices) {
+            void addQuadStrip(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_QUAD_STRIP, m_vertexListBuilder.addQuadStrip(vertices));
             }
             
-            void addPolygon(const Texture* texture, const VertexList& vertices) {
+            void addPolygon(const Texture* texture, const VertexArray& vertices) {
                 add(texture, GL_POLYGON, m_vertexListBuilder.addPolygon(vertices));
             }
         private:
