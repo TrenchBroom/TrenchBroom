@@ -274,9 +274,9 @@ namespace TrenchBroom {
             const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
-            const Model::BrushFace::VertexArray vertices = m_face->vertices();
-            Model::BrushFace::VertexArray::const_iterator it = std::begin(vertices);
-            Model::BrushFace::VertexArray::const_iterator end = std::end(vertices);
+            const Model::BrushFace::VertexList vertices = m_face->vertices();
+            Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
+            Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end)
