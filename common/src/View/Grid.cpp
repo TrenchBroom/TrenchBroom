@@ -189,8 +189,8 @@ namespace TrenchBroom {
                 return Vec3::Null;
             
             const Model::Brush* brush = face->brush();
-            const Model::Brush::EdgeArray brushEdges = brush->edges();
-            const Model::BrushFace::VertexArray faceVertices = face->vertices();
+            const Model::Brush::EdgeList brushEdges = brush->edges();
+            const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<Ray3> edgeRays;
