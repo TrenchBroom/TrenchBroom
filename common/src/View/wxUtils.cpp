@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return wxColor(r, g, b, a);
         }
 
-        std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
+        std::vector<size_t> getArrayCtrlSelection(const wxListCtrl* listCtrl) {
             ensure(listCtrl != NULL, "listCtrl is null");
 
 
