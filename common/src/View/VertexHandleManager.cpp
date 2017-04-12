@@ -620,7 +620,7 @@ namespace TrenchBroom {
                 ensure(!faces.empty(), "no unselected face handles");
                 
                 const Model::BrushFace* face = *std::begin(faces);
-                const Model::BrushFace::VertexArray& vertices = face->vertices();
+                const Model::BrushFace::VertexList& vertices = face->vertices();
 
                 Vec3f::Array vertexPositions;
                 vertexPositions.reserve(vertices.size());
@@ -744,7 +744,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushFaceSet& faces = fIt->second;
                 for (const Model::BrushFace* face : faces) {
-                    const Model::BrushFace::EdgeArray edges = face->edges();
+                    const Model::BrushFace::EdgeList edges = face->edges();
                     for (const Model::BrushEdge* edge : edges) {
                         m_edgeVertices.push_back(Vec3f(edge->firstVertex()->position()));
                         m_edgeVertices.push_back(Vec3f(edge->secondVertex()->position()));
