@@ -272,7 +272,7 @@ namespace TrenchBroom {
             assert(m_helper.valid()); 
             
             const Model::BrushFace* face = m_helper.face();
-            const Model::BrushFace::VertexArray faceVertices = face->vertices();
+            const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::Array edgeVertices;
