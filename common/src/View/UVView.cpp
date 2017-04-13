@@ -84,6 +84,7 @@ namespace TrenchBroom {
 
         void UVView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->documentWasClearedNotifier.addObserver(this, &UVView::documentWasCleared);
             document->nodesDidChangeNotifier.addObserver(this, &UVView::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &UVView::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &UVView::selectionDidChange);
@@ -98,6 +99,7 @@ namespace TrenchBroom {
         void UVView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->documentWasClearedNotifier.removeObserver(this, &UVView::documentWasCleared);
                 document->nodesDidChangeNotifier.removeObserver(this, &UVView::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &UVView::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &UVView::selectionDidChange);
@@ -122,6 +124,12 @@ namespace TrenchBroom {
                 m_toolBox.enable();
             else
                 m_toolBox.disable();
+            Refresh();
+        }
+        
+        void UVView::documentWasCleared(MapDocument* document) {
+            m_helper.setFace(nullptr);
+            m_toolBox.disable();
             Refresh();
         }
         

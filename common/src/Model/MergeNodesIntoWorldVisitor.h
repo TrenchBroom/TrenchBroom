@@ -28,13 +28,13 @@ namespace TrenchBroom {
         class MergeNodesIntoWorldVisitor : public NodeVisitor {
         private:
             World* m_world;
-            Layer* m_layer;
+            Node* m_parent;
             
             ParentChildrenMap m_result;
             mutable NodeList m_nodesToDetach;
             mutable NodeList m_nodesToDelete;
         public:
-            MergeNodesIntoWorldVisitor(World* world, Layer* layer);
+            MergeNodesIntoWorldVisitor(World* world, Node* parent);
             
             const ParentChildrenMap& result() const;
         private:

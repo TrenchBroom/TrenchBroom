@@ -581,10 +581,19 @@ namespace TrenchBroom {
             CanMoveBoundary canMove(testGeometry, testFaces);
             const bool inWorldBounds = worldBounds.contains(testGeometry.bounds()) && testGeometry.closed();
 
+            bool fullySpecified = true;
+            for (BrushFaceGeometry* current : testGeometry.faces()) {
+                if (current->payload() == nullptr) {
+                    fullySpecified = false;
+                    break;
+                }
+            }
+            
             restoreFaceLinks(m_geometry);
             delete testFace;
             
-            return (inWorldBounds &&
+            return (fullySpecified &&
+                    inWorldBounds &&
                     !canMove.brushEmpty() &&
                     !canMove.hasRedundandFaces() &&
                     !canMove.hasDroppedFaces());
@@ -981,6 +990,10 @@ namespace TrenchBroom {
             
             assert(remaining.vertexCount() + moving.vertexCount() == vertexCount());
             
+            // Will the result go out of world bounds?
+            if (!worldBounds.contains(result.bounds()))
+                return CanMoveVerticesResult::rejectVertexMove();
+            
             // Special case, takes care of the first column.
             if (moving.vertexCount() == vertexCount())
                 return CanMoveVerticesResult::acceptVertexMove(result);
@@ -993,10 +1006,6 @@ namespace TrenchBroom {
                         return CanMoveVerticesResult::rejectVertexMove();
                 }
             }
-            
-            // Will the result go out of world bounds?
-            if (!worldBounds.contains(result.bounds()))
-                return CanMoveVerticesResult::rejectVertexMove();
             
             // Will the brush become invalid?
             if (!result.polyhedron())

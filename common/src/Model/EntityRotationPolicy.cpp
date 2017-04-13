@@ -67,6 +67,18 @@ namespace TrenchBroom {
                     const FloatType yaw   = +Math::radians(angles.y());
                     return rotationMatrix(roll, pitch, yaw);
                 }
+                case RotationType_Euler_PositivePitchDown: {
+                    const AttributeValue angleValue = entity->attribute(info.attribute);
+                    const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
+                    
+                    // x = pitch
+                    // y = yaw
+                    // z = roll
+                    const FloatType roll  = +Math::radians(angles.z());
+                    const FloatType pitch = +Math::radians(angles.x());
+                    const FloatType yaw   = +Math::radians(angles.y());
+                    return rotationMatrix(roll, pitch, yaw);
+                }
                 case RotationType_Mangle: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
                     const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
@@ -108,6 +120,12 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const Vec3 nPitchYawRoll(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
+                    entity->addOrUpdateAttribute(info.attribute, nPitchYawRoll.rounded());
+                    break;
+                }
+                case RotationType_Euler_PositivePitchDown: {
+                    const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
+                    const Vec3 nPitchYawRoll(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
                     entity->addOrUpdateAttribute(info.attribute, nPitchYawRoll.rounded());
                     break;
                 }
@@ -158,10 +176,7 @@ namespace TrenchBroom {
                             type = RotationType_Euler;
                             attribute = AttributeNames::Angles;
                         } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                            if (StringUtils::caseSensitiveEqual(classname, "info_intermission"))
-                                type = RotationType_Euler;
-                            else
-                                type = RotationType_Mangle;
+                            type = RotationType_Mangle;
                             attribute = AttributeNames::Mangle;
                         } else if (entity->hasAttribute(AttributeNames::Angle)) {
                             type = RotationType_AngleUpDown;
@@ -177,7 +192,10 @@ namespace TrenchBroom {
                                 type = RotationType_Euler;
                                 attribute = AttributeNames::Angles;
                             } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                                type = RotationType_Mangle;
+                                if (StringUtils::caseSensitiveEqual(classname, "info_intermission"))
+                                    type = RotationType_Euler_PositivePitchDown;
+                                else
+                                    type = RotationType_Mangle;
                                 attribute = AttributeNames::Mangle;
                             } else {
                                 type = RotationType_Angle;

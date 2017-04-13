@@ -117,5 +117,60 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush1->selected());
             ASSERT_TRUE(brush2->selected());
         }
+        
+        TEST_F(GroupNodesTest, pasteInGroup) {
+            // https://github.com/kduske/TrenchBroom/issues/1734
+            
+            const String data("{"
+                              "\"classname\" \"light\""
+                              "\"origin\" \"0 0 0\""
+                              "}");
+            
+            Model::Brush* brush = createBrush();
+            document->addNode(brush, document->currentParent());
+            document->select(brush);
+            
+            Model::Group* group = document->groupSelection("test");
+            document->openGroup(group);
+            
+            ASSERT_EQ(PT_Node, document->paste(data));
+            ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
+            ASSERT_EQ(1, document->selectedNodes().entityCount());
+            
+            Model::Entity* light = document->selectedNodes().entities().front();
+            ASSERT_EQ(group, light->parent());
+        }
+
+        static bool hasEmptyName(const Model::AttributeNameSet& names) {
+            for (const Model::AttributeName& name : names) {
+                if (name.empty())
+                    return true;
+            }
+            return false;
+        }
+        
+        TEST_F(GroupNodesTest, undoMoveGroupContainingBrushEntity) {
+            // Test for issue #1715
+            
+            Model::Brush* brush1 = createBrush();
+            document->addNode(brush1, document->currentParent());
+            
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            document->reparentNodes(entity, VectorUtils::create<Model::Node*>(brush1));
+            
+            document->select(VectorUtils::create<Model::Node*>(brush1));
+            
+            Model::Group* group = document->groupSelection("test");
+            ASSERT_TRUE(group->selected());
+            
+            ASSERT_TRUE(document->translateObjects(Vec3(16,0,0)));
+            
+            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+            
+            document->undoLastCommand();
+            
+            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+        }
     }
 }
