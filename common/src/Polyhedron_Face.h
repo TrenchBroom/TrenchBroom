@@ -125,10 +125,17 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions() const {
-    typename V::List positions(0);
-    positions.reserve(vertexCount());
-    getVertexPositions(std::back_inserter(positions));
-    return positions;
+    typename V::List result(0);
+    result.reserve(vertexCount());
+    getVertexPositions(std::back_inserter(result));
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::Face::vertexPositionSet() const {
+    typename V::Set result;
+    getVertexPositions(std::inserter(result, result.end()));
+    return result;
 }
 
 template <typename T, typename FP, typename VP>

@@ -354,17 +354,14 @@ class Polyhedron<T,FP,VP>::Merge {
 private:
     struct NeighbourEntry {
         size_t neighbour;
-        Face* face;
-        Face* neighbourFace;
+        typename Face::Set neighbourSharedFaces;
         
         typedef std::set<NeighbourEntry> Set;
         
-        NeighbourEntry(const size_t i_neighbour, Face* i_face, Face* i_neighbourFace) :
+        NeighbourEntry(const size_t i_neighbour, const typename Face::Set& i_neighbourSharedFaces) :
         neighbour(i_neighbour),
-        face(i_face),
-        neighbourFace(i_neighbourFace) {
-            ensure(face != NULL, "face is null");
-            ensure(neighbourFace != NULL, "neighbourFace is null");
+        neighbourSharedFaces(i_neighbourSharedFaces) {
+            ensure(!neighbourSharedFaces.empty(), "shared faces empty");
         }
         
         bool operator<(const NeighbourEntry& other) const {
@@ -502,29 +499,33 @@ private:
     typedef std::vector<NeighbourFace> NeighbourFaceList;
     typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
     
+    struct SharedFaces {
+        size_t index;
+        typename Face::Set faces;
+        
+        SharedFaces(const size_t i_index, const typename Face::Set& i_faces) :
+        index(i_index),
+        faces(i_faces) {}
+    };
+
+    typedef std::pair<SharedFaces, SharedFaces> NeighbourPair;
+    typedef std::list<NeighbourPair> NeighbourList;
+    
     /**
      Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
      the m_neighbours map.
      */
     void findMergeableNeighbours() {
-        for (const auto& entry : findNeighbours()) {
-            const NeighbourFaceList& neighbourFaces = entry.second;
-            assert(neighbourFaces.size() == 2);
+        for (const NeighbourPair& neighbourPair : findNeighbours()) {
+            const SharedFaces&  first = neighbourPair.first;
+            const SharedFaces& second = neighbourPair.second;
             
-            const NeighbourFace& first  = neighbourFaces[0];
-            const NeighbourFace& second = neighbourFaces[1];
-            
-            const size_t firstIndex = first.first;
-            const size_t secondIndex = second.first;
-            Face* firstFace = first.second;
-            Face* secondFace = second.second;
-            
-            if (mergeableNeighbours(secondFace, *m_indices[firstIndex])) {
-                assert(mergeableNeighbours(firstFace, *m_indices[secondIndex]));
-                m_neighbours[ firstIndex].insert(NeighbourEntry(secondIndex,  firstFace, secondFace));
-                m_neighbours[secondIndex].insert(NeighbourEntry( firstIndex, secondFace,  firstFace));
+            if (mergeableNeighbours(second.faces, *m_indices[first.index])) {
+                assert(mergeableNeighbours(first.faces, *m_indices[second.index]));
+                m_neighbours[ first.index].insert(NeighbourEntry(second.index, second.faces));
+                m_neighbours[second.index].insert(NeighbourEntry( first.index,  first.faces));
             } else {
-                assert(!mergeableNeighbours(firstFace, *m_indices[secondIndex]));
+                // assert(!mergeableNeighbours(first.faces, *m_indices[second.index]));
             }
         }
     }
@@ -533,52 +534,73 @@ private:
      Builds a map that maps face keys (which are essentially sets of vertices) to a list of faces,
      whereby each face is represented by a pair of its index into m_indices and the face itself.
      */
-    NeighbourMap findNeighbours() {
-        NeighbourMap result;
-        
-        for (size_t index = 0; index < m_indices.size(); ++index) {
-            const auto fragmentIt = m_indices[index];
+    NeighbourList findNeighbours() {
+        NeighbourList result;
+
+        for (size_t fragmentIndex = 0; fragmentIndex < m_indices.size(); ++fragmentIndex) {
+            const auto fragmentIt = m_indices[fragmentIndex];
             const Polyhedron& fragment = *fragmentIt;
-            Face* firstFace = fragment.faces().front();
-            Face* currentFace = firstFace;
-            do {
-                NeighbourFaceList& neighbours = result[FaceKey(currentFace)];
-                assert(neighbours.size() < 2);
-                neighbours.push_back(std::make_pair(index, currentFace));
-                currentFace = currentFace->next();
-            } while (currentFace != firstFace);
-        }
-        
-        // Prune the map of invalid entries
-        typename NeighbourMap::iterator it = std::begin(result);
-        while (it != std::end(result)) {
-            auto toRemove = it; ++it;
-            if (toRemove->second.size() < 2)
-                result.erase(toRemove);
+            const typename V::Set fragmentVertices = fragment.vertexPositionSet();
+            
+            for (size_t candidateIndex = fragmentIndex + 1; candidateIndex < m_indices.size(); ++candidateIndex) {
+                const auto candidateIt = m_indices[candidateIndex];
+                const Polyhedron& candidate = *candidateIt;
+                const typename V::Set candidateVertices = candidate.vertexPositionSet();
+                
+                const typename V::Set sharedVertices = SetUtils::intersection(fragmentVertices, candidateVertices);
+                if (sharedVertices.size() >= 3) {
+                    const typename Face::Set  fragmentSharedFaces = findSharedFaces( fragment, sharedVertices);
+                    const typename Face::Set candidateSharedFaces = findSharedFaces(candidate, sharedVertices);
+                    
+                    if (!fragmentSharedFaces.empty() && !candidateSharedFaces.empty())
+                        result.push_back(NeighbourPair(SharedFaces( fragmentIndex,  fragmentSharedFaces),
+                                                       SharedFaces(candidateIndex, candidateSharedFaces)));
+                }
+            }
         }
         
         return result;
     }
     
+    typename Face::Set findSharedFaces(const Polyhedron& polyhedron, const typename V::Set& sharedVertices) const {
+        typename Face::Set result;
+        
+        Face* firstFace = polyhedron.faces().front();
+        Face* currentFace = firstFace;
+        do {
+            if (SetUtils::subset(currentFace->vertexPositionSet(), sharedVertices))
+                result.insert(currentFace);
+            currentFace = currentFace->next();
+        } while (currentFace != firstFace);
+        
+        return result;
+    }
+    
     /**
-     Determines whether the polyhedron that contains the given face and the given neighbour can be merged. This is the case
+     Determines whether the polyhedron that contains the given faces and the given neighbour can be merged. This is the case
      if they form a convex volume. This can be checked by determining whether any face of the polyhedron other than the given
-     one can see any vertex of the given neighbour. If no such face exists, then the two polyhedra form a convex volume and
+     ones can see any vertex of the given neighbour. If no such face exists, then the two polyhedra form a convex volume and
      can be merged.
      */
-    bool mergeableNeighbours(const Face* sharedFace, const Polyhedron& neighbour) const {
+    bool mergeableNeighbours(const typename Face::Set& sharedFaces, const Polyhedron& neighbour) const {
+        assert(!sharedFaces.empty());
+        assert(!neighbour.empty());
+        
         const Vertex* firstVertex = neighbour.vertices().front();
         
-        const Face* currentFace = sharedFace->next(); // skip the shared face
+        Face* firstFace = *std::begin(sharedFaces);
+        Face* currentFace = firstFace->next(); // skip the first face since we know it's shared
         do {
-            const Vertex* currentVertex = firstVertex;
-            do {
-                if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
-                    return false;
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
+            if (sharedFaces.count(currentFace) == 0) {
+                const Vertex* currentVertex = firstVertex;
+                do {
+                    if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
+                        return false;
+                    currentVertex = currentVertex->next();
+                } while (currentVertex != firstVertex);
+            }
             currentFace = currentFace->next();
-        } while (currentFace != sharedFace);
+        } while (currentFace != firstFace);
         
         return true;
     }
@@ -651,12 +673,10 @@ private:
         // Iterate over all mergeable neighbours and attempt to expand the merge group further.
         for (const NeighbourEntry& entry : neighbours) {
             MergeGroup newGroup = group;
-            
             const size_t neighbourIndex = entry.neighbour;
-            const Face* neighbourFace = entry.neighbourFace;
             
             if (newGroup.insert(neighbourIndex).second &&
-                mergeableNeighbours(neighbourFace, polyhedron)) {
+                mergeableNeighbours(entry.neighbourSharedFaces, polyhedron)) {
                 // The potential neighbour wasn't already in the new group, and it is actually mergeable
                 // with the group.
                 
@@ -744,96 +764,6 @@ private:
             }
         }
     }
-
-    class FragmentNode;
-    class FragmentEdge {
-    public:
-        typedef std::set<FragmentEdge*> Set;
-    private:
-        FragmentNode* m_node1;
-        FragmentNode* m_node2;
-        Face* m_face1;
-        Face* m_face2;
-    public:
-        FragmentEdge(FragmentNode* node1, FragmentNode* node2) :
-        m_node1(node1),
-        m_node2(node2) {
-            assert(m_node1 != nullptr);
-            assert(m_node2 != nullptr);
-        }
-        
-        FragmentNode* node1() {
-            return m_node1;
-        }
-        
-        const FragmentNode* node1() const {
-            return m_node1;
-        }
-        
-        FragmentNode* node2() {
-            return m_node2;
-        }
-        
-        const FragmentNode* node2() const {
-            return m_node2;
-        }
-    };
-    
-    class FragmentNode {
-    private:
-        Polyhedron m_fragment;
-        typename FragmentEdge::Set m_edges;
-    public:
-        explicit FragmentNode(const Polyhedron& fragment) :
-        m_fragment(fragment) {}
-        
-        Polyhedron& fragment() {
-            return m_fragment;
-        }
-        
-        const Polyhedron& fragment() const {
-            return m_fragment;
-        }
-        
-        const typename FragmentEdge::Set& edges() {
-            return m_edges;
-        }
-        
-        const typename FragmentEdge::Set& edges() const {
-            return m_edges;
-        }
-        
-        FragmentEdge* split(const Plane3& plane) {
-            // Recursively split neighbours in two phases
-            // First, split all nodes into two (on descent)
-            // Second, replace the edges (on going up)
-        }
-    };
-    
-    /**
-     
-     Two nodes are mergeable iff they are connected with an edge!
-     
-     */
-    class FragmentGraph {
-    private:
-        FragmentNode m_head;
-    public:
-        explicit FragmentGraph(const Polyhedron& initial) :
-        m_head(FragmentNode(initial)) {}
-        
-        FragmentEdge& split(FragmentNode& node, const Plane3& plane) {
-            
-        }
-        
-        void merge(FragmentEdge& edge) {
-            
-        }
-        
-        void remove(FragmentNode& node) {
-            
-        }
-    };
 };
 
 #endif /* Polyhedron_Subtract_h */
