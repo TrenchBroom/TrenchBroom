@@ -196,6 +196,8 @@ public:
     };
 
     class Face : public Allocator<Face> {
+    public:
+        typedef std::set<Face*> Set;
     private:
         friend class Polyhedron<T,FP,VP>;
         
@@ -217,6 +219,7 @@ public:
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
+        typename V::Set vertexPositionSet() const;
         bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
