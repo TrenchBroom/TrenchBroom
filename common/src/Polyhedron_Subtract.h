@@ -525,7 +525,7 @@ private:
                 m_neighbours[ first.index].insert(NeighbourEntry(second.index, second.faces));
                 m_neighbours[second.index].insert(NeighbourEntry( first.index,  first.faces));
             } else {
-                // assert(!mergeableNeighbours(first.faces, *m_indices[second.index]));
+                assert(!mergeableNeighbours(first.faces, *m_indices[second.index]));
             }
         }
     }
@@ -540,21 +540,22 @@ private:
         for (size_t fragmentIndex = 0; fragmentIndex < m_indices.size(); ++fragmentIndex) {
             const auto fragmentIt = m_indices[fragmentIndex];
             const Polyhedron& fragment = *fragmentIt;
-            const typename V::Set fragmentVertices = fragment.vertexPositionSet();
+            const typename V::Set fragmentVertices = fragment.vertexPositionSet(0.0);
             
             for (size_t candidateIndex = fragmentIndex + 1; candidateIndex < m_indices.size(); ++candidateIndex) {
                 const auto candidateIt = m_indices[candidateIndex];
                 const Polyhedron& candidate = *candidateIt;
-                const typename V::Set candidateVertices = candidate.vertexPositionSet();
+                const typename V::Set candidateVertices = candidate.vertexPositionSet(0.0);
                 
                 const typename V::Set sharedVertices = SetUtils::intersection(fragmentVertices, candidateVertices);
                 if (sharedVertices.size() >= 3) {
                     const typename Face::Set  fragmentSharedFaces = findSharedFaces( fragment, sharedVertices);
                     const typename Face::Set candidateSharedFaces = findSharedFaces(candidate, sharedVertices);
                     
-                    if (!fragmentSharedFaces.empty() && !candidateSharedFaces.empty())
+                    if (!fragmentSharedFaces.empty() && !candidateSharedFaces.empty()) {
                         result.push_back(NeighbourPair(SharedFaces( fragmentIndex,  fragmentSharedFaces),
                                                        SharedFaces(candidateIndex, candidateSharedFaces)));
+                    }
                 }
             }
         }
@@ -568,7 +569,7 @@ private:
         Face* firstFace = polyhedron.faces().front();
         Face* currentFace = firstFace;
         do {
-            if (SetUtils::subset(currentFace->vertexPositionSet(), sharedVertices))
+            if (SetUtils::subset(currentFace->vertexPositionSet(0.0), sharedVertices))
                 result.insert(currentFace);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);
