@@ -869,7 +869,7 @@ namespace SetUtils {
         Iter rIt = std::begin(rhs);
         Iter rEnd = std::end(rhs);
 
-        C cmp;
+        const C& cmp = lhs.key_comp();
 
         while (lIt != lEnd) {
             // forward rhs until we find the element
@@ -907,7 +907,7 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         minus(lhs, rhs, result);
         return result;
     }
@@ -927,7 +927,7 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         merge(lhs, rhs, result);
         return result;
     }
@@ -949,7 +949,7 @@ namespace SetUtils {
         auto rhsIt = std::begin(rhs);
         auto rhsEnd = std::end(rhs);
         
-        const C cmp;
+        const C& cmp = lhs.key_comp();
         
         while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
             const T& l = *lhsIt;
@@ -967,7 +967,7 @@ namespace SetUtils {
     
     template <typename T, typename C>
     const std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         intersection(lhs, rhs, result);
         return result;
     }

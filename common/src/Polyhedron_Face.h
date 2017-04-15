@@ -132,8 +132,9 @@ typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::Face::vertexPositionSet() const {
-    typename V::Set result;
+typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::Face::vertexPositionSet(const T epsilon) const {
+    typename V::LexicographicOrder cmp(epsilon);
+    typename V::Set result(cmp);
     getVertexPositions(std::inserter(result, result.end()));
     return result;
 }
