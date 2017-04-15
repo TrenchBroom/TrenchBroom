@@ -303,6 +303,8 @@ void Polyhedron<T,FP,VP>::setBounds(const BBox<T,3>& bounds, Callback& callback)
     m_edges.append(new Edge(f6h1, f3h3), 1); // v5, v7
     m_edges.append(new Edge(f6h3, f4h2), 1); // v6, v8
     m_edges.append(new Edge(f6h2, f5h3), 1); // v7, v8
+    
+    m_bounds = bounds;
 }
 
 template <typename T, typename FP, typename VP>
@@ -541,8 +543,9 @@ typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() con
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::vertexPositionSet() const {
-    typename V::Set result;
+typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::vertexPositionSet(const T epsilon) const {
+    typename V::LexicographicOrder cmp(epsilon);
+    typename V::Set result(cmp);
     getVertexPositions(std::inserter(result, result.end()));
     return result;
 }
