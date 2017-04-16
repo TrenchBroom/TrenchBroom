@@ -201,7 +201,7 @@ private:
         }
         
         const Vertex* findClosestIncidentMinuendVertex(const Vertex* vertex, const PositionSet& minuendVertices) const {
-            FloatType closestDistance2 = std::numeric_limits<FloatType>::max();
+            T closestDistance2 = std::numeric_limits<T>::max();
             const Vertex* closestMinuendVertex = nullptr;
             
             const HalfEdge* firstEdge = vertex->leaving();
@@ -210,7 +210,7 @@ private:
                 const Vertex* destination = currentEdge->destination();
                 const V& position = destination->position();
                 if (minuendVertices.count(position) != 0) {
-                    const FloatType distance2 = position.squaredDistanceTo(vertex->position());
+                    const T distance2 = position.squaredDistanceTo(vertex->position());
                     if (distance2 < closestDistance2)
                         closestMinuendVertex = destination;
                 }
@@ -233,7 +233,7 @@ private:
                 VertexMoveList vertexMoves = fragment.findVertexMoves(excludedVertices, minuendVertices);
                 for (const VertexMove& vertexMove : vertexMoves) {
                     progress = true;
-                    Vec3 from, to;
+                    V from, to;
                     std::tie(from, to) = vertexMove;
                     applyVertexMove(from, to);
                 }
