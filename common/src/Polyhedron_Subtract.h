@@ -163,6 +163,7 @@ private:
      */
     void simplify() {
         moveAdditionalVertices();
+        removeInvalidFragments();
         removeDuplicateFragments();
     }
     
@@ -302,38 +303,29 @@ private:
     
     FragmentVertexSet getFragmentVertices(const Polyhedron::List& fragments) {
         FragmentVertexSet result;
-        for (const Polyhedron& fragment : fragments) {
-            typename V::Set vertices;
-            SetUtils::makeSet(V::asList(std::begin(fragment.vertices()), std::end(fragment.vertices()), GetVertexPosition()), vertices);
-            result.insert(vertices);
-        }
+        for (const Polyhedron& fragment : fragments)
+            result.insert(fragment.vertexPositionSet());
         return result;
     }
     
     void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
-        FragmentVertexSet result;
-        const typename FragmentVertexSet::iterator end = std::end(newFragments);
-        while (!newFragments.empty()) {
-            typename FragmentVertexSet::iterator lIt = std::begin(newFragments);
-            typename FragmentVertexSet::iterator rIt = std::begin(newFragments); ++rIt;
-            while (lIt != end && rIt != end) {
-                if (SetUtils::subset(*lIt, *rIt)) {
-                    newFragments.erase(lIt);
-                    lIt = end;
-                } else if (SetUtils::subset(*rIt, *lIt)) {
-                    rIt = SetUtils::erase(newFragments, rIt);
-                } else {
-                    ++rIt;
-                }
-            }
-            if (lIt != end) {
-                result.insert(*lIt);
-                newFragments.erase(lIt);
-            }
+        auto it = std::begin(newFragments);
+        while (it != std::end(newFragments)) {
+            if (duplicateFragment(it, std::end(newFragments)))
+                it = newFragments.erase(it);
+            else
+                ++it;
         }
-        
-        using std::swap;
-        swap(newFragments, result);
+    }
+    
+    bool duplicateFragment(typename FragmentVertexSet::iterator lIt, typename FragmentVertexSet::iterator end) const {
+        auto rIt = std::next(lIt);
+        while (rIt != end) {
+            if (SetUtils::subset(*lIt, *rIt))
+                return true;
+            ++rIt;
+        }
+        return false;
     }
 
     typename Polyhedron::List rebuildFragments(const FragmentVertexSet& newFragments) {

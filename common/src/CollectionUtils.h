@@ -863,11 +863,10 @@ namespace SetUtils {
         if (lhs.size() > rhs.size())
             return false;
 
-        typedef typename std::set<T,C>::const_iterator Iter;
-        Iter lIt = std::begin(lhs);
-        Iter lEnd = std::end(lhs);
-        Iter rIt = std::begin(rhs);
-        Iter rEnd = std::end(rhs);
+        auto lIt = std::begin(lhs);
+        auto lEnd = std::end(lhs);
+        auto rIt = std::begin(rhs);
+        auto rEnd = std::end(rhs);
 
         const C& cmp = lhs.key_comp();
 
@@ -970,15 +969,6 @@ namespace SetUtils {
         std::set<T, C> result(lhs.key_comp());
         intersection(lhs, rhs, result);
         return result;
-    }
-    
-    // TODO: In C++11, std::set::erase already returns an iterator to the next element
-    template <typename T, typename C>
-    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
-        typename std::set<T,C>::iterator tmp = it;
-        ++it;
-        set.erase(tmp);
-        return it;
     }
 
     template <typename T, typename C>
