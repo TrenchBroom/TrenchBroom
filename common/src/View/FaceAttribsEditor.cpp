@@ -272,7 +272,7 @@ namespace TrenchBroom {
             m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
             m_faceAttribsSizer->Add(textureSizeLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_textureSize,        wxGBPosition(r,c++), wxDefaultSpan, ValueFlags,   EditorMargin);
-            ++r, c = 0;
+            ++r; c = 0;
 
             m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_xOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
