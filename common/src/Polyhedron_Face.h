@@ -245,11 +245,11 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     if (!normal().colinearTo(other->normal()))
         return false;
 
-    const Plane3 myPlane(m_boundary.front()->origin()->position(), normal());
+    const Plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
     if (!other->verticesOnPlane(myPlane))
         return false;
     
-    const Plane3 otherPlane(other->boundary().front()->origin()->position(), other->normal());
+    const Plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
     return verticesOnPlane(otherPlane);
 }
 
