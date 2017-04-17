@@ -814,50 +814,6 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template<typename T, typename C, typename A>
-    class set_insert_iterator : public std::output_iterator_tag {
-    public:
-        typedef set_insert_iterator<T,C,A> _my_type;
-        typedef std::set<T,C,A> container_type;
-        typedef typename container_type::const_reference const_reference;
-        typedef typename container_type::value_type value_type;
-    private:
-        container_type& m_set;
-    public:
-        set_insert_iterator(std::set<T,C,A>& set)
-        : m_set(set) {}
-
-        _my_type& operator=(const value_type& value) {
-            m_set.insert(value);
-            return *this;
-        }
-
-        /*
-        container_type& operator=(value_type&& value)
-        {
-            m_set.insert(std::forward<value_type>(value));
-            return (*this);
-        }
-        */
-
-        _my_type& operator*() {
-            return *this;
-        }
-
-        _my_type& operator++() {
-            return *this;
-        }
-
-        _my_type& operator++(int) {
-            return *this;
-        }
-    };
-
-    template<typename T, typename C, typename A>
-    inline set_insert_iterator<T,C,A> set_inserter(std::set<T,C,A>& set) {
-        return set_insert_iterator<T,C,A>(set);
-    }
-
     template <typename T, typename C>
     bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
         if (lhs.size() > rhs.size())

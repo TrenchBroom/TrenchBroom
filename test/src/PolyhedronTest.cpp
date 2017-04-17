@@ -2309,36 +2309,38 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
 }
 
 TEST(PolyhedronTest, mergeRemainingFragments) {
-    Vec3d::List minuendVertices;
-    minuendVertices.push_back(Vec3d(32, -64, 16));
-    minuendVertices.push_back(Vec3d(64, -32, 16));
-    minuendVertices.push_back(Vec3d(64, 32, 16));
-    minuendVertices.push_back(Vec3d(32, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, -64, 16));
-    minuendVertices.push_back(Vec3d(64, 32, -16));
-    minuendVertices.push_back(Vec3d(64, -32, -16));
-    minuendVertices.push_back(Vec3d(32, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, 64, -16));
-    minuendVertices.push_back(Vec3d(32, 64, -16));
+    Vec3d::List minuendVertices {
+        Vec3d(32, -64, 16),
+        Vec3d(64, -32, 16),
+        Vec3d(64, 32, 16),
+        Vec3d(32, 64, 16),
+        Vec3d(-64, 64, 16),
+        Vec3d(-64, -64, 16),
+        Vec3d(64, 32, -16),
+        Vec3d(64, -32, -16),
+        Vec3d(32, -64, -16),
+        Vec3d(-64, -64, -16),
+        Vec3d(-64, 64, -16),
+        Vec3d(32, 64, -16)
+    };
     
-    Vec3d::List subtrahendVertices;
-    subtrahendVertices.push_back(Vec3d(16, -32, 32));
-    subtrahendVertices.push_back(Vec3d(32, -0, 32));
-    subtrahendVertices.push_back(Vec3d(16, 32, 32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
-    subtrahendVertices.push_back(Vec3d(16, 32, -32));
-    subtrahendVertices.push_back(Vec3d(32, -0, -32));
-    subtrahendVertices.push_back(Vec3d(16, -32, -32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
-
+    Vec3d::List subtrahendVertices {
+        Vec3d(16, -32, 32),
+        Vec3d(32, -0, 32),
+        Vec3d(16, 32, 32),
+        Vec3d(-16, 48, 32),
+        Vec3d(-64, 48, 32),
+        Vec3d(-64, -48, 32),
+        Vec3d(-16, -48, 32),
+        Vec3d(-64, -48, -32),
+        Vec3d(-64, 48, -32),
+        Vec3d(-16, 48, -32),
+        Vec3d(16, 32, -32),
+        Vec3d(32, -0, -32),
+        Vec3d(16, -32, -32),
+        Vec3d(-16, -48, -32)
+    };
+    
     const Polyhedron3d minuend(minuendVertices);
     const Polyhedron3d subtrahend(subtrahendVertices);
     
@@ -2373,7 +2375,7 @@ TEST(PolyhedronTest, subtractFailWithMissingFragments) {
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(6u, result.size()); // Missing two fragments.
+    ASSERT_EQ(4u, result.size());
 }
 
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
