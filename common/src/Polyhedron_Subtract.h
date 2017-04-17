@@ -219,50 +219,48 @@ private:
             } while (currentEdge != firstEdge);
             return closestMinuendVertex;
         }
+        
+        void print() const {
+            m_it->printVertices();
+        }
     };
     
     void moveAdditionalVertices() {
-        const PositionSet subtrahendVertices = getVertexPositionsAsSet(m_subtrahend);
-        const PositionSet minuendVertices = getVertexPositionsAsSet(m_minuend);
+        const PositionSet subtrahendVertices = m_subtrahend.vertexPositionSet(0.1);
+        const PositionSet minuendVertices = m_minuend.vertexPositionSet(0.1);
         const PositionSet excludedVertices = SetUtils::merge(subtrahendVertices, minuendVertices);
         
         bool progress = true;
         while (progress) {
-            progress = false;
-            typename Fragment::List workList = buildWorkList(excludedVertices);
-            for (const Fragment& fragment : workList) {
-                VertexMoveList vertexMoves = fragment.findVertexMoves(excludedVertices, minuendVertices);
-                for (const VertexMove& vertexMove : vertexMoves) {
-                    progress = true;
-                    V from, to;
-                    std::tie(from, to) = vertexMove;
-                    applyVertexMove(from, to);
+            typename Fragment::List workList = buildWorkList(excludedVertices, minuendVertices);
+            while (progress) {
+                progress = false;
+                for (const Fragment& fragment : workList) {
+                    VertexMoveList vertexMoves = fragment.findVertexMoves(excludedVertices, minuendVertices);
+                    for (const VertexMove& vertexMove : vertexMoves) {
+                        progress = true;
+                        V from, to;
+                        std::tie(from, to) = vertexMove;
+                        applyVertexMove(from, to);
+                    }
                 }
             }
         }
     }
     
-    PositionSet getVertexPositionsAsSet(const Polyhedron& fragment) {
-        PositionSet result(VertexCmp(0.1));
-        SetUtils::makeSet(V::asList(std::begin(fragment.vertices()), std::end(fragment.vertices()), GetVertexPosition()), result);
-        return result;
-    }
-    
-    typename Fragment::List buildWorkList(const PositionSet& excluded) {
+    /*
+     Build a list of all fragments that have both a minuend vertex and a non-excluded vertex.
+     */
+    typename Fragment::List buildWorkList(const PositionSet& excluded, const PositionSet& minuendVertices) {
         typename Fragment::List result;
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
             const Polyhedron& fragment = *it;
             
-            const Vertex* firstVertex = fragment.vertices().front();
-            const Vertex* currentVertex = firstVertex;
-            do {
-                const V& currentPos = currentVertex->position();
-                if (excluded.count(currentPos) == 0) {
-                    result.push_back(Fragment(it));
-                    break;
-                }
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
+            const PositionSet vertices = fragment.vertexPositionSet();
+            if (!SetUtils::intersectionEmpty(vertices, minuendVertices) &&
+                !SetUtils::subset(vertices, excluded)) {
+                result.push_back(Fragment(it));
+            }
         }
         return result;
     }
@@ -301,7 +299,7 @@ private:
         m_fragments = rebuildFragments(fragmentVertices);
     }
     
-    FragmentVertexSet getFragmentVertices(const Polyhedron::List& fragments) {
+    FragmentVertexSet getFragmentVertices(const Polyhedron::List& fragments) const {
         FragmentVertexSet result;
         for (const Polyhedron& fragment : fragments)
             result.insert(fragment.vertexPositionSet());
@@ -311,14 +309,14 @@ private:
     void removeDuplicateFragments(FragmentVertexSet& newFragments) const {
         auto it = std::begin(newFragments);
         while (it != std::end(newFragments)) {
-            if (duplicateFragment(it, std::end(newFragments)))
+            if (isDuplicateFragment(it, std::end(newFragments)))
                 it = newFragments.erase(it);
             else
                 ++it;
         }
     }
     
-    bool duplicateFragment(typename FragmentVertexSet::iterator lIt, typename FragmentVertexSet::iterator end) const {
+    bool isDuplicateFragment(typename FragmentVertexSet::iterator lIt, typename FragmentVertexSet::iterator end) const {
         auto rIt = std::next(lIt);
         while (rIt != end) {
             if (SetUtils::subset(*lIt, *rIt))
@@ -331,11 +329,8 @@ private:
     typename Polyhedron::List rebuildFragments(const FragmentVertexSet& newFragments) {
         Polyhedron::List result;
         for (const typename V::Set& vertices : newFragments) {
-            if (vertices.size() > 3) {
-                const Polyhedron fragment(vertices);
-                if (fragment.polyhedron())
-                    result.push_back(fragment);
-            }
+            result.push_back(Polyhedron(vertices));
+            assert(result.back().polyhedron());
         }
         return result;
     }
