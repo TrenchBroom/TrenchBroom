@@ -19,7 +19,6 @@
 
 #include "SystemPaths.h"
 
-#include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 
 #include <wx/stdpaths.h>
