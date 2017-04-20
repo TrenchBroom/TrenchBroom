@@ -175,10 +175,24 @@ private:
         typedef std::list<Fragment> List;
     private:
         typename Polyhedron::List::iterator m_it;
+        VertexMoveList m_moves;
     public:
-        Fragment(const typename Polyhedron::List::iterator it) :
-        m_it(it) {}
+        Fragment(const typename Polyhedron::List::iterator it, const PositionSet& excluded, const PositionSet& minuendVertices) :
+        m_it(it),
+        m_moves(findVertexMoves(excluded, minuendVertices)) {}
         
+        bool hasVertexMove() const {
+            return !m_moves.empty();
+        }
+        
+        VertexMove popVertexMove() {
+            assert(hasVertexMove());
+            
+            const VertexMove result = m_moves.front();
+            m_moves.pop_front();
+            return result;
+        }
+    private:
         VertexMoveList findVertexMoves(const PositionSet& excluded, const PositionSet& minuendVertices) const {
             VertexMoveList result;
             
@@ -230,21 +244,34 @@ private:
         const PositionSet minuendVertices = m_minuend.vertexPositionSet(0.1);
         const PositionSet excludedVertices = SetUtils::merge(subtrahendVertices, minuendVertices);
         
-        bool progress = true;
-        while (progress) {
+        bool progress;
+        do {
             typename Fragment::List workList = buildWorkList(excludedVertices, minuendVertices);
-            while (progress) {
-                progress = false;
-                for (const Fragment& fragment : workList) {
-                    VertexMoveList vertexMoves = fragment.findVertexMoves(excludedVertices, minuendVertices);
-                    for (const VertexMove& vertexMove : vertexMoves) {
-                        progress = true;
-                        V from, to;
-                        std::tie(from, to) = vertexMove;
-                        applyVertexMove(from, to);
-                    }
-                }
-            }
+            progress = processWorkList(workList);
+        } while (progress);
+    }
+    
+    bool processWorkList(typename Fragment::List& workList) {
+        const bool progress = processWorkListOnce(workList);
+        while (processWorkListOnce(workList));
+        return progress;
+    }
+    
+    bool processWorkListOnce(typename Fragment::List& workList) {
+        bool progress = false;
+        for (Fragment& fragment : workList)
+            progress |= processFragment(fragment);
+        return progress;
+    }
+    
+    bool processFragment(Fragment& fragment) {
+        if (fragment.hasVertexMove()) {
+            V from, to;
+            std::tie(from, to) = fragment.popVertexMove();
+            applyVertexMove(from, to);
+            return true;
+        } else {
+            return false;
         }
     }
     
@@ -259,7 +286,7 @@ private:
             const PositionSet vertices = fragment.vertexPositionSet();
             if (!SetUtils::intersectionEmpty(vertices, minuendVertices) &&
                 !SetUtils::subset(vertices, excluded)) {
-                result.push_back(Fragment(it));
+                result.push_back(Fragment(it, excluded, minuendVertices));
             }
         }
         return result;
@@ -445,47 +472,6 @@ private:
         applyMergeGroups();
     }
     
-    /**
-     Sorts faces by their vertices.
-     */
-    class FaceKey {
-    private:
-        typename V::Set m_vertices;
-    public:
-        FaceKey(const Face* face) {
-            face->getVertexPositions(std::inserter(m_vertices, std::begin(m_vertices)));
-        }
-        
-        bool operator<(const FaceKey& other) const {
-            return compare(other) < 0;
-        }
-    private:
-        int compare(const FaceKey& other) const {
-            auto myIt = std::begin(m_vertices);
-            auto otIt = std::begin(other.m_vertices);
-            
-            for (size_t i = 0; i < std::min(m_vertices.size(), other.m_vertices.size()); ++i) {
-                const V& myVertex = *myIt++;
-                const V& otVertex = *otIt++;
-                const int vertexCmp = myVertex.compare(otVertex, Math::Constants<T>::almostZero());
-                if (vertexCmp != 0)
-                    return vertexCmp;
-            }
-            
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
-            
-            return 0;
-        }
-    };
-    
-    
-    typedef std::pair<size_t, Face*> NeighbourFace;
-    typedef std::vector<NeighbourFace> NeighbourFaceList;
-    typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
-    
     struct SharedFaces {
         size_t index;
         typename Face::Set faces;
@@ -503,7 +489,8 @@ private:
      the m_neighbours map.
      */
     void findMergeableNeighbours() {
-        for (const NeighbourPair& neighbourPair : findNeighbours()) {
+        const NeighbourList neighbours = findNeighbours();
+        for (const NeighbourPair& neighbourPair : neighbours) {
             const SharedFaces&  first = neighbourPair.first;
             const SharedFaces& second = neighbourPair.second;
             
@@ -527,12 +514,12 @@ private:
         for (size_t fragmentIndex = 0; fragmentIndex < m_indices.size(); ++fragmentIndex) {
             const auto fragmentIt = m_indices[fragmentIndex];
             const Polyhedron& fragment = *fragmentIt;
-            const typename V::Set fragmentVertices = fragment.vertexPositionSet(0.0);
+            const typename V::Set fragmentVertices = fragment.vertexPositionSet(0.1);
             
             for (size_t candidateIndex = fragmentIndex + 1; candidateIndex < m_indices.size(); ++candidateIndex) {
                 const auto candidateIt = m_indices[candidateIndex];
                 const Polyhedron& candidate = *candidateIt;
-                const typename V::Set candidateVertices = candidate.vertexPositionSet(0.0);
+                const typename V::Set candidateVertices = candidate.vertexPositionSet(0.1);
                 
                 const typename V::Set sharedVertices = SetUtils::intersection(fragmentVertices, candidateVertices);
                 if (sharedVertices.size() >= 3) {
@@ -556,7 +543,7 @@ private:
         Face* firstFace = polyhedron.faces().front();
         Face* currentFace = firstFace;
         do {
-            if (SetUtils::subset(currentFace->vertexPositionSet(0.0), sharedVertices))
+            if (SetUtils::subset(currentFace->vertexPositionSet(0.1), sharedVertices))
                 result.insert(currentFace);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);
