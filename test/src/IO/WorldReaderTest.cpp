@@ -733,7 +733,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("test\\\\", world->attribute("message").c_str()); // The two backslashes are treated as one escaped backslash.
+            ASSERT_STREQ("test\\\\", world->attribute("message").c_str());
             
             delete world;
         }
