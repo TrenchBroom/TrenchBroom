@@ -326,7 +326,7 @@ private:
         m_fragments = rebuildFragments(fragmentVertices);
     }
     
-    FragmentVertexSet getFragmentVertices(const Polyhedron::List& fragments) const {
+    FragmentVertexSet getFragmentVertices(const typename Polyhedron::List& fragments) const {
         FragmentVertexSet result;
         for (const Polyhedron& fragment : fragments)
             result.insert(fragment.vertexPositionSet());
