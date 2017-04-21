@@ -28,11 +28,25 @@ namespace TrenchBroom {
         m_origin(origin),
         m_rotation(rotation) {}
 
+        static void restoreAttribute(Entity* entity, const EntityAttribute& attribute) {
+            if (attribute.name().empty())
+                return;
+            
+            if (attribute.value().empty()) {
+                // If the entity has an attribute with this name, clear the value, but otherwise don't insert {"name" ""}.
+                if (entity->hasAttribute(attribute.name())) {
+                    entity->addOrUpdateAttribute(attribute.name(), "");
+                }
+                return;
+            }
+            
+            // normal case
+            entity->addOrUpdateAttribute(attribute.name(), attribute.value());
+        }
+        
         void EntitySnapshot::doRestore(const BBox3& worldBounds) {
-            if (!m_origin.name().empty())
-                m_entity->addOrUpdateAttribute(m_origin.name(), m_origin.value());
-            if (!m_rotation.name().empty())
-                m_entity->addOrUpdateAttribute(m_rotation.name(), m_rotation.value());
+            restoreAttribute(m_entity, m_origin);
+            restoreAttribute(m_entity, m_rotation);
         }
     }
 }
