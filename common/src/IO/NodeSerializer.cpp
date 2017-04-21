@@ -194,7 +194,8 @@ namespace TrenchBroom {
         }
 
         String NodeSerializer::escapeEntityAttribute(const String& str) const {
-            return StringUtils::escape(str, "\"", '\\');
+            // escape bare " characters
+            return StringUtils::escapeIfNecessary(str, "\"");
         }
     }
 }

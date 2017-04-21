@@ -278,6 +278,7 @@ namespace StringUtils {
     String replaceAll(const String& str, const String& needle, const String& replacement);
     String capitalize(const String& str);
     String escape(const String& str, const String& chars, char esc = '\\');
+    String escapeIfNecessary(const String& str, const String& chars, char esc = '\\');
     String unescape(const String& str, const String& chars, char esc = '\\');
 
     int stringToInt(const String& str);
