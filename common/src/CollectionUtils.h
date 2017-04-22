@@ -128,6 +128,13 @@ namespace ListUtils {
         delete item;
     }
 
+    /**
+     Removes the element at `pos` in `list`, and replaces it with the contents of list `other`.
+     The list `other` is cleared as a side effect.
+     
+     Does nothing if `other` is empty.
+     Returns an iterator to the start of the newly inserted elements.
+     */
     template <typename T>
     typename std::list<T>::iterator replace(std::list<T>& list, typename std::list<T>::iterator pos, std::list<T>& other) {
         typedef typename std::list<T>::iterator::difference_type DiffType;
