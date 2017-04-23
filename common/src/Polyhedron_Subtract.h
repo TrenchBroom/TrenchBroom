@@ -28,12 +28,23 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
-    Subtract subtract(*this, subtrahend, callback);
-    
-    List& result = subtract.result();
-    Merge merge(result, callback);
+    List result = doSubtract(subtrahend, callback);
+         result = doMergeFragments(result, callback);
     return result;
 }
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::List Polyhedron<T,FP,VP>::doSubtract(const Polyhedron& subtrahend, const Callback& callback) const {
+    Subtract subtract(*this, subtrahend, callback);
+    return subtract.result();
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::List Polyhedron<T,FP,VP>::doMergeFragments(const List& fragments, const Callback& callback) {
+    Merge merge(fragments, callback);
+    return merge.result();
+}
+
 
 /**
  The subtraction algorithm performs four steps.
@@ -412,7 +423,7 @@ private:
     };
     
     // The fragments being processed.
-    typename Polyhedron::List&  m_fragments;
+    typename Polyhedron::List  m_fragments;
     
     // A list mapping integral indices to iterators into the fragment list.
     typedef std::vector<typename Polyhedron::List::iterator> IndexList;
@@ -429,11 +440,15 @@ private:
     
     const Callback& m_callback;
 public:
-    Merge(typename Polyhedron::List& fragments, const Callback& callback) :
+    Merge(const typename Polyhedron::List& fragments, const Callback& callback) :
     m_fragments(fragments),
     m_callback(callback) {
         initialize();
         merge();
+    }
+    
+    const typename Polyhedron::List& result() const {
+        return m_fragments;
     }
 private:
     /**
@@ -514,12 +529,12 @@ private:
         for (size_t fragmentIndex = 0; fragmentIndex < m_indices.size(); ++fragmentIndex) {
             const auto fragmentIt = m_indices[fragmentIndex];
             const Polyhedron& fragment = *fragmentIt;
-            const typename V::Set fragmentVertices = fragment.vertexPositionSet(0.1);
+            const typename V::Set fragmentVertices = fragment.vertexPositionSet();
             
             for (size_t candidateIndex = fragmentIndex + 1; candidateIndex < m_indices.size(); ++candidateIndex) {
                 const auto candidateIt = m_indices[candidateIndex];
                 const Polyhedron& candidate = *candidateIt;
-                const typename V::Set candidateVertices = candidate.vertexPositionSet(0.1);
+                const typename V::Set candidateVertices = candidate.vertexPositionSet();
                 
                 const typename V::Set sharedVertices = SetUtils::intersection(fragmentVertices, candidateVertices);
                 if (sharedVertices.size() >= 3) {
@@ -543,7 +558,7 @@ private:
         Face* firstFace = polyhedron.faces().front();
         Face* currentFace = firstFace;
         do {
-            if (SetUtils::subset(currentFace->vertexPositionSet(0.1), sharedVertices))
+            if (SetUtils::subset(currentFace->vertexPositionSet(), sharedVertices))
                 result.insert(currentFace);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);

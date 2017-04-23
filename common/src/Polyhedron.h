@@ -479,6 +479,9 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
+    List doSubtract(const Polyhedron& subtrahend, const Callback& callback) const;
+    static List doMergeFragments(const List& fragments, const Callback& callback);
+private:
     class Subtract;
     class Partition;
     class Merge;
