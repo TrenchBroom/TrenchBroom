@@ -960,7 +960,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
-    Plane3 plane;
+    Plane<T,3> plane;
     Vertex* top = new Vertex(position);
     
     HalfEdge* first = nullptr;

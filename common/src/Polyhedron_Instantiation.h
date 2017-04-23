@@ -17,26 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IdMipTextureReader_h
-#define IdMipTextureReader_h
+#ifndef Polyhedron_Instantiation_h
+#define Polyhedron_Instantiation_h
 
-#include "Assets/Palette.h"
-#include "IO/MipTextureReader.h"
+extern template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-namespace TrenchBroom {
-    namespace IO {
-        class Path;
-        class CharArrayReader;
-
-        class IdMipTextureReader : public MipTextureReader {
-        protected:
-            const Assets::Palette m_palette;
-        public:
-            IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
-        protected:
-            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
-        };
-    }
-}
-
-#endif /* IdMipTextureReader_h */
+#endif /* Polyhedron_Instantiation_h */

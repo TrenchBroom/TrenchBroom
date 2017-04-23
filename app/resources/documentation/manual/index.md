@@ -668,7 +668,11 @@ CSG subtraction takes one brush (the minuend) and subtracts it from a set of bru
 - The brushes are somehow symmetrical if possible.
 - The brushes in the result set only reuse the vertices of the subtrahend and the (chopped) minuend and as few additional vertices as possible.
 
-Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first two critera, but cannot always be optimal in all of the remaining critera. Particularly the last criterion may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
+Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first criterion, but cannot always be optimal in all of the remaining critera.
+
+The second criterion will only be violated in certain edge cases, and even then, the overlapping regions will be very small and they will not be visible from the outside of the brushes.
+
+The last criterion may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
 
 ![CSG subtracting to create an arch](CSGSubtractArch.gif)
 

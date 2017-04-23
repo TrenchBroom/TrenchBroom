@@ -30,34 +30,19 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Palette::Palette(const size_t size, unsigned char* data) :
+        Palette::Data::Data(const size_t size, unsigned char* data) :
         m_size(size),
         m_data(data) {
-            assert(m_size > 0);
+            ensure(m_size > 0, "size is 0");
             ensure(m_data != NULL, "data is null");
         }
-
-        Palette::Palette(const Palette& other) :
-        m_size(other.m_size),
-        m_data(new unsigned char[m_size]) {
-            std::memcpy(m_data, other.m_data, m_size);
-        }
-
-        Palette::~Palette() {
-            delete[] m_data;
-        }
-
-        Palette& Palette::operator=(Palette other) {
-            using std::swap;
-            swap(other, *this);
-            return *this;
-        }
         
-        void swap(Palette& lhs, Palette& rhs) {
-            using std::swap;
-            swap(lhs.m_size, rhs.m_size);
-            swap(lhs.m_data, rhs.m_data);
+        Palette::Data::~Data() {
+            delete [] m_data;
         }
+
+        Palette::Palette(const size_t size, unsigned char* data) :
+        m_data(new Data(size, data)) {}
 
         Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
             try {

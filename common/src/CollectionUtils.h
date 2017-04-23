@@ -128,6 +128,16 @@ namespace ListUtils {
         delete item;
     }
 
+    template <typename T>
+    typename std::list<T>::iterator replace(std::list<T>& list, typename std::list<T>::iterator pos, std::list<T>& other) {
+        typedef typename std::list<T>::iterator::difference_type DiffType;
+        const DiffType count = DiffType(other.size());
+        if (count == 0)
+            return pos;
+        pos = list.erase(pos);
+        list.splice(pos, other);
+        return std::prev(pos, count);
+    }
 
     template <typename T>
     void clearAndDelete(std::list<T*>& list) {
@@ -804,62 +814,17 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template<typename T, typename C, typename A>
-    class set_insert_iterator : public std::output_iterator_tag {
-    public:
-        typedef set_insert_iterator<T,C,A> _my_type;
-        typedef std::set<T,C,A> container_type;
-        typedef typename container_type::const_reference const_reference;
-        typedef typename container_type::value_type value_type;
-    private:
-        container_type& m_set;
-    public:
-        set_insert_iterator(std::set<T,C,A>& set)
-        : m_set(set) {}
-
-        _my_type& operator=(const value_type& value) {
-            m_set.insert(value);
-            return *this;
-        }
-
-        /*
-        container_type& operator=(value_type&& value)
-        {
-            m_set.insert(std::forward<value_type>(value));
-            return (*this);
-        }
-        */
-
-        _my_type& operator*() {
-            return *this;
-        }
-
-        _my_type& operator++() {
-            return *this;
-        }
-
-        _my_type& operator++(int) {
-            return *this;
-        }
-    };
-
-    template<typename T, typename C, typename A>
-    inline set_insert_iterator<T,C,A> set_inserter(std::set<T,C,A>& set) {
-        return set_insert_iterator<T,C,A>(set);
-    }
-
     template <typename T, typename C>
     bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
         if (lhs.size() > rhs.size())
             return false;
 
-        typedef typename std::set<T,C>::const_iterator Iter;
-        Iter lIt = std::begin(lhs);
-        Iter lEnd = std::end(lhs);
-        Iter rIt = std::begin(rhs);
-        Iter rEnd = std::end(rhs);
+        auto lIt = std::begin(lhs);
+        auto lEnd = std::end(lhs);
+        auto rIt = std::begin(rhs);
+        auto rEnd = std::end(rhs);
 
-        C cmp;
+        const C cmp = lhs.key_comp();
 
         while (lIt != lEnd) {
             // forward rhs until we find the element
@@ -897,7 +862,7 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         minus(lhs, rhs, result);
         return result;
     }
@@ -917,14 +882,18 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         merge(lhs, rhs, result);
         return result;
     }
 
     template <typename T, typename C>
     void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
-        std::set_intersection(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), std::insert_iterator<std::set<T, C> >(result, std::end(result)));
+        const C cmp = result.key_comp();
+        std::set_intersection(std::begin(lhs), std::end(lhs),
+                              std::begin(rhs), std::end(rhs),
+                              std::inserter(result, std::end(result)),
+                              cmp);
     }
 
     template <typename T, typename C>
@@ -933,19 +902,33 @@ namespace SetUtils {
     }
 
     template <typename T, typename C>
-    const std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
-        intersection(lhs, rhs, result);
-        return result;
+    bool intersectionEmpty(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        auto lhsIt = std::begin(lhs);
+        auto lhsEnd = std::end(lhs);
+        auto rhsIt = std::begin(rhs);
+        auto rhsEnd = std::end(rhs);
+        
+        const C cmp = lhs.key_comp();
+        
+        while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
+            const T& l = *lhsIt;
+            const T& r = *rhsIt;
+            if (cmp(l,r)) {
+                ++lhsIt;
+            } else if (cmp(r,l)) {
+                ++rhsIt;
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
     
-    // TODO: In C++11, std::set::erase already returns an iterator to the next element
     template <typename T, typename C>
-    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
-        typename std::set<T,C>::iterator tmp = it;
-        ++it;
-        set.erase(tmp);
-        return it;
+    std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result(lhs.key_comp());
+        intersection(lhs, rhs, result);
+        return result;
     }
 
     template <typename T, typename C>

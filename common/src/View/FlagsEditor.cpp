@@ -148,8 +148,10 @@ namespace TrenchBroom {
                 checkBox->Bind(wxEVT_COMMAND_CHECKBOX_CLICKED, &FlagsEditor::OnCheckBoxClicked, this);
                 m_checkBoxes.push_back(checkBox);
             }
-            while (count < m_checkBoxes.size())
-                delete m_checkBoxes.back(), m_checkBoxes.pop_back();
+            while (count < m_checkBoxes.size()) {
+                delete m_checkBoxes.back();
+                m_checkBoxes.pop_back();
+            }
             m_values.resize(count);
         }
 

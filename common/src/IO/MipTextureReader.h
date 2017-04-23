@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,26 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IdMipTextureReader_h
-#define IdMipTextureReader_h
+#ifndef MipTextureReader_h
+#define MipTextureReader_h
 
+#include "IO/TextureReader.h"
 #include "Assets/Palette.h"
-#include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
         class CharArrayReader;
-
-        class IdMipTextureReader : public MipTextureReader {
+        
+        class MipTextureReader : public TextureReader {
         protected:
-            const Assets::Palette m_palette;
+            MipTextureReader(const NameStrategy& nameStrategy);
         public:
-            IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
+            virtual ~MipTextureReader();
+        public:
+            static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
         protected:
-            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            virtual Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const = 0;
         };
     }
 }
 
-#endif /* IdMipTextureReader_h */
+#endif /* MipTextureReader_h */

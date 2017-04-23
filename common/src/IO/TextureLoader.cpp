@@ -22,6 +22,8 @@
 #include "Assets/Palette.h"
 #include "Assets/TextureManager.h"
 #include "EL/Interpolator.h"
+#include "IO/FreeImageTextureReader.h"
+#include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdWalTextureReader.h"
 #include "IO/Path.h"
@@ -55,9 +57,15 @@ namespace TrenchBroom {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
                 return new IdMipTextureReader(nameStrategy, loadPalette(textureConfig));
+            } else if (textureConfig.format.format == "hlmip") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
+                return new HlMipTextureReader(nameStrategy);
             } else if (textureConfig.format.format == "idwal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
+            } else if (textureConfig.format.format == "image") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+                return new FreeImageTextureReader(nameStrategy);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }

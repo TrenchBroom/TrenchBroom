@@ -196,6 +196,8 @@ public:
     };
 
     class Face : public Allocator<Face> {
+    public:
+        typedef std::set<Face*> Set;
     private:
         friend class Polyhedron<T,FP,VP>;
         
@@ -217,6 +219,7 @@ public:
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
+        typename V::Set vertexPositionSet(T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
@@ -247,7 +250,6 @@ public:
         void setLeavingEdges();
         
         size_t countSharedVertices(const Face* other) const;
-        bool checkBoundary() const;
     };
 private:
     class Seam;
@@ -320,8 +322,10 @@ public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
     bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasVertex(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     typename V::List vertexPositions() const;
+    typename V::Set vertexPositionSet(T epsilon = Math::Constants<T>::almostZero()) const;
     void printVertices() const;
     
     size_t edgeCount() const;

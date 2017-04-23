@@ -125,10 +125,18 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions() const {
-    typename V::List positions(0);
-    positions.reserve(vertexCount());
-    getVertexPositions(std::back_inserter(positions));
-    return positions;
+    typename V::List result(0);
+    result.reserve(vertexCount());
+    getVertexPositions(std::back_inserter(result));
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::Face::vertexPositionSet(const T epsilon) const {
+    typename V::LexicographicOrder cmp(epsilon);
+    typename V::Set result(cmp);
+    getVertexPositions(std::inserter(result, result.end()));
+    return result;
 }
 
 template <typename T, typename FP, typename VP>
@@ -237,11 +245,11 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     if (!normal().colinearTo(other->normal()))
         return false;
 
-    const Plane3 myPlane(m_boundary.front()->origin()->position(), normal());
+    const Plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
     if (!other->verticesOnPlane(myPlane))
         return false;
     
-    const Plane3 otherPlane(other->boundary().front()->origin()->position(), other->normal());
+    const Plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
     return verticesOnPlane(otherPlane);
 }
 
@@ -407,20 +415,6 @@ size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
 
     typename Vertex::Set intersection = SetUtils::intersection(vertexSet(), other->vertexSet());
     return intersection.size();
-}
-
-template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::checkBoundary() const {
-    HalfEdge* first = m_boundary.front();
-    HalfEdge* current = first;
-    do {
-        if (current->face() != this)
-            return false;
-        if (current->edge() == NULL)
-            return false;
-        current = current->next();
-    } while (current != first);
-    return true;
 }
 
 #endif

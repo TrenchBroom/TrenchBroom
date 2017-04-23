@@ -34,6 +34,8 @@
 #include "Model/PickResult.h"
 #include "Model/World.h"
 
+
+
 namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
