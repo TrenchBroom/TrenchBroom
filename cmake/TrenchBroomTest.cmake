@@ -5,7 +5,13 @@ FILE(GLOB_RECURSE TEST_SOURCE
     "${TEST_SOURCE_DIR}/*.cpp"
 )
 
-ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
+IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+	ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
+ELSE()
+	# OBJECT libraries are broken on Xcode, so just compile the COMMON source directly in
+    # see: https://github.com/kduske/TrenchBroom/issues/1373
+	ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} ${COMMON_SOURCE} ${COMMON_HEADER})
+ENDIF()
 
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 TARGET_LINK_LIBRARIES(TrenchBroom-Test gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
