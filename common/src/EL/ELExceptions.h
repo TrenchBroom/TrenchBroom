@@ -27,8 +27,7 @@ namespace TrenchBroom {
     namespace EL {
         class Exception : public ExceptionStream<Exception> {
         public:
-            Exception() noexcept;
-            Exception(const String& str) noexcept;
+            using ExceptionStream::ExceptionStream;
         };
         
         class ConversionError : public Exception {

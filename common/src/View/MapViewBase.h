@@ -169,7 +169,7 @@ namespace TrenchBroom {
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
             bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
+            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
             
             void OnCreatePointEntity(wxCommandEvent& event);

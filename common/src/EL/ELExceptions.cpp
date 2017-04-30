@@ -24,9 +24,6 @@
 
 namespace TrenchBroom {
     namespace EL {
-        Exception::Exception() noexcept {}
-        Exception::Exception(const String& str) noexcept : ExceptionStream(str) {}
-        
         ConversionError::ConversionError(const String& value, const ValueType from, const ValueType to) noexcept :
         Exception("Cannot convert value '" + value + "' of type '" + typeName(from) + "' to type '" + typeName(to) + "'") {}
         

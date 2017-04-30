@@ -319,7 +319,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::pasteNodes(const Model::NodeList& nodes) {
-            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, currentLayer());
+            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, currentParent());
             Model::Node::accept(std::begin(nodes), std::end(nodes), mergeNodes);
             
             const Model::NodeList addedNodes = addNodes(mergeNodes.result());
@@ -914,9 +914,17 @@ namespace TrenchBroom {
             // The nodelist is either empty or contains only brushes.
             const Model::NodeList toRemove = selectedNodes().nodes();
             
+            // We could be merging brushes that have different parents; use the parent of the first brush.
+            Model::Node* parent;
+            if (!selectedNodes().brushes().empty()) {
+                parent = selectedNodes().brushes().front()->parent();
+            } else {
+                parent = currentParent();
+            }
+            
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
-            addNode(brush, currentParent());
+            addNode(brush, parent);
             removeNodes(toRemove);
             select(brush);
             return true;
@@ -1033,24 +1041,27 @@ namespace TrenchBroom {
         }
         
         void MapDocument::setTexture(Assets::Texture* texture) {
-            assert(texture != NULL);
-            
             const Model::BrushFaceList faces = allSelectedBrushFaces();
-            if (faces.empty()) {
-                if (currentTextureName() == texture->name())
-                    setCurrentTextureName(Model::BrushFace::NoTextureName);
-                else
-                    setCurrentTextureName(texture->name());
-            } else {
-                if (hasTexture(faces, texture)) {
-                    texture = NULL;
-                    setCurrentTextureName(Model::BrushFace::NoTextureName);
+            
+            if (texture != nullptr) {
+                if (faces.empty()) {
+                    if (currentTextureName() == texture->name())
+                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                    else
+                        setCurrentTextureName(texture->name());
                 } else {
-                    setCurrentTextureName(texture->name());
+                    if (hasTexture(faces, texture)) {
+                        texture = nullptr;
+                        setCurrentTextureName(Model::BrushFace::NoTextureName);
+                    } else {
+                        setCurrentTextureName(texture->name());
+                    }
                 }
-                
+            }
+            
+            if (!faces.empty()) {
                 Model::ChangeBrushFaceAttributesRequest request;
-                if (texture == NULL)
+                if (texture == nullptr)
                     request.unsetTexture();
                 else
                     request.setTexture(texture);
@@ -1242,7 +1253,7 @@ namespace TrenchBroom {
             setCurrentLayer(m_world->defaultLayer());
             
             updateGameSearchPaths();
-            setPath(DefaultDocumentName);
+            setPath(IO::Path(DefaultDocumentName));
         }
         
         void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {

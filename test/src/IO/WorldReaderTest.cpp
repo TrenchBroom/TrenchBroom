@@ -667,7 +667,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("yay \"Mr. Robot!\"", world->attribute("message").c_str());
+            ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", world->attribute("message").c_str());
             
             delete world;
         }
@@ -711,7 +711,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
+            ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", world->attribute("path").c_str());
             
             delete world;
         }
@@ -733,7 +733,30 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("test\\", world->attribute("message").c_str()); // The two backslashes are treated as one escaped backslash.
+            ASSERT_STREQ("test\\\\", world->attribute("message").c_str());
+            
+            delete world;
+        }
+        
+        // https://github.com/kduske/TrenchBroom/issues/1739
+        TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
+            const String data("{"
+                              "\"classname\" \"worldspawn\""
+                              "\"message\" \"line1\\nline2\""
+                              "}");
+            BBox3 worldBounds(8192);
+            
+            IO::TestParserStatus status;
+            WorldReader reader(data, NULL);
+            
+            Model::World* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            
+            ASSERT_TRUE(world != NULL);
+            ASSERT_EQ(1u, world->childCount());
+            ASSERT_FALSE(world->children().front()->hasChildren());
+            
+            ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
+            ASSERT_STREQ("line1\\nline2", world->attribute("message").c_str());
             
             delete world;
         }

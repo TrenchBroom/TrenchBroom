@@ -40,7 +40,7 @@ namespace TrenchBroom {
             TextureCollection m_textures;
             MdlTimeList m_times;
         public:
-            MdlSkin(Texture* texture);
+            explicit MdlSkin(Texture* texture);
             MdlSkin(const TextureList& textures, const MdlTimeList& times);
             
             void prepare(int minFilter, int magFilter);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             MdlSkinList m_skins;
             MdlFrameList m_frames;
         public:
-            MdlModel(const String& name);
+            explicit MdlModel(const String& name);
             ~MdlModel();
             
             void addSkin(MdlSkin* skin);

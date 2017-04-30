@@ -64,8 +64,8 @@ namespace TrenchBroom {
         TEST(PathTest, getLastComponent) {
             ASSERT_THROW(Path("").lastComponent().asString(), PathException);
             ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent().asString());
-            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent().asString());
-            ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent().asString());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
+            ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent());
         }
         
         TEST(PathTest, deleteLastComponent) {
@@ -106,8 +106,8 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(String(""), Path("asdf").extension());
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
-            ASSERT_EQ(Path("map"), Path("c:\\this\\is\\a\\path.map").extension());
-            ASSERT_EQ(Path("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
+            ASSERT_EQ(String("map"), Path("c:\\this\\is\\a\\path.map").extension());
+            ASSERT_EQ(String("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
         }
         
         TEST(PathTest, addExtension) {
@@ -181,8 +181,8 @@ namespace TrenchBroom {
         TEST(PathTest, getLastComponent) {
             ASSERT_THROW(Path("").lastComponent().asString(), PathException);
             ASSERT_EQ("asdf", Path("/asdf").lastComponent().asString());
-            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent().asString());
-            ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent().asString());
+            ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
+            ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent());
         }
         
         TEST(PathTest, deleteLastComponent) {
@@ -220,8 +220,8 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(String(""), Path("asdf").extension());
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
-            ASSERT_EQ(Path("map"), Path("/this/is/a/path.map").extension());
-            ASSERT_EQ(Path("textfile"), Path("/this/is/a/path.map.textfile").extension());
+            ASSERT_EQ(String("map"), Path("/this/is/a/path.map").extension());
+            ASSERT_EQ(String("textfile"), Path("/this/is/a/path.map.textfile").extension());
         }
         
         TEST(PathTest, addExtension) {

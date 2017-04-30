@@ -121,6 +121,14 @@ namespace StringUtils {
         std::sort(std::begin(strs), std::end(strs), StringLess<CaseInsensitiveCharCompare>());
     }
     
+    int caseSensitiveCompare(const String& str1, const String& str2) {
+        return compare(str1, str2, CaseSensitiveCharCompare());
+    }
+    
+    int caseInsensitiveCompare(const String& str1, const String& str2) {
+        return compare(str1, str2, CaseInsensitiveCharCompare());
+    }
+
     bool caseSensitiveEqual(const String& str1, const String& str2) {
         return isEqual(str1, str2, CaseSensitiveCharCompare());
     }
@@ -229,6 +237,26 @@ namespace StringUtils {
             const char c = str[i];
             if (c == esc || chars.find_first_of(c) != String::npos)
                 buffer << esc;
+            buffer << c;
+        }
+        return buffer.str();
+    }
+    
+    String escapeIfNecessary(const String& str, const String& chars, char esc) {
+        if (str.empty())
+            return str;
+        
+        StringStream buffer;
+        const size_t length = str.length();
+        for (size_t i = 0; i < length; ++i) {
+            const char c = str[i];
+            const bool cNeedsEscaping = (chars.find(c) != String::npos);
+            if (cNeedsEscaping) {
+                // if `c` is not prefixed by `esc`, insert an `esc`
+                if (i == 0 || str[i - 1] != esc) {
+                    buffer << esc;
+                }
+            }
             buffer << c;
         }
         return buffer.str();

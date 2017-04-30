@@ -81,6 +81,7 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void selectionDidChange(const Selection& selection);
+            void documentWasCleared(MapDocument* document);
             void nodesDidChange(const Model::NodeList& nodes);
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             void gridDidChange();

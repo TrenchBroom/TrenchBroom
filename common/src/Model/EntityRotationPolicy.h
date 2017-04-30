@@ -31,6 +31,7 @@ namespace TrenchBroom {
                 RotationType_Angle,
                 RotationType_AngleUpDown,
                 RotationType_Euler,
+                RotationType_Euler_PositivePitchDown,
                 RotationType_Mangle
             } RotationType;
 

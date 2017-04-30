@@ -31,11 +31,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Layer* layer) :
+        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Node* parent) :
         m_world(world),
-        m_layer(layer != NULL ? layer : m_world->defaultLayer()) {
+        m_parent(parent != nullptr ? parent : m_world->defaultLayer()) {
             ensure(m_world != NULL, "world is null");
-            assert(m_layer->isDescendantOf(m_world));
+            assert(m_parent->isDescendantOf(m_world));
         }
 
         const ParentChildrenMap& MergeNodesIntoWorldVisitor::result() const {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         void MergeNodesIntoWorldVisitor::addNode(Node* node) {
-            m_result[m_layer].push_back(node);
+            m_result[m_parent].push_back(node);
             detachNode(node);
         }
 

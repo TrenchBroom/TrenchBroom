@@ -59,7 +59,7 @@ namespace TrenchBroom {
             bool isBackup(const IO::Path& backupPath, const IO::Path& mapBasename) const;
             void thinBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups) const;
             void cleanBackups(IO::WritableDiskFileSystem& fs, IO::Path::List& backups, const IO::Path& mapBasename) const;
-            String makeBackupName(const IO::Path& mapBasename, const size_t index) const;
+            IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
         private:
             void bindObservers();
             void unbindObservers();

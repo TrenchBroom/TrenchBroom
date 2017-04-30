@@ -184,14 +184,5 @@ namespace TrenchBroom {
 
             m_textures = MapUtils::valueList(m_texturesByName);
         }
-        
-        TextureList TextureManager::textureList() const {
-            TextureList result;
-            for (const TextureCollection* collection : m_collections) {
-                for (Texture* texture : collection->textures())
-                    result.push_back(texture);
-            }
-            return result;
-        }
     }
 }
