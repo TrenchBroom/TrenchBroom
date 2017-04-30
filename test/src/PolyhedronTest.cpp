@@ -1923,6 +1923,15 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
 }
 
+TEST(PolyhedronTest, badClip) {
+    const Vec3d::List polyVertices = Vec3d::parseList("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)");
+    
+    Polyhedron3d poly(polyVertices);
+    const Plane3d plane(-19.170582845718307, Vec3d(0.88388309419256438, 0.30618844562885328, -0.35355241699635576));
+    
+    ASSERT_NO_THROW(poly.clip(plane));
+}
+
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
     for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
@@ -2309,36 +2318,38 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
 }
 
 TEST(PolyhedronTest, mergeRemainingFragments) {
-    Vec3d::List minuendVertices;
-    minuendVertices.push_back(Vec3d(32, -64, 16));
-    minuendVertices.push_back(Vec3d(64, -32, 16));
-    minuendVertices.push_back(Vec3d(64, 32, 16));
-    minuendVertices.push_back(Vec3d(32, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, -64, 16));
-    minuendVertices.push_back(Vec3d(64, 32, -16));
-    minuendVertices.push_back(Vec3d(64, -32, -16));
-    minuendVertices.push_back(Vec3d(32, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, 64, -16));
-    minuendVertices.push_back(Vec3d(32, 64, -16));
+    Vec3d::List minuendVertices {
+        Vec3d(32, -64, 16),
+        Vec3d(64, -32, 16),
+        Vec3d(64, 32, 16),
+        Vec3d(32, 64, 16),
+        Vec3d(-64, 64, 16),
+        Vec3d(-64, -64, 16),
+        Vec3d(64, 32, -16),
+        Vec3d(64, -32, -16),
+        Vec3d(32, -64, -16),
+        Vec3d(-64, -64, -16),
+        Vec3d(-64, 64, -16),
+        Vec3d(32, 64, -16)
+    };
     
-    Vec3d::List subtrahendVertices;
-    subtrahendVertices.push_back(Vec3d(16, -32, 32));
-    subtrahendVertices.push_back(Vec3d(32, -0, 32));
-    subtrahendVertices.push_back(Vec3d(16, 32, 32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
-    subtrahendVertices.push_back(Vec3d(16, 32, -32));
-    subtrahendVertices.push_back(Vec3d(32, -0, -32));
-    subtrahendVertices.push_back(Vec3d(16, -32, -32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
-
+    Vec3d::List subtrahendVertices {
+        Vec3d(16, -32, 32),
+        Vec3d(32, -0, 32),
+        Vec3d(16, 32, 32),
+        Vec3d(-16, 48, 32),
+        Vec3d(-64, 48, 32),
+        Vec3d(-64, -48, 32),
+        Vec3d(-16, -48, 32),
+        Vec3d(-64, -48, -32),
+        Vec3d(-64, 48, -32),
+        Vec3d(-16, 48, -32),
+        Vec3d(16, 32, -32),
+        Vec3d(32, -0, -32),
+        Vec3d(16, -32, -32),
+        Vec3d(-16, -48, -32)
+    };
+    
     const Polyhedron3d minuend(minuendVertices);
     const Polyhedron3d subtrahend(subtrahendVertices);
     
@@ -2346,6 +2357,66 @@ TEST(PolyhedronTest, mergeRemainingFragments) {
     ASSERT_EQ(7u, result.size());
 }
 
+TEST(PolyhedronTest, subtractFailWithMissingFragments) {
+    const Vec3d::List minuendVertices {
+        Vec3d(-1056, 864, -192),
+        Vec3d(-1024, 896, -192),
+        Vec3d(-1024, 1073, -192),
+        Vec3d(-1056, 1080, -192),
+        Vec3d(-1024, 1073, -416),
+        Vec3d(-1024, 896, -416),
+        Vec3d(-1056, 864, -416),
+        Vec3d(-1056, 1080, -416)
+    };
+    
+    const Vec3d::List subtrahendVertices {
+        Vec3d(-1088, 960, -288),
+        Vec3d(-1008, 960, -288),
+        Vec3d(-1008, 1024, -288),
+        Vec3d(-1088, 1024, -288),
+        Vec3d(-1008, 1024, -400),
+        Vec3d(-1008, 960, -400),
+        Vec3d(-1088, 960, -400),
+        Vec3d(-1088, 1024, -400)
+    };
+    
+    const Polyhedron3d minuend(minuendVertices);
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(4u, result.size());
+}
+
+TEST(PolyhedronTest, subtractPipeFromCubeWithMissingFragments) {
+    // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296341588
+    // subtract creates missing fragments
+    
+    const Vec3d::List minuendVertices = Vec3d::parseList("(-64 -64 48) (64 -64 48) (64 64 48) (-64 64 48) (64 64 -48) (64 -64 -48) (-64 -64 -48) (-64 64 -48)");
+    const Vec3d::List subtrahendVertices = Vec3d::parseList("(69.7824 -79.9416 159.447) (81.0961 -60.3456 159.447) (112.209 -65.2446 142.476) (115.037 -79.9416 136.82) (103.723 -99.5375 136.82) (-90.5519 -0.43645 -217.79) (89.5814 -104.436 142.476) (72.6108 -94.6385 153.79) (-107.522 9.36151 -206.476) (-99.0372 43.6544 -200.82) (-84.8951 48.5533 -206.476) (-67.9245 38.7554 -217.79) (-65.0961 24.0584 -223.447) (-76.4098 4.46253 -223.447) (95.2382 -55.4467 153.79) (-110.351 24.0584 -200.82)");
+
+    
+    const Polyhedron3d minuend(minuendVertices);
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(0u, result.size()); // Adjust expectation
+}
+
+
+TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
+    // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296342133
+    // merge creates overlapping fragments
+    
+    const Vec3d::List minuendVertices = Vec3d::parseList("(-32 -32 32) (32 -32 32) (32 32 32) (-32 32 32) (32 32 -32) (32 -32 -32) (-32 -32 -32) (-32 32 -32)");
+    const Vec3d::List subtrahendVertices = Vec3d::parseList("(-0 -16 -32) (-0 16 -32) (32 16 -32) (16 16 -0)");
+    
+    
+    const Polyhedron3d minuend(minuendVertices);
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(0u, result.size()); // Adjust expectation
+}
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }

@@ -634,3 +634,63 @@ TEST(CollectionUtilsTest, mapClearAndDelete) {
     ASSERT_TRUE(deleted1);
     ASSERT_TRUE(deleted2);
 }
+
+TEST(CollectionUtilsTest, setSubset) {
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{1}, std::set<int>{1, 2, 3}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{1}, std::set<int>{1}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{}, std::set<int>{1}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{}, std::set<int>{}));
+
+    ASSERT_FALSE(SetUtils::subset(std::set<int>{4}, std::set<int>{1, 2, 3}));
+    ASSERT_FALSE(SetUtils::subset(std::set<int>{0, 1}, std::set<int>{1}));
+}
+
+TEST(CollectionUtilsTest, setMinus) {
+    ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1, 2, 3}, std::set<int>{2, 3}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1}, std::set<int>{}));
+    ASSERT_EQ(std::set<int>{}, SetUtils::minus(std::set<int>{}, std::set<int>{}));
+}
+
+TEST(CollectionUtilsTest, setIntersectionEmpty) {
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{4, 5, 6}));
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{}));
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{}, std::set<int>{}));
+    
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{3, 4, 5}));
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{1, 2, 3, 4}));
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3, 6}, std::set<int>{4, 5, 6}));
+}
+
+TEST(CollectionUtilsTest, listReplaceEmpty) {
+    std::list<int> list1 {0, 1, 2, 3};
+    std::list<int> list2;
+    
+    auto replacePos = list1.begin();
+    ASSERT_EQ(0, *replacePos);
+    
+    // this will be a no-op because list2 is empty
+    
+    const auto it = ListUtils::replace(list1, replacePos, list2);
+    ASSERT_EQ(0, *it);
+    
+    ASSERT_EQ(std::list<int>(), list2);
+    ASSERT_EQ((std::list<int>{0, 1, 2, 3}), list1);
+}
+
+TEST(CollectionUtilsTest, listReplace) {
+    std::list<int> list1 {0, 1, 2, 3};
+    std::list<int> list2 {100, 200};
+    
+    // this will replace the element "2" with {100,200}
+    
+    auto replacePos = list1.begin();
+    replacePos++;
+    replacePos++;
+    ASSERT_EQ(2, *replacePos);
+    
+    const auto it = ListUtils::replace(list1, replacePos, list2);
+    
+    ASSERT_EQ(std::list<int>(), list2);
+    ASSERT_EQ((std::list<int>{0, 1, 100, 200, 3}), list1);
+    ASSERT_EQ(100, *it);
+}

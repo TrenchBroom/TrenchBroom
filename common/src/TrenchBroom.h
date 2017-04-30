@@ -21,7 +21,6 @@
 #define TrenchBroom_TrenchBroom_h
 
 #include "VecMath.h"
-#include "Polyhedron_DefaultPayload.h"
 
 typedef double FloatType;
 typedef BBox<FloatType, 2> BBox2;
@@ -37,7 +36,11 @@ typedef Line<FloatType, 3> Line3;
 typedef Ray<FloatType, 3> Ray3;
 typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
 
-template<typename T, typename FP, typename VB> class Polyhedron;
+#include "Polyhedron.h"
+#include "Polyhedron_BrushGeometryPayload.h"
+#include "Polyhedron_DefaultPayload.h"
+#include "Polyhedron_Instantiation.h"
+
 typedef Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3;
 
 namespace TrenchBroom {
