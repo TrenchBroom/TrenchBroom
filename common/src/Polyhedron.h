@@ -283,6 +283,9 @@ protected:
 public: // Constructors
     Polyhedron();
     
+    Polyhedron(std::initializer_list<V> positions);
+    Polyhedron(std::initializer_list<V> positions, Callback& callback);
+    
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
 
@@ -465,32 +468,26 @@ public: // Clipping
     };
 
     /**
-     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
     ClipResult clip(const Plane<T,3>& plane);
     
     /**
-     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
     ClipResult clip(const Plane<T,3>& plane, Callback& callback);
-public: // Subtraction
-    typedef std::list<Polyhedron> SubtractResult;
-    
-    SubtractResult subtract(const Polyhedron& subtrahend) const;
-    SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
-private:
-    List doSubtract(const Polyhedron& subtrahend, const Callback& callback) const;
-    static List doMergeFragments(const List& fragments, const Callback& callback);
-private:
-    class Subtract;
-    class Partition;
-    class Merge;
+
+    /**
+     Clips this polyhedron using all faces of the given polyhedron.
+     */
+    ClipResult clip(const Polyhedron& polyhedron);
+    ClipResult clip(const Polyhedron& polyhedron, const Callback& callback);
 public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
-
+    
     /**
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
      */
@@ -499,6 +496,17 @@ private:
     HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback);
     void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, Callback& callback);
     HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
+public: // Subtraction
+    typedef std::list<Polyhedron> SubtractResult;
+    
+    SubtractResult subtract(const Polyhedron& subtrahend) const;
+    SubtractResult subtract(Polyhedron subtrahend, const Callback& callback) const;
+private:
+    class Fragment;
+    typedef std::list<Fragment> FragmentList;
+    
+    FragmentList createFragments(const Polyhedron& subtrahend, const Callback& callback) const;
+    FragmentList partitionFragments(const FragmentList& fragments, const Callback& callback) const;
 public: // geometrical queries
     bool contains(const V& point, const Callback& callback = Callback()) const;
     bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;
