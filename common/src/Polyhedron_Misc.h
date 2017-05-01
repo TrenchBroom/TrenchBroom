@@ -120,6 +120,17 @@ Polyhedron<T,FP,VP>::Polyhedron() {
 }
 
 template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions) {
+    Callback c;
+    addPoints(std::begin(positions), std::end(positions), c);
+}
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions, Callback& callback) {
+    addPoints(std::begin(positions), std::end(positions), callback);
+}
+
+template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
     Callback c;
     addPoints(p1, p2, p3, p4, c);

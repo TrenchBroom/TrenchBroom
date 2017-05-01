@@ -948,6 +948,15 @@ namespace SetUtils {
     void deleteAll(const std::set<T*, C>& set) {
         std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
     }
+    
+    template <typename S>
+    typename S::value_type popFront(S& set) {
+        assert(!set.empty());
+        const auto it = std::begin(set);
+        const typename S::value_type value = *it;
+        set.erase(it);
+        return value;
+    }
 }
 
 namespace MapUtils {

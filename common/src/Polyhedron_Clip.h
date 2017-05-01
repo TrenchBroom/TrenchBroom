@@ -66,6 +66,27 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron) {
+    Callback c;
+    return clip(polyhedron, c);
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron, const Callback& callback) {
+    Face* first = polyhedron.faces().front();
+    Face* current = first;
+    do {
+        const ClipResult result = clip(callback.plane(current), callback);
+        if (result.empty())
+            return result;
+        current = current->next();
+    } while (current != first);
+    
+    return ClipResult(ClipResult::Type_ClipSuccess);
+}
+
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const Plane<T,3>& plane) const {
     size_t above = 0;
     size_t below = 0;
