@@ -72,7 +72,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhed
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron, const Callback& callback) {
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron, Callback& callback) {
     Face* first = polyhedron.faces().front();
     Face* current = first;
     do {

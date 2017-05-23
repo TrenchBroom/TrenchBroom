@@ -26,7 +26,7 @@
 #include "Ray.h"
 
 template <typename T, typename I, typename F>
-T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, F getPosition) {
+T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, const F& getPosition) {
     const T distance = plane.intersectWithRay(ray);
     if (Math::isnan(distance))
         return distance;
@@ -38,7 +38,7 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
 }
 
 template <typename T, typename I, typename F>
-bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, F getPosition) {
+bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, const F& getPosition) {
     I temp = cur;
     
     assert(temp != end); const Vec<T,3> p1 = getPosition(*temp++);
@@ -52,12 +52,12 @@ bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, F getPosition) {
 }
 
 template <typename T, typename I, typename F>
-bool polygonContainsPoint(const Vec<T,3>& point, const Vec<T,3>& normal, I cur, I end, F getPosition) {
+bool polygonContainsPoint(const Vec<T,3>& point, const Vec<T,3>& normal, I cur, I end, const F& getPosition) {
     return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
 }
 
 template <typename T, typename I, typename F>
-bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end, F getPosition) {
+bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end, const F& getPosition) {
     const Vec<T,3> o = swizzle(point, axis);
     
     const Vec<T,3> f = swizzle(getPosition(*cur++), axis) - o; // The first vertex.
