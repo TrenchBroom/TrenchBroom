@@ -2417,6 +2417,371 @@ TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(0u, result.size()); // Adjust expectation
 }
+
+void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_TRUE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+}
+
+void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_FALSE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+}
+
+TEST(PolyhedronTest, intersection_empty_polyhedron) {
+    const Polyhedron3d empty;
+    const Polyhedron3d point      { Vec3d(1.0, 0.0, 0.0) };
+    const Polyhedron3d edge       { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0) };
+    const Polyhedron3d polygon    { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) };
+    const Polyhedron3d polyhedron { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) };
+    
+    assertNotIntersects(empty, empty);
+    assertNotIntersects(empty, point);
+    assertNotIntersects(empty, edge);
+    assertNotIntersects(empty, polygon);
+    assertNotIntersects(empty, polyhedron);
+}
+
+TEST(PolyhedronTest, intersection_point_point) {
+    const Polyhedron3d point { Vec3d(0.0, 0.0, 0.0) };
+    
+    assertIntersects(point, point);
+    assertNotIntersects(point, Polyhedron3d { Vec3d(0.0, 0.0, 1.0) });
+}
+
+TEST(PolyhedronTest, intersection_point_edge) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0) } ); // point / edge originating at point
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0) } ); // point / edge containing point
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 1.0), Vec3d(1.0, 0.0, 1.0) } ); // point / unrelated edge
+}
+
+TEST(PolyhedronTest, intersection_point_polygon) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle with point as vertex
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle with point on edge
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle containing point
+    
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 1.0), Vec3d(1.0, -1.0, 1.0), Vec3d(0.0, 1.0, 1.0) } ); // point / triangle above point
+}
+
+TEST(PolyhedronTest, intersection_point_polyhedron) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+    
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point as vertex
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on edge
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on face
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, -1.0, -1.0), Vec3d(0.0, 1.0, -1.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on face
+    
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 1.0), Vec3d(1.0, -1.0, 1.0), Vec3d(0.0, 1.0, 1.0), Vec3d(0.0, 0.0, 2.0) } ); // point / tetrahedron above point
+}
+
+TEST(PolyhedronTest, intersection_edge_edge) {
+    const Vec3d point1(-1.0, 0.0, 0.0);
+    const Vec3d point2(+1.0, 0.0, 0.0);
+    const Polyhedron3d edge { point1, point2 };
+    
+    assertIntersects(edge, edge);
+    assertIntersects(edge, Polyhedron3d { point1, Vec3d(0.0, 0.0, 1.0) } );
+    assertIntersects(edge, Polyhedron3d { point2, Vec3d(0.0, 0.0, 1.0) } );
+    assertIntersects(edge, Polyhedron3d { Vec3d(0.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0) } );
+    assertIntersects(edge, Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0) } );
+    
+    assertNotIntersects(edge, Polyhedron3d { point1 + Vec3d::PosZ, point2 + Vec3d::PosZ } );
+}
+
+TEST(PolyhedronTest, intersection_edge_polygon_same_plane) {
+    const Vec3d point1(-1.0, 0.0, 0.0);
+    const Vec3d point2(+1.0, 0.0, 0.0);
+    const Polyhedron3d edge { point1, point2 };
+    
+    assertIntersects(edge, Polyhedron3d { Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 0.0, 0.0) } ); // one shared point
+    assertIntersects(edge, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(0.0, -1.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, +1.0, 0.0) } ); // two shared points
+    assertIntersects(edge, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, 1.0, 0.0), Vec3d(-1.0, 1.0, 0.0) } ); // shared edge
+    assertIntersects(edge, Polyhedron3d { Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 1.0, 0.0) } ); // polygon contains one point
+    assertIntersects(edge, Polyhedron3d { Vec3d(-2.0, 1.0, 0.0), Vec3d(-2.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 1.0, 0.0) } );// polygon contains both points
+    assertIntersects(edge, Polyhedron3d { Vec3d(-0.5, 1.0, 0.0), Vec3d(-0.5, -1.0, 0.0), Vec3d(0.5, -1.0, 0.0), Vec3d(0.5, 1.0, 0.0) } ); // edge intersects polygon completely
+    
+    assertNotIntersects(edge, Polyhedron3d { Vec3d(+2.0, 1.0, 0.0), Vec3d(+2.0, -1.0, 0.0), Vec3d(+3.0, -1.0, 0.0), Vec3d(+3.0, 1.0, 0.0) } ); // no intersection
+}
+
+
+TEST(PolyhedronTest, intersection_edge_polygon_different_plane) {
+    const Vec3d point1(0.0, 0.0, 1.0);
+    const Vec3d point2(0.0, 0.0, -1.0);
+    const Polyhedron3d edge { point1, point2 };
+
+    assertIntersects(Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(0.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // one shared point
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // polygon edge contains edge origin
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 1.0, 0.0), Vec3d(1.0, 1.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // polygon contains edge origin
+    
+    assertIntersects(Polyhedron3d { Vec3d(0.0, 0.0, -1.0), Vec3d(0.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon vertex
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 0.0, -1.0), Vec3d(1.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon edge
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 1.0, -1.0), Vec3d(1.0, 1.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon center
+
+    assertNotIntersects(Polyhedron3d { Vec3d(3.0, 1.0, -1.0), Vec3d(3.0, 1.0, +1.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+    
+    assertNotIntersects(Polyhedron3d { Vec3d(1.0, 1.0, 1.0), Vec3d(1.0, 1.0, 2.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+    
+    assertNotIntersects(Polyhedron3d { Vec3d(0.0, 0.0, 1.0), Vec3d(1.0, 1.0, 1.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+}
+
+TEST(PolyhedronTest, intersection_edge_polyhedron) {
+    const Polyhedron3d tetrahedron {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d( 0.0, +1.0, 0.0),
+        Vec3d( 0.0,  0.0, 1.0)
+    };
+    
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  1.0), Vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // one shared point
+    assertIntersects(Polyhedron3d { Vec3d( 0.0, -1.0,  0.0), Vec3d( 0.0, -2.0,  0.0) }, tetrahedron); // edge point on polyhedron edge
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.0), Vec3d( 0.0,  0.0, -1.0) }, tetrahedron); // edge point on polyhedron face
+    assertIntersects(Polyhedron3d { Vec3d(-1.0, -1.0,  0.0), Vec3d(+1.0, -1.0,  0.0) }, tetrahedron); // shared edge
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.5), Vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // polyhedron contains one edge point
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.2), Vec3d( 0.0,  0.0,  0.7) }, tetrahedron); // polyhedron contains both edge points
+    assertIntersects(Polyhedron3d { Vec3d( 0.5,  0.5, -1.0), Vec3d( 0.5,  0.5,  2.0) }, tetrahedron); // edge penetrates polyhedron
+
+    assertNotIntersects(Polyhedron3d { Vec3d( -2.0,  -2.0, -1.0), Vec3d( 2.0,  2.0,  -1.0) }, tetrahedron); // no intersection
+}
+
+TEST(PolyhedronTest, intersection_polygon_polygon_same_plane) {
+    const Polyhedron3d square {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, +1.0, 0.0),
+        Vec3d(-1.0, +1.0, 0.0)
+    };
+    
+    // shared vertex:
+    assertIntersects(Polyhedron3d { Vec3d(+1, +1, 0), Vec3d(+2, +1, 0), Vec3d(+1, +2, 0) }, square);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d { Vec3d(-1, +1, 0), Vec3d(+1, +1, 0), Vec3d( 0, +2, 0) }, square);
+
+    // edge contains other edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2, -1, 0),
+        Vec3d(+2, -1, 0),
+        Vec3d(+2, +1, 0),
+        Vec3d(-2, +1, 0),
+    }, square);
+    
+    // one contains vertex of another
+    assertIntersects(Polyhedron3d { Vec3d( 0,  0, 0), Vec3d(+2,  0, 0), Vec3d(+2, +2, 0), Vec3d(0, +2, 0) }, square);
+
+    // one contains another entirely
+    assertIntersects(Polyhedron3d { Vec3d(-2, -2, 0), Vec3d(+2, -2, 0), Vec3d(+2, +2, 0), Vec3d(-2, +2, 0) }, square);
+
+    // one penetrates the other
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2, -0.5, 0),
+        Vec3d(+2, -0.5, 0),
+        Vec3d(+2, +0.5, 0),
+        Vec3d(-2, +0.5, 0)
+    }, square);
+    
+    // no intersection
+    assertNotIntersects(Polyhedron3d {
+        Vec3d(+2, +2, 0),
+        Vec3d(+3, +2, 0),
+        Vec3d(+3, +3, 0),
+        Vec3d(+3, +3, 0)
+    }, square);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polygon_different_plane) {
+    const Polyhedron3d square {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, +1.0, 0.0),
+        Vec3d(-1.0, +1.0, 0.0)
+    };
+    
+    // shared vertex
+    assertIntersects(Polyhedron3d {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(-2.0, -1.0, 0.0),
+        Vec3d(-2.0, -1.0, 1.0)
+    }, square);
+    
+    // vertex on edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, -1.0, 0.0),
+        Vec3d(0.0, -2.0, 0.0),
+        Vec3d(0.0, -1.0, 1.0),
+        Vec3d(0.0, -2.0, 1.0),
+    }, square);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 1.0),
+        Vec3d(-1.0, -1.0, 1.0)
+    }, square);
+    
+    // edges intersect
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, -1.0, -1.0),
+        Vec3d(0.0, -1.0, +1.0),
+        Vec3d(0.0, -2.0, +1.0),
+        Vec3d(0.0, -2.0, -1.0)
+    }, square);
+    
+    // partial penetration (one edge penetrates each)
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, 0.0, -1.0),
+        Vec3d(0.0, 0.0, +1.0),
+        Vec3d(2.0, 0.0, +1.0),
+        Vec3d(2.0, 0.0, -1.0)
+    }, square);
+    
+    // full penetration (two edges penetrate)
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, 0.0, -2.0),
+        Vec3d(-2.0, 0.0, +2.0),
+        Vec3d(+2.0, 0.0, -2.0),
+        Vec3d(+2.0, 0.0, +2.0)
+    }, square);
+    
+    // no intersection
+    assertNotIntersects(Polyhedron3d {
+        Vec3d(-1.0, 0.0, 5.0),
+        Vec3d(+1.0, 0.0, 5.0),
+        Vec3d(-1.0, 0.0, 6.0),
+        Vec3d(+1.0, 0.0, 6.0)
+    }, square);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polyhedron_same_plane_as_face) {
+    const Polyhedron3d cube {
+        Vec3d(-1.0, -1.0, -1.0),
+        Vec3d(-1.0, -1.0, +1.0),
+        Vec3d(-1.0, +1.0, -1.0),
+        Vec3d(-1.0, +1.0, +1.0),
+        Vec3d(+1.0, -1.0, -1.0),
+        Vec3d(+1.0, -1.0, +1.0),
+        Vec3d(+1.0, +1.0, -1.0),
+        Vec3d(+1.0, +1.0, +1.0),
+    };
+    
+    
+    // polygon is on the same plane as top face
+    
+    // shared vertex
+    assertIntersects(Polyhedron3d {
+        Vec3d(+1.0, +1.0, +1.0),
+        Vec3d(+2.0, +1.0, +1.0),
+        Vec3d(+2.0, +2.0, +1.0),
+    }, cube);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(+1.0, +1.0, +1.0),
+        Vec3d(-1.0, +1.0, +1.0),
+        Vec3d(+1.0, +2.0, +1.0)
+    }, cube);
+
+    // edge contains other edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, +1.0, +1.0),
+        Vec3d(+0.5, +1.0, +1.0),
+        Vec3d(+0.5, +2.0, +1.0)
+    }, cube);
+
+    // one contains vertex of another
+    assertIntersects(Polyhedron3d {
+        Vec3d(+0.0, +0.0, +1.0),
+        Vec3d(+2.0, +0.0, +1.0),
+        Vec3d(+2.0, +2.0, +1.0),
+        Vec3d(+0.0, +2.0, +1.0),
+    }, cube);
+
+    // one contains another entirely
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, -0.5, +1.0),
+        Vec3d(-0.5, +0.5, +1.0),
+        Vec3d(+0.5, +0.5, +1.0),
+        Vec3d(+0.5, -0.5, +1.0),
+    }, cube);
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.5, -2.5, +1.0),
+        Vec3d(-2.5, +2.5, +1.0),
+        Vec3d(+2.5, +2.5, +1.0),
+        Vec3d(+2.5, -2.5, +1.0),
+    }, cube);
+    
+    // one penetrates the other
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, -0.5, +1.0),
+        Vec3d(+2.0, -0.5, +1.0),
+        Vec3d(-2.0, +0.5, +1.0),
+        Vec3d(+2.0, +0.5, +1.0),
+    }, cube);
+    
+    // no intersection
+    assertIntersects(Polyhedron3d {
+        Vec3d(+2.0, +2.0, +1.0),
+        Vec3d(+3.0, +2.0, +1.0),
+        Vec3d(+3.0, +3.0, +1.0),
+        Vec3d(+2.0, +3.0, +1.0),
+    }, cube);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polyhedron_any_orientation) {
+    
+    // shared vertex
+    // polygon vertex on polyhedron edge
+    // polyhedron vertex on polygon edge
+    // shared edge
+    // polygon edge inside polyhedron edge
+    // polyhedorn edge inside polygon edge
+    // edges intersect
+    // penetration (two polygon edges intersect)
+    // polyhedron contains polygon
+    // polygon slices polyhedron (surrounds it)
+    
+    // no intersection
+    
+    ASSERT_TRUE(false);
+}
+
+TEST(PolyhedronTest, intersection_polyhedron_polyhedron) {
+    
+    // shared vertex
+    // shared edge
+    // shared face
+    // edge contains vertex
+    // edge contains edge
+    // face contains face
+    // faces intersect on same plane
+    // one contains vertex of other
+    // one contains the other
+    // one penetrates other
+    // no intersection
+    
+    ASSERT_TRUE(false);
+}
+
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }
