@@ -167,19 +167,30 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
     const V& lhsStart = lhsEdge->firstVertex()->position();
     const V& lhsEnd = lhsEdge->secondVertex()->position();
 
-    const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
-
     const Edge* rhsEdge = rhs.m_edges.front();
+    if (rhsEdge->hasPosition(lhsStart) || rhsEdge->hasPosition(lhsEnd))
+        return true;
+    
     const V& rhsStart = rhsEdge->firstVertex()->position();
     const V& rhsEnd = rhsEdge->secondVertex()->position();
-
+    
+    const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
     const typename Ray<T,3>::LineDistance dist = lhsRay.squaredDistanceToSegment(rhsStart, rhsEnd);
-    
-    if (dist.parallel)
-        return false;
 
-    const T rayLen = (lhsEnd - lhsStart).dot(lhsRay.direction);
+    const T rayLen = lhsRay.distanceToPointOnRay(lhsEnd);
     
+    if (dist.parallel) {
+        if (dist.colinear()) {
+            const T rhsStartDist = lhsRay.distanceToPointOnRay(rhsStart);
+            const T rhsEndDist   = lhsRay.distanceToPointOnRay(rhsEnd);
+            
+            return (Math::between(rhsStartDist, 0.0, rayLen) || // lhs constains rhs start
+                    Math::between(rhsEndDist,   0.0, rayLen) || // lhs contains rhs end
+                    rhsStartDist > 0.0 != rhsEndDist > 0.0);    // rhs contains lhs
+        }
+        return false;
+    }
+
     static const T epsilon2 = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
     return dist.distance < epsilon2 && dist.rayDistance <= rayLen;
 }
@@ -237,8 +248,26 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
     
     const T dist = rhsFace->intersectWithRay(lhsRay, Math::Side_Both);
-    if (Math::isnan(dist))
+    if (Math::isnan(dist)) {
+        const V& edgeDir = lhsRay.direction;
+        const V faceNorm = rhsFace->normal();
+        if (Math::zero(faceNorm.dot(edgeDir))) {
+            // ray and face are parallel, intersect with edges
+
+            static const T MaxDistance = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
+            
+            const HalfEdge* rhsFirstEdge = rhsFace->boundary().front();
+            const HalfEdge* rhsCurEdge = rhsFirstEdge;
+            do {
+                const V& start = rhsCurEdge->origin()->position();
+                const V& end   = rhsCurEdge->destination()->position();
+                if (lhsRay.squaredDistanceToSegment(start, end).distance <= MaxDistance)
+                    return true;
+                rhsCurEdge = rhsCurEdge->next();
+            } while (rhsCurEdge != rhsFirstEdge);
+        }
         return false;
+    }
     
     const T rayLen = (lhsEnd - lhsStart).dot(lhsRay.direction);
     return dist <= rayLen;
@@ -259,7 +288,30 @@ bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const 
     assert(lhs.polygon());
     assert(rhs.polygon());
 
-    // TODO: implement me
+    Face* lhsFace = lhs.faces().front();
+    Face* rhsFace = rhs.faces().front();
+
+    Edge* firstLhsEdge = lhs.edges().front();
+    Edge* curLhsEdge = firstLhsEdge;
+    do {
+        if (edgeIntersectsFace(curLhsEdge, rhsFace))
+            return true;
+        
+        curLhsEdge = curLhsEdge->next();
+    } while (curLhsEdge != firstLhsEdge);
+
+    Vertex* lhsVertex = lhs.vertices().front();
+    Vertex* rhsVertex = rhs.vertices().front();
+    
+    const HalfEdgeList& lhsBoundary = lhsFace->boundary();
+    const HalfEdgeList& rhsBoundary = rhsFace->boundary();
+    
+    if (polygonContainsPoint(lhsVertex->position(), std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition()))
+        return true;
+    
+    if (polygonContainsPoint(rhsVertex->position(), std::begin(lhsBoundary), std::end(lhsBoundary), GetVertexPosition()))
+        return true;
+    
     return false;
 }
 
