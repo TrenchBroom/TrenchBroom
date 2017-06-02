@@ -291,20 +291,45 @@ bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const 
     Face* lhsFace = lhs.faces().front();
     Face* rhsFace = rhs.faces().front();
 
-    Edge* firstLhsEdge = lhs.edges().front();
-    Edge* curLhsEdge = firstLhsEdge;
+    return faceIntersectsFace(lhsFace, rhsFace);
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+    assert(lhs.polygon());
+    assert(rhs.polyhedron());
+
+    Face* lhsFace = lhs.faces().front();
+    Face* firstRhsFace = rhs.faces().front();
+    Face* curRhsFace = firstRhsFace;
+    
     do {
-        if (edgeIntersectsFace(curLhsEdge, rhsFace))
+        if (faceIntersectsFace(lhsFace, curRhsFace))
+            return true;
+        
+        curRhsFace = curRhsFace->next();
+    } while (curRhsFace != firstRhsFace);
+
+    Vertex* vertex = lhs.vertices().front();
+    return rhs.contains(vertex->position());
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::faceIntersectsFace(const Face* lhsFace, const Face* rhsFace) {
+    const HalfEdgeList& lhsBoundary = lhsFace->boundary();
+    const HalfEdgeList& rhsBoundary = rhsFace->boundary();
+    
+    HalfEdge* firstLhsEdge = lhsBoundary.front();
+    HalfEdge* curLhsEdge = firstLhsEdge;
+    do {
+        if (edgeIntersectsFace(curLhsEdge->edge(), rhsFace))
             return true;
         
         curLhsEdge = curLhsEdge->next();
     } while (curLhsEdge != firstLhsEdge);
-
-    Vertex* lhsVertex = lhs.vertices().front();
-    Vertex* rhsVertex = rhs.vertices().front();
     
-    const HalfEdgeList& lhsBoundary = lhsFace->boundary();
-    const HalfEdgeList& rhsBoundary = rhsFace->boundary();
+    Vertex* lhsVertex = lhsBoundary.front()->origin();
+    Vertex* rhsVertex = rhsBoundary.front()->origin();
     
     if (polygonContainsPoint(lhsVertex->position(), std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition()))
         return true;
@@ -312,15 +337,6 @@ bool Polyhedron<T,FP,VP>::polygonIntersectsPolygon(const Polyhedron& lhs, const 
     if (polygonContainsPoint(rhsVertex->position(), std::begin(lhsBoundary), std::end(lhsBoundary), GetVertexPosition()))
         return true;
     
-    return false;
-}
-
-template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-    assert(lhs.polygon());
-    assert(rhs.polyhedron());
-    
-    // TODO: implement me
     return false;
 }
 

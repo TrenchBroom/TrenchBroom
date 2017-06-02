@@ -2740,7 +2740,7 @@ TEST(PolyhedronTest, intersection_polygon_polyhedron_same_plane_as_face) {
     }, cube);
     
     // no intersection
-    assertIntersects(Polyhedron3d {
+    assertNotIntersects(Polyhedron3d {
         Vec3d(+2.0, +2.0, +1.0),
         Vec3d(+3.0, +2.0, +1.0),
         Vec3d(+3.0, +3.0, +1.0),
