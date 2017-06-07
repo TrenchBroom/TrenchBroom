@@ -821,6 +821,20 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
+    template <typename Set>
+    struct SetCompare {
+        bool operator()(const Set& lhs, const Set& rhs) const {
+            const typename Set::key_compare cmp = lhs.key_comp();
+            
+            auto lhsIt = std::begin(lhs);
+            auto lhsEnd = std::end(lhs);
+            auto rhsIt = std::begin(rhs);
+            auto rhsEnd = std::end(rhs);
+
+            return std::lexicographical_compare(lhsIt, lhsEnd, rhsIt, rhsEnd, cmp);
+        }
+    };
+    
     template <typename T, typename C>
     bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
         if (lhs.size() > rhs.size())
@@ -947,6 +961,27 @@ namespace SetUtils {
     template <typename T, typename C>
     void deleteAll(const std::set<T*, C>& set) {
         std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
+    }
+    
+    template <typename S>
+    std::set<S, SetCompare<S>> powerSet(const S& set) {
+        typedef std::set<S, SetCompare<S>> PowerSet;
+        
+        PowerSet result;
+        result.insert(S());
+        
+        for (const auto& elem : set) {
+            PowerSet intermediate;
+
+            for (auto subset : result) {
+                subset.insert(elem);
+                intermediate.insert(subset);
+            }
+            
+            result.insert(std::begin(intermediate), std::end(intermediate));
+        }
+        
+        return result;
     }
     
     template <typename S>

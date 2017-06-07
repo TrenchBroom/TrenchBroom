@@ -661,6 +661,25 @@ TEST(CollectionUtilsTest, setIntersectionEmpty) {
     ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3, 6}, std::set<int>{4, 5, 6}));
 }
 
+TEST(CollectionUtilsTest, setPowerSet) {
+    typedef std::set<int> IntSet;
+
+    const auto powerSet1 = SetUtils::powerSet(std::set<int>{});
+    ASSERT_EQ(1u, powerSet1.size());
+    ASSERT_TRUE(powerSet1.count(std::set<int>{}) == 1);
+    
+    const auto powerSet2 = SetUtils::powerSet(std::set<int>{1,2,3});
+    ASSERT_EQ(8u, powerSet2.size());
+    ASSERT_TRUE(powerSet2.count(std::set<int>{}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{1}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{2}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{3}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{1,2}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{2,3}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{1,3}) == 1);
+    ASSERT_TRUE(powerSet2.count(std::set<int>{1,2,3}) == 1);
+}
+
 TEST(CollectionUtilsTest, listReplaceEmpty) {
     std::list<int> list1 {0, 1, 2, 3};
     std::list<int> list2;
