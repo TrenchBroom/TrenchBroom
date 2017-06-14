@@ -663,28 +663,30 @@ TEST(CollectionUtilsTest, setIntersectionEmpty) {
 
 TEST(CollectionUtilsTest, setPowerSet) {
     typedef std::set<int> IntSet;
+    typedef std::set<IntSet> PSet;
 
-    const auto powerSet1 = SetUtils::powerSet(std::set<int>{});
-    ASSERT_EQ(1u, powerSet1.size());
-    ASSERT_TRUE(powerSet1.count(std::set<int>{}) == 1);
-    
-    const auto powerSet2 = SetUtils::powerSet(std::set<int>{1,2,3});
-    ASSERT_EQ(8u, powerSet2.size());
-    ASSERT_TRUE(powerSet2.count(std::set<int>{}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{1}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{2}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{3}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{1,2}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{2,3}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{1,3}) == 1);
-    ASSERT_TRUE(powerSet2.count(std::set<int>{1,2,3}) == 1);
+    ASSERT_EQ(PSet{ IntSet{} }, SetUtils::powerSet(IntSet{}));
+    ASSERT_EQ((PSet{
+        IntSet{},
+        IntSet{1}
+    }), SetUtils::powerSet(IntSet{1}));
+    ASSERT_EQ((PSet{
+        IntSet{},
+        IntSet{1},
+        IntSet{2},
+        IntSet{3},
+        IntSet{1,2},
+        IntSet{2,3},
+        IntSet{1,3},
+        IntSet{1,2,3}
+    }), SetUtils::powerSet(IntSet{1,2,3}));
 }
 
 TEST(CollectionUtilsTest, listReplaceEmpty) {
     std::list<int> list1 {0, 1, 2, 3};
     std::list<int> list2;
     
-    auto replacePos = list1.begin();
+    auto replacePos = std::begin(list1);
     ASSERT_EQ(0, *replacePos);
     
     // this will be a no-op because list2 is empty
@@ -702,9 +704,8 @@ TEST(CollectionUtilsTest, listReplace) {
     
     // this will replace the element "2" with {100,200}
     
-    auto replacePos = list1.begin();
-    replacePos++;
-    replacePos++;
+    auto replacePos = std::begin(list1);
+    std::advance(replacePos, 2);
     ASSERT_EQ(2, *replacePos);
     
     const auto it = ListUtils::replace(list1, replacePos, list2);
