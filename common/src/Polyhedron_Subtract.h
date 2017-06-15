@@ -21,19 +21,6 @@
 #define Polyhedron_Subtract_h
 
 template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::Fragment {
-private:
-    Polyhedron m_polyhedron;
-public:
-    Fragment(const V& initialVertex) :
-    m_polyhedron({ initialVertex }) {}
-    
-    const Polyhedron& polyhedron() const {
-        return m_polyhedron;
-    }
-};
-
-template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
     Callback c;
     return subtract(subtrahend, c);
@@ -45,39 +32,83 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(Polyh
     if (!subtrahend.clip(*this, callback).success())
         return SubtractResult();
     
-    FragmentList fragments;
-    fragments = createFragments(subtrahend, callback);
-    fragments = partitionFragments(fragments, callback);
+    // Create maximal fragments
+    const FragmentSet maximalFragments = createMaximalFragments(subtrahend, callback);
     
-    SubtractResult result;
-    std::transform(std::begin(fragments), std::end(fragments), std::back_inserter(result),
-                   [](const Fragment& fragment) {
-                       return fragment.polyhedron();
-                   });
+    // Make disjoint
+    // Create result
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::createMaximalFragments(const Polyhedron& subtrahend, const Callback& callback) const {
+    return maximizeFragments(createInitialFragments(subtrahend, callback), callback);
+}
+
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const {
+    FragmentSet result;
+    
+    Face* firstFace = subtrahend.faces().front();
+    Face* curFace = firstFace;
+    do {
+        const auto powerSet = SetUtils::powerSet(curFace->vertexSet());
+        for (const auto& vertices : powerSet)
+            result.insert(Fragment(vertices, callback));
+        
+        curFace = curFace->next();
+    } while (curFace != firstFace);
     
     return result;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FragmentList Polyhedron<T,FP,VP>::createFragments(const Polyhedron& subtrahend, const Callback& callback) const {
-
-
-    const typename V::Set minuendVertices = vertexPositionSet();
-    const typename V::Set subtrahendVertices = subtrahend.vertexPositionSet();
-    
-    typename V::Set vertices = SetUtils::merge(minuendVertices, subtrahendVertices);
-    FragmentList fragments { Fragment(SetUtils::popFront(vertices)) };
-    
-    while (!vertices.empty()) {
-        const V vertex = SetUtils::popFront(vertices);
-        
-        
-    }
+typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::maximizeFragments(const FragmentSet& fragments, const Callback& callback) const {
+    FragmentSet result;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FragmentList Polyhedron<T,FP,VP>::partitionFragments(const FragmentList& fragments, const Callback& callback) const {
+class Polyhedron<T,FP,VP>::Fragment {
+private:
+    typedef typename V::Set VertexSet;
+    typedef std::set<Plane<T,3>> PlaneSet;
     
-}
+    VertexSet m_vertices;
+    PlaneSet m_planes;
+public:
+    template <typename C>
+    Fragment(const C& vertices, const Callback& callback) {
+        addVertices(vertices, callback);
+    }
+    
+    template <typename C>
+    void addVertices(const C& vertices, const Callback& callback) {
+        for (const Vertex* vertex : vertices)
+            addVertex(vertex, callback);
+    }
+    
+    void addVertex(const Vertex* vertex, const Callback& callback) {
+        m_vertices.insert(vertex->position());
+        m_planes = SetUtils::intersection(m_planes, computePlanes(vertex, callback));
+    }
+    
+    bool operator<(const Fragment& other) const {
+        return m_vertices < other.m_vertices;
+    }
+private:
+    PlaneSet computePlanes(const Vertex* vertex, const Callback& callback) const {
+        PlaneSet result;
+        
+        const HalfEdge* firstEdge = vertex->leaving();
+        const HalfEdge* curEdge = firstEdge;
+        do {
+            const Face* face = curEdge->face();
+            result.insert(callback.plane(face));
+            curEdge = curEdge->nextIncident();
+        } while (curEdge != firstEdge);
+        
+        return result;
+    }
+};
 
 #endif /* Polyhedron_Subtract_h */
