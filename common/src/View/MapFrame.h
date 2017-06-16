@@ -23,6 +23,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "View/Inspector.h"
+#include "View/Selection.h"
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
@@ -32,6 +33,7 @@
 class wxChoice;
 class wxTimer;
 class wxTimerEvent;
+class wxStatusBar;
 
 namespace TrenchBroom {
     class Logger;
@@ -68,6 +70,8 @@ namespace TrenchBroom {
             wxWindow* m_lastFocus;
 
             wxChoice* m_gridChoice;
+            
+            wxStatusBar* m_statusBar;
             
             wxDialog* m_compilationDialog;
             
@@ -106,6 +110,9 @@ namespace TrenchBroom {
             void updateRecentDocumentsMenu();
         private: // tool bar
             void createToolBar();
+        private: // status bar
+            void createStatusBar();
+            void updateStatusBar();
         private: // gui creation
             void createGui();
         private: // notification handlers
@@ -117,6 +124,10 @@ namespace TrenchBroom {
             void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
+            void selectionDidChange(const Selection& selection);
+            void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
+            void groupWasOpened(Model::Group* group);
+            void groupWasClosed(Model::Group* group);
         private: // menu event handlers
             void bindEvents();
 
