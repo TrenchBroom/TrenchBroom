@@ -310,7 +310,7 @@ namespace TrenchBroom {
             map.defaultLayer()->addChild(worldBrush);
             map.defaultLayer()->addChild(outer);
             
-            Model::NodeList nodes;
+            Model::NodeArray nodes;
             nodes.push_back(inner);
             nodes.push_back(worldBrush);
             
