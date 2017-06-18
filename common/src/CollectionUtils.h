@@ -118,13 +118,13 @@ namespace ListUtils {
     }
 
     template <typename T>
-    void remove(std::vector<T*>& list, const T* item) {
-        list.erase(std::remove(std::begin(list), std::end(list), item), std::end(list));
+    void remove(std::vector<T*>& Array, const T* item) {
+        Array.erase(std::remove(std::begin(Array), std::end(Array), item), std::end(Array));
     }
 
     template <typename T>
-    void removeAndDelete(std::vector<T*>& list, const T* item) {
-        remove(list, item);
+    void removeAndDelete(std::vector<T*>& Array, const T* item) {
+        remove(Array, item);
         delete item;
     }
 
