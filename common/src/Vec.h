@@ -945,12 +945,12 @@ public:
     template <typename I, typename G>
     static typename Vec<T,S>::Array asArray(I cur, I end, const G& get) {
         typename Vec<T,S>::Array result;
-        toList(cur, end, get, result);
+        toArray(cur, end, get, result);
         return result;
     }
     
     template <typename I, typename G>
-    static void toList(I cur, I end, const G& get, typename Vec<T,S>::Array& result) {
+    static void toArray(I cur, I end, const G& get, typename Vec<T,S>::Array& result) {
         addAll(cur, end, get, std::back_inserter(result));
     }
     
