@@ -108,23 +108,23 @@ namespace CollectionUtils {
 
 namespace ListUtils {
     template <typename T>
-    void append(std::list<T*>& vec, const std::list<T*>& items) {
-        vec.insert(std::end(vec), std::begin(items), std::end(items));
+    void append(std::list<T*>& list, const std::list<T*>& items) {
+        list.insert(std::end(list), std::begin(items), std::end(items));
     }
 
     template <typename T>
-    void eraseAll(std::list<T*>& vec, const std::list<T*>& items) {
-        vec.erase(removeAll(std::begin(vec), std::end(vec), std::begin(items), std::end(items)), std::end(vec));
+    void eraseAll(std::list<T*>& list, const std::list<T*>& items) {
+        list.erase(removeAll(std::begin(list), std::end(list), std::begin(items), std::end(items)), std::end(list));
     }
 
     template <typename T>
-    void remove(std::vector<T*>& Array, const T* item) {
-        Array.erase(std::remove(std::begin(Array), std::end(Array), item), std::end(Array));
+    void remove(std::vector<T*>& array, const T* item) {
+        array.erase(std::remove(std::begin(array), std::end(array), item), std::end(array));
     }
 
     template <typename T>
-    void removeAndDelete(std::vector<T*>& Array, const T* item) {
-        remove(Array, item);
+    void removeAndDelete(std::vector<T*>& array, const T* item) {
+        remove(array, item);
         delete item;
     }
 
