@@ -128,10 +128,19 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, m_texCoordSystem);
         }
         
+        TexCoordSystemSnapshot* BrushFace::takeTexCoordSystemSnapshot() const {
+            return m_texCoordSystem->takeSnapshot();
+        }
+        
         void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot) {
             coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+            coordSystemSnapshot->restore(m_texCoordSystem);
+            m_texCoordSystem->updateNormal(sourceFaceNormal, m_boundary.normal, m_attribs);
+        }
+        
         Brush* BrushFace::brush() const {
             return m_brush;
         }

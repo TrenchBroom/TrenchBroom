@@ -31,6 +31,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "Model/NodeCollection.h"
+#include "Model/TexCoordSystem.h"
 #include "View/CachingLogger.h"
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
@@ -298,6 +299,7 @@ namespace TrenchBroom {
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
+            bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
             bool shearTextures(const Vec2f& factors);
