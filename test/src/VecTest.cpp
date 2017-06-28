@@ -397,3 +397,27 @@ TEST(VecTest, convexHull2dSimpleWithPointOnLine) {
     ASSERT_VEC_EQ(p4, hull[2]);
     ASSERT_VEC_EQ(p1, hull[3]);
 }
+
+TEST(VecTest, makePerpendicular) {
+    const Vec3d n1(-0.44721359549995793, -0, -0.89442719099991586);
+    const Vec3d n2 = n1.makePerpendicular();
+    
+    ASSERT_FLOAT_EQ(1, n1.length());
+    ASSERT_FLOAT_EQ(1, n2.length());
+    
+    ASSERT_FLOAT_EQ(0, n1.dot(n2));
+}
+
+TEST(VecTest, makePerpendicular2) {
+    const Vec3d::List vecs { Vec3d(1,0,0),
+                             Vec3d(-1,0,0),
+                             Vec3d(0,1,0),
+                             Vec3d(0,-1,0),
+                             Vec3d(0,0,1),
+                             Vec3d(0,0,-1) };
+    for (const Vec3d &v : vecs) {
+        const Vec3d p = v.makePerpendicular();
+        ASSERT_FLOAT_EQ(1, p.length());
+        ASSERT_FLOAT_EQ(0, v.dot(p));
+    }
+}
