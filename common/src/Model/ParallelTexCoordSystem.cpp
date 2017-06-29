@@ -183,13 +183,17 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
             const Vec3 cross = crossed(oldNormal, newNormal);
+            Vec3 axis;
             if (cross.null()) {
-                rotation = Quat3(oldNormal.makePerpendicular(), Math::C::pi());
+                // oldNormal and newNormal are either the same or opposite
+                axis = oldNormal.makePerpendicular();
             } else {
-                const Vec3 axis = cross.normalized();
-                const FloatType angle = angleBetween(newNormal, oldNormal, axis);
-                rotation = Quat3(axis, angle);
+                axis = cross.normalized();
             }
+            
+            const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+            rotation = Quat3(axis, angle);
+
             m_xAxis = rotation * m_xAxis;
             m_yAxis = rotation * m_yAxis;
         }
