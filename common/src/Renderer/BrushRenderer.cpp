@@ -203,23 +203,38 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+            renderOpaque(renderContext, renderBatch);
+            renderTransparent(renderContext, renderBatch);
+        }
+        
+        void BrushRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_brushes.empty()) {
                 if (!m_valid)
                     validate();
                 if (renderContext.showFaces())
-                    renderFaces(renderBatch);
+                    renderOpaqueFaces(renderBatch);
                 if (renderContext.showEdges() || m_showEdges)
                     renderEdges(renderBatch);
             }
         }
         
+        void BrushRenderer::renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (!m_brushes.empty()) {
+                if (!m_valid)
+                    validate();
+                if (renderContext.showFaces())
+                    renderTransparentFaces(renderBatch);
+            }
+        }
 
-        void BrushRenderer::renderFaces(RenderBatch& renderBatch) {
+        void BrushRenderer::renderOpaqueFaces(RenderBatch& renderBatch) {
             m_opaqueFaceRenderer.setGrayscale(m_grayscale);
             m_opaqueFaceRenderer.setTint(m_tint);
             m_opaqueFaceRenderer.setTintColor(m_tintColor);
             m_opaqueFaceRenderer.render(renderBatch);
-            
+        }
+        
+        void BrushRenderer::renderTransparentFaces(RenderBatch& renderBatch) {
             m_transparentFaceRenderer.setGrayscale(m_grayscale);
             m_transparentFaceRenderer.setTint(m_tint);
             m_transparentFaceRenderer.setTintColor(m_tintColor);
