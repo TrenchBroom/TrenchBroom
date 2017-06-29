@@ -149,6 +149,14 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 
 - You can replace "Release" with "Debug" if you want to create a debug build. Also change the value of the `wxWidgets_PREFIX` variable to point to your wxWidgets `build-debug` directory in that case.
 
+- Unless you install TrenchBroom system-wide (see Packaging below), you'll need to set the `TB_DEV_MODE` environment variable to `1` when launching TrenchBroom:
+
+  ```
+  TB_DEV_MODE=1 ./trenchbroom
+  ```
+
+  This is necessary to tell TrenchBroom to look for resources in the current directory, instead of a system-wide location (in `/usr/`).
+
 ### Packaging
 - If you want to create packages for Linux (deb or rpm), then you'll need to install these packages: devscripts, debhelper, rpm
 
