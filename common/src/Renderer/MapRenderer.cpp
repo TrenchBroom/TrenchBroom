@@ -209,9 +209,12 @@ namespace TrenchBroom {
             setupGL(renderBatch);
             renderDefaultOpaque(renderContext, renderBatch);
             renderLockedOpaque(renderContext, renderBatch);
+            renderSelectionOpaque(renderContext, renderBatch);
+            
             renderDefaultTransparent(renderContext, renderBatch);
             renderLockedTransparent(renderContext, renderBatch);
-            renderSelection(renderContext, renderBatch);
+            renderSelectionTransparent(renderContext, renderBatch);
+            
             renderEntityLinks(renderContext, renderBatch);
             renderTutorialMessages(renderContext, renderBatch);
         }
@@ -246,9 +249,14 @@ namespace TrenchBroom {
             m_defaultRenderer->renderTransparent(renderContext, renderBatch);
         }
         
-        void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
+        void MapRenderer::renderSelectionOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!renderContext.hideSelection()) {
                 m_selectionRenderer->renderOpaque(renderContext, renderBatch);
+            }
+        }
+        
+        void MapRenderer::renderSelectionTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (!renderContext.hideSelection()) {
                 m_selectionRenderer->renderTransparent(renderContext, renderBatch);
             }
         }
