@@ -38,7 +38,9 @@ namespace TrenchBroom {
         public:
             virtual ~TexCoordSystemSnapshot();
             void restore(TexCoordSystem* coordSystem) const;
+            TexCoordSystemSnapshot* clone() const;
         private:
+            virtual TexCoordSystemSnapshot* doClone() const = 0;
             virtual void doRestore(ParallelTexCoordSystem* coordSystem) const = 0;
             virtual void doRestore(ParaxialTexCoordSystem* coordSystem) const = 0;
             

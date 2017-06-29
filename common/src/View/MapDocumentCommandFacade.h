@@ -25,6 +25,7 @@
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Node.h"
+#include "Model/TexCoordSystem.h"
 #include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
 #include "View/UndoableCommand.h"
@@ -91,6 +92,7 @@ namespace TrenchBroom {
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
             void performShearTextures(const Vec2f& factors);
+            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             Model::Snapshot* performFindPlanePoints();
