@@ -52,19 +52,19 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeVertices() {
             std::fprintf(m_stream, "# vertices\n");
-            for (const Vec3& elem : m_vertices.list())
+            for (const Vec3& elem : m_vertices.array())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
-            for (const Vec2f& elem : m_texCoords.list())
+            for (const Vec2f& elem : m_texCoords.array())
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
         }
         
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
-            for (const Vec3& elem : m_normals.list())
+            for (const Vec3& elem : m_normals.array())
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
