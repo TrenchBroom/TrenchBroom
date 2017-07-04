@@ -20,6 +20,8 @@
 #ifndef Polyhedron_Subtract_h
 #define Polyhedron_Subtract_h
 
+#include <iterator>
+
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
     Callback c;
@@ -32,39 +34,49 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(Polyh
     if (!subtrahend.clip(*this, callback).success())
         return SubtractResult();
     
-    // Create maximal fragments
-    const FragmentSet maximalFragments = createMaximalFragments(subtrahend, callback);
+    FragmentList fragments = createInitialFragments(subtrahend, callback);
+    Fragment::partitionFragments(fragments);
     
-    // Make disjoint
+    // Create missing fragments
+    
     // Create result
+    SubtractResult result;
+    for (const Fragment& fragment : fragments) {
+        const Polyhedron& polyhedron = fragment.polyhedron();
+        if (polyhedron.polyhedron())
+            result.push_back(polyhedron);
+    }
+    
+    return result;
+    
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::createMaximalFragments(const Polyhedron& subtrahend, const Callback& callback) const {
-    return maximizeFragments(createInitialFragments(subtrahend, callback), callback);
-}
-
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const {
-    FragmentSet result;
+typename Polyhedron<T,FP,VP>::FragmentList Polyhedron<T,FP,VP>::createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const {
+    FragmentList result;
     
     Face* firstFace = subtrahend.faces().front();
     Face* curFace = firstFace;
     do {
-        const auto powerSet = SetUtils::powerSet(curFace->vertexSet());
-        for (const auto& vertices : powerSet)
-            result.insert(Fragment(vertices, callback));
+        typename V::Set vertices = curFace->vertexPositionSet();
+        const Plane<T,3> boundary = callback.plane(curFace);
+        
+        Vertex* firstVertex = m_vertices.front();
+        Vertex* curVertex = firstVertex;
+        do {
+            const V& position = curVertex->position();
+            if (boundary.pointStatus(position) != Math::PointStatus::PSBelow)
+                vertices.insert(position);
+            
+            curVertex = curVertex->next();
+        } while (curVertex != firstVertex);
+        
+        result.push_back(Fragment(vertices));
         
         curFace = curFace->next();
     } while (curFace != firstFace);
     
     return result;
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FragmentSet Polyhedron<T,FP,VP>::maximizeFragments(const FragmentSet& fragments, const Callback& callback) const {
-    FragmentSet result;
 }
 
 template <typename T, typename FP, typename VP>
@@ -74,40 +86,104 @@ private:
     typedef std::set<Plane<T,3>> PlaneSet;
     
     VertexSet m_vertices;
-    PlaneSet m_planes;
+public:
+    struct SubsetCmp {
+        bool operator()(const Fragment& lhs, const Fragment& rhs) const {
+            return SetUtils::subset(lhs.m_vertices, rhs.m_vertices);
+        }
+    };
 public:
     template <typename C>
-    Fragment(const C& vertices, const Callback& callback) {
-        addVertices(vertices, callback);
-    }
-    
-    template <typename C>
-    void addVertices(const C& vertices, const Callback& callback) {
-        for (const Vertex* vertex : vertices)
-            addVertex(vertex, callback);
-    }
-    
-    void addVertex(const Vertex* vertex, const Callback& callback) {
-        m_vertices.insert(vertex->position());
-        m_planes = SetUtils::intersection(m_planes, computePlanes(vertex, callback));
-    }
+    Fragment(const C& vertices) :
+    m_vertices(vertices) {}
     
     bool operator<(const Fragment& other) const {
         return m_vertices < other.m_vertices;
     }
-private:
-    PlaneSet computePlanes(const Vertex* vertex, const Callback& callback) const {
-        PlaneSet result;
-        
-        const HalfEdge* firstEdge = vertex->leaving();
-        const HalfEdge* curEdge = firstEdge;
+    
+    void removeVertex(const V& position) {
+        m_vertices.erase(position);
+    }
+    
+    size_t vertexCount() const {
+        return m_vertices.size();
+    }
+    
+    Polyhedron polyhedron() const {
+        return Polyhedron(m_vertices);
+    }
+    
+    VertexSet intersectVertices(const Fragment& other) const {
+        return SetUtils::intersection(m_vertices, other.m_vertices);
+    }
+    
+    static void partitionFragments(FragmentList& fragments) {
+        auto it1 = std::begin(fragments);
+        while (it1 != std::end(fragments)) {
+            auto it2 = std::next(it1);
+            bool incIt1 = true;
+            while (it2 != std::end(fragments)) {
+                const VertexSet sharedVertices = it1->intersectVertices(*it2);
+                if (sharedVertices.size() < 4) {
+                    ++it2;
+                    continue;
+                }
+                
+                if (sharedVertices.size() == it1->vertexCount()) {
+                    it1 = fragments.erase(it1);
+                    incIt1 = false;
+                    break;
+                }
+                
+                if (sharedVertices.size() == it2->vertexCount()) {
+                    it2 = fragments.erase(it2);
+                    continue;
+                }
+                
+                const Polyhedron<T,FP,VP> sharedVolume(sharedVertices);
+                if (!sharedVolume.polyhedron()) {
+                    ++it2;
+                    continue;
+                }
+                
+                // The two fragments overlap. Remove the overlapping areas and add a new fragment for the overlap.
+                removeOverlap(*it1, sharedVertices);
+                removeOverlap(*it2, sharedVertices);
+                fragments.push_back(Fragment(sharedVertices));
+                
+                ++it2;
+            }
+            
+            if (incIt1)
+                ++it1;
+        }
+    }
+    
+    static void removeOverlap(Fragment& fragment, const VertexSet& sharedVertices) {
+        const Polyhedron& polyhedron = fragment.polyhedron();
+        for (const V& position : sharedVertices) {
+            const Vertex* vertex = polyhedron.findVertexByPosition(position);
+            assert(vertex != nullptr);
+            
+            if (fullyShared(vertex, sharedVertices))
+                fragment.removeVertex(position);
+        }
+    }
+    
+    /*
+     Checks whether the given vertex is connected only to vertices in the given set.
+     */
+    static bool fullyShared(const Vertex* vertex, const VertexSet& sharedVertices) {
+        HalfEdge* firstEdge = vertex->leaving();
+        HalfEdge* curEdge = firstEdge;
         do {
-            const Face* face = curEdge->face();
-            result.insert(callback.plane(face));
+            const Vertex* destination = curEdge->destination();
+            if (sharedVertices.count(destination->position()) == 0)
+                return false;
             curEdge = curEdge->nextIncident();
         } while (curEdge != firstEdge);
         
-        return result;
+        return true;
     }
 };
 
