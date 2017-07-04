@@ -506,11 +506,9 @@ public: // Subtraction
     SubtractResult subtract(Polyhedron subtrahend, Callback& callback) const;
 private:
     class Fragment;
-    typedef std::set<Fragment> FragmentSet;
+    typedef std::list<Fragment> FragmentList;
     
-    FragmentSet createMaximalFragments(const Polyhedron& subtrahend, const Callback& callback) const;
-    FragmentSet createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const;
-    FragmentSet maximizeFragments(const FragmentSet& fragments, const Callback& callback) const;
+    FragmentList createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const;
 public: // geometrical queries
     bool contains(const V& point, const Callback& callback = Callback()) const;
     bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;

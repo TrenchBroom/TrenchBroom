@@ -104,6 +104,40 @@ namespace CollectionUtils {
             ++cur;
         }
     }
+
+    template <typename Col, typename Cmp>
+    Col& retainMaximalElements(Col& col, const Cmp& cmp = Cmp()) {
+        auto it = std::begin(col);
+        while (it != std::end(col)) {
+            const auto& cand = *it;
+            bool erased = false;
+            
+            auto ne = std::next(it);
+            while (!erased && ne != std::end(col)) {
+                const auto& cur = *ne;
+                
+                if (cmp(cand, cur)) {
+                    it = col.erase(it);
+                    erased = true;
+                } else if (cmp(cur, cand)) {
+                    ne = col.erase(ne);
+                } else {
+                    ++ne;
+                }
+            }
+            
+            if (!erased)
+                ++it;
+        }
+        
+        return col;
+    }
+    
+    template <typename Col, typename Cmp>
+    Col findMaximalElements(const Col& col, const Cmp& cmp = Cmp()) {
+        Col result(col);
+        return retainMaximalElements(result, cmp);
+    }
 }
 
 namespace ListUtils {
@@ -821,8 +855,8 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template <typename T, typename C>
-    bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
+    template <typename S>
+    bool subset(const S& lhs, const S& rhs) {
         if (lhs.size() > rhs.size())
             return false;
 
@@ -831,6 +865,7 @@ namespace SetUtils {
         auto rIt = std::begin(rhs);
         auto rEnd = std::end(rhs);
 
+        typedef typename S::key_compare C;
         const C cmp = lhs.key_comp();
 
         while (lIt != lEnd) {
@@ -844,7 +879,14 @@ namespace SetUtils {
         }
         return true;
     }
-
+    
+    struct SubsetCmp {
+        template <typename S>
+        bool operator()(const S& lhs, const S& rhs) const {
+            return subset(lhs, rhs);
+        }
+    };
+    
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(std::begin(vec), std::end(vec));
@@ -881,6 +923,11 @@ namespace SetUtils {
         return result;
     }
 
+    template <typename T, typename C>
+    void merge(std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        lhs.insert(std::begin(rhs), std::end(rhs));
+    }
+    
     template <typename T, typename C>
     void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         result.insert(std::begin(lhs), std::end(lhs));
@@ -977,6 +1024,40 @@ namespace SetUtils {
         const typename S::value_type value = *it;
         set.erase(it);
         return value;
+    }
+    
+    template <typename S>
+    S findMaximalElements(const S& set) {
+        typedef typename S::value_type V;
+        typedef typename S::value_compare C;
+        const C& cmp = set.value_comp();
+        
+        S result;
+        for (auto it = std::begin(set), end = std::end(set); it != end; ++it) {
+            const V& cand = *it;
+            if (!std::any_of(std::next(it), std::end(set), [&cand, &cmp](const V& cur) { return cmp(cand, cur); }))
+                result.insert(cand);
+        }
+        return result;
+    }
+
+    template <typename S>
+    S& retainMaximalElements(S& set) {
+        S temp = findMaximalElements(set);
+        
+        using std::swap;
+        swap(set, temp);
+        return set;
+    }
+    
+    template <typename S>
+    S& retainSupersets(S& set) {
+        return CollectionUtils::retainMaximalElements(set, SubsetCmp());
+    }
+    
+    template <typename S>
+    S findSupersets(const S& set) {
+        return CollectionUtils::findMaximalElements(set, SubsetCmp());
     }
 }
 

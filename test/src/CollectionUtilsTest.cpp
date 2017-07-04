@@ -645,6 +645,19 @@ TEST(CollectionUtilsTest, setSubset) {
     ASSERT_FALSE(SetUtils::subset(std::set<int>{0, 1}, std::set<int>{1}));
 }
 
+TEST(CollectionUtilsTest, setFindSupersets) {
+    typedef std::set<int> S;
+    typedef std::set<S> SS;
+    
+    ASSERT_EQ(SS{}, SetUtils::findSupersets(SS{}));
+    ASSERT_EQ(SS{S{1}}, SetUtils::findSupersets(SS{S{1}}));
+    ASSERT_EQ((SS{S{1,2}}), SetUtils::findSupersets(SS{S{1},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2}}), SetUtils::findSupersets(SS{S{1},S{2},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2},S{3}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2},S{2,1},S{3}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2},S{2,1}}));
+    ASSERT_EQ((SS{S{1,2},S{3,1}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2},S{3,1}}));
+}
+
 TEST(CollectionUtilsTest, setMinus) {
     ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1, 2, 3}, std::set<int>{2, 3}));
     ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1}, std::set<int>{}));
@@ -680,6 +693,13 @@ TEST(CollectionUtilsTest, setPowerSet) {
         IntSet{1,3},
         IntSet{1,2,3}
     }), SetUtils::powerSet(IntSet{1,2,3}));
+}
+
+TEST(CollectionUtilsTest, setRetainMaximalElements) {
+    ASSERT_EQ(std::set<int>{}, SetUtils::findMaximalElements(std::set<int>{}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{1}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{0,1}));
+    ASSERT_EQ(std::set<int>{2}, SetUtils::findMaximalElements(std::set<int>{0,1,2}));
 }
 
 TEST(CollectionUtilsTest, listReplaceEmpty) {
