@@ -40,17 +40,17 @@ namespace TrenchBroom {
             private:
                 typedef std::map<V, size_t> Map;
                 Map m_map;
-                Array m_list;
+                Array m_array;
             public:
-                const Array& list() const {
-                    return m_list;
+                const Array& array() const {
+                    return m_array;
                 }
                 
                 size_t index(const V& v) {
-                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
+                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_array.size());
                     const size_t index = indexIt->second;
-                    if (index == m_list.size())
-                        m_list.push_back(v);
+                    if (index == m_array.size())
+                        m_array.push_back(v);
                     return index;
                 }
             };
