@@ -505,10 +505,10 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend) const;
     SubtractResult subtract(Polyhedron subtrahend, Callback& callback) const;
 private:
-    class Fragment;
-    typedef std::list<Fragment> FragmentList;
-    
-    FragmentList createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const;
+    List createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const;
+    static void partitionFragments(List& fragments);
+    static void removeFragmentOverlap(Polyhedron& fragment, const typename V::Set& vertices);
+    static bool checkAllNeighboursInSet(const Vertex* vertex, const typename V::Set& vertices);
 public: // geometrical queries
     bool contains(const V& point, const Callback& callback = Callback()) const;
     bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;
