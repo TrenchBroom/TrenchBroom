@@ -256,7 +256,7 @@ namespace TrenchBroom {
                 world->acceptAndRecurse(collectLinks);
         }
         
-        void EntityLinkRenderer::getTransitiveSelectedLinks(Vertex::List& links) const {
+        void EntityLinkRenderer::getTransitiveSelectedLinks(Vertex::Array& links) const {
             View::MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             
