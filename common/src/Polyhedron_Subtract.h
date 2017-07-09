@@ -36,6 +36,7 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(Polyh
     
     List fragments = createInitialFragments(subtrahend, callback);
     partitionFragments(fragments);
+    addMissingFragments(fragments, *this, subtrahend, callback);
     
     // Create missing fragments
     
@@ -156,5 +157,82 @@ bool Polyhedron<T,FP,VP>::checkAllNeighboursInSet(const Vertex* vertex, const ty
     
     return true;
 }
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
+    const FaceSet uncoveredFaces = findUncoveredFaces(fragments, minuend, subtrahend, callback);
+    
+    bool b = true;
+    return;
+}
+
+/*
+ Find all faces of the given fragments which are not covered. A face is covered if either of the following conditions hold:
+ * its boundary plane coincides with the boundary plane of any face of the minuend
+ * the inverse of its boundary plane coincides with the boundary plane of any face of the subtrahend
+ * it shares all of its vertices with another fragment.
+ */
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::FaceSet Polyhedron<T,FP,VP>::findUncoveredFaces(const Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
+    const typename Plane<T,3>::Set ignoredPlanes = findIgnoredPlanes(minuend, subtrahend, callback);
+
+    FaceSet result;
+    for (const Polyhedron& fragment : fragments) {
+        Face* firstFace = fragment.faces().front();
+        Face* curFace = firstFace;
+        do {
+            const Plane<T,3> boundary = callback.plane(curFace);
+            if (ignoredPlanes.count(boundary) == 0) {
+                if (!isCoveredByFragment(curFace, fragments, fragment)) {
+                    result.insert(curFace);
+                }
+            }
+            curFace = curFace->next();
+        } while (curFace != firstFace);
+    }
+    
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
+typename Plane<T,3>::Set Polyhedron<T,FP,VP>::findIgnoredPlanes(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
+    typename Plane<T,3>::Set result;
+    addIgnoredPlanes(minuend, false, callback, result);
+    addIgnoredPlanes(subtrahend, true, callback, result);
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T,FP,VP>::addIgnoredPlanes(const Polyhedron& polyhedron, bool flip, const Callback& callback, typename Plane<T,3>::Set& result) {
+    Face* firstFace = polyhedron.faces().front();
+    Face* curFace = firstFace;
+    do {
+        const Plane<T,3> boundary = callback.plane(curFace);
+        if (flip)
+            result.insert(boundary.flipped());
+        else
+            result.insert(boundary);
+        curFace = curFace->next();
+    } while (curFace != firstFace);
+}
+
+template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::isCoveredByFragment(const Face* face, const Polyhedron::List& fragments, const Polyhedron& ignore) {
+    const typename V::Set& faceVertices = face->vertexPositionSet();
+    for (const Polyhedron& fragment : fragments) {
+        if (&fragment == &ignore)
+            continue;
+        
+        const typename V::Set& fragmentVertices = fragment.vertexPositionSet();
+        const typename V::Set intersection = SetUtils::intersection(faceVertices, fragmentVertices);
+        
+        if (intersection.size() == faceVertices.size())
+            return true;
+        
+        assert(intersection.size() <= 2);
+    }
+    return false;
+}
+
 
 #endif /* Polyhedron_Subtract_h */

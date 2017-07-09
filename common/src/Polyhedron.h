@@ -509,6 +509,13 @@ private:
     static void partitionFragments(List& fragments);
     static void removeFragmentOverlap(Polyhedron& fragment, const typename V::Set& vertices);
     static bool checkAllNeighboursInSet(const Vertex* vertex, const typename V::Set& vertices);
+    
+    static void addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
+    static FaceSet findUncoveredFaces(const Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
+    static typename Plane<T,3>::Set findIgnoredPlanes(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
+    static void addIgnoredPlanes(const Polyhedron& polyhedron, bool flip, const Callback& callback, typename Plane<T,3>::Set& result);
+    
+    static bool isCoveredByFragment(const Face* face, const Polyhedron::List& fragments, const Polyhedron& ignore);
 public: // geometrical queries
     bool contains(const V& point, const Callback& callback = Callback()) const;
     bool contains(const Polyhedron& other, const Callback& callback = Callback()) const;
