@@ -216,6 +216,7 @@ public:
         const HalfEdgeList& boundary() const;
         HalfEdge* findHalfEdge(const V& origin) const;
         HalfEdge* findHalfEdge(const Vertex* origin) const;
+        Edge* findEdge(const V& first, const V& second) const;
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;

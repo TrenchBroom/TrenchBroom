@@ -104,6 +104,17 @@ namespace CollectionUtils {
             ++cur;
         }
     }
+    
+    template <typename C, typename P>
+    void eraseIf(C& col, const P& pred) {
+        auto cur = std::begin(col);
+        while (cur != std::end(col)) {
+            if (pred(*cur))
+                cur = col.erase(cur);
+            else
+                ++cur;
+        }
+    }
 
     template <typename Col, typename Cmp>
     Col& retainMaximalElements(Col& col, const Cmp& cmp = Cmp()) {
@@ -137,6 +148,52 @@ namespace CollectionUtils {
     Col findMaximalElements(const Col& col, const Cmp& cmp = Cmp()) {
         Col result(col);
         return retainMaximalElements(result, cmp);
+    }
+
+    template <typename I, typename Fac, typename Cmp>
+    void equivalenceClasses(I rangeStart, I rangeEnd, const Fac& fac, const Cmp& cmp) {
+        typedef typename I::value_type E;
+        
+        std::list<I> workList;
+        while (rangeStart != rangeEnd)
+            workList.push_back(rangeStart++);
+        
+        while (!workList.empty()) {
+            const E& root = *workList.front(); workList.pop_front();
+            auto cls = fac();
+            cls = root;
+            
+            auto cur = std::begin(workList);
+            while (cur != std::end(workList)) {
+                const E& cand = **cur;
+                if (cmp(root, cand)) {
+                    cls = cand;
+                    cur = workList.erase(cur);
+                } else {
+                    ++cur;
+                }
+            }
+        }
+    }
+    
+    template <typename I, typename Cmp>
+    std::list<std::list<typename I::value_type>> equivalenceClasses(I rangeStart, I rangeEnd, const Cmp& cmp) {
+        typedef typename I::value_type E;
+        typedef std::list<E> Class;
+        typedef std::list<Class> Result;
+        
+        Result result;
+        equivalenceClasses(rangeStart, rangeEnd, [&result]() {
+            result.emplace_back();
+            return std::back_inserter(result.back());
+        }, cmp);
+        
+        return result;
+    }
+    
+    template <typename C, typename Cmp>
+    std::list<std::list<typename C::value_type>> equivalenceClasses(C collection, const Cmp& cmp) {
+        return equivalenceClasses(std::begin(collection), std::end(collection), cmp);
     }
 }
 

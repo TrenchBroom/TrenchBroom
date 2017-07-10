@@ -20,7 +20,9 @@
 #ifndef Polyhedron_Subtract_h
 #define Polyhedron_Subtract_h
 
+#include <algorithm>
 #include <iterator>
+#include <numeric>
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
@@ -37,8 +39,6 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(Polyh
     List fragments = createInitialFragments(subtrahend, callback);
     partitionFragments(fragments);
     addMissingFragments(fragments, *this, subtrahend, callback);
-    
-    // Create missing fragments
     
     // Create result
     SubtractResult result;
@@ -83,7 +83,7 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::partitionFragments(List& fragments) {
     auto it1 = std::begin(fragments);
     while (it1 != std::end(fragments)) {
-        const typename V::Set f1Vertices = it1->vertexPositionSet();
+        typename V::Set f1Vertices = it1->vertexPositionSet();
         
         auto it2 = std::next(it1);
         bool incIt1 = true;
@@ -92,31 +92,32 @@ void Polyhedron<T,FP,VP>::partitionFragments(List& fragments) {
             const typename V::Set sharedVertices = SetUtils::intersection(f1Vertices, f2Vertices);
             
             if (sharedVertices.size() < 4) {
+                // intersection is at most a triangle
                 ++it2;
                 continue;
             }
             
             if (sharedVertices.size() == it1->vertexCount()) {
+                // f1 is contained in f2
                 it1 = fragments.erase(it1);
                 incIt1 = false;
                 break;
             }
             
             if (sharedVertices.size() == it2->vertexCount()) {
+                // f2 is contained in f1
                 it2 = fragments.erase(it2);
                 continue;
             }
             
             const Polyhedron sharedVolume(sharedVertices);
-            if (!sharedVolume.polyhedron()) {
-                ++it2;
-                continue;
+            if (sharedVolume.polyhedron()) {
+                // The two fragments overlap. Remove the overlapping areas and add a new fragment for the overlap.
+                removeFragmentOverlap(*it1, sharedVertices);
+                removeFragmentOverlap(*it2, sharedVertices);
+                f1Vertices = it1->vertexPositionSet();
+                fragments.push_back(sharedVolume);
             }
-            
-            // The two fragments overlap. Remove the overlapping areas and add a new fragment for the overlap.
-            removeFragmentOverlap(*it1, sharedVertices);
-            removeFragmentOverlap(*it2, sharedVertices);
-            fragments.push_back(sharedVolume);
             
             ++it2;
         }
@@ -161,9 +162,38 @@ bool Polyhedron<T,FP,VP>::checkAllNeighboursInSet(const Vertex* vertex, const ty
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
     const FaceSet uncoveredFaces = findUncoveredFaces(fragments, minuend, subtrahend, callback);
+
+    const auto cmp = [](const Face* lhs, const Face* rhs) {
+        HalfEdge* lhsFirst = lhs->boundary().front();
+        HalfEdge* lhsCur = lhsFirst;
+        do {
+            Edge* lhsEdge = lhsCur->edge();
+            Edge* rhsEdge = rhs->findEdge(lhsEdge->firstVertex()->position(), lhsEdge->secondVertex()->position());
+            if (rhsEdge != nullptr)
+                return true;
+            lhsCur = lhsCur->next();
+        } while (lhsCur != lhsFirst);
+        
+        return false;
+    };
     
-    bool b = true;
-    return;
+    const auto eqClasses = CollectionUtils::equivalenceClasses(uncoveredFaces, cmp);
+
+    for (const std::list<Face*>& eqClass : eqClasses) {
+        typename V::Set vertices;
+        typename V::Set visibleMinuendVertices = minuend.vertexPositionSet();
+        for (const Face* face : eqClass) {
+            SetUtils::merge(vertices, face->vertexPositionSet());
+            
+            const Plane<T,3>& boundary = callback.plane(face);
+            CollectionUtils::eraseIf(visibleMinuendVertices, [&boundary](const V& vertex) {
+                return boundary.pointStatus(vertex) != Math::PointStatus::PSAbove;
+            });
+        }
+        
+        SetUtils::merge(vertices, visibleMinuendVertices);
+        fragments.push_back(Polyhedron(vertices));
+    }
 }
 
 /*
@@ -229,7 +259,7 @@ bool Polyhedron<T,FP,VP>::isCoveredByFragment(const Face* face, const Polyhedron
         if (intersection.size() == faceVertices.size())
             return true;
         
-        assert(intersection.size() <= 2);
+        // assert(intersection.size() <= 2);
     }
     return false;
 }

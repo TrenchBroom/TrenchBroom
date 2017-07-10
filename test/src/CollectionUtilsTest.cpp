@@ -40,6 +40,26 @@ public:
     }
 };
 
+TEST(CollectionUtilsTest, equivalenceClasses) {
+    typedef std::vector<int> In;
+    typedef std::list<int> Cls;
+    typedef std::list<Cls> Out;
+    
+    const auto cmp = [](const int& lhs, const int& rhs) {
+        if (lhs % 2 == 0)
+            return rhs % 2 == 0;
+        return rhs % 2 != 0;
+    };
+    
+    ASSERT_EQ((Out {}), CollectionUtils::equivalenceClasses(In {}, cmp));
+    ASSERT_EQ((Out { Cls {1} }), CollectionUtils::equivalenceClasses(In {1}, cmp));
+    ASSERT_EQ((Out { Cls {0, 2, 4, 6, 8}, Cls {1, 3, 5, 7, 9} }), CollectionUtils::equivalenceClasses(In {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, cmp));
+
+    ASSERT_EQ((Out { Cls {1}, Cls {2}, Cls {3} }), CollectionUtils::equivalenceClasses(In {1, 2, 3}, [](const int& lhs, const int& rhs){ return false; }));
+    
+    ASSERT_EQ((Out { Cls {1, 2, 3} }), CollectionUtils::equivalenceClasses(In {1, 2, 3}, [](const int& lhs, const int& rhs){ return true; }));
+}
+
 TEST(CollectionUtilsTest, vecShiftLeftEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
