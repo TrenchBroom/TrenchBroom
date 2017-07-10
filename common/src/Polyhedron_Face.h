@@ -96,7 +96,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const Vertex* origin) const {
-    ensure(origin != NULL, "origin is null");
+    ensure(origin != nullptr, "origin is null");
     HalfEdge* firstEdge = m_boundary.front();
     HalfEdge* currentEdge = firstEdge;
     do {
@@ -105,6 +105,20 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return currentEdge;
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V& first, const V& second) const {
+    HalfEdge* halfEdge = findHalfEdge(first);
+    if (halfEdge == nullptr)
+        return nullptr;
+    
+    if (halfEdge->destination()->position().equals(second))
+        return halfEdge->edge();
+    halfEdge = halfEdge->previous();
+    if (halfEdge->origin()->position().equals(second))
+        return halfEdge->edge();
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
