@@ -504,12 +504,11 @@ public: // Subtraction
     typedef std::list<Polyhedron> SubtractResult;
     
     SubtractResult subtract(const Polyhedron& subtrahend) const;
-    SubtractResult subtract(Polyhedron subtrahend, Callback& callback) const;
+    SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
-    List createInitialFragments(const Polyhedron& subtrahend, const Callback& callback) const;
-    static void partitionFragments(List& fragments);
-    static void removeFragmentOverlap(Polyhedron& fragment, const typename V::Set& vertices);
-    static bool checkAllNeighboursInSet(const Vertex* vertex, const typename V::Set& vertices);
+    class Subtract;
+    class Partition;
+    class Merge;
     
     static void addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
     static FaceSet findUncoveredFaces(const Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
