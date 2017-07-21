@@ -24,10 +24,16 @@
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ResourceUtils.h"
+#include "Model/AttributableNode.h"
+#include "Model/Brush.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeCollection.h"
 #include "Model/PointFile.h"
+#include "Model/World.h"
 #include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/BorderLine.h"
@@ -66,6 +72,7 @@
 #include <wx/choice.h>
 #include <wx/choicdlg.h>
 #include <wx/toolbar.h>
+#include <wx/statusbr.h>
 
 #include <cassert>
 
@@ -114,6 +121,7 @@ namespace TrenchBroom {
             createGui();
             createToolBar();
             createMenuBar();
+            createStatusBar();
 
             m_document->setParentLogger(logger());
             m_document->setViewEffectsService(m_mapView);
@@ -427,10 +435,132 @@ namespace TrenchBroom {
             m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 9, gridSizes);
             m_gridChoice->SetSelection(static_cast<int>(m_document->grid().size()));
             toolBar->AddControl(m_gridChoice);
-
+            
             toolBar->Realize();
         }
+        
+        void MapFrame::createStatusBar() {
+            m_statusBar = CreateStatusBar();
+        }
+        
+        static Model::AttributableNode* commonEntityForBrushList(const Model::BrushList& list) {
+            if (list.empty())
+                return nullptr;
+            
+            Model::AttributableNode* firstEntity = list.front()->entity();
+            bool multipleEntities = false;
+            
+            for (const Model::Brush* brush : list) {
+                if (brush->entity() != firstEntity) {
+                    multipleEntities = true;
+                }
+            }
 
+            if (multipleEntities) {
+                return nullptr;
+            } else {
+                return firstEntity;
+            }
+        }
+        
+        static String commonClassnameForEntityList(const Model::EntityList& list) {
+            if (list.empty())
+                return "";
+            
+            const String firstClassname = list.front()->classname();
+            bool multipleClassnames = false;
+            
+            for (const Model::Entity* entity : list) {
+                if (entity->classname() != firstClassname) {
+                    multipleClassnames = true;
+                }
+            }
+            
+            if (multipleClassnames) {
+                return "";
+            } else {
+                return firstClassname;
+            }
+        }
+        
+        static String numberWithSuffix(size_t count, const String &singular, const String &plural) {
+            return std::to_string(count) + " " + StringUtils::safePlural(count, singular, plural);
+        }
+        
+        static wxString describeSelection(const MapDocument* document) {
+            const wxString DblArrow = wxString(" ") + wxString(wxUniChar(0x00BB)) + wxString(" ");
+            const wxString Arrow = wxString(" ") + wxString(wxUniChar(0x203A)) + wxString(" ");
+            
+            wxString result;
+            
+            // current layer
+            result << document->currentLayer()->name() << DblArrow;
+            
+            // open groups
+            std::list<Model::Group*> groups;
+            for (Model::Group* group = document->currentGroup(); group != nullptr; group = group->group()) {
+                groups.push_front(group);
+            }
+            for (Model::Group* group : groups) {
+                result << group->name() << Arrow;
+            }
+            
+            // build a vector of strings describing the things that are selected
+            StringList tokens;
+            
+            const auto &selectedNodes = document->selectedNodes();
+            
+            // selected brushes
+            if (!selectedNodes.brushes().empty()) {
+                Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
+                
+                // if all selected brushes are from the same entity, print the entity name
+                String token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
+                if (commonEntity) {
+                    token += " (" + commonEntity->classname() + ")";
+                } else {
+                    token += " (multiple entities)";
+                }
+                tokens.push_back(token);
+            }
+            
+            // entities
+            if (!selectedNodes.entities().empty()) {
+                String commonClassname = commonClassnameForEntityList(selectedNodes.entities());
+                
+                String token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
+                if (commonClassname != "") {
+                    token += " (" + commonClassname + ")";
+                } else {
+                    token += " (multiple classnames)";
+                }
+                tokens.push_back(token);
+            }
+            
+            // groups
+            if (!selectedNodes.groups().empty()) {
+                tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
+            }
+            
+            // layers
+            if (!selectedNodes.layers().empty()) {
+                tokens.push_back(numberWithSuffix(selectedNodes.layers().size(), "layer", "layers"));
+            }
+            
+            if (selectedNodes.empty()) {
+                tokens.push_back("nothing");
+            }
+            
+            // now, turn `tokens` into a comma-separated string
+            result << StringUtils::join(tokens, ", ", ", and ", " and ") << " selected";
+            
+            return result;
+        }
+        
+        void MapFrame::updateStatusBar() {
+            m_statusBar->SetStatusText(describeSelection(m_document.get()));
+        }
+        
         void MapFrame::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
@@ -440,7 +570,11 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
-
+            m_document->selectionDidChangeNotifier.addObserver(this, &MapFrame::selectionDidChange);
+            m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
+            m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
+            m_document->groupWasClosedNotifier.addObserver(this, &MapFrame::groupWasClosed);
+            
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
         }
@@ -454,7 +588,11 @@ namespace TrenchBroom {
             m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
-
+            m_document->selectionDidChangeNotifier.removeObserver(this, &MapFrame::selectionDidChange);
+            m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
+            m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
+            m_document->groupWasClosedNotifier.removeObserver(this, &MapFrame::groupWasClosed);
+            
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
         }
@@ -483,6 +621,22 @@ namespace TrenchBroom {
         void MapFrame::gridDidChange() {
             const Grid& grid = m_document->grid();
             m_gridChoice->SetSelection(static_cast<int>(grid.size()));
+        }
+        
+        void MapFrame::selectionDidChange(const Selection& selection) {
+            updateStatusBar();
+        }
+        
+        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer* layer) {
+            updateStatusBar();
+        }
+        
+        void MapFrame::groupWasOpened(Model::Group* group) {
+            updateStatusBar();
+        }
+        
+        void MapFrame::groupWasClosed(Model::Group* group) {
+            updateStatusBar();
         }
 
         void MapFrame::bindEvents() {
