@@ -242,5 +242,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
       open TrenchBroom.xcodeproj
       ```
 
+      Don't enable *Address Sanitizer* in Xcode; it breaks rebuilding of the project (see [#1373](https://github.com/kduske/TrenchBroom/issues/1373)).
+
 ### Notes
 - You can install your preferred wxWidgets configuration using `make install`. If you wish to do this, then you can omit specifying the `wxWidgets_PREFIX` variable when generating the build configs with Cmake.
