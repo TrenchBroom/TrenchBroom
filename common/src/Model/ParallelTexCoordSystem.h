@@ -34,8 +34,10 @@ namespace TrenchBroom {
             Vec3 m_xAxis;
             Vec3 m_yAxis;
         public:
+            ParallelTexCoordSystemSnapshot(const Vec3& xAxis, const Vec3& yAxis);
             ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
         private:
+            TexCoordSystemSnapshot* doClone() const;
             void doRestore(ParallelTexCoordSystem* coordSystem) const;
             void doRestore(ParaxialTexCoordSystem* coordSystem) const;
         };

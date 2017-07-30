@@ -34,45 +34,57 @@ namespace TrenchBroom {
     
     namespace Assets {
         class Palette {
-        public:
-            typedef std::shared_ptr<Palette> Ptr;
         private:
-            size_t m_size;
-            unsigned char* m_data;
+            class Data {
+            private:
+                size_t m_size;
+                unsigned char* m_data;
+            public:
+                Data(const size_t size, unsigned char* data);
+                ~Data();
+
+                template <typename IndexT, typename ColorT>
+                void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
+                    indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
+                }
+                
+                template <typename IndexT, typename ColorT>
+                void indexedToRgb(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
+                    double avg[3];
+                    avg[0] = avg[1] = avg[2] = 0.0;
+                    for (size_t i = 0; i < pixelCount; ++i) {
+                        const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
+                        assert(index < m_size);
+                        for (size_t j = 0; j < 3; ++j) {
+                            const unsigned char c = m_data[index * 3 + j];
+                            rgbImage[i * 3 + j] = c;
+                            avg[j] += static_cast<double>(c);
+                        }
+                    }
+                    
+                    for (size_t i = 0; i < 3; ++i)
+                        averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
+                    averageColor[3] = 1.0f;
+                }
+            };
+            
+            typedef std::shared_ptr<Data> DataPtr;
+            DataPtr m_data;
         public:
             Palette(const size_t size, unsigned char* data);
-            Palette(const Palette& other);
-            ~Palette();
             
-            Palette& operator=(Palette other);
-            friend void swap(Palette& lhs, Palette& rhs);
-
             static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
             static Palette loadLmp(IO::MappedFile::Ptr file);
             static Palette loadPcx(IO::MappedFile::Ptr file);
             
             template <typename IndexT, typename ColorT>
             void indexedToRgb(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
-                indexedToRgb(&indexedImage[0], pixelCount, rgbImage, averageColor);
+                m_data->indexedToRgb(indexedImage, pixelCount, rgbImage, averageColor);
             }
             
             template <typename IndexT, typename ColorT>
             void indexedToRgb(const IndexT* indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbImage, Color& averageColor) const {
-                double avg[3];
-                avg[0] = avg[1] = avg[2] = 0.0;
-                for (size_t i = 0; i < pixelCount; ++i) {
-                    const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
-                    assert(index < m_size);
-                    for (size_t j = 0; j < 3; ++j) {
-                        const unsigned char c = m_data[index * 3 + j];
-                        rgbImage[i * 3 + j] = c;
-                        avg[j] += static_cast<double>(c);
-                    }
-                }
-                
-                for (size_t i = 0; i < 3; ++i)
-                    averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
-                averageColor[3] = 1.0f;
+                m_data->indexedToRgb(indexedImage, pixelCount, rgbImage, averageColor);
             }
         };
     }

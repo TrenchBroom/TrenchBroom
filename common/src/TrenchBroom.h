@@ -41,6 +41,7 @@ typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
 #include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Instantiation.h"
 
+template<typename T, typename FP, typename VB> class Polyhedron;
 typedef Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3;
 
 namespace TrenchBroom {

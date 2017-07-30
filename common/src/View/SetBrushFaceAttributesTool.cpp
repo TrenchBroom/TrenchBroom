@@ -66,10 +66,16 @@ namespace TrenchBroom {
             const Transaction transaction(document);
             document->deselectAll();
             document->select(targetList);
-            if (copyAttributes(inputState))
+            if (copyAttributes(inputState)) {
+                Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
-            else
+                if (snapshot != nullptr) {
+                    document->copyTexCoordSystemFromFace(snapshot, source->boundary().normal);
+                    delete snapshot;
+                }
+            } else {
                 document->setTexture(source->texture());
+            }
             document->deselectAll();
             document->select(source);
             return true;

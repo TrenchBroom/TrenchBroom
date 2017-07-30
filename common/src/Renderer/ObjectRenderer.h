@@ -79,7 +79,8 @@ namespace TrenchBroom {
             
             void setShowHiddenObjects(bool showHiddenObjects);
         public: // rendering
-            void render(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             ObjectRenderer(const ObjectRenderer&);
             ObjectRenderer& operator=(const ObjectRenderer&);

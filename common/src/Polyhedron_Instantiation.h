@@ -23,4 +23,4 @@
 extern template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
 
-#endif /* Polyhedron_Instantiation_h */
+#endif
