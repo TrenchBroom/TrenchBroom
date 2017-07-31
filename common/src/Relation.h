@@ -38,6 +38,100 @@ public:
     typedef typename right_set::const_iterator const_right_iterator;
     typedef std::pair<const_left_iterator, const_left_iterator> const_left_range;
     typedef std::pair<const_right_iterator, const_right_iterator> const_right_range;
+public:
+    typedef std::pair<L, R> pair_type;
+private:
+    template <typename left_iter, typename right_iter>
+    class iterator_base : public std::iterator<std::forward_iterator_tag, pair_type> {
+    private:
+        left_iter m_left;
+        left_iter m_left_end;
+        right_iter m_right;
+    public:
+        iterator_base(left_iter i_left, left_iter i_left_end) :
+        m_left(i_left),
+        m_left_end(i_left_end) {
+            if (has_more()) {
+                m_right = right_begin();
+                assert(!is_at_right_end());
+            }
+        }
+        
+        bool operator==(const iterator_base& other) const {
+            return equals(other);
+        }
+        
+        bool operator!=(const iterator_base& other) const {
+            return !equals(other);
+        }
+        
+        // prefix increment
+        iterator_base& operator++() {
+            advance();
+            return *this;
+        }
+        
+        // postfix increment
+        iterator_base operator++(int) {
+            iterator_base result(*this);
+            advance();
+            return result;
+        }
+        
+        pair_type operator*() const {
+            assert(has_more() && !is_at_right_end());
+            
+            const L& left = m_left->first;
+            const R& right = *m_right;
+            
+            return std::make_pair(left, right);
+        }
+    private:
+        bool equals(const iterator_base& other) const {
+            if (!has_more() && !other.has_more())
+                return true;
+            return m_left == other.m_left && m_right == other.m_right;
+        }
+        
+        /*
+         Forward until we found the next valid value
+         */
+        void advance() {
+            if (!has_more())
+                return;
+            
+            ++m_right;
+            
+            if (is_at_right_end()) {
+                ++m_left;
+                if (has_more()) {
+                    m_right = right_begin();
+                    assert(!is_at_right_end());
+                }
+            }
+        }
+        
+        bool has_more() const {
+            return m_left != m_left_end;
+        }
+
+        bool is_at_right_end() const {
+            assert(has_more());
+            return m_right == right_end();
+        }
+        
+        right_iter right_begin() const {
+            assert(has_more());
+            return std::begin(m_left->second);
+        }
+        
+        right_iter right_end() const {
+            assert(has_more());
+            return std::end(m_left->second);
+        }
+    };
+public:
+    typedef iterator_base<typename left_right_map::const_iterator, const_right_iterator> const_iterator;
 private:
     left_right_map m_left_right_map;
     right_left_map m_right_left_map;
@@ -149,6 +243,11 @@ public:
             assertResult(left.erase(l) > 0);
             --m_size;
             
+            if (right.empty())
+                m_left_right_map.erase(lrIt);
+            if (left.empty())
+                m_right_left_map.erase(rlIt);
+            
             return true;
         } else {
             assert(find_left(r).count(l) == 0);
@@ -174,6 +273,14 @@ public:
     
     size_t count_right(const L& l) const {
         return find_right(l).size();
+    }
+    
+    const_iterator begin() const {
+        return const_iterator(std::begin(m_left_right_map), std::end(m_left_right_map));
+    }
+    
+    const_iterator end() const {
+        return const_iterator(std::end(m_left_right_map), std::end(m_left_right_map));
     }
     
     const_left_range left_range(const R& r) const {

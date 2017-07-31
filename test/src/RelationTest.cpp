@@ -202,3 +202,42 @@ TEST(RelationTest, testEraseSingle) {
     ASSERT_FALSE(r.contains(3, "c"));
     ASSERT_FALSE(r.erase(2, "b"));
 }
+
+TEST(RelationTest, testIterator) {
+    typedef relation<size_t, std::string> Relation;
+    
+    Relation r;
+    ASSERT_TRUE(std::begin(r) == std::end(r));
+    ASSERT_FALSE(std::begin(r) != std::end(r));
+    
+    r.insert(1u, "a");
+    r.insert(1u, "b");
+    r.insert(2u, "b");
+    r.insert(3u, "c");
+    
+    auto it = std::begin(r);
+    auto end = std::end(r);
+    
+    ASSERT_FALSE(it == end);
+    ASSERT_TRUE(it != end);
+    ASSERT_EQ(Relation::pair_type(1u, "a"), *it);
+    
+    ++it;
+    ASSERT_FALSE(it == end);
+    ASSERT_TRUE(it != end);
+    ASSERT_EQ(Relation::pair_type(1u, "b"), *it);
+    
+    ++it;
+    ASSERT_FALSE(it == end);
+    ASSERT_TRUE(it != end);
+    ASSERT_EQ(Relation::pair_type(2u, "b"), *it);
+    
+    ++it;
+    ASSERT_FALSE(it == end);
+    ASSERT_TRUE(it != end);
+    ASSERT_EQ(Relation::pair_type(3u, "c"), *it);
+    
+    ++it;
+    ASSERT_TRUE(it == end);
+    ASSERT_FALSE(it != end);
+}
