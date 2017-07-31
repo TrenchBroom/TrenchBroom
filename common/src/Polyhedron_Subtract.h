@@ -20,6 +20,8 @@
 #ifndef Polyhedron_Subtract_h
 #define Polyhedron_Subtract_h
 
+#include "Relation.h"
+
 #include <algorithm>
 #include <iterator>
 #include <numeric>
@@ -315,57 +317,11 @@ private:
 template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::Merge {
 private:
-    struct NeighbourEntry {
-        size_t neighbour;
-        Face* face;
-        Face* neighbourFace;
-        
-        typedef std::set<NeighbourEntry> Set;
-        
-        NeighbourEntry(const size_t i_neighbour, Face* i_face, Face* i_neighbourFace) :
-        neighbour(i_neighbour),
-        face(i_face),
-        neighbourFace(i_neighbourFace) {
-            ensure(face != NULL, "face is null");
-            ensure(neighbourFace != NULL, "neighbourFace is null");
-        }
-        
-        bool operator<(const NeighbourEntry& other) const {
-            return neighbour < other.neighbour;
-        }
-    };
-    
     typedef std::vector<typename Polyhedron::List::iterator> IndexList;
-    typedef std::map<size_t, typename NeighbourEntry::Set> Neighbours;
+    typedef std::multimap<size_t, size_t> Neighbours;
     
     typedef std::set<size_t> MergeGroup;
-    
-    struct MergeGroupCmp {
-    public:
-        bool operator()(const MergeGroup& lhs, const MergeGroup& rhs) const {
-            return compare(lhs, rhs) < 0;
-        }
-    private:
-        int compare(const MergeGroup& lhs, const MergeGroup& rhs) const {
-            if (lhs.size() < rhs.size())
-                return -1;
-            if (lhs.size() > rhs.size())
-                return 1;
-            
-            for (auto lIt = std::begin(lhs), rIt = std::begin(rhs), lEnd = std::end(lhs); lIt != lEnd; ++lIt, ++rIt) {
-                const size_t lIndex = *lIt;
-                const size_t rIndex = *rIt;
-                if (lIndex < rIndex)
-                    return -1;
-                if (lIndex > rIndex)
-                    return 1;
-            }
-            
-            return 0;
-        }
-    };
-    
-    typedef std::set<MergeGroup, MergeGroupCmp> MergeGroups;
+    typedef std::set<MergeGroup> MergeGroups;
     
     typename Polyhedron::List&  m_fragments;
     const Callback& m_callback;
@@ -379,13 +335,81 @@ public:
     Merge(typename Polyhedron::List& fragments, const Callback& callback) :
     m_fragments(fragments),
     m_callback(callback) {
-        initialize();
+        initializeIndices();
+        initializeNeighbours();
         merge();
     }
 private:
-    void initialize() {
+    void initializeIndices() {
         for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it)
             m_indices.push_back(it);
+    }
+    
+    typedef std::vector<typename V::Set> VertexSets;
+
+    /**
+     Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
+     the m_neighbours map.
+     */
+    void initializeNeighbours() {
+        const VertexSets vertexSets = buildFragmentVertexSets();
+        
+        for (size_t i = 0; i < m_indices.size(); ++i) {
+            const typename V::Set& f1Vertices = vertexSets[i];
+            for (size_t j = i + 1; j < m_indices.size(); ++j) {
+                const typename V::Set& f2Vertices = vertexSets[j];
+                const typename V::Set& sharedVertices = SetUtils::intersection(f1Vertices, f2Vertices);
+                
+                if (sharedVertices.size() > 2) {
+                    // We have two neighbours. Check if they are mergeable.
+                    const Polyhedron& f1 = *m_indices[i];
+                    const Polyhedron& f2 = *m_indices[j];
+                    
+                    if (mergeableNeighbours(f1, f2, sharedVertices)) {
+                        m_neighbours.insert(std::make_pair(i, j));
+                        m_neighbours.insert(std::make_pair(j, i));
+                    }
+                }
+            }
+        }
+        
+    }
+    
+    VertexSets buildFragmentVertexSets() {
+        VertexSets result;
+        result.reserve(m_fragments.size());
+        
+        for (auto fragmentIt : m_indices) {
+            const Polyhedron& fragment = *fragmentIt;
+            result.push_back(fragment.vertexPositionSet());
+        }
+        
+        return result;
+    }
+
+    /*
+     Checks whether two neighbouring fragments are mergeable. Assumes that the given fragments share at least
+     three vertices. The given fragments are mergeable if, for every non-shared vertex of fragment1 (fragment2), 
+     every visible face of fragment2 (fragment1) has only shared vertices.
+     */
+    bool mergeableNeighbours(const Polyhedron& fragment1, const Polyhedron& fragment2, const typename V::Set& sharedVertices) const {
+        assert(sharedVertices.size() > 2);
+        
+        return (onlySharedFacesVisible(fragment1.vertices(), fragment2.faces(), sharedVertices) &&
+                onlySharedFacesVisible(fragment2.vertices(), fragment1.faces(), sharedVertices));
+    }
+    
+    bool onlySharedFacesVisible(const VertexList& vertices, const FaceList& faces, const typename V::Set& sharedVertices) const {
+        for (const Vertex* vertex : vertices) {
+            for (const Face* face : faces) {
+                if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove) {
+                    if (!SetUtils::subset(face->vertexPositionSet(), sharedVertices))
+                        return false;
+                }
+            }
+        }
+        
+        return true;
     }
     
     /**
@@ -409,192 +433,74 @@ private:
      4. Apply the remaining merge groups by merging their fragments.
      */
     void merge() {
-        findMergeableNeighbours();
         findMergeGroups();
         partitionMergeGroups();
         applyMergeGroups();
     }
     
-    /**
-     Sorts faces by their vertices.
-     */
-    class FaceKey {
-    private:
-        typename V::Set m_vertices;
-    public:
-        FaceKey(const Face* face) {
-            face->getVertexPositions(std::inserter(m_vertices, std::begin(m_vertices)));
-        }
-        
-        bool operator<(const FaceKey& other) const {
-            return compare(other) < 0;
-        }
-    private:
-        int compare(const FaceKey& other) const {
-            auto myIt = std::begin(m_vertices);
-            auto otIt = std::begin(other.m_vertices);
-            
-            for (size_t i = 0; i < std::min(m_vertices.size(), other.m_vertices.size()); ++i) {
-                const V& myVertex = *myIt++;
-                const V& otVertex = *otIt++;
-                const int vertexCmp = myVertex.compare(otVertex, Math::Constants<T>::almostZero());
-                if (vertexCmp != 0)
-                    return vertexCmp;
-            }
-            
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
-            
-            return 0;
-        }
-    };
-    
-    
-    typedef std::pair<size_t, Face*> NeighbourFace;
-    typedef std::vector<NeighbourFace> NeighbourFaceList;
-    typedef std::map<FaceKey, NeighbourFaceList> NeighbourMap;
-    
-    /**
-     Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
-     the m_neighbours map.
-     */
-    void findMergeableNeighbours() {
-        for (const auto& entry : findNeighbours()) {
-            const NeighbourFaceList& neighbourFaces = entry.second;
-            assert(neighbourFaces.size() == 2);
-            
-            const NeighbourFace& first  = neighbourFaces[0];
-            const NeighbourFace& second = neighbourFaces[1];
-            
-            const size_t firstIndex = first.first;
-            const size_t secondIndex = second.first;
-            Face* firstFace = first.second;
-            Face* secondFace = second.second;
-            
-            if (mergeableNeighbours(secondFace, *m_indices[firstIndex])) {
-                assert(mergeableNeighbours(firstFace, *m_indices[secondIndex]));
-                m_neighbours[ firstIndex].insert(NeighbourEntry(secondIndex,  firstFace, secondFace));
-                m_neighbours[secondIndex].insert(NeighbourEntry( firstIndex, secondFace,  firstFace));
-            } else {
-                assert(!mergeableNeighbours(firstFace, *m_indices[secondIndex]));
-            }
-        }
-    }
-    
-    /**
-     Builds a map that maps face keys (which are essentially sets of vertices) to a list of faces,
-     whereby each face is represented by a pair of its index into m_indices and the face itself.
-     */
-    NeighbourMap findNeighbours() {
-        NeighbourMap result;
-        
-        for (size_t index = 0; index < m_indices.size(); ++index) {
-            const typename Polyhedron::List::iterator fIt = m_indices[index];
-            const Polyhedron& fragment = *fIt;
-            Face* firstFace = fragment.faces().front();
-            Face* currentFace = firstFace;
-            do {
-                NeighbourFaceList& neighbours = result[FaceKey(currentFace)];
-                assert(neighbours.size() < 2);
-                neighbours.push_back(std::make_pair(index, currentFace));
-                currentFace = currentFace->next();
-            } while (currentFace != firstFace);
-        }
-        
-        // Prune the map of invalid entries
-        typename NeighbourMap::iterator it = std::begin(result);
-        while (it != std::end(result)) {
-            typename NeighbourMap::iterator toRemove = it; ++it;
-            if (toRemove->second.size() < 2)
-                result.erase(toRemove);
-        }
-        
-        return result;
-    }
-    
-    bool mergeableNeighbours(const Face* sharedFace, const Polyhedron& neighbour) const {
-        // The two polyhedra which share the given faces can be merged if no vertex of one polyhedron is visible by any
-        // other face of the other polyhedron other than the shared face.
-        
-        const Vertex* firstVertex = neighbour.vertices().front();
-        
-        const Face* currentFace = sharedFace->next(); // skip the shared face
-        do {
-            const Vertex* currentVertex = firstVertex;
-            do {
-                if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
-                    return false;
-                currentVertex = currentVertex->next();
-            } while (currentVertex != firstVertex);
-            currentFace = currentFace->next();
-        } while (currentFace != sharedFace);
-        return true;
-    }
     
     /**
      Finds all maximal merge groups using the information in m_neighbours.
      */
     void findMergeGroups() {
-        for (const auto& neighbourPair : m_neighbours) {
+        for (const auto neighbourPair : m_neighbours) {
             // The fragment under consideration and its mergeable neighbours.
             const size_t fragmentIndex = neighbourPair.first;
-            const typename NeighbourEntry::Set& neighbours = neighbourPair.second;
+            const size_t neighbourIndex = neighbourPair.second;
             
-            for (const NeighbourEntry& entry : neighbours) {
-                const size_t neighbourIndex = entry.neighbour;
+            // Create a new merge group from the fragment and its neighbour.
+            MergeGroup group;
+            group.insert(fragmentIndex);
+            group.insert(neighbourIndex);
+            
+            if (m_mergeGroups.count(group) == 0) {
+                // The merge group hasn't already been found.
                 
-                // Create a new merge group from the fragment and its neighbour.
-                MergeGroup group;
-                group.insert(fragmentIndex);
-                group.insert(neighbourIndex);
+                // Build its convex hull.
+                const Polyhedron convexHull = mergeGroup(group);
                 
-                if (m_mergeGroups.count(group) == 0) {
-                    // The merge group hasn't already been found.
-                    
-                    // Build its convex hull.
-                    const Polyhedron convexHull = mergeGroup(group);
-                    
-                    // Attempt to expand the group by considering every neighbour of the fragment
-                    // and by considering every neighbour of the neighbour.
-                    if (!expandMergeGroup(group, convexHull, fragmentIndex) &&
-                        !expandMergeGroup(group, convexHull, neighbourIndex)) {
-                        // The group could not be expanded any further.
-                        m_mergeGroups.insert(group);
-                    }
+                // Attempt to expand the group by considering every neighbour of the fragment
+                // and by considering every neighbour of the neighbour.
+                if (!expandMergeGroup(group, convexHull, fragmentIndex) &&
+                    !expandMergeGroup(group, convexHull, neighbourIndex)) {
+                    // The group could not be expanded any further.
+                    m_mergeGroups.insert(group);
                 }
             }
         }
     }
     
     /**
-     Attempts to expand the given merge group that has the given polyhedron by adding to it every mergeable
+     Attempts to expand the given merge group that has the given convex hull by adding to it every mergeable
      neighbour of the fragment at the given index.
      
      For each possible expansion of the group with one of those neighbours, the expanded group is then
      again attempted to be expanded further. If it could not be expanded any further, it is stored in
      m_mergeGroups.
      */
-    bool expandMergeGroup(const MergeGroup& group, const Polyhedron& polyhedron, const size_t index1) {
-        const auto it = m_neighbours.find(index1);
+    bool expandMergeGroup(const MergeGroup& group, const Polyhedron& hull, const size_t index1) {
+        const auto range = m_neighbours.equal_range(index1);
+              auto it = range.first;
+        const auto end = range.second;
         
         // The fragment at index1 doesn't have any mergeable neighbours.
-        if (it == std::end(m_neighbours))
+        if (it == end)
             return false;
         
-        bool didExpand = false;
-        const typename NeighbourEntry::Set& neighbours = it->second;
+        const typename V::Set hullVertices = hull.vertexPositionSet();
         
-        // Iterate over all mergeable neighbours and attempt to expand the merge group further.
-        for (const NeighbourEntry& entry : neighbours) {
+        bool didExpand = false;
+        while (it != end) {
             MergeGroup newGroup = group;
             
-            const size_t neighbourIndex = entry.neighbour;
-            const Face* neighbourFace = entry.neighbourFace;
+            const size_t neighbourIndex = it->second;
+            const Polyhedron& neighbour = *m_indices[neighbourIndex];
+            
+            const typename V::Set sharedVertices = SetUtils::intersection(hullVertices, neighbour.vertexPositionSet());
             
             if (newGroup.insert(neighbourIndex).second &&
-                mergeableNeighbours(neighbourFace, polyhedron)) {
+                sharedVertices.size() > 2 &&
+                mergeableNeighbours(hull, neighbour, sharedVertices)) {
                 // The potential neighbour wasn't already in the new group, and it is actually mergeable
                 // with the group.
                 
@@ -602,16 +508,18 @@ private:
                     // The new group wasn't already discovered.
                     
                     // Create a new polyhedron that represents the convex hull of the new merge group.
-                    Polyhedron newPolyhedron = polyhedron;
-                    newPolyhedron.merge(*m_indices[neighbourIndex]);
+                    Polyhedron newHull = hull;
+                    newHull.merge(*m_indices[neighbourIndex]);
                     
-                    if (!expandMergeGroup(newGroup, newPolyhedron, neighbourIndex)) {
+                    if (!expandMergeGroup(newGroup, newHull, neighbourIndex)) {
                         // The newly created merge group can't be expanded any further.
                         m_mergeGroups.insert(newGroup);
                         didExpand = true;
                     }
                 }
             }
+            
+            ++it;
         }
         return didExpand;
     }
