@@ -507,7 +507,7 @@ public: // Subtraction
     SubtractResult subtract(const Polyhedron& subtrahend, const Callback& callback) const;
 private:
     class Subtract;
-    class Partition;
+    class Simplify;
     class Merge;
     
     static void addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback);
