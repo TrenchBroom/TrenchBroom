@@ -624,7 +624,7 @@ namespace TrenchBroom {
 
                 Vec3f::Array vertexPositions;
                 vertexPositions.reserve(vertices.size());
-                Vec3f::toList(std::begin(vertices), std::end(vertices), Model::BrushGeometry::GetVertexPosition(), vertexPositions);
+                Vec3f::toArray(std::begin(vertices), std::end(vertices), Model::BrushGeometry::GetVertexPosition(), vertexPositions);
                 
                 renderService.renderPolygonOutline(vertexPositions);
             }
