@@ -620,7 +620,9 @@ void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback&
     Face* face = removedHalfEdge->face();
     callback.faceWillBeDeleted(face);
 
-    face->removeFromBoundary(firstRemainingHalfEdge, secondRemainingHalfEdge);
+    // Remove in two steps so that the remaining half edges form two loops.
+    face->removeFromBoundary(firstRemainingHalfEdge, firstRemainingHalfEdge);
+    face->removeFromBoundary(secondRemainingHalfEdge, secondRemainingHalfEdge);
     
     m_faces.remove(face);
     delete face;
