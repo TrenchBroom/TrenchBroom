@@ -38,7 +38,7 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const
     
     Subtract subtract(*this, subtrahend, result, callback);
     Simplify simplify(subtract);
-    Merge merge(result, callback);
+    // Merge merge(result, callback);
     
     // addMissingFragments(fragments, *this, subtrahend, callback);
     
@@ -123,44 +123,17 @@ private:
 
     typedef typename List::iterator PolyIt;
     
-    struct VertexInfo {
-        Vertex* vertex;
-        PolyIt fragment;
-        
-        VertexInfo(Vertex* i_vertex, PolyIt i_fragment) :
-        vertex(i_vertex),
-        fragment(i_fragment) {
-            assert(vertex != nullptr);
-        }
-    };
+    typedef std::list<PolyIt> PolyItList;
     
-    typedef std::list<VertexInfo> VertexInfoList;
-    typedef std::map<V, VertexInfoList, typename V::LexicographicOrder> VertexGraph;
-    typedef typename VertexGraph::iterator GraphIt;
-    
-    VertexGraph m_graph;
-
     struct VertexMove {
-        GraphIt sourceInfo;
-        const Vertex* targetVertex;
+        const V sourcePosition;
+        const V targetPosition;
+        const PolyItList affectedFragments;
         
-        VertexMove(GraphIt i_sourceInfo, const Vertex* i_targetVertex) :
-        sourceInfo(i_sourceInfo),
-        targetVertex(i_targetVertex) {
-            assert(targetVertex != nullptr);
-        }
-
-        const V& sourcePosition() const {
-            return sourceInfo->first;
-        }
-        
-        const V& targetPosition() const {
-            return targetVertex->position();
-        }
-        
-        const VertexInfoList& incidentFragments() const {
-            return sourceInfo->second;
-        }
+        VertexMove(const V& i_sourcePosition, const V& i_targetPosition, const PolyItList& i_affectedFragments) :
+        sourcePosition(i_sourcePosition),
+        targetPosition(i_targetPosition),
+        affectedFragments(i_affectedFragments) {}
     };
     
     typedef std::list<VertexMove> VertexMoveList;
@@ -170,46 +143,28 @@ public:
     m_subtrahend(subtract.m_subtrahend),
     m_fragments(subtract.m_fragments),
     m_callback(subtract.m_callback) {
-        initializeGraph();
         simplify();
     }
 private:
-    void initializeGraph() {
-        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            addFragmentToGraph(it);
-        }
-    }
-    
-    void addFragmentToGraph(PolyIt fragment) {
-        for (Vertex* vertex : fragment->vertices()) {
-            const V& position = vertex->position();
-            m_graph[position].emplace_back(vertex, fragment);
-        }
-    }
-    
-    void removeFragmentFromGraph(PolyIt fragment) {
-        for (Vertex* vertex : fragment->vertices()) {
-            const V& position = vertex->position();
-            VertexInfoList& infos = m_graph[position];
-            auto it = std::find_if(std::begin(infos), std::end(infos), [fragment](const VertexInfo& info){
-                return info.fragment == fragment;
-            });
-
-            if (it != std::end(infos))
-                infos.erase(it);
-        }
-    }
-    
     void simplify() {
         const typename V::Set excluded = findExcludedVertices();
 
-        while (true) {
-            const VertexMoveList moves = findVertexMoves(excluded);
-            for (const VertexMove& move : moves) {
-                if (applyVertexMove(move))
-                    continue;
+        bool progress = true;
+        while (progress) {
+            progress = false;
+            const typename V::Set moveableVertices = findMoveableVertices(excluded);
+            
+            for (const V& sourcePosition : moveableVertices) {
+                const PolyItList& incidentFragments = findIncidentFragments(sourcePosition);
+                const Vertex* minuendVertex = findClosestIncidentMinuendVertex(sourcePosition, incidentFragments);
+                if (minuendVertex != nullptr) {
+                    const VertexMove move (sourcePosition, minuendVertex->position(), incidentFragments);
+                    if (applyVertexMove(move)) {
+                        progress = true;
+                        break;
+                    }
+                }
             }
-            break;
         }
         
         // Prune fragments.
@@ -225,69 +180,65 @@ private:
         return result;
     }
     
-    VertexMoveList findVertexMoves(const typename V::Set& excluded) {
-        VertexMoveList entries;
-        
-        for (GraphIt it = std::begin(m_graph), end = std::end(m_graph); it != end; ++it) {
-            const V& position = it->first;
-            if (excluded.count(position) == 0) {
-                // The vertex is a fragment vertex that does not coincide with a minuend or subtrahend vertex.
-                const VertexInfoList& infos = it->second;
-                const Vertex* minuendVertex = findClosestIncidentMinuendVertex(position, infos);
-                if (minuendVertex != nullptr) {
-                    entries.emplace_back(it, minuendVertex);
-                }
-            }
+    typename V::Set findMoveableVertices(const typename V::Set& excluded) const {
+        typename V::Set allVertices;
+        for (const Polyhedron& fragment : m_fragments) {
+            SetUtils::merge(allVertices, fragment.vertexPositionSet());
         }
         
-        // Sort by the number of incident fragments in descending order.
-        entries.sort([](const VertexMove& lhs, const VertexMove& rhs) {
-            const VertexInfoList& lhsInfos = lhs.sourceInfo->second;
-            const VertexInfoList& rhsInfos = rhs.sourceInfo->second;
-            return lhsInfos.size() > rhsInfos.size();
-        });
-
-        return entries;
+        return SetUtils::minus(allVertices, excluded);
     }
     
-    const Vertex* findClosestIncidentMinuendVertex(const V& position, const VertexInfoList& infos) {
+    PolyItList findIncidentFragments(const V& position) {
+        PolyItList result;
+        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
+            const Polyhedron& fragment = *it;
+            if (fragment.hasVertex(position))
+                result.push_back(it);
+        }
+        return result;
+    }
+    
+    const Vertex* findClosestIncidentMinuendVertex(const V& position, const PolyItList& incidentFragments) {
         const Vertex* closestMinuendVertex = nullptr;
         T closestDistance2 = std::numeric_limits<T>::max();
         
-        for (const VertexInfo& info : infos) {
-            const Vertex* vertex = info.vertex;
-            const HalfEdge* firstEdge = vertex->leaving();
-            const HalfEdge* currentEdge = firstEdge;
-            do {
-                const Vertex* neighbour = currentEdge->destination();
-                const Vertex* minuendVertex = m_minuend.findVertexByPosition(neighbour->position());
-                if (minuendVertex != nullptr) {
-                    const T distance2 = position.squaredDistanceTo(minuendVertex->position());
-                    if (distance2 < closestDistance2) {
-                        closestDistance2 = distance2;
-                        closestMinuendVertex = minuendVertex;
+        for (const PolyIt& fragmentIt : incidentFragments) {
+            const Polyhedron& fragment = *fragmentIt;
+            if (fragment.polyhedron()) {
+                const Vertex* vertex = fragment.findVertexByPosition(position);
+                const HalfEdge* firstEdge = vertex->leaving();
+                const HalfEdge* currentEdge = firstEdge;
+                do {
+                    const Vertex* neighbour = currentEdge->destination();
+                    const Vertex* minuendVertex = m_minuend.findVertexByPosition(neighbour->position());
+                    if (minuendVertex != nullptr) {
+                        const T distance2 = position.squaredDistanceTo(minuendVertex->position());
+                        if (distance2 < closestDistance2) {
+                            closestDistance2 = distance2;
+                            closestMinuendVertex = minuendVertex;
+                        }
                     }
-                }
-                
-                currentEdge = currentEdge->nextIncident();
-            } while (currentEdge != firstEdge);
+                    
+                    currentEdge = currentEdge->nextIncident();
+                } while (currentEdge != firstEdge);
+            }
         }
         
         return closestMinuendVertex;
     }
     
     bool applyVertexMove(const VertexMove& move) {
-        const V& sourcePosition = move.sourcePosition();
-        const VertexInfoList& infos = move.incidentFragments();
-        const V& targetPosition = move.targetPosition();
-
+        const V& sourcePosition = move.sourcePosition;
+        const V& targetPosition = move.targetPosition;
+        const PolyItList& incidentFragments = move.affectedFragments;
+        
         typedef std::pair<PolyIt, Polyhedron> UpdatedFragment;
         typedef std::list<UpdatedFragment> UpdatedFragmentList;
         
         UpdatedFragmentList updatedFragments;
         
-        for (const VertexInfo& info : infos) {
-            PolyIt fragmentIt = info.fragment;
+        for (const PolyIt& fragmentIt : incidentFragments) {
             Polyhedron fragment = *fragmentIt; // Copy is intentional.
             fragment.removeVertexByPosition(sourcePosition);
             fragment.addPoint(targetPosition);
@@ -298,16 +249,11 @@ private:
             updatedFragments.push_back(std::make_pair(fragmentIt, fragment));
         }
         
-        m_graph.erase(sourcePosition);
-        
         for (const UpdatedFragment& updatedFragment : updatedFragments) {
             PolyIt it = updatedFragment.first;
-            removeFragmentFromGraph(it);
 
             const Polyhedron& fragment = updatedFragment.second;
             *it = fragment;
-
-            addFragmentToGraph(it);
         }
         
         return true;
