@@ -47,13 +47,27 @@ public:
     m_minuend(minuend),
     m_subtrahend(subtrahend),
     m_callback(callback) {
-        subtract();
+        if (clipSubtrahend()) {
+            subtract();
+        }
     }
     
     const List result() {
         return m_fragments;
     }
 private:
+    bool clipSubtrahend() {
+        Face* first = m_minuend.faces().front();
+        Face* current = first;
+        do {
+            const ClipResult result = m_subtrahend.clip(m_callback.plane(current));
+            if (result.empty())
+                return false;
+            current = current->next();
+        } while (current != first);
+        return true;
+    }
+
     void subtract() {
         const PlaneList planes = sortPlanes(findSubtrahendPlanes());
         
