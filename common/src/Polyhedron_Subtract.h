@@ -111,9 +111,9 @@ private:
     }
     
     void doSubtract(const List& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
-        if (curPlaneIt == endPlaneIt) {
-            // all of `minutendFragments` are now behind all of subtrahendPlanes
-            // so they can be discarded.
+        if (fragments.empty() || curPlaneIt == endPlaneIt) {
+            // no more fragments to process or all of `minutendFragments`
+            // are now behind all of subtrahendPlanes so they can be discarded.
             return;
         }
         
