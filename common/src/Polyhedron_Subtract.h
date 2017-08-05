@@ -20,12 +20,6 @@
 #ifndef Polyhedron_Subtract_h
 #define Polyhedron_Subtract_h
 
-#include "Relation.h"
-
-#include <algorithm>
-#include <iterator>
-#include <numeric>
-
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
     Callback c;
@@ -34,15 +28,8 @@ typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::SubtractResult Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
-    List result;
-    
-    Subtract subtract(*this, subtrahend, result, callback);
-    Simplify simplify(subtract);
-    // Merge merge(result, callback);
-    
-    // addMissingFragments(fragments, *this, subtrahend, callback);
-    
-    return result;
+    Subtract subtract(*this, subtrahend, callback);
+    return subtract.result();
 }
 
 template <typename T, typename FP, typename VP>
@@ -50,613 +37,111 @@ class Polyhedron<T,FP,VP>::Subtract {
 private:
     const Polyhedron& m_minuend;
     Polyhedron m_subtrahend;
-    List& m_fragments;
     const Callback& m_callback;
+    List m_fragments;
     
-    friend class Simplify;
+    typedef std::list<Plane<T,3>> PlaneList;
+    typedef typename PlaneList::const_iterator PlaneIt;
 public:
-    Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, List& fragments, const Callback& callback) :
+    Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
     m_minuend(minuend),
     m_subtrahend(subtrahend),
-    m_fragments(fragments),
     m_callback(callback) {
-        if (clipSubtrahend()) {
-            m_fragments.push_back(m_minuend);
-            chopMinuend();
-            removeSubtrahend();
-        }
-    }
-private:
-    bool clipSubtrahend() {
-        Face* first = m_minuend.faces().front();
-        Face* current = first;
-        do {
-            const ClipResult result = m_subtrahend.clip(m_callback.plane(current));
-            if (result.empty())
-                return false;
-            current = current->next();
-        } while (current != first);
-        return true;
+        subtract();
     }
     
-    void chopMinuend() {
+    const List result() {
+        return m_fragments;
+    }
+private:
+    void subtract() {
+        const PlaneList planes = sortPlanes(findSubtrahendPlanes());
+        
+        assert(m_fragments.empty());
+        doSubtract(List{m_minuend}, std::begin(planes), std::end(planes));
+    }
+    
+    PlaneList findSubtrahendPlanes() const {
+        PlaneList result;
+        
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
         do {
             const Plane<T,3> plane = m_callback.plane(currentFace);
-            
-            for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-                Polyhedron front = *it;
-                const ClipResult clipResult = front.clip(plane);
-                if (clipResult.success()) {
-                    it->clip(plane.flipped());
-                    it = m_fragments.insert(it, front);
-                    ++it;
-                }
-            }
-            
+            result.push_back(plane);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);
+        
+        return result;
     }
     
-    void removeSubtrahend() {
-        const typename V::List vertices = V::asList(m_subtrahend.vertices().begin(), m_subtrahend.vertices().end(), GetVertexPosition());
+    static PlaneList sortPlanes(const PlaneList& planes) {
+        static const T epsilon = Math::Constants<T>::angleEpsilon();
         
-        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            const Polyhedron& fragment = *it;
-            if (fragment.hasVertices(vertices, 0.1)) {
-                m_fragments.erase(it);
-                return;
+        PlaneList x, y, z, yz, xz, xy, other;
+        
+        for (const auto &plane : planes) {
+            if (Math::abs(Math::abs(plane.normal.x()) - 1.0) < epsilon) {
+                x.push_back(plane);
+            } else if (Math::abs(Math::abs(plane.normal.y()) - 1.0) < epsilon) {
+                y.push_back(plane);
+            } else if (Math::abs(Math::abs(plane.normal.z()) - 1.0) < epsilon) {
+                z.push_back(plane);
+            } else if (Math::abs(plane.normal.x()) < epsilon) {
+                yz.push_back(plane);
+            } else if (Math::abs(plane.normal.y()) < epsilon) {
+                xz.push_back(plane);
+            } else if (Math::abs(plane.normal.z()) < epsilon) {
+                xy.push_back(plane);
+            } else {
+                other.push_back(plane);
             }
         }
-        assert(false);
+        
+        PlaneList result;
+        ListUtils::append(result, x);
+        ListUtils::append(result, y);
+        ListUtils::append(result, z);
+        ListUtils::append(result, yz);
+        ListUtils::append(result, xz);
+        ListUtils::append(result, xy);
+        ListUtils::append(result, other);
+        assert(result.size() == planes.size());
+        return result;
+    }
+    
+    void doSubtract(const List& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
+        if (curPlaneIt == endPlaneIt) {
+            // all of `minutendFragments` are now behind all of subtrahendPlanes
+            // so they can be discarded.
+            return;
+        }
+        
+        const Plane<T,3> curPlane = *curPlaneIt;
+        const Plane<T,3> curPlaneInv = curPlane.flipped();
+        
+        // clip the list of minutendFragments into a list of those in front of the
+        // currentPlane, and those behind
+        List backFragments;
+        
+        for (const Polyhedron& fragment : fragments) {
+            // the front fragments go directly into the result set.
+            Polyhedron<T,FP,VP> fragmentInFront = fragment;
+            const auto frontClipResult = fragmentInFront.clip(curPlaneInv);
+            
+            if (!frontClipResult.empty()) // Polyhedron::clip() keeps the part behind the plane.
+                m_fragments.push_back(fragmentInFront);
+            
+            // back fragments need to be clipped by the rest of the subtrahend planes
+            Polyhedron<T,FP,VP> fragmentBehind = fragment;
+            const auto backClipResult = fragmentBehind.clip(curPlane);
+            if (!backClipResult.empty())
+                backFragments.push_back(fragmentBehind);
+        }
+        
+        // recursively process the back fragments.
+        doSubtract(backFragments, std::next(curPlaneIt), endPlaneIt);
     }
 };
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::Simplify {
-private:
-    const Polyhedron& m_minuend;
-    const Polyhedron& m_subtrahend;
-    List& m_fragments;
-    const Callback& m_callback;
-
-    typedef typename List::iterator PolyIt;
-    
-    typedef std::list<PolyIt> PolyItList;
-    
-    struct VertexMove {
-        const V sourcePosition;
-        const V targetPosition;
-        const PolyItList affectedFragments;
-        
-        VertexMove(const V& i_sourcePosition, const V& i_targetPosition, const PolyItList& i_affectedFragments) :
-        sourcePosition(i_sourcePosition),
-        targetPosition(i_targetPosition),
-        affectedFragments(i_affectedFragments) {}
-    };
-    
-    typedef std::list<VertexMove> VertexMoveList;
-public:
-    Simplify(Subtract& subtract) :
-    m_minuend(subtract.m_minuend),
-    m_subtrahend(subtract.m_subtrahend),
-    m_fragments(subtract.m_fragments),
-    m_callback(subtract.m_callback) {
-        simplify();
-    }
-private:
-    void simplify() {
-        const typename V::Set excluded = findExcludedVertices();
-
-        bool progress = true;
-        while (progress) {
-            progress = false;
-            const typename V::Set moveableVertices = findMoveableVertices(excluded);
-            
-            for (const V& sourcePosition : moveableVertices) {
-                const PolyItList& incidentFragments = findIncidentFragments(sourcePosition);
-                const Vertex* minuendVertex = findClosestIncidentMinuendVertex(sourcePosition, incidentFragments);
-                if (minuendVertex != nullptr) {
-                    const VertexMove move (sourcePosition, minuendVertex->position(), incidentFragments);
-                    if (applyVertexMove(move)) {
-                        progress = true;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // Prune fragments.
-        m_fragments.erase(std::remove_if(std::begin(m_fragments), std::end(m_fragments), [](const Polyhedron& fragment) {
-            return !fragment.polyhedron();
-        }), std::end(m_fragments));
-    }
-    
-    typename V::Set findExcludedVertices() {
-        typename V::Set result;
-        SetUtils::merge(result, m_minuend.vertexPositionSet());
-        SetUtils::merge(result, m_subtrahend.vertexPositionSet());
-        return result;
-    }
-    
-    typename V::Set findMoveableVertices(const typename V::Set& excluded) const {
-        typename V::Set allVertices;
-        for (const Polyhedron& fragment : m_fragments) {
-            SetUtils::merge(allVertices, fragment.vertexPositionSet());
-        }
-        
-        return SetUtils::minus(allVertices, excluded);
-    }
-    
-    PolyItList findIncidentFragments(const V& position) {
-        PolyItList result;
-        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it) {
-            const Polyhedron& fragment = *it;
-            if (fragment.hasVertex(position))
-                result.push_back(it);
-        }
-        return result;
-    }
-    
-    const Vertex* findClosestIncidentMinuendVertex(const V& position, const PolyItList& incidentFragments) {
-        const Vertex* closestMinuendVertex = nullptr;
-        T closestDistance2 = std::numeric_limits<T>::max();
-        
-        for (const PolyIt& fragmentIt : incidentFragments) {
-            const Polyhedron& fragment = *fragmentIt;
-            if (fragment.polyhedron()) {
-                const Vertex* vertex = fragment.findVertexByPosition(position);
-                const HalfEdge* firstEdge = vertex->leaving();
-                const HalfEdge* currentEdge = firstEdge;
-                do {
-                    const Vertex* neighbour = currentEdge->destination();
-                    const Vertex* minuendVertex = m_minuend.findVertexByPosition(neighbour->position());
-                    if (minuendVertex != nullptr) {
-                        const T distance2 = position.squaredDistanceTo(minuendVertex->position());
-                        if (distance2 < closestDistance2) {
-                            closestDistance2 = distance2;
-                            closestMinuendVertex = minuendVertex;
-                        }
-                    }
-                    
-                    currentEdge = currentEdge->nextIncident();
-                } while (currentEdge != firstEdge);
-            }
-        }
-        
-        return closestMinuendVertex;
-    }
-    
-    bool applyVertexMove(const VertexMove& move) {
-        const V& sourcePosition = move.sourcePosition;
-        const V& targetPosition = move.targetPosition;
-        const PolyItList& incidentFragments = move.affectedFragments;
-        
-        typedef std::pair<PolyIt, Polyhedron> UpdatedFragment;
-        typedef std::list<UpdatedFragment> UpdatedFragmentList;
-        
-        UpdatedFragmentList updatedFragments;
-        
-        for (const PolyIt& fragmentIt : incidentFragments) {
-            Polyhedron fragment = *fragmentIt; // Copy is intentional.
-            fragment.removeVertexByPosition(sourcePosition);
-            fragment.addPoint(targetPosition);
-            
-            if (fragment.polyhedron() && fragment.intersects(m_subtrahend))
-                return false;
-            
-            updatedFragments.push_back(std::make_pair(fragmentIt, fragment));
-        }
-        
-        for (const UpdatedFragment& updatedFragment : updatedFragments) {
-            PolyIt it = updatedFragment.first;
-
-            const Polyhedron& fragment = updatedFragment.second;
-            *it = fragment;
-        }
-        
-        return true;
-    }
-};
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T,FP,VP>::Merge {
-private:
-    typedef std::vector<typename Polyhedron::List::iterator> IndexList;
-    typedef std::multimap<size_t, size_t> Neighbours;
-    
-    typedef std::set<size_t> MergeGroup;
-    typedef std::set<MergeGroup> MergeGroups;
-    
-    typename Polyhedron::List&  m_fragments;
-    const Callback& m_callback;
-    IndexList m_indices;
-    
-    // Maps a polyhedron index (into m_indices) to the set of its mergeable neighbours.
-    // Each entry in the set also stores the two shared faces between the neighbours.
-    Neighbours m_neighbours;
-    MergeGroups m_mergeGroups;
-public:
-    Merge(typename Polyhedron::List& fragments, const Callback& callback) :
-    m_fragments(fragments),
-    m_callback(callback) {
-        initializeIndices();
-        initializeNeighbours();
-        merge();
-    }
-private:
-    void initializeIndices() {
-        for (auto it = std::begin(m_fragments), end = std::end(m_fragments); it != end; ++it)
-            m_indices.push_back(it);
-    }
-    
-    typedef std::vector<typename V::Set> VertexSets;
-
-    /**
-     Finds each pair of neighbouring fragments that can be merged. Mergeable neighbours are stored in
-     the m_neighbours map.
-     */
-    void initializeNeighbours() {
-        const VertexSets vertexSets = buildFragmentVertexSets();
-        
-        for (size_t i = 0; i < m_indices.size(); ++i) {
-            const typename V::Set& f1Vertices = vertexSets[i];
-            for (size_t j = i + 1; j < m_indices.size(); ++j) {
-                const typename V::Set& f2Vertices = vertexSets[j];
-                const typename V::Set& sharedVertices = SetUtils::intersection(f1Vertices, f2Vertices);
-                
-                if (sharedVertices.size() > 2) {
-                    // We have two neighbours. Check if they are mergeable.
-                    const Polyhedron& f1 = *m_indices[i];
-                    const Polyhedron& f2 = *m_indices[j];
-                    
-                    if (mergeableNeighbours(f1, f2, sharedVertices)) {
-                        m_neighbours.insert(std::make_pair(i, j));
-                        m_neighbours.insert(std::make_pair(j, i));
-                    }
-                }
-            }
-        }
-        
-    }
-    
-    VertexSets buildFragmentVertexSets() {
-        VertexSets result;
-        result.reserve(m_fragments.size());
-        
-        for (auto fragmentIt : m_indices) {
-            const Polyhedron& fragment = *fragmentIt;
-            result.push_back(fragment.vertexPositionSet());
-        }
-        
-        return result;
-    }
-
-    /*
-     Checks whether two neighbouring fragments are mergeable. Assumes that the given fragments share at least
-     three vertices. The given fragments are mergeable if, for every non-shared vertex of fragment1 (fragment2), 
-     every visible face of fragment2 (fragment1) has only shared vertices.
-     */
-    bool mergeableNeighbours(const Polyhedron& fragment1, const Polyhedron& fragment2, const typename V::Set& sharedVertices) const {
-        assert(sharedVertices.size() > 2);
-        
-        return (onlySharedFacesVisible(fragment1.vertices(), fragment2.faces(), sharedVertices) &&
-                onlySharedFacesVisible(fragment2.vertices(), fragment1.faces(), sharedVertices));
-    }
-    
-    bool onlySharedFacesVisible(const VertexList& vertices, const FaceList& faces, const typename V::Set& sharedVertices) const {
-        for (const Vertex* vertex : vertices) {
-            for (const Face* face : faces) {
-                if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove) {
-                    if (!SetUtils::subset(face->vertexPositionSet(), sharedVertices))
-                        return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-    
-    /**
-     A set of fragments are mergeable if and only if their convex hull encloses exactly the volume
-     of the fragments. In other words, the fragments form a convex volume themselves.
-     
-     If we view the fragments as nodes of a graph such that two nodes are connected
-     by an edge if and only if
-     
-     - they share a face and
-     - they are mergeable,
-     
-     then a merge group is a connected subgraph such that all the fragments of the graph are mergeable.
-     
-     The goal of the merging phase is do identify maximal non-overlapping merge groups. To achieve this,
-     the following phases take place:
-     
-     1. Build the graph by finding all mergeable fragments and store it in m_neighbours.
-     2. Find all maximal merge groups. These merge groups may overlap.
-     3. Partition the merge groups into disjoint mergeable sets that do not overlap.
-     4. Apply the remaining merge groups by merging their fragments.
-     */
-    void merge() {
-        findMergeGroups();
-        partitionMergeGroups();
-        applyMergeGroups();
-    }
-    
-    
-    /**
-     Finds all maximal merge groups using the information in m_neighbours.
-     */
-    void findMergeGroups() {
-        for (const auto neighbourPair : m_neighbours) {
-            // The fragment under consideration and its mergeable neighbours.
-            const size_t fragmentIndex = neighbourPair.first;
-            const size_t neighbourIndex = neighbourPair.second;
-            
-            // Create a new merge group from the fragment and its neighbour.
-            MergeGroup group;
-            group.insert(fragmentIndex);
-            group.insert(neighbourIndex);
-            
-            if (m_mergeGroups.count(group) == 0) {
-                // The merge group hasn't already been found.
-                
-                // Build its convex hull.
-                const Polyhedron convexHull = mergeGroup(group);
-                
-                // Attempt to expand the group by considering every neighbour of the fragment
-                // and by considering every neighbour of the neighbour.
-                if (!expandMergeGroup(group, convexHull, fragmentIndex) &&
-                    !expandMergeGroup(group, convexHull, neighbourIndex)) {
-                    // The group could not be expanded any further.
-                    m_mergeGroups.insert(group);
-                }
-            }
-        }
-    }
-    
-    /**
-     Attempts to expand the given merge group that has the given convex hull by adding to it every mergeable
-     neighbour of the fragment at the given index.
-     
-     For each possible expansion of the group with one of those neighbours, the expanded group is then
-     again attempted to be expanded further. If it could not be expanded any further, it is stored in
-     m_mergeGroups.
-     */
-    bool expandMergeGroup(const MergeGroup& group, const Polyhedron& hull, const size_t index1) {
-        const auto range = m_neighbours.equal_range(index1);
-              auto it = range.first;
-        const auto end = range.second;
-        
-        // The fragment at index1 doesn't have any mergeable neighbours.
-        if (it == end)
-            return false;
-        
-        const typename V::Set hullVertices = hull.vertexPositionSet();
-        
-        bool didExpand = false;
-        while (it != end) {
-            MergeGroup newGroup = group;
-            
-            const size_t neighbourIndex = it->second;
-            const Polyhedron& neighbour = *m_indices[neighbourIndex];
-            
-            const typename V::Set sharedVertices = SetUtils::intersection(hullVertices, neighbour.vertexPositionSet());
-            
-            if (newGroup.insert(neighbourIndex).second &&
-                sharedVertices.size() > 2 &&
-                mergeableNeighbours(hull, neighbour, sharedVertices)) {
-                // The potential neighbour wasn't already in the new group, and it is actually mergeable
-                // with the group.
-                
-                if (m_mergeGroups.count(newGroup) == 0) {
-                    // The new group wasn't already discovered.
-                    
-                    // Create a new polyhedron that represents the convex hull of the new merge group.
-                    Polyhedron newHull = hull;
-                    newHull.merge(*m_indices[neighbourIndex]);
-                    
-                    if (!expandMergeGroup(newGroup, newHull, neighbourIndex)) {
-                        // The newly created merge group can't be expanded any further.
-                        m_mergeGroups.insert(newGroup);
-                        didExpand = true;
-                    }
-                }
-            }
-            
-            ++it;
-        }
-        return didExpand;
-    }
-    
-    Polyhedron mergeGroup(const MergeGroup& group) const {
-        MergeGroup::const_iterator it = std::begin(group);
-        MergeGroup::const_iterator end = std::end(group);
-        
-        Polyhedron result = *m_indices[*it];
-        ++it;
-        while (it != end) {
-            result.merge(*m_indices[*it]);
-            ++it;
-        }
-        
-        return result;
-    }
-    
-    void partitionMergeGroups() {
-        MergeGroups newMergeGroups;
-        typename MergeGroups::iterator mFirst, mSecond;
-        while (!m_mergeGroups.empty()) {
-            mFirst = std::begin(m_mergeGroups);
-            mSecond = mFirst; ++mSecond;
-            
-            const MergeGroup& first = *mFirst;
-            bool firstIsDisjoint = true;
-            
-            while (mSecond != std::end(m_mergeGroups)) {
-                const MergeGroup& second = *mSecond;
-                const MergeGroup intersection = SetUtils::intersection(first, second);
-                if (!intersection.empty()) {
-                    firstIsDisjoint = false;
-                    if (first.size() == intersection.size()) {
-                        // both sets are identical or first is a subset of second, erase first and break
-                        m_mergeGroups.erase(mFirst);
-                    } else if (second.size() == intersection.size()) {
-                        // second is a subset of first, erase second and break
-                        m_mergeGroups.erase(mSecond);
-                    } else {
-                        // the groups must be partitioned properly
-                        const MergeGroup firstMinusSecond = SetUtils::minus(first, intersection);
-                        const MergeGroup secondMinusFirst = SetUtils::minus(second, intersection);
-                        
-                        // erase both first and second
-                        m_mergeGroups.erase(mFirst);
-                        m_mergeGroups.erase(mSecond);
-                        
-                        // insert the new merge groups and break
-                        m_mergeGroups.insert(intersection);
-                        m_mergeGroups.insert(firstMinusSecond);
-                        m_mergeGroups.insert(secondMinusFirst);
-                    }
-                    break;
-                } else {
-                    ++mSecond;
-                }
-            }
-            
-            if (firstIsDisjoint) {
-                newMergeGroups.insert(first);
-                m_mergeGroups.erase(mFirst);
-            }
-        }
-        
-        using std::swap;
-        std::swap(m_mergeGroups, newMergeGroups);
-    }
-    
-    void applyMergeGroups() {
-        for (const MergeGroup& group : m_mergeGroups) {
-            if (group.size() > 1) {
-                auto gIt = std::begin(group);
-                auto gEnd = std::end(group);
-                
-                Polyhedron& master = *m_indices[*gIt++];
-                while (gIt != gEnd) {
-                    auto fIt = m_indices[*gIt++];
-                    master.merge(*fIt);
-                    m_fragments.erase(fIt);
-                }
-            }
-        }
-    }
-};
-
-
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addMissingFragments(Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
-    const FaceSet uncoveredFaces = findUncoveredFaces(fragments, minuend, subtrahend, callback);
-
-    const auto cmp = [](const Face* lhs, const Face* rhs) {
-        HalfEdge* lhsFirst = lhs->boundary().front();
-        HalfEdge* lhsCur = lhsFirst;
-        do {
-            Edge* lhsEdge = lhsCur->edge();
-            Edge* rhsEdge = rhs->findEdge(lhsEdge->firstVertex()->position(), lhsEdge->secondVertex()->position());
-            if (rhsEdge != nullptr)
-                return true;
-            lhsCur = lhsCur->next();
-        } while (lhsCur != lhsFirst);
-        
-        return false;
-    };
-    
-    const auto eqClasses = CollectionUtils::equivalenceClasses(uncoveredFaces, cmp);
-
-    for (const std::list<Face*>& eqClass : eqClasses) {
-        typename V::Set vertices;
-        typename V::Set visibleMinuendVertices = minuend.vertexPositionSet();
-        for (const Face* face : eqClass) {
-            SetUtils::merge(vertices, face->vertexPositionSet());
-            
-            const Plane<T,3>& boundary = callback.plane(face);
-            CollectionUtils::eraseIf(visibleMinuendVertices, [&boundary](const V& vertex) {
-                return boundary.pointStatus(vertex) != Math::PointStatus::PSAbove;
-            });
-        }
-        
-        SetUtils::merge(vertices, visibleMinuendVertices);
-        fragments.push_back(Polyhedron(vertices));
-    }
-}
-
-/*
- Find all faces of the given fragments which are not covered. A face is covered if either of the following conditions hold:
- * its boundary plane coincides with the boundary plane of any face of the minuend
- * the inverse of its boundary plane coincides with the boundary plane of any face of the subtrahend
- * it shares all of its vertices with another fragment.
- */
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FaceSet Polyhedron<T,FP,VP>::findUncoveredFaces(const Polyhedron::List& fragments, const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
-    const typename Plane<T,3>::Set ignoredPlanes = findIgnoredPlanes(minuend, subtrahend, callback);
-
-    FaceSet result;
-    for (const Polyhedron& fragment : fragments) {
-        Face* firstFace = fragment.faces().front();
-        Face* curFace = firstFace;
-        do {
-            const Plane<T,3> boundary = callback.plane(curFace);
-            if (ignoredPlanes.count(boundary) == 0) {
-                if (!isCoveredByFragment(curFace, fragments, fragment)) {
-                    result.insert(curFace);
-                }
-            }
-            curFace = curFace->next();
-        } while (curFace != firstFace);
-    }
-    
-    return result;
-}
-
-template <typename T, typename FP, typename VP>
-typename Plane<T,3>::Set Polyhedron<T,FP,VP>::findIgnoredPlanes(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) {
-    typename Plane<T,3>::Set result;
-    addIgnoredPlanes(minuend, false, callback, result);
-    addIgnoredPlanes(subtrahend, true, callback, result);
-    return result;
-}
-
-template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addIgnoredPlanes(const Polyhedron& polyhedron, bool flip, const Callback& callback, typename Plane<T,3>::Set& result) {
-    Face* firstFace = polyhedron.faces().front();
-    Face* curFace = firstFace;
-    do {
-        const Plane<T,3> boundary = callback.plane(curFace);
-        if (flip)
-            result.insert(boundary.flipped());
-        else
-            result.insert(boundary);
-        curFace = curFace->next();
-    } while (curFace != firstFace);
-}
-
-template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::isCoveredByFragment(const Face* face, const Polyhedron::List& fragments, const Polyhedron& ignore) {
-    const typename V::Set& faceVertices = face->vertexPositionSet();
-    for (const Polyhedron& fragment : fragments) {
-        if (&fragment == &ignore)
-            continue;
-        
-        const typename V::Set& fragmentVertices = fragment.vertexPositionSet();
-        const typename V::Set intersection = SetUtils::intersection(faceVertices, fragmentVertices);
-        
-        if (intersection.size() == faceVertices.size())
-            return true;
-        
-        // assert(intersection.size() <= 2);
-    }
-    return false;
-}
-
 
 #endif /* Polyhedron_Subtract_h */

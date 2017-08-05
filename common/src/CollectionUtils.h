@@ -199,17 +199,17 @@ namespace CollectionUtils {
 
 namespace ListUtils {
     template <typename T>
-    void append(std::list<T*>& vec, const std::list<T*>& items) {
+    void append(std::list<T>& vec, const std::list<T>& items) {
         vec.insert(std::end(vec), std::begin(items), std::end(items));
     }
 
     template <typename T>
-    void eraseAll(std::list<T*>& vec, const std::list<T*>& items) {
+    void eraseAll(std::list<T>& vec, const std::list<T>& items) {
         vec.erase(removeAll(std::begin(vec), std::end(vec), std::begin(items), std::end(items)), std::end(vec));
     }
 
     template <typename T>
-    void remove(std::vector<T*>& list, const T* item) {
+    void remove(std::vector<T>& list, const T item) {
         list.erase(std::remove(std::begin(list), std::end(list), item), std::end(list));
     }
 
