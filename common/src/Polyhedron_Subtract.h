@@ -90,22 +90,25 @@ private:
     }
     
     static PlaneList sortPlanes(PlaneList planes) {
+        typedef Vec<T,3> V;
+        typedef typename V::List VList;
+        
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosX);
-        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosY);
-        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosZ);
+        it = sortPlanes(it, std::end(planes), VList({ V::PosX, V::PosY, V::PosZ }));
+        it = sortPlanes(it, std::end(planes), VList({ V::PosY, V::PosX, V::PosZ }));
+        it = sortPlanes(it, std::end(planes), VList({ V::PosZ, V::PosX, V::PosY }));
         
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, Vec<T,3> axis) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
         if (begin == end)
             return end;
         
         auto it = begin;
         while (it != end) {
-            auto next = selectPlanes(it, end, axis);
-            if (next == it)
+            auto next = selectPlanes(it, end, axes);
+            if (next == it || next == end)
                 break; // no further progress
             it = next;
         }
@@ -113,16 +116,25 @@ private:
         return it;
     }
     
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, Vec<T,3> axis) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
         assert(begin != end);
+        assert(!axes.empty());
         
+        Vec<T,3> axis = axes.front();
         auto bestIt = end;
         for (auto it = begin; it != end; ++it) {
-            const T bestDot = bestIt != end ? Math::abs(bestIt->normal.dot(axis)) : 0.0;
-            const T curDot  = Math::abs(it->normal.dot(axis));
+            auto newBestIt = selectPlane(it, bestIt, end, axis);
             
-            if (curDot > bestDot)
-                    bestIt = it;
+            // Resolve ambiguities if necessary.
+            for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes); newBestIt == end && axIt != axEnd; ++axIt) {
+                const Vec<T,3>& altAxis = *axIt;
+                newBestIt = selectPlane(it, bestIt, end, altAxis);
+                if (newBestIt != end)
+                    break;
+            }
+            
+            if (newBestIt != end)
+                bestIt = newBestIt;
         }
         
         if (bestIt == end)
@@ -142,6 +154,8 @@ private:
             
             if (curDot > bestDot)
                 bestIt = it;
+            if (bestDot == 1.0)
+                break;
         }
         
         if (bestIt != end)
@@ -149,21 +163,32 @@ private:
         return begin;
     }
     
-    static Plane<T,3> extractFirstPlane(PlaneList& planes) {
-        auto bestIt = std::end(planes);
-        T bestDot = 0.0;
-        for (auto it = std::begin(planes), end = std::end(planes); it != end; ++it) {
-            const Plane<T,3>& plane = *it;
-            const T dot = Math::abs(plane.normal.dot(Vec<T,3>::PosX));
-            if (dot < bestDot) {
-                bestDot = dot;
-                bestIt = it;
+    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const Vec<T,3>& axis) {
+        const T curDot = curIt->normal.dot(axis);
+        if (curDot == 0.0)
+            return bestIt;
+        if (curDot == 1.0)
+            return curIt;
+
+        const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
+        if (Math::abs(curDot) > Math::abs(bestDot))
+            return curIt;
+        
+        if (Math::abs(curDot) == Math::abs(bestDot)) {
+            // Resolve ambiguities.
+            
+            assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
+            if (bestDot < 0.0 && curDot > 0.0) {
+                // Prefer best matches pointing towards the direction of the axis, not the opposite.
+                return curIt;
             }
+            
+            // Could not resolve ambiguities. Caller should try other axes.
+            return end;
         }
         
-        assert(bestIt != std::end(planes));
-        planes.erase(bestIt);
-        return *bestIt;
+        // Math::abs(curDot) < Math::abs(bestDot)
+        return bestIt;
     }
     
     void doSubtract(const List& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {

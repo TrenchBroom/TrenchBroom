@@ -1960,7 +1960,6 @@ TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
     const Vec3d::List topVertices = Vec3d::parseList("(-16 16 32) (16 16 32) (16 -16 32) (-16 -16 32) (-16 -16 16) (-16 16 16) (16 16 16) (16 -16 16)");
     const Vec3d::List bottomVertices = Vec3d::parseList("(-16 -16 -32) (16 -16 -32) (-16 16 -32) (16 16 -32) (-16 -16 -16) (16 -16 -16) (16 16 -16) (-16 16 -16)");
     
-
     ASSERT_TRUE(findAndRemove(result, leftVertices));
     ASSERT_TRUE(findAndRemove(result, rightVertices));
     ASSERT_TRUE(findAndRemove(result, frontVertices));
@@ -2148,12 +2147,11 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(8u, result.size());
 
-    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 -64 64) (-64 32 64) (32 -64 64) (32 -64 -64) (-64 32 -64) (-64 -64 -64)")));
-    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(32 -64 -64) (32 -64 64) (-0 -32 -64) (-0 -32 64) (64 32 64) (64 32 -64) (64 -64 64) (64 -64 -64) ")));
-    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(32 64 64) (32 64 -64) (64 64 -64) (64 64 64) (64 32 -64) (64 32 64) (-0 32 64) (-0 32 -64) (32 -0 -64) (32 -0 64)")));
-    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 32 64) (-64 32 -64) (-64 64 64) (-64 64 -64) (-32 -0 64) (-32 -0 -64) (32 64 -64) (32 64 64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)")));
     
     ASSERT_TRUE(result.empty());
 }
