@@ -89,39 +89,81 @@ private:
         return result;
     }
     
-    static PlaneList sortPlanes(const PlaneList& planes) {
-        static const T epsilon = Math::Constants<T>::angleEpsilon();
+    static PlaneList sortPlanes(PlaneList planes) {
+        auto it = std::begin(planes);
+        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosX);
+        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosY);
+        it = sortPlanes(it, std::end(planes), Vec<T,3>::PosZ);
         
-        PlaneList x, y, z, yz, xz, xy, other;
+        return planes;
+    }
+
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, Vec<T,3> axis) {
+        if (begin == end)
+            return end;
         
-        for (const auto &plane : planes) {
-            if (Math::abs(Math::abs(plane.normal.x()) - 1.0) < epsilon) {
-                x.push_back(plane);
-            } else if (Math::abs(Math::abs(plane.normal.y()) - 1.0) < epsilon) {
-                y.push_back(plane);
-            } else if (Math::abs(Math::abs(plane.normal.z()) - 1.0) < epsilon) {
-                z.push_back(plane);
-            } else if (Math::abs(plane.normal.x()) < epsilon) {
-                yz.push_back(plane);
-            } else if (Math::abs(plane.normal.y()) < epsilon) {
-                xz.push_back(plane);
-            } else if (Math::abs(plane.normal.z()) < epsilon) {
-                xy.push_back(plane);
-            } else {
-                other.push_back(plane);
+        auto it = begin;
+        while (it != end) {
+            auto next = selectPlanes(it, end, axis);
+            if (next == it)
+                break; // no further progress
+            it = next;
+        }
+        
+        return it;
+    }
+    
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, Vec<T,3> axis) {
+        assert(begin != end);
+        
+        auto bestIt = end;
+        for (auto it = begin; it != end; ++it) {
+            const T bestDot = bestIt != end ? Math::abs(bestIt->normal.dot(axis)) : 0.0;
+            const T curDot  = Math::abs(it->normal.dot(axis));
+            
+            if (curDot > bestDot)
+                    bestIt = it;
+        }
+        
+        if (bestIt == end)
+            return end;
+
+        if (Math::abs(bestIt->normal.dot(axis)) < 0.5)
+            return begin;
+        
+        assert(bestIt != end);
+        axis = -bestIt->normal;
+        std::iter_swap(begin++, bestIt);
+        
+        bestIt = end;
+        for (auto it = begin; it != end; ++it) {
+            const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
+            const T curDot  = it->normal.dot(axis);
+            
+            if (curDot > bestDot)
+                bestIt = it;
+        }
+        
+        if (bestIt != end)
+            std::iter_swap(begin++, bestIt);
+        return begin;
+    }
+    
+    static Plane<T,3> extractFirstPlane(PlaneList& planes) {
+        auto bestIt = std::end(planes);
+        T bestDot = 0.0;
+        for (auto it = std::begin(planes), end = std::end(planes); it != end; ++it) {
+            const Plane<T,3>& plane = *it;
+            const T dot = Math::abs(plane.normal.dot(Vec<T,3>::PosX));
+            if (dot < bestDot) {
+                bestDot = dot;
+                bestIt = it;
             }
         }
         
-        PlaneList result;
-        ListUtils::append(result, x);
-        ListUtils::append(result, y);
-        ListUtils::append(result, z);
-        ListUtils::append(result, yz);
-        ListUtils::append(result, xz);
-        ListUtils::append(result, xy);
-        ListUtils::append(result, other);
-        assert(result.size() == planes.size());
-        return result;
+        assert(bestIt != std::end(planes));
+        planes.erase(bestIt);
+        return *bestIt;
     }
     
     void doSubtract(const List& fragments, PlaneIt curPlaneIt, PlaneIt endPlaneIt) {
