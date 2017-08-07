@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2016 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IdMipTextureReader.h"
+#include "HlMipTextureReader.h"
 
 #include "Color.h"
 #include "StringUtils.h"
@@ -26,14 +26,22 @@
 #include "IO/CharArrayReader.h"
 #include "IO/Path.h"
 
+#include <cstring>
+
 namespace TrenchBroom {
     namespace IO {
-        IdMipTextureReader::IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette) :
-        MipTextureReader(nameStrategy),
-        m_palette(palette) {}
-        
-        Assets::Palette IdMipTextureReader::doGetPalette(CharArrayReader& reader, const size_t offset[], const size_t width, const size_t height) const {
-            return m_palette;
+        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
+        MipTextureReader(nameStrategy) {}
+
+        Assets::Palette HlMipTextureReader::doGetPalette(CharArrayReader& reader, const size_t offset[], const size_t width, const size_t height) const {
+            const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
+            reader.seekFromBegin(start);
+            
+            const size_t paletteSize = reader.size() - start;
+            unsigned char* paletteData = new unsigned char[paletteSize];
+            reader.read(paletteData, paletteSize);
+
+            return Assets::Palette(paletteSize, paletteData);
         }
     }
 }

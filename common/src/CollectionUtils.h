@@ -104,21 +104,112 @@ namespace CollectionUtils {
             ++cur;
         }
     }
+    
+    template <typename C, typename P>
+    void eraseIf(C& col, const P& pred) {
+        auto cur = std::begin(col);
+        while (cur != std::end(col)) {
+            if (pred(*cur))
+                cur = col.erase(cur);
+            else
+                ++cur;
+        }
+    }
+
+    template <typename Col, typename Cmp>
+    Col& retainMaximalElements(Col& col, const Cmp& cmp = Cmp()) {
+        auto it = std::begin(col);
+        while (it != std::end(col)) {
+            const auto& cand = *it;
+            bool erased = false;
+            
+            auto ne = std::next(it);
+            while (!erased && ne != std::end(col)) {
+                const auto& cur = *ne;
+                
+                if (cmp(cand, cur)) {
+                    it = col.erase(it);
+                    erased = true;
+                } else if (cmp(cur, cand)) {
+                    ne = col.erase(ne);
+                } else {
+                    ++ne;
+                }
+            }
+            
+            if (!erased)
+                ++it;
+        }
+        
+        return col;
+    }
+    
+    template <typename Col, typename Cmp>
+    Col findMaximalElements(const Col& col, const Cmp& cmp = Cmp()) {
+        Col result(col);
+        return retainMaximalElements(result, cmp);
+    }
+
+    template <typename I, typename Fac, typename Cmp>
+    void equivalenceClasses(I rangeStart, I rangeEnd, const Fac& fac, const Cmp& cmp) {
+        typedef typename I::value_type E;
+        
+        std::list<I> workList;
+        while (rangeStart != rangeEnd)
+            workList.push_back(rangeStart++);
+        
+        while (!workList.empty()) {
+            const E& root = *workList.front(); workList.pop_front();
+            auto cls = fac();
+            cls = root;
+            
+            auto cur = std::begin(workList);
+            while (cur != std::end(workList)) {
+                const E& cand = **cur;
+                if (cmp(root, cand)) {
+                    cls = cand;
+                    cur = workList.erase(cur);
+                } else {
+                    ++cur;
+                }
+            }
+        }
+    }
+    
+    template <typename I, typename Cmp>
+    std::list<std::list<typename I::value_type>> equivalenceClasses(I rangeStart, I rangeEnd, const Cmp& cmp) {
+        typedef typename I::value_type E;
+        typedef std::list<E> Class;
+        typedef std::list<Class> Result;
+        
+        Result result;
+        equivalenceClasses(rangeStart, rangeEnd, [&result]() {
+            result.emplace_back();
+            return std::back_inserter(result.back());
+        }, cmp);
+        
+        return result;
+    }
+    
+    template <typename C, typename Cmp>
+    std::list<std::list<typename C::value_type>> equivalenceClasses(C collection, const Cmp& cmp) {
+        return equivalenceClasses(std::begin(collection), std::end(collection), cmp);
+    }
 }
 
 namespace ListUtils {
     template <typename T>
-    void append(std::list<T*>& vec, const std::list<T*>& items) {
+    void append(std::list<T>& vec, const std::list<T>& items) {
         vec.insert(std::end(vec), std::begin(items), std::end(items));
     }
 
     template <typename T>
-    void eraseAll(std::list<T*>& vec, const std::list<T*>& items) {
+    void eraseAll(std::list<T>& vec, const std::list<T>& items) {
         vec.erase(removeAll(std::begin(vec), std::end(vec), std::begin(items), std::end(items)), std::end(vec));
     }
 
     template <typename T>
-    void remove(std::vector<T*>& list, const T* item) {
+    void remove(std::vector<T>& list, const T item) {
         list.erase(std::remove(std::begin(list), std::end(list), item), std::end(list));
     }
 
@@ -128,6 +219,23 @@ namespace ListUtils {
         delete item;
     }
 
+    /**
+     Removes the element at `pos` in `list`, and replaces it with the contents of list `other`.
+     The list `other` is cleared as a side effect.
+     
+     Does nothing if `other` is empty.
+     Returns an iterator to the start of the newly inserted elements.
+     */
+    template <typename T>
+    typename std::list<T>::iterator replace(std::list<T>& list, typename std::list<T>::iterator pos, std::list<T>& other) {
+        typedef typename std::list<T>::iterator::difference_type DiffType;
+        const DiffType count = DiffType(other.size());
+        if (count == 0)
+            return pos;
+        pos = list.erase(pos);
+        list.splice(pos, other);
+        return std::prev(pos, count);
+    }
 
     template <typename T>
     void clearAndDelete(std::list<T*>& list) {
@@ -804,62 +912,18 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template<typename T, typename C, typename A>
-    class set_insert_iterator : public std::output_iterator_tag {
-    public:
-        typedef set_insert_iterator<T,C,A> _my_type;
-        typedef std::set<T,C,A> container_type;
-        typedef typename container_type::const_reference const_reference;
-        typedef typename container_type::value_type value_type;
-    private:
-        container_type& m_set;
-    public:
-        set_insert_iterator(std::set<T,C,A>& set)
-        : m_set(set) {}
-
-        _my_type& operator=(const value_type& value) {
-            m_set.insert(value);
-            return *this;
-        }
-
-        /*
-        container_type& operator=(value_type&& value)
-        {
-            m_set.insert(std::forward<value_type>(value));
-            return (*this);
-        }
-        */
-
-        _my_type& operator*() {
-            return *this;
-        }
-
-        _my_type& operator++() {
-            return *this;
-        }
-
-        _my_type& operator++(int) {
-            return *this;
-        }
-    };
-
-    template<typename T, typename C, typename A>
-    inline set_insert_iterator<T,C,A> set_inserter(std::set<T,C,A>& set) {
-        return set_insert_iterator<T,C,A>(set);
-    }
-
-    template <typename T, typename C>
-    bool subset(const std::set<T,C>& lhs, const std::set<T,C>& rhs) {
+    template <typename S>
+    bool subset(const S& lhs, const S& rhs) {
         if (lhs.size() > rhs.size())
             return false;
 
-        typedef typename std::set<T,C>::const_iterator Iter;
-        Iter lIt = std::begin(lhs);
-        Iter lEnd = std::end(lhs);
-        Iter rIt = std::begin(rhs);
-        Iter rEnd = std::end(rhs);
+        auto lIt = std::begin(lhs);
+        auto lEnd = std::end(lhs);
+        auto rIt = std::begin(rhs);
+        auto rEnd = std::end(rhs);
 
-        C cmp;
+        typedef typename S::key_compare C;
+        const C cmp = lhs.key_comp();
 
         while (lIt != lEnd) {
             // forward rhs until we find the element
@@ -872,7 +936,14 @@ namespace SetUtils {
         }
         return true;
     }
-
+    
+    struct SubsetCmp {
+        template <typename S>
+        bool operator()(const S& lhs, const S& rhs) const {
+            return subset(lhs, rhs);
+        }
+    };
+    
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(std::begin(vec), std::end(vec));
@@ -897,7 +968,7 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         minus(lhs, rhs, result);
         return result;
     }
@@ -910,6 +981,11 @@ namespace SetUtils {
     }
 
     template <typename T, typename C>
+    void merge(std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        lhs.insert(std::begin(rhs), std::end(rhs));
+    }
+    
+    template <typename T, typename C>
     void merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
         result.insert(std::begin(lhs), std::end(lhs));
         result.insert(std::begin(rhs), std::end(rhs));
@@ -917,14 +993,18 @@ namespace SetUtils {
 
     template <typename T, typename C>
     std::set<T, C> merge(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
+        std::set<T, C> result(lhs.key_comp());
         merge(lhs, rhs, result);
         return result;
     }
 
     template <typename T, typename C>
     void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
-        std::set_intersection(std::begin(lhs), std::end(lhs), std::begin(rhs), std::end(rhs), std::insert_iterator<std::set<T, C> >(result, std::end(result)));
+        const C cmp = result.key_comp();
+        std::set_intersection(std::begin(lhs), std::end(lhs),
+                              std::begin(rhs), std::end(rhs),
+                              std::inserter(result, std::end(result)),
+                              cmp);
     }
 
     template <typename T, typename C>
@@ -933,19 +1013,33 @@ namespace SetUtils {
     }
 
     template <typename T, typename C>
-    const std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
-        std::set<T, C> result;
-        intersection(lhs, rhs, result);
-        return result;
+    bool intersectionEmpty(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        auto lhsIt = std::begin(lhs);
+        auto lhsEnd = std::end(lhs);
+        auto rhsIt = std::begin(rhs);
+        auto rhsEnd = std::end(rhs);
+        
+        const C cmp = lhs.key_comp();
+        
+        while (lhsIt != lhsEnd && rhsIt != rhsEnd) {
+            const T& l = *lhsIt;
+            const T& r = *rhsIt;
+            if (cmp(l,r)) {
+                ++lhsIt;
+            } else if (cmp(r,l)) {
+                ++rhsIt;
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
     
-    // TODO: In C++11, std::set::erase already returns an iterator to the next element
     template <typename T, typename C>
-    typename std::set<T,C>::iterator erase(std::set<T,C>& set, typename std::set<T,C>::iterator it) {
-        typename std::set<T,C>::iterator tmp = it;
-        ++it;
-        set.erase(tmp);
-        return it;
+    std::set<T, C> intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result(lhs.key_comp());
+        intersection(lhs, rhs, result);
+        return result;
     }
 
     template <typename T, typename C>
@@ -957,6 +1051,70 @@ namespace SetUtils {
     template <typename T, typename C>
     void deleteAll(const std::set<T*, C>& set) {
         std::for_each(std::begin(set), std::end(set), Utils::Deleter<T>());
+    }
+    
+    template <typename S>
+    std::set<S> powerSet(const S& set) {
+        typedef std::set<S> PowerSet;
+        
+        PowerSet result;
+        result.insert(S());
+        
+        for (const auto& elem : set) {
+            PowerSet intermediate;
+
+            for (auto subset : result) {
+                subset.insert(elem);
+                intermediate.insert(subset);
+            }
+            
+            result.insert(std::begin(intermediate), std::end(intermediate));
+        }
+        
+        return result;
+    }
+    
+    template <typename S>
+    typename S::value_type popFront(S& set) {
+        assert(!set.empty());
+        const auto it = std::begin(set);
+        const typename S::value_type value = *it;
+        set.erase(it);
+        return value;
+    }
+    
+    template <typename S>
+    S findMaximalElements(const S& set) {
+        typedef typename S::value_type V;
+        typedef typename S::value_compare C;
+        const C& cmp = set.value_comp();
+        
+        S result;
+        for (auto it = std::begin(set), end = std::end(set); it != end; ++it) {
+            const V& cand = *it;
+            if (!std::any_of(std::next(it), std::end(set), [&cand, &cmp](const V& cur) { return cmp(cand, cur); }))
+                result.insert(cand);
+        }
+        return result;
+    }
+
+    template <typename S>
+    S& retainMaximalElements(S& set) {
+        S temp = findMaximalElements(set);
+        
+        using std::swap;
+        swap(set, temp);
+        return set;
+    }
+    
+    template <typename S>
+    S& retainSupersets(S& set) {
+        return CollectionUtils::retainMaximalElements(set, SubsetCmp());
+    }
+    
+    template <typename S>
+    S findSupersets(const S& set) {
+        return CollectionUtils::findMaximalElements(set, SubsetCmp());
     }
 }
 

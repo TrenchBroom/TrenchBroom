@@ -120,6 +120,17 @@ Polyhedron<T,FP,VP>::Polyhedron() {
 }
 
 template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions) {
+    Callback c;
+    addPoints(std::begin(positions), std::end(positions), c);
+}
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<V> positions, Callback& callback) {
+    addPoints(std::begin(positions), std::end(positions), callback);
+}
+
+template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
     Callback c;
     addPoints(p1, p2, p3, p4, c);
@@ -303,6 +314,8 @@ void Polyhedron<T,FP,VP>::setBounds(const BBox<T,3>& bounds, Callback& callback)
     m_edges.append(new Edge(f6h1, f3h3), 1); // v5, v7
     m_edges.append(new Edge(f6h3, f4h2), 1); // v6, v8
     m_edges.append(new Edge(f6h2, f5h3), 1); // v7, v8
+    
+    m_bounds = bounds;
 }
 
 template <typename T, typename FP, typename VP>
@@ -513,6 +526,15 @@ bool Polyhedron<T,FP,VP>::hasVertex(const V& position, const T epsilon) const {
 }
 
 template <typename T, typename FP, typename VP>
+bool Polyhedron<T,FP,VP>::hasVertex(const typename V::List& positions, const T epsilon) const {
+    for (const V& position : positions) {
+        if (hasVertex(position, epsilon))
+            return true;
+    }
+    return false;
+}
+
+template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasVertices(const typename V::List& positions, const T epsilon) const {
     if (positions.size() != vertexCount())
         return false;
@@ -532,13 +554,24 @@ typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() con
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::vertexPositionSet(const T epsilon) const {
+    typename V::LexicographicOrder cmp(epsilon);
+    typename V::Set result(cmp);
+    getVertexPositions(std::inserter(result, result.end()));
+    return result;
+}
+
+template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::printVertices() const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
-        std::cout << currentVertex->position().asString() << std::endl;
+        std::cout << "(" + currentVertex->position().asString() + ")";
         currentVertex = currentVertex->next();
+        if (currentVertex != firstVertex)
+            std::cout << " ";
     } while (currentVertex != firstVertex);
+    std::cout << std::endl;
 }
 
 
@@ -814,13 +847,26 @@ bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
     if (m_faces.empty())
         return true;
     
-    Face* first = m_faces.front();
-    Face* current = first;
+    Face* firstFace = m_faces.front();
+    Face* currentFace = firstFace;
     do {
-        if (!current->checkBoundary())
-            return false;
-        current = current->next();
-    } while (current != first);
+        HalfEdge* firstEdge = currentFace->boundary().front();
+        HalfEdge* currentEdge = firstEdge;
+        do {
+            if (currentEdge->face() != currentFace)
+                return false;
+            if (currentEdge->edge() == NULL)
+                return false;
+            if (!hasEdge(currentEdge->edge()))
+                return false;
+            if (!hasVertex(currentEdge->origin()))
+                return false;
+            
+            currentEdge = currentEdge->next();
+        } while (currentEdge != firstEdge);
+        
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
     return true;
 }
 
@@ -837,16 +883,16 @@ bool Polyhedron<T,FP,VP>::checkFaceNeighbours() const {
         HalfEdge* currentEdge = firstEdge;
         do {
             HalfEdge* twin = currentEdge->twin();
-            unused(twin);
-            ensure(twin != NULL, "twin is null");
-            ensure(twin->face() != NULL, "twin face is null");
-            assert(hasFace(twin->face()));
+            if (twin == nullptr)
+                return false;
+            if (twin->face() == nullptr)
+                return false;
+            if (!hasFace(twin->face()))
+                return false;
             
             currentEdge = currentEdge->next();
         } while (currentEdge != firstEdge);
         
-        if (!currentFace->checkBoundary())
-            return false;
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
     return true;

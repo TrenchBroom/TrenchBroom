@@ -47,23 +47,50 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T
     if (!vertexResult.success())
         return vertexResult;
     
-    // Now we know that the brush will be split.
     // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
     // can be separated into two halves such that no face has vertices on opposite sides of the plane.
-    const Seam seam = intersectWithPlane(plane, callback);
+    // Sometimes building a seam fails due to floating point imprecisions. In that case, intersectWithPlane
+    // throws a GeometryException which we catch here.
+    try {
+        const Seam seam = intersectWithPlane(plane, callback);
+
+        // We construct a seam along those edges which are completely inside the plane and delete the half of the
+        // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
+        // is below the plane.
+        split(seam, callback);
+        
+        // We seal the polyhedron by creating a new face.
+        sealWithSinglePolygon(seam, callback);
+        updateBounds();
+        
+        assert(checkInvariant());
+        return ClipResult(ClipResult::Type_ClipSuccess);
+    } catch (const NoSeamException&) {
+        return ClipResult(ClipResult::Type_ClipUnchanged);
+    }
     
-    // We construct a seam along those edges which are completely inside the plane and delete the half of the
-    // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
-    // is below the plane.
-    split(seam, callback);
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron) {
+    Callback c;
+    return clip(polyhedron, c);
+}
+
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhedron& polyhedron, Callback& callback) {
+    Face* first = polyhedron.faces().front();
+    Face* current = first;
+    do {
+        const ClipResult result = clip(callback.plane(current), callback);
+        if (result.empty())
+            return result;
+        current = current->next();
+    } while (current != first);
     
-    // We seal the polyhedron by creating a new face.
-    sealWithSinglePolygon(seam, callback);
-    updateBounds();
-    
-    assert(checkInvariant());
     return ClipResult(ClipResult::Type_ClipSuccess);
 }
+
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const Plane<T,3>& plane) const {
@@ -99,6 +126,11 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(co
 }
 
 template <typename T, typename FP, typename VP>
+class Polyhedron<T,FP,VP>::NoSeamException : public ExceptionStream<GeometryException> {
+    using ExceptionStream::ExceptionStream;
+};
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const Plane<T,3>& plane, Callback& callback) {
     Seam seam;
     
@@ -130,7 +162,7 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const
         seamEdge->makeSecondEdge(currentEdge);
         
         if (!seam.empty() && seamEdge == seam.last())
-            throw GeometryException("Unable to compute a seam when intersecting polyhedron with plane");
+            throw NoSeamException();
         
         seam.push_back(seamEdge);
         
