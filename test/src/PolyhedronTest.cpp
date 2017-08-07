@@ -46,6 +46,10 @@ bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, cons
 bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
 bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5);
 
+void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
+void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
+
+
 TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p1( 0.0, 0.0, 8.0);
     const Vec3d p2( 8.0, 0.0, 0.0);
@@ -2201,16 +2205,6 @@ TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
     ASSERT_EQ(3u, result.size());
 }
 
-void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-    ASSERT_TRUE(lhs.intersects(rhs));
-    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
-}
-
-void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-    ASSERT_FALSE(lhs.intersects(rhs));
-    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
-}
-
 TEST(PolyhedronTest, intersection_empty_polyhedron) {
     const Polyhedron3d empty;
     const Polyhedron3d point      { Vec3d(1.0, 0.0, 0.0) };
@@ -2672,4 +2666,15 @@ bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const
     points.push_back(p4);
     points.push_back(p5);
     return p.hasFace(points);
+}
+
+
+void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_TRUE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+}
+
+void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_FALSE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
 }

@@ -184,9 +184,9 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
             const T rhsStartDist = lhsRay.distanceToPointOnRay(rhsStart);
             const T rhsEndDist   = lhsRay.distanceToPointOnRay(rhsEnd);
             
-            return (Math::between(rhsStartDist, 0.0, rayLen) || // lhs constains rhs start
-                    Math::between(rhsEndDist,   0.0, rayLen) || // lhs contains rhs end
-                    rhsStartDist > 0.0 != rhsEndDist > 0.0);    // rhs contains lhs
+            return (Math::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
+                    Math::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
+                    (rhsStartDist > 0.0) != (rhsEndDist > 0.0)); // rhs contains lhs
         }
         return false;
     }

@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Face_h
 #define TrenchBroom_Polyhedron_Face_h
 
+#include "Macros.h"
+
 #include <iterator>
 
 template <typename T, typename FP, typename VP>
@@ -215,6 +217,7 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::S
             return result.back() ? result.distance() : Math::nan<T>();
         case Math::Side_Both:
             return result.distance();
+        switchDefault();
     }
 }
 
