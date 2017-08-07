@@ -22,8 +22,8 @@
 
 #include "Algorithms.h"
 #include "Allocator.h"
-#include "VecMath.h"
 #include "DoublyLinkedList.h"
+#include "VecMath.h"
 
 #include <cassert>
 #include <queue>
@@ -492,8 +492,10 @@ public: // Intersection
 private:
     ClipResult checkIntersects(const Plane<T,3>& plane) const;
     
+    class NoSeamException;
+
     /**
-     May throw a GeometryException if the polyhedron cannot be intersected with the given plane due.
+     May throw a NoSeamException if the polyhedron cannot be intersected with the given plane due.
      */
     Seam intersectWithPlane(const Plane<T,3>& plane, Callback& callback);
     HalfEdge* findInitialIntersectingEdge(const Plane<T,3>& plane) const;
