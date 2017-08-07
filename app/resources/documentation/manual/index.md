@@ -660,33 +660,11 @@ As you can see, the newly created brush covers some areas which were not covered
 
 #### CSG Subtraction
 
-CSG subtraction takes one brush (the minuend) and subtracts it from a set of brushes (the subtrahends) by subtracting the minuend individually from each subtrahend, so we can reduce the case of multiple subtrahends to the case of one subtrahend for the following explanations. In addition, we can limit ourself to cases where the minuend does not protrude out of the subtrahend because we can chop off such parts of the minuend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). Unfortunately, there is an infinite number of result sets, all of which represent the concave shape that was the result of the subtraction. However, some result sets are better than others because the have a few desirable characteristics:
-
-- The brushes in the result set represent the concave result shape perfectly.
-- The brushes are pairwise disjoint (i.e., none of them overlap).
-- The result set contains as few brushes as possible.
-- The brushes are somehow symmetrical if possible.
-- The brushes in the result set only reuse the vertices of the subtrahend and the (chopped) minuend and as few additional vertices as possible.
-
-Computing a result set that has all of these characteristics is very hard. That's why TrenchBroom uses a few heuristics when it computes the result set. These heuristics lead to result sets that always fulfil the first criterion, but cannot always be optimal in all of the remaining critera.
-
-The second criterion will only be violated in certain edge cases, and even then, the overlapping regions will be very small and they will not be visible from the outside of the brushes.
-
-The last criterion may be violated in some cases where oddly shaped brushes are subtracted from each other. Let's consider an example of a "good" result set. In the following animation, we create an arch by subtracting the smaller brush from the larger one:
+CSG subtraction takes one brush (the subtrahend) and subtracts it from a set of brushes (the minuends) by subtracting the subtrahend individually from each minuend, so we can reduce the case of multiple minuends to the case of one minuend for the following explanations. In addition, we can limit ourself to cases where the subtrahend does not protrude out of the minuend because we can chop off such parts of the subtrahend without changing the result of the subtraction. In general, the result of a CSG subtraction of two shapes is a concave shape. Since a concave shape cannot be represented directly using a single brush, it has to be represented using multiple brushes (the result set). TrenchBroom creates brushes that represent the concave shape by cutting up the minuend brush using the faces of the subtrahend brush.
 
 ![CSG subtracting to create an arch](CSGSubtractArch.gif)
 
-The result set contains seven brushes, and it is optimal according to the criteria listed above: It represents the convex result shape perfectly, all brushes are pairwise disjoint, there is no smaller result set possible, all brushes in the result set disjoint, the brushes are mirror symmetrical, and they only use vertices of the chopped minuend. Remember that chopping the minuend removes all parts of it that protrude out of the subtrahend.
-
-Next, we take a look at a CSG subtraction with a suboptimal result set. In the following animation, there are two cuboids. The outer cuboid (the subtrahend) is axis aligned and the inner cuboid (the minuend) has been rotated about two axes. Several of its corners protrude out of the subtrahend. It may be a bit hard to see that the inner brush is actually a cuboid from the images.
-
-![CSG subtracting two cuboids](CSGSubtractCuboids.gif)
-
-The result set of this subtraction is not optimal according to the criteria listed before. On one hand, the result set does represent the convex result shape perfectly, and all brushes in the result set are pairwise disjoint. On the other hand, TrenchBroom had to introduce new vertices in order to create the brushes in the result set. One of these additional vertices can be seen on the front face of the outer cuboid. Three triangles meet at this vertex. Furthermore, the result set may not be minimal - there might be a smaller result set, but TrenchBroom could not find it. And finally, the brushes in the result set are not symmetrical - but with the given two brushes as input, it could not be symmetric anyway.
-
-To perform a CSG subtraction, first select the subtrahends (the brushes you wish to subtract from) and then add the minuend to the selection and choose #menu('Menu/Edit/CSG/Subtract'). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
-
-In summary, TrenchBroom provides you with a CSG subtract algorithm that can produce "good" results according to the aforementioned criteria. These criteria attempt to capture what a designer might consider a good CSG subtraction solution, so TrenchBroom's CSG subtraction should be more useful than the simplistic implementations found in other tools.
+The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu('Menu/Edit/CSG/Subtract'). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
 
 #### CSG Intersection
 
