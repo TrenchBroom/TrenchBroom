@@ -31,10 +31,7 @@ namespace TrenchBroom {
         CompilationProfile::CompilationProfile(const String& name, const String& workDirSpec, const CompilationTask::List& tasks) :
         m_name(name),
         m_workDirSpec(workDirSpec),
-        m_tasks(tasks) {
-            for (CompilationTask* task : m_tasks)
-                task->taskDidChange.addObserver(taskDidChange);
-        }
+        m_tasks(tasks) {}
 
         CompilationProfile::~CompilationProfile() {
             VectorUtils::clearAndDelete(m_tasks);
@@ -94,7 +91,6 @@ namespace TrenchBroom {
                 m_tasks.insert(it, task);
                 
             }
-            task->taskDidChange.addObserver(taskDidChange);
             profileDidChange();
         }
 

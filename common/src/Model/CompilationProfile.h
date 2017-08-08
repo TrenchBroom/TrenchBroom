@@ -34,7 +34,6 @@ namespace TrenchBroom {
             
             Notifier0 profileWillBeRemoved;
             Notifier0 profileDidChange;
-            Notifier0 taskDidChange;
         private:
             String m_name;
             String m_workDirSpec;
