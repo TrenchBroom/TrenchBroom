@@ -66,9 +66,30 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Plane<T
         assert(checkInvariant());
         return ClipResult(ClipResult::Type_ClipSuccess);
     } catch (const NoSeamException&) {
-        return ClipResult(ClipResult::Type_ClipUnchanged);
+        /*
+         We assume that the plane doesn't intersect the polyhedron. The result may either be
+         that the polyhedron remains unchanged or that it becomes empty. We need to look at
+         the vertices to find out exactly.
+         For this, we first find the vertex that is furthest from the given plane, and then
+         examine its point status.
+         */
+
+        auto it = std::max_element(std::begin(m_vertices), std::end(m_vertices),
+                                   [&plane](const Vertex* lhs, const Vertex* rhs) {
+            const T lhsDist = Math::abs(plane.pointDistance(lhs->position()));
+            const T rhsDist = Math::abs(plane.pointDistance(rhs->position()));
+            return lhsDist < rhsDist;
+        });
+        
+        assert(it != std::end(m_vertices));
+        if (plane.pointStatus((*it)->position()) == Math::PointStatus::PSBelow) {
+            // The furthest point is below the plane.
+            return ClipResult(ClipResult::Type_ClipUnchanged);
+        } else {
+            // The furthest point is above or inside the plane.
+            return ClipResult(ClipResult::Type_ClipEmpty);
+        }
     }
-    
 }
 
 template <typename T, typename FP, typename VP>
@@ -90,7 +111,6 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhed
     
     return ClipResult(ClipResult::Type_ClipSuccess);
 }
-
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const Plane<T,3>& plane) const {
