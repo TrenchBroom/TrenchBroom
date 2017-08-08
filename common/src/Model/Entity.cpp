@@ -47,9 +47,23 @@ namespace TrenchBroom {
         }
 
         bool Entity::pointEntity() const {
+            if (!hasChildren())
+                return true;
             if (definition() == NULL)
                 return !hasChildren();
             return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+        }
+        
+        bool Entity::hasBrushEntityDefinition() const {
+            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+        }
+
+        bool Entity::hasPointEntityDefinition() const {
+            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+        }
+        
+        bool Entity::hasPointEntityModel() const {
+            return hasPointEntityDefinition();
         }
         
         Vec3 Entity::origin() const {
@@ -83,7 +97,7 @@ namespace TrenchBroom {
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
-            if (m_definition == NULL || !pointEntity())
+            if (!hasPointEntityModel())
                 return Assets::ModelSpecification();
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
             return pointDefinition->model(m_attributes);
