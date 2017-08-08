@@ -620,7 +620,9 @@ void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback&
     Face* face = removedHalfEdge->face();
     callback.faceWillBeDeleted(face);
 
-    face->removeFromBoundary(firstRemainingHalfEdge, secondRemainingHalfEdge);
+    // Remove in two steps so that the remaining half edges form two loops.
+    face->removeFromBoundary(firstRemainingHalfEdge, firstRemainingHalfEdge);
+    face->removeFromBoundary(secondRemainingHalfEdge, secondRemainingHalfEdge);
     
     m_faces.remove(face);
     delete face;
@@ -960,7 +962,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
-    Plane3 plane;
+    Plane<T,3> plane;
     Vertex* top = new Vertex(position);
     
     HalfEdge* first = nullptr;

@@ -105,6 +105,11 @@ public:
         return intersectWithSphere(position, radius * distanceToCenter);
     }
     
+    const T distanceToPointOnRay(const Vec<T,S>& point) const {
+        const Vec<T,S> originToPoint = point - origin;
+        return originToPoint.dot(direction);
+    }
+    
     struct PointDistance {
         T rayDistance;
         T distance;
@@ -153,6 +158,10 @@ public:
             result.lineDistance = lineDistance;
             return result;
         }
+        
+        bool colinear(const T maxDistance = Math::Constants<T>::almostZero()) const {
+            return parallel && Math::lte(distance, maxDistance);
+        }
     };
 
     const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
@@ -162,10 +171,9 @@ public:
     }
     
     const LineDistance squaredDistanceToSegment(const Vec<T,S>& start, const Vec<T,3>& end) const {
-        Vec<T,S> u, v, w;
-        u = end - start;
-        v = direction;
-        w = start - origin;
+        Vec<T,S> u = end - start;
+        Vec<T,S> v = direction;
+        Vec<T,S> w = start - origin;
         
         const T a = u.dot(u);
         const T b = u.dot(v);
@@ -173,11 +181,15 @@ public:
         const T d = u.dot(w);
         const T e = v.dot(w);
         const T D = a * c - b * b;
+
+        if (Math::zero(D)) {
+            const T f = w.dot(v);
+            const Vec<T,S> z = w - f * v;
+            return LineDistance::Parallel(z.squaredLength());
+        }
+        
         T sN, sD = D;
         T tN, tD = D;
-        
-        if (Math::zero(D))
-            return LineDistance::Parallel(w.squaredLength());
         
         sN = (b * e - c * d);
         tN = (a * e - b * d);
@@ -223,8 +235,11 @@ public:
         T sN, sD = D;
         T tN, tD = D;
         
-        if (Math::zero(D))
-            return LineDistance::Parallel(w.squaredLength());
+        if (Math::zero(D)) {
+            const T f = w.dot(v);
+            const Vec<T,S> z = w - f * v;
+            return LineDistance::Parallel(z.squaredLength());
+        }
         
         sN = (b * e - c * d);
         tN = (a * e - b * d);
@@ -253,12 +268,15 @@ public:
         const T d = direction.dot(w0);
         const T e = lineDir.dot(w0);
         
-        const T f = a * c - b * b;
-        if (Math::zero(f))
-            return LineDistance::Parallel(w0.squaredLength());
+        const T D = a * c - b * b;
+        if (Math::zero(D)) {
+            const T f = w0.dot(lineDir);
+            const Vec<T,S> z = w0 - f * lineDir;
+            return LineDistance::Parallel(z.squaredLength());
+        }
         
-        const T sc = std::max((b * e - c * d) / f, static_cast<T>(0.0));
-        const T tc = (a * e - b * d) / f;
+        const T sc = std::max((b * e - c * d) / D, static_cast<T>(0.0));
+        const T tc = (a * e - b * d) / D;
         
         const Vec<T,S> rp = origin + sc * direction; // point on ray
         const Vec<T,S> lp = lineAnchor + tc * lineDir; // point on line

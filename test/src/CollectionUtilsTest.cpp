@@ -40,6 +40,26 @@ public:
     }
 };
 
+TEST(CollectionUtilsTest, equivalenceClasses) {
+    typedef std::vector<int> In;
+    typedef std::list<int> Cls;
+    typedef std::list<Cls> Out;
+    
+    const auto cmp = [](const int& lhs, const int& rhs) {
+        if (lhs % 2 == 0)
+            return rhs % 2 == 0;
+        return rhs % 2 != 0;
+    };
+    
+    ASSERT_EQ((Out {}), CollectionUtils::equivalenceClasses(In {}, cmp));
+    ASSERT_EQ((Out { Cls {1} }), CollectionUtils::equivalenceClasses(In {1}, cmp));
+    ASSERT_EQ((Out { Cls {0, 2, 4, 6, 8}, Cls {1, 3, 5, 7, 9} }), CollectionUtils::equivalenceClasses(In {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, cmp));
+
+    ASSERT_EQ((Out { Cls {1}, Cls {2}, Cls {3} }), CollectionUtils::equivalenceClasses(In {1, 2, 3}, [](const int& lhs, const int& rhs){ return false; }));
+    
+    ASSERT_EQ((Out { Cls {1, 2, 3} }), CollectionUtils::equivalenceClasses(In {1, 2, 3}, [](const int& lhs, const int& rhs){ return true; }));
+}
+
 TEST(CollectionUtilsTest, vecShiftLeftEmpty) {
     typedef std::vector<size_t> Vec;
     Vec vec;
@@ -633,4 +653,104 @@ TEST(CollectionUtilsTest, mapClearAndDelete) {
     MapUtils::clearAndDelete(testMap);
     ASSERT_TRUE(deleted1);
     ASSERT_TRUE(deleted2);
+}
+
+TEST(CollectionUtilsTest, setSubset) {
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{1}, std::set<int>{1, 2, 3}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{1}, std::set<int>{1}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{}, std::set<int>{1}));
+    ASSERT_TRUE(SetUtils::subset(std::set<int>{}, std::set<int>{}));
+
+    ASSERT_FALSE(SetUtils::subset(std::set<int>{4}, std::set<int>{1, 2, 3}));
+    ASSERT_FALSE(SetUtils::subset(std::set<int>{0, 1}, std::set<int>{1}));
+}
+
+TEST(CollectionUtilsTest, setFindSupersets) {
+    typedef std::set<int> S;
+    typedef std::set<S> SS;
+    
+    ASSERT_EQ(SS{}, SetUtils::findSupersets(SS{}));
+    ASSERT_EQ(SS{S{1}}, SetUtils::findSupersets(SS{S{1}}));
+    ASSERT_EQ((SS{S{1,2}}), SetUtils::findSupersets(SS{S{1},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2}}), SetUtils::findSupersets(SS{S{1},S{2},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2},S{3}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2}}));
+    ASSERT_EQ((SS{S{1,2},S{2,1},S{3}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2},S{2,1}}));
+    ASSERT_EQ((SS{S{1,2},S{3,1}}), SetUtils::findSupersets(SS{S{1},S{2},S{3},S{1,2},S{3,1}}));
+}
+
+TEST(CollectionUtilsTest, setMinus) {
+    ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1, 2, 3}, std::set<int>{2, 3}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::minus(std::set<int>{1}, std::set<int>{}));
+    ASSERT_EQ(std::set<int>{}, SetUtils::minus(std::set<int>{}, std::set<int>{}));
+}
+
+TEST(CollectionUtilsTest, setIntersectionEmpty) {
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{4, 5, 6}));
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{}));
+    ASSERT_TRUE(SetUtils::intersectionEmpty(std::set<int>{}, std::set<int>{}));
+    
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{3, 4, 5}));
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3}, std::set<int>{1, 2, 3, 4}));
+    ASSERT_FALSE(SetUtils::intersectionEmpty(std::set<int>{1, 2, 3, 6}, std::set<int>{4, 5, 6}));
+}
+
+TEST(CollectionUtilsTest, setPowerSet) {
+    typedef std::set<int> IntSet;
+    typedef std::set<IntSet> PSet;
+
+    ASSERT_EQ(PSet{ IntSet{} }, SetUtils::powerSet(IntSet{}));
+    ASSERT_EQ((PSet{
+        IntSet{},
+        IntSet{1}
+    }), SetUtils::powerSet(IntSet{1}));
+    ASSERT_EQ((PSet{
+        IntSet{},
+        IntSet{1},
+        IntSet{2},
+        IntSet{3},
+        IntSet{1,2},
+        IntSet{2,3},
+        IntSet{1,3},
+        IntSet{1,2,3}
+    }), SetUtils::powerSet(IntSet{1,2,3}));
+}
+
+TEST(CollectionUtilsTest, setRetainMaximalElements) {
+    ASSERT_EQ(std::set<int>{}, SetUtils::findMaximalElements(std::set<int>{}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{1}));
+    ASSERT_EQ(std::set<int>{1}, SetUtils::findMaximalElements(std::set<int>{0,1}));
+    ASSERT_EQ(std::set<int>{2}, SetUtils::findMaximalElements(std::set<int>{0,1,2}));
+}
+
+TEST(CollectionUtilsTest, listReplaceEmpty) {
+    std::list<int> list1 {0, 1, 2, 3};
+    std::list<int> list2;
+    
+    auto replacePos = std::begin(list1);
+    ASSERT_EQ(0, *replacePos);
+    
+    // this will be a no-op because list2 is empty
+    
+    const auto it = ListUtils::replace(list1, replacePos, list2);
+    ASSERT_EQ(0, *it);
+    
+    ASSERT_EQ(std::list<int>(), list2);
+    ASSERT_EQ((std::list<int>{0, 1, 2, 3}), list1);
+}
+
+TEST(CollectionUtilsTest, listReplace) {
+    std::list<int> list1 {0, 1, 2, 3};
+    std::list<int> list2 {100, 200};
+    
+    // this will replace the element "2" with {100,200}
+    
+    auto replacePos = std::begin(list1);
+    std::advance(replacePos, 2);
+    ASSERT_EQ(2, *replacePos);
+    
+    const auto it = ListUtils::replace(list1, replacePos, list2);
+    
+    ASSERT_EQ(std::list<int>(), list2);
+    ASSERT_EQ((std::list<int>{0, 1, 100, 200, 3}), list1);
+    ASSERT_EQ(100, *it);
 }
