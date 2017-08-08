@@ -46,6 +46,10 @@ bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, cons
 bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
 bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5);
 
+void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
+void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
+
+
 TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p1( 0.0, 0.0, 8.0);
     const Vec3d p2( 8.0, 0.0, 0.0);
@@ -1923,23 +1927,22 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
 }
 
+TEST(PolyhedronTest, badClip) {
+    const Vec3d::List polyVertices = Vec3d::parseList("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)");
+    
+    Polyhedron3d poly(polyVertices);
+    const Plane3d plane(-19.170582845718307, Vec3d(0.88388309419256438, 0.30618844562885328, -0.35355241699635576));
+    
+    ASSERT_NO_THROW(poly.clip(plane));
+}
+
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
     for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
-        if (polyhedron.vertices().size() == vertices.size()) {
-            size_t count = 0;
-            
-            for (size_t j = 0; j < vertices.size(); ++j) {
-                if (!polyhedron.hasVertex(vertices[j], 0.0))
-                    break;
-                ++count;
-            }
-            
-            if (count == vertices.size()) {
-                result.erase(it);
-                return true;
-            }
+        if (polyhedron.hasVertices(vertices)) {
+            result.erase(it);
+            return true;
         }
     }
     
@@ -1947,83 +1950,31 @@ bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vert
 }
 
 TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
-    const Polyhedron3d minuend(BBox3d(64.0));
-    const Polyhedron3d subtrahend(BBox3d(32.0));
+    const Polyhedron3d minuend(BBox3d(32.0));
+    const Polyhedron3d subtrahend(BBox3d(16.0));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(6u, result.size());
 
-    Vec3d::List frontVertices;
-    frontVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
-    frontVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
-    frontVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
-    frontVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
-    frontVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
-    frontVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
-    frontVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
-    frontVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
+    const Vec3d::List leftVertices = Vec3d::parseList("(-32 -32 -32) (-32 32 -32) (-32 -32 32) (-32 32 32) (-16 -32 -32) (-16 32 -32) (-16 32 32) (-16 -32 32)");
+    const Vec3d::List rightVertices = Vec3d::parseList("(32 -32 32) (32 32 32) (16 -32 -32) (16 -32 32) (16 32 32) (16 32 -32) (32 32 -32) (32 -32 -32)");
 
-    Vec3d::List backVertices;
-    backVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
-    backVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
-    backVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
-    backVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
-    backVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
-    backVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
-    backVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
-    backVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
+    const Vec3d::List frontVertices = Vec3d::parseList("(16 -32 32) (16 -32 -32) (-16 -32 32) (-16 -32 -32) (-16 -16 32) (16 -16 32) (16 -16 -32) (-16 -16 -32)");
+    const Vec3d::List backVertices = Vec3d::parseList("(16 32 -32) (16 32 32) (-16 16 -32) (16 16 -32) (16 16 32) (-16 16 32) (-16 32 32) (-16 32 -32)");
     
-    Vec3d::List leftVertices;
-    leftVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
-    leftVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
-    leftVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
-    leftVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
-    leftVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
-    leftVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
-    leftVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
-    leftVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
+    const Vec3d::List topVertices = Vec3d::parseList("(-16 16 32) (16 16 32) (16 -16 32) (-16 -16 32) (-16 -16 16) (-16 16 16) (16 16 16) (16 -16 16)");
+    const Vec3d::List bottomVertices = Vec3d::parseList("(-16 -16 -32) (16 -16 -32) (-16 16 -32) (16 16 -32) (-16 -16 -16) (16 -16 -16) (16 16 -16) (-16 16 -16)");
     
-    Vec3d::List rightVertices;
-    rightVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
-    rightVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
-    rightVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
-    rightVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
-    rightVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
-    rightVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
-    rightVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
-    rightVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
-
-    Vec3d::List bottomVertices;
-    bottomVertices.push_back(Vec3d(-64.0, -64.0, -64.0));
-    bottomVertices.push_back(Vec3d(-64.0, +64.0, -64.0));
-    bottomVertices.push_back(Vec3d(+64.0, -64.0, -64.0));
-    bottomVertices.push_back(Vec3d(+64.0, +64.0, -64.0));
-    bottomVertices.push_back(Vec3d(-32.0, -32.0, -32.0));
-    bottomVertices.push_back(Vec3d(-32.0, +32.0, -32.0));
-    bottomVertices.push_back(Vec3d(+32.0, -32.0, -32.0));
-    bottomVertices.push_back(Vec3d(+32.0, +32.0, -32.0));
-
-    Vec3d::List topVertices;
-    topVertices.push_back(Vec3d(-64.0, -64.0, +64.0));
-    topVertices.push_back(Vec3d(-64.0, +64.0, +64.0));
-    topVertices.push_back(Vec3d(+64.0, -64.0, +64.0));
-    topVertices.push_back(Vec3d(+64.0, +64.0, +64.0));
-    topVertices.push_back(Vec3d(-32.0, -32.0, +32.0));
-    topVertices.push_back(Vec3d(-32.0, +32.0, +32.0));
-    topVertices.push_back(Vec3d(+32.0, -32.0, +32.0));
-    topVertices.push_back(Vec3d(+32.0, +32.0, +32.0));
-
-    ASSERT_TRUE(findAndRemove(result, frontVertices));
-    ASSERT_TRUE(findAndRemove(result, backVertices));
     ASSERT_TRUE(findAndRemove(result, leftVertices));
     ASSERT_TRUE(findAndRemove(result, rightVertices));
-    ASSERT_TRUE(findAndRemove(result, bottomVertices));
+    ASSERT_TRUE(findAndRemove(result, frontVertices));
+    ASSERT_TRUE(findAndRemove(result, backVertices));
     ASSERT_TRUE(findAndRemove(result, topVertices));
+    ASSERT_TRUE(findAndRemove(result, bottomVertices));
     
     ASSERT_TRUE(result.empty());
 }
 
-TEST(PolyhedronTest, subtractDisjunctCuboidFromCuboid) {
+TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
     const Polyhedron3d minuend(BBox3d(64.0));
     const Polyhedron3d subtrahend(BBox3d(Vec3d(96.0, 96.0, 96.0), Vec3d(128.0, 128.0, 128.0)));
     
@@ -2054,45 +2005,49 @@ TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(4u, result.size());
     
-    Vec3d::List frontVertices;
-    frontVertices.push_back(Vec3d(-32.0, -32.0, -16.0));
-    frontVertices.push_back(Vec3d(+32.0, -32.0, -16.0));
-    frontVertices.push_back(Vec3d(+16.0, -16.0, -16.0));
-    frontVertices.push_back(Vec3d(-16.0, -16.0, -16.0));
-    frontVertices.push_back(Vec3d(-32.0, -32.0, +16.0));
-    frontVertices.push_back(Vec3d(+32.0, -32.0, +16.0));
-    frontVertices.push_back(Vec3d(+16.0, -16.0, +16.0));
-    frontVertices.push_back(Vec3d(-16.0, -16.0, +16.0));
+    const Vec3d::List leftVertices {
+        Vec3d(-16, -32, -16),
+        Vec3d(-16, 32, -16),
+        Vec3d(-16, 32, 16),
+        Vec3d(-16, -32, 16),
+        Vec3d(-32, 32, 16),
+        Vec3d(-32, -32, 16),
+        Vec3d(-32, -32, -16),
+        Vec3d(-32, 32, -16),
+    };
 
-    Vec3d::List backVertices;
-    backVertices.push_back(Vec3d(-32.0, +32.0, -16.0));
-    backVertices.push_back(Vec3d(+32.0, +32.0, -16.0));
-    backVertices.push_back(Vec3d(+16.0, +16.0, -16.0));
-    backVertices.push_back(Vec3d(-16.0, +16.0, -16.0));
-    backVertices.push_back(Vec3d(-32.0, +32.0, +16.0));
-    backVertices.push_back(Vec3d(+32.0, +32.0, +16.0));
-    backVertices.push_back(Vec3d(+16.0, +16.0, +16.0));
-    backVertices.push_back(Vec3d(-16.0, +16.0, +16.0));
-
-    Vec3d::List leftVertices;
-    leftVertices.push_back(Vec3d(-32.0, -32.0, -16.0));
-    leftVertices.push_back(Vec3d(-32.0, +32.0, -16.0));
-    leftVertices.push_back(Vec3d(-16.0, -16.0, -16.0));
-    leftVertices.push_back(Vec3d(-16.0, +16.0, -16.0));
-    leftVertices.push_back(Vec3d(-32.0, -32.0, +16.0));
-    leftVertices.push_back(Vec3d(-32.0, +32.0, +16.0));
-    leftVertices.push_back(Vec3d(-16.0, -16.0, +16.0));
-    leftVertices.push_back(Vec3d(-16.0, +16.0, +16.0));
-
-    Vec3d::List rightVertices;
-    rightVertices.push_back(Vec3d(+32.0, -32.0, -16.0));
-    rightVertices.push_back(Vec3d(+32.0, +32.0, -16.0));
-    rightVertices.push_back(Vec3d(+16.0, -16.0, -16.0));
-    rightVertices.push_back(Vec3d(+16.0, +16.0, -16.0));
-    rightVertices.push_back(Vec3d(+32.0, -32.0, +16.0));
-    rightVertices.push_back(Vec3d(+32.0, +32.0, +16.0));
-    rightVertices.push_back(Vec3d(+16.0, -16.0, +16.0));
-    rightVertices.push_back(Vec3d(+16.0, +16.0, +16.0));
+    const Vec3d::List rightVertices {
+        Vec3d(32, -32, 16),
+        Vec3d(32, 32, 16),
+        Vec3d(32, -32, -16),
+        Vec3d(32, 32, -16),
+        Vec3d(16, -32, -16),
+        Vec3d(16, -32, 16),
+        Vec3d(16, 32, 16),
+        Vec3d(16, 32, -16)
+    };
+    
+    const Vec3d::List frontVertices {
+        Vec3d(-16, -32, -16),
+        Vec3d(-16, -32, 16),
+        Vec3d(16, -16, -16),
+        Vec3d(-16, -16, -16),
+        Vec3d(-16, -16, 16),
+        Vec3d(16, -16, 16),
+        Vec3d(16, -32, 16),
+        Vec3d(16, -32, -16)
+    };
+    
+    const Vec3d::List backVertices {
+        Vec3d(-16, 32, 16),
+        Vec3d(-16, 32, -16),
+        Vec3d(16, 32, 16),
+        Vec3d(16, 32, -16),
+        Vec3d(16, 16, 16),
+        Vec3d(-16, 16, 16),
+        Vec3d(-16, 16, -16),
+        Vec3d(16, 16, -16)
+    };
 
     ASSERT_TRUE(findAndRemove(result, frontVertices));
     ASSERT_TRUE(findAndRemove(result, backVertices));
@@ -2149,58 +2104,32 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
      
      */
     
-    Polyhedron3d minuend;
-    minuend.addPoint(Vec3d(-32.0, -8.0,  0.0));
-    minuend.addPoint(Vec3d(+32.0, -8.0,  0.0));
-    minuend.addPoint(Vec3d(+32.0, -8.0, 32.0));
-    minuend.addPoint(Vec3d(+16.0, -8.0, 48.0));
-    minuend.addPoint(Vec3d(-16.0, -8.0, 48.0));
-    minuend.addPoint(Vec3d(-32.0, -8.0, 32.0));
-    minuend.addPoint(Vec3d(-32.0, +8.0,  0.0));
-    minuend.addPoint(Vec3d(+32.0, +8.0,  0.0));
-    minuend.addPoint(Vec3d(+32.0, +8.0, 32.0));
-    minuend.addPoint(Vec3d(+16.0, +8.0, 48.0));
-    minuend.addPoint(Vec3d(-16.0, +8.0, 48.0));
-    minuend.addPoint(Vec3d(-32.0, +8.0, 32.0));
+    const Polyhedron3d minuend {
+        Vec3d(-32.0, -8.0,  0.0),
+        Vec3d(+32.0, -8.0,  0.0),
+        Vec3d(+32.0, -8.0, 32.0),
+        Vec3d(+16.0, -8.0, 48.0),
+        Vec3d(-16.0, -8.0, 48.0),
+        Vec3d(-32.0, -8.0, 32.0),
+        Vec3d(-32.0, +8.0,  0.0),
+        Vec3d(+32.0, +8.0,  0.0),
+        Vec3d(+32.0, +8.0, 32.0),
+        Vec3d(+16.0, +8.0, 48.0),
+        Vec3d(-16.0, +8.0, 48.0),
+        Vec3d(-32.0, +8.0, 32.0)
+    };
     
-    Polyhedron3d subtrahend(BBox3d(Vec3d(-16.0, -8.0, 0.0), Vec3d(16.0, 8.0, 32.0)));
+    const Polyhedron3d subtrahend(BBox3d(Vec3d(-16.0, -8.0, 0.0), Vec3d(16.0, 8.0, 32.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(3u, result.size());
     
-    Vec3d::List leftVertices;
-    leftVertices.push_back(Vec3d(-32.0, -8.0, 0.0));
-    leftVertices.push_back(Vec3d(-16.0, -8.0, 0.0));
-    leftVertices.push_back(Vec3d(-16.0, -8.0, 32.0));
-    leftVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
-    leftVertices.push_back(Vec3d(-32.0, +8.0, 0.0));
-    leftVertices.push_back(Vec3d(-16.0, +8.0, 0.0));
-    leftVertices.push_back(Vec3d(-16.0, +8.0, 32.0));
-    leftVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
+    const Vec3d::List left  = Vec3d::parseList("(-16 8 -0) (-16 8 48) (-16 -8 48) (-16 -8 -0) (-32 -8 -0) (-32 -8 32) (-32 8 -0) (-32 8 32)");
+    const Vec3d::List right = Vec3d::parseList("(32 -8 32) (32 8 32) (32 8 -0) (32 -8 -0) (16 8 48) (16 8 -0) (16 -8 -0) (16 -8 48)");
+    const Vec3d::List top   = Vec3d::parseList("(16 8 32) (16 -8 32) (-16 -8 32) (-16 8 32) (-16 -8 48) (-16 8 48) (16 8 48) (16 -8 48)");
     
-    Vec3d::List rightVertices;
-    rightVertices.push_back(Vec3d(+32.0, -8.0, 0.0));
-    rightVertices.push_back(Vec3d(+16.0, -8.0, 0.0));
-    rightVertices.push_back(Vec3d(+16.0, -8.0, 32.0));
-    rightVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
-    rightVertices.push_back(Vec3d(+32.0, +8.0, 0.0));
-    rightVertices.push_back(Vec3d(+16.0, +8.0, 0.0));
-    rightVertices.push_back(Vec3d(+16.0, +8.0, 32.0));
-    rightVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
-    
-    Vec3d::List topVertices;
-    topVertices.push_back(Vec3d(+32.0, -8.0, 32.0));
-    topVertices.push_back(Vec3d(-32.0, -8.0, 32.0));
-    topVertices.push_back(Vec3d(+16.0, -8.0, 48.0));
-    topVertices.push_back(Vec3d(-16.0, -8.0, 48.0));
-    topVertices.push_back(Vec3d(+32.0, +8.0, 32.0));
-    topVertices.push_back(Vec3d(-32.0, +8.0, 32.0));
-    topVertices.push_back(Vec3d(+16.0, +8.0, 48.0));
-    topVertices.push_back(Vec3d(-16.0, +8.0, 48.0));
-
-    ASSERT_TRUE(findAndRemove(result, leftVertices));
-    ASSERT_TRUE(findAndRemove(result, rightVertices));
-    ASSERT_TRUE(findAndRemove(result, topVertices));
+    ASSERT_TRUE(findAndRemove(result, left));
+    ASSERT_TRUE(findAndRemove(result, right));
+    ASSERT_TRUE(findAndRemove(result, top));
     
     ASSERT_TRUE(result.empty());
 }
@@ -2216,134 +2145,470 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
      
      */
 
-    Vec3d::List subtrahendVertices;
-    subtrahendVertices.push_back(Vec3d(-32.0,   0.0, +96.0));
-    subtrahendVertices.push_back(Vec3d(  0.0, -32.0, +96.0));
-    subtrahendVertices.push_back(Vec3d(+32.0,   0.0, +96.0));
-    subtrahendVertices.push_back(Vec3d(  0.0, +32.0, +96.0));
-    subtrahendVertices.push_back(Vec3d(-32.0,   0.0, -96.0));
-    subtrahendVertices.push_back(Vec3d(  0.0, -32.0, -96.0));
-    subtrahendVertices.push_back(Vec3d(+32.0,   0.0, -96.0));
-    subtrahendVertices.push_back(Vec3d(  0.0, +32.0, -96.0));
+    const Vec3d::List subtrahendVertices = Vec3d::parseList("(-32.0 0.0 +96.0) (0.0 -32.0 +96.0) (+32.0 0.0 +96.0) (0.0 +32.0 +96.0) (-32.0 0.0 -96.0) (0.0 -32.0 -96.0) (+32.0 0.0 -96.0) (0.0 +32.0 -96.0)");
     
     const Polyhedron3d minuend(BBox3d(64.0));
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(8u, result.size());
 
-    Vec3d::List leftWedge;
-    leftWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
-    leftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
-    leftWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
-    leftWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
-    leftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
-    leftWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
-    
-    Vec3d::List bottomWedge;
-    bottomWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
-    bottomWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
-    bottomWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
-    bottomWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
-    bottomWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
-    bottomWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
-    
-    Vec3d::List rightWedge;
-    rightWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
-    rightWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
-    rightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
-    rightWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
-    rightWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
-    rightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
-    
-    Vec3d::List topWedge;
-    topWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
-    topWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
-    topWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
-    topWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
-    topWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
-    topWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
-
-    Vec3d::List bottomLeftWedge;
-    bottomLeftWedge.push_back(Vec3d(-64.0, -64.0, -64.0));
-    bottomLeftWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
-    bottomLeftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
-    bottomLeftWedge.push_back(Vec3d(-64.0, -64.0, +64.0));
-    bottomLeftWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
-    bottomLeftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
-
-    Vec3d::List bottomRightWedge;
-    bottomRightWedge.push_back(Vec3d(+64.0, -64.0, -64.0));
-    bottomRightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
-    bottomRightWedge.push_back(Vec3d(  0.0, -32.0, -64.0));
-    bottomRightWedge.push_back(Vec3d(+64.0, -64.0, +64.0));
-    bottomRightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
-    bottomRightWedge.push_back(Vec3d(  0.0, -32.0, +64.0));
-    
-    Vec3d::List topRightWedge;
-    topRightWedge.push_back(Vec3d(+64.0, +64.0, -64.0));
-    topRightWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
-    topRightWedge.push_back(Vec3d(+32.0,   0.0, -64.0));
-    topRightWedge.push_back(Vec3d(+64.0, +64.0, +64.0));
-    topRightWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
-    topRightWedge.push_back(Vec3d(+32.0,   0.0, +64.0));
-    
-    Vec3d::List topLeftWedge;
-    topLeftWedge.push_back(Vec3d(-64.0, +64.0, -64.0));
-    topLeftWedge.push_back(Vec3d(-32.0,   0.0, -64.0));
-    topLeftWedge.push_back(Vec3d(  0.0, +32.0, -64.0));
-    topLeftWedge.push_back(Vec3d(-64.0, +64.0, +64.0));
-    topLeftWedge.push_back(Vec3d(-32.0,   0.0, +64.0));
-    topLeftWedge.push_back(Vec3d(  0.0, +32.0, +64.0));
-    
-    ASSERT_TRUE(findAndRemove(result, bottomLeftWedge));
-    ASSERT_TRUE(findAndRemove(result, bottomRightWedge));
-    ASSERT_TRUE(findAndRemove(result, topRightWedge));
-    ASSERT_TRUE(findAndRemove(result, topLeftWedge));
-    ASSERT_TRUE(findAndRemove(result, leftWedge));
-    ASSERT_TRUE(findAndRemove(result, bottomWedge));
-    ASSERT_TRUE(findAndRemove(result, rightWedge));
-    ASSERT_TRUE(findAndRemove(result, topWedge));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)")));
+    ASSERT_TRUE(findAndRemove(result, Vec3d::parseList("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)")));
     
     ASSERT_TRUE(result.empty());
 }
 
-TEST(PolyhedronTest, mergeRemainingFragments) {
-    Vec3d::List minuendVertices;
-    minuendVertices.push_back(Vec3d(32, -64, 16));
-    minuendVertices.push_back(Vec3d(64, -32, 16));
-    minuendVertices.push_back(Vec3d(64, 32, 16));
-    minuendVertices.push_back(Vec3d(32, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, 64, 16));
-    minuendVertices.push_back(Vec3d(-64, -64, 16));
-    minuendVertices.push_back(Vec3d(64, 32, -16));
-    minuendVertices.push_back(Vec3d(64, -32, -16));
-    minuendVertices.push_back(Vec3d(32, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, -64, -16));
-    minuendVertices.push_back(Vec3d(-64, 64, -16));
-    minuendVertices.push_back(Vec3d(32, 64, -16));
+TEST(PolyhedronTest, subtractFailWithMissingFragments) {
+    const Vec3d::List minuendVertices {
+        Vec3d(-1056, 864, -192),
+        Vec3d(-1024, 896, -192),
+        Vec3d(-1024, 1073, -192),
+        Vec3d(-1056, 1080, -192),
+        Vec3d(-1024, 1073, -416),
+        Vec3d(-1024, 896, -416),
+        Vec3d(-1056, 864, -416),
+        Vec3d(-1056, 1080, -416)
+    };
     
-    Vec3d::List subtrahendVertices;
-    subtrahendVertices.push_back(Vec3d(16, -32, 32));
-    subtrahendVertices.push_back(Vec3d(32, -0, 32));
-    subtrahendVertices.push_back(Vec3d(16, 32, 32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, 32));
-    subtrahendVertices.push_back(Vec3d(-64, -48, -32));
-    subtrahendVertices.push_back(Vec3d(-64, 48, -32));
-    subtrahendVertices.push_back(Vec3d(-16, 48, -32));
-    subtrahendVertices.push_back(Vec3d(16, 32, -32));
-    subtrahendVertices.push_back(Vec3d(32, -0, -32));
-    subtrahendVertices.push_back(Vec3d(16, -32, -32));
-    subtrahendVertices.push_back(Vec3d(-16, -48, -32));
-
+    const Vec3d::List subtrahendVertices {
+        Vec3d(-1088, 960, -288),
+        Vec3d(-1008, 960, -288),
+        Vec3d(-1008, 1024, -288),
+        Vec3d(-1088, 1024, -288),
+        Vec3d(-1008, 1024, -400),
+        Vec3d(-1008, 960, -400),
+        Vec3d(-1088, 960, -400),
+        Vec3d(-1088, 1024, -400)
+    };
+    
     const Polyhedron3d minuend(minuendVertices);
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_EQ(7u, result.size());
+    ASSERT_EQ(4u, result.size());
+}
+
+TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
+    // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296342133
+    // merge creates overlapping fragments
+    
+    const Vec3d::List minuendVertices = Vec3d::parseList("(-32 -32 32) (32 -32 32) (32 32 32) (-32 32 32) (32 32 -32) (32 -32 -32) (-32 -32 -32) (-32 32 -32)");
+    const Vec3d::List subtrahendVertices = Vec3d::parseList("(-0 -16 -32) (-0 16 -32) (32 16 -32) (16 16 -0)");
+    
+    
+    const Polyhedron3d minuend(minuendVertices);
+    const Polyhedron3d subtrahend(subtrahendVertices);
+    
+    Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
+    ASSERT_EQ(3u, result.size());
+}
+
+TEST(PolyhedronTest, intersection_empty_polyhedron) {
+    const Polyhedron3d empty;
+    const Polyhedron3d point      { Vec3d(1.0, 0.0, 0.0) };
+    const Polyhedron3d edge       { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0) };
+    const Polyhedron3d polygon    { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) };
+    const Polyhedron3d polyhedron { Vec3d(1.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) };
+    
+    assertNotIntersects(empty, empty);
+    assertNotIntersects(empty, point);
+    assertNotIntersects(empty, edge);
+    assertNotIntersects(empty, polygon);
+    assertNotIntersects(empty, polyhedron);
+}
+
+TEST(PolyhedronTest, intersection_point_point) {
+    const Polyhedron3d point { Vec3d(0.0, 0.0, 0.0) };
+    
+    assertIntersects(point, point);
+    assertNotIntersects(point, Polyhedron3d { Vec3d(0.0, 0.0, 1.0) });
+}
+
+TEST(PolyhedronTest, intersection_point_edge) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0) } ); // point / edge originating at point
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0) } ); // point / edge containing point
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 1.0), Vec3d(1.0, 0.0, 1.0) } ); // point / unrelated edge
+}
+
+TEST(PolyhedronTest, intersection_point_polygon) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle with point as vertex
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle with point on edge
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0) } ); // point / triangle containing point
+    
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 1.0), Vec3d(1.0, -1.0, 1.0), Vec3d(0.0, 1.0, 1.0) } ); // point / triangle above point
+}
+
+TEST(PolyhedronTest, intersection_point_polyhedron) {
+    const Vec3d pointPos(0.0, 0.0, 0.0);
+    const Polyhedron3d point { pointPos };
+    
+    assertIntersects(point, Polyhedron3d { pointPos, Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point as vertex
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on edge
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on face
+    assertIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, -1.0, -1.0), Vec3d(0.0, 1.0, -1.0), Vec3d(0.0, 0.0, 1.0) } ); // point / tetrahedron with point on face
+    
+    assertNotIntersects(point, Polyhedron3d { Vec3d(-1.0, -1.0, 1.0), Vec3d(1.0, -1.0, 1.0), Vec3d(0.0, 1.0, 1.0), Vec3d(0.0, 0.0, 2.0) } ); // point / tetrahedron above point
+}
+
+TEST(PolyhedronTest, intersection_edge_edge) {
+    const Vec3d point1(-1.0, 0.0, 0.0);
+    const Vec3d point2(+1.0, 0.0, 0.0);
+    const Polyhedron3d edge { point1, point2 };
+    
+    assertIntersects(edge, edge);
+    assertIntersects(edge, Polyhedron3d { point1, Vec3d(0.0, 0.0, 1.0) } );
+    assertIntersects(edge, Polyhedron3d { point2, Vec3d(0.0, 0.0, 1.0) } );
+    assertIntersects(edge, Polyhedron3d { Vec3d(0.0, -1.0, 0.0), Vec3d(0.0, 1.0, 0.0) } );
+    assertIntersects(edge, Polyhedron3d { Vec3d( 0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0) } );
+    assertIntersects(edge, Polyhedron3d { Vec3d(-2.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0) } );
+    
+    assertNotIntersects(edge, Polyhedron3d { point1 + Vec3d::PosZ, point2 + Vec3d::PosZ } );
+}
+
+TEST(PolyhedronTest, intersection_edge_polygon_same_plane) {
+    const Vec3d point1(-1.0, 0.0, 0.0);
+    const Vec3d point2(+1.0, 0.0, 0.0);
+    const Polyhedron3d edge { point1, point2 };
+    
+    assertIntersects(edge, Polyhedron3d { Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 0.0, 0.0) } ); // one shared point
+    assertIntersects(edge, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(0.0, -1.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(0.0, +1.0, 0.0) } ); // two shared points
+    assertIntersects(edge, Polyhedron3d { Vec3d(-1.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, 1.0, 0.0), Vec3d(-1.0, 1.0, 0.0) } ); // shared edge
+    assertIntersects(edge, Polyhedron3d { Vec3d(0.0, 1.0, 0.0), Vec3d(0.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 1.0, 0.0) } ); // polygon contains one point
+    assertIntersects(edge, Polyhedron3d { Vec3d(-2.0, 1.0, 0.0), Vec3d(-2.0, -1.0, 0.0), Vec3d(2.0, -1.0, 0.0), Vec3d(2.0, 1.0, 0.0) } );// polygon contains both points
+    assertIntersects(edge, Polyhedron3d { Vec3d(-0.5, 1.0, 0.0), Vec3d(-0.5, -1.0, 0.0), Vec3d(0.5, -1.0, 0.0), Vec3d(0.5, 1.0, 0.0) } ); // edge intersects polygon completely
+    
+    assertNotIntersects(edge, Polyhedron3d { Vec3d(+2.0, 1.0, 0.0), Vec3d(+2.0, -1.0, 0.0), Vec3d(+3.0, -1.0, 0.0), Vec3d(+3.0, 1.0, 0.0) } ); // no intersection
+}
+
+
+TEST(PolyhedronTest, intersection_edge_polygon_different_plane) {
+    const Vec3d point1(0.0, 0.0, 1.0);
+    const Vec3d point2(0.0, 0.0, -1.0);
+    const Polyhedron3d edge { point1, point2 };
+
+    assertIntersects(Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(0.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // one shared point
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 0.0, 0.0), Vec3d(1.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // polygon edge contains edge origin
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 1.0, 0.0), Vec3d(1.0, 1.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // polygon contains edge origin
+    
+    assertIntersects(Polyhedron3d { Vec3d(0.0, 0.0, -1.0), Vec3d(0.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon vertex
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 0.0, -1.0), Vec3d(1.0, 0.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon edge
+    
+    assertIntersects(Polyhedron3d { Vec3d(1.0, 1.0, -1.0), Vec3d(1.0, 1.0, +1.0) },
+                     Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } ); // edge intersects polygon center
+
+    assertNotIntersects(Polyhedron3d { Vec3d(3.0, 1.0, -1.0), Vec3d(3.0, 1.0, +1.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+    
+    assertNotIntersects(Polyhedron3d { Vec3d(1.0, 1.0, 1.0), Vec3d(1.0, 1.0, 2.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+    
+    assertNotIntersects(Polyhedron3d { Vec3d(0.0, 0.0, 1.0), Vec3d(1.0, 1.0, 1.0) },
+                        Polyhedron3d { Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 0.0, 0.0), Vec3d(2.0, 2.0, 0.0), Vec3d(0.0, 2.0, 0.0) } );
+}
+
+TEST(PolyhedronTest, intersection_edge_polyhedron) {
+    const Polyhedron3d tetrahedron {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d( 0.0, +1.0, 0.0),
+        Vec3d( 0.0,  0.0, 1.0)
+    };
+    
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  1.0), Vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // one shared point
+    assertIntersects(Polyhedron3d { Vec3d( 0.0, -1.0,  0.0), Vec3d( 0.0, -2.0,  0.0) }, tetrahedron); // edge point on polyhedron edge
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.0), Vec3d( 0.0,  0.0, -1.0) }, tetrahedron); // edge point on polyhedron face
+    assertIntersects(Polyhedron3d { Vec3d(-1.0, -1.0,  0.0), Vec3d(+1.0, -1.0,  0.0) }, tetrahedron); // shared edge
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.5), Vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // polyhedron contains one edge point
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0,  0.2), Vec3d( 0.0,  0.0,  0.7) }, tetrahedron); // polyhedron contains both edge points
+    assertIntersects(Polyhedron3d { Vec3d( 0.0,  0.0, -1.0), Vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // edge penetrates polyhedron
+
+    assertNotIntersects(Polyhedron3d { Vec3d( -2.0,  -2.0, -1.0), Vec3d( 2.0,  2.0,  -1.0) }, tetrahedron); // no intersection
+}
+
+TEST(PolyhedronTest, intersection_polygon_polygon_same_plane) {
+    const Polyhedron3d square {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, +1.0, 0.0),
+        Vec3d(-1.0, +1.0, 0.0)
+    };
+    
+    // shared vertex:
+    assertIntersects(Polyhedron3d { Vec3d(+1, +1, 0), Vec3d(+2, +1, 0), Vec3d(+1, +2, 0) }, square);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d { Vec3d(-1, +1, 0), Vec3d(+1, +1, 0), Vec3d( 0, +2, 0) }, square);
+
+    // edge contains other edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2, -1, 0),
+        Vec3d(+2, -1, 0),
+        Vec3d(+2, +1, 0),
+        Vec3d(-2, +1, 0),
+    }, square);
+    
+    // one contains vertex of another
+    assertIntersects(Polyhedron3d { Vec3d( 0,  0, 0), Vec3d(+2,  0, 0), Vec3d(+2, +2, 0), Vec3d(0, +2, 0) }, square);
+
+    // one contains another entirely
+    assertIntersects(Polyhedron3d { Vec3d(-2, -2, 0), Vec3d(+2, -2, 0), Vec3d(+2, +2, 0), Vec3d(-2, +2, 0) }, square);
+
+    // one penetrates the other
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2, -0.5, 0),
+        Vec3d(+2, -0.5, 0),
+        Vec3d(+2, +0.5, 0),
+        Vec3d(-2, +0.5, 0)
+    }, square);
+    
+    // no intersection
+    assertNotIntersects(Polyhedron3d {
+        Vec3d(+2, +2, 0),
+        Vec3d(+3, +2, 0),
+        Vec3d(+3, +3, 0),
+        Vec3d(+3, +3, 0)
+    }, square);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polygon_different_plane) {
+    const Polyhedron3d square {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, +1.0, 0.0),
+        Vec3d(-1.0, +1.0, 0.0)
+    };
+    
+    // shared vertex
+    assertIntersects(Polyhedron3d {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(-2.0, -1.0, 0.0),
+        Vec3d(-2.0, -1.0, 1.0)
+    }, square);
+    
+    // vertex on edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, -1.0, 0.0),
+        Vec3d(0.0, -2.0, 0.0),
+        Vec3d(0.0, -1.0, 1.0),
+        Vec3d(0.0, -2.0, 1.0),
+    }, square);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 0.0),
+        Vec3d(+1.0, -1.0, 1.0),
+        Vec3d(-1.0, -1.0, 1.0)
+    }, square);
+    
+    // edges intersect
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, -1.0, -1.0),
+        Vec3d(0.0, -1.0, +1.0),
+        Vec3d(0.0, -2.0, +1.0),
+        Vec3d(0.0, -2.0, -1.0)
+    }, square);
+    
+    // partial penetration (one edge penetrates each)
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, 0.0, -1.0),
+        Vec3d(0.0, 0.0, +1.0),
+        Vec3d(2.0, 0.0, +1.0),
+        Vec3d(2.0, 0.0, -1.0)
+    }, square);
+    
+    // full penetration (two edges penetrate)
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, 0.0, -2.0),
+        Vec3d(-2.0, 0.0, +2.0),
+        Vec3d(+2.0, 0.0, -2.0),
+        Vec3d(+2.0, 0.0, +2.0)
+    }, square);
+    
+    // no intersection
+    assertNotIntersects(Polyhedron3d {
+        Vec3d(-1.0, 0.0, 5.0),
+        Vec3d(+1.0, 0.0, 5.0),
+        Vec3d(-1.0, 0.0, 6.0),
+        Vec3d(+1.0, 0.0, 6.0)
+    }, square);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polyhedron_same_plane_as_face) {
+    const Polyhedron3d cube {
+        Vec3d(-1.0, -1.0, -1.0),
+        Vec3d(-1.0, -1.0, +1.0),
+        Vec3d(-1.0, +1.0, -1.0),
+        Vec3d(-1.0, +1.0, +1.0),
+        Vec3d(+1.0, -1.0, -1.0),
+        Vec3d(+1.0, -1.0, +1.0),
+        Vec3d(+1.0, +1.0, -1.0),
+        Vec3d(+1.0, +1.0, +1.0),
+    };
+    
+    
+    // polygon is on the same plane as top face
+    
+    // shared vertex
+    assertIntersects(Polyhedron3d {
+        Vec3d(+1.0, +1.0, +1.0),
+        Vec3d(+2.0, +1.0, +1.0),
+        Vec3d(+2.0, +2.0, +1.0),
+    }, cube);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(+1.0, +1.0, +1.0),
+        Vec3d(-1.0, +1.0, +1.0),
+        Vec3d(+1.0, +2.0, +1.0)
+    }, cube);
+
+    // edge contains other edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, +1.0, +1.0),
+        Vec3d(+0.5, +1.0, +1.0),
+        Vec3d(+0.5, +2.0, +1.0)
+    }, cube);
+
+    // one contains vertex of another
+    assertIntersects(Polyhedron3d {
+        Vec3d(+0.0, +0.0, +1.0),
+        Vec3d(+2.0, +0.0, +1.0),
+        Vec3d(+2.0, +2.0, +1.0),
+        Vec3d(+0.0, +2.0, +1.0),
+    }, cube);
+
+    // one contains another entirely
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, -0.5, +1.0),
+        Vec3d(-0.5, +0.5, +1.0),
+        Vec3d(+0.5, +0.5, +1.0),
+        Vec3d(+0.5, -0.5, +1.0),
+    }, cube);
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.5, -2.5, +1.0),
+        Vec3d(-2.5, +2.5, +1.0),
+        Vec3d(+2.5, +2.5, +1.0),
+        Vec3d(+2.5, -2.5, +1.0),
+    }, cube);
+    
+    // one penetrates the other
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, -0.5, +1.0),
+        Vec3d(+2.0, -0.5, +1.0),
+        Vec3d(-2.0, +0.5, +1.0),
+        Vec3d(+2.0, +0.5, +1.0),
+    }, cube);
+    
+    // no intersection
+    assertNotIntersects(Polyhedron3d {
+        Vec3d(+2.0, +2.0, +1.0),
+        Vec3d(+3.0, +2.0, +1.0),
+        Vec3d(+3.0, +3.0, +1.0),
+        Vec3d(+2.0, +3.0, +1.0),
+    }, cube);
+}
+
+TEST(PolyhedronTest, intersection_polygon_polyhedron_any_orientation) {
+    const Polyhedron3d cube {
+        Vec3d(-1.0, -1.0, -1.0),
+        Vec3d(-1.0, -1.0, +1.0),
+        Vec3d(-1.0, +1.0, -1.0),
+        Vec3d(-1.0, +1.0, +1.0),
+        Vec3d(+1.0, -1.0, -1.0),
+        Vec3d(+1.0, -1.0, +1.0),
+        Vec3d(+1.0, +1.0, -1.0),
+        Vec3d(+1.0, +1.0, +1.0),
+    };
+    
+    // shared vertex
+    assertIntersects(Polyhedron3d {
+        Vec3d(+1.0, +1.0, +1.0),
+        Vec3d(+2.0, +1.0, +2.0),
+        Vec3d(+2.0, +2.0, +2.0)
+    }, cube);
+    
+    // polygon vertex on polyhedron edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(+0.0, +1.0, +1.0),
+        Vec3d(+2.0, +1.0, +2.0),
+        Vec3d(+2.0, +2.0, +2.0)
+    }, cube);
+
+    // polyhedron vertex on polygon edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, 2.0, 1.0),
+        Vec3d(2.0, 0.0, 1.0),
+        Vec3d(0.0, 0.0, 2.0)
+    }, cube);
+    
+    // shared edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-1.0, 1.0, 1.0),
+        Vec3d(+1.0, 1.0, 1.0),
+        Vec3d( 0.0, 2.0, 2.0)
+    }, cube);
+
+    
+    // polygon edge inside polyhedron edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, 1.0, 1.0),
+        Vec3d(+0.5, 1.0, 1.0),
+        Vec3d( 0.0, 2.0, 2.0),
+    }, cube);
+
+    
+    // polyhedorn edge inside polygon edge
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, 1.0, 1.0),
+        Vec3d(+2.0, 1.0, 1.0),
+        Vec3d( 0.0, 2.0, 2.0)
+    }, cube);
+    
+    // edges intersect
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0, -2.0, 0.0),
+        Vec3d(0.0,  0.0, 2.0),
+        Vec3d(0.0, -2.0, 2.0)
+    }, cube);
+    
+    // penetration (two polygon edges intersect)
+    assertIntersects(Polyhedron3d {
+        Vec3d(0.0,  0.0, 0.0),
+        Vec3d(0.0, -3.0, 0.0),
+        Vec3d(3.0,  0.0, 2.0),
+    }, cube);
+    
+    // polyhedron contains polygon
+    assertIntersects(Polyhedron3d {
+        Vec3d(-0.5, 0.0, 0.0),
+        Vec3d( 0.0, 0.5, 0.0),
+        Vec3d( 0.0, 0.0, 0.5)
+    }, cube);
+    
+    // polygon slices polyhedron (surrounds it)
+    assertIntersects(Polyhedron3d {
+        Vec3d(-2.0, -2.0, 0.0),
+        Vec3d(-2.0, +2.0, 0.0),
+        Vec3d(+2.0, -2.0, 0.0),
+        Vec3d(+2.0, +2.0, 0.0),
+    }, cube);
 }
 
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
@@ -2401,4 +2666,15 @@ bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const
     points.push_back(p4);
     points.push_back(p5);
     return p.hasFace(points);
+}
+
+
+void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_TRUE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+}
+
+void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
+    ASSERT_FALSE(lhs.intersects(rhs));
+    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
 }
