@@ -44,6 +44,9 @@ namespace TrenchBroom {
             
             bool brushEntity() const;
             bool pointEntity() const;
+            bool hasBrushEntityDefinition() const;
+            bool hasPointEntityDefinition() const;
+            bool hasPointEntityModel() const;
 
             Vec3 origin() const;
             Mat4x4 rotation() const;
