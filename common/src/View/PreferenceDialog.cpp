@@ -145,10 +145,11 @@ namespace TrenchBroom {
             const wxBitmap keyboardImage = IO::loadImageResource("KeyboardPreferences.png");
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PrefPane_View, "View", generalImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", mouseImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage, wxNullBitmap);
+            m_toolBar->SetToolBitmapSize(wxSize(32, 32));
+            m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage);
+            m_toolBar->AddCheckTool(PrefPane_View, "View", generalImage);
+            m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", mouseImage);
+            m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage);
             m_toolBar->Realize();
             
             m_book = new wxSimplebook(this);
