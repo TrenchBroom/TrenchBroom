@@ -249,16 +249,15 @@ namespace TrenchBroom {
         }
 
         Vec2f FlyModeHelper::lookSpeed() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Vec2f speed(prefs.get(Preferences::CameraFlySpeed), prefs.get(Preferences::CameraFlySpeed));
+            Vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
             speed /= -50.0f;
-            if (prefs.get(Preferences::CameraFlyInvertV))
+            if (pref(Preferences::CameraFlyInvertV))
                 speed[1] *= -1.0f;
             return speed;
         }
 
         float FlyModeHelper::moveSpeed() const {
-            return 256.0f / 1000.0f;
+            return pref(Preferences::CameraFlyMoveSpeed);
         }
     }
 }
