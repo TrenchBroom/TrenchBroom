@@ -46,13 +46,14 @@ namespace TrenchBroom {
             wxCheckBox* m_enableAltMoveCheckBox;
             wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
-            wxSlider* m_flySpeedSlider;
+            wxSlider* m_flyLookSpeedSlider;
             wxCheckBox* m_invertFlyVAxisCheckBox;
             
             KeyboardShortcutEditor* m_forwardKeyEditor;
             KeyboardShortcutEditor* m_backwardKeyEditor;
             KeyboardShortcutEditor* m_leftKeyEditor;
             KeyboardShortcutEditor* m_rightKeyEditor;
+            wxSlider* m_flyMoveSpeedSlider;
         public:
             MousePreferencePane(wxWindow* parent);
 
@@ -71,13 +72,15 @@ namespace TrenchBroom {
             void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
             void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
 
-            void OnFlySpeedChanged(wxScrollEvent& event);
+            void OnFlyLookSpeedChanged(wxScrollEvent& event);
             void OnInvertFlyVAxisChanged(wxCommandEvent& event);
             
             void OnForwardKeyChanged(KeyboardShortcutEvent& event);
             void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
             void OnLeftKeyChanged(KeyboardShortcutEvent& event);
             void OnRightKeyChanged(KeyboardShortcutEvent& event);
+
+            void OnFlyMoveSpeedChanged(wxScrollEvent& event);
         private:
             void createGui();
             wxWindow* createCameraPreferences();
