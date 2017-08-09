@@ -952,10 +952,12 @@ namespace TrenchBroom {
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::MapViewPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
             
-            if (!isEntity(newBrushParent)) {
-                menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
-            } else {
-                menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
+            if (document->selectedNodes().hasOnlyBrushes()) {
+                if (!isEntity(newBrushParent)) {
+                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
+                } else {
+                    menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToEntity, "Move Brushes to Entity " + newBrushParent->name());
+                }
             }
             
             menu.UpdateUI(this);
