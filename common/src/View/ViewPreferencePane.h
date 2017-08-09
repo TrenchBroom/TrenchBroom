@@ -35,9 +35,11 @@ namespace TrenchBroom {
             wxChoice* m_layoutChoice;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
-            wxColourPickerCtrl* m_backgroundColorPicker;
             wxCheckBox* m_showAxes;
             wxChoice* m_textureModeChoice;
+            wxColourPickerCtrl* m_backgroundColorPicker;
+            wxColourPickerCtrl* m_gridColorPicker;
+            wxColourPickerCtrl* m_edgeColorPicker;
             wxChoice* m_textureBrowserIconSizeChoice;
         public:
             ViewPreferencePane(wxWindow* parent);
@@ -45,9 +47,11 @@ namespace TrenchBroom {
             void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
-            void OnBackgroundColorChanged(wxColourPickerEvent& event);
             void OnShowAxesChanged(wxCommandEvent& event);
             void OnTextureModeChanged(wxCommandEvent& event);
+            void OnBackgroundColorChanged(wxColourPickerEvent& event);
+            void OnGridColorChanged(wxColourPickerEvent& event);
+            void OnEdgeColorChanged(wxColourPickerEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
         private:
             void createGui();

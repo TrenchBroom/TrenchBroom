@@ -55,7 +55,7 @@ namespace TrenchBroom {
         static const TextureMode TextureModes[] = {
             TextureMode(GL_NEAREST,                 GL_NEAREST, "Nearest"),
             TextureMode(GL_NEAREST_MIPMAP_NEAREST,  GL_NEAREST, "Nearest (mipmapped)"),
-            TextureMode(GL_NEAREST_MIPMAP_LINEAR,   GL_NEAREST, "Nearest (mipmaps, interpolated)"),
+            TextureMode(GL_NEAREST_MIPMAP_LINEAR,   GL_NEAREST, "Nearest (mipmapped, interpolated)"),
             TextureMode(GL_LINEAR,                  GL_LINEAR,  "Linear"),
             TextureMode(GL_LINEAR_MIPMAP_NEAREST,   GL_LINEAR,  "Linear (mipmapped)"),
             TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
@@ -100,15 +100,6 @@ namespace TrenchBroom {
             prefs.set(Preferences::GridAlpha, floatValue);
         }
 
-        void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const Color value(fromWxColor(event.GetColour()), 1.0f);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::BackgroundColor, value);
-        }
-
         void ViewPreferencePane::OnShowAxesChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -132,6 +123,33 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::TextureMinFilter, minFilter);
             prefs.set(Preferences::TextureMagFilter, magFilter);
+        }
+
+        void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            const Color value(fromWxColor(event.GetColour()), 1.0f);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BackgroundColor, value);
+        }
+        
+        void ViewPreferencePane::OnGridColorChanged(wxColourPickerEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            const Color value(fromWxColor(event.GetColour()), 1.0f);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::GridColor2D, value);
+        }
+        
+        void ViewPreferencePane::OnEdgeColorChanged(wxColourPickerEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            const Color value(fromWxColor(event.GetColour()), 1.0f);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::EdgeColor, value);
         }
 
         void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
@@ -197,9 +215,6 @@ namespace TrenchBroom {
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* backgroundColorLabel = new wxStaticText(viewBox, wxID_ANY, "Background Color");
-            m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
-            
             wxStaticText* axesLabel = new wxStaticText(viewBox, wxID_ANY, "Coordinate System");
             m_showAxes = new wxCheckBox(viewBox, wxID_ANY, "Show Axes");
             
@@ -209,6 +224,22 @@ namespace TrenchBroom {
             wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
+            
+            
+            wxStaticText* colorPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Colors");
+            colorPrefsHeader->SetFont(colorPrefsHeader->GetFont().Bold());
+
+            wxStaticText* backgroundColorLabel = new wxStaticText(viewBox, wxID_ANY, "Background");
+            m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
+            
+            wxStaticText* gridColorLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
+            m_gridColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
+
+            wxStaticText* edgeColorLabel = new wxStaticText(viewBox, wxID_ANY, "Edges");
+            m_edgeColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
+
+            
+            
             wxStaticText* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
             textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
 
@@ -224,7 +255,7 @@ namespace TrenchBroom {
             const int LabelFlags        = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
             const int SliderFlags       = wxEXPAND | wxRIGHT;
             const int ChoiceFlags       = wxRIGHT;
-            const int CheckBoxFlags     = wxLeft;
+            const int CheckBoxFlags     = wxLEFT;
             const int ColorPickerFlags  = wxRIGHT;
             const int LineFlags         = wxEXPAND | wxTOP;
             
@@ -250,17 +281,35 @@ namespace TrenchBroom {
             sizer->Add(m_showAxes,                          wxGBPosition( r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
             ++r;
             
+            sizer->Add(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            ++r;
+            
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
+            ++r;
+
+
+            
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            sizer->Add(colorPrefsHeader,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
             sizer->Add(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
             
-            sizer->Add(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->Add(gridColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_gridColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
-
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
+            
+            sizer->Add(edgeColorLabel,                      wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_edgeColorPicker,                   wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
             ++r;
+            
 
+            
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
@@ -285,9 +334,12 @@ namespace TrenchBroom {
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
             bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
             
-            m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
             m_showAxes->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnShowAxesChanged, this);
             
+            m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
+            m_gridColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnGridColorChanged, this);
+            m_edgeColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnEdgeColorChanged, this);
+
             m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
         }
@@ -300,10 +352,12 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.resetToDefault(Preferences::Brightness);
             prefs.resetToDefault(Preferences::GridAlpha);
-            prefs.resetToDefault(Preferences::BackgroundColor);
             prefs.resetToDefault(Preferences::ShowAxes);
             prefs.resetToDefault(Preferences::TextureMinFilter);
             prefs.resetToDefault(Preferences::TextureMagFilter);
+            prefs.resetToDefault(Preferences::BackgroundColor);
+            prefs.resetToDefault(Preferences::GridColor2D);
+            prefs.resetToDefault(Preferences::EdgeColor);
             prefs.resetToDefault(Preferences::TextureBrowserIconSize);
         }
 
@@ -313,12 +367,15 @@ namespace TrenchBroom {
             m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             
-            m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
-            m_showAxes->SetValue(pref(Preferences::ShowAxes));
-            
             const size_t textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             assert(textureModeIndex < NumTextureModes);
             m_textureModeChoice->SetSelection(static_cast<int>(textureModeIndex));
+            
+            m_showAxes->SetValue(pref(Preferences::ShowAxes));
+
+            m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
+            m_gridColorPicker->SetColour(toWxColor(pref(Preferences::GridColor2D)));
+            m_edgeColorPicker->SetColour(toWxColor(pref(Preferences::EdgeColor)));
             
             const float textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f)
