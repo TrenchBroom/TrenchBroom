@@ -1814,12 +1814,10 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 # References and Links {#references_and_links}
 
-- [TrenchBroom website] - TrenchBroom's website
 - [TrenchBroom on github] - TrenchBroom's github page
 - [func_msgboard] - Quake Mapping Forum
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
-[TrenchBroom website]: http://kristianduske.com/trenchbroom/
 [TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
 [TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
 [func_msgboard]: http://celephais.net/board/

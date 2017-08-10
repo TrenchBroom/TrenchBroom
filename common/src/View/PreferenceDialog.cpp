@@ -140,14 +140,14 @@ namespace TrenchBroom {
             setWindowIcon(this);
 
             const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
-            const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
+            const wxBitmap viewImage = IO::loadImageResource("ViewPreferences.png");
             const wxBitmap mouseImage = IO::loadImageResource("MousePreferences.png");
             const wxBitmap keyboardImage = IO::loadImageResource("KeyboardPreferences.png");
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
             m_toolBar->SetToolBitmapSize(wxSize(32, 32));
             m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage);
-            m_toolBar->AddCheckTool(PrefPane_View, "View", generalImage);
+            m_toolBar->AddCheckTool(PrefPane_View, "View", viewImage);
             m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", mouseImage);
             m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage);
             m_toolBar->Realize();

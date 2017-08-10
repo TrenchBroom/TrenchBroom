@@ -75,7 +75,7 @@ namespace TrenchBroom {
             
             wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
             creditsText->SetLabelMarkup("<b>Developed by Kristian Duske</b>\n"
-                                 "kristianduske.com/trenchbroom\n\n"
+                                 "github.com/kduske/TrenchBroom\n\n"
                                  "<b>Contributors</b>\n"
                                  "Corey Jones (Documentation)\n"
                                  "Eric Wasylishen (Code, bug fixes)\n"
