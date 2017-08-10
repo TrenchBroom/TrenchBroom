@@ -1502,7 +1502,7 @@ namespace TrenchBroom {
             
             for (const String& modName : modNames)
                 additionalSearchPaths.push_back(IO::Path(modName));
-            m_game->setAdditionalSearchPaths(additionalSearchPaths);
+            m_game->setAdditionalSearchPaths(additionalSearchPaths, this);
         }
         
         StringList MapDocument::mods() const {
@@ -1602,7 +1602,7 @@ namespace TrenchBroom {
             if (isGamePathPreference(path)) {
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
-                m_game->setGamePath(newGamePath);
+                m_game->setGamePath(newGamePath, this);
                 
                 clearEntityModels();
                 

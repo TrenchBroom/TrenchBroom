@@ -42,15 +42,15 @@ namespace TrenchBroom {
             
             IO::FileSystemHierarchy m_gameFS;
         public:
-            GameImpl(GameConfig& config, const IO::Path& gamePath);
+            GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger);
         private:
-            void initializeFileSystem();
+            void initializeFileSystem(Logger* logger);
             void addPackages(const IO::Path& searchPath);
         private:
             const String& doGameName() const;
             IO::Path doGamePath() const;
-            void doSetGamePath(const IO::Path& gamePath);
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            void doSetGamePath(const IO::Path& gamePath, Logger* logger);
+            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
 
             CompilationConfig& doCompilationConfig();
 

@@ -61,8 +61,8 @@ namespace TrenchBroom {
             bool isGamePathPreference(const IO::Path& prefPath) const;
             
             IO::Path gamePath() const;
-            void setGamePath(const IO::Path& gamePath);
-            void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            void setGamePath(const IO::Path& gamePath, Logger* logger);
+            void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
             
             CompilationConfig& compilationConfig();
             
@@ -103,8 +103,8 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual const String& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
-            virtual void doSetGamePath(const IO::Path& gamePath) = 0;
-            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
+            virtual void doSetGamePath(const IO::Path& gamePath, Logger* logger) = 0;
+            virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) = 0;
             
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;

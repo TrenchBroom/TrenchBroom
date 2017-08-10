@@ -45,12 +45,12 @@ namespace TrenchBroom {
             return doGamePath();
         }
 
-        void Game::setGamePath(const IO::Path& gamePath) {
-            doSetGamePath(gamePath);
+        void Game::setGamePath(const IO::Path& gamePath, Logger* logger) {
+            doSetGamePath(gamePath, logger);
         }
 
-        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths) {
-            doSetAdditionalSearchPaths(searchPaths);
+        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
+            doSetAdditionalSearchPaths(searchPaths, logger);
         }
 
         CompilationConfig& Game::compilationConfig() {

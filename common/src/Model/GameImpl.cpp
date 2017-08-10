@@ -54,26 +54,27 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath) :
+        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger) :
         m_config(config),
         m_gamePath(gamePath) {
-            initializeFileSystem();
+            initializeFileSystem(logger);
         }
-
-        void GameImpl::initializeFileSystem() {
-            try {
-                const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
-                if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                    m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
-                    for (const IO::Path& searchPath : m_additionalSearchPaths)
+        
+        void GameImpl::initializeFileSystem(Logger* logger) {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
+                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
+                for (const IO::Path& searchPath : m_additionalSearchPaths) {
+                    try {
                         m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
-                    
-                    addPackages(m_gamePath + fileSystemConfig.searchPath);
-                    for (const IO::Path& searchPath : m_additionalSearchPaths)
-                        addPackages(m_gamePath + searchPath);
+                    } catch (const FileSystemException& e) {
+                        logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                    }
                 }
-            } catch (const FileSystemException& e) {
-                throw GameException("Cannot initialize game file system (" + String(e.what()) + ")");
+                
+                addPackages(m_gamePath + fileSystemConfig.searchPath);
+                for (const IO::Path& searchPath : m_additionalSearchPaths)
+                    addPackages(m_gamePath + searchPath);
             }
         }
 
@@ -105,16 +106,16 @@ namespace TrenchBroom {
             return m_gamePath;
         }
 
-        void GameImpl::doSetGamePath(const IO::Path& gamePath) {
+        void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
             m_gamePath = gamePath;
             m_gameFS.clear();
-            initializeFileSystem();
+            initializeFileSystem(logger);
         }
 
-        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {
+        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
             m_additionalSearchPaths = searchPaths;
             m_gameFS.clear();
-            initializeFileSystem();
+            initializeFileSystem(logger);
         }
 
         CompilationConfig& GameImpl::doCompilationConfig() {
