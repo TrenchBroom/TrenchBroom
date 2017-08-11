@@ -192,9 +192,9 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
-            const AttributableNodeVariableStore variables(world);
-            const IO::Path::List paths = extractTextureCollections(world);
+        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            const AttributableNodeVariableStore variables(node);
+            const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
             IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
@@ -232,27 +232,25 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List GameImpl::doExtractTextureCollections(const World* world) const {
-            ensure(world != NULL, "world is null");
-
+        IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode* node) const {
             const String& property = m_config.textureConfig().attribute;
             if (property.empty())
                 return IO::Path::List(0);
 
-            const AttributeValue& pathsValue = world->attribute(property);
+            const AttributeValue& pathsValue = node->attribute(property);
             if (pathsValue.empty())
                 return IO::Path::List(0);
 
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
 
-        void GameImpl::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
             const String& attribute = m_config.textureConfig().attribute;
             if (attribute.empty())
                 return;
 
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
-            world->addOrUpdateAttribute(attribute, value);
+            node->addOrUpdateAttribute(attribute, value);
         }
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
@@ -296,8 +294,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const World* world) const {
-            const AttributeValue& defValue = world->attribute(AttributeNames::EntityDefinitions);
+        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode* node) const {
+            const AttributeValue& defValue = node->attribute(AttributeNames::EntityDefinitions);
             if (defValue.empty())
                 return defaultEntityDefinitionFile();
             return Assets::EntityDefinitionFileSpec::parse(defValue);
@@ -396,9 +394,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList GameImpl::doExtractEnabledMods(const World* world) const {
+        StringList GameImpl::doExtractEnabledMods(const AttributableNode* node) const {
             StringList result;
-            const AttributeValue& modStr = world->attribute(AttributeNames::Mods);
+            const AttributeValue& modStr = node->attribute(AttributeNames::Mods);
             if (modStr.empty())
                 return result;
 

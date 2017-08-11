@@ -80,22 +80,22 @@ namespace TrenchBroom {
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
-            void loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            void loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findTextureCollections() const;
-            IO::Path::List extractTextureCollections(const World* world) const;
-            void updateTextureCollections(World* world, const IO::Path::List& paths) const;
+            IO::Path::List extractTextureCollections(const AttributableNode* node) const;
+            void updateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const;
         public: // entity definition handling
             bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
-            Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const World* world) const;
+            Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(const AttributableNode* node) const;
             IO::Path findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
         public: // brush content type
             const BrushContentTypeBuilder* brushContentTypeBuilder() const;
             const BrushContentType::List& brushContentTypes() const;
         public: // mods
             StringList availableMods() const;
-            StringList extractEnabledMods(const World* world) const;
+            StringList extractEnabledMods(const AttributableNode* node) const;
             String defaultMod() const;
         public: // flag configs for faces
             const GameConfig::FlagsConfig& surfaceFlags() const;
@@ -120,21 +120,21 @@ namespace TrenchBroom {
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual TexturePackageType doTexturePackageType() const = 0;
-            virtual void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
+            virtual void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindTextureCollections() const = 0;
-            virtual IO::Path::List doExtractTextureCollections(const World* world) const = 0;
-            virtual void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const = 0;
+            virtual IO::Path::List doExtractTextureCollections(const AttributableNode* node) const = 0;
+            virtual void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const = 0;
             
             virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
-            virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const = 0;
+            virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
             
             virtual const BrushContentType::List& doBrushContentTypes() const = 0;
             
             virtual StringList doAvailableMods() const = 0;
-            virtual StringList doExtractEnabledMods(const World* world) const = 0;
+            virtual StringList doExtractEnabledMods(const AttributableNode* node) const = 0;
             virtual String doDefaultMod() const = 0;
 
             virtual const GameConfig::FlagsConfig& doSurfaceFlags() const = 0;

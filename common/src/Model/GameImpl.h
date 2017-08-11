@@ -68,18 +68,18 @@ namespace TrenchBroom {
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
             
             TexturePackageType doTexturePackageType() const;
-            void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             IO::Path::List textureCollectionSearchPaths(const IO::Path& documentPath) const;
             
             bool doIsTextureCollection(const IO::Path& path) const;
             IO::Path::List doFindTextureCollections() const;
-            IO::Path::List doExtractTextureCollections(const World* world) const;
-            void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const;
+            IO::Path::List doExtractTextureCollections(const AttributableNode* node) const;
+            void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
-            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const;
+            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             const BrushContentType::List& doBrushContentTypes() const;
 
             StringList doAvailableMods() const;
-            StringList doExtractEnabledMods(const World* world) const;
+            StringList doExtractEnabledMods(const AttributableNode* node) const;
             String doDefaultMod() const;
 
             const GameConfig::FlagsConfig& doSurfaceFlags() const;

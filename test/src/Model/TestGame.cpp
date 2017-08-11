@@ -42,8 +42,8 @@ namespace TrenchBroom {
             return IO::Path(".");
         }
         
-        void TestGame::doSetGamePath(const IO::Path& gamePath) {}
-        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {}
+        void TestGame::doSetGamePath(const IO::Path& gamePath, Logger* logger) {}
+        void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {}
         
         CompilationConfig& TestGame::doCompilationConfig() {
             static CompilationConfig config;
@@ -91,9 +91,9 @@ namespace TrenchBroom {
             return TP_File;
         }
         
-        void TestGame::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
             const EL::NullVariableStore variables;
-            const IO::Path::List paths = extractTextureCollections(world);
+            const IO::Path::List paths = extractTextureCollections(node);
             
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
             const IO::Path::List fileSearchPaths{ root };
@@ -116,19 +116,17 @@ namespace TrenchBroom {
             return IO::Path::List();
         }
         
-        IO::Path::List TestGame::doExtractTextureCollections(const World* world) const {
-            ensure(world != NULL, "world is null");
-            
-            const AttributeValue& pathsValue = world->attribute("wad");
+        IO::Path::List TestGame::doExtractTextureCollections(const AttributableNode* node) const {
+            const AttributeValue& pathsValue = node->attribute("wad");
             if (pathsValue.empty())
                 return IO::Path::List(0);
             
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
         
-        void TestGame::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
+        void TestGame::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
-            world->addOrUpdateAttribute("wad", value);
+            node->addOrUpdateAttribute("wad", value);
         }
         
         bool TestGame::doIsEntityDefinitionFile(const IO::Path& path) const {
@@ -139,7 +137,7 @@ namespace TrenchBroom {
             return Assets::EntityDefinitionFileSpec::List();
         }
         
-        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const World* world) const {
+        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode* node) const {
             return Assets::EntityDefinitionFileSpec();
         }
         
@@ -156,19 +154,13 @@ namespace TrenchBroom {
             return EmptyStringList;
         }
         
-        StringList TestGame::doExtractEnabledMods(const World* world) const {
+        StringList TestGame::doExtractEnabledMods(const AttributableNode* node) const {
             return EmptyStringList;
         }
         
         String TestGame::doDefaultMod() const {
             return "";
         }
-        
-        ::StringMap TestGame::doExtractGameEngineParameterSpecs(const World* world) const {
-            return ::StringMap();
-        }
-        
-        void TestGame::doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const {}
         
         const GameConfig::FlagsConfig& TestGame::doSurfaceFlags() const {
             static const GameConfig::FlagsConfig config;

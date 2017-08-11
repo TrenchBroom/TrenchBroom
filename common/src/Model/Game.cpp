@@ -25,11 +25,11 @@
 namespace TrenchBroom {
     namespace Model {
         Game::Game() :
-        m_brushContentTypeBuilder(NULL) {}
+        m_brushContentTypeBuilder(nullptr) {}
         
         Game::~Game() {
             delete m_brushContentTypeBuilder;
-            m_brushContentTypeBuilder = NULL;
+            m_brushContentTypeBuilder = nullptr;
         }
 
         const String& Game::gameName() const {
@@ -70,12 +70,12 @@ namespace TrenchBroom {
         }
 
         void Game::writeMap(World* world, const IO::Path& path) const {
-            ensure(world != NULL, "world is null");
+            ensure(world != nullptr, "world is null");
             doWriteMap(world, path);
         }
 
         void Game::exportMap(World* world, const Model::ExportFormat format, const IO::Path& path) const {
-            ensure(world != NULL, "world is null");
+            ensure(world != nullptr, "world is null");
             doExportMap(world, format, path);
         }
 
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             return doTexturePackageType();
         }
 
-        void Game::loadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
-            doLoadTextureCollections(world, documentPath, textureManager);
+        void Game::loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            doLoadTextureCollections(node, documentPath, textureManager);
         }
 
         bool Game::isTextureCollection(const IO::Path& path) const {
@@ -111,14 +111,14 @@ namespace TrenchBroom {
             return doFindTextureCollections();
         }
         
-        IO::Path::List Game::extractTextureCollections(const World* world) const {
-            ensure(world != NULL, "world is null");
-            return doExtractTextureCollections(world);
+        IO::Path::List Game::extractTextureCollections(const AttributableNode* node) const {
+            ensure(node != nullptr, "node is null");
+            return doExtractTextureCollections(node);
         }
         
-        void Game::updateTextureCollections(World* world, const IO::Path::List& paths) const {
-            ensure(world != NULL, "world is null");
-            doUpdateTextureCollections(world, paths);
+        void Game::updateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
+            ensure(node != nullptr, "node is null");
+            doUpdateTextureCollections(node, paths);
         }
 
         bool Game::isEntityDefinitionFile(const IO::Path& path) const {
@@ -129,9 +129,9 @@ namespace TrenchBroom {
             return doAllEntityDefinitionFiles();
         }
 
-        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const World* world) const {
-            ensure(world != NULL, "world is null");
-            return doExtractEntityDefinitionFile(world);
+        Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const AttributableNode* node) const {
+            ensure(node != nullptr, "node is null");
+            return doExtractEntityDefinitionFile(node);
         }
         
         IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
         
         const BrushContentTypeBuilder* Game::brushContentTypeBuilder() const {
-            if (m_brushContentTypeBuilder == NULL)
+            if (m_brushContentTypeBuilder == nullptr)
                 m_brushContentTypeBuilder = new BrushContentTypeBuilder(brushContentTypes());
             return m_brushContentTypeBuilder;
         }
@@ -152,9 +152,9 @@ namespace TrenchBroom {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const World* world) const {
-            ensure(world != NULL, "world is null");
-            return doExtractEnabledMods(world);
+        StringList Game::extractEnabledMods(const AttributableNode* node) const {
+            ensure(node != nullptr, "node is null");
+            return doExtractEnabledMods(node);
         }
         
         String Game::defaultMod() const {
