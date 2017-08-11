@@ -201,7 +201,7 @@ namespace TrenchBroom {
                 frame = m_frameManager->newFrame();
 
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                Model::GamePtr game = gameFactory.createGame(gameName, frame->logger());
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != NULL, "game is null");
                 
                 frame->newDocument(game, mapFormat);
@@ -231,7 +231,7 @@ namespace TrenchBroom {
 
                 frame = m_frameManager->newFrame();
 
-                Model::GamePtr game = gameFactory.createGame(gameName, frame->logger());
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != NULL, "game is null");
 
                 frame->openDocument(game, mapFormat, path);

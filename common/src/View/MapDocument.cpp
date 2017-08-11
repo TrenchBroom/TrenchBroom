@@ -153,7 +153,7 @@ namespace TrenchBroom {
             delete m_editorContext;
         }
         
-        Model::GamePtr MapDocument::game() const {
+        Model::GameSPtr MapDocument::game() const {
             return m_game;
         }
         
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
         
-        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
+        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game) {
             info("Creating new document");
             
             clearDocument();
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
         
-        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             info("Loading document from " + path.asString());
             
             clearDocument();
@@ -1251,7 +1251,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
+        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds);
@@ -1261,7 +1261,7 @@ namespace TrenchBroom {
             setPath(IO::Path(DefaultDocumentName));
         }
         
-        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);

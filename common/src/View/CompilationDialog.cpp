@@ -56,7 +56,7 @@ namespace TrenchBroom {
             setWindowIcon(this);
 
             MapDocumentSPtr document = m_mapFrame->document();
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
             Model::CompilationConfig& compilationConfig = game->compilationConfig();
             
             wxPanel* outerPanel = new wxPanel(this);

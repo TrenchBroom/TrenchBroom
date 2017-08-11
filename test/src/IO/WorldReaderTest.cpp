@@ -784,7 +784,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(-8192, 8192);
             
             using namespace testing;
-            Model::MockGamePtr game = Model::MockGame::newGame();
+            Model::MockGameSPtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
             
             StandardMapParser parser(data, game.get());
