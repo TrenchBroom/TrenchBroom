@@ -38,6 +38,7 @@ namespace TrenchBroom {
             IO::Path doGamePath() const;
             void doSetGamePath(const IO::Path& gamePath, Logger* logger);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
+            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
 
             CompilationConfig& doCompilationConfig();
             size_t doMaxPropertyLength() const;

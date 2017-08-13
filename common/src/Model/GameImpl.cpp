@@ -118,6 +118,18 @@ namespace TrenchBroom {
             initializeFileSystem(logger);
         }
 
+        Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+            PathErrors result;
+            for (const IO::Path& searchPath : searchPaths) {
+                try {
+                    IO::DiskFileSystem(m_gamePath + searchPath);
+                } catch (const Exception& e) {
+                    result.insert(std::make_pair(searchPath, e.what()));
+                }
+            }
+            return result;
+        }
+
         CompilationConfig& GameImpl::doCompilationConfig() {
             return m_config.compilationConfig();
         }

@@ -64,6 +64,7 @@
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
+#include "Model/MissingModIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
@@ -1496,12 +1497,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateGameSearchPaths() {
-            const StringList modNames = mods();
-            IO::Path::List additionalSearchPaths;
-            additionalSearchPaths.reserve(modNames.size());
-            
-            for (const String& modName : modNames)
-                additionalSearchPaths.push_back(IO::Path(modName));
+            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods());
             m_game->setAdditionalSearchPaths(additionalSearchPaths, this);
         }
         
@@ -1527,6 +1523,7 @@ namespace TrenchBroom {
             
             m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
             m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingModIssueGenerator(m_game));
             m_world->registerIssueGenerator(new Model::EmptyGroupIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());

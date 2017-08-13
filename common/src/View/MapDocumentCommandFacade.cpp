@@ -882,9 +882,16 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyMods(modsDidChangeNotifier);
 
+            const String newValue = StringUtils::join(mods, ";");
+            
             unsetEntityDefinitions();
             clearEntityModels();
-            m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            
+            if (mods.empty())
+                m_world->removeAttribute(Model::AttributeNames::Mods);
+            else
+                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            
             updateGameSearchPaths();
             setEntityDefinitions();
         }

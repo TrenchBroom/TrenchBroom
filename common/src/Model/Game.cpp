@@ -53,6 +53,10 @@ namespace TrenchBroom {
             doSetAdditionalSearchPaths(searchPaths, logger);
         }
 
+        Game::PathErrors Game::checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+            return doCheckAdditionalSearchPaths(searchPaths);
+        }
+
         CompilationConfig& Game::compilationConfig() {
             return doCompilationConfig();
         }

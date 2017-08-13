@@ -64,6 +64,9 @@ namespace TrenchBroom {
             void setGamePath(const IO::Path& gamePath, Logger* logger);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
             
+            typedef std::map<IO::Path, String> PathErrors;
+            PathErrors checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
+            
             CompilationConfig& compilationConfig();
             
             size_t maxPropertyLength() const;
@@ -105,6 +108,7 @@ namespace TrenchBroom {
             virtual IO::Path doGamePath() const = 0;
             virtual void doSetGamePath(const IO::Path& gamePath, Logger* logger) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) = 0;
+            virtual PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const = 0;
             
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;

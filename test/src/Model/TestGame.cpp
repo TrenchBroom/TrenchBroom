@@ -44,6 +44,7 @@ namespace TrenchBroom {
         
         void TestGame::doSetGamePath(const IO::Path& gamePath, Logger* logger) {}
         void TestGame::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {}
+        Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const { return PathErrors(); }
         
         CompilationConfig& TestGame::doCompilationConfig() {
             static CompilationConfig config;
