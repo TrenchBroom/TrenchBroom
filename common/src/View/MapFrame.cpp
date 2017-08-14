@@ -229,14 +229,14 @@ namespace TrenchBroom {
             SetDropTarget(new MapFrameDropTarget(m_document, this));
         }
 
-        bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
+        bool MapFrame::newDocument(Model::GameSPtr game, const Model::MapFormat::Type mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;
             m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
             return true;
         }
 
-        bool MapFrame::openDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat, const IO::Path& path) {
+        bool MapFrame::openDocument(Model::GameSPtr game, const Model::MapFormat::Type mapFormat, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
             m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);

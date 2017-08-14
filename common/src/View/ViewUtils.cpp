@@ -79,7 +79,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(i_document);
             IO::Path::List collections = document->enabledTextureCollections();
             
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 return 0;
             
             MapDocumentSPtr document = lock(i_document);
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();

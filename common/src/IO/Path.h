@@ -29,6 +29,7 @@ namespace TrenchBroom {
         class Path {
         public:
             typedef std::vector<Path> List;
+            static const List EmptyList;
             static char separator();
             
             struct ToString {

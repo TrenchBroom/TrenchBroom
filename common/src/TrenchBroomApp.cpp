@@ -190,20 +190,25 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
+            MapFrame* frame = NULL;
+
             try {
                 String gameName;
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
                     return false;
                 
+                frame = m_frameManager->newFrame();
+
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                Model::GamePtr game = gameFactory.createGame(gameName);
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != NULL, "game is null");
                 
-                MapFrame* frame = m_frameManager->newFrame();
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const Exception& e) {
+                if (frame != NULL)
+                    frame->Close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
                 return false;
             }
@@ -217,19 +222,18 @@ namespace TrenchBroom {
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                const std::pair<String, Model::MapFormat::Type> detected = gameFactory.detectGame(path);
-                gameName = detected.first;
-                mapFormat = detected.second;
+                std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
                 
                 if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
                     if (!GameDialog::showOpenDocumentDialog(NULL, gameName, mapFormat))
                         return false;
                 }
 
-                Model::GamePtr game = gameFactory.createGame(gameName);
+                frame = m_frameManager->newFrame();
+
+                Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != NULL, "game is null");
 
-                frame = m_frameManager->newFrame();
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {

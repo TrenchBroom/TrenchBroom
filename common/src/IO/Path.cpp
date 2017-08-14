@@ -27,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        const Path::List Path::EmptyList = Path::List(0);
+
         char Path::separator() {
 #ifdef _WIN32
             static const char sep = '\\';

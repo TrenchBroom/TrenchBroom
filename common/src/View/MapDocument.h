@@ -68,7 +68,7 @@ namespace TrenchBroom {
             static const String DefaultDocumentName;
         protected:
             BBox3 m_worldBounds;
-            Model::GamePtr m_game;
+            Model::GameSPtr m_game;
             Model::World* m_world;
             Model::Layer* m_currentLayer;
             Model::PointFile* m_pointFile;
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         public:
             virtual ~MapDocument();
         public: // accessors and such
-            Model::GamePtr game() const;
+            Model::GameSPtr game() const;
             const BBox3& worldBounds() const;
             Model::World* world() const;
 
@@ -168,8 +168,8 @@ namespace TrenchBroom {
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
-            void newDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
-            void loadDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game);
+            void loadDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -361,8 +361,8 @@ namespace TrenchBroom {
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
             Model::NodeList findNodesContaining(const Vec3& point) const;
         private: // world management
-            void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game);
-            void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game);
+            void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void clearWorld();
             void initializeWorld(const BBox3& worldBounds);
         public: // asset management
