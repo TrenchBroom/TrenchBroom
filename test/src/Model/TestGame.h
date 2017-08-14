@@ -23,6 +23,8 @@
 #include "Model/Game.h"
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
         class ParserStatus;
     }
@@ -34,8 +36,9 @@ namespace TrenchBroom {
         private:
             const String& doGameName() const;
             IO::Path doGamePath() const;
-            void doSetGamePath(const IO::Path& gamePath);
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
+            void doSetGamePath(const IO::Path& gamePath, Logger* logger);
+            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
+            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
 
             CompilationConfig& doCompilationConfig();
             size_t doMaxPropertyLength() const;
@@ -51,25 +54,22 @@ namespace TrenchBroom {
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
             
             TexturePackageType doTexturePackageType() const;
-            void doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
             bool doIsTextureCollection(const IO::Path& path) const;
             IO::Path::List doFindTextureCollections() const;
-            IO::Path::List doExtractTextureCollections(const World* world) const;
-            void doUpdateTextureCollections(World* world, const IO::Path::List& paths) const;
+            IO::Path::List doExtractTextureCollections(const AttributableNode* node) const;
+            void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
-            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const;
+            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const;
             IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             
             const BrushContentType::List& doBrushContentTypes() const;
             
             StringList doAvailableMods() const;
-            StringList doExtractEnabledMods(const World* world) const;
+            StringList doExtractEnabledMods(const AttributableNode* node) const;
             String doDefaultMod() const;
-            
-            ::StringMap doExtractGameEngineParameterSpecs(const World* world) const;
-            void doSetGameEngineParameterSpecs(World* world, const ::StringMap& specs) const;
             
             const GameConfig::FlagsConfig& doSurfaceFlags() const;
             const GameConfig::FlagsConfig& doContentFlags() const;

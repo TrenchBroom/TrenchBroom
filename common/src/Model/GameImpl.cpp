@@ -54,26 +54,27 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath) :
+        GameImpl::GameImpl(GameConfig& config, const IO::Path& gamePath, Logger* logger) :
         m_config(config),
         m_gamePath(gamePath) {
-            initializeFileSystem();
+            initializeFileSystem(logger);
         }
-
-        void GameImpl::initializeFileSystem() {
-            try {
-                const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
-                if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                    m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
-                    for (const IO::Path& searchPath : m_additionalSearchPaths)
+        
+        void GameImpl::initializeFileSystem(Logger* logger) {
+            const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
+            if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
+                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
+                for (const IO::Path& searchPath : m_additionalSearchPaths) {
+                    try {
                         m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
-                    
-                    addPackages(m_gamePath + fileSystemConfig.searchPath);
-                    for (const IO::Path& searchPath : m_additionalSearchPaths)
-                        addPackages(m_gamePath + searchPath);
+                    } catch (const FileSystemException& e) {
+                        logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                    }
                 }
-            } catch (const FileSystemException& e) {
-                throw GameException("Cannot initialize game file system (" + String(e.what()) + ")");
+                
+                addPackages(m_gamePath + fileSystemConfig.searchPath);
+                for (const IO::Path& searchPath : m_additionalSearchPaths)
+                    addPackages(m_gamePath + searchPath);
             }
         }
 
@@ -105,16 +106,28 @@ namespace TrenchBroom {
             return m_gamePath;
         }
 
-        void GameImpl::doSetGamePath(const IO::Path& gamePath) {
+        void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger* logger) {
             m_gamePath = gamePath;
             m_gameFS.clear();
-            initializeFileSystem();
+            initializeFileSystem(logger);
         }
 
-        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) {
+        void GameImpl::doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) {
             m_additionalSearchPaths = searchPaths;
             m_gameFS.clear();
-            initializeFileSystem();
+            initializeFileSystem(logger);
+        }
+
+        Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+            PathErrors result;
+            for (const IO::Path& searchPath : searchPaths) {
+                try {
+                    IO::DiskFileSystem(m_gamePath + searchPath);
+                } catch (const Exception& e) {
+                    result.insert(std::make_pair(searchPath, e.what()));
+                }
+            }
+            return result;
         }
 
         CompilationConfig& GameImpl::doCompilationConfig() {
@@ -191,9 +204,9 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(World* world, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
-            const AttributableNodeVariableStore variables(world);
-            const IO::Path::List paths = extractTextureCollections(world);
+        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+            const AttributableNodeVariableStore variables(node);
+            const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
             IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
@@ -231,27 +244,25 @@ namespace TrenchBroom {
             }
         }
 
-        IO::Path::List GameImpl::doExtractTextureCollections(const World* world) const {
-            ensure(world != NULL, "world is null");
-
+        IO::Path::List GameImpl::doExtractTextureCollections(const AttributableNode* node) const {
             const String& property = m_config.textureConfig().attribute;
             if (property.empty())
                 return IO::Path::List(0);
 
-            const AttributeValue& pathsValue = world->attribute(property);
+            const AttributeValue& pathsValue = node->attribute(property);
             if (pathsValue.empty())
                 return IO::Path::List(0);
 
             return IO::Path::asPaths(StringUtils::splitAndTrim(pathsValue, ';'));
         }
 
-        void GameImpl::doUpdateTextureCollections(World* world, const IO::Path::List& paths) const {
+        void GameImpl::doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const {
             const String& attribute = m_config.textureConfig().attribute;
             if (attribute.empty())
                 return;
 
             const String value = StringUtils::join(IO::Path::asStrings(paths, '/'), ';');
-            world->addOrUpdateAttribute(attribute, value);
+            node->addOrUpdateAttribute(attribute, value);
         }
 
         bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
@@ -295,8 +306,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const World* world) const {
-            const AttributeValue& defValue = world->attribute(AttributeNames::EntityDefinitions);
+        Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode* node) const {
+            const AttributeValue& defValue = node->attribute(AttributeNames::EntityDefinitions);
             if (defValue.empty())
                 return defaultEntityDefinitionFile();
             return Assets::EntityDefinitionFileSpec::parse(defValue);
@@ -395,9 +406,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        StringList GameImpl::doExtractEnabledMods(const World* world) const {
+        StringList GameImpl::doExtractEnabledMods(const AttributableNode* node) const {
             StringList result;
-            const AttributeValue& modStr = world->attribute(AttributeNames::Mods);
+            const AttributeValue& modStr = node->attribute(AttributeNames::Mods);
             if (modStr.empty())
                 return result;
 

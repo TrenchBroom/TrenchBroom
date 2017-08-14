@@ -254,7 +254,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
 
             if (game.get() != NULL) {
                 Model::BrushContentType::FlagType hiddenFlags = 0;
@@ -455,7 +455,7 @@ namespace TrenchBroom {
             m_brushContentTypeCheckBoxes.clear();
 
             MapDocumentSPtr document = lock(m_document);
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
             if (game.get() == NULL) {
                 createEmptyBrushContentTypeFilter(parent);
             } else {
@@ -560,7 +560,7 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext = document->editorContext();
             const Model::BrushContentType::FlagType hiddenFlags = editorContext.hiddenBrushContentTypes();
 
-            Model::GamePtr game = document->game();
+            Model::GameSPtr game = document->game();
             if (game.get() != NULL) {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 for (size_t i = 0; i < contentTypes.size(); ++i) {

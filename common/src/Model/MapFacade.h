@@ -118,6 +118,9 @@ namespace TrenchBroom {
             virtual bool moveFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
             virtual bool splitEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
             virtual bool splitFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
+        public: // search paths and mods
+            virtual StringList mods() const = 0;
+            virtual void setMods(const StringList& mods) = 0;
         };
     }
 }

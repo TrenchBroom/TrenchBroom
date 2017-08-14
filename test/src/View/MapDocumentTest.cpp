@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         void MapDocumentTest::SetUp() {
             document = MapDocumentCommandFacade::newMapDocument();
-            document->newDocument(m_mapFormat, BBox3(8192.0), Model::GamePtr(new Model::TestGame()));
+            document->newDocument(m_mapFormat, BBox3(8192.0), Model::GameSPtr(new Model::TestGame()));
         }
 
         Model::Brush* MapDocumentTest::createBrush(const String& textureName) {

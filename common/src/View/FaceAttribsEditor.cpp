@@ -530,7 +530,7 @@ namespace TrenchBroom {
         
         bool FaceAttribsEditor::hasSurfaceAttribs() const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GamePtr game = document->game();
+            const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
             
@@ -567,14 +567,14 @@ namespace TrenchBroom {
         
         void FaceAttribsEditor::getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GamePtr game = document->game();
+            const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& surfaceFlags = game->surfaceFlags();
             getFlags(surfaceFlags.flags, names, descriptions);
         }
         
         void FaceAttribsEditor::getContentFlags(wxArrayString& names, wxArrayString& descriptions) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::GamePtr game = document->game();
+            const Model::GameSPtr game = document->game();
             const Model::GameConfig::FlagsConfig& contentFlags = game->contentFlags();
             getFlags(contentFlags.flags, names, descriptions);
         }
