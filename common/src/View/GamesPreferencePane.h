@@ -27,7 +27,7 @@
 class wxSimplebook;
 class wxButton;
 class wxListBox;
-class wxTextCtrl;
+class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
@@ -38,19 +38,14 @@ namespace TrenchBroom {
         private:
             GameListBox* m_gameListBox;
             wxSimplebook* m_book;
-            wxTextCtrl* m_gamePathText;
+            wxStaticText* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
             GamesPreferencePane(wxWindow* parent);
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
-            void OnGamePathChanged(wxCommandEvent& event);
-            void OnGamePathKillFocus(wxFocusEvent& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
             void updateGamePath(const wxString& str);
-            void OnUpdateGamePathText(wxIdleEvent& event);
-            void validateGamePathText(const wxString& str);
-            bool isValidGamePath(const wxString& str) const;
             void OnConfigureenginesClicked(wxCommandEvent& event);
         private:
             void createGui();

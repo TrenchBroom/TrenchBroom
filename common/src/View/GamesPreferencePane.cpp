@@ -39,7 +39,6 @@
 #include <wx/sizer.h>
 #include <wx/settings.h>
 #include <wx/stattext.h>
-#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -59,19 +58,6 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void GamesPreferencePane::OnGamePathChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            validateGamePathText(m_gamePathText->GetValue());
-            updateGamePath(m_gamePathText->GetValue());
-        }
-
-        void GamesPreferencePane::OnGamePathKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            updateGamePath(m_gamePathText->GetValue());
-        }
-
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -81,35 +67,11 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::updateGamePath(const wxString& str) {
-            if (isValidGamePath(str)) {
-                const IO::Path gamePath(str.ToStdString());
-                const String gameName = m_gameListBox->selectedGameName();
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                if (gameFactory.setGamePath(gameName, gamePath))
-                    updateControls();
-            }
-        }
-
-        void GamesPreferencePane::OnUpdateGamePathText(wxIdleEvent& event) {
-            validateGamePathText(m_gamePathText->GetValue());
-        }
-
-        void GamesPreferencePane::validateGamePathText(const wxString& str) {
-            if (isValidGamePath(str))
-                m_gamePathText->SetForegroundColour(GetForegroundColour());
-            else
-                m_gamePathText->SetForegroundColour(*wxRED);
-        }
-
-        bool GamesPreferencePane::isValidGamePath(const wxString& str) const {
-            if (str.IsEmpty())
-                return true;
-            try {
-                const IO::Path gamePath(str.ToStdString());
-                return IO::Disk::directoryExists(gamePath);
-            } catch (...) {
-                return false;
-            }
+            const IO::Path gamePath(str.ToStdString());
+            const String gameName = m_gameListBox->selectedGameName();
+            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            if (gameFactory.setGamePath(gameName, gamePath))
+                updateControls();
         }
 
         void GamesPreferencePane::OnConfigureenginesClicked(wxCommandEvent& event) {
@@ -148,25 +110,16 @@ namespace TrenchBroom {
             wxPanel* containerPanel = new wxPanel(parent);
 
             wxStaticText* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
-            m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-            m_gamePathText->SetHint("Not set");
+            m_gamePathText = new wxStaticText(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_THEME | wxST_ELLIPSIZE_MIDDLE);
+            m_gamePathText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             wxButton* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
             
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (!prefs.saveInstantly()) {
-                m_gamePathText->Bind(wxEVT_TEXT, &GamesPreferencePane::OnGamePathChanged, this);
-            } else {
-                m_gamePathText->Bind(wxEVT_TEXT_ENTER, &GamesPreferencePane::OnGamePathChanged, this);
-                m_gamePathText->Bind(wxEVT_KILL_FOCUS, &GamesPreferencePane::OnGamePathKillFocus, this);
-            }
-            
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
             configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
-            Bind(wxEVT_IDLE, &GamesPreferencePane::OnUpdateGamePathText, this);
 
             wxGridBagSizer* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
             containerSizer->Add(gamePathLabel,           wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
@@ -193,7 +146,7 @@ namespace TrenchBroom {
                 const String gameName = m_gameListBox->selectedGameName();
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const IO::Path gamePath = gameFactory.gamePath(gameName);
-                m_gamePathText->ChangeValue(gamePath.asString());
+                m_gamePathText->SetLabel(gamePath.asString());
                 m_gameListBox->reloadGameInfos();
             }
             Layout();
@@ -201,7 +154,7 @@ namespace TrenchBroom {
         }
 
         bool GamesPreferencePane::doValidate() {
-            return m_gameListBox->GetSelection() == wxNOT_FOUND || isValidGamePath(m_gamePathText->GetValue());
+            return true;
         }
     }
 }
