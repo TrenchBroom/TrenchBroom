@@ -45,6 +45,7 @@ namespace TrenchBroom {
         private:
             void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnGamePathChanged(wxCommandEvent& event);
+            void OnGamePathKillFocus(wxFocusEvent& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
             void updateGamePath(const wxString& str);
             void OnUpdateGamePathText(wxIdleEvent& event);

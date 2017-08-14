@@ -65,6 +65,12 @@ namespace TrenchBroom {
             updateGamePath(m_gamePathText->GetValue());
         }
 
+        void GamesPreferencePane::OnGamePathKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            updateGamePath(m_gamePathText->GetValue());
+        }
+
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -144,7 +150,15 @@ namespace TrenchBroom {
             wxButton* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
             
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
-            m_gamePathText->Bind(wxEVT_TEXT_ENTER, &GamesPreferencePane::OnGamePathChanged, this);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            if (!prefs.saveInstantly()) {
+                m_gamePathText->Bind(wxEVT_TEXT, &GamesPreferencePane::OnGamePathChanged, this);
+            } else {
+                m_gamePathText->Bind(wxEVT_TEXT_ENTER, &GamesPreferencePane::OnGamePathChanged, this);
+                m_gamePathText->Bind(wxEVT_KILL_FOCUS, &GamesPreferencePane::OnGamePathKillFocus, this);
+            }
+            
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
             configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
             Bind(wxEVT_IDLE, &GamesPreferencePane::OnUpdateGamePathText, this);
