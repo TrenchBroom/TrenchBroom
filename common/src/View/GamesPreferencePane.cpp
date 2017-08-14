@@ -85,8 +85,8 @@ namespace TrenchBroom {
                 const IO::Path gamePath(str.ToStdString());
                 const String gameName = m_gameListBox->selectedGameName();
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                gameFactory.setGamePath(gameName, gamePath);
-                updateControls();
+                if (gameFactory.setGamePath(gameName, gamePath))
+                    updateControls();
             }
         }
 
