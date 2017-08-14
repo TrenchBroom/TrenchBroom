@@ -49,6 +49,7 @@ namespace TrenchBroom {
             void OnChooseGamePathClicked(wxCommandEvent& event);
             void updateGamePath(const wxString& str);
             void OnUpdateGamePathText(wxIdleEvent& event);
+            void validateGamePathText(const wxString& str);
             bool isValidGamePath(const wxString& str) const;
             void OnConfigureenginesClicked(wxCommandEvent& event);
         private:

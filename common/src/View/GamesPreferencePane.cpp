@@ -62,6 +62,7 @@ namespace TrenchBroom {
         void GamesPreferencePane::OnGamePathChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
+            validateGamePathText(m_gamePathText->GetValue());
             updateGamePath(m_gamePathText->GetValue());
         }
 
@@ -90,7 +91,11 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::OnUpdateGamePathText(wxIdleEvent& event) {
-            if (isValidGamePath(m_gamePathText->GetValue()))
+            validateGamePathText(m_gamePathText->GetValue());
+        }
+
+        void GamesPreferencePane::validateGamePathText(const wxString& str) {
+            if (isValidGamePath(str))
                 m_gamePathText->SetForegroundColour(GetForegroundColour());
             else
                 m_gamePathText->SetForegroundColour(*wxRED);
