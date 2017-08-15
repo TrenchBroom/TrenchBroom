@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Assets {
         EntityModelManager::EntityModelManager(Logger* logger, int minFilter, int magFilter) :
         m_logger(logger),
-        m_loader(NULL),
+        m_loader(nullptr),
         m_minFilter(minFilter),
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
@@ -65,29 +65,27 @@ namespace TrenchBroom {
 
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
             if (path.isEmpty())
-                return NULL;
+                return nullptr;
             
             ModelCache::const_iterator it = m_models.find(path);
             if (it != std::end(m_models))
                 return it->second;
             
             if (m_modelMismatches.count(path) > 0)
-                return NULL;
+                return nullptr;
             
             try {
                 EntityModel* model = loadModel(path);
-                ensure(model != NULL, "model is null");
+                ensure(model != nullptr, "model is null");
                 m_models[path] = model;
                 m_unpreparedModels.push_back(model);
                 
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->debug("Loaded entity model %s", path.asString().c_str());
 
                 return model;
-            } catch (const GameException& e) {
+            } catch (const GameException&) {
                 m_modelMismatches.insert(path);
-                if (m_logger != NULL)
-                    m_logger->debug(e.what());
                 throw;
             }
         }
@@ -96,34 +94,34 @@ namespace TrenchBroom {
             try {
                 return model(path);
             } catch (const GameException&) {
-                return NULL;
+                return nullptr;
             }
         }
         
         Renderer::TexturedIndexRangeRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             EntityModel* entityModel = safeGetModel(spec.path);
 
-            if (entityModel == NULL)
-                return NULL;
+            if (entityModel == nullptr)
+                return nullptr;
             
             RendererCache::const_iterator it = m_renderers.find(spec);
             if (it != std::end(m_renderers))
                 return it->second;
             
             if (m_rendererMismatches.count(spec) > 0)
-                return NULL;
+                return nullptr;
             
             Renderer::TexturedIndexRangeRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
-            if (renderer == NULL) {
+            if (renderer == nullptr) {
                 m_rendererMismatches.insert(spec);
                 
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->debug("Failed to construct entity model renderer for %s", spec.asString().c_str());
             } else {
                 m_renderers[spec] = renderer;
                 m_unpreparedRenderers.push_back(renderer);
                 
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
             }
             return renderer;
@@ -134,11 +132,11 @@ namespace TrenchBroom {
         }
         
         bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
-            return renderer(spec) != NULL;
+            return renderer(spec) != nullptr;
         }
 
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
-            ensure(m_loader != NULL, "loader is null");
+            ensure(m_loader != nullptr, "loader is null");
             return m_loader->loadEntityModel(path);
         }
 

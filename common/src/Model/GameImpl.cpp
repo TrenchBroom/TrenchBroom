@@ -63,14 +63,9 @@ namespace TrenchBroom {
         void GameImpl::initializeFileSystem(Logger* logger) {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             if (!m_gamePath.isEmpty() && IO::Disk::directoryExists(m_gamePath)) {
-                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + fileSystemConfig.searchPath));
-                for (const IO::Path& searchPath : m_additionalSearchPaths) {
-                    try {
-                        m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
-                    } catch (const FileSystemException& e) {
-                        logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
-                    }
-                }
+                addSearchPath(fileSystemConfig.searchPath, logger);
+                for (const IO::Path& searchPath : m_additionalSearchPaths)
+                    addSearchPath(searchPath, logger);
                 
                 addPackages(m_gamePath + fileSystemConfig.searchPath);
                 for (const IO::Path& searchPath : m_additionalSearchPaths)
@@ -78,6 +73,14 @@ namespace TrenchBroom {
             }
         }
 
+        void GameImpl::addSearchPath(const IO::Path& searchPath, Logger* logger) {
+            try {
+                m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
+            } catch (const FileSystemException& e) {
+                logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+            }
+        }
+        
         void GameImpl::addPackages(const IO::Path& searchPath) {
             const GameConfig::FileSystemConfig& fileSystemConfig = m_config.fileSystemConfig();
             const GameConfig::PackageFormatConfig& packageFormatConfig = fileSystemConfig.packageFormat;

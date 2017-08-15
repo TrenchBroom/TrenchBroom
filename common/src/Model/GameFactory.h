@@ -61,7 +61,7 @@ namespace TrenchBroom {
             const StringList& fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
             IO::Path gamePath(const String& gameName) const;
-            void setGamePath(const String& gameName, const IO::Path& gamePath);
+            bool setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
             GameConfig& gameConfig(const String& gameName);

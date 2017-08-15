@@ -65,8 +65,11 @@ namespace TrenchBroom {
         }
         
         template <typename T>
-        void set(Preference<T>& preference, const T& value) {
+        bool set(Preference<T>& preference, const T& value) {
             const T previousValue = preference.value();
+            if (previousValue == value)
+                return false;
+            
             preference.setValue(value);
             if (saveInstantly()) {
                 preference.save(wxConfig::Get());
@@ -74,6 +77,8 @@ namespace TrenchBroom {
             } else {
                 markAsUnsaved(&preference, new ValueHolder<T>(previousValue));
             }
+            
+            return true;
         }
         
         template <typename T>
