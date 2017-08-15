@@ -1936,6 +1936,32 @@ TEST(PolyhedronTest, badClip) {
     ASSERT_NO_THROW(poly.clip(plane));
 }
 
+TEST(PolyhedronTest, clipWithInvalidSeam) {
+    // see https://github.com/kduske/TrenchBroom/issues/1801
+    // see BrushTest::invalidBrush1801
+    
+    Polyhedron3d poly { // create a huge cube
+        8192.0 * Vec3d(-1.0, -1.0, -1.0),
+        8192.0 * Vec3d(-1.0, -1.0, +1.0),
+        8192.0 * Vec3d(-1.0, +1.0, -1.0),
+        8192.0 * Vec3d(-1.0, +1.0, +1.0),
+        8192.0 * Vec3d(+1.0, -1.0, -1.0),
+        8192.0 * Vec3d(+1.0, -1.0, +1.0),
+        8192.0 * Vec3d(+1.0, +1.0, -1.0),
+        8192.0 * Vec3d(+1.0, +1.0, +1.0),
+    };
+
+    poly.clip(fromPlanePoints(Vec3d(-459.0, 1579.0, -115.0), Vec3d(-483.0, 1371.0, 131.0), Vec3d(-184.0, 1428.0, 237.0)));
+    poly.clip(fromPlanePoints(Vec3d(-184.0, 1428.0, 237.0), Vec3d(-184.0, 1513.0, 396.0), Vec3d(-184.0, 1777.0, 254.0)));
+    poly.clip(fromPlanePoints(Vec3d(-484.0, 1513.0, 395.0), Vec3d(-483.0, 1371.0, 131.0), Vec3d(-483.0, 1777.0, 253.0)));
+    poly.clip(fromPlanePoints(Vec3d(-483.0, 1371.0, 131.0), Vec3d(-459.0, 1579.0, -115.0), Vec3d(-483.0, 1777.0, 253.0)));
+    poly.clip(fromPlanePoints(Vec3d(-184.0, 1513.0, 396.0), Vec3d(-484.0, 1513.0, 395.0), Vec3d(-184.0, 1777.0, 254.0)));
+    poly.clip(fromPlanePoints(Vec3d(-184.0, 1777.0, 254.0), Vec3d(-483.0, 1777.0, 253.0), Vec3d(-183.0, 1692.0, 95.0)));
+    poly.clip(fromPlanePoints(Vec3d(-483.0, 1777.0, 253.0), Vec3d(-459.0, 1579.0, -115.0), Vec3d(-183.0, 1692.0, 95.0))); //  Assertion failure here!
+    poly.clip(fromPlanePoints(Vec3d(-483.0, 1371.0, 131.0), Vec3d(-484.0, 1513.0, 395.0), Vec3d(-184.0, 1513.0, 396.0)));
+    poly.clip(fromPlanePoints(Vec3d(-483.0, 1371.0, 131.0), Vec3d(-184.0, 1513.0, 396.0), Vec3d(-184.0, 1428.0, 237.0)));
+}
+
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices);
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const Vec3d::List& vertices) {
     for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {

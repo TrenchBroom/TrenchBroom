@@ -272,6 +272,13 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& p
 }
 
 template <typename T>
+Plane<T,3> fromPlanePoints(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    Plane<T,3> result;
+    assert(setPlanePoints(result, point0, point1, point2));
+    return result;
+}
+
+template <typename T>
 Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
     return Plane<T,3>(position, Vec<T,3>::PosZ);
 }

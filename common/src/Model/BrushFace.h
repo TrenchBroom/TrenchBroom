@@ -206,6 +206,8 @@ namespace TrenchBroom {
 
             bool containsPoint(const Vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
+            
+            void printPoints() const;
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();

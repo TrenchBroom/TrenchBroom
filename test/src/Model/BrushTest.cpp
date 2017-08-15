@@ -3159,6 +3159,33 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(nodes);
         }
 
+        TEST(BrushTest, invalidBrush1801) {
+            // see https://github.com/kduske/TrenchBroom/issues/1801
+            // see PolyhedronTest::clipWithInvalidSeam
+            
+            const String data("{\n"
+                              "( -484 1513 395 ) ( -483 1371 131 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
+                              "( -483 1371 131 ) ( -459 1579 -115 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
+                              "( -459 1579 -115 ) ( -483 1371 131 ) ( -184 1428 237 ) *water1 -0 -0 -0 1 1\n"
+                              "( -459 1579 -115 ) ( -184 1428 237 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
+                              "( -184 1428 237 ) ( -184 1513 396 ) ( -184 1777 254 ) *water1 -0 -0 -0 1 1\n"
+                              "( -184 1513 396 ) ( -484 1513 395 ) ( -184 1777 254 ) *water1 -0 -0 -0 1 1\n"
+                              "( -483 1371 131 ) ( -484 1513 395 ) ( -184 1513 396 ) *water1 -0 -0 -0 1 1\n"
+                              "( -483 1371 131 ) ( -184 1513 396 ) ( -184 1428 237 ) *water1 -0 -0 -0 1 1\n"
+                              "( -184 1777 254 ) ( -483 1777 253 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
+                              "( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
+                              "}\n");
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+            
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+            
+            NodeList nodes = reader.read(worldBounds, status); // assertion failure
+            VectorUtils::clearAndDelete(nodes);
+        }
+
         TEST(BrushTest, snapToGrid64) {
             // https://github.com/kduske/TrenchBroom/issues/1415
             const String data("{\n"
