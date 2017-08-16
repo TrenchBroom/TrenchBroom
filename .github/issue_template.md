@@ -1,12 +1,8 @@
 ### System Information
 
-**TrenchBroom Version:** e.g. v2.0.0-RC4
-**Platform:** e.g. Windows / Linux / macOS
-**Operating System:** e.g. Windows 10
+e.g. TrenchBroom V2.0.0-RC4 on Windows 10
 
 ### Expected Behavior
-
-### Actual Behavior
 
 ### Steps to Reproduce
 
