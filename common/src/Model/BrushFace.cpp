@@ -33,6 +33,8 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
@@ -621,6 +623,11 @@ namespace TrenchBroom {
                 return Math::nan<FloatType>();
             
             return intersectPolygonWithRay(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+        }
+
+        void BrushFace::printPoints() const {
+            std::for_each(std::begin(m_points), std::end(m_points), [](const Vec3& p) { std::cout << "( " << p.asString(3) << " ) "; });
+            std::cout << std::endl;
         }
 
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
