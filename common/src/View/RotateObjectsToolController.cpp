@@ -199,8 +199,8 @@ namespace TrenchBroom {
             }
             
             MoveInfo doStartMove(const InputState& inputState) {
-                if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                    inputState.modifierKeys() != ModifierKeys::MKNone)
+                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
+                    !inputState.checkModifierKeys(ModifierKeyPressed::MK_No, ModifierKeyPressed::MK_DontCare, ModifierKeyPressed::MK_No))
                     return MoveInfo();
                 
                 const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
