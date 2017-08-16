@@ -7,7 +7,7 @@
 ## Windows
 
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
-- For Visual Studio (only tested with 2010)
+- For Visual Studio:
     - Get the binary build of wxWidgets 3 for your platform from
       [http://www.wxwidgets.org](http://www.wxwidgets.org)
 
@@ -46,7 +46,7 @@
   - Run the following two commands
 
     ```
-    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v140 -DCMAKE_BUILD_TYPE=Release
     cmake --build . --config Release --target TrenchBroom
     ```
 
