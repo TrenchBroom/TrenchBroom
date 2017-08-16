@@ -207,9 +207,14 @@ namespace TrenchBroom {
         void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             commitPendingChanges();
             setupGL(renderBatch);
-            renderDefault(renderContext, renderBatch);
-            renderLocked(renderContext, renderBatch);
-            renderSelection(renderContext, renderBatch);
+            renderDefaultOpaque(renderContext, renderBatch);
+            renderLockedOpaque(renderContext, renderBatch);
+            renderSelectionOpaque(renderContext, renderBatch);
+            
+            renderDefaultTransparent(renderContext, renderBatch);
+            renderLockedTransparent(renderContext, renderBatch);
+            renderSelectionTransparent(renderContext, renderBatch);
+            
             renderEntityLinks(renderContext, renderBatch);
             renderTutorialMessages(renderContext, renderBatch);
         }
@@ -234,19 +239,36 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new SetupGL());
         }
         
-        void MapRenderer::renderDefault(RenderContext& renderContext, RenderBatch& renderBatch) {
+        void MapRenderer::renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_defaultRenderer->setShowOverlays(renderContext.render3D());
-            m_defaultRenderer->render(renderContext, renderBatch);
+            m_defaultRenderer->renderOpaque(renderContext, renderBatch);
         }
         
-        void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!renderContext.hideSelection())
-                m_selectionRenderer->render(renderContext, renderBatch);
+        void MapRenderer::renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_defaultRenderer->setShowOverlays(renderContext.render3D());
+            m_defaultRenderer->renderTransparent(renderContext, renderBatch);
         }
         
-        void MapRenderer::renderLocked(RenderContext& renderContext, RenderBatch& renderBatch) {
+        void MapRenderer::renderSelectionOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (!renderContext.hideSelection()) {
+                m_selectionRenderer->renderOpaque(renderContext, renderBatch);
+            }
+        }
+        
+        void MapRenderer::renderSelectionTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (!renderContext.hideSelection()) {
+                m_selectionRenderer->renderTransparent(renderContext, renderBatch);
+            }
+        }
+        
+        void MapRenderer::renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_lockedRenderer->setShowOverlays(renderContext.render3D());
-            m_lockedRenderer->render(renderContext, renderBatch);
+            m_lockedRenderer->renderOpaque(renderContext, renderBatch);
+        }
+        
+        void MapRenderer::renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_lockedRenderer->setShowOverlays(renderContext.render3D());
+            m_lockedRenderer->renderTransparent(renderContext, renderBatch);
         }
         
         void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {

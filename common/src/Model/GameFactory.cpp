@@ -61,8 +61,8 @@ namespace TrenchBroom {
             return m_configs.size();
         }
 
-        GamePtr GameFactory::createGame(const String& gameName) {
-            return GamePtr(new GameImpl(gameConfig(gameName), gamePath(gameName)));
+        GameSPtr GameFactory::createGame(const String& gameName, Logger* logger) {
+            return GameSPtr(new GameImpl(gameConfig(gameName), gamePath(gameName), logger));
         }
         
         const StringList& GameFactory::fileFormats(const String& gameName) const {
@@ -83,12 +83,12 @@ namespace TrenchBroom {
             return PreferenceManager::instance().get(pref);
         }
         
-        void GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
+        bool GameFactory::setGamePath(const String& gameName, const IO::Path& gamePath) {
             GamePathMap::iterator it = m_gamePaths.find(gameName);
             if (it == std::end(m_gamePaths))
                 throw GameException("Unknown game: " + gameName);
             Preference<IO::Path>& pref = it->second;
-            PreferenceManager::instance().set(pref, gamePath);
+            return PreferenceManager::instance().set(pref, gamePath);
         }
 
         bool GameFactory::isGamePathPreference(const String& gameName, const IO::Path& prefPath) const {

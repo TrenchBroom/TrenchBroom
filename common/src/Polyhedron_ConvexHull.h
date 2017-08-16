@@ -115,7 +115,7 @@ public:
     
     void print() const {
         for (const Edge* edge : m_edges)
-            std::cout << edge->secondVertex()->position().asString(3) << std::endl;
+            std::cout << edge->secondVertex()->position().asString(3) << " -> " << edge->firstVertex()->position().asString(3) << std::endl;
     }
     
     bool hasMultipleLoops() const {
@@ -620,7 +620,9 @@ void Polyhedron<T,FP,VP>::removeThirdVertexFromPolygon(Vertex* vertex, Callback&
     Face* face = removedHalfEdge->face();
     callback.faceWillBeDeleted(face);
 
-    face->removeFromBoundary(firstRemainingHalfEdge, secondRemainingHalfEdge);
+    // Remove in two steps so that the remaining half edges form two loops.
+    face->removeFromBoundary(firstRemainingHalfEdge, firstRemainingHalfEdge);
+    face->removeFromBoundary(secondRemainingHalfEdge, secondRemainingHalfEdge);
     
     m_faces.remove(face);
     delete face;
@@ -697,6 +699,8 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
+    if (seam.hasMultipleLoops())
+        seam.print();
     assert(!seam.hasMultipleLoops());
     
     // First, unset the second half edge of every seam edge.
@@ -960,7 +964,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
-    Plane3 plane;
+    Plane<T,3> plane;
     Vertex* top = new Vertex(position);
     
     HalfEdge* first = nullptr;

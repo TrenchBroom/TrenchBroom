@@ -45,6 +45,9 @@ namespace TrenchBroom {
                 slider->Bind(wxEVT_SCROLL_PAGEDOWN, function, handler);
                 slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, handler);
             }
+            
+            float getSliderValue(wxSlider* slider);
+            void setSliderValue(wxSlider* slider, float value);
         private:
             virtual bool doCanResetToDefaults() = 0;
             virtual void doResetToDefaults() = 0;

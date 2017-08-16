@@ -57,9 +57,9 @@ namespace TrenchBroom {
             m_document(document),
             m_profile(profile),
             m_task(task),
-            m_panel(NULL) {
-                ensure(m_profile != NULL, "profile is null");
-                ensure(m_task != NULL, "task is null");
+            m_panel(nullptr) {
+                ensure(m_profile != nullptr, "profile is null");
+                ensure(m_task != nullptr, "task is null");
             }
         public:
             void initialize() {
@@ -77,17 +77,13 @@ namespace TrenchBroom {
                 SetSizer(panelSizer);
 
                 refresh();
-                m_profile->profileDidChange.addObserver(this, &TaskEditor::profileDidChange);
-                m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
-                m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
+                addProfileObservers();
+                addTaskObservers();
             }
         public:
             virtual ~TaskEditor() {
-                m_profile->profileDidChange.removeObserver(this, &TaskEditor::profileDidChange);
-                if (m_task != NULL) {
-                    m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
-                    m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
-                }
+                removeProfileObservers();
+                removeTaskObservers();
             }
         private:
             void setSelectionColours(const wxColour& foreground, const wxColour& background) {
@@ -110,15 +106,47 @@ namespace TrenchBroom {
                 control->SetHelper(new ELAutoCompleteHelper(variables));
             }
         private:
+            void addProfileObservers() {
+                m_profile->profileWillBeRemoved.addObserver(this, &TaskEditor::profileWillBeRemoved);
+                m_profile->profileDidChange.addObserver(this, &TaskEditor::profileDidChange);
+            }
+            
+            void removeProfileObservers() {
+                if (m_profile != nullptr) {
+                    m_profile->profileWillBeRemoved.removeObserver(this, &TaskEditor::profileWillBeRemoved);
+                    m_profile->profileDidChange.removeObserver(this, &TaskEditor::profileDidChange);
+                }
+            }
+            
+            void addTaskObservers() {
+                m_task->taskWillBeRemoved.addObserver(this, &TaskEditor::taskWillBeRemoved);
+                m_task->taskDidChange.addObserver(this, &TaskEditor::taskDidChange);
+            }
+            
+            void removeTaskObservers() {
+                if (m_task != nullptr) {
+                    m_task->taskWillBeRemoved.removeObserver(this, &TaskEditor::taskWillBeRemoved);
+                    m_task->taskDidChange.removeObserver(this, &TaskEditor::taskDidChange);
+                }
+            }
+            
             void taskWillBeRemoved() {
-                m_task = NULL;
+                removeTaskObservers();
+                m_task = nullptr;
             }
 
             void taskDidChange() {
-                if (m_task != NULL)
+                if (m_task != nullptr)
                     refresh();
             }
 
+            void profileWillBeRemoved() {
+                removeProfileObservers();
+                removeTaskObservers();
+                m_task = nullptr;
+                m_profile = nullptr;
+            }
+            
             void profileDidChange() {
                 for (AutoCompleteTextControl* control : m_autoCompleteTextControls)
                     updateAutoComplete(control);
@@ -134,7 +162,7 @@ namespace TrenchBroom {
         public:
             ExportMapTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationExportMap* task) :
             TaskEditor(parent, margins, "Export Map", document, profile, task),
-            m_targetEditor(NULL) {}
+            m_targetEditor(nullptr) {}
         private:
             wxWindow* createGui(wxWindow* parent) {
                 wxPanel* container = new wxPanel(parent);
@@ -173,8 +201,8 @@ namespace TrenchBroom {
         public:
             CopyFilesTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationCopyFiles* task) :
             TaskEditor(parent, margins, "Copy Files", document, profile, task),
-            m_sourceEditor(NULL),
-            m_targetEditor(NULL) {}
+            m_sourceEditor(nullptr),
+            m_targetEditor(nullptr) {}
         private:
             wxWindow* createGui(wxWindow* parent) {
                 wxPanel* container = new wxPanel(parent);
@@ -226,8 +254,8 @@ namespace TrenchBroom {
         public:
             RunToolTaskEditor(wxWindow* parent, const wxSize& margins, MapDocumentWPtr document, Model::CompilationProfile* profile, Model::CompilationRunTool* task) :
             TaskEditor(parent, margins, "Run Tool", document, profile, task),
-            m_toolEditor(NULL),
-            m_parametersEditor(NULL) {}
+            m_toolEditor(nullptr),
+            m_parametersEditor(nullptr) {}
         private:
             wxWindow* createGui(wxWindow* parent) {
                 wxPanel* container = new wxPanel(parent);
@@ -285,18 +313,18 @@ namespace TrenchBroom {
         CompilationTaskList::CompilationTaskList(wxWindow* parent, MapDocumentWPtr document) :
         ControlListBox(parent, true, "Click the '+' button to create a task."),
         m_document(document),
-        m_profile(NULL) {}
+        m_profile(nullptr) {}
 
         CompilationTaskList::~CompilationTaskList() {
-            if (m_profile != NULL)
+            if (m_profile != nullptr)
                 m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
         }
 
         void CompilationTaskList::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != NULL)
+            if (m_profile != nullptr)
                 m_profile->profileDidChange.removeObserver(this, &CompilationTaskList::profileDidChange);
             m_profile = profile;
-            if (m_profile != NULL)
+            if (m_profile != nullptr)
                 m_profile->profileDidChange.addObserver(this, &CompilationTaskList::profileDidChange);
             refresh();
         }
@@ -306,7 +334,7 @@ namespace TrenchBroom {
         }
 
         void CompilationTaskList::refresh() {
-            if (m_profile == NULL)
+            if (m_profile == nullptr)
                 SetItemCount(0);
             else
                 SetItemCount(m_profile->taskCount());
@@ -325,7 +353,7 @@ namespace TrenchBroom {
             m_margins(margins),
             m_document(document),
             m_profile(profile),
-            m_result(NULL) {}
+            m_result(nullptr) {}
 
             Item* result() const {
                 return m_result;
@@ -351,7 +379,7 @@ namespace TrenchBroom {
         };
 
         ControlListBox::Item* CompilationTaskList::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            ensure(m_profile != NULL, "profile is null");
+            ensure(m_profile != nullptr, "profile is null");
 
             CompilationTaskEditorFactory factory(parent, margins, m_document, m_profile);
             Model::CompilationTask* task = m_profile->task(index);

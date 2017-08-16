@@ -31,6 +31,8 @@
 #include <vector>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
         class DiskFileSystem;
     }
@@ -54,12 +56,12 @@ namespace TrenchBroom {
             
             const StringList& gameList() const;
             size_t gameCount() const;
-            GamePtr createGame(const String& gameName);
+            GameSPtr createGame(const String& gameName, Logger* logger);
             
             const StringList& fileFormats(const String& gameName) const;
             IO::Path iconPath(const String& gameName) const;
             IO::Path gamePath(const String& gameName) const;
-            void setGamePath(const String& gameName, const IO::Path& gamePath);
+            bool setGamePath(const String& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
 
             GameConfig& gameConfig(const String& gameName);

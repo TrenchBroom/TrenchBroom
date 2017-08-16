@@ -37,20 +37,10 @@ namespace TrenchBroom {
             
             for (const String& variableName : m_variables->names()) {
                 const String variableValue = m_variables->value(variableName).describe();
-                result.Add(variableName, variableValue);
+                result.Add("{" + variableName + "}", variableValue);
             }
             
             return result;
-        }
-
-        size_t ELAutoCompleteHelper::findLastDollar(const wxString& str, const size_t startIndex) const {
-            size_t curIndex = startIndex;
-            do {
-                --curIndex;
-                if (str[curIndex] == '$')
-                    return curIndex;
-            } while (curIndex > 0);
-            return str.Len();
         }
     }
 }

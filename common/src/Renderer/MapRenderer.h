@@ -72,9 +72,12 @@ namespace TrenchBroom {
         private:
             void commitPendingChanges();
             void setupGL(RenderBatch& renderBatch);
-            void renderDefault(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderLocked(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderSelectionOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderSelectionTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
             
             class MatchTutorialEntities;

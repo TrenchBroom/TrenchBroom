@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 if (pos != String::npos)
                     std::advance(begin, long(pos));
                 
-                return StringUtils::matchesPattern(begin, std::end(textureName), std::begin(m_pattern), std::end(m_pattern), StringUtils::CaseInsensitiveCharCompare());
+                return StringUtils::matchesPattern(begin, std::end(textureName), std::begin(m_pattern), std::end(m_pattern), StringUtils::CharEqual<StringUtils::CaseInsensitiveCharCompare>());
             }
         };
         

@@ -191,8 +191,8 @@ namespace TrenchBroom {
         
         Model::IssueList IssueBrowserView::collectIssues(const IndexList& indices) const {
             Model::IssueList result;
-            for (size_t i = 0; i < indices.size(); ++i)
-                result.push_back(m_issues[indices[i]]);
+            for (size_t index : indices)
+                result.push_back(m_issues[index]);
             return result;
         }
 
@@ -201,8 +201,8 @@ namespace TrenchBroom {
                 return Model::IssueQuickFixList(0);
             
             Model::IssueType issueTypes = ~0;
-            for (size_t i = 0; i < indices.size(); ++i) {
-                const Model::Issue* issue = m_issues[indices[i]];
+            for (size_t index : indices) {
+                const Model::Issue* issue = m_issues[index];
                 issueTypes &= issue->type();
             }
             
@@ -213,20 +213,17 @@ namespace TrenchBroom {
         
         Model::IssueType IssueBrowserView::issueTypeMask() const {
             Model::IssueType result = ~static_cast<Model::IssueType>(0);
-            const IndexList selection = getSelection();
-            for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = m_issues[selection[i]];
+            for (size_t index : getSelection()) {
+                Model::Issue* issue = m_issues[index];
                 result &= issue->type();
             }
             return result;
         }
 
         void IssueBrowserView::setIssueVisibility(const bool show) {
-            const IndexList selection = getSelection();
-            
             MapDocumentSPtr document = lock(m_document);
-            for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = m_issues[selection[i]];
+            for (size_t index : getSelection()) {
+                Model::Issue* issue = m_issues[index];
                 document->setIssueHidden(issue, !show);
             }
 

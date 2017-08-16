@@ -635,6 +635,12 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
+        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+            for (Model::BrushFace* face : m_selectedBrushFaces)
+                face->copyTexCoordSystemFromFace(coordSystemSnapshot, sourceFaceNormal);
+            brushFacesDidChangeNotifier(m_selectedBrushFaces);
+        }
+        
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             const Model::BrushFaceList& faces = allSelectedBrushFaces();
             request.evaluate(faces);
@@ -876,9 +882,16 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier0::NotifyAfter notifyMods(modsDidChangeNotifier);
 
+            const String newValue = StringUtils::join(mods, ";");
+            
             unsetEntityDefinitions();
             clearEntityModels();
-            m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            
+            if (mods.empty())
+                m_world->removeAttribute(Model::AttributeNames::Mods);
+            else
+                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            
             updateGameSearchPaths();
             setEntityDefinitions();
         }

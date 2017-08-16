@@ -254,6 +254,9 @@ namespace TrenchBroom {
         void VertexTool::selectVertex(const Model::Hit::List& hits, const bool addToSelection) {
             m_handleManager.deselectAllEdgeHandles();
             m_handleManager.deselectAllFaceHandles();
+
+            if (!addToSelection)
+                m_handleManager.deselectAllHandles();
             
             size_t selected = 0;
             for (const Model::Hit& hit : hits) {
@@ -263,8 +266,6 @@ namespace TrenchBroom {
             }
             
             if (selected < hits.size()) {
-                if (!addToSelection)
-                    m_handleManager.deselectAllHandles();
                 for (const Model::Hit& hit : hits) {
                     const Vec3 position = hit.target<Vec3>();
                     m_handleManager.selectVertexHandle(position);

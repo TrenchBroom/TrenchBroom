@@ -141,6 +141,10 @@ public:
     typedef std::set<Vec<T,S>, LexicographicOrder> Set;
     typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;
     
+    static const List AllAxes;
+    static const List PosAxes;
+    static const List NegAxes;
+    
     static const List EmptyList;
     static const Set EmptySet;
     static const Map EmptyMap;
@@ -701,23 +705,6 @@ public:
         return 1.0 - dot(other) < epsilon;
     }
     
-    Vec<T,S> makePerpendicular() const {
-        Vec<T,S> result;
-        const T l = v[S-1];
-        if (l == static_cast<T>(0.0)) {
-            result[S-1] = static_cast<T>(1.0);
-        } else {
-            T lp = static_cast<T>(0.0);
-            for (size_t i = 0; i < S-1; ++i) {
-                result[i] = static_cast<T>(1.0);
-                lp += v[i];
-            }
-            result[S-1] = lp / l;
-            result.normalize();
-        }
-        return result;
-    }
-    
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
@@ -806,6 +793,13 @@ public:
     
     const Vec<T,3> absThirdAxis() const {
         return absMajorAxis(2);
+    }
+    
+    Vec<T,S> makePerpendicular() const {
+        // get an axis that this vector has the least weight towards.
+        const Vec<T,S> leastAxis = majorAxis(S-1);
+        
+        return crossed(*this, leastAxis).normalized();
     }
     
     void write(std::ostream& str, const size_t components = S) const {
@@ -987,6 +981,13 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Min  = Vec<T,S>::fill(std::numeric_limits<T>::min());
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
+
+template <typename T, size_t S>
+const typename Vec<T,S>::List Vec<T,S>::PosAxes = Vec<T,S>::List({ PosX, PosY, PosZ });
+template <typename T, size_t S>
+const typename Vec<T,S>::List Vec<T,S>::NegAxes = Vec<T,S>::List({ NegX, NegY, NegZ });
+template <typename T, size_t S>
+const typename Vec<T,S>::List Vec<T,S>::AllAxes = Vec<T,S>::List({ PosX, NegX, PosY, NegY, PosZ, NegZ });
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();

@@ -23,6 +23,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "View/Inspector.h"
+#include "View/Selection.h"
 #include "View/ViewTypes.h"
 #include "SplitterWindow2.h"
 
@@ -32,6 +33,7 @@
 class wxChoice;
 class wxTimer;
 class wxTimerEvent;
+class wxStatusBar;
 
 namespace TrenchBroom {
     class Logger;
@@ -69,6 +71,8 @@ namespace TrenchBroom {
 
             wxChoice* m_gridChoice;
             
+            wxStatusBar* m_statusBar;
+            
             wxDialog* m_compilationDialog;
             
             CommandWindowUpdateLocker* m_updateLocker;
@@ -86,8 +90,8 @@ namespace TrenchBroom {
             void setToolBoxDropTarget();
             void clearDropTarget();
         public: // document management
-            bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
-            bool openDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat, const IO::Path& path);
+            bool newDocument(Model::GameSPtr game, Model::MapFormat::Type mapFormat);
+            bool openDocument(Model::GameSPtr game, Model::MapFormat::Type mapFormat, const IO::Path& path);
         private:
             bool saveDocument();
             bool saveDocumentAs();
@@ -106,6 +110,9 @@ namespace TrenchBroom {
             void updateRecentDocumentsMenu();
         private: // tool bar
             void createToolBar();
+        private: // status bar
+            void createStatusBar();
+            void updateStatusBar();
         private: // gui creation
             void createGui();
         private: // notification handlers
@@ -117,6 +124,10 @@ namespace TrenchBroom {
             void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
+            void selectionDidChange(const Selection& selection);
+            void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
+            void groupWasOpened(Model::Group* group);
+            void groupWasClosed(Model::Group* group);
         private: // menu event handlers
             void bindEvents();
 

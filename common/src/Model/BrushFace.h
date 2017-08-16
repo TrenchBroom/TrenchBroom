@@ -109,7 +109,9 @@ namespace TrenchBroom {
             BrushFace* clone() const;
             
             BrushFaceSnapshot* takeSnapshot();
+            TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal);
 
             Brush* brush() const;
             void setBrush(Brush* brush);
@@ -204,6 +206,8 @@ namespace TrenchBroom {
 
             bool containsPoint(const Vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
+            
+            void printPoints() const;
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();

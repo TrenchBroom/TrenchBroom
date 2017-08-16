@@ -44,7 +44,7 @@ namespace TrenchBroom {
         void MousePreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const float value = m_lookSpeedSlider->GetValue() / 100.0f;
+            const float value = getSliderValue(m_lookSpeedSlider);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookSpeed, value);
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         void MousePreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const float value = m_panSpeedSlider->GetValue() / 100.0f;
+            const float value = getSliderValue(m_panSpeedSlider);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanSpeed, value);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
         void MousePreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const float value = m_moveSpeedSlider->GetValue() / 100.0f;
+            const float value = getSliderValue(m_moveSpeedSlider);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraMoveSpeed, value);
@@ -140,13 +140,13 @@ namespace TrenchBroom {
             prefs.set(Preferences::CameraMoveInCursorDir, value);
         }
         
-        void MousePreferencePane::OnFlySpeedChanged(wxScrollEvent& event) {
+        void MousePreferencePane::OnFlyLookSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const float value = m_flySpeedSlider->GetValue() / 100.0f;
+            const float value = getSliderValue(m_flyLookSpeedSlider);
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlySpeed, value);
+            prefs.set(Preferences::CameraFlyLookSpeed, value);
         }
         
         void MousePreferencePane::OnInvertFlyVAxisChanged(wxCommandEvent& event) {
@@ -164,11 +164,11 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+            if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
                 event.Veto();
             else
                 prefs.set(Preferences::CameraFlyForward, shortcut);
@@ -180,11 +180,11 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
                 event.Veto();
             else
                 prefs.set(Preferences::CameraFlyBackward, shortcut);
@@ -196,11 +196,11 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+            else if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
                 event.Veto();
             else
                 prefs.set(Preferences::CameraFlyLeft, shortcut);
@@ -212,16 +212,25 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+            else if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
                 event.Veto();
-            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
                 event.Veto();
             else
                 prefs.set(Preferences::CameraFlyRight, shortcut);
         }
         
+        void MousePreferencePane::OnFlyMoveSpeedChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            const float value = getSliderValue(m_flyMoveSpeedSlider);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::CameraFlyMoveSpeed, value);
+        }
+
         void MousePreferencePane::createGui() {
             wxWindow* mousePreferences = createCameraPreferences();
 
@@ -263,8 +272,8 @@ namespace TrenchBroom {
             
             wxStaticText* flyPrefsHeader = new wxStaticText(box, wxID_ANY, "Fly Mode");
             flyPrefsHeader->SetFont(lookPrefsHeader->GetFont().Bold());
-            wxStaticText* flySpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
-            m_flySpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+            wxStaticText* flyLookSpeedLabel = new wxStaticText(box, wxID_ANY, "Sensitivity");
+            m_flyLookSpeedSlider = new wxSlider(box, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             m_invertFlyVAxisCheckBox = new wxCheckBox(box, wxID_ANY, "Invert Y Axis");
             
             wxStaticText* forwardKeyLabel = new wxStaticText(box, wxID_ANY, "Forward");
@@ -280,6 +289,9 @@ namespace TrenchBroom {
             m_rightKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_rightKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
             
+            wxStaticText* flyMoveSpeedLabel = new wxStaticText(box, wxID_ANY, "Speed");
+            m_flyMoveSpeedSlider = new wxSlider(box, wxID_ANY, 256, 64, 512, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
+
             const int HMargin           = LayoutConstants::WideHMargin;
             const int LMargin           = LayoutConstants::WideVMargin;
             const int HeaderFlags       = wxLEFT;
@@ -289,44 +301,96 @@ namespace TrenchBroom {
             const int KeyEditorFlags    = wxRIGHT;
             const int LineFlags         = wxEXPAND | wxTOP;
             
+            int r = 0;
+            
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(lookPrefsHeader,             wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(lookSpeedLabel,              wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_lookSpeedSlider,           wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_invertLookHAxisCheckBox,   wxGBPosition( 2, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_invertLookVAxisCheckBox,   wxGBPosition( 3, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(new BorderLine(box),         wxGBPosition( 4, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(lookPrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
             
-            sizer->Add(panPrefsHeader,              wxGBPosition( 5, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(panSpeedLabel,               wxGBPosition( 6, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_panSpeedSlider,            wxGBPosition( 6, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_invertPanHAxisCheckBox,    wxGBPosition( 7, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_invertPanVAxisCheckBox,    wxGBPosition( 8, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(new BorderLine(box),         wxGBPosition( 9, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(lookSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_lookSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
             
-            sizer->Add(movePrefsHeader,             wxGBPosition(10, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(moveSpeedLabel,              wxGBPosition(11, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_moveSpeedSlider,           wxGBPosition(11, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_invertMouseWheelCheckBox,  wxGBPosition(12, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_enableAltMoveCheckBox,     wxGBPosition(13, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_invertAltMoveAxisCheckBox, wxGBPosition(14, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(m_moveInCursorDirCheckBox,   wxGBPosition(15, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
-            sizer->Add(new BorderLine(box),         wxGBPosition(16, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(m_invertLookHAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
             
-            sizer->Add(flyPrefsHeader,              wxGBPosition(17, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(flySpeedLabel,               wxGBPosition(18, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_flySpeedSlider,            wxGBPosition(18, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(m_invertFlyVAxisCheckBox,    wxGBPosition(19, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            sizer->Add(m_invertLookVAxisCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
             
-            sizer->Add(forwardKeyLabel,             wxGBPosition(20, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_forwardKeyEditor,          wxGBPosition(20, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(backwardKeyLabel,            wxGBPosition(21, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_backwardKeyEditor,         wxGBPosition(21, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(leftKeyLabel,                wxGBPosition(22, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_leftKeyEditor,             wxGBPosition(22, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
-            sizer->Add(rightKeyLabel,               wxGBPosition(23, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_rightKeyEditor,            wxGBPosition(23, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
             
+            sizer->Add(panPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(panSpeedLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_panSpeedSlider,            wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_invertPanHAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_invertPanVAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            sizer->Add(movePrefsHeader,             wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(moveSpeedLabel,              wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_moveSpeedSlider,           wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
+
+            sizer->Add(m_invertMouseWheelCheckBox,  wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_enableAltMoveCheckBox,     wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_invertAltMoveAxisCheckBox, wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_moveInCursorDirCheckBox,   wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            sizer->Add(new BorderLine(box),         wxGBPosition(r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            
+            sizer->Add(flyPrefsHeader,              wxGBPosition(r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(flyLookSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_flyLookSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(m_invertFlyVAxisCheckBox,    wxGBPosition(r, 1), wxDefaultSpan, CheckBoxFlags, HMargin);
+            ++r;
+            
+            
+            sizer->Add(forwardKeyLabel,             wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_forwardKeyEditor,          wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+            
+            sizer->Add(backwardKeyLabel,            wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_backwardKeyEditor,         wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+            
+            sizer->Add(leftKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_leftKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+            
+            sizer->Add(rightKeyLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_rightKeyEditor,            wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+            
+            sizer->Add(flyMoveSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_flyMoveSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
+            
+
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
             box->SetSizer(sizer);
@@ -346,12 +410,14 @@ namespace TrenchBroom {
             bindSliderEvents(m_lookSpeedSlider, &MousePreferencePane::OnLookSpeedChanged, this);
             bindSliderEvents(m_panSpeedSlider, &MousePreferencePane::OnPanSpeedChanged, this);
             bindSliderEvents(m_moveSpeedSlider, &MousePreferencePane::OnMoveSpeedChanged, this);
-            bindSliderEvents(m_flySpeedSlider, &MousePreferencePane::OnFlySpeedChanged, this);
+            bindSliderEvents(m_flyLookSpeedSlider, &MousePreferencePane::OnFlyLookSpeedChanged, this);
             
             m_forwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnForwardKeyChanged, this);
             m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnBackwardKeyChanged, this);
             m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnLeftKeyChanged, this);
             m_rightKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnRightKeyChanged, this);
+
+            bindSliderEvents(m_flyMoveSpeedSlider, &MousePreferencePane::OnFlyMoveSpeedChanged, this);
         }
         
         bool MousePreferencePane::doCanResetToDefaults() {
@@ -374,7 +440,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraAltMoveInvert);
             prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
             
-            prefs.resetToDefault(Preferences::CameraFlySpeed);
+            prefs.resetToDefault(Preferences::CameraFlyLookSpeed);
             prefs.resetToDefault(Preferences::CameraFlyInvertV);
             
             prefs.resetToDefault(Preferences::CameraFlyForward);
@@ -382,32 +448,34 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::CameraFlyLeft);
             prefs.resetToDefault(Preferences::CameraLookSpeed);
             prefs.resetToDefault(Preferences::CameraFlyRight);
+
+            prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
         }
 
         void MousePreferencePane::doUpdateControls() {
-            PreferenceManager& prefs = PreferenceManager::instance();
+            setSliderValue(m_lookSpeedSlider, pref(Preferences::CameraLookSpeed));
+            m_invertLookHAxisCheckBox->SetValue(pref(Preferences::CameraLookInvertH));
+            m_invertLookVAxisCheckBox->SetValue(pref(Preferences::CameraLookInvertV));
+
+            setSliderValue(m_panSpeedSlider, pref(Preferences::CameraPanSpeed));
+            m_invertPanHAxisCheckBox->SetValue(pref(Preferences::CameraPanInvertH));
+            m_invertPanVAxisCheckBox->SetValue(pref(Preferences::CameraPanInvertV));
+
+            setSliderValue(m_moveSpeedSlider, pref(Preferences::CameraMoveSpeed));
+            m_invertMouseWheelCheckBox->SetValue(pref(Preferences::CameraMouseWheelInvert));
+            m_enableAltMoveCheckBox->SetValue(pref(Preferences::CameraEnableAltMove));
+            m_invertAltMoveAxisCheckBox->SetValue(pref(Preferences::CameraAltMoveInvert));
+            m_moveInCursorDirCheckBox->SetValue(pref(Preferences::CameraMoveInCursorDir));
+
+            setSliderValue(m_flyLookSpeedSlider, pref(Preferences::CameraFlyLookSpeed));
+            m_invertFlyVAxisCheckBox->SetValue(pref(Preferences::CameraFlyInvertV));
             
-            m_lookSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
-            m_invertLookHAxisCheckBox->SetValue(prefs.get(Preferences::CameraLookInvertH));
-            m_invertLookVAxisCheckBox->SetValue(prefs.get(Preferences::CameraLookInvertV));
-            
-            m_panSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraPanSpeed) * m_panSpeedSlider->GetMax()));
-            m_invertPanHAxisCheckBox->SetValue(prefs.get(Preferences::CameraPanInvertH));
-            m_invertPanVAxisCheckBox->SetValue(prefs.get(Preferences::CameraPanInvertV));
-            
-            m_moveSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
-            m_invertMouseWheelCheckBox->SetValue(prefs.get(Preferences::CameraMouseWheelInvert));
-            m_enableAltMoveCheckBox->SetValue(prefs.get(Preferences::CameraEnableAltMove));
-            m_invertAltMoveAxisCheckBox->SetValue(prefs.get(Preferences::CameraAltMoveInvert));
-            m_moveInCursorDirCheckBox->SetValue(prefs.get(Preferences::CameraMoveInCursorDir));
-            
-            m_flySpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraFlySpeed) * m_flySpeedSlider->GetMax()));
-            m_invertFlyVAxisCheckBox->SetValue(prefs.get(Preferences::CameraFlyInvertV));
-            
-            m_forwardKeyEditor->SetShortcut(prefs.get(Preferences::CameraFlyForward));
-            m_backwardKeyEditor->SetShortcut(prefs.get(Preferences::CameraFlyBackward));
-            m_leftKeyEditor->SetShortcut(prefs.get(Preferences::CameraFlyLeft));
-            m_rightKeyEditor->SetShortcut(prefs.get(Preferences::CameraFlyRight));
+            m_forwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyForward));
+            m_backwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyBackward));
+            m_leftKeyEditor->SetShortcut(pref(Preferences::CameraFlyLeft));
+            m_rightKeyEditor->SetShortcut(pref(Preferences::CameraFlyRight));
+
+            setSliderValue(m_flyMoveSpeedSlider, pref(Preferences::CameraFlyMoveSpeed));
         }
         
         bool MousePreferencePane::doValidate() {

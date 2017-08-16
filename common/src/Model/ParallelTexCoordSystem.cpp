@@ -24,9 +24,17 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(const Vec3& xAxis, const Vec3& yAxis) :
+        m_xAxis(xAxis),
+        m_yAxis(yAxis) {}
+        
         ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem) :
         m_xAxis(coordSystem->xAxis()),
         m_yAxis(coordSystem->yAxis()) {}
+        
+        TexCoordSystemSnapshot* ParallelTexCoordSystemSnapshot::doClone() const {
+            return new ParallelTexCoordSystemSnapshot(m_xAxis, m_yAxis);
+        }
         
         void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem* coordSystem) const {
             coordSystem->m_xAxis = m_xAxis;
@@ -175,13 +183,17 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
             const Vec3 cross = crossed(oldNormal, newNormal);
+            Vec3 axis;
             if (cross.null()) {
-                rotation = Quat3(oldNormal.makePerpendicular(), Math::C::pi());
+                // oldNormal and newNormal are either the same or opposite
+                axis = oldNormal.makePerpendicular();
             } else {
-                const Vec3 axis = cross.normalized();
-                const FloatType angle = angleBetween(newNormal, oldNormal, axis);
-                rotation = Quat3(axis, angle);
+                axis = cross.normalized();
             }
+            
+            const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+            rotation = Quat3(axis, angle);
+
             m_xAxis = rotation * m_xAxis;
             m_yAxis = rotation * m_yAxis;
         }

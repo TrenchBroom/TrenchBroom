@@ -64,6 +64,7 @@
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
+#include "Model/MissingModIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
@@ -95,6 +96,7 @@
 #include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
+#include "View/CopyTexCoordSystemFromFaceCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetLockStateCommand.h"
@@ -152,7 +154,7 @@ namespace TrenchBroom {
             delete m_editorContext;
         }
         
-        Model::GamePtr MapDocument::game() const {
+        Model::GameSPtr MapDocument::game() const {
             return m_game;
         }
         
@@ -224,7 +226,7 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
         
-        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
+        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game) {
             info("Creating new document");
             
             clearDocument();
@@ -239,7 +241,7 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
         
-        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             info("Loading document from " + path.asString());
             
             clearDocument();
@@ -1095,6 +1097,10 @@ namespace TrenchBroom {
             return submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
         }
         
+        bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, sourceFaceNormal));
+        }
+        
         bool MapDocument::moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
             return submitAndStore(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
         }
@@ -1246,7 +1252,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game) {
+        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds);
@@ -1256,7 +1262,7 @@ namespace TrenchBroom {
             setPath(IO::Path(DefaultDocumentName));
         }
         
-        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);
@@ -1491,13 +1497,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateGameSearchPaths() {
-            const StringList modNames = mods();
-            IO::Path::List additionalSearchPaths;
-            additionalSearchPaths.reserve(modNames.size());
-            
-            for (const String& modName : modNames)
-                additionalSearchPaths.push_back(IO::Path(modName));
-            m_game->setAdditionalSearchPaths(additionalSearchPaths);
+            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods());
+            m_game->setAdditionalSearchPaths(additionalSearchPaths, this);
         }
         
         StringList MapDocument::mods() const {
@@ -1522,6 +1523,7 @@ namespace TrenchBroom {
             
             m_world->registerIssueGenerator(new Model::MissingClassnameIssueGenerator());
             m_world->registerIssueGenerator(new Model::MissingDefinitionIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingModIssueGenerator(m_game));
             m_world->registerIssueGenerator(new Model::EmptyGroupIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
@@ -1597,7 +1599,7 @@ namespace TrenchBroom {
             if (isGamePathPreference(path)) {
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
-                m_game->setGamePath(newGamePath);
+                m_game->setGamePath(newGamePath, this);
                 
                 clearEntityModels();
                 
