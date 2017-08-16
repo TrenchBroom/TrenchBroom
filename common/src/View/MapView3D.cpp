@@ -72,6 +72,7 @@ namespace TrenchBroom {
             initializeCamera();
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass3D());
+			SetName("MapView3D");
         }
 
         MapView3D::~MapView3D() {

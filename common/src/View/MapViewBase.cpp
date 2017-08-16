@@ -221,6 +221,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::preferenceDidChange(const IO::Path& path) {
+			updateAcceleratorTable();
             Refresh();
         }
 
@@ -740,7 +741,7 @@ namespace TrenchBroom {
 
             updateAcceleratorTable(false);
             event.Skip();
-        }
+		}
 
         void MapViewBase::OnActivateFrame(wxActivateEvent& event) {
             if (IsBeingDeleted()) return;
