@@ -46,7 +46,7 @@
   - Run the following two commands
 
     ```
-    cmake .. -T v140 -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v140_xp -DCMAKE_BUILD_TYPE=Release
     cmake --build . --config Release --target TrenchBroom
     ```
 
