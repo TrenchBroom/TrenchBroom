@@ -500,7 +500,7 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
       # Set WX_LIB_DIR_PREFIX using the value of CMAKE_VS_PLATFORM_TOOLSET
       # e.g. CMAKE_VS_PLATFORM_TOOLSET of "v140_xp"
       # would set WX_LIB_DIR_PREFIX to "vc140"
-      STRING(REGEX REPLACE "v(\d+)(?:_xp)?" "vc\\1" WX_LIB_DIR_PREFIX ${CMAKE_VS_PLATFORM_TOOLSET})
+      STRING(REGEX REPLACE "v([0-9]+)(_xp)?" "vc\\1" WX_LIB_DIR_PREFIX ${CMAKE_VS_PLATFORM_TOOLSET})
     endif()
 	DBG_MSG("Searching in ${WX_ROOT_DIR}/lib/${WX_LIB_DIR_PREFIX}_dll")
     if(BUILD_SHARED_LIBS)
