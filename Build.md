@@ -8,11 +8,13 @@
 
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
+    - VS2015 and VS2017 are supported.
+    - Install the `v140_xp` platform toolset (listed as "Windows XP Support for C++" in the installer).
     - Get the binary build of wxWidgets 3 for your platform from
       [http://www.wxwidgets.org](http://www.wxwidgets.org)
 
     - For 32bit builds, you need the following files:
-        If you are using a different version of Visual Studio, you will have to download other binaries, e.g., `wxMSW-<version>-vc120_Dev.7z` etc. and you will also have to use different directory names instead of vc140_dll below.
+        If you are using a different version of Visual Studio, you will have to download other binaries, e.g., `wxMSW-<version>-vc140_Dev.7z` etc. and you will also have to use different directory names instead of vc140_dll below.
         - `wxWidgets-<version>_headers.7z`
         - `wxMSW-<version>_vc140_Dev.7z`
         - `wxMSW-<version>_vc140_ReleaseDLL.7z`
@@ -50,7 +52,10 @@
     cmake --build . --config Release --target TrenchBroom
     ```
 
+    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v140_xp` is the _Visual Studio 2015_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v140_xp`; earlier versions won't be able to compile TrenchBroom.
+
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
+
 - For MinGW 64
   - Download and install [MinGW](http://mingw-w64.sourceforge.net/)
     - Scroll down to Mingw-builds and select the appropriate version for your OS (32 or 64 Bit), then select the SJLJ variant.
