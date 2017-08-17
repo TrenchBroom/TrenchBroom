@@ -20,7 +20,7 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr& valueHolder) {
+    void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr valueHolder) {
         m_unsavedPreferences.insert(std::make_pair(preference, std::move(valueHolder)));
     }
     
