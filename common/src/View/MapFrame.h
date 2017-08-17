@@ -102,6 +102,7 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
+            void OnActivate(wxActivateEvent& event);
             void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
             void createMenuBar();

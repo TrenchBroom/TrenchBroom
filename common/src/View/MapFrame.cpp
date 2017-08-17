@@ -333,6 +333,12 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
+        void MapFrame::OnActivate(wxActivateEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            rebuildMenuBar();
+        }
+
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -737,6 +743,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+            Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);

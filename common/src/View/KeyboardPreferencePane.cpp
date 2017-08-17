@@ -38,8 +38,8 @@ namespace TrenchBroom {
     namespace View {
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
-        m_grid(NULL),
-        m_table(NULL) {
+        m_grid(nullptr),
+        m_table(nullptr) {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid();
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
