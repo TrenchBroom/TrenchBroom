@@ -40,9 +40,8 @@ namespace TrenchBroom {
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
         
-        void markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr valueHolder);
+        void markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr& valueHolder);
     public:
-        ~PreferenceManager();
         static PreferenceManager& instance();
         
         Notifier1<const IO::Path&> preferenceDidChangeNotifier;
@@ -75,7 +74,7 @@ namespace TrenchBroom {
                 preference.save(wxConfig::Get());
                 preferenceDidChangeNotifier(preference.path());
             } else {
-                markAsUnsaved(&preference, new ValueHolder<T>(previousValue));
+                markAsUnsaved(&preference, ValueHolderBase::UPtr(new ValueHolder<T>(previousValue)));
             }
             
             return true;
