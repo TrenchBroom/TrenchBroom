@@ -132,29 +132,29 @@ namespace TrenchBroom {
             }
 
             void OnScrollBarLineUp(wxScrollEvent& event) {
-                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
                 Refresh();
                 event.Skip();
             }
 
             void OnScrollBarLineDown(wxScrollEvent& event) {
-                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
                 Refresh();
                 event.Skip();
             }
 
             void OnScrollBarPageUp(wxScrollEvent& event) {
-                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                float height = static_cast<float>(GetClientSize().y);
+                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                const float height = static_cast<float>(GetClientSize().y);
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0)));
                 Refresh();
                 event.Skip();
             }
 
             void OnScrollBarPageDown(wxScrollEvent& event) {
-                float top = static_cast<float>(m_scrollBar->GetThumbPosition());
+                const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 0)));
                 Refresh();
                 event.Skip();
@@ -251,11 +251,10 @@ namespace TrenchBroom {
 
             void OnMouseWheel(wxMouseEvent& event) {
                 if (m_scrollBar != nullptr) {
-                    const float top = static_cast<float>(m_scrollBar->GetThumbPosition());
-                    float newTop = event.GetWheelRotation() < 0 ? m_layout.rowPosition(top, 1) : m_layout.rowPosition(top, -1);
-                    newTop = std::max(0.0f, std::ceil(newTop - m_layout.rowMargin()));
-
-                    m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
+                    const int top = m_scrollBar->GetThumbPosition();
+                    const int height = static_cast<int>(m_layout.height());
+                    const int newTop = std::min(std::max(0, top - event.GetWheelRotation()), height);
+                    m_scrollBar->SetThumbPosition(newTop);
                     Refresh();
                 }
             }
