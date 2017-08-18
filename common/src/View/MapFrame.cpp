@@ -379,8 +379,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createMenuBar() {
-			const bool focus = m_mapView->viewportHasFocus();
-
 			const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
             SetMenuBar(menuBar);
