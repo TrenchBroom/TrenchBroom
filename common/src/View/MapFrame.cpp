@@ -333,14 +333,31 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
-        void MapFrame::OnActivate(wxActivateEvent& event) {
+#if defined(_WIN32)
+		/*
+		This and the following method were added to reset the menu bar correctly when the map frame
+		regains focus after the preference dialog is closed. Since the map view reports not having focus
+		when the activation event is processed, we set up a delayed processing in the next idle event.
+
+		See also issue #1762, which only affects Windows.
+		*/
+		void MapFrame::OnActivate(wxActivateEvent& event) {
             if (IsBeingDeleted()) return;
-            
-            rebuildMenuBar();
+
+			Bind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
 			event.Skip();
         }
 
-        void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
+		void MapFrame::OnDelayedActivate(wxIdleEvent& event) {
+			if (IsBeingDeleted()) return;
+
+			Unbind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
+			rebuildMenuBar();
+			event.Skip();
+		}
+#endif
+
+		void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
             wxWindow* focus = FindFocus();
@@ -351,7 +368,7 @@ namespace TrenchBroom {
                 m_lastFocus = focus;
             }
 
-			event.Skip()
+			event.Skip();
         }
 
         void MapFrame::rebuildMenuBar() {
@@ -362,7 +379,9 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createMenuBar() {
-            const ActionManager& actionManager = ActionManager::instance();
+			const bool focus = m_mapView->viewportHasFocus();
+
+			const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
             SetMenuBar(menuBar);
             addRecentDocumentsMenu(menuBar);
@@ -746,8 +765,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+			Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+
+#if defined(_WIN32)
             Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
-            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+#endif
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
         }
