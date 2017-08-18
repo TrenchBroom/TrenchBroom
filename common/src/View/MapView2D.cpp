@@ -20,6 +20,7 @@
 #include "MapView2D.h"
 #include "Algorithms.h"
 #include "Logger.h"
+#include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -68,6 +69,19 @@ namespace TrenchBroom {
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass2D());
+
+			switch (viewPlane) {
+			case ViewPlane_XY:
+				SetName("XY View");
+				break;
+			case ViewPlane_YZ:
+				SetName("YZ View");
+				break;
+			case ViewPlane_XZ:
+				SetName("XZ View");
+				break;
+			switchDefault()
+			}
         }
 
         MapView2D::~MapView2D() {

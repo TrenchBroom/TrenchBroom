@@ -20,12 +20,8 @@
 #include "PreferenceManager.h"
 
 namespace TrenchBroom {
-    void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase* valueHolder) {
-        UnsavedPreferences::iterator it = m_unsavedPreferences.find(preference);
-        if (it == std::end(m_unsavedPreferences))
-            m_unsavedPreferences[preference] = valueHolder;
-        else
-            delete valueHolder;
+    void PreferenceManager::markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr valueHolder) {
+        m_unsavedPreferences.insert(std::make_pair(preference, std::move(valueHolder)));
     }
     
     PreferenceManager& PreferenceManager::instance() {
@@ -41,13 +37,11 @@ namespace TrenchBroom {
         PreferenceBase::Set changedPreferences;
         for (const auto& entry : m_unsavedPreferences) {
             PreferenceBase* pref = entry.first;
-            ValueHolderBase* value = entry.second;
             
             pref->save(wxConfig::Get());
             preferenceDidChangeNotifier(pref->path());
             
             changedPreferences.insert(pref);
-            delete value;
         }
         
         m_unsavedPreferences.clear();
@@ -58,11 +52,10 @@ namespace TrenchBroom {
         PreferenceBase::Set changedPreferences;
         for (const auto& entry : m_unsavedPreferences) {
             PreferenceBase* pref = entry.first;
-            ValueHolderBase* value = entry.second;
+            ValueHolderBase* value = entry.second.get();
 
             pref->setValue(value);
             changedPreferences.insert(pref);
-            delete value;
         }
         
         m_unsavedPreferences.clear();
@@ -75,9 +68,5 @@ namespace TrenchBroom {
 #else
         m_saveInstantly = false;
 #endif
-    }
-
-    PreferenceManager::~PreferenceManager() {
-        MapUtils::clearAndDelete(m_unsavedPreferences);
     }
 }

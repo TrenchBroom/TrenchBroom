@@ -79,38 +79,38 @@
 namespace TrenchBroom {
     namespace View {
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
-        m_frameManager(NULL),
-        m_autosaver(NULL),
-        m_autosaveTimer(NULL),
-        m_contextManager(NULL),
-        m_mapView(NULL),
-        m_console(NULL),
-        m_inspector(NULL),
-        m_lastFocus(NULL),
-        m_gridChoice(NULL),
-        m_compilationDialog(NULL),
-        m_updateLocker(NULL) {}
+        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        m_frameManager(nullptr),
+        m_autosaver(nullptr),
+        m_autosaveTimer(nullptr),
+        m_contextManager(nullptr),
+        m_mapView(nullptr),
+        m_console(nullptr),
+        m_inspector(nullptr),
+        m_lastFocus(nullptr),
+        m_gridChoice(nullptr),
+        m_compilationDialog(nullptr),
+        m_updateLocker(nullptr) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
-        m_frameManager(NULL),
-        m_autosaver(NULL),
-        m_autosaveTimer(NULL),
-        m_contextManager(NULL),
-        m_mapView(NULL),
-        m_console(NULL),
-        m_inspector(NULL),
-        m_lastFocus(NULL),
-        m_gridChoice(NULL),
-        m_compilationDialog(NULL),
-        m_updateLocker(NULL) {
+        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        m_frameManager(nullptr),
+        m_autosaver(nullptr),
+        m_autosaveTimer(nullptr),
+        m_contextManager(nullptr),
+        m_mapView(nullptr),
+        m_console(nullptr),
+        m_inspector(nullptr),
+        m_lastFocus(nullptr),
+        m_gridChoice(nullptr),
+        m_compilationDialog(nullptr),
+        m_updateLocker(nullptr) {
             Create(frameManager, document);
         }
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
-            ensure(frameManager != NULL, "frameManager is null");
-            ensure(document.get() != NULL, "document is null");
+            ensure(frameManager != nullptr, "frameManager is null");
+            ensure(document.get() != nullptr, "document is null");
 
             m_frameManager = frameManager;
             m_document = document;
@@ -171,30 +171,30 @@ namespace TrenchBroom {
             removeRecentDocumentsMenu(GetMenuBar());
 
             delete m_updateLocker;
-            m_updateLocker = NULL;
+            m_updateLocker = nullptr;
             
             delete m_autosaveTimer;
-            m_autosaveTimer = NULL;
+            m_autosaveTimer = nullptr;
 
             delete m_autosaver;
-            m_autosaver = NULL;
+            m_autosaver = nullptr;
 
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
             DestroyChildren(); // Destroy the children first because they might still access document resources.
             
-            m_document->setViewEffectsService(NULL);
+            m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
             delete m_contextManager;
-            m_contextManager = NULL;
+            m_contextManager = nullptr;
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
             const wxDisplay display;
             const wxRect displaySize = display.GetClientArea();
-            if (reference == NULL) {
+            if (reference == nullptr) {
                 SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
                 CenterOnScreen();
             } else {
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::setToolBoxDropTarget() {
-            SetDropTarget(NULL);
+            SetDropTarget(nullptr);
             m_mapView->setToolBoxDropTarget();
         }
 
@@ -333,16 +333,42 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
-        void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
+#if defined(_WIN32)
+		/*
+		This and the following method were added to reset the menu bar correctly when the map frame
+		regains focus after the preference dialog is closed. Since the map view reports not having focus
+		when the activation event is processed, we set up a delayed processing in the next idle event.
+
+		See also issue #1762, which only affects Windows.
+		*/
+		void MapFrame::OnActivate(wxActivateEvent& event) {
+            if (IsBeingDeleted()) return;
+
+			Bind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
+			event.Skip();
+        }
+
+		void MapFrame::OnDelayedActivate(wxIdleEvent& event) {
+			if (IsBeingDeleted()) return;
+
+			Unbind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
+			rebuildMenuBar();
+			event.Skip();
+		}
+#endif
+
+		void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
             wxWindow* focus = FindFocus();
-            if (focus == NULL)
+            if (focus == nullptr)
                 focus = event.GetWindow();
             if (focus != m_lastFocus && focus != this) {
                 rebuildMenuBar();
                 m_lastFocus = focus;
             }
+
+			event.Skip();
         }
 
         void MapFrame::rebuildMenuBar() {
@@ -353,7 +379,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createMenuBar() {
-            const ActionManager& actionManager = ActionManager::instance();
+			const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
             SetMenuBar(menuBar);
             addRecentDocumentsMenu(menuBar);
@@ -362,7 +388,7 @@ namespace TrenchBroom {
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
+            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.addRecentDocumentMenu(recentDocumentsMenu);
@@ -371,7 +397,7 @@ namespace TrenchBroom {
         void MapFrame::removeRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
+            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(recentDocumentsMenu);
@@ -737,7 +763,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
-            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+			Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+
+#if defined(_WIN32)
+            Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
+#endif
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
         }
@@ -1207,7 +1237,7 @@ namespace TrenchBroom {
         void MapFrame::OnRunCompile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (m_compilationDialog == NULL) {
+            if (m_compilationDialog == nullptr) {
                 m_compilationDialog = new CompilationDialog(this);
                 m_compilationDialog->Show();
             } else {
@@ -1216,7 +1246,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::compilationDialogWillClose() {
-            m_compilationDialog = NULL;
+            m_compilationDialog = nullptr;
         }
 
         void MapFrame::OnRunLaunch(wxCommandEvent& event) {
@@ -1301,7 +1331,7 @@ namespace TrenchBroom {
             
             wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
 
-            wxSingleChoiceDialog d(NULL, "Choose a crash type", "Crash", 2, crashTypes);
+            wxSingleChoiceDialog d(nullptr, "Choose a crash type", "Crash", 2, crashTypes);
             if (d.ShowModal() == wxID_OK) {
                 const int idx = d.GetSelection();
                 if (idx == 0) {
@@ -1344,7 +1374,7 @@ namespace TrenchBroom {
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
-                    ensure(item != NULL, "item is null");
+                    ensure(item != nullptr, "item is null");
                     if (canUndo()) {
                         event.Enable(true);
                         event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
@@ -1703,10 +1733,10 @@ namespace TrenchBroom {
 
         void MapFrame::OnClose(wxCloseEvent& event) {
             if (!IsBeingDeleted()) {
-                if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
+                if (m_compilationDialog != nullptr && !m_compilationDialog->Close()) {
                     event.Veto();
                 } else {
-                    ensure(m_frameManager != NULL, "frameManager is null");
+                    ensure(m_frameManager != nullptr, "frameManager is null");
                     if (event.CanVeto() && !confirmOrDiscardChanges())
                         event.Veto();
                     else
