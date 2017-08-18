@@ -224,7 +224,7 @@ namespace TrenchBroom {
 			updateAcceleratorTable();
             Refresh();
         }
-
+		
 		void MapViewBase::documentDidChange(MapDocument* document) {
 			updatePickResult();
 			Refresh();

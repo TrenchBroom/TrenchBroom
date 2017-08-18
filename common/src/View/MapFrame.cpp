@@ -337,6 +337,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             rebuildMenuBar();
+			event.Skip();
         }
 
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
@@ -349,6 +350,8 @@ namespace TrenchBroom {
                 rebuildMenuBar();
                 m_lastFocus = focus;
             }
+
+			event.Skip()
         }
 
         void MapFrame::rebuildMenuBar() {
