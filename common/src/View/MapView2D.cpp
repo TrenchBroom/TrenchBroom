@@ -132,25 +132,6 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapView2D::bindEvents() {
-            /*
-            Bind(wxEVT_KEY_DOWN, &MapView2D::OnKey, this);
-            Bind(wxEVT_KEY_UP, &MapView2D::OnKey, this);
-            */
-            
-            /*
-            Bind(wxEVT_MENU, &MapView2D::OnPopupReparentBrushes,         this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupMoveBrushesToWorld,      this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreatePointEntity,       this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreateBrushEntity,       this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            */
-        }
-
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {
             return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
