@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 const int EditReplaceTexture                 = Lowest + 110;
 
                 const int EditToggleCreateComplexBrushTool   = Lowest + 111;
-                const int EditToggleVertexTool               = Lowest + 112;
+                const int EditToggleVertexToolOld            = Lowest + 112;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
                 const int EditCsgConvexMerge                 = Lowest + 116;
                 const int EditCsgSubtract                    = Lowest + 117;
@@ -91,17 +91,20 @@ namespace TrenchBroom {
                 const int ViewUnhideAll                      = Lowest + 124;
                 const int EditToggleClipTool                 = Lowest + 125;
                 const int EditDeactivateTool                 = Lowest + 126;
+                const int EditToggleVertexTool               = Lowest + 127;
+                const int EditToggleEdgeTool                 = Lowest + 128;
+                const int EditToggleFaceTool                 = Lowest + 129;
                 
-                const int DebugPrintVertices                 = Lowest + 127;
-                const int DebugCreateBrush                   = Lowest + 128;
-                const int DebugCopyJSShortcuts               = Lowest + 129;
-                const int DebugCrash                         = Lowest + 130;
-                const int DebugCreateCube                    = Lowest + 131;
-                const int DebugClipWithFace                  = Lowest + 132;
-                const int DebugCrashReportDialog             = Lowest + 133;
+                const int DebugPrintVertices                 = Lowest + 140;
+                const int DebugCreateBrush                   = Lowest + 141;
+                const int DebugCopyJSShortcuts               = Lowest + 142;
+                const int DebugCrash                         = Lowest + 143;
+                const int DebugCreateCube                    = Lowest + 144;
+                const int DebugClipWithFace                  = Lowest + 145;
+                const int DebugCrashReportDialog             = Lowest + 146;
                 
-                const int RunCompile                         = Lowest + 133;
-                const int RunLaunch                          = Lowest + 134;
+                const int RunCompile                         = Lowest + 150;
+                const int RunLaunch                          = Lowest + 151;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 

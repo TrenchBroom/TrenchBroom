@@ -17,26 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexToolController.h"
+#include "VertexToolOldController.h"
 
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/VertexTool.h"
+#include "View/VertexToolOld.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        const FloatType VertexToolController::MaxVertexDistance = 0.25;
+        const FloatType VertexToolOldController::MaxVertexDistance = 0.25;
 
-        class VertexToolController::VertexPartBase {
+        class VertexToolOldController::VertexPartBase {
         protected:
-            VertexTool* m_tool;
+            VertexToolOld* m_tool;
         public:
-            VertexPartBase(VertexTool* tool) :
+            VertexPartBase(VertexToolOld* tool) :
             m_tool(tool) {
                 ensure(m_tool != NULL, "tool is null");
             }
@@ -66,11 +66,11 @@ namespace TrenchBroom {
             }
         };
         
-        class VertexToolController::SelectVertexPart : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public VertexPartBase {
+        class VertexToolOldController::SelectVertexPart : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public VertexPartBase {
         private:
             Lasso* m_lasso;
         public:
-            SelectVertexPart(VertexTool* tool) :
+            SelectVertexPart(VertexToolOld* tool) :
             VertexPartBase(tool),
             m_lasso(NULL) {}
             
@@ -150,9 +150,9 @@ namespace TrenchBroom {
             }
         };
         
-        class VertexToolController::MoveVertexPart : public MoveToolController<NoPickingPolicy, MousePolicy>, public VertexPartBase {
+        class VertexToolOldController::MoveVertexPart : public MoveToolController<NoPickingPolicy, MousePolicy>, public VertexPartBase {
         public:
-            MoveVertexPart(VertexTool* tool) :
+            MoveVertexPart(VertexToolOld* tool) :
             MoveToolController(tool->grid()),
             VertexPartBase(tool) {}
         private:
@@ -214,11 +214,11 @@ namespace TrenchBroom {
             
             DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                 switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
-                    case VertexTool::MR_Continue:
+                    case VertexToolOld::MR_Continue:
                         return DR_Continue;
-                    case VertexTool::MR_Deny:
+                    case VertexToolOld::MR_Deny:
                         return DR_Deny;
-                    case VertexTool::MR_Cancel:
+                    case VertexToolOld::MR_Cancel:
                         return DR_Cancel;
                     switchDefault()
                 }
@@ -278,9 +278,9 @@ namespace TrenchBroom {
             }
         };
         
-        class VertexToolController::SnapVertexPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public VertexPartBase {
+        class VertexToolOldController::SnapVertexPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public VertexPartBase {
         public:
-            SnapVertexPart(VertexTool* tool) :
+            SnapVertexPart(VertexToolOld* tool) :
             VertexPartBase(tool) {}
         private:
             Tool* doGetTool() {
@@ -305,7 +305,7 @@ namespace TrenchBroom {
             }
         };
         
-        VertexToolController::VertexToolController(VertexTool* tool) :
+        VertexToolOldController::VertexToolOldController(VertexToolOld* tool) :
         m_tool(tool) {
             ensure(m_tool != NULL, "tool is null");
             addController(new MoveVertexPart(tool));
@@ -313,9 +313,9 @@ namespace TrenchBroom {
             addController(new SnapVertexPart(tool));
         }
 
-        VertexToolController::~VertexToolController() {}
+        VertexToolOldController::~VertexToolOldController() {}
 
-        Tool* VertexToolController::doGetTool() {
+        Tool* VertexToolOldController::doGetTool() {
             return m_tool;
         }
     }

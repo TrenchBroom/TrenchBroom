@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexToolController
-#define TrenchBroom_VertexToolController
+#ifndef TrenchBroom_VertexToolOldController
+#define TrenchBroom_VertexToolOldController
 
 #include "Model/Hit.h"
 #include "View/MoveToolController.h"
@@ -30,9 +30,9 @@ namespace TrenchBroom {
         class Lasso;
         class InputState;
         class MovementRestriction;
-        class VertexTool;
+        class VertexToolOld;
         
-        class VertexToolController : public ToolControllerGroup {
+        class VertexToolOldController : public ToolControllerGroup {
         private:
             static const FloatType MaxVertexDistance;
             class VertexPartBase;
@@ -40,14 +40,14 @@ namespace TrenchBroom {
             class MoveVertexPart;
             class SnapVertexPart;
         protected:
-            VertexTool* m_tool;
+            VertexToolOld* m_tool;
         public:
-            VertexToolController(VertexTool* tool);
-            ~VertexToolController();
+            VertexToolOldController(VertexToolOld* tool);
+            ~VertexToolOldController();
         private:
             Tool* doGetTool();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexToolController) */
+#endif /* defined(TrenchBroom_VertexToolOldController) */

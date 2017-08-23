@@ -49,7 +49,7 @@ namespace TrenchBroom {
         class MapViewBar;
         class MapViewToolBox;
         class Tool;
-        class VertexTool;
+        class VertexToolOld;
         
         class SwitchableMapViewContainer : public wxPanel, public MapView {
         private:
@@ -88,10 +88,10 @@ namespace TrenchBroom {
             bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
             
-            bool vertexToolActive() const;
-            bool canToggleVertexTool() const;
-            void toggleVertexTool();
-            VertexTool* vertexTool();
+            bool vertexToolOldActive() const;
+            bool canToggleVertexToolOld() const;
+            void toggleVertexToolOld();
+            VertexToolOld* vertexToolOld();
             
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;

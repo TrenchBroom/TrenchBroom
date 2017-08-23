@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexTool
-#define TrenchBroom_VertexTool
+#ifndef TrenchBroom_VertexToolOld
+#define TrenchBroom_VertexToolOld
 
 #include "StringUtils.h"
 #include "TrenchBroom.h"
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         
-        class VertexTool : public Tool {
+        class VertexToolOld : public Tool {
         public:
             typedef enum {
                 MR_Continue,
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             Vec3 m_dragHandlePosition;
             bool m_dragging;
         public:
-            VertexTool(MapDocumentWPtr document);
+            VertexToolOld(MapDocumentWPtr document);
             
             const Grid& grid() const;
             
@@ -139,10 +139,8 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
-        private: // implement Tool interface
-            String doGetIconName() const;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexTool) */
+#endif /* defined(TrenchBroom_VertexToolOld) */

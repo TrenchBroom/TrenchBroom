@@ -55,8 +55,8 @@
 #include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
-#include "View/VertexTool.h"
-#include "View/VertexToolController.h"
+#include "View/VertexToolOld.h"
+#include "View/VertexToolOldController.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -64,7 +64,6 @@ namespace TrenchBroom {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(){
-            bindEvents();
             bindObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
@@ -114,7 +113,7 @@ namespace TrenchBroom {
             addTool(new RotateObjectsToolController2D(toolBox.rotateObjectsTool()));
             addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
             addTool(new ClipToolController2D(toolBox.clipTool()));
-            addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new VertexToolOldController(toolBox.vertexToolOld()));
             addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));
             addTool(new SelectionTool(m_document));
             addTool(new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document));

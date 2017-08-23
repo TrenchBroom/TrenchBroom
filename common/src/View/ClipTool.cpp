@@ -850,9 +850,5 @@ namespace TrenchBroom {
             if (!m_ignoreNotifications)
                 update();
         }
-
-        String ClipTool::doGetIconName() const {
-            return "ClipTool.png";
-        }
     }
 }

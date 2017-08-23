@@ -215,7 +215,10 @@ namespace TrenchBroom {
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", KeyboardShortcut('B'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexToolOld, "Vertex Tool (old)", KeyboardShortcut('O'));
             toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", KeyboardShortcut('E'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleFaceTool, "Face Tool", KeyboardShortcut('F'));
             
             Menu* csgMenu = editMenu->addMenu("CSG");
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('+', WXK_CONTROL));
@@ -310,20 +313,20 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::PerformClip, "Perform clip", true));
 
-            createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true),
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true));
-            createViewShortcut(KeyboardShortcut(WXK_DOWN), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_DOWN), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true),
                                Action(View::CommandIds::Actions::MoveVerticesBackward, "Move vertices backward", true));
-            createViewShortcut(KeyboardShortcut(WXK_LEFT), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_LEFT), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesLeft, "Move vertices left", true));
-            createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesRight, "Move vertices right", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true),
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_VertexTool,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_VertexToolOld,
                                Action(View::CommandIds::Actions::MoveVerticesBackward, "Move vertices backward", true),
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true));
 
