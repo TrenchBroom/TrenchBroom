@@ -26,7 +26,7 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/UndoableCommand.h"
-#include "View/VertexHandleManager.h"
+#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             } Mode;
 
             MapDocumentWPtr m_document;
-            VertexHandleManager m_handleManager;
+            VertexHandleManagerOld m_handleManager;
             Mode m_mode;
             size_t m_changeCount;
             bool m_ignoreChangeNotifications;

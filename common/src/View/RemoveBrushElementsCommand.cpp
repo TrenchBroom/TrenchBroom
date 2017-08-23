@@ -23,7 +23,7 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
+#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {}
+        void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
         
         bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;

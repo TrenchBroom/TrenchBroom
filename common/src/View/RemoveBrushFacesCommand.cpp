@@ -23,7 +23,7 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
+#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         RemoveBrushElementsCommand(Type, "Remove Brush Faces", brushes, vertices),
         m_oldFacePositions(facePositions) {}
         
-        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectFaceHandles(m_oldFacePositions);
         }
     }

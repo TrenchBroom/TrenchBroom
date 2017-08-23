@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 Model::Hit::List result;
                 Model::BrushSet brushes;
                 
-                static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+                static const Model::Hit::HitType any = VertexHandleManagerOld::VertexHandleHit | VertexHandleManagerOld::EdgeHandleHit | VertexHandleManagerOld::FaceHandleHit;
                 const Model::Hit& first = pickResult.query().type(any).occluded().first();
                 if (first.isMatch()) {
                     const Vec3 firstHitPosition = first.target<Vec3>();
@@ -200,7 +200,7 @@ namespace TrenchBroom {
                        inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd))))
                     return MoveInfo();
                 
-                static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+                static const Model::Hit::HitType any = VertexHandleManagerOld::VertexHandleHit | VertexHandleManagerOld::EdgeHandleHit | VertexHandleManagerOld::FaceHandleHit;
                 const Model::Hit& hit = inputState.pickResult().query().type(any).occluded().first();
                 if (!hit.isMatch())
                     return MoveInfo();
@@ -249,15 +249,15 @@ namespace TrenchBroom {
                     m_tool->renderHighlight(renderContext, renderBatch);
                     m_tool->renderGuide(renderContext, renderBatch);
                 } else if (!anyToolDragging(inputState)) {
-                    static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+                    static const Model::Hit::HitType any = VertexHandleManagerOld::VertexHandleHit | VertexHandleManagerOld::EdgeHandleHit | VertexHandleManagerOld::FaceHandleHit;
                     const Model::Hit& hit = inputState.pickResult().query().type(any).occluded().first();
                     if (hit.isMatch()) {
                         const Vec3 position = hit.target<Vec3>();
                         m_tool->renderHighlight(renderContext, renderBatch, position);
                         if (!m_tool->handleSelected(position)) {
-                            if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                            if (hit.type() == VertexHandleManagerOld::EdgeHandleHit)
                                 m_tool->renderEdgeHighlight(renderContext, renderBatch, position);
-                            else if (hit.type() == VertexHandleManager::FaceHandleHit)
+                            else if (hit.type() == VertexHandleManagerOld::FaceHandleHit)
                                 m_tool->renderFaceHighlight(renderContext, renderBatch, position);
                         }
                         
@@ -292,7 +292,7 @@ namespace TrenchBroom {
                     !inputState.checkModifierKeys(MK_No, MK_Yes, MK_Yes))
                     return false;
                 
-                const Model::Hit& hit = inputState.pickResult().query().type(VertexHandleManager::VertexHandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(VertexHandleManagerOld::VertexHandleHit).occluded().first();
                 if (!hit.isMatch())
                     return false;
                 

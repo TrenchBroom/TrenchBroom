@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
+        class VertexHandleManagerOld;
         
         class RemoveBrushVerticesCommand : public RemoveBrushElementsCommand {
         public:
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         private:
             RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions);
             
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
         };
     }
 }

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VertexHandleManager.h"
+#include "VertexHandleManagerOld.h"
 
 #include "AttrString.h"
 #include "PreferenceManager.h"
@@ -39,11 +39,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType VertexHandleManager::VertexHandleHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType VertexHandleManager::EdgeHandleHit   = Model::Hit::freeHitType();
-        const Model::Hit::HitType VertexHandleManager::FaceHandleHit   = Model::Hit::freeHitType();
+        const Model::Hit::HitType VertexHandleManagerOld::VertexHandleHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType VertexHandleManagerOld::EdgeHandleHit   = Model::Hit::freeHitType();
+        const Model::Hit::HitType VertexHandleManagerOld::FaceHandleHit   = Model::Hit::freeHitType();
         
-        VertexHandleManager::VertexHandleManager(View::MapDocumentWPtr document) :
+        VertexHandleManagerOld::VertexHandleManagerOld(View::MapDocumentWPtr document) :
         m_totalVertexCount(0),
         m_selectedVertexCount(0),
         m_totalEdgeCount(0),
@@ -53,31 +53,31 @@ namespace TrenchBroom {
         m_guideRenderer(document),
         m_renderStateValid(false) {}
         
-        const Model::VertexToBrushesMap& VertexHandleManager::unselectedVertexHandles() const {
+        const Model::VertexToBrushesMap& VertexHandleManagerOld::unselectedVertexHandles() const {
             return m_unselectedVertexHandles;
         }
         
-        const Model::VertexToBrushesMap& VertexHandleManager::selectedVertexHandles() const {
+        const Model::VertexToBrushesMap& VertexHandleManagerOld::selectedVertexHandles() const {
             return m_selectedVertexHandles;
         }
         
-        const Model::VertexToEdgesMap& VertexHandleManager::unselectedEdgeHandles() const {
+        const Model::VertexToEdgesMap& VertexHandleManagerOld::unselectedEdgeHandles() const {
             return m_unselectedEdgeHandles;
         }
         
-        const Model::VertexToEdgesMap& VertexHandleManager::selectedEdgeHandles() const {
+        const Model::VertexToEdgesMap& VertexHandleManagerOld::selectedEdgeHandles() const {
             return m_selectedEdgeHandles;
         }
         
-        const Model::VertexToFacesMap& VertexHandleManager::unselectedFaceHandles() const {
+        const Model::VertexToFacesMap& VertexHandleManagerOld::unselectedFaceHandles() const {
             return m_unselectedFaceHandles;
         }
         
-        const Model::VertexToFacesMap& VertexHandleManager::selectedFaceHandles() const {
+        const Model::VertexToFacesMap& VertexHandleManagerOld::selectedFaceHandles() const {
             return m_selectedFaceHandles;
         }
         
-        Vec3::List VertexHandleManager::vertexHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::vertexHandlePositions() const {
             Vec3::List result;
             result.reserve(m_selectedVertexHandles.size() + m_unselectedVertexHandlePositions.size());
             handlePositions(m_unselectedVertexHandles, result);
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec3::List VertexHandleManager::edgeHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::edgeHandlePositions() const {
             Vec3::List result;
             result.reserve(m_selectedEdgeHandles.size() + m_unselectedEdgeHandlePositions.size());
             handlePositions(m_unselectedEdgeHandles, result);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec3::List VertexHandleManager::faceHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::faceHandlePositions() const {
             Vec3::List result;
             result.reserve(m_selectedFaceHandles.size() + m_unselectedFaceHandlePositions.size());
             handlePositions(m_unselectedFaceHandles, result);
@@ -101,85 +101,85 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec3::List VertexHandleManager::unselectedVertexHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::unselectedVertexHandlePositions() const {
             Vec3::List result;
             handlePositions(m_unselectedVertexHandles, result);
             return result;
         }
         
-        Vec3::List VertexHandleManager::unselectedEdgeHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::unselectedEdgeHandlePositions() const {
             Vec3::List result;
             handlePositions(m_unselectedEdgeHandles, result);
             return result;
         }
         
-        Vec3::List VertexHandleManager::unselectedFaceHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::unselectedFaceHandlePositions() const {
             Vec3::List result;
             handlePositions(m_unselectedFaceHandles, result);
             return result;
         }
         
-        Vec3::List VertexHandleManager::selectedVertexHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::selectedVertexHandlePositions() const {
             Vec3::List result;
             handlePositions(m_selectedVertexHandles, result);
             return result;
         }
         
-        Vec3::List VertexHandleManager::selectedEdgeHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::selectedEdgeHandlePositions() const {
             Vec3::List result;
             handlePositions(m_selectedEdgeHandles, result);
             return result;
         }
         
-        Vec3::List VertexHandleManager::selectedFaceHandlePositions() const {
+        Vec3::List VertexHandleManagerOld::selectedFaceHandlePositions() const {
             Vec3::List result;
             handlePositions(m_selectedFaceHandles, result);
             return result;
         }
 
-        bool VertexHandleManager::isHandleSelected(const Vec3& position) const {
+        bool VertexHandleManagerOld::isHandleSelected(const Vec3& position) const {
             return (isVertexHandleSelected(position) ||
                     isEdgeHandleSelected(position) ||
                     isFaceHandleSelected(position));
         }
 
-        bool VertexHandleManager::isVertexHandleSelected(const Vec3& position) const {
+        bool VertexHandleManagerOld::isVertexHandleSelected(const Vec3& position) const {
             return m_selectedVertexHandles.find(position) != std::end(m_selectedVertexHandles);
         }
         
-        bool VertexHandleManager::isEdgeHandleSelected(const Vec3& position) const {
+        bool VertexHandleManagerOld::isEdgeHandleSelected(const Vec3& position) const {
             return m_selectedEdgeHandles.find(position) != std::end(m_selectedEdgeHandles);
         }
         
-        bool VertexHandleManager::isFaceHandleSelected(const Vec3& position) const {
+        bool VertexHandleManagerOld::isFaceHandleSelected(const Vec3& position) const {
             return m_selectedFaceHandles.find(position) != std::end(m_selectedFaceHandles);
         }
         
-        size_t VertexHandleManager::selectedVertexCount() const {
+        size_t VertexHandleManagerOld::selectedVertexCount() const {
             return m_selectedVertexCount;
         }
         
-        size_t VertexHandleManager::totalVertexCount() const {
+        size_t VertexHandleManagerOld::totalVertexCount() const {
             return m_totalVertexCount;
         }
         
-        size_t VertexHandleManager::selectedEdgeCount() const {
+        size_t VertexHandleManagerOld::selectedEdgeCount() const {
             return m_selectedEdgeCount;
         }
         
-        size_t VertexHandleManager::totalEdgeCount() const {
+        size_t VertexHandleManagerOld::totalEdgeCount() const {
             return m_totalEdgeCount;
         }
         
-        size_t VertexHandleManager::selectedFaceCount() const {
+        size_t VertexHandleManagerOld::selectedFaceCount() const {
             return m_selectedFaceCount;
         }
         
-        size_t VertexHandleManager::totalSelectedFaceCount() const {
+        size_t VertexHandleManagerOld::totalSelectedFaceCount() const {
             return m_totalFaceCount;
         }
         
-        Model::BrushSet VertexHandleManager::selectedBrushes() const {
+        Model::BrushSet VertexHandleManagerOld::selectedBrushes() const {
             Model::BrushSet brushSet;
             
             for (const auto& entry : m_selectedVertexHandles) {
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             return brushSet;
         }
 
-        const Model::BrushSet& VertexHandleManager::brushes(const Vec3& handlePosition) const {
+        const Model::BrushSet& VertexHandleManagerOld::brushes(const Vec3& handlePosition) const {
             Model::VertexToBrushesMap::const_iterator mapIt = m_selectedVertexHandles.find(handlePosition);
             if (mapIt != std::end(m_selectedVertexHandles))
                 return mapIt->second;
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             return Model::EmptyBrushSet;
         }
         
-        const Model::BrushEdgeSet& VertexHandleManager::edges(const Vec3& handlePosition) const {
+        const Model::BrushEdgeSet& VertexHandleManagerOld::edges(const Vec3& handlePosition) const {
             Model::VertexToEdgesMap::const_iterator mapIt = m_selectedEdgeHandles.find(handlePosition);
             if (mapIt != std::end(m_selectedEdgeHandles))
                 return mapIt->second;
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             return Model::EmptyBrushEdgeSet;
         }
         
-        const Model::BrushFaceSet& VertexHandleManager::faces(const Vec3& handlePosition) const {
+        const Model::BrushFaceSet& VertexHandleManagerOld::faces(const Vec3& handlePosition) const {
             Model::VertexToFacesMap::const_iterator mapIt = m_selectedFaceHandles.find(handlePosition);
             if (mapIt != std::end(m_selectedFaceHandles))
                 return mapIt->second;
@@ -234,7 +234,7 @@ namespace TrenchBroom {
             return Model::EmptyBrushFaceSet;
         }
         
-        void VertexHandleManager::addBrush(Model::Brush* brush) {
+        void VertexHandleManagerOld::addBrush(Model::Brush* brush) {
             ensure(brush != NULL, "brush is null");
             
             for (const Model::BrushVertex* vertex : brush->vertices()) {
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::removeBrush(Model::Brush* brush) {
+        void VertexHandleManagerOld::removeBrush(Model::Brush* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
                 if (removeHandle(vertex->position(), brush, m_selectedVertexHandles)) {
                     ensure(m_selectedVertexCount > 0, "no selected vertices");
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::clear() {
+        void VertexHandleManagerOld::clear() {
             m_unselectedVertexHandles.clear();
             m_selectedVertexHandles.clear();
             m_totalVertexCount = 0;
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::selectVertexHandle(const Vec3& position) {
+        void VertexHandleManagerOld::selectVertexHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles)) > 0) {
                 m_selectedVertexCount += count;
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::deselectVertexHandle(const Vec3& position) {
+        void VertexHandleManagerOld::deselectVertexHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles)) > 0) {
                 ensure(m_selectedVertexCount >= count, "deselected vertices exceeds selected vertices");
@@ -347,7 +347,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::toggleVertexHandle(const Vec3& position) {
+        void VertexHandleManagerOld::toggleVertexHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles)) > 0) {
                 m_selectedVertexCount += count;
@@ -359,12 +359,12 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::selectVertexHandles(const Vec3::List& positions) {
+        void VertexHandleManagerOld::selectVertexHandles(const Vec3::List& positions) {
             for (const Vec3& position : positions)
                 selectVertexHandle(position);
         }
         
-        void VertexHandleManager::deselectAllVertexHandles() {
+        void VertexHandleManagerOld::deselectAllVertexHandles() {
             for (const auto& entry : m_selectedVertexHandles) {
                 const Vec3& position = entry.first;
                 const Model::BrushSet& selectedBrushes = entry.second;
@@ -376,12 +376,12 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::toggleVertexHandles(const Vec3::List& positions) {
+        void VertexHandleManagerOld::toggleVertexHandles(const Vec3::List& positions) {
             for (const Vec3& position : positions)
                 toggleVertexHandle(position);
         }
         
-        void VertexHandleManager::selectEdgeHandle(const Vec3& position) {
+        void VertexHandleManagerOld::selectEdgeHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles)) > 0) {
                 m_selectedEdgeCount += count;
@@ -389,7 +389,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::deselectEdgeHandle(const Vec3& position) {
+        void VertexHandleManagerOld::deselectEdgeHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles)) > 0) {
                 ensure(m_selectedEdgeCount >= count, "deselected edges exceeds selected edges");
@@ -398,7 +398,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::toggleEdgeHandle(const Vec3& position) {
+        void VertexHandleManagerOld::toggleEdgeHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles)) > 0) {
                 m_selectedEdgeCount += count;
@@ -410,12 +410,12 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::selectEdgeHandles(const Edge3::List& edges) {
+        void VertexHandleManagerOld::selectEdgeHandles(const Edge3::List& edges) {
             for (const Edge3& edge : edges)
                 selectEdgeHandle(edge.center());
         }
         
-        void VertexHandleManager::deselectAllEdgeHandles() {
+        void VertexHandleManagerOld::deselectAllEdgeHandles() {
             for (const auto& entry : m_selectedEdgeHandles) {
                 const Vec3& position = entry.first;
                 const Model::BrushEdgeSet& selectedEdges = entry.second;
@@ -427,12 +427,12 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::toggleEdgeHandles(const Vec3::List& positions) {
+        void VertexHandleManagerOld::toggleEdgeHandles(const Vec3::List& positions) {
             for (const Vec3& position : positions)
                 toggleEdgeHandle(position);
         }
 
-        void VertexHandleManager::selectFaceHandle(const Vec3& position) {
+        void VertexHandleManagerOld::selectFaceHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedFaceHandles, m_selectedFaceHandles)) > 0) {
                 m_selectedFaceCount += count;
@@ -440,7 +440,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::deselectFaceHandle(const Vec3& position) {
+        void VertexHandleManagerOld::deselectFaceHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_selectedFaceHandles, m_unselectedFaceHandles)) > 0) {
                 ensure(m_selectedFaceCount >= count, "deselected faces exceeds selected faces");
@@ -449,7 +449,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::toggleFaceHandle(const Vec3& position) {
+        void VertexHandleManagerOld::toggleFaceHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedFaceHandles, m_selectedFaceHandles)) > 0) {
                 m_selectedFaceCount += count;
@@ -461,12 +461,12 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::selectFaceHandles(const Polygon3::List& faces) {
+        void VertexHandleManagerOld::selectFaceHandles(const Polygon3::List& faces) {
             for (const Polygon3& face : faces)
                 selectFaceHandle(face.center());
         }
         
-        void VertexHandleManager::deselectAllFaceHandles() {
+        void VertexHandleManagerOld::deselectAllFaceHandles() {
             for (const auto& entry : m_selectedFaceHandles) {
                 const Vec3& position = entry.first;
                 const Model::BrushFaceSet& selectedFaces = entry.second;
@@ -478,43 +478,43 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
-        void VertexHandleManager::toggleFaceHandles(const Vec3::List& positions) {
+        void VertexHandleManagerOld::toggleFaceHandles(const Vec3::List& positions) {
             for (const Vec3& position : positions)
                 toggleFaceHandle(position);
         }
 
-        bool VertexHandleManager::hasSelectedHandles() const {
+        bool VertexHandleManagerOld::hasSelectedHandles() const {
             return !m_selectedVertexHandles.empty() || !m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty();
         }
 
-        void VertexHandleManager::deselectAllHandles() {
+        void VertexHandleManagerOld::deselectAllHandles() {
             deselectAllVertexHandles();
             deselectAllEdgeHandles();
             deselectAllFaceHandles();
         }
         
-        void VertexHandleManager::reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
+        void VertexHandleManagerOld::reselectVertexHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
             for (const Vec3& oldPosition : positions) {
                 for (const Vec3& newPosition : findVertexHandlePositions(brushes, oldPosition, maxDistance))
                     selectVertexHandle(newPosition);
             }
         }
         
-        void VertexHandleManager::reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
+        void VertexHandleManagerOld::reselectEdgeHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
             for (const Vec3& oldPosition : positions) {
                 for (const Vec3& newPosition : findEdgeHandlePositions(brushes, oldPosition, maxDistance))
                     selectEdgeHandle(newPosition);
             }
         }
         
-        void VertexHandleManager::reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
+        void VertexHandleManagerOld::reselectFaceHandles(const Model::BrushSet& brushes, const Vec3::List& positions, const FloatType maxDistance) {
             for (const Vec3& oldPosition : positions) {
                 for (const Vec3& newPosition : findFaceHandlePositions(brushes, oldPosition, maxDistance))
                     selectFaceHandle(newPosition);
             }
         }
 
-        void VertexHandleManager::pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const {
+        void VertexHandleManagerOld::pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const {
             if ((m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty()) || splitMode) {
                 for (const auto& entry : m_unselectedVertexHandles) {
                     const Vec3& position = entry.first;
@@ -564,7 +564,7 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const bool splitMode) {
+        void VertexHandleManagerOld::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const bool splitMode) {
             if (!m_renderStateValid)
                 validateRenderState(splitMode);
             
@@ -586,7 +586,7 @@ namespace TrenchBroom {
             renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
         }
 
-        void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+        void VertexHandleManagerOld::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             renderService.renderPointHandleHighlight(position);
@@ -596,7 +596,7 @@ namespace TrenchBroom {
             renderService.renderString(position.asString(), position);
         }
 
-        void VertexHandleManager::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+        void VertexHandleManagerOld::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             
@@ -610,7 +610,7 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexHandleManager::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
+        void VertexHandleManagerOld::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             
@@ -630,14 +630,14 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+        void VertexHandleManagerOld::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
             renderBatch.add(&m_guideRenderer);
         }
         
-        Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
+        Vec3::List VertexHandleManagerOld::findVertexHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
             
             for (const Model::Brush* brush : brushes) {
@@ -650,7 +650,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Vec3::List VertexHandleManager::findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
+        Vec3::List VertexHandleManagerOld::findEdgeHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
 
             for (const Model::Brush* brush : brushes) {
@@ -664,7 +664,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec3::List VertexHandleManager::findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
+        Vec3::List VertexHandleManagerOld::findFaceHandlePositions(const Model::BrushSet& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
 
             for (const Model::Brush* brush : brushes) {
@@ -678,7 +678,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::Hit VertexHandleManager::pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Model::Hit::HitType type) const {
+        Model::Hit VertexHandleManagerOld::pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Model::Hit::HitType type) const {
             const FloatType distance = camera.pickPointHandle(ray, position, pref(Preferences::HandleRadius));
             if (!Math::isnan(distance)) {
                 const Vec3 hitPoint = ray.pointAtDistance(distance);
@@ -688,7 +688,7 @@ namespace TrenchBroom {
             return Model::Hit::NoHit;
         }
         
-        void VertexHandleManager::validateRenderState(const bool splitMode) {
+        void VertexHandleManagerOld::validateRenderState(const bool splitMode) {
             ensure(!m_renderStateValid, "render state already valid");
 
             m_unselectedVertexHandlePositions.clear();

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexHandleManager
-#define TrenchBroom_VertexHandleManager
+#ifndef TrenchBroom_VertexHandleManagerOld
+#define TrenchBroom_VertexHandleManagerOld
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager {
+        class VertexHandleManagerOld {
         public:
             static const Model::Hit::HitType VertexHandleHit;
             static const Model::Hit::HitType EdgeHandleHit;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
             
             bool m_renderStateValid;
         public:
-            VertexHandleManager(View::MapDocumentWPtr document);
+            VertexHandleManagerOld(View::MapDocumentWPtr document);
             
             const Model::VertexToBrushesMap& unselectedVertexHandles() const;
             const Model::VertexToBrushesMap& selectedVertexHandles() const;
@@ -221,4 +221,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_VertexHandleManager) */
+#endif /* defined(TrenchBroom_VertexHandleManagerOld) */

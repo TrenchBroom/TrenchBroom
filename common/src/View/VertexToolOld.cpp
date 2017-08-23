@@ -78,7 +78,7 @@ namespace TrenchBroom {
         bool VertexToolOld::mergeVertices(const Model::Hit& hit) {
             if (m_handleManager.selectedVertexCount() != 1)
                 return false;
-            if (hit.type() != VertexHandleManager::VertexHandleHit)
+            if (hit.type() != VertexHandleManagerOld::VertexHandleHit)
                 return false;
             const Vec3 targetPosition = hit.target<Vec3>();
             const Vec3 originalPosition = m_handleManager.selectedVertexHandlePositions().front();
@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
         
         bool VertexToolOld::handleDoubleClicked(const Model::Hit& hit) {
-            if (hit.type() == VertexHandleManager::EdgeHandleHit) {
+            if (hit.type() == VertexHandleManagerOld::EdgeHandleHit) {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectEdgeHandle(hit.target<Vec3>());
                 m_mode = Mode_Split;
@@ -104,9 +104,9 @@ namespace TrenchBroom {
         bool VertexToolOld::select(const Model::Hit::List& hits, const bool addToSelection) {
             assert(!hits.empty());
             const Model::Hit& hit = hits.front();
-            if (hit.type() == VertexHandleManager::VertexHandleHit)
+            if (hit.type() == VertexHandleManagerOld::VertexHandleHit)
                 selectVertex(hits, addToSelection);
-            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
+            else if (hit.type() == VertexHandleManagerOld::EdgeHandleHit)
                 selectEdge(hits, addToSelection);
             else
                 selectFace(hits, addToSelection);
@@ -153,9 +153,9 @@ namespace TrenchBroom {
             const Vec3 handlePosition = hit.target<Vec3>();
             if (!m_handleManager.isHandleSelected(handlePosition)) {
                 m_handleManager.deselectAllHandles();
-                if (hit.type() == VertexHandleManager::VertexHandleHit)
+                if (hit.type() == VertexHandleManagerOld::VertexHandleHit)
                     m_handleManager.selectVertexHandle(handlePosition);
-                else if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                else if (hit.type() == VertexHandleManagerOld::EdgeHandleHit)
                     m_handleManager.selectEdgeHandle(handlePosition);
                 else
                     m_handleManager.selectFaceHandle(handlePosition);
@@ -578,9 +578,9 @@ namespace TrenchBroom {
 
         class AddToHandleManager : public Model::NodeVisitor {
         private:
-            VertexHandleManager& m_handleManager;
+            VertexHandleManagerOld& m_handleManager;
         public:
-            AddToHandleManager(VertexHandleManager& handleManager) :
+            AddToHandleManager(VertexHandleManagerOld& handleManager) :
             m_handleManager(handleManager) {}
         private:
             void doVisit(Model::World* world)   {}
@@ -592,9 +592,9 @@ namespace TrenchBroom {
         
         class RemoveFromHandleManager : public Model::NodeVisitor {
         private:
-            VertexHandleManager& m_handleManager;
+            VertexHandleManagerOld& m_handleManager;
         public:
-            RemoveFromHandleManager(VertexHandleManager& handleManager) :
+            RemoveFromHandleManager(VertexHandleManagerOld& handleManager) :
             m_handleManager(handleManager) {}
         private:
             void doVisit(Model::World* world)   {}

@@ -23,7 +23,7 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
+#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);
         }
         
-        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         

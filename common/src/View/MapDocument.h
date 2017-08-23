@@ -59,7 +59,7 @@ namespace TrenchBroom {
         class MapViewConfig;
         class Selection;
         class UndoableCommand;
-        class VertexHandleManager;
+        class VertexHandleManagerOld;
         class ViewEffectsService;
         
         class MapDocument : public Model::MapFacade, public CachingLogger {

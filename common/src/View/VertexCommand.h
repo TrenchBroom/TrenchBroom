@@ -29,7 +29,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
+        class VertexHandleManagerOld;
         
         class VertexCommand : public DocumentCommand {
         private:
@@ -56,13 +56,13 @@ namespace TrenchBroom {
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
         public:
-            void removeBrushes(VertexHandleManager& manager);
-            void addBrushes(VertexHandleManager& manager);
-            void selectNewHandlePositions(VertexHandleManager& manager);
-            void selectOldHandlePositions(VertexHandleManager& manager);
+            void removeBrushes(VertexHandleManagerOld& manager);
+            void addBrushes(VertexHandleManagerOld& manager);
+            void selectNewHandlePositions(VertexHandleManagerOld& manager);
+            void selectOldHandlePositions(VertexHandleManagerOld& manager);
         private:
-            virtual void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
-            virtual void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
+            virtual void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
+            virtual void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
         };
     }
 }
