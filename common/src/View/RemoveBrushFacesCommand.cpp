@@ -44,6 +44,11 @@ namespace TrenchBroom {
         RemoveBrushElementsCommand(Type, "Remove Brush Faces", brushes, vertices),
         m_oldFacePositions(facePositions) {}
         
+        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+
         void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectFaceHandles(m_oldFacePositions);
         }

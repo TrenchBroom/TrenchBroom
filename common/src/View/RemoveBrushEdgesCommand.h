@@ -42,6 +42,9 @@ namespace TrenchBroom {
             static Ptr remove(const Model::VertexToEdgesMap& edges);
         private:
             RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions);
+
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            
             void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
         };
     }

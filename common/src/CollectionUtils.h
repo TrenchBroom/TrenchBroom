@@ -1264,7 +1264,7 @@ namespace MapUtils {
     std::pair<bool, typename std::map<K, V, C>::iterator> findInsertPos(std::map<K, V, C>& map, const K& key) {
         typedef std::map<K, V, C> Map;
         typename Map::key_compare compare = map.key_comp();
-        typename Map::iterator insertPos = map.lower_bound(key);
+        typename Map::iterator insertPos = map.upper_bound(key); // Note that C++11 expects upper bound instead of lower bound.
         if (insertPos == std::end(map) || compare(key, insertPos->first)) {
             if (insertPos != std::begin(map))
                 --insertPos;

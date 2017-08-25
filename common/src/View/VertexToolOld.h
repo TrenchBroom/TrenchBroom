@@ -27,6 +27,7 @@
 #include "View/Tool.h"
 #include "View/UndoableCommand.h"
 #include "View/VertexHandleManagerOld.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {

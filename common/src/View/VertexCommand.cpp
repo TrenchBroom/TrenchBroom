@@ -24,6 +24,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexTool.h"
 #include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
@@ -149,6 +150,22 @@ namespace TrenchBroom {
             ensure(m_snapshot != NULL, "snapshot is null");
             delete m_snapshot;
             m_snapshot = NULL;
+        }
+
+        void VertexCommand::removeHandles(VertexHandleManager& manager) {
+            manager.removeHandles(std::begin(m_brushes), std::end(m_brushes));
+        }
+        
+        void VertexCommand::addHandles(VertexHandleManager& manager) {
+            manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
+        }
+        
+        void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) {
+            doSelectNewHandlePositions(manager, m_brushes);
+        }
+        
+        void VertexCommand::selectOldHandlePositions(VertexHandleManager& manager) {
+            doSelectOldHandlePositions(manager, m_brushes);
         }
 
         void VertexCommand::removeBrushes(VertexHandleManagerOld& manager) {

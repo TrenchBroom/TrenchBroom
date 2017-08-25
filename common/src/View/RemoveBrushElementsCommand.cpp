@@ -47,6 +47,12 @@ namespace TrenchBroom {
             return true;
         }
 
+        
+        void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+        
         void RemoveBrushElementsCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
         
         bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr command) {

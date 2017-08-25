@@ -135,6 +135,7 @@ namespace TrenchBroom {
             // geometry access
             size_t vertexCount() const;
             VertexList vertices() const;
+            const Vec3::List vertexPositions() const;
             
             bool hasVertex(const Vec3& position) const;
             bool hasVertices(const Vec3::List positions) const;

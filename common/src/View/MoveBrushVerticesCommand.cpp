@@ -65,6 +65,16 @@ namespace TrenchBroom {
             m_newVertexPositions = document->performMoveVertices(m_vertices, m_delta);
             return true;
         }
+        
+        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+        
+        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
 
         void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);

@@ -62,6 +62,16 @@ namespace TrenchBroom {
             return true;
         }
         
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+        
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+
         void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectEdgeHandles(m_newEdgePositions);
         }

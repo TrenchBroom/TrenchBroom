@@ -65,6 +65,16 @@ namespace TrenchBroom {
             return true;
         }
         
+        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+        
+        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            // TODO: implement
+            assert(false);
+        }
+
         void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);
         }

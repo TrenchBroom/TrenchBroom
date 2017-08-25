@@ -22,6 +22,7 @@
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
+#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,6 +31,7 @@ namespace TrenchBroom {
     
     namespace View {
         class VertexHandleManagerOld;
+        class VertexTool;
         
         class VertexCommand : public DocumentCommand {
         private:
@@ -55,6 +57,14 @@ namespace TrenchBroom {
         private:
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
+        public:
+            void removeHandles(VertexHandleManager& manager);
+            void addHandles(VertexHandleManager& manager);
+            void selectNewHandlePositions(VertexHandleManager& manager);
+            void selectOldHandlePositions(VertexHandleManager& manager);
+        private:
+            virtual void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
+            virtual void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
         public:
             void removeBrushes(VertexHandleManagerOld& manager);
             void addBrushes(VertexHandleManagerOld& manager);

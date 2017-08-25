@@ -225,6 +225,7 @@ namespace TrenchBroom {
             return false;
         }
 
+        // Indicates that none of the brushes incident to the given handle are in the given set.
         bool VertexToolOld::handleBrushes(const Vec3& position, Model::BrushSet& brushes) const {
             bool newBrush = true;
             const Model::BrushSet& handleBrushes = m_handleManager.brushes(position);

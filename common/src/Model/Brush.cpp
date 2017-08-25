@@ -617,6 +617,11 @@ namespace TrenchBroom {
             return VertexList(m_geometry->vertices());
         }
         
+        const Vec3::List Brush::vertexPositions() const {
+            ensure(m_geometry != NULL, "geometry is null");
+            return m_geometry->vertexPositions();
+        }
+
         bool Brush::hasVertex(const Vec3& position) const {
             ensure(m_geometry != NULL, "geometry is null");
             return m_geometry->findVertexByPosition(position) != NULL;

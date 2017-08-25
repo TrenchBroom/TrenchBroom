@@ -49,6 +49,9 @@ namespace TrenchBroom {
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
             
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            
             void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
             void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
             
