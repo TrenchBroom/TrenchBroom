@@ -1262,98 +1262,77 @@ namespace MapUtils {
 
     template <typename K, typename V, typename C>
     std::pair<bool, typename std::map<K, V, C>::iterator> findInsertPos(std::map<K, V, C>& map, const K& key) {
-        typedef std::map<K, V, C> Map;
-        typename Map::key_compare compare = map.key_comp();
-        typename Map::iterator insertPos = map.upper_bound(key); // Note that C++11 expects upper bound instead of lower bound.
-        if (insertPos == std::end(map) || compare(key, insertPos->first)) {
-            if (insertPos != std::begin(map))
-                --insertPos;
-            return std::make_pair(false, insertPos);
+        if (map.empty())
+            return std::make_pair(false, std::end(map));
+        
+        const auto compare = map.key_comp();
+        
+         // Note that C++11 expects upper bound instead of lower bound as the insertion hint!
+        const auto ub = map.upper_bound(key);
+        if (ub == std::begin(map) || compare(std::prev(ub)->first, key)) {
+            // key was not found in the map, otherwise it would precede the insert pos
+            assert(map.count(key) == 0);
+            return std::make_pair(false, ub);
         }
-        return std::make_pair(true, insertPos);
+        
+        assert(map.count(key) == 1);
+        return std::make_pair(true, ub);
     }
 
-    template <typename K, typename V, typename C, typename W>
-    typename std::map<K, V, C>::iterator findOrInsert(std::map<K, V, C>& map, const K& key, const W& value) {
-        typedef std::map<K, V, C> Map;
-        typedef std::pair<bool, typename Map::iterator> InsertPos;
-
-        const InsertPos insertPos = findInsertPos(map, key);
+    template <typename K, typename V, typename C, typename W = V>
+    typename std::map<K, V, C>::iterator findOrInsert(std::map<K, V, C>& map, const K& key, const W& value = W()) {
+        const auto insertPos = findInsertPos(map, key);
         if (!insertPos.first)
             return map.insert(insertPos.second, std::make_pair(key, V(value)));
-        return insertPos.second;
-    }
-
-    template <typename K, typename V, typename C>
-    typename std::map<K, V, C>::iterator findOrInsert(std::map<K, V, C>& map, const K& key) {
-        typedef std::map<K, V, C> Map;
-        typedef std::pair<bool, typename Map::iterator> InsertPos;
-
-        const InsertPos insertPos = findInsertPos(map, key);
-        if (!insertPos.first)
-            return map.insert(insertPos.second, std::make_pair(key, V()));
-        return insertPos.second;
+        
+        // As of C++11, the insert pos points to the upper bound of the key, so we need to rewind
+        assert(insertPos.second != std::begin(map));
+        return std::prev(insertPos.second);
     }
 
     template <typename K, typename V, typename C>
     bool insertOrFail(std::map<K, V, C>& map, const K& key, const V& value) {
-        typedef std::map<K, V, C> Map;
-        typename Map::key_compare compare = map.key_comp();
-        typename Map::iterator insertPos = map.lower_bound(key);
-        if (insertPos == std::end(map) || compare(key, insertPos->first)) {
-            // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            // in C++98, the insert position points to the element that precedes the inserted element!
-            if (insertPos != std::begin(map))
-                --insertPos;
+        const auto insertPos = findInsertPos(map, key);
+        if (!insertPos.first) {
             assert(map.count(key) == 0);
-            map.insert(insertPos, std::make_pair(key, V(value)));
+            map.insert(insertPos.second, std::make_pair(key, V(value)));
             assert(map.count(key) == 1);
             return true;
         }
+        
         return false;
     }
 
     template <typename K, typename V, typename C>
     bool insertOrReplace(std::map<K, V, C>& map, const K& key, const V& value) {
-        typedef std::map<K, V, C> Map;
-        typename Map::key_compare compare = map.key_comp();
-        typename Map::iterator insertPos = map.lower_bound(key);
-        if (insertPos == std::end(map) || compare(key, insertPos->first)) {
-            // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            // in C++98, the insert position points to the element that precedes the inserted element!
-            if (insertPos != std::begin(map))
-                --insertPos;
+        const auto insertPos = findInsertPos(map, key);
+        if (!insertPos.first) {
             assert(map.count(key) == 0);
-            map.insert(insertPos, std::make_pair(key, value));
+            map.insert(insertPos.second, std::make_pair(key, value));
             assert(map.count(key) == 1);
             return true;
         } else {
-            // the two keys are equal because insertPos either points to the pair with the same key or the one
-            // right after the position where the given pair would be inserted
-            insertPos->second = value;
+            assert(insertPos.second != std::begin(map));
+            // As of C++11, the insert pos points to the upper bound of the key, so we need to rewind
+            std::prev(insertPos.second)->second = value;
             return false;
         }
     }
 
     template <typename K, typename V, typename C>
     bool insertOrReplaceAndDelete(std::map<K, V*, C>& map, const K& key, V* value) {
-        typedef std::map<K, V*, C> Map;
-        typename Map::key_compare compare = map.key_comp();
-        typename Map::iterator insertPos = map.lower_bound(key);
-        if (insertPos == std::end(map) || compare(key, insertPos->first)) {
-            // the two keys are not equal (key is less than insertPos' key), so we must insert the value
-            // in C++98, the insert position points to the element that precedes the inserted element!
-            if (insertPos != std::begin(map))
-                --insertPos;
+        const auto insertPos = findInsertPos(map, key);
+        if (!insertPos.first) {
             assert(map.count(key) == 0);
-            map.insert(insertPos, std::make_pair(key, value));
+            map.insert(insertPos.second, std::make_pair(key, value));
             assert(map.count(key) == 1);
             return true;
         } else {
-            // the two keys are equal because insertPos either points to the pair with the same key or the one
-            // right after the position where the given pair would be inserted
-            delete insertPos->second;
-            insertPos->second = value;
+            assert(insertPos.second != std::begin(map));
+            // As of C++11, the insert pos points to the upper bound of the key, so we need to rewind
+            const auto prev = std::prev(insertPos.second);
+            delete prev->second;
+            prev->second = value;
             return false;
         }
     }
