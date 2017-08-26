@@ -91,7 +91,7 @@ namespace TrenchBroom {
         public:
             VertexHandleManagerBase() :
             m_selectedHandleCount(0) {}
-        private:
+        public:
             size_t selectedHandleCount() const {
                 return m_selectedHandleCount;
             }
@@ -152,7 +152,6 @@ namespace TrenchBroom {
             bool allSelected() const {
                 return selectedHandleCount() == totalHandleCount();
             }
-
         public:
             void add(const Handle& handle) {
                 MapUtils::findOrInsert(m_handles, handle, HandleInfo())->second.inc();
@@ -165,10 +164,7 @@ namespace TrenchBroom {
                     info.dec();
                     
                     if (info.count == 0) {
-                        if (info.selected) {
-                            assert(m_selectedHandleCount > 0);
-                            --m_selectedHandleCount;
-                        }
+                        doDeselect(info);
                         m_handles.erase(it);
                     }
                 }
@@ -187,11 +183,7 @@ namespace TrenchBroom {
             void select(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    HandleInfo& info = it->second;
-                    if (info.select()) {
-                        assert(selectedHandleCount() < totalHandleCount());
-                        ++m_selectedHandleCount;
-                    }
+                    doSelect(it->second);
                 }
             }
             
@@ -203,16 +195,14 @@ namespace TrenchBroom {
             void deselect(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    HandleInfo& info = it->second;
-                    if (info.deselect()) {
-                        assert(m_selectedHandleCount > 0);
-                        --m_selectedHandleCount;
-                    }
+                    doDeselect(it->second);
                 }
             }
             
             void deselectAll() {
-                std::for_each(std::begin(m_handles), std::end(m_handles), [](HandleEntry& entry) { entry.second.deselect(); });
+                std::for_each(std::begin(m_handles), std::end(m_handles), [this](HandleEntry& entry) {
+                    doDeselect(entry.second);
+                });
             }
             
             template <typename I>
@@ -223,14 +213,31 @@ namespace TrenchBroom {
             void toggle(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    HandleInfo& info = it->second;
-                    if (info.toggle()) {
-                        assert(selectedHandleCount() < totalHandleCount());
-                        ++m_selectedHandleCount;
-                    } else {
-                        assert(m_selectedHandleCount > 0);
-                        --m_selectedHandleCount;
-                    }
+                    doToggle(it->second);
+                }
+            }
+        private:
+            void doSelect(HandleInfo& info) {
+                if (info.select()) {
+                    assert(selectedHandleCount() < totalHandleCount());
+                    ++m_selectedHandleCount;
+                }
+            }
+            
+            void doDeselect(HandleInfo& info) {
+                if (info.deselect()) {
+                    assert(m_selectedHandleCount > 0);
+                    --m_selectedHandleCount;
+                }
+            }
+            
+            void doToggle(HandleInfo& info) {
+                if (info.toggle()) {
+                    assert(selectedHandleCount() < totalHandleCount());
+                    ++m_selectedHandleCount;
+                } else {
+                    assert(m_selectedHandleCount > 0);
+                    --m_selectedHandleCount;
                 }
             }
         public:

@@ -49,6 +49,9 @@ namespace TrenchBroom {
         class MapViewBar;
         class MapViewToolBox;
         class Tool;
+        class VertexTool;
+        class EdgeTool;
+        class FaceTool;
         class VertexToolOld;
         
         class SwitchableMapViewContainer : public wxPanel, public MapView {
@@ -87,6 +90,17 @@ namespace TrenchBroom {
             bool rotateObjectsToolActive() const;
             bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
+            
+            bool canToggleVertexTools() const;
+            bool vertexToolActive() const;
+            bool edgeToolActive() const;
+            bool faceToolActive() const;
+            void toggleVertexTool();
+            void toggleEdgeTool();
+            void toggleFaceTool();
+            VertexTool* vertexTool();
+            EdgeTool* edgeTool();
+            FaceTool* faceTool();
             
             bool vertexToolOldActive() const;
             bool canToggleVertexToolOld() const;

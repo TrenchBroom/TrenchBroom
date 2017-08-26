@@ -39,7 +39,6 @@ namespace TrenchBroom {
             VertexTool* m_tool;
         public:
             VertexToolController(VertexTool* tool);
-            ~VertexToolController();
         private:
             Tool* doGetTool();
         };

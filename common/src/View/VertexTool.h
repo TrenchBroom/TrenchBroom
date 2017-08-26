@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "TrenchBroom.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/PointGuideRenderer.h"
 #include "View/Tool.h"
 #include "View/UndoableCommand.h"
 #include "View/VertexHandleManager.h"
@@ -41,6 +42,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class Lasso;
         class Selection;
         
@@ -68,8 +70,12 @@ namespace TrenchBroom {
             VertexHandleManager m_vertexHandles;
             Vec3 m_dragHandlePosition;
             bool m_dragging;
+
+            mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
             VertexTool(MapDocumentWPtr document);
+            
+            const Grid& grid() const;
             
             Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
@@ -77,8 +83,22 @@ namespace TrenchBroom {
             bool select(const Model::Hit::List& hits, bool addToSelection);
             void select(const Lasso& lasso, bool modifySelection);
             bool deselectAll();
+        public: // Vertex moving
+            bool startMove(const Model::Hit& hit);
+            MoveResult move(const Vec3& delta);
+            void endMove();
+            void cancelMove();
+        private:
+            String actionName() const;
+        private:
+            MoveResult moveVertices(const Vec3& delta);
+            Model::VertexToBrushesMap buildBrushMap(const Vec3::List& handles) const;
         public: // Rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+            void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
+            void renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const;
         private:
             void renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const;
         private:

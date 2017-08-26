@@ -19,9 +19,11 @@
 
 #include "VertexTool.h"
 
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
@@ -37,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType VertexTool::AnyHandleHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType VertexTool::AnyHandleHit = VertexHandleManager::HandleHit;
 
         VertexTool::VertexTool(MapDocumentWPtr document) :
         Tool(false),
@@ -45,7 +47,12 @@ namespace TrenchBroom {
         m_mode(Mode_Move),
         m_changeCount(0),
         m_ignoreChangeNotifications(0),
-        m_dragging(false) {}
+        m_dragging(false),
+        m_guideRenderer(document) {}
+
+        const Grid& VertexTool::grid() const {
+            return lock(m_document)->grid();
+        }
 
         Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
             const Model::BrushList& brushes = selectedBrushes();
@@ -101,12 +108,107 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool VertexTool::startMove(const Model::Hit& hit) {
+            assert(hit.isMatch());
+            assert(hit.type() == VertexHandleManager::HandleHit);
+            
+            const Vec3& handle = hit.target<Vec3>();
+            if (!m_vertexHandles.selected(handle)) {
+                m_vertexHandles.deselectAll();
+                m_vertexHandles.select(handle);
+                refreshViews();
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction(actionName());
+            
+            m_dragHandlePosition = handle;
+            m_dragging = true;
+            return true;
+        }
+        
+        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
+            return moveVertices(delta);
+        }
+        
+        void VertexTool::endMove() {
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
+            rebuildBrushGeometry();
+            m_mode = Mode_Move;
+            m_dragging = false;
+        }
+        
+        void VertexTool::cancelMove() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+            m_mode = Mode_Move;
+            m_dragging = false;
+        }
+
+        String VertexTool::actionName() const {
+            switch (m_mode) {
+                case Mode_Move:
+                    return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
+                case Mode_Split:
+                    return "";
+                switchDefault();
+            }
+        }
+
+        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
+            const Vec3::List handles = m_vertexHandles.selectedHandles();
+            const Model::VertexToBrushesMap brushMap = buildBrushMap(handles);
+
+            MapDocumentSPtr document = lock(m_document);
+            const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
+            if (result.success) {
+                if (!result.hasRemainingVertices)
+                    return MR_Cancel;
+                m_dragHandlePosition += delta;
+                return MR_Continue;
+            }
+            return MR_Deny;
+        }
+
+        Model::VertexToBrushesMap VertexTool::buildBrushMap(const Vec3::List& handles) const {
+            Model::VertexToBrushesMap result;
+            for (const auto& handle : handles) {
+                result[handle] = findIncidentBrushes(handle);
+            }
+            return result;
+        }
+
         void VertexTool::renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
             Renderer::RenderService renderService(renderContext, renderBatch);
             if (!m_vertexHandles.allSelected())
                 renderHandles(m_vertexHandles.unselectedHandles(), renderService, pref(Preferences::HandleColor));
             if (m_vertexHandles.anySelected())
                 renderHandles(m_vertexHandles.selectedHandles(), renderService, pref(Preferences::SelectedHandleColor));
+        }
+
+        void VertexTool::renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
+            renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
+        }
+        
+        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            renderService.renderPointHandleHighlight(handle);
+            
+            renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderService.renderString(handle.asString(), handle);
+        }
+        
+        void VertexTool::renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
+            renderGuide(renderContext, renderBatch, m_dragHandlePosition);
+        }
+        
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {
+            m_guideRenderer.setPosition(position);
+            m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
+            renderBatch.add(&m_guideRenderer);
         }
 
         void VertexTool::renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const {

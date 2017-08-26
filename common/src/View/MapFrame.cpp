@@ -702,6 +702,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateComplexBrushTool, this, CommandIds::Menu::EditToggleCreateComplexBrushTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexToolOld, this, CommandIds::Menu::EditToggleVertexToolOld);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
@@ -1040,6 +1043,24 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_mapView->toggleRotateObjectsTool();
+        }
+
+        void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleVertexTool();
+        }
+        
+        void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleEdgeTool();
+        }
+        
+        void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleFaceTool();
         }
 
         void MapFrame::OnEditToggleVertexToolOld(wxCommandEvent& event) {
@@ -1463,16 +1484,16 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->canToggleVertexToolOld());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
-                    event.Check(false);
-                    event.Enable(m_mapView->canToggleVertexToolOld());
+                    event.Check(m_mapView->vertexToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditToggleEdgeTool:
-                    event.Check(false);
-                    event.Enable(m_mapView->canToggleVertexToolOld());
+                    event.Check(m_mapView->edgeToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditToggleFaceTool:
-                    event.Check(false);
-                    event.Enable(m_mapView->canToggleVertexToolOld());
+                    event.Check(m_mapView->faceToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditCsgConvexMerge:
                     event.Enable(canDoCsgConvexMerge());

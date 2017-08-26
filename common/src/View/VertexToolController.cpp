@@ -21,6 +21,7 @@
 
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
+#include "View/MoveToolController.h"
 #include "View/VertexTool.h"
 
 #include <algorithm>
@@ -149,11 +150,131 @@ namespace TrenchBroom {
                 m_tool->renderHandles(renderContext, renderBatch);
                 if (m_lasso != nullptr)
                     m_lasso->render(renderContext, renderBatch);
+                if (!anyToolDragging(inputState)) {
+                    const Model::Hit& hit = inputState.pickResult().query().type(VertexTool::AnyHandleHit).occluded().first();
+                    if (hit.isMatch()) {
+                        const Vec3& handle = hit.target<Vec3>();
+                        m_tool->renderHighlight(renderContext, renderBatch, handle);
+
+                        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                            m_tool->renderGuide(renderContext, renderBatch, handle);
+                    }
+                }
+            }
+
+            bool doCancel() {
+                return m_tool->deselectAll();
+            }
+        };
+
+        class VertexToolController::MoveVertexPart : public MoveToolController<NoPickingPolicy, MousePolicy>, public VertexPartBase {
+        public:
+            MoveVertexPart(VertexTool* tool) :
+            MoveToolController(tool->grid()),
+            VertexPartBase(tool) {}
+        private:
+            typedef enum {
+                ST_Relative,
+                ST_Absolute
+            } SnapType;
+            
+            SnapType m_lastSnapType;
+        private:
+            Tool* doGetTool() {
+                return m_tool;
+            }
+
+            void doModifierKeyChange(const InputState& inputState) {
+                MoveToolController::doModifierKeyChange(inputState);
+                
+                if (Super::thisToolDragging()) {
+                    const SnapType currentSnapType = snapType(inputState);
+                    if (currentSnapType != m_lastSnapType) {
+                        setSnapper(inputState, doCreateDragSnapper(inputState), false);
+                        m_lastSnapType = currentSnapType;
+                    }
+                }
+            }
+
+            MoveInfo doStartMove(const InputState& inputState) {
+                if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                      (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd))))
+                    return MoveInfo();
+                
+                const Model::Hit& hit = inputState.pickResult().query().type(VertexTool::AnyHandleHit).occluded().first();
+                if (!hit.isMatch())
+                    return MoveInfo();
+                
+                if (!m_tool->startMove(hit))
+                    return MoveInfo();
+                
+                m_lastSnapType = snapType(inputState);
+                return MoveInfo(hit.target<Vec3>());
+            }
+
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
+                    case VertexTool::MR_Continue:
+                        return DR_Continue;
+                    case VertexTool::MR_Deny:
+                        return DR_Deny;
+                    case VertexTool::MR_Cancel:
+                        return DR_Cancel;
+                        switchDefault()
+                }
+            }
+            
+            void doEndMove(const InputState& inputState) {
+                m_tool->endMove();
+            }
+            
+            void doCancelMove() {
+                m_tool->cancelMove();
+            }
+            
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                switch (snapType(inputState)) {
+                    case ST_Absolute:
+                        return new AbsoluteDragSnapper(m_tool->grid());
+                    case ST_Relative:
+                        return new DeltaDragSnapper(m_tool->grid());
+                        switchDefault();
+                }
+            }
+            
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                MoveToolController::doRender(inputState, renderContext, renderBatch);
+                
+                if (thisToolDragging()) {
+                    m_tool->renderDragHighlight(renderContext, renderBatch);
+                    m_tool->renderDragGuide(renderContext, renderBatch);
+                }
             }
             
             bool doCancel() {
                 return m_tool->deselectAll();
             }
+        private:
+            SnapType snapType(const InputState& inputState) const {
+                if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd))
+                    return ST_Absolute;
+                return ST_Relative;
+            }
         };
+        
+        VertexToolController::VertexToolController(VertexTool* tool) :
+        m_tool(tool) {
+            ensure(m_tool != nullptr, "tool is null");
+            addController(new MoveVertexPart(tool));
+            addController(new SelectVertexPart(tool));
+        }
+
+        
+        Tool* VertexToolController::doGetTool() {
+            return m_tool;
+        }
     }
 }

@@ -120,6 +120,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::toggleCreateComplexBrushTool() {
+            assert(canToggleCreateComplexBrushTool());
             m_toolBox->toggleCreateComplexBrushTool();
         }
         
@@ -132,6 +133,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::toggleClipTool() {
+            assert(canToggleClipTool());
             m_toolBox->toggleClipTool();
         }
         
@@ -148,9 +150,53 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::toggleRotateObjectsTool() {
+            assert(canToggleRotateObjectsTool());
             m_toolBox->toggleRotateObjectsTool();
         }
         
+        bool SwitchableMapViewContainer::canToggleVertexTools() const {
+            return vertexToolActive() || edgeToolActive() || faceToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
+        }
+        
+        bool SwitchableMapViewContainer::vertexToolActive() const {
+            return m_toolBox->vertexToolActive();
+        }
+        
+        bool SwitchableMapViewContainer::edgeToolActive() const {
+            return m_toolBox->edgeToolActive();
+        }
+        
+        bool SwitchableMapViewContainer::faceToolActive() const {
+            return m_toolBox->faceToolActive();
+        }
+        
+        void SwitchableMapViewContainer::toggleVertexTool() {
+            assert(canToggleVertexTools());
+            m_toolBox->toggleVertexTool();
+        }
+        
+        void SwitchableMapViewContainer::toggleEdgeTool() {
+            assert(canToggleVertexTools());
+            m_toolBox->toggleEdgeTool();
+        }
+        
+        void SwitchableMapViewContainer::toggleFaceTool() {
+            assert(canToggleVertexTools());
+            m_toolBox->toggleFaceTool();
+        }
+
+        VertexTool* SwitchableMapViewContainer::vertexTool() {
+            return m_toolBox->vertexTool();
+        }
+        
+        EdgeTool* SwitchableMapViewContainer::edgeTool() {
+            return m_toolBox->edgeTool();
+        }
+        
+        FaceTool* SwitchableMapViewContainer::faceTool() {
+            return m_toolBox->faceTool();
+        }
+
         bool SwitchableMapViewContainer::vertexToolOldActive() const {
             return m_toolBox->vertexToolOldActive();
         }
@@ -160,6 +206,7 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapViewContainer::toggleVertexToolOld() {
+            assert(canToggleVertexToolOld());
             m_toolBox->toggleVertexToolOld();
         }
 

@@ -23,6 +23,8 @@
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
+#include <memory>
+
 class wxBookCtrlBase;
 
 namespace TrenchBroom {
@@ -38,6 +40,9 @@ namespace TrenchBroom {
         class MoveObjectsTool;
         class ResizeBrushesTool;
         class RotateObjectsTool;
+        class VertexTool;
+        class EdgeTool;
+        class FaceTool;
         class VertexToolOld;
         class Selection;
 
@@ -45,26 +50,32 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             
-            ClipTool* m_clipTool;
-            CreateComplexBrushTool* m_createComplexBrushTool;
-            CreateEntityTool* m_createEntityTool;
-            CreateSimpleBrushTool* m_createSimpleBrushTool;
-            MoveObjectsTool* m_moveObjectsTool;
-            ResizeBrushesTool* m_resizeBrushesTool;
-            RotateObjectsTool* m_rotateObjectsTool;
-            VertexToolOld* m_vertexToolOld;
+            std::unique_ptr<ClipTool> m_clipTool;
+            std::unique_ptr<CreateComplexBrushTool> m_createComplexBrushTool;
+            std::unique_ptr<CreateEntityTool> m_createEntityTool;
+            std::unique_ptr<CreateSimpleBrushTool> m_createSimpleBrushTool;
+            std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
+            std::unique_ptr<ResizeBrushesTool> m_resizeBrushesTool;
+            std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
+            std::unique_ptr<VertexTool> m_vertexTool;
+            // std::unique_ptr<EdgeTool> m_edgeTool;
+            // std::unique_ptr<FaceTool> m_faceTool;
+            std::unique_ptr<VertexToolOld> m_vertexToolOld;
         public:
             MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             ~MapViewToolBox();
         public: // tools
-            ClipTool* clipTool();
-            CreateComplexBrushTool* createComplexBrushTool();
-            CreateEntityTool* createEntityTool();
-            CreateSimpleBrushTool* createSimpleBrushTool();
-            MoveObjectsTool* moveObjectsTool();
-            ResizeBrushesTool* resizeBrushesTool();
-            RotateObjectsTool* rotateObjectsTool();
-            VertexToolOld* vertexToolOld();
+            ClipTool* clipTool() const;
+            CreateComplexBrushTool* createComplexBrushTool() const;
+            CreateEntityTool* createEntityTool() const;
+            CreateSimpleBrushTool* createSimpleBrushTool() const;
+            MoveObjectsTool* moveObjectsTool() const;
+            ResizeBrushesTool* resizeBrushesTool() const;
+            RotateObjectsTool* rotateObjectsTool() const;
+            VertexTool* vertexTool() const;
+            EdgeTool* edgeTool() const;
+            FaceTool* faceTool() const;
+            VertexToolOld* vertexToolOld() const;
             
             void toggleCreateComplexBrushTool();
             bool createComplexBrushToolActive() const;
@@ -82,12 +93,20 @@ namespace TrenchBroom {
             const Vec3 rotateToolCenter() const;
             void moveRotationCenter(const Vec3& delta);
             
+            void toggleVertexTool();
+            bool vertexToolActive();
+            
+            void toggleEdgeTool();
+            bool edgeToolActive();
+            
+            void toggleFaceTool();
+            bool faceToolActive();
+            
             void toggleVertexToolOld();
             bool vertexToolOldActive() const;
             void moveVertices(const Vec3& delta);
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
-            void destroyTools();
         private: // notification
             void registerTool(Tool* tool, wxBookCtrlBase* bookCtrl);
             void bindObservers();
