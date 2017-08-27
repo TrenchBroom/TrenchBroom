@@ -67,13 +67,11 @@ namespace TrenchBroom {
         }
         
         void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
+            manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
         }
         
         void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
+            manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
         }
 
         void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
