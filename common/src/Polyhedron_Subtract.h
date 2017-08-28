@@ -75,7 +75,7 @@ private:
         doSubtract(List{m_minuend}, std::begin(planes), std::end(planes));
     }
     
-    PlaneList findSubtrahendPlanes() const {
+    auto findSubtrahendPlanes() const {
         PlaneList result;
         
         const Face* firstFace = m_subtrahend.faces().front();
