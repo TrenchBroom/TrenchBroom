@@ -14,7 +14,7 @@ cd wxWidgets || exit 1
 patch -p0 < ../patches/wxWidgets/*.patch || exit 1
 mkdir build-release
 cd build-release
-../configure --quiet --disable-shared --with-opengl --with-cxx=11 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers && make -j2 && make install
+../configure --quiet --disable-shared --with-opengl --with-cxx=14 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers && make -j2 && make install
 cd ..
 cd ..
 
