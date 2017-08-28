@@ -2,8 +2,9 @@
 
 set -o verbose
 
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 sudo apt-get -qq update
-sudo apt-get -y install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm
+sudo apt-get -y install libgtk2.0-dev freeglut3 freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm g++-5
 
 # Patch and build wxWidgets
 
@@ -14,7 +15,7 @@ cd wxWidgets || exit 1
 patch -p0 < ../patches/wxWidgets/*.patch || exit 1
 mkdir build-release
 cd build-release
-../configure --quiet --disable-shared --with-opengl --with-cxx=14 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers && make -j2 && make install
+CC=gcc-5 CXX=g++-5 ../configure --quiet --disable-shared --with-opengl --with-cxx=14 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers && make -j2 && make install
 cd ..
 cd ..
 
@@ -22,7 +23,7 @@ cd ..
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
+CC=gcc-5 CXX=g++-5 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
 ninja || exit 1
 cpack || exit 1
 
