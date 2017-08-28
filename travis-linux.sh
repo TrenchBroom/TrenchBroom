@@ -35,3 +35,6 @@ cpack || exit 1
 Xvfb :10 &
 export DISPLAY=:10
 ./TrenchBroom-Test
+
+echo "Shared libraries used:"
+ldd ./trenchbroom
