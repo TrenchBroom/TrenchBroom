@@ -44,8 +44,27 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        template <typename H, typename C = std::less<H>>
         class VertexHandleManagerBase {
+        public:
+            virtual ~VertexHandleManagerBase();
+        public:
+            template <typename I>
+            void addHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
+            }
+            
+            virtual void addHandles(const Model::Brush* brush) = 0;
+            
+            template <typename I>
+            void removeHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
+            }
+            
+            virtual void removeHandles(const Model::Brush* brush) = 0;
+        };
+        
+        template <typename H, typename C = std::less<H>>
+        class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
             typedef H Handle;
             typedef std::vector<H> HandleList;
@@ -90,10 +109,10 @@ namespace TrenchBroom {
             HandleMap m_handles;
             size_t m_selectedHandleCount;
         public:
-            VertexHandleManagerBase() :
+            VertexHandleManagerBaseT() :
             m_selectedHandleCount(0) {}
             
-            virtual ~VertexHandleManagerBase() {}
+            virtual ~VertexHandleManagerBaseT() {}
         public:
             size_t selectedHandleCount() const {
                 return m_selectedHandleCount;
@@ -107,7 +126,6 @@ namespace TrenchBroom {
                 return m_handles.size();
             }
         public:
-            
             HandleList allHandles() const {
                 HandleList result;
                 result.reserve(totalHandleCount());
@@ -254,9 +272,12 @@ namespace TrenchBroom {
             }
         };
 
-        class VertexHandleManager : public VertexHandleManagerBase<Vec3> {
+        class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
         public:
             static const Model::Hit::HitType HandleHit;
+        public:
+            using VertexHandleManagerBase::addHandles;
+            using VertexHandleManagerBase::removeHandles;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
@@ -282,24 +303,16 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasVertex(handle); });
             }
         public:
-            template <typename I>
-            void addHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
-            }
-            
             void addHandles(const Model::Brush* brush);
-            
-            template <typename I>
-            void removeHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
-            }
-            
             void removeHandles(const Model::Brush* brush);
         };
         
-        class EdgeHandleManager : public VertexHandleManagerBase<Edge3> {
+        class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
         public:
             static const Model::Hit::HitType HandleHit;
+        public:
+            using VertexHandleManagerBase::addHandles;
+            using VertexHandleManagerBase::removeHandles;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
@@ -325,18 +338,7 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasEdge(handle); });
             }
         public:
-            template <typename I>
-            void addHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
-            }
-            
             void addHandles(const Model::Brush* brush);
-            
-            template <typename I>
-            void removeHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
-            }
-            
             void removeHandles(const Model::Brush* brush);
         };
         
@@ -344,9 +346,12 @@ namespace TrenchBroom {
             bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
         };
         
-        class FaceHandleManager : public VertexHandleManagerBase<const Model::BrushFace*> {
+        class FaceHandleManager : public VertexHandleManagerBaseT<const Model::BrushFace*> {
         public:
             static const Model::Hit::HitType HandleHit;
+        public:
+            using VertexHandleManagerBase::addHandles;
+            using VertexHandleManagerBase::removeHandles;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
@@ -372,18 +377,7 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle->polygon()); });
             }
         public:
-            template <typename I>
-            void addHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
-            }
-            
             void addHandles(const Model::Brush* brush);
-            
-            template <typename I>
-            void removeHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
-            }
-            
             void removeHandles(const Model::Brush* brush);
         };
     }

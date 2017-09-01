@@ -24,6 +24,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        VertexHandleManagerBase::~VertexHandleManagerBase() {}
+
         const Model::Hit::HitType VertexHandleManager::HandleHit = Model::Hit::freeHitType();
 
         void VertexHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {

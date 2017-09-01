@@ -58,8 +58,8 @@ namespace TrenchBroom {
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
         public:
-            void removeHandles(VertexHandleManager& manager);
-            void addHandles(VertexHandleManager& manager);
+            void removeHandles(VertexHandleManagerBase& manager);
+            void addHandles(VertexHandleManagerBase& manager);
             void selectNewHandlePositions(VertexHandleManager& manager);
             void selectOldHandlePositions(VertexHandleManager& manager);
         private:

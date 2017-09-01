@@ -318,6 +318,8 @@ namespace TrenchBroom {
             if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addHandles(m_vertexHandles);
+                vertexCommand->addHandles(m_edgeHandles);
+                vertexCommand->addHandles(m_faceHandles);
                 vertexCommand->selectNewHandlePositions(m_vertexHandles);
                 m_ignoreChangeNotifications = false;
                 
@@ -330,6 +332,8 @@ namespace TrenchBroom {
             if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->addHandles(m_vertexHandles);
+                vertexCommand->addHandles(m_edgeHandles);
+                vertexCommand->addHandles(m_faceHandles);
                 vertexCommand->selectOldHandlePositions(m_vertexHandles);
                 m_ignoreChangeNotifications = false;
                 

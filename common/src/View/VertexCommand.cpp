@@ -152,11 +152,11 @@ namespace TrenchBroom {
             m_snapshot = NULL;
         }
 
-        void VertexCommand::removeHandles(VertexHandleManager& manager) {
+        void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {
             manager.removeHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
-        void VertexCommand::addHandles(VertexHandleManager& manager) {
+        void VertexCommand::addHandles(VertexHandleManagerBase& manager) {
             manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
