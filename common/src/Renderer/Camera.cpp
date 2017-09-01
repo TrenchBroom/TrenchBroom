@@ -344,6 +344,15 @@ namespace TrenchBroom {
             return pickRay.intersectWithSphere(handlePosition, 2.0 * handleRadius * scaling);
         }
 
+        FloatType Camera::pickLineSegmentHandle(const Ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const {
+            const Ray3::LineDistance distance = pickRay.distanceToSegment(handlePosition.start(), handlePosition.end());
+            if (distance.parallel)
+                return Math::nan<FloatType>();
+            
+            const Vec3 pointHandlePosition = handlePosition.pointAtDistance(distance.lineDistance);
+            return pickPointHandle(pickRay, pointHandlePosition, handleRadius);
+        }
+
         Camera::Camera() :
         m_nearPlane(1.0f),
         m_farPlane(8000.0f),

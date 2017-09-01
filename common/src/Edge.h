@@ -79,6 +79,10 @@ namespace TrenchBroom {
             return (m_end - m_start).normalized();
         }
         
+        Vec<T,S> pointAtDistance(const T distance) const {
+            return m_start + distance * direction();
+        }
+        
         static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
             typename Vec<T,S>::List result(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {

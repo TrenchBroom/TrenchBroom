@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -43,7 +44,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        template <typename H>
+        template <typename H, typename C = std::less<H>>
         class VertexHandleManagerBase {
         public:
             typedef H Handle;
@@ -83,7 +84,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo> HandleMap;
+            typedef std::map<H, HandleInfo, C> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
             HandleMap m_handles;
@@ -91,6 +92,8 @@ namespace TrenchBroom {
         public:
             VertexHandleManagerBase() :
             m_selectedHandleCount(0) {}
+            
+            virtual ~VertexHandleManagerBase() {}
         public:
             size_t selectedHandleCount() const {
                 return m_selectedHandleCount;
@@ -164,7 +167,7 @@ namespace TrenchBroom {
                     info.dec();
                     
                     if (info.count == 0) {
-                        doDeselect(info);
+                        deselect(info);
                         m_handles.erase(it);
                     }
                 }
@@ -183,7 +186,7 @@ namespace TrenchBroom {
             void select(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    doSelect(it->second);
+                    select(it->second);
                 }
             }
             
@@ -195,13 +198,13 @@ namespace TrenchBroom {
             void deselect(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    doDeselect(it->second);
+                    deselect(it->second);
                 }
             }
             
             void deselectAll() {
                 std::for_each(std::begin(m_handles), std::end(m_handles), [this](HandleEntry& entry) {
-                    doDeselect(entry.second);
+                    deselect(entry.second);
                 });
             }
             
@@ -213,25 +216,25 @@ namespace TrenchBroom {
             void toggle(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
-                    doToggle(it->second);
+                    toggle(it->second);
                 }
             }
         private:
-            void doSelect(HandleInfo& info) {
+            void select(HandleInfo& info) {
                 if (info.select()) {
                     assert(selectedHandleCount() < totalHandleCount());
                     ++m_selectedHandleCount;
                 }
             }
             
-            void doDeselect(HandleInfo& info) {
+            void deselect(HandleInfo& info) {
                 if (info.deselect()) {
                     assert(m_selectedHandleCount > 0);
                     --m_selectedHandleCount;
                 }
             }
             
-            void doToggle(HandleInfo& info) {
+            void toggle(HandleInfo& info) {
                 if (info.toggle()) {
                     assert(selectedHandleCount() < totalHandleCount());
                     ++m_selectedHandleCount;
@@ -260,7 +263,7 @@ namespace TrenchBroom {
             template <typename I>
             Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
                 Model::BrushSet result;
-                doFindIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
+                findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
                 return result;
             }
             
@@ -269,13 +272,13 @@ namespace TrenchBroom {
                 Model::BrushSet result;
                 auto out = std::inserter(result, std::end(result));
                 std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
-                    doFindIncidentBrushes(handle, bBegin, bEnd, out);
+                    findIncidentBrushes(handle, bBegin, bEnd, out);
                 });
                 return result;
             }
         private:
             template <typename I, typename O>
-            void doFindIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
+            void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasVertex(handle); });
             }
         public:
@@ -294,6 +297,95 @@ namespace TrenchBroom {
             void removeHandles(const Model::Brush* brush);
         };
         
+        class EdgeHandleManager : public VertexHandleManagerBase<Edge3> {
+        public:
+            static const Model::Hit::HitType HandleHit;
+        public:
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+        public:
+            template <typename I>
+            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                Model::BrushSet result;
+                findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
+                return result;
+            }
+            
+            template <typename I1, typename I2>
+            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                Model::BrushSet result;
+                auto out = std::inserter(result, std::end(result));
+                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
+                    findIncidentBrushes(handle, bBegin, bEnd, out);
+                });
+                return result;
+            }
+        private:
+            template <typename I, typename O>
+            void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
+                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasEdge(handle); });
+            }
+        public:
+            template <typename I>
+            void addHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
+            }
+            
+            void addHandles(const Model::Brush* brush);
+            
+            template <typename I>
+            void removeHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
+            }
+            
+            void removeHandles(const Model::Brush* brush);
+        };
+        
+        struct FaceHandleCmp {
+            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
+        };
+        
+        class FaceHandleManager : public VertexHandleManagerBase<const Model::BrushFace*> {
+        public:
+            static const Model::Hit::HitType HandleHit;
+        public:
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+        public:
+            template <typename I>
+            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                Model::BrushSet result;
+                findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
+                return result;
+            }
+            
+            template <typename I1, typename I2>
+            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                Model::BrushSet result;
+                auto out = std::inserter(result, std::end(result));
+                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
+                    findIncidentBrushes(handle, bBegin, bEnd, out);
+                });
+                return result;
+            }
+        private:
+            template <typename I, typename O>
+            void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
+                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle->polygon()); });
+            }
+        public:
+            template <typename I>
+            void addHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
+            }
+            
+            void addHandles(const Model::Brush* brush);
+            
+            template <typename I>
+            void removeHandles(I begin, I end) {
+                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
+            }
+            
+            void removeHandles(const Model::Brush* brush);
+        };
     }
 }
 

@@ -223,7 +223,7 @@ namespace TrenchBroom {
                         return DR_Deny;
                     case VertexTool::MR_Cancel:
                         return DR_Cancel;
-                        switchDefault()
+                    switchDefault()
                 }
             }
             
@@ -241,7 +241,7 @@ namespace TrenchBroom {
                         return new AbsoluteDragSnapper(m_tool->grid());
                     case ST_Relative:
                         return new DeltaDragSnapper(m_tool->grid());
-                        switchDefault();
+                    switchDefault();
                 }
             }
             

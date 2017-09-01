@@ -39,13 +39,13 @@ namespace TrenchBroom {
         
         Polygon(const typename Vec<T,S>::List& i_vertices) :
         m_vertices(i_vertices) {
-            orderVertices(m_vertices);
+            CollectionUtils::rotateMinToFront(m_vertices);
         }
         
         Polygon(typename Vec<T,S>::List& i_vertices) {
             using std::swap;
             swap(m_vertices, i_vertices);
-            orderVertices(m_vertices);
+            CollectionUtils::rotateMinToFront(m_vertices);
         }
         
         bool operator==(const Polygon<T,S>& rhs) const {
@@ -102,25 +102,6 @@ namespace TrenchBroom {
             for (size_t i = 0; i < polygons.size(); ++i)
                 result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
-        }
-        
-    private:
-        void orderVertices(typename Vec<T,S>::List& vertices) {
-            if (vertices.size() < 2)
-                return;
-            
-            typedef typename Vec<T,S>::List::iterator Iter;
-            Iter it = std::begin(vertices);
-            Iter end = std::end(vertices);
-            Iter smallest = it++;
-            
-            while (it != end) {
-                if (*it < *smallest)
-                    smallest = it;
-                ++it;
-            }
-
-            std::rotate(std::begin(vertices), smallest, std::end(vertices));
         }
     };
     

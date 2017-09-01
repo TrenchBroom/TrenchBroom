@@ -68,6 +68,8 @@ namespace TrenchBroom {
             bool m_ignoreChangeNotifications;
 
             VertexHandleManager m_vertexHandles;
+            EdgeHandleManager m_edgeHandles;
+            FaceHandleManager m_faceHandles;
             Vec3 m_dragHandlePosition;
             bool m_dragging;
 

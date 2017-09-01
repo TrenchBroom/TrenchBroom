@@ -222,11 +222,16 @@ namespace TrenchBroom {
 
         bool VertexTool::doActivate() {
             m_vertexHandles.clear();
+            m_edgeHandles.clear();
+            m_faceHandles.clear();
+            
             m_mode = Mode_Move;
             m_changeCount = 0;
             
             const Model::BrushList& brushes = selectedBrushes();
             m_vertexHandles.addHandles(std::begin(brushes), std::end(brushes));
+            m_edgeHandles.addHandles(std::begin(brushes), std::end(brushes));
+            m_faceHandles.addHandles(std::begin(brushes), std::end(brushes));
             
             bindObservers();
             return true;
@@ -235,6 +240,8 @@ namespace TrenchBroom {
         bool VertexTool::doDeactivate() {
             unbindObservers();
             m_vertexHandles.clear();
+            m_edgeHandles.clear();
+            m_faceHandles.clear();
             
             /*
              if (m_changeCount > 0) {
@@ -301,6 +308,8 @@ namespace TrenchBroom {
             if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                 vertexCommand->removeHandles(m_vertexHandles);
+                vertexCommand->removeHandles(m_edgeHandles);
+                vertexCommand->removeHandles(m_faceHandles);
                 m_ignoreChangeNotifications = true;
             }
         }

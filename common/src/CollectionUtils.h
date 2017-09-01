@@ -115,6 +115,23 @@ namespace CollectionUtils {
                 ++cur;
         }
     }
+    
+    template <typename Col, typename Cmp = std::less<typename Col::value_type>>
+    Col& rotateMinToFront(Col& col, const Cmp& cmp = Cmp()) {
+        if (col.size() <= 1)
+            return col;
+        
+        const auto smallest = std::min_element(std::begin(col), std::end(col));
+        std::rotate(std::begin(col), smallest, std::end(col));
+        
+        return col;
+    }
+    
+    template <typename Col, typename Cmp = std::less<typename Col::value_type>>
+    Col minRotatedToFront(const Col& col, const Cmp& cmp = Cmp()) {
+        Col copy = col;
+        return rotateMinToFront(copy);
+    }
 
     template <typename Col, typename Cmp>
     Col& retainMaximalElements(Col& col, const Cmp& cmp = Cmp()) {

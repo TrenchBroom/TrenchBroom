@@ -48,5 +48,68 @@ namespace TrenchBroom {
                 remove(vertex->position());
             }
         }
+        
+        const Model::Hit::HitType EdgeHandleManager::HandleHit = Model::Hit::freeHitType();
+        
+        void EdgeHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Edge3& position = entry.first;
+                const FloatType distance = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position));
+                }
+            }
+        }
+        
+        void EdgeHandleManager::addHandles(const Model::Brush* brush) {
+            for (const Model::BrushEdge* edge : brush->edges()) {
+                add(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+            }
+        }
+        
+        void EdgeHandleManager::removeHandles(const Model::Brush* brush) {
+            for (const Model::BrushEdge* edge : brush->edges()) {
+                remove(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+            }
+        }
+        
+        bool FaceHandleCmp::operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
+            assert(lhs != nullptr);
+            assert(rhs != nullptr);
+            
+            if (lhs->vertexCount() < rhs->vertexCount())
+                return true;
+            if (lhs->vertexCount() > rhs->vertexCount())
+                return false;
+            
+            return lhs->polygon() < rhs->polygon();
+        }
+
+        const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
+        
+        void FaceHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Model::BrushFace* face = entry.first;
+
+                const FloatType distance = face->intersectWithRay(pickRay);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, face));
+                }
+            }
+        }
+        
+        void FaceHandleManager::addHandles(const Model::Brush* brush) {
+            for (const Model::BrushFace* face : brush->faces()) {
+                add(face);
+            }
+        }
+        
+        void FaceHandleManager::removeHandles(const Model::Brush* brush) {
+            for (const Model::BrushFace* face : brush->faces()) {
+                remove(face);
+            }
+        }
     }
 }
