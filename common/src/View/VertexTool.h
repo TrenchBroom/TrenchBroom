@@ -48,6 +48,10 @@ namespace TrenchBroom {
         
         class VertexTool : public Tool {
         public:
+            static const Model::Hit::HitType VertexHandleHit;
+            static const Model::Hit::HitType EdgeHandleHit;
+            static const Model::Hit::HitType FaceHandleHit;
+            static const Model::Hit::HitType SplitHandleHit;
             static const Model::Hit::HitType AnyHandleHit;
 
             typedef enum {
@@ -97,6 +101,7 @@ namespace TrenchBroom {
             Model::VertexToBrushesMap buildBrushMap(const Vec3::List& handles) const;
         public: // Rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
             void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
             void renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;

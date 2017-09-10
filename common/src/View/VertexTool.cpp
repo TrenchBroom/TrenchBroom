@@ -39,7 +39,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType VertexTool::AnyHandleHit = VertexHandleManager::HandleHit;
+        const Model::Hit::HitType VertexTool::VertexHandleHit = VertexHandleManager::HandleHit;
+        const Model::Hit::HitType VertexTool::EdgeHandleHit = EdgeHandleManager::HandleHit;
+        const Model::Hit::HitType VertexTool::FaceHandleHit = FaceHandleManager::HandleHit;
+        const Model::Hit::HitType VertexTool::SplitHandleHit = EdgeHandleHit | FaceHandleHit;
+        const Model::Hit::HitType VertexTool::AnyHandleHit = VertexHandleHit | EdgeHandleHit | FaceHandleHit;
 
         VertexTool::VertexTool(MapDocumentWPtr document) :
         Tool(false),
@@ -61,6 +65,8 @@ namespace TrenchBroom {
 
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             m_vertexHandles.pick(pickRay, camera, pickResult);
+            m_edgeHandles.pick(pickRay, camera, pickResult);
+            m_faceHandles.pick(pickRay, camera, pickResult);
         }
 
         bool VertexTool::select(const Model::Hit::List& hits, const bool addToSelection) {
@@ -185,6 +191,12 @@ namespace TrenchBroom {
                 renderHandles(m_vertexHandles.unselectedHandles(), renderService, pref(Preferences::HandleColor));
             if (m_vertexHandles.anySelected())
                 renderHandles(m_vertexHandles.selectedHandles(), renderService, pref(Preferences::SelectedHandleColor));
+        }
+
+        void VertexTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            renderService.renderPointHandle(handle);
         }
 
         void VertexTool::renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {

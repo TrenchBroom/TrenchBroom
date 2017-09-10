@@ -62,6 +62,16 @@ namespace TrenchBroom {
                 
                 return result;
             }
+            
+            const Model::Hit& findHandleHit(const InputState& inputState) {
+                const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
+                if (vertexHit.isMatch())
+                    return vertexHit;
+                const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).occluded().first();
+                if (edgeHit.isMatch())
+                    return edgeHit;
+                return inputState.pickResult().query().type(VertexTool::FaceHandleHit).occluded().first();
+            }
         private:
             bool allIncidentBrushesVisited(const Vec3& handle, Model::BrushSet& visitedBrushes) const {
                 bool result = true;
@@ -151,8 +161,8 @@ namespace TrenchBroom {
                 if (m_lasso != nullptr)
                     m_lasso->render(renderContext, renderBatch);
                 if (!anyToolDragging(inputState)) {
-                    const Model::Hit& hit = inputState.pickResult().query().type(VertexTool::AnyHandleHit).occluded().first();
-                    if (hit.isMatch()) {
+                    const Model::Hit& hit = findHandleHit(inputState);
+                    if (hit.hasType(VertexTool::VertexHandleHit)) {
                         const Vec3& handle = hit.target<Vec3>();
                         m_tool->renderHighlight(renderContext, renderBatch, handle);
 
@@ -204,7 +214,7 @@ namespace TrenchBroom {
                        inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd))))
                     return MoveInfo();
                 
-                const Model::Hit& hit = inputState.pickResult().query().type(VertexTool::AnyHandleHit).occluded().first();
+                const Model::Hit& hit = findHandleHit(inputState);
                 if (!hit.isMatch())
                     return MoveInfo();
                 
@@ -251,6 +261,19 @@ namespace TrenchBroom {
                 if (thisToolDragging()) {
                     m_tool->renderDragHighlight(renderContext, renderBatch);
                     m_tool->renderDragGuide(renderContext, renderBatch);
+                } else {
+                    const Model::Hit& hit = findHandleHit(inputState);
+                    if (hit.hasType(VertexTool::EdgeHandleHit)) {
+                        const Edge3& edge = hit.target<Edge3>();
+                        const Ray3::LineDistance distance = inputState.pickRay().distanceToSegment(edge.start(), edge.end());
+                        assert(!distance.parallel);
+                        
+                        const Vec3 handle = edge.pointAtDistance(distance.lineDistance);
+                        m_tool->renderHandle(renderContext, renderBatch, handle);
+                    } else if (hit.hasType(VertexTool::FaceHandleHit)) {
+                        const Vec3 handle = hit.hitPoint();
+                        m_tool->renderHandle(renderContext, renderBatch, handle);
+                    }
                 }
             }
             
