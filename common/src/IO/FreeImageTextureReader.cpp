@@ -55,6 +55,8 @@ namespace TrenchBroom {
                 image = tempImage;
             }
 
+            FreeImage_FlipVertical(image);
+
             std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
             for (size_t mip = 1; mip < buffers.size(); ++mip) {
                 FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
