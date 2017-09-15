@@ -85,6 +85,14 @@ namespace TrenchBroom {
             return m_vertices.size();
         }
         
+        typename Vec<T,3>::List::const_iterator begin() const {
+            return std::begin(m_vertices);
+        }
+        
+        typename Vec<T,3>::List::const_iterator end() const {
+            return std::end(m_vertices);
+        }
+        
         const typename Vec<T,S>::List& vertices() const {
             return m_vertices;
         }

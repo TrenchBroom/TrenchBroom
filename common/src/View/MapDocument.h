@@ -315,6 +315,7 @@ namespace TrenchBroom {
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             
+            bool addVertices(const Model::VertexToBrushesMap& vertices);
             bool removeVertices(const Model::VertexToBrushesMap& vertices);
             bool removeEdges(const Model::VertexToEdgesMap& edges);
             bool removeFaces(const Model::VertexToFacesMap& faces);

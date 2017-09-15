@@ -342,11 +342,7 @@ namespace TrenchBroom {
             void removeHandles(const Model::Brush* brush);
         };
         
-        struct FaceHandleCmp {
-            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const;
-        };
-        
-        class FaceHandleManager : public VertexHandleManagerBaseT<const Model::BrushFace*> {
+        class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
         public:
@@ -374,7 +370,7 @@ namespace TrenchBroom {
         private:
             template <typename I, typename O>
             void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle->polygon()); });
+                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle); });
             }
         public:
             void addHandles(const Model::Brush* brush);

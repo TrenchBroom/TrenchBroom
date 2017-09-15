@@ -62,7 +62,8 @@ namespace TrenchBroom {
         private:
             typedef enum {
                 Mode_Move,
-                Mode_Split
+                Mode_Split_Edge,
+                Mode_Split_Face
             } Mode;
             
             MapDocumentWPtr m_document;
@@ -84,16 +85,27 @@ namespace TrenchBroom {
             const Grid& grid() const;
             
             Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
+            Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
+            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
+        private:
+            template <typename M, typename H>
+            Model::BrushSet findIncidentBrushes(const M& manager, const H& handle) const {
+                const Model::BrushList& brushes = selectedBrushes();
+                return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
+            }
+        public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public: // Handle selection
             bool select(const Model::Hit::List& hits, bool addToSelection);
             void select(const Lasso& lasso, bool modifySelection);
             bool deselectAll();
         public: // Vertex moving
-            bool startMove(const Model::Hit& hit);
+            bool startMove(const Model::Hit& hit, const Ray3& pickRay);
             MoveResult move(const Vec3& delta);
             void endMove();
             void cancelMove();
+
+            Vec3 getHandlePosition(const Model::Hit& hit, const Ray3& pickRay);
         private:
             String actionName() const;
         private:

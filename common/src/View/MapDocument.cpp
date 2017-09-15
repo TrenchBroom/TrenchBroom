@@ -75,6 +75,7 @@
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
@@ -1149,6 +1150,10 @@ namespace TrenchBroom {
             return submitAndStore(SplitBrushFacesCommand::split(faces, delta));
         }
         
+        bool MapDocument::addVertices(const Model::VertexToBrushesMap& vertices) {
+            return submitAndStore(AddBrushVerticesCommand::add(vertices));
+        }
+
         bool MapDocument::removeVertices(const Model::VertexToBrushesMap& vertices) {
             return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
         }

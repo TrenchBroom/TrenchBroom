@@ -17,36 +17,39 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RemoveBrushVerticesCommand
-#define TrenchBroom_RemoveBrushVerticesCommand
+#ifndef AddBrushVerticesCommand_h
+#define AddBrushVerticesCommand_h
 
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
-#include "View/RemoveBrushElementsCommand.h"
+#include "View/VertexCommand.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-    
     namespace View {
         class VertexHandleManagerOld;
         
-        class RemoveBrushVerticesCommand : public RemoveBrushElementsCommand {
+        class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<RemoveBrushVerticesCommand> Ptr;
+            typedef std::shared_ptr<AddBrushVerticesCommand> Ptr;
         private:
-            Vec3::List m_oldVertexPositions;
+            Model::VertexToBrushesMap m_vertices;
         public:
-            static Ptr remove(const Model::VertexToBrushesMap& vertices);
+            static Ptr add(const Model::VertexToBrushesMap& vertices);
+        protected:
+            AddBrushVerticesCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::VertexToBrushesMap& vertices);
         private:
-            RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions);
+            bool doCanDoVertexOperation(const MapDocument* document) const;
+            bool doVertexOperation(MapDocumentCommandFacade* document);
             
             void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            
+            bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_RemoveBrushVerticesCommand) */
+#endif /* AddBrushVerticesCommand_h */

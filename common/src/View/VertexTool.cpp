@@ -59,8 +59,16 @@ namespace TrenchBroom {
         }
 
         Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
-            const Model::BrushList& brushes = selectedBrushes();
-            return m_vertexHandles.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
+            return findIncidentBrushes(m_vertexHandles, handle);
+        }
+
+        
+        Model::BrushSet VertexTool::findIncidentBrushes(const Edge3& handle) const {
+            return findIncidentBrushes(m_edgeHandles, handle);
+        }
+        
+        Model::BrushSet VertexTool::findIncidentBrushes(const Polygon3& handle) const {
+            return findIncidentBrushes(m_faceHandles, handle);
         }
 
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
@@ -114,20 +122,32 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool VertexTool::startMove(const Model::Hit& hit) {
+        bool VertexTool::startMove(const Model::Hit& hit, const Ray3& pickRay) {
             assert(hit.isMatch());
-            assert(hit.type() == VertexHandleManager::HandleHit);
+            assert(hit.hasType(AnyHandleHit));
             
-            const Vec3& handle = hit.target<Vec3>();
-            if (!m_vertexHandles.selected(handle)) {
+            const Vec3 handle = getHandlePosition(hit, pickRay);
+            if (hit.hasType(VertexHandleHit)) {
+                if (!m_vertexHandles.selected(handle)) {
+                    m_vertexHandles.deselectAll();
+                    m_vertexHandles.select(handle);
+                    refreshViews();
+                }
+            } else {
+                assert(hit.hasType(SplitHandleHit));
                 m_vertexHandles.deselectAll();
-                m_vertexHandles.select(handle);
-                refreshViews();
+                if (hit.hasType(EdgeHandleHit)) {
+                    m_edgeHandles.select(hit.target<Edge3>());
+                    m_mode = Mode_Split_Edge;
+                } else {
+                    m_faceHandles.select(hit.target<Polygon3>());
+                    m_mode = Mode_Split_Face;
+                }
             }
             
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction(actionName());
-            
+
             m_dragHandlePosition = handle;
             m_dragging = true;
             return true;
@@ -152,29 +172,75 @@ namespace TrenchBroom {
             m_dragging = false;
         }
 
+        Vec3 VertexTool::getHandlePosition(const Model::Hit& hit, const Ray3& pickRay) {
+            assert(hit.isMatch());
+            assert(hit.hasType(AnyHandleHit));
+            
+            if (hit.hasType(VertexHandleHit)) {
+                return hit.target<Vec3>();
+            } else if (hit.hasType(EdgeHandleHit)) {
+                const Edge3& edge = hit.target<Edge3>();
+                const Ray3::LineDistance distance = pickRay.distanceToSegment(edge.start(), edge.end());
+                assert(!distance.parallel);
+                
+                return edge.pointAtDistance(distance.lineDistance);
+            } else {
+                assert(hit.hasType(FaceHandleHit));
+                return hit.hitPoint();
+            }
+        }
+        
         String VertexTool::actionName() const {
             switch (m_mode) {
                 case Mode_Move:
                     return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
-                case Mode_Split:
-                    return "";
+                case Mode_Split_Edge:
+                    return "Split Edge";
+                case Mode_Split_Face:
+                    return "Split Face";
                 switchDefault();
             }
         }
 
         VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            const Vec3::List handles = m_vertexHandles.selectedHandles();
-            const Model::VertexToBrushesMap brushMap = buildBrushMap(handles);
-
             MapDocumentSPtr document = lock(m_document);
-            const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
-            if (result.success) {
-                if (!result.hasRemainingVertices)
-                    return MR_Cancel;
-                m_dragHandlePosition += delta;
+
+            if (m_mode == Mode_Move) {
+                const Vec3::List handles = m_vertexHandles.selectedHandles();
+                const Model::VertexToBrushesMap brushMap = buildBrushMap(handles);
+                
+                const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
+                if (result.success) {
+                    if (!result.hasRemainingVertices)
+                        return MR_Cancel;
+                    m_dragHandlePosition += delta;
+                    return MR_Continue;
+                }
+                return MR_Deny;
+            } else {
+                Model::BrushSet brushes;
+                if (m_mode == Mode_Split_Edge) {
+                    assert(m_edgeHandles.selectedHandleCount() == 1);
+                    const Edge3 handle = m_edgeHandles.selectedHandles().front();
+                    brushes = findIncidentBrushes(handle);
+                } else {
+                    assert(m_mode == Mode_Split_Face);
+                    assert(m_faceHandles.selectedHandleCount() == 1);
+                    const Polygon3 handle = m_faceHandles.selectedHandles().front();
+                    brushes = findIncidentBrushes(handle);
+                }
+                
+                const Model::VertexToBrushesMap vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                if (document->addVertices(vertices)) {
+                    m_mode = Mode_Move;
+                    m_edgeHandles.deselectAll();
+                    m_faceHandles.deselectAll();
+                    m_dragHandlePosition += delta;
+                    m_vertexHandles.select(m_dragHandlePosition);
+                }
+                
                 return MR_Continue;
             }
-            return MR_Deny;
         }
 
         Model::VertexToBrushesMap VertexTool::buildBrushMap(const Vec3::List& handles) const {

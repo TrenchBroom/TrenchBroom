@@ -218,7 +218,7 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return MoveInfo();
                 
-                if (!m_tool->startMove(hit))
+                if (!m_tool->startMove(hit, inputState.pickRay()))
                     return MoveInfo();
                 
                 m_lastSnapType = snapType(inputState);
@@ -263,15 +263,8 @@ namespace TrenchBroom {
                     m_tool->renderDragGuide(renderContext, renderBatch);
                 } else {
                     const Model::Hit& hit = findHandleHit(inputState);
-                    if (hit.hasType(VertexTool::EdgeHandleHit)) {
-                        const Edge3& edge = hit.target<Edge3>();
-                        const Ray3::LineDistance distance = inputState.pickRay().distanceToSegment(edge.start(), edge.end());
-                        assert(!distance.parallel);
-                        
-                        const Vec3 handle = edge.pointAtDistance(distance.lineDistance);
-                        m_tool->renderHandle(renderContext, renderBatch, handle);
-                    } else if (hit.hasType(VertexTool::FaceHandleHit)) {
-                        const Vec3 handle = hit.hitPoint();
+                    if (hit.hasType(VertexTool::SplitHandleHit)) {
+                        const Vec3 handle = m_tool->getHandlePosition(hit, inputState.pickRay());
                         m_tool->renderHandle(renderContext, renderBatch, handle);
                     }
                 }
