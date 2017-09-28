@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Edge.h"
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
 
@@ -239,6 +240,22 @@ namespace TrenchBroom {
                 }
                 
                 return result;
+            }
+            
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Edge<T,3> edge) const {
+                const Vec<T,3> vec = edge.end() - edge.start();
+                const T length = vec.length();
+                
+                const Vec<T,3> orig = edge.start();
+                const Vec<T,3> dir = vec / length;
+                
+                const Vec<T,3> snapped = snap(p, Line<T,3>(orig, dir));
+                const T dist = dir.dot(snapped - orig);
+                if (dist < 0.0 || dist > length)
+                    return Vec<T,3>::NaN;
+                
+                return snapped;
             }
         public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;

@@ -107,5 +107,15 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), L));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), L));
         }
+        
+        TEST(GridTest, snapOnEdge) {
+            const Edge3d E(Vec3d::Null, Vec3d(1.0, 2.0, 0.0) * 2.0);
+            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3::Null, E));
+            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), E));
+            ASSERT_TRUE(Grid(2u).snap(Vec3(20.0, 0.0, 0.0), E).nan());
+            ASSERT_TRUE(Grid(2u).snap(Vec3(-10.0, 0.0, 0.0), E).nan());
+        }
     }
 }
