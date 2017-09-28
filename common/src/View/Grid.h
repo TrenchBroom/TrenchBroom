@@ -26,6 +26,8 @@
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
 
+#include <array>
+
 namespace TrenchBroom {
     namespace View {
         class Grid {
@@ -209,6 +211,33 @@ namespace TrenchBroom {
                         result[2] = onPlane.zAt(result.xy());
                         break;
                 }
+                return result;
+            }
+        public:
+            // Snapping on an a line means finding the closest point on a line such that at least one coordinate
+            // is on the grid, ignoring a coordinate if the line direction is identical to the corresponding axis.
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Line<T,3> line) const {
+                // Project the point onto the line.
+                const Vec<T,3> pr = line.project(p);
+                const T prDist = line.distance(pr);
+                
+                Vec<T,3> result = pr;
+                T bestDiff = std::numeric_limits<T>::max();
+                for (size_t i = 0; i < 3; ++i) {
+                    if (line.direction[i] != 0.0) {
+                        const std::array<T,2> v = { {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]} };
+                        for (size_t j = 0; j < 2; ++j) {
+                            const T s = v[j] / line.direction[i];
+                            const T diff = Math::absDifference(s, prDist);
+                            if (diff < bestDiff) {
+                                result = line.pointAtDistance(s);
+                                bestDiff = diff;
+                            }
+                        }
+                    }
+                }
+                
                 return result;
             }
         public:

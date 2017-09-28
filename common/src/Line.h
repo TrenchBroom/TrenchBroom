@@ -98,8 +98,16 @@ public:
         return compare(other) >= 0;
     }
     
+    T distance(const Vec<T,S>& i_point) const {
+        return (i_point - point).dot(direction);
+    }
+    
     const Vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
+    }
+    
+    const Vec<T,S> project(const Vec<T,S>& i_point) const {
+        return pointAtDistance(distance(i_point));
     }
 private:
     bool isCanonical() const {
