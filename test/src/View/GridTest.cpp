@@ -95,27 +95,43 @@ namespace TrenchBroom {
         TEST(GridTest, snapOnLine) {
             const Line3d X(Vec3d(5.0, 0.0, 0.0), Vec3d::PosX);
             
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3::Null, X));
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), X));
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3(1.0, 1.0, 0.0), X));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, X));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), X));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 1.0, 0.0), X));
             ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 0.0), X));
             ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 2.0), X));
             
             const Line3d L(Vec3d::Null, Vec3d(1.0, 2.0, 0.0).normalized());
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3::Null, L));
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, L));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), L));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), L));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), L));
         }
         
         TEST(GridTest, snapOnEdge) {
             const Edge3d E(Vec3d::Null, Vec3d(1.0, 2.0, 0.0) * 2.0);
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3::Null, E));
-            ASSERT_VEC_EQ(Vec3::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, E));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), E));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), E));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), E));
             ASSERT_TRUE(Grid(2u).snap(Vec3(20.0, 0.0, 0.0), E).nan());
             ASSERT_TRUE(Grid(2u).snap(Vec3(-10.0, 0.0, 0.0), E).nan());
+        }
+        
+        TEST(GridTest, snapOnQuad) {
+            const Polygon3d quad {
+                Vec3d(-9.0, -9.0, 0.0),
+                Vec3d(+9.0, -9.0, 0.0),
+                Vec3d(+9.0, +9.0, 0.0),
+                Vec3d(-9.0, +9.0, 0.0)
+            };
+            
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(0.0, 0.0, 0.0), quad, Vec3d::PosZ));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(1.0, 1.0, 0.0), quad, Vec3d::PosZ));
+            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(1.0, 1.0, 1.0), quad, Vec3d::PosZ));
+            
+            ASSERT_VEC_EQ(Vec3d(9.0, 4.0, 0.0), Grid(2u).snap(Vec3d(10.0, 3.0, 1.0), quad, Vec3d::PosZ));
+            ASSERT_VEC_EQ(Vec3d(9.0, -4.0, 0.0), Grid(2u).snap(Vec3d(10.0, -2.0, 1.0), quad, Vec3d::PosZ));
         }
     }
 }

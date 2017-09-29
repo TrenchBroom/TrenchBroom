@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Edge.h"
+#include "Polygon.h"
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
 
@@ -256,6 +257,40 @@ namespace TrenchBroom {
                     return Vec<T,3>::NaN;
                 
                 return snapped;
+            }
+            
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Polygon<T,3>& polygon, const Vec<T,3>& normal) const {
+                ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
+                
+                const Plane<T,3> plane(polygon.vertices().front(), normal);
+                Vec<T,3> ps = snap(p, plane);
+                T err = (p - ps).squaredLength();
+                
+                if (!polygon.contains(ps, plane.normal)) {
+                    ps = Vec<T,3>::NaN;
+                    err = std::numeric_limits<T>::max();
+                }
+                
+                auto last = std::begin(polygon);
+                auto cur = std::next(last);
+                auto end = std::end(polygon);
+                
+                while (cur != end) {
+                    const Vec<T,3> cand = snap(p, Edge<T,3>(*last, *cur));
+                    if (!cand.nan()) {
+                        const T cerr = (p - cand).squaredLength();
+                        if (cerr < err) {
+                            err = cerr;
+                            ps = cand;
+                        }
+                    }
+                    
+                    last = cur;
+                    ++cur;
+                }
+                
+                return ps;
             }
         public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;

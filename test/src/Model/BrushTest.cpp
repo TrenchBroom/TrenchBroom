@@ -1023,16 +1023,16 @@ namespace TrenchBroom {
             
             Polygon3::List newFacePositions = brush->moveFaces(worldBounds, Polygon3::List(1, face), Vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, -48.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(-48.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(-48.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(+16.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(+16.0, -48.0, +32.0)));
             
             newFacePositions = brush->moveFaces(worldBounds, newFacePositions, Vec3(16.0, 16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)
-                ASSERT_TRUE(newFacePositions[0].contains(face.vertices()[i]));
+                ASSERT_TRUE(newFacePositions[0].hasVertex(face.vertices()[i]));
             
             delete brush;
         }

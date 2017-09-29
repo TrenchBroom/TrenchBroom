@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Polygon_h
 #define TrenchBroom_Polygon_h
 
+#include "Algorithms.h"
 #include "CollectionUtils.h"
 #include "Vec.h"
 
@@ -36,6 +37,11 @@ namespace TrenchBroom {
         typename Vec<T,S>::List m_vertices;
     public:
         Polygon() {}
+        
+        Polygon(std::initializer_list<Vec<T,S>> i_vertices) :
+        m_vertices(i_vertices) {
+            CollectionUtils::rotateMinToFront(m_vertices);
+        }
         
         Polygon(const typename Vec<T,S>::List& i_vertices) :
         m_vertices(i_vertices) {
@@ -77,8 +83,12 @@ namespace TrenchBroom {
             return 0;
         }
         
-        bool contains(const Vec<T,S>& vertex) const {
+        bool hasVertex(const Vec<T,S>& vertex) const {
             return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
+        }
+        
+        bool contains(const Vec<T,S>& point, const Vec<T,3>& normal) const {
+            return polygonContainsPoint(point, normal, std::begin(m_vertices), std::end(m_vertices));
         }
         
         size_t vertexCount() const {
