@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "View/Grid.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -64,6 +65,20 @@ namespace TrenchBroom {
             }
         }
         
+        void EdgeHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Edge3& position = entry.first;
+                const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
+                if (!Math::isnan(edgeDist)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(edgeDist);
+                    const Vec3 snapped = grid.snap(hitPoint, position);
+                    const FloatType pointDist = camera.pickPointHandle(pickRay, snapped, pref(Preferences::HandleRadius));
+                    if (!Math::isnan(pointDist))
+                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, pickRay.pointAtDistance(pointDist), snapped));
+                }
+            }
+        }
+
         void EdgeHandleManager::addHandles(const Model::Brush* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
                 add(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
@@ -89,6 +104,26 @@ namespace TrenchBroom {
             }
         }
         
+        void FaceHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Polygon3& position = entry.first;
+                
+                Plane3 plane;
+                if (!getPlane(std::begin(position), std::end(position), plane))
+                    continue;
+                
+                const FloatType distance = intersectPolygonWithRay(pickRay, plane, std::begin(position), std::end(position));
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                    const Vec3 snapped = grid.snap(hitPoint, position, plane.normal);
+                    
+                    const FloatType pointDist = camera.pickPointHandle(pickRay, snapped, pref(Preferences::HandleRadius));
+                    if (!Math::isnan(pointDist))
+                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, pickRay.pointAtDistance(pointDist), snapped));
+                }
+            }
+        }
+
         void FaceHandleManager::addHandles(const Model::Brush* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 add(face->polygon());

@@ -44,6 +44,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
+        
         class VertexHandleManagerBase {
         public:
             virtual ~VertexHandleManagerBase();
@@ -315,6 +317,7 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::removeHandles;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
         public:
             template <typename I>
             Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
@@ -350,6 +353,7 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::removeHandles;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
         public:
             template <typename I>
             Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {

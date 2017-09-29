@@ -25,6 +25,7 @@
 #include "Model/Brush.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
+#include "View/Grid.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/MoveBrushVerticesCommand.h"
@@ -72,9 +73,12 @@ namespace TrenchBroom {
         }
 
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            
             m_vertexHandles.pick(pickRay, camera, pickResult);
-            m_edgeHandles.pick(pickRay, camera, pickResult);
-            m_faceHandles.pick(pickRay, camera, pickResult);
+            m_edgeHandles.pick(pickRay, camera, grid, pickResult);
+            m_faceHandles.pick(pickRay, camera, grid, pickResult);
         }
 
         bool VertexTool::select(const Model::Hit::List& hits, const bool addToSelection) {
@@ -175,19 +179,7 @@ namespace TrenchBroom {
         Vec3 VertexTool::getHandlePosition(const Model::Hit& hit, const Ray3& pickRay) {
             assert(hit.isMatch());
             assert(hit.hasType(AnyHandleHit));
-            
-            if (hit.hasType(VertexHandleHit)) {
-                return hit.target<Vec3>();
-            } else if (hit.hasType(EdgeHandleHit)) {
-                const Edge3& edge = hit.target<Edge3>();
-                const Ray3::LineDistance distance = pickRay.distanceToSegment(edge.start(), edge.end());
-                assert(!distance.parallel);
-                
-                return edge.pointAtDistance(distance.lineDistance);
-            } else {
-                assert(hit.hasType(FaceHandleHit));
-                return hit.hitPoint();
-            }
+            return hit.target<Vec3>();
         }
         
         String VertexTool::actionName() const {

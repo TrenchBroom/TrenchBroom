@@ -67,10 +67,10 @@ namespace TrenchBroom {
                 const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
                 if (vertexHit.isMatch())
                     return vertexHit;
-                const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).occluded().first();
+                const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).first();
                 if (edgeHit.isMatch())
                     return edgeHit;
-                return inputState.pickResult().query().type(VertexTool::FaceHandleHit).occluded().first();
+                return inputState.pickResult().query().type(VertexTool::FaceHandleHit).first();
             }
         private:
             bool allIncidentBrushesVisited(const Vec3& handle, Model::BrushSet& visitedBrushes) const {

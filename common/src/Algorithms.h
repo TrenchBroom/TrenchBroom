@@ -37,8 +37,8 @@ struct Identity {
     }
 };
 
-template <typename T, typename I, typename F>
-bool getPlane(I cur, I end, const F& getPosition, Plane<T,3>& plane) {
+template <typename T, typename I, typename F = Identity>
+bool getPlane(I cur, I end, Plane<T,3>& plane, const F& getPosition = F()) {
     if (cur == end)
         return false;
     const Vec<T,3> p2 = *cur++;
@@ -68,7 +68,7 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
 template <typename T, typename I, typename F = Identity>
 T intersectPolygonWithRay(const Ray<T,3>& ray, I cur, I end, const F& getPosition = F()) {
     Plane<T,3> plane;
-    if (!getPlane(cur, end, getPosition, plane))
+    if (!getPlane(cur, end, plane, getPosition))
         return Math::nan<T>();
     return intersectPolygonWithRay(ray, plane, cur, end, getPosition);
 }
