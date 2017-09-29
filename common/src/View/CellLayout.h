@@ -788,7 +788,7 @@ namespace TrenchBroom {
             }
             
             float outerMargin() const {
-                return m_outerMargin();
+                return m_outerMargin;
             }
             
             float groupMargin() const {
@@ -800,7 +800,7 @@ namespace TrenchBroom {
             }
             
             float cellMargin() const {
-                return m_cellMargin();
+                return m_cellMargin;
             }
         };
     }
