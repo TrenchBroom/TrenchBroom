@@ -218,11 +218,11 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return MoveInfo();
                 
-                if (!m_tool->startMove(hit, inputState.pickRay()))
+                if (!m_tool->startMove(hit))
                     return MoveInfo();
                 
                 m_lastSnapType = snapType(inputState);
-                return MoveInfo(hit.target<Vec3>());
+                return MoveInfo(m_tool->getHandlePosition(hit));
             }
 
             DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
@@ -259,13 +259,18 @@ namespace TrenchBroom {
                 MoveToolController::doRender(inputState, renderContext, renderBatch);
                 
                 if (thisToolDragging()) {
+                    m_tool->renderDragHandle(renderContext, renderBatch);
                     m_tool->renderDragHighlight(renderContext, renderBatch);
                     m_tool->renderDragGuide(renderContext, renderBatch);
                 } else {
                     const Model::Hit& hit = findHandleHit(inputState);
                     if (hit.hasType(VertexTool::SplitHandleHit)) {
-                        const Vec3 handle = m_tool->getHandlePosition(hit, inputState.pickRay());
-                        m_tool->renderHandle(renderContext, renderBatch, handle);
+                        const Vec3 handle = m_tool->getHandlePosition(hit);
+                        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                            m_tool->renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
+                        else
+                            m_tool->renderHandle(renderContext, renderBatch, handle);
+                        m_tool->renderHighlight(renderContext, renderBatch, handle);
                     }
                 }
             }

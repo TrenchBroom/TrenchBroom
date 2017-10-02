@@ -100,12 +100,12 @@ namespace TrenchBroom {
             void select(const Lasso& lasso, bool modifySelection);
             bool deselectAll();
         public: // Vertex moving
-            bool startMove(const Model::Hit& hit, const Ray3& pickRay);
+            bool startMove(const Model::Hit& hit);
             MoveResult move(const Vec3& delta);
             void endMove();
             void cancelMove();
 
-            Vec3 getHandlePosition(const Model::Hit& hit, const Ray3& pickRay);
+            Vec3 getHandlePosition(const Model::Hit& hit);
         private:
             String actionName() const;
         private:
@@ -113,7 +113,9 @@ namespace TrenchBroom {
             Model::VertexToBrushesMap buildBrushMap(const Vec3::List& handles) const;
         public: // Rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+            void renderDragHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
             void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const;
             void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
             void renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;

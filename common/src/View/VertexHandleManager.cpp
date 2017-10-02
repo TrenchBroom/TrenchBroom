@@ -70,11 +70,12 @@ namespace TrenchBroom {
                 const Edge3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!Math::isnan(edgeDist)) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(edgeDist);
-                    const Vec3 snapped = grid.snap(hitPoint, position);
-                    const FloatType pointDist = camera.pickPointHandle(pickRay, snapped, pref(Preferences::HandleRadius));
-                    if (!Math::isnan(pointDist))
-                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, pickRay.pointAtDistance(pointDist), snapped));
+                    const Vec3 pointHandle = grid.snap(pickRay.pointAtDistance(edgeDist), position);
+                    const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                    if (!Math::isnan(pointDist)) {
+                        const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
+                    }
                 }
             }
         }
@@ -114,12 +115,13 @@ namespace TrenchBroom {
                 
                 const FloatType distance = intersectPolygonWithRay(pickRay, plane, std::begin(position), std::end(position));
                 if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                    const Vec3 snapped = grid.snap(hitPoint, position, plane.normal);
+                    const Vec3 pointHandle = grid.snap(pickRay.pointAtDistance(distance), position, plane.normal);
                     
-                    const FloatType pointDist = camera.pickPointHandle(pickRay, snapped, pref(Preferences::HandleRadius));
-                    if (!Math::isnan(pointDist))
-                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, pickRay.pointAtDistance(pointDist), snapped));
+                    const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                    if (!Math::isnan(pointDist)) {
+                        const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                        pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
+                    }
                 }
             }
         }

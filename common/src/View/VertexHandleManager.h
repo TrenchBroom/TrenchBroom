@@ -312,6 +312,7 @@ namespace TrenchBroom {
         class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
         public:
             static const Model::Hit::HitType HandleHit;
+            typedef std::tuple<Edge3, Vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -348,6 +349,7 @@ namespace TrenchBroom {
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
+            typedef std::tuple<Polygon3, Vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

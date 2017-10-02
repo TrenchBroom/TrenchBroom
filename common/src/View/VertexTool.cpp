@@ -126,11 +126,11 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool VertexTool::startMove(const Model::Hit& hit, const Ray3& pickRay) {
+        bool VertexTool::startMove(const Model::Hit& hit) {
             assert(hit.isMatch());
             assert(hit.hasType(AnyHandleHit));
             
-            const Vec3 handle = getHandlePosition(hit, pickRay);
+            const Vec3 handle = getHandlePosition(hit);
             if (hit.hasType(VertexHandleHit)) {
                 if (!m_vertexHandles.selected(handle)) {
                     m_vertexHandles.deselectAll();
@@ -176,10 +176,16 @@ namespace TrenchBroom {
             m_dragging = false;
         }
 
-        Vec3 VertexTool::getHandlePosition(const Model::Hit& hit, const Ray3& pickRay) {
+        Vec3 VertexTool::getHandlePosition(const Model::Hit& hit) {
             assert(hit.isMatch());
             assert(hit.hasType(AnyHandleHit));
-            return hit.target<Vec3>();
+            
+            if (hit.hasType(VertexHandleHit))
+                return hit.target<Vec3>();
+            else if (hit.hasType(EdgeHandleHit))
+                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
+            else
+                return std::get<1>(hit.target<FaceHandleManager::HitType>());
         }
         
         String VertexTool::actionName() const {
@@ -251,12 +257,20 @@ namespace TrenchBroom {
                 renderHandles(m_vertexHandles.selectedHandles(), renderService, pref(Preferences::SelectedHandleColor));
         }
 
-        void VertexTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderPointHandle(handle);
+        void VertexTool::renderDragHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
+            renderHandle(renderContext, renderBatch, m_dragHandlePosition, pref(Preferences::SelectedHandleColor));
         }
 
+        void VertexTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
+            renderHandle(renderContext, renderBatch, handle, pref(Preferences::HandleColor));
+        }
+
+        void VertexTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(color);
+            renderService.renderPointHandle(handle);
+        }
+        
         void VertexTool::renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
             renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
         }
@@ -419,54 +433,71 @@ namespace TrenchBroom {
                     command->type() == RemoveBrushVerticesCommand::Type);
         }
         
+        
         class VertexTool::AddToHandleManager : public Model::NodeVisitor {
         private:
-            VertexHandleManager& m_handleManager;
+            VertexHandleManagerBase& m_vertexHandles;
+            VertexHandleManagerBase& m_edgeHandles;
+            VertexHandleManagerBase& m_faceHandles;
         public:
-            AddToHandleManager(VertexHandleManager& handleManager) :
-            m_handleManager(handleManager) {}
+            AddToHandleManager(VertexHandleManagerBase& vertexHandles, VertexHandleManagerBase& edgeHandles, VertexHandleManagerBase& faceHandles) :
+            m_vertexHandles(vertexHandles),
+            m_edgeHandles(edgeHandles),
+            m_faceHandles(faceHandles) {}
         private:
             void doVisit(Model::World* world)   {}
             void doVisit(Model::Layer* layer)   {}
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_handleManager.addHandles(brush); }
+            void doVisit(Model::Brush* brush)   {
+                m_vertexHandles.addHandles(brush);
+                m_edgeHandles.addHandles(brush);
+                m_faceHandles.addHandles(brush);
+            }
         };
         
         class VertexTool::RemoveFromHandleManager : public Model::NodeVisitor {
         private:
-            VertexHandleManager& m_handleManager;
+            VertexHandleManagerBase& m_vertexHandles;
+            VertexHandleManagerBase& m_edgeHandles;
+            VertexHandleManagerBase& m_faceHandles;
         public:
-            RemoveFromHandleManager(VertexHandleManager& handleManager) :
-            m_handleManager(handleManager) {}
+            RemoveFromHandleManager(VertexHandleManagerBase& vertexHandles, VertexHandleManagerBase& edgeHandles, VertexHandleManagerBase& faceHandles) :
+            m_vertexHandles(vertexHandles),
+            m_edgeHandles(edgeHandles),
+            m_faceHandles(faceHandles) {}
         private:
             void doVisit(Model::World* world)   {}
             void doVisit(Model::Layer* layer)   {}
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_handleManager.removeHandles(brush); }
+            void doVisit(Model::Brush* brush)   {
+                m_vertexHandles.removeHandles(brush);
+                m_edgeHandles.addHandles(brush);
+                m_faceHandles.addHandles(brush);
+            }
         };
 
         void VertexTool::selectionDidChange(const Selection& selection) {
             const Model::NodeList& selectedNodes = selection.selectedNodes();
-            AddToHandleManager addVisitor(m_vertexHandles);
+            AddToHandleManager addVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
             Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), addVisitor);
             
             const Model::NodeList& deselectedNodes = selection.deselectedNodes();
-            RemoveFromHandleManager removeVisitor(m_vertexHandles);
+            RemoveFromHandleManager removeVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
             Model::Node::accept(std::begin(deselectedNodes), std::end(deselectedNodes), removeVisitor);
         }
         
         void VertexTool::nodesWillChange(const Model::NodeList& nodes) {
             if (!m_ignoreChangeNotifications) {
-                RemoveFromHandleManager removeVisitor(m_vertexHandles);
+                RemoveFromHandleManager removeVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
                 Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
             }
         }
         
         void VertexTool::nodesDidChange(const Model::NodeList& nodes) {
             if (!m_ignoreChangeNotifications) {
-                AddToHandleManager addVisitor(m_vertexHandles);
+                AddToHandleManager addVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
                 Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
             }
         }
