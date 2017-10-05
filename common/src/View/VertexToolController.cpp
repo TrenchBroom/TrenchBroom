@@ -211,7 +211,10 @@ namespace TrenchBroom {
                       (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                        inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
                        inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd))))
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
+                       )))
                     return MoveInfo();
                 
                 const Model::Hit& hit = findHandleHit(inputState);
