@@ -58,7 +58,7 @@ namespace TrenchBroom {
             std::unique_ptr<ResizeBrushesTool> m_resizeBrushesTool;
             std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
             std::unique_ptr<VertexTool> m_vertexTool;
-            // std::unique_ptr<EdgeTool> m_edgeTool;
+            std::unique_ptr<EdgeTool> m_edgeTool;
             // std::unique_ptr<FaceTool> m_faceTool;
             std::unique_ptr<VertexToolOld> m_vertexToolOld;
         public:

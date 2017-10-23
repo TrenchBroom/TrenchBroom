@@ -47,23 +47,14 @@ namespace TrenchBroom {
         const Model::Hit::HitType VertexTool::AnyHandleHit = VertexHandleHit | EdgeHandleHit | FaceHandleHit;
 
         VertexTool::VertexTool(MapDocumentWPtr document) :
-        Tool(false),
-        m_document(document),
+        VertexToolBase(document),
         m_mode(Mode_Move),
-        m_changeCount(0),
-        m_ignoreChangeNotifications(0),
-        m_dragging(false),
         m_guideRenderer(document) {}
-
-        const Grid& VertexTool::grid() const {
-            return lock(m_document)->grid();
-        }
 
         Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
             return findIncidentBrushes(m_vertexHandles, handle);
         }
 
-        
         Model::BrushSet VertexTool::findIncidentBrushes(const Edge3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
@@ -305,12 +296,14 @@ namespace TrenchBroom {
         }
 
         bool VertexTool::doActivate() {
+            if (!VertexToolBase::doActivate())
+                return false;
+            
             m_vertexHandles.clear();
             m_edgeHandles.clear();
             m_faceHandles.clear();
             
             m_mode = Mode_Move;
-            m_changeCount = 0;
             
             const Model::BrushList& brushes = selectedBrushes();
             m_vertexHandles.addHandles(std::begin(brushes), std::end(brushes));
@@ -327,13 +320,7 @@ namespace TrenchBroom {
             m_edgeHandles.clear();
             m_faceHandles.clear();
             
-            /*
-             if (m_changeCount > 0) {
-             RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document, document.editStateManager().selectedBrushes(), m_changeCount);
-             submitCommand(command);
-             }
-             */
-            return true;
+            return VertexToolBase::doDeactivate();
         }
 
         void VertexTool::bindObservers() {
@@ -500,11 +487,6 @@ namespace TrenchBroom {
                 AddToHandleManager addVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
                 Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
             }
-        }
-        
-        const Model::BrushList& VertexTool::selectedBrushes() const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->selectedNodes().brushes();
         }
 
         void VertexTool::resetModeAfterDeselection() {

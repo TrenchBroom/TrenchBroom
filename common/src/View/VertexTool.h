@@ -20,14 +20,10 @@
 #ifndef VertexTool_h
 #define VertexTool_h
 
-#include "VecMath.h"
-#include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/PointGuideRenderer.h"
-#include "View/Tool.h"
 #include "View/UndoableCommand.h"
+#include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,7 +42,7 @@ namespace TrenchBroom {
         class Lasso;
         class Selection;
         
-        class VertexTool : public Tool {
+        class VertexTool : public VertexToolBase {
         public:
             static const Model::Hit::HitType VertexHandleHit;
             static const Model::Hit::HitType EdgeHandleHit;
@@ -54,11 +50,6 @@ namespace TrenchBroom {
             static const Model::Hit::HitType SplitHandleHit;
             static const Model::Hit::HitType AnyHandleHit;
 
-            typedef enum {
-                MR_Continue,
-                MR_Deny,
-                MR_Cancel
-            } MoveResult;
         private:
             typedef enum {
                 Mode_Move,
@@ -66,33 +57,21 @@ namespace TrenchBroom {
                 Mode_Split_Face
             } Mode;
             
-            MapDocumentWPtr m_document;
-            
             Mode m_mode;
-            size_t m_changeCount;
-            bool m_ignoreChangeNotifications;
 
             VertexHandleManager m_vertexHandles;
             EdgeHandleManager m_edgeHandles;
             FaceHandleManager m_faceHandles;
-            Vec3 m_dragHandlePosition;
-            bool m_dragging;
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
             VertexTool(MapDocumentWPtr document);
-            
-            const Grid& grid() const;
-            
+        public:
             Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
             Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
             Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
         private:
-            template <typename M, typename H>
-            Model::BrushSet findIncidentBrushes(const M& manager, const H& handle) const {
-                const Model::BrushList& brushes = selectedBrushes();
-                return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
-            }
+            using VertexToolBase::findIncidentBrushes;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public: // Handle selection
@@ -150,7 +129,6 @@ namespace TrenchBroom {
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
         private: // General helper methods
-            const Model::BrushList& selectedBrushes() const;
             void resetModeAfterDeselection();
         };
     }

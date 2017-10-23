@@ -23,6 +23,7 @@
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/CreateSimpleBrushTool.h"
+#include "View/EdgeTool.h"
 #include "View/MapDocument.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
@@ -76,9 +77,7 @@ namespace TrenchBroom {
         }
         
         EdgeTool* MapViewToolBox::edgeTool() const {
-            // TODO implement
-            // return m_edgeTool.get();
-            return nullptr;
+            return m_edgeTool.get();
         }
         
         FaceTool* MapViewToolBox::faceTool() const {
@@ -159,12 +158,11 @@ namespace TrenchBroom {
         }
         
         void MapViewToolBox::toggleEdgeTool() {
-            // TODO implement
+            toggleTool(edgeTool());
         }
         
         bool MapViewToolBox::edgeToolActive() {
-            // TODO implement
-            return false;
+            return toolActive(edgeTool());
         }
         
         void MapViewToolBox::toggleFaceTool() {
@@ -198,7 +196,8 @@ namespace TrenchBroom {
             m_resizeBrushesTool.reset(new ResizeBrushesTool(document));
             m_rotateObjectsTool.reset(new RotateObjectsTool(document));
             m_vertexTool.reset(new VertexTool(document));
-            // TODO: create edge and face tool
+            m_edgeTool.reset(new EdgeTool(document));
+            // TODO: create face tool
             m_vertexToolOld.reset(new VertexToolOld(document));
             
             deactivateWhen(createComplexBrushTool(), moveObjectsTool());
@@ -213,6 +212,9 @@ namespace TrenchBroom {
             deactivateWhen(vertexTool(), moveObjectsTool());
             deactivateWhen(vertexTool(), resizeBrushesTool());
             deactivateWhen(vertexTool(), createSimpleBrushTool());
+            deactivateWhen(edgeTool(), moveObjectsTool());
+            deactivateWhen(edgeTool(), resizeBrushesTool());
+            deactivateWhen(edgeTool(), createSimpleBrushTool());
             deactivateWhen(clipTool(), moveObjectsTool());
             deactivateWhen(clipTool(), resizeBrushesTool());
             deactivateWhen(clipTool(), createSimpleBrushTool());
@@ -223,6 +225,7 @@ namespace TrenchBroom {
             registerTool(createComplexBrushTool(), bookCtrl);
             registerTool(clipTool(), bookCtrl);
             registerTool(vertexTool(), bookCtrl);
+            registerTool(edgeTool(), bookCtrl);
             registerTool(vertexToolOld(), bookCtrl);
             registerTool(createEntityTool(), bookCtrl);
             registerTool(createSimpleBrushTool(), bookCtrl);
