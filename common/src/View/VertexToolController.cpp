@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class VertexToolController::VertexPartBase {
         protected:
             VertexTool* m_tool;
-        public:
+        protected:
             VertexPartBase(VertexTool* tool) :
             m_tool(tool) {
                 ensure(m_tool != nullptr, "tool is null");
