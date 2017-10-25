@@ -24,6 +24,10 @@ namespace TrenchBroom {
         EdgeTool::EdgeTool(MapDocumentWPtr document) :
         VertexToolBase(document) {}
         
+        Model::BrushSet EdgeTool::findIncidentBrushes(const Edge3& handle) const {
+            return findIncidentBrushes(m_edgeHandles, handle);
+        }
+
         void EdgeTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {}
         
         bool EdgeTool::select(const Model::Hit::List& hits, bool addToSelection) { return false; }

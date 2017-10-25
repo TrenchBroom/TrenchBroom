@@ -24,15 +24,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        class EdgeToolController::SelectEdgePart : public SelectPartBase {
+        class EdgeToolController::SelectEdgePart : public SelectPartBase<Edge3> {
         public:
             SelectEdgePart(EdgeTool* tool) :
-            SelectPartBase(tool) {}
-        private:
-            Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
-                // TODO: implement me
-                return Model::Hit::List();
-            }
+            SelectPartBase(tool, EdgeTool::EdgeHandleHit) {}
         };
         
         class EdgeToolController::MoveEdgePart : public MovePartBase {

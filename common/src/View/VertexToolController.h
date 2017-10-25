@@ -30,7 +30,6 @@ namespace TrenchBroom {
         
         class VertexToolController : public VertexToolControllerBase<VertexTool> {
         private:
-            static const FloatType MaxVertexDistance;
             class SelectVertexPart;
             class MoveVertexPart;
             class SnapVertexPart;

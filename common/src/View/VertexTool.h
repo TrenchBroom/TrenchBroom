@@ -44,12 +44,6 @@ namespace TrenchBroom {
         
         class VertexTool : public VertexToolBase {
         public:
-            static const Model::Hit::HitType VertexHandleHit;
-            static const Model::Hit::HitType EdgeHandleHit;
-            static const Model::Hit::HitType FaceHandleHit;
-            static const Model::Hit::HitType SplitHandleHit;
-            static const Model::Hit::HitType AnyHandleHit;
-
         private:
             typedef enum {
                 Mode_Move,

@@ -40,12 +40,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType VertexTool::VertexHandleHit = VertexHandleManager::HandleHit;
-        const Model::Hit::HitType VertexTool::EdgeHandleHit = EdgeHandleManager::HandleHit;
-        const Model::Hit::HitType VertexTool::FaceHandleHit = FaceHandleManager::HandleHit;
-        const Model::Hit::HitType VertexTool::SplitHandleHit = EdgeHandleHit | FaceHandleHit;
-        const Model::Hit::HitType VertexTool::AnyHandleHit = VertexHandleHit | EdgeHandleHit | FaceHandleHit;
-
         VertexTool::VertexTool(MapDocumentWPtr document) :
         VertexToolBase(document),
         m_mode(Mode_Move),

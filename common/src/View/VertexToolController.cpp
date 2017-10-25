@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const FloatType VertexToolController::MaxVertexDistance = 0.25;
-        
         const Model::Hit& findHandleHit(const InputState& inputState) {
             const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
             if (vertexHit.isMatch())
@@ -39,10 +37,10 @@ namespace TrenchBroom {
             return inputState.pickResult().query().type(VertexTool::FaceHandleHit).first();
         }
 
-        class VertexToolController::SelectVertexPart : public SelectPartBase {
+        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
         public:
             SelectVertexPart(VertexTool* tool) :
-            SelectPartBase(tool) {}
+            SelectPartBase(tool, VertexTool::AnyHandleHit) {}
         private:
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
                 SelectPartBase::doSetRenderOptions(inputState, renderContext);
@@ -63,38 +61,6 @@ namespace TrenchBroom {
                             m_tool->renderGuide(renderContext, renderBatch, handle);
                     }
                 }
-            }
-        private:
-            Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
-                Model::Hit::List result;
-                Model::BrushSet visitedBrushes;
-                
-                static const Model::Hit::HitType any = VertexTool::AnyHandleHit;
-                const Model::Hit& first = pickResult.query().type(any).occluded().first();
-                if (first.isMatch()) {
-                    const Vec3 firstHandle = first.target<Vec3>();
-                    
-                    const Model::Hit::List matches = pickResult.query().type(any).all();
-                    for (const Model::Hit& match : matches) {
-                        const Vec3 handle = match.target<Vec3>();
-                        
-                        if (handle.squaredDistanceTo(firstHandle) < MaxVertexDistance * MaxVertexDistance) {
-                            if (allIncidentBrushesVisited(handle, visitedBrushes))
-                                result.push_back(match);
-                        }
-                    }
-                }
-                
-                return result;
-            }
-
-            bool allIncidentBrushesVisited(const Vec3& handle, Model::BrushSet& visitedBrushes) const {
-                bool result = true;
-                for (auto brush : m_tool->findIncidentBrushes(handle)) {
-                    const bool unvisited = visitedBrushes.insert(brush).second;
-                    result &= unvisited;
-                }
-                return result;
             }
         };
 

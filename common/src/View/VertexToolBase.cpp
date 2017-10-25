@@ -20,9 +20,16 @@
 #include "VertexToolBase.h"
 
 #include "View/MapDocument.h"
+#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
+        const Model::Hit::HitType VertexToolBase::VertexHandleHit = VertexHandleManager::HandleHit;
+        const Model::Hit::HitType VertexToolBase::EdgeHandleHit = EdgeHandleManager::HandleHit;
+        const Model::Hit::HitType VertexToolBase::FaceHandleHit = FaceHandleManager::HandleHit;
+        const Model::Hit::HitType VertexToolBase::SplitHandleHit = EdgeHandleHit | FaceHandleHit;
+        const Model::Hit::HitType VertexToolBase::AnyHandleHit = VertexHandleHit | EdgeHandleHit | FaceHandleHit;
+
         VertexToolBase::VertexToolBase(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),

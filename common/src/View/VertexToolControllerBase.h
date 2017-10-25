@@ -20,6 +20,7 @@
 #ifndef VertexToolControllerBase_h
 #define VertexToolControllerBase_h
 
+#include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Camera.h"
 #include "View/Lasso.h"
@@ -33,6 +34,8 @@ namespace TrenchBroom {
         template <typename T>
         class VertexToolControllerBase : public ToolControllerGroup {
         protected:
+            constexpr static const FloatType MaxHandleDistance = 0.25;
+        protected:
             class PartBase {
             protected:
                 T* m_tool;
@@ -41,12 +44,15 @@ namespace TrenchBroom {
                 m_tool(tool) {}
             };
             
+            template <typename H>
             class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             private:
+                Model::Hit::HitType m_hitType;
                 Lasso* m_lasso;
             protected:
-                SelectPartBase(T* tool) :
+                SelectPartBase(T* tool, const Model::Hit::HitType hitType) :
                 PartBase(tool),
+                m_hitType(hitType),
                 m_lasso(nullptr) {}
             public:
                 virtual ~SelectPartBase() {
@@ -122,8 +128,37 @@ namespace TrenchBroom {
                     if (m_lasso != nullptr)
                         m_lasso->render(renderContext, renderBatch);
                 }
-            private:
-                virtual Model::Hit::List firstHits(const Model::PickResult& pickResult) const = 0;
+            protected:
+                Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
+                    Model::Hit::List result;
+                    Model::BrushSet visitedBrushes;
+                    
+                    const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
+                    if (first.isMatch()) {
+                        const H& firstHandle = first.target<H>();
+                        
+                        const Model::Hit::List matches = pickResult.query().type(m_hitType).all();
+                        for (const Model::Hit& match : matches) {
+                            const H& handle = match.target<H>();
+                            
+                            if (handle.squaredDistanceTo(firstHandle) < MaxHandleDistance * MaxHandleDistance) {
+                                if (allIncidentBrushesVisited(handle, visitedBrushes))
+                                    result.push_back(match);
+                            }
+                        }
+                    }
+                    
+                    return result;
+                }
+
+                bool allIncidentBrushesVisited(const H& handle, Model::BrushSet& visitedBrushes) const {
+                    bool result = true;
+                    for (auto brush : m_tool->findIncidentBrushes(handle)) {
+                        const bool unvisited = visitedBrushes.insert(brush).second;
+                        result &= unvisited;
+                    }
+                    return result;
+                }
             };
             
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {

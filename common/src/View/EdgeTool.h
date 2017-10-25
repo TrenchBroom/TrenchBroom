@@ -20,6 +20,7 @@
 #ifndef EdgeTool_h
 #define EdgeTool_h
 
+#include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
 namespace TrenchBroom {
@@ -33,11 +34,17 @@ namespace TrenchBroom {
 
     namespace View {
         class EdgeTool : public VertexToolBase {
+        private:
+            EdgeHandleManager m_edgeHandles;
         public:
             EdgeTool(MapDocumentWPtr document);
         public:
+            Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
+        private:
+            using VertexToolBase::findIncidentBrushes;
+        public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
-
+        public:
             bool select(const Model::Hit::List& hits, bool addToSelection);
             void select(const Lasso& lasso, bool modifySelection);
             bool deselectAll();

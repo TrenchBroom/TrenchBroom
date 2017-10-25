@@ -62,6 +62,12 @@ namespace TrenchBroom {
                 return 1;
             return m_end.compare(other.m_end);
         }
+
+        T squaredDistanceTo(const Edge<T,S>& other) const {
+            const T startDistance = m_start.squaredDistanceTo(other.m_start);
+            const T endDistance = m_end.squaredDistanceTo(other.m_end);
+            return Math::max(startDistance, endDistance);
+        }
         
         const Vec<T,S>& start() const {
             return m_start;
