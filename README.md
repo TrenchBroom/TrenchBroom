@@ -3,6 +3,7 @@
 TrenchBroom is a modern cross-platform level editor for Quake-engine based games.
 
 - Website:   http://kristianduske.com/trenchbroom
+- Downloads: http://kristianduske.com/trenchbroom/downloads.php
 
 ## Features
 * **General**
