@@ -21,26 +21,21 @@
 #define VertexToolController_h
 
 #include "TrenchBroom.h"
-#include "View/ToolController.h"
+#include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {
     namespace View {
         class Tool;
         class VertexTool;
         
-        class VertexToolController : public ToolControllerGroup {
+        class VertexToolController : public VertexToolControllerBase<VertexTool> {
         private:
             static const FloatType MaxVertexDistance;
-            class VertexPartBase;
             class SelectVertexPart;
             class MoveVertexPart;
             class SnapVertexPart;
-        protected:
-            VertexTool* m_tool;
         public:
             VertexToolController(VertexTool* tool);
-        private:
-            Tool* doGetTool();
         };
     }
 }

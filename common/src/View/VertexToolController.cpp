@@ -20,8 +20,6 @@
 #include "VertexToolController.h"
 
 #include "Renderer/RenderContext.h"
-#include "View/Lasso.h"
-#include "View/MoveToolController.h"
 #include "View/VertexTool.h"
 
 #include <algorithm>
@@ -31,15 +29,42 @@ namespace TrenchBroom {
     namespace View {
         const FloatType VertexToolController::MaxVertexDistance = 0.25;
         
-        class VertexToolController::VertexPartBase {
-        protected:
-            VertexTool* m_tool;
-        protected:
-            VertexPartBase(VertexTool* tool) :
-            m_tool(tool) {
-                ensure(m_tool != nullptr, "tool is null");
+        const Model::Hit& findHandleHit(const InputState& inputState) {
+            const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
+            if (vertexHit.isMatch())
+                return vertexHit;
+            const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).first();
+            if (edgeHit.isMatch())
+                return edgeHit;
+            return inputState.pickResult().query().type(VertexTool::FaceHandleHit).first();
+        }
+
+        class VertexToolController::SelectVertexPart : public SelectPartBase {
+        public:
+            SelectVertexPart(VertexTool* tool) :
+            SelectPartBase(tool) {}
+        private:
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                SelectPartBase::doSetRenderOptions(inputState, renderContext);
+                renderContext.setForceHideSelectionGuide();
             }
-        protected:
+            
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                SelectPartBase::doRender(inputState, renderContext, renderBatch);
+                
+                m_tool->renderHandles(renderContext, renderBatch);
+                if (!anyToolDragging(inputState)) {
+                    const Model::Hit& hit = findHandleHit(inputState);
+                    if (hit.hasType(VertexTool::VertexHandleHit)) {
+                        const Vec3& handle = hit.target<Vec3>();
+                        m_tool->renderHighlight(renderContext, renderBatch, handle);
+
+                        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                            m_tool->renderGuide(renderContext, renderBatch, handle);
+                    }
+                }
+            }
+        private:
             Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
                 Model::Hit::List result;
                 Model::BrushSet visitedBrushes;
@@ -62,17 +87,7 @@ namespace TrenchBroom {
                 
                 return result;
             }
-            
-            const Model::Hit& findHandleHit(const InputState& inputState) {
-                const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
-                if (vertexHit.isMatch())
-                    return vertexHit;
-                const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).first();
-                if (edgeHit.isMatch())
-                    return edgeHit;
-                return inputState.pickResult().query().type(VertexTool::FaceHandleHit).first();
-            }
-        private:
+
             bool allIncidentBrushesVisited(const Vec3& handle, Model::BrushSet& visitedBrushes) const {
                 bool result = true;
                 for (auto brush : m_tool->findIncidentBrushes(handle)) {
@@ -83,105 +98,10 @@ namespace TrenchBroom {
             }
         };
 
-        class VertexToolController::SelectVertexPart : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public VertexPartBase {
-        private:
-            Lasso* m_lasso;
-        public:
-            SelectVertexPart(VertexTool* tool) :
-            VertexPartBase(tool),
-            m_lasso(nullptr) {}
-            
-            ~SelectVertexPart() {
-                delete m_lasso;
-            }
-        private:
-            Tool* doGetTool() {
-                return m_tool;
-            }
-            
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) {
-                m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
-            }
-            
-            bool doMouseClick(const InputState& inputState) {
-                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                    !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
-                    return false;
-                
-                const Model::Hit::List hits = firstHits(inputState.pickResult());
-                if (hits.empty())
-                    return m_tool->deselectAll();
-                else
-                    return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
-            }
-            
-            DragInfo doStartDrag(const InputState& inputState) {
-                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                    !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
-                    return DragInfo();
-                
-                const Model::Hit::List hits = firstHits(inputState.pickResult());
-                if (!hits.empty())
-                    return DragInfo();
-                
-                const Renderer::Camera& camera = inputState.camera();
-                const FloatType distance = 64.0f;
-                const Plane3 plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
-                const Vec3 initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
-                
-                m_lasso = new Lasso(camera, distance, initialPoint);
-                return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
-            }
-            
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-                ensure(m_lasso != nullptr, "lasso is null");
-                m_lasso->setPoint(nextHandlePosition);
-                return DR_Continue;
-            }
-            
-            void doEndDrag(const InputState& inputState) {
-                ensure(m_lasso != nullptr, "lasso is null");
-                m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
-                delete m_lasso;
-                m_lasso = nullptr;
-            }
-            
-            void doCancelDrag() {
-                ensure(m_lasso != nullptr, "lasso is null");
-                delete m_lasso;
-                m_lasso = nullptr;
-            }
-            
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-                renderContext.setForceHideSelectionGuide();
-            }
-            
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_tool->renderHandles(renderContext, renderBatch);
-                if (m_lasso != nullptr)
-                    m_lasso->render(renderContext, renderBatch);
-                if (!anyToolDragging(inputState)) {
-                    const Model::Hit& hit = findHandleHit(inputState);
-                    if (hit.hasType(VertexTool::VertexHandleHit)) {
-                        const Vec3& handle = hit.target<Vec3>();
-                        m_tool->renderHighlight(renderContext, renderBatch, handle);
-
-                        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                            m_tool->renderGuide(renderContext, renderBatch, handle);
-                    }
-                }
-            }
-
-            bool doCancel() {
-                return m_tool->deselectAll();
-            }
-        };
-
-        class VertexToolController::MoveVertexPart : public MoveToolController<NoPickingPolicy, MousePolicy>, public VertexPartBase {
+        class VertexToolController::MoveVertexPart : public MovePartBase {
         public:
             MoveVertexPart(VertexTool* tool) :
-            MoveToolController(tool->grid()),
-            VertexPartBase(tool) {}
+            MovePartBase(tool) {}
         private:
             typedef enum {
                 ST_Relative,
@@ -190,10 +110,6 @@ namespace TrenchBroom {
             
             SnapType m_lastSnapType;
         private:
-            Tool* doGetTool() {
-                return m_tool;
-            }
-
             void doModifierKeyChange(const InputState& inputState) {
                 MoveToolController::doModifierKeyChange(inputState);
                 
@@ -277,10 +193,6 @@ namespace TrenchBroom {
                     }
                 }
             }
-            
-            bool doCancel() {
-                return m_tool->deselectAll();
-            }
         private:
             SnapType snapType(const InputState& inputState) const {
                 if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd))
@@ -290,15 +202,9 @@ namespace TrenchBroom {
         };
         
         VertexToolController::VertexToolController(VertexTool* tool) :
-        m_tool(tool) {
-            ensure(m_tool != nullptr, "tool is null");
+        VertexToolControllerBase(tool) {
             addController(new MoveVertexPart(tool));
             addController(new SelectVertexPart(tool));
-        }
-
-        
-        Tool* VertexToolController::doGetTool() {
-            return m_tool;
         }
     }
 }

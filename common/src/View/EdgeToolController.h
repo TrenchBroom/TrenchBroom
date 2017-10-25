@@ -21,24 +21,19 @@
 #define EdgeToolController_h
 
 #include "TrenchBroom.h"
-#include "View/ToolController.h"
+#include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {
     namespace View {
         class Tool;
         class EdgeTool;
         
-        class EdgeToolController : public ToolControllerGroup {
+        class EdgeToolController : public VertexToolControllerBase<EdgeTool> {
         private:
-            class EdgePartBase;
             class SelectEdgePart;
             class MoveEdgePart;
-        protected:
-            EdgeTool* m_tool;
         public:
             EdgeToolController(EdgeTool* tool);
-        private:
-            Tool* doGetTool();
         };
     }
 }

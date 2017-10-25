@@ -37,6 +37,10 @@ namespace TrenchBroom {
             EdgeTool(MapDocumentWPtr document);
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+
+            bool select(const Model::Hit::List& hits, bool addToSelection);
+            void select(const Lasso& lasso, bool modifySelection);
+            bool deselectAll();
         };
     }
 }

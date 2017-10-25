@@ -22,13 +22,23 @@
 
 #include "VecMath.h"
 #include "TrenchBroom.h"
+#include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
         class Grid;
+        class Lasso;
         
         class VertexToolBase : public Tool {
         public:
@@ -60,6 +70,12 @@ namespace TrenchBroom {
                 const Model::BrushList& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
+            
+            virtual void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
+        public: // Handle selection
+            virtual bool select(const Model::Hit::List& hits, bool addToSelection) = 0;
+            virtual void select(const Lasso& lasso, bool modifySelection) = 0;
+            virtual bool deselectAll() = 0;
         protected: // Tool interface
             virtual bool doActivate();
             virtual bool doDeactivate();

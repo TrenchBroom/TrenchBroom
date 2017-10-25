@@ -21,90 +21,57 @@
 
 #include "View/EdgeTool.h"
 #include "View/Lasso.h"
-#include "View/MoveToolController.h"
 
 namespace TrenchBroom {
     namespace View {
-        class EdgeToolController::EdgePartBase : public PartBase {
-        protected:
-            EdgePartBase(EdgeTool* tool) :
-            PartBase(tool) {}
-        };
-        
-        class EdgeToolController::SelectEdgePart : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy>, public EdgePartBase {
+        class EdgeToolController::SelectEdgePart : public SelectPartBase {
         public:
             SelectEdgePart(EdgeTool* tool) :
-            EdgePartBase(tool) {}
+            SelectPartBase(tool) {}
         private:
-            Tool* doGetTool() {
-                return m_tool;
-            }
-            
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) {
-                m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
-            }
-            
-            bool doMouseClick(const InputState& inputState) {
-                return false;
-            }
-            
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
-            
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
-            
-            bool doCancel() {
-                return false;
+            Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
+                // TODO: implement me
+                return Model::Hit::List();
             }
         };
         
-        class EdgeToolController::MoveEdgePart : public MoveToolController<NoPickingPolicy, NoMousePolicy>, public EdgePartBase {
+        class EdgeToolController::MoveEdgePart : public MovePartBase {
         public:
             MoveEdgePart(EdgeTool* tool) :
-            MoveToolController(tool->grid()),
-            EdgePartBase(tool) {}
+            MovePartBase(tool) {}
         private:
-            Tool* doGetTool() {
-                return m_tool;
-            }
-            
             MoveInfo doStartMove(const InputState& inputState) {
-                
+                if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                      (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
+                       )))
+                    return MoveInfo();
+                return MoveInfo();
             }
             
             DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-                
+                return DR_Continue;
             }
             
             void doEndMove(const InputState& inputState) {
-                
             }
             
-            void doCancelMove(const InputState& inputState) {
-                
+            void doCancelMove() {
             }
             
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
-                
-            }
-            
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                
-            }
-            
-            bool doCancel() {
-                return false;
+                return new DeltaDragSnapper(m_tool->grid());
             }
         };
         
         EdgeToolController::EdgeToolController(EdgeTool* tool) :
-        m_tool(tool) {
-            ensure(m_tool != nullptr, "tool is null");
+        VertexToolControllerBase(tool) {
             addController(new MoveEdgePart(tool));
             addController(new SelectEdgePart(tool));
-        }
-        
-        Tool* EdgeToolController::doGetTool() {
-            return m_tool;
         }
     }
 }
