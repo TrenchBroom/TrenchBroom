@@ -28,7 +28,9 @@ namespace TrenchBroom {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
 
-        void EdgeTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {}
+        void EdgeTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            m_edgeHandles.pick(pickRay, camera, pickResult);
+        }
         
         bool EdgeTool::select(const Model::Hit::List& hits, bool addToSelection) { return false; }
         void EdgeTool::select(const Lasso& lasso, bool modifySelection) {}

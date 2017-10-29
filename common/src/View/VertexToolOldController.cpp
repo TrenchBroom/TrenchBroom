@@ -118,7 +118,7 @@ namespace TrenchBroom {
             
             DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                 ensure(m_lasso != NULL, "lasso is null");
-                m_lasso->setPoint(nextHandlePosition);
+                m_lasso->update(nextHandlePosition);
                 return DR_Continue;
             }
             

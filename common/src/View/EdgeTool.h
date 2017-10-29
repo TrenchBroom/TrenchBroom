@@ -20,6 +20,8 @@
 #ifndef EdgeTool_h
 #define EdgeTool_h
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
@@ -33,7 +35,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class EdgeTool : public VertexToolBase {
+        class EdgeTool : public VertexToolBase<Edge3> {
         private:
             EdgeHandleManager m_edgeHandles;
         public:

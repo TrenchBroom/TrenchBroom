@@ -65,7 +65,7 @@ namespace TrenchBroom {
             virtual void removeHandles(const Model::Brush* brush) = 0;
         };
         
-        template <typename H, typename C = std::less<H>>
+        template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
             typedef H Handle;
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo, C> HandleMap;
+            typedef std::map<H, HandleInfo> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
             HandleMap m_handles;

@@ -21,6 +21,7 @@
 
 #include "Renderer/RenderContext.h"
 #include "View/VertexTool.h"
+#include "View/VertexHandleManager.h"
 
 #include <algorithm>
 #include <iterator>
@@ -28,32 +29,26 @@
 namespace TrenchBroom {
     namespace View {
         const Model::Hit& findHandleHit(const InputState& inputState) {
-            const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexTool::VertexHandleHit).occluded().first();
+            const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().first();
             if (vertexHit.isMatch())
                 return vertexHit;
-            const Model::Hit& edgeHit = inputState.pickResult().query().type(VertexTool::EdgeHandleHit).first();
+            const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
             if (edgeHit.isMatch())
                 return edgeHit;
-            return inputState.pickResult().query().type(VertexTool::FaceHandleHit).first();
+            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
         }
 
         class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
         public:
             SelectVertexPart(VertexTool* tool) :
-            SelectPartBase(tool, VertexTool::AnyHandleHit) {}
+            SelectPartBase(tool, VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit) {}
         private:
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-                SelectPartBase::doSetRenderOptions(inputState, renderContext);
-                renderContext.setForceHideSelectionGuide();
-            }
-            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 SelectPartBase::doRender(inputState, renderContext, renderBatch);
                 
-                m_tool->renderHandles(renderContext, renderBatch);
                 if (!anyToolDragging(inputState)) {
                     const Model::Hit& hit = findHandleHit(inputState);
-                    if (hit.hasType(VertexTool::VertexHandleHit)) {
+                    if (hit.hasType(VertexHandleManager::HandleHit)) {
                         const Vec3& handle = hit.target<Vec3>();
                         m_tool->renderHighlight(renderContext, renderBatch, handle);
 
@@ -89,45 +84,8 @@ namespace TrenchBroom {
             }
 
             MoveInfo doStartMove(const InputState& inputState) {
-                if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                      (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
-                       )))
-                    return MoveInfo();
-                
-                const Model::Hit& hit = findHandleHit(inputState);
-                if (!hit.isMatch())
-                    return MoveInfo();
-                
-                if (!m_tool->startMove(hit))
-                    return MoveInfo();
-                
                 m_lastSnapType = snapType(inputState);
-                return MoveInfo(m_tool->getHandlePosition(hit));
-            }
-
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-                switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
-                    case VertexTool::MR_Continue:
-                        return DR_Continue;
-                    case VertexTool::MR_Deny:
-                        return DR_Deny;
-                    case VertexTool::MR_Cancel:
-                        return DR_Cancel;
-                    switchDefault()
-                }
-            }
-            
-            void doEndMove(const InputState& inputState) {
-                m_tool->endMove();
-            }
-            
-            void doCancelMove() {
-                m_tool->cancelMove();
+                return MovePartBase::doStartMove(inputState);
             }
             
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
@@ -141,15 +99,11 @@ namespace TrenchBroom {
             }
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                MoveToolController::doRender(inputState, renderContext, renderBatch);
+                MovePartBase::doRender(inputState, renderContext, renderBatch);
                 
-                if (thisToolDragging()) {
-                    m_tool->renderDragHandle(renderContext, renderBatch);
-                    m_tool->renderDragHighlight(renderContext, renderBatch);
-                    m_tool->renderDragGuide(renderContext, renderBatch);
-                } else {
+                if (!thisToolDragging()) {
                     const Model::Hit& hit = findHandleHit(inputState);
-                    if (hit.hasType(VertexTool::SplitHandleHit)) {
+                    if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                         const Vec3 handle = m_tool->getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                             m_tool->renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
@@ -164,6 +118,10 @@ namespace TrenchBroom {
                 if (inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd))
                     return ST_Absolute;
                 return ST_Relative;
+            }
+        private:
+            const Model::Hit& findDragHandle(const InputState& inputState) const {
+                return findHandleHit(inputState);
             }
         };
         

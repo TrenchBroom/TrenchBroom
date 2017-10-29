@@ -23,6 +23,7 @@
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Camera.h"
+#include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
 #include "View/MoveToolController.h"
 #include "View/ToolController.h"
@@ -101,7 +102,7 @@ namespace TrenchBroom {
                 
                 DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
                     ensure(m_lasso != nullptr, "lasso is null");
-                    m_lasso->setPoint(nextHandlePosition);
+                    m_lasso->update(nextHandlePosition);
                     return DR_Continue;
                 }
                 
@@ -122,9 +123,12 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
             protected:
-                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                    renderContext.setForceHideSelectionGuide();
+                }
                 
                 virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                    m_tool->renderHandles(renderContext, renderBatch);
                     if (m_lasso != nullptr)
                         m_lasso->render(renderContext, renderBatch);
                 }
@@ -170,7 +174,7 @@ namespace TrenchBroom {
                 virtual ~MovePartBase() {}
             protected:
                 using PartBase::m_tool;
-            private:
+            protected:
                 Tool* doGetTool() {
                     return m_tool;
                 }
@@ -178,6 +182,63 @@ namespace TrenchBroom {
                 bool doCancel() {
                     return m_tool->deselectAll();
                 }
+
+                MoveInfo doStartMove(const InputState& inputState) {
+                    if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                          (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+                           inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                           inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
+                           inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
+                           inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+                           inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
+                           )))
+                        return MoveInfo();
+                    
+                    const Model::Hit& hit = findDragHandle(inputState);
+                    if (!hit.isMatch())
+                        return MoveInfo();
+                    
+                    if (!m_tool->startMove(hit))
+                        return MoveInfo();
+                    
+                    return MoveInfo(m_tool->getHandlePosition(hit));
+                }
+                
+                DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                    switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
+                        case T::MR_Continue:
+                            return DR_Continue;
+                        case T::MR_Deny:
+                            return DR_Deny;
+                        case T::MR_Cancel:
+                            return DR_Cancel;
+                            switchDefault()
+                    }
+                }
+                
+                void doEndMove(const InputState& inputState) {
+                    m_tool->endMove();
+                }
+                
+                void doCancelMove() {
+                    m_tool->cancelMove();
+                }
+                
+                DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                    return new DeltaDragSnapper(m_tool->grid());
+                }
+                
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                    MoveToolController::doRender(inputState, renderContext, renderBatch);
+                    
+                    if (thisToolDragging()) {
+                        m_tool->renderDragHandle(renderContext, renderBatch);
+                        m_tool->renderDragHighlight(renderContext, renderBatch);
+                        m_tool->renderDragGuide(renderContext, renderBatch);
+                    }
+                }
+            private:
+                virtual const Model::Hit& findDragHandle(const InputState& inputState) const = 0;
             };
             
         protected:

@@ -21,13 +21,14 @@
 
 #include "View/EdgeTool.h"
 #include "View/Lasso.h"
+#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
         class EdgeToolController::SelectEdgePart : public SelectPartBase<Edge3> {
         public:
             SelectEdgePart(EdgeTool* tool) :
-            SelectPartBase(tool, EdgeTool::EdgeHandleHit) {}
+            SelectPartBase(tool, EdgeHandleManager::HandleHit) {}
         };
         
         class EdgeToolController::MoveEdgePart : public MovePartBase {
@@ -35,31 +36,8 @@ namespace TrenchBroom {
             MoveEdgePart(EdgeTool* tool) :
             MovePartBase(tool) {}
         private:
-            MoveInfo doStartMove(const InputState& inputState) {
-                if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                      (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
-                       )))
-                    return MoveInfo();
-                return MoveInfo();
-            }
-            
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-                return DR_Continue;
-            }
-            
-            void doEndMove(const InputState& inputState) {
-            }
-            
-            void doCancelMove() {
-            }
-            
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
-                return new DeltaDragSnapper(m_tool->grid());
+            const Model::Hit& findDragHandle(const InputState& inputState) const {
+                return inputState.pickResult().query().type(EdgeHandleManager::HandleHit).occluded().first();
             }
         };
         

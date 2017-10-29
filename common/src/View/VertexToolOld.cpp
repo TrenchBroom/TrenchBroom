@@ -115,6 +115,7 @@ namespace TrenchBroom {
         }
         
         void VertexToolOld::select(const Lasso& lasso, const bool modifySelection) {
+            /*
             if (m_handleManager.selectedEdgeCount() > 0) {
                 const Vec3::List contained = lasso.containedPoints(m_handleManager.edgeHandlePositions());
                 if (!modifySelection) m_handleManager.deselectAllEdgeHandles();
@@ -129,6 +130,7 @@ namespace TrenchBroom {
                 m_handleManager.toggleVertexHandles(contained);
             }
             refreshViews();
+             */
         }
 
         bool VertexToolOld::canRemoveSelection() const {

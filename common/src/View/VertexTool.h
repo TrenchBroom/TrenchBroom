@@ -42,8 +42,7 @@ namespace TrenchBroom {
         class Lasso;
         class Selection;
         
-        class VertexTool : public VertexToolBase {
-        public:
+        class VertexTool : public VertexToolBase<Vec3> {
         private:
             typedef enum {
                 Mode_Move,
@@ -69,59 +68,42 @@ namespace TrenchBroom {
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public: // Handle selection
-            bool select(const Model::Hit::List& hits, bool addToSelection);
-            void select(const Lasso& lasso, bool modifySelection);
             bool deselectAll();
+        private:
+            VertexHandleManager& handleManager();
+            const VertexHandleManager& handleManager() const;
         public: // Vertex moving
             bool startMove(const Model::Hit& hit);
             MoveResult move(const Vec3& delta);
             void endMove();
             void cancelMove();
 
-            Vec3 getHandlePosition(const Model::Hit& hit);
+            const Vec3& getHandlePosition(const Model::Hit& hit) const;
         private:
             String actionName() const;
         private:
             MoveResult moveVertices(const Vec3& delta);
             Model::VertexToBrushesMap buildBrushMap(const Vec3::List& handles) const;
         public: // Rendering
-            void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
-            void renderDragHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const;
-            void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
-            void renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const;
-        private:
+            using VertexToolBase::renderHandle;
+            using VertexToolBase::renderHandles;
+            
             void renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const;
-        private:
-            void rebuildBrushGeometry();
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const;
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const;
         private: // Tool interface
             bool doActivate();
             bool doDeactivate();
         private:
-            void bindObservers();
-            void unbindObservers();
-            
-            void commandDo(Command::Ptr command);
-            void commandDone(Command::Ptr command);
-            void commandDoFailed(Command::Ptr command);
-            void commandUndo(UndoableCommand::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
-            void commandUndoFailed(UndoableCommand::Ptr command);
-            
-            void commandDoOrUndo(Command::Ptr command);
-            void commandDoneOrUndoFailed(Command::Ptr command);
-            void commandDoFailedOrUndone(Command::Ptr command);
-            bool isVertexCommand(const Command::Ptr command) const;
-
             class AddToHandleManager;
             class RemoveFromHandleManager;
             
-            void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void addHandles(const Model::NodeList& nodes);
+            void removeHandles(const Model::NodeList& nodes);
+            
+            void addExtraHandles(VertexCommand* command);
+            void removeExtraHandles(VertexCommand* command);
         private: // General helper methods
             void resetModeAfterDeselection();
         };
