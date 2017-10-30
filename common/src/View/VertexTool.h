@@ -66,19 +66,19 @@ namespace TrenchBroom {
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
         public: // Handle selection
-            bool deselectAll();
+            bool deselectAll() override;
         private:
-            VertexHandleManager& handleManager();
-            const VertexHandleManager& handleManager() const;
+            VertexHandleManager& handleManager() override;
+            const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const Model::Hit& hit);
-            MoveResult move(const Vec3& delta);
-            void endMove();
-            void cancelMove();
+            bool startMove(const Model::Hit& hit) override;
+            MoveResult move(const Vec3& delta) override;
+            void endMove() override;
+            void cancelMove() override;
 
-            const Vec3& getHandlePosition(const Model::Hit& hit) const;
+            const Vec3& getHandlePosition(const Model::Hit& hit) const override;
         private:
             String actionName() const;
         private:
@@ -88,22 +88,22 @@ namespace TrenchBroom {
             using VertexToolBase::renderHandle;
             using VertexToolBase::renderHandles;
             
-            void renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const;
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const;
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const;
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const;
+            void renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const override;
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const override;
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const override;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const override;
         private: // Tool interface
-            bool doActivate();
-            bool doDeactivate();
+            bool doActivate() override;
+            bool doDeactivate() override;
         private:
             class AddToHandleManager;
             class RemoveFromHandleManager;
             
-            void addHandles(const Model::NodeList& nodes);
-            void removeHandles(const Model::NodeList& nodes);
-            
-            void addExtraHandles(VertexCommand* command);
-            void removeExtraHandles(VertexCommand* command);
+            void addHandles(const Model::NodeList& nodes) override;
+            void removeHandles(const Model::NodeList& nodes) override;
+
+            void addHandles(VertexCommand* command) override;
+            void removeHandles(VertexCommand* command) override;
         private: // General helper methods
             void resetModeAfterDeselection();
         };

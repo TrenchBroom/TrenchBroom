@@ -64,16 +64,6 @@ namespace TrenchBroom {
             m_newVertexPositions = document->performSplitFaces(m_faces, m_delta);
             return true;
         }
-        
-        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
-        }
-        
-        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
-        }
 
         void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectVertexHandles(m_newVertexPositions);
@@ -86,5 +76,11 @@ namespace TrenchBroom {
         bool SplitBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }
+        
+        void SplitBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager) const {
+            manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
+        }
+        
+        void SplitBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager) const {}
     }
 }

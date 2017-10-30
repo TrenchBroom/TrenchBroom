@@ -43,8 +43,10 @@ namespace TrenchBroom {
         private:
             RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions);
             
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
+        public:
+            void selectNewHandlePositions(VertexHandleManager& manager) const;
+            void selectOldHandlePositions(VertexHandleManager& manager) const;
         };
     }
 }

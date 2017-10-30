@@ -60,19 +60,28 @@ namespace TrenchBroom {
         public:
             void removeHandles(VertexHandleManagerBase& manager);
             void addHandles(VertexHandleManagerBase& manager);
-            void selectNewHandlePositions(VertexHandleManager& manager);
-            void selectOldHandlePositions(VertexHandleManager& manager);
-        private:
-            virtual void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
-            virtual void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) = 0;
         public:
             void removeBrushes(VertexHandleManagerOld& manager);
             void addBrushes(VertexHandleManagerOld& manager);
             void selectNewHandlePositions(VertexHandleManagerOld& manager);
             void selectOldHandlePositions(VertexHandleManagerOld& manager);
+            
+            void selectNewHandlePositions(VertexHandleManager& manager) const;
+            void selectOldHandlePositions(VertexHandleManager& manager) const;
+            void selectNewHandlePositions(EdgeHandleManager& manager) const;
+            void selectOldHandlePositions(EdgeHandleManager& manager) const;
+            void selectNewHandlePositions(FaceHandleManager& manager) const;
+            void selectOldHandlePositions(FaceHandleManager& manager) const;
         private:
             virtual void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
             virtual void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
+            
+            virtual void doSelectNewHandlePositions(VertexHandleManager& manager) const;
+            virtual void doSelectOldHandlePositions(VertexHandleManager& manager) const;
+            virtual void doSelectNewHandlePositions(EdgeHandleManager& manager) const;
+            virtual void doSelectOldHandlePositions(EdgeHandleManager& manager) const;
+            virtual void doSelectNewHandlePositions(FaceHandleManager& manager) const;
+            virtual void doSelectOldHandlePositions(FaceHandleManager& manager) const;
         };
     }
 }

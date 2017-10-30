@@ -31,7 +31,11 @@
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/MoveBrushVerticesCommand.h"
+#include "View/MoveBrushEdgesCommand.h"
+#include "View/MoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
+#include "View/RemoveBrushEdgesCommand.h"
+#include "View/RemoveBrushFacesCommand.h"
 #include "View/Selection.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
@@ -188,13 +192,13 @@ namespace TrenchBroom {
             virtual void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& handle) const = 0;
             virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& position) const = 0;
         protected: // Tool interface
-            virtual bool doActivate() {
+            virtual bool doActivate() override {
                 m_changeCount = 0;
                 bindObservers();
                 return true;
             }
             
-            virtual bool doDeactivate() {
+            virtual bool doDeactivate() override {
                 /*
                  if (m_changeCount > 0) {
                  RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document, document.editStateManager().selectedBrushes(), m_changeCount);
@@ -260,8 +264,7 @@ namespace TrenchBroom {
             void commandDoOrUndo(Command::Ptr command) {
                 if (isVertexCommand(command)) {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                    vertexCommand->removeHandles(handleManager());
-                    removeExtraHandles(vertexCommand);
+                    removeHandles(vertexCommand);
                     m_ignoreChangeNotifications = true;
                 }
             }
@@ -269,10 +272,8 @@ namespace TrenchBroom {
             void commandDoneOrUndoFailed(Command::Ptr command) {
                 if (isVertexCommand(command)) {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                    vertexCommand->addHandles(handleManager());
-                    vertexCommand->selectNewHandlePositions(handleManager());
-                    
-                    addExtraHandles(vertexCommand);
+                    addHandles(vertexCommand);
+                    selectNewHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications = false;
                     
                     if (!m_dragging)
@@ -283,10 +284,8 @@ namespace TrenchBroom {
             void commandDoFailedOrUndone(Command::Ptr command) {
                 if (isVertexCommand(command)) {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                    vertexCommand->addHandles(handleManager());
-                    vertexCommand->selectOldHandlePositions(handleManager());
-
-                    addExtraHandles(vertexCommand);
+                    addHandles(vertexCommand);
+                    selectOldHandlePositions(vertexCommand);
                     m_ignoreChangeNotifications = false;
                     
                     if (!m_dragging)
@@ -295,10 +294,7 @@ namespace TrenchBroom {
             }
             
             bool isVertexCommand(const Command::Ptr command) const {
-                return (command->type() == MoveBrushVerticesCommand::Type ||
-                        command->type() == SplitBrushEdgesCommand::Type ||
-                        command->type() == SplitBrushFacesCommand::Type ||
-                        command->type() == RemoveBrushVerticesCommand::Type);
+                return command->isType(MoveBrushVerticesCommand::Type, SplitBrushEdgesCommand::Type, SplitBrushFacesCommand::Type, RemoveBrushVerticesCommand::Type, RemoveBrushEdgesCommand::Type, RemoveBrushFacesCommand::Type, MoveBrushEdgesCommand::Type, MoveBrushFacesCommand::Type);
             }
             
             void selectionDidChange(const Selection& selection) {
@@ -317,13 +313,27 @@ namespace TrenchBroom {
                     addHandles(nodes);
                 }
             }
-        private:
+        protected:
             void rebuildBrushGeometry() {
                 // TODO: implement
             }
-        private:
-            virtual void addExtraHandles(VertexCommand* command) {}
-            virtual void removeExtraHandles(VertexCommand* command) {}
+        protected:
+            virtual void addHandles(VertexCommand* command) {
+                command->addHandles(handleManager());
+            }
+            
+            virtual void removeHandles(VertexCommand* command) {
+                command->removeHandles(handleManager());
+            }
+            
+            virtual void selectNewHandlePositions(VertexCommand* command) {
+                command->selectNewHandlePositions(handleManager());
+            }
+            
+            virtual void selectOldHandlePositions(VertexCommand* command) {
+                command->selectOldHandlePositions(handleManager());
+            }
+            
             virtual void addHandles(const Model::NodeList& nodes) = 0;
             virtual void removeHandles(const Model::NodeList& nodes) = 0;
         };

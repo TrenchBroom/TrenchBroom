@@ -52,8 +52,26 @@ namespace TrenchBroom {
             virtual ~Command();
 
             CommandType type() const;
+            
+            bool isType(CommandType type) const;
+            
+            template <typename... C>
+            bool isType(CommandType type, C... types) const {
+                return isType(type) || isType(types...);
+            }
+            
             CommandState state() const;
             const String& name() const;
+            
+            template <typename C>
+            bool forType(std::function<void(const C&)> f) const {
+                if (!isType(C::Type))
+                    return false;
+                
+                const C* _this = static_cast<const C*>(this);
+                f(_this);
+                return true;
+            }
             
             virtual bool performDo(MapDocumentCommandFacade* document);
         private:

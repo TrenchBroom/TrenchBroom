@@ -45,13 +45,12 @@ namespace TrenchBroom {
         m_oldEdgePositions(edgePositions) {}
 
         
-        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
-        }
-
         void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectEdgeHandles(m_oldEdgePositions);
+        }
+
+        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(EdgeHandleManager& manager) const {
+            manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }
 }

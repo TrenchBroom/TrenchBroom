@@ -43,9 +43,9 @@ namespace TrenchBroom {
         private:
             RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Polygon3::List& facePositions);
 
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
 
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(FaceHandleManager& manager) const override;
         };
     }
 }

@@ -61,16 +61,6 @@ namespace TrenchBroom {
             m_newEdgePositions = document->performMoveEdges(m_edges, m_delta);
             return true;
         }
-        
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
-        }
-        
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            // TODO: implement
-            assert(false);
-        }
 
         void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
             manager.selectEdgeHandles(m_newEdgePositions);
@@ -90,6 +80,14 @@ namespace TrenchBroom {
             m_delta += other->m_delta;
             
             return true;
+        }
+
+        void MoveBrushEdgesCommand::selectNewHandlePositions(EdgeHandleManager& manager) const {
+            manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
+        }
+        
+        void MoveBrushEdgesCommand::selectOldHandlePositions(EdgeHandleManager& manager) const {
+            manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }
 }

@@ -60,10 +60,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void AddBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {}
-        
         void AddBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
-        void AddBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {}
         void AddBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
         
         bool AddBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {

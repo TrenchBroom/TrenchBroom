@@ -46,16 +46,16 @@ namespace TrenchBroom {
         private:
             SplitBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta);
             
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
             
-            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            void doSelectNewHandlePositions(VertexHandleManager& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManager& manager) const override;
         };
     }
 }

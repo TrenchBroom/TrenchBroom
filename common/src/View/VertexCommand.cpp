@@ -160,12 +160,28 @@ namespace TrenchBroom {
             manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) {
-            doSelectNewHandlePositions(manager, m_brushes);
+        void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) const {
+            doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManager& manager) {
-            doSelectOldHandlePositions(manager, m_brushes);
+        void VertexCommand::selectOldHandlePositions(VertexHandleManager& manager) const {
+            doSelectOldHandlePositions(manager);
+        }
+
+        void VertexCommand::selectNewHandlePositions(EdgeHandleManager& manager) const {
+            doSelectNewHandlePositions(manager);
+        }
+        
+        void VertexCommand::selectOldHandlePositions(EdgeHandleManager& manager) const {
+            doSelectOldHandlePositions(manager);
+        }
+        
+        void VertexCommand::selectNewHandlePositions(FaceHandleManager& manager) const {
+            doSelectNewHandlePositions(manager);
+        }
+        
+        void VertexCommand::selectOldHandlePositions(FaceHandleManager& manager) const {
+            doSelectOldHandlePositions(manager);
         }
 
         void VertexCommand::removeBrushes(VertexHandleManagerOld& manager) {
@@ -183,5 +199,12 @@ namespace TrenchBroom {
         void VertexCommand::selectOldHandlePositions(VertexHandleManagerOld& manager) {
             doSelectOldHandlePositions(manager, m_brushes);
         }
+
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManager& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManager& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(EdgeHandleManager& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(EdgeHandleManager& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(FaceHandleManager& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(FaceHandleManager& manager) const {}
     }
 }

@@ -47,16 +47,16 @@ namespace TrenchBroom {
         private:
             MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta);
             
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            
-            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManager& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManager& manager) const override;
         };
     }
 }

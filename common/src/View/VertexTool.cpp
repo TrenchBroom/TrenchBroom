@@ -29,6 +29,7 @@
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/VertexCommand.h"
+#include "View/VertexCommand.h"
 
 #include <cassert>
 #include <numeric>
@@ -253,7 +254,7 @@ namespace TrenchBroom {
             return VertexToolBase::doDeactivate();
         }
 
-        class AddToHandleManager : public Model::NodeVisitor {
+        class VertexTool::AddToHandleManager : public Model::NodeVisitor {
         private:
             VertexHandleManagerBase& m_vertexHandles;
             VertexHandleManagerBase& m_edgeHandles;
@@ -275,7 +276,7 @@ namespace TrenchBroom {
             }
         };
 
-        class RemoveFromHandleManager : public Model::NodeVisitor {
+        class VertexTool::RemoveFromHandleManager : public Model::NodeVisitor {
         private:
             VertexHandleManagerBase& m_vertexHandles;
             VertexHandleManagerBase& m_edgeHandles;
@@ -307,12 +308,14 @@ namespace TrenchBroom {
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
         }
 
-        void VertexTool::addExtraHandles(VertexCommand* command) {
+        void VertexTool::addHandles(VertexCommand* command) {
+            command->addHandles(m_vertexHandles);
             command->addHandles(m_edgeHandles);
             command->addHandles(m_faceHandles);
         }
         
-        void VertexTool::removeExtraHandles(VertexCommand* command) {
+        void VertexTool::removeHandles(VertexCommand* command) {
+            command->removeHandles(m_vertexHandles);
             command->removeHandles(m_edgeHandles);
             command->removeHandles(m_faceHandles);
         }
