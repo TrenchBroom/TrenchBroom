@@ -37,4 +37,4 @@ export DISPLAY=:10
 ./TrenchBroom-Test
 
 echo "Shared libraries used:"
-ldd ./trenchbroom
+ldd --verbose ./trenchbroom
