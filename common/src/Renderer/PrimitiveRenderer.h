@@ -76,7 +76,6 @@ namespace TrenchBroom {
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
             };
             
-            
             typedef std::map<TriangleRenderAttributes, IndexRangeMapBuilder<Vertex::Spec> > TriangleMeshMap;
             TriangleMeshMap m_triangleMeshes;
             
@@ -94,6 +93,8 @@ namespace TrenchBroom {
             
             void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
             void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            
+            void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end);
         private:
             void doPrepareVertices(Vbo& vertexVbo);
             void prepareLines(Vbo& vertexVbo);

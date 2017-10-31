@@ -42,6 +42,11 @@ namespace TrenchBroom {
                 flip();
         }
         
+        template <typename TT, size_t SS>
+        Edge(const Edge<TT,SS>& other) :
+        m_start(other.start()),
+        m_end(other.end()) {}
+        
         bool operator==(const Edge<T,S>& other) const {
             return m_start == other.m_start && m_end == other.m_end;
         }
@@ -105,6 +110,9 @@ namespace TrenchBroom {
     };
     
     typedef Edge<double, 3> Edge3d;
+    typedef Edge<float, 3> Edge3f;
+    typedef Edge<double, 2> Edge2d;
+    typedef Edge<float, 2> Edge2f;
 }
 
 #endif

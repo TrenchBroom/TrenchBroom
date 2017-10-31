@@ -201,7 +201,7 @@ namespace TrenchBroom {
                     if (!m_tool->startMove(hit))
                         return MoveInfo();
                     
-                    return MoveInfo(m_tool->getHandlePosition(hit));
+                    return MoveInfo(hit.hitPoint());
                 }
                 
                 DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {

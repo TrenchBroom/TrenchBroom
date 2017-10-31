@@ -156,12 +156,48 @@ namespace TrenchBroom {
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves
-            virtual bool startMove(const Model::Hit& hit) = 0;
-            virtual MoveResult move(const Vec3& delta) = 0;
-            virtual void endMove() = 0;
-            virtual void cancelMove() = 0;
+            virtual bool startMove(const Model::Hit& hit) {
+                assert(hit.isMatch());
+
+                const H& handle = getHandlePosition(hit);
+                if (hit.hasType(handleManager().hitType())) {
+                    if (!handleManager().selected(handle)) {
+                        handleManager().deselectAll();
+                        handleManager().select(handle);
+                        refreshViews();
+                    }
+                }
+                
+                MapDocumentSPtr document = lock(m_document);
+                document->beginTransaction(actionName());
+                
+                m_dragHandlePosition = handle;
+                m_dragging = true;
+                return true;
+            }
             
-            virtual const Vec3& getHandlePosition(const Model::Hit& hit) const = 0;
+            virtual MoveResult move(const Vec3& delta) = 0;
+            
+            virtual void endMove() {
+                MapDocumentSPtr document = lock(m_document);
+                document->commitTransaction();
+                rebuildBrushGeometry();
+                m_dragging = false;
+            }
+            
+            virtual void cancelMove() {
+                MapDocumentSPtr document = lock(m_document);
+                document->cancelTransaction();
+                m_dragging = false;
+            }
+            
+            virtual const H& getHandlePosition(const Model::Hit& hit) const {
+                assert(hit.isMatch());
+                assert(hit.hasType(handleManager().hitType()));
+                return hit.target<H>();
+            }
+            
+            virtual String actionName() const = 0;
         public: // rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);

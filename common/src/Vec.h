@@ -1103,10 +1103,12 @@ bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point
     return true;
 }
 
+/**
+ Computes the CCW angle between axis and vector in relation to the given up vector.
+ All vectors are expected to be normalized.
+ */
 template <typename T>
 T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
-    // computes the CCW angle between axis and vector in relation to the given up vector
-    // all vectors are expected to be normalized
     const T cos = vec.dot(axis);
     if (Math::one(+cos))
         return static_cast<T>(0.0);

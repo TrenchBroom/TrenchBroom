@@ -171,6 +171,24 @@ namespace TrenchBroom {
             m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromLists(positions, positions.size()));
         }
 
+        void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end) {
+            assert(radius > 0.0);
+            assert(segments > 2);
+            
+            const Vec3f vec = end - start;
+            const float len = vec.length();
+            const Vec3f dir = vec / len;
+            
+            const Mat4x4f translation = translationMatrix(start);
+            const Mat4x4f rotation    = rotationMatrix(Vec3f::PosZ, dir);
+            const Mat4x4f transform   = translation * rotation;
+            
+            const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
+            const Vec3f::List vertices = transform * cylinder.vertices;
+            
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleStrip(Vertex::fromLists(vertices, vertices.size()));
+        }
+
         void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {
             prepareLines(vertexVbo);
             prepareTriangles(vertexVbo);

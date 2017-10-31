@@ -32,8 +32,46 @@ namespace TrenchBroom {
             m_edgeHandles.pick(pickRay, camera, pickResult);
         }
         
-        bool EdgeTool::select(const Model::Hit::List& hits, bool addToSelection) { return false; }
-        void EdgeTool::select(const Lasso& lasso, bool modifySelection) {}
-        bool EdgeTool::deselectAll() { return false; }
+        EdgeHandleManager& EdgeTool::handleManager() {
+            return m_edgeHandles;
+        }
+        
+        const EdgeHandleManager& EdgeTool::handleManager() const {
+            return m_edgeHandles;
+        }
+
+        EdgeTool::MoveResult EdgeTool::move(const Vec3& delta) {
+            return MR_Cancel;
+        }
+        
+        String EdgeTool::actionName() const {
+            return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
+        }
+        
+        void EdgeTool::renderHandles(const Edge3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
+            renderService.setForegroundColor(color);
+            renderService.renderEdgeHandles(VectorUtils::cast<Edge3f>(handles));
+        }
+        
+        void EdgeTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle, const Color& color) const {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(color);
+            renderService.renderEdgeHandle(handle);
+        }
+        
+        void EdgeTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle) const {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            renderService.renderEdgeHandleHighlight(handle);
+            
+            renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderService.renderString(handle.start().asString(), handle.start());
+            renderService.renderString(handle.end().asString(), handle.end());
+        }
+        
+        void EdgeTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& position) const {
+            
+        }
     }
 }

@@ -116,6 +116,8 @@ namespace TrenchBroom {
             
             virtual ~VertexHandleManagerBaseT() {}
         public:
+            virtual Model::Hit::HitType hitType() const = 0;
+            
             size_t selectedHandleCount() const {
                 return m_selectedHandleCount;
             }
@@ -305,8 +307,12 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasVertex(handle); });
             }
         public:
-            void addHandles(const Model::Brush* brush);
-            void removeHandles(const Model::Brush* brush);
+            void addHandles(const Model::Brush* brush) override;
+            void removeHandles(const Model::Brush* brush) override;
+            
+            Model::Hit::HitType hitType() const override {
+                return HandleHit;
+            }
         };
         
         class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
@@ -342,8 +348,12 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasEdge(handle); });
             }
         public:
-            void addHandles(const Model::Brush* brush);
-            void removeHandles(const Model::Brush* brush);
+            void addHandles(const Model::Brush* brush) override;
+            void removeHandles(const Model::Brush* brush) override;
+            
+            Model::Hit::HitType hitType() const override {
+                return HandleHit;
+            }
         };
         
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
@@ -379,8 +389,12 @@ namespace TrenchBroom {
                 std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle); });
             }
         public:
-            void addHandles(const Model::Brush* brush);
-            void removeHandles(const Model::Brush* brush);
+            void addHandles(const Model::Brush* brush) override;
+            void removeHandles(const Model::Brush* brush) override;
+            
+            Model::Hit::HitType hitType() const override {
+                return HandleHit;
+            }
         };
     }
 }

@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Edge.h"
 #include "Renderer/PrimitiveRenderer.h"
 
 namespace TrenchBroom {
@@ -72,6 +73,10 @@ namespace TrenchBroom {
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);
             void renderPointHandleHighlight(const Vec3f& position);
+            
+            void renderEdgeHandles(const Edge3f::List& positions);
+            void renderEdgeHandle(const Edge3f& position);
+            void renderEdgeHandleHighlight(const Edge3f& position);
             
             void renderLine(const Vec3f& start, const Vec3f& end);
             void renderLines(const Vec3f::List& positions);

@@ -45,11 +45,22 @@ namespace TrenchBroom {
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
+        private:
+            EdgeHandleManager& handleManager() override;
+            const EdgeHandleManager& handleManager() const override;
         public:
-            bool select(const Model::Hit::List& hits, bool addToSelection);
-            void select(const Lasso& lasso, bool modifySelection);
-            bool deselectAll();
+            MoveResult move(const Vec3& delta) override;
+
+            String actionName() const override;
+        public: // Rendering
+            using VertexToolBase::renderHandle;
+            using VertexToolBase::renderHandles;
+            
+            void renderHandles(const Edge3::List& handles, Renderer::RenderService& renderService, const Color& color) const override;
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle, const Color& color) const override;
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle) const override;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& position) const override;
         };
     }
 }

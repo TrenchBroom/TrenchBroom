@@ -46,6 +46,7 @@
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController2D.h"
+#include "View/EdgeToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
@@ -116,6 +117,7 @@ namespace TrenchBroom {
             addTool(new ClipToolController2D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
             addTool(new VertexToolOldController(toolBox.vertexToolOld()));
+            addTool(new EdgeToolController(toolBox.edgeTool()));
             addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));
             addTool(new SelectionTool(m_document));
             addTool(new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document));

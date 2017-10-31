@@ -121,6 +121,19 @@ namespace TrenchBroom {
         void RenderService::renderPointHandleHighlight(const Vec3f& position) {
             m_pointHandleRenderer->addHighlight(m_foregroundColor, position);
         }
+        
+        void RenderService::renderEdgeHandles(const Edge3f::List& positions) {
+            for (const Edge3f& position : positions)
+                renderEdgeHandle(position);
+        }
+        
+        void RenderService::renderEdgeHandle(const Edge3f& position) {
+            m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+        }
+        
+        void RenderService::renderEdgeHandleHighlight(const Edge3f& position) {
+            m_primitiveRenderer->renderLine(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+        }
 
         void RenderService::renderLine(const Vec3f& start, const Vec3f& end) {
             m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, start, end);

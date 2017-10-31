@@ -79,18 +79,11 @@ namespace TrenchBroom {
         }
 
         bool VertexTool::startMove(const Model::Hit& hit) {
-            assert(hit.isMatch());
-            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
+            if (!VertexToolBase::startMove(hit)) {
+                return false;
+            }
             
-            const Vec3 handle = getHandlePosition(hit);
-            if (hit.hasType(VertexHandleManager::HandleHit)) {
-                if (!m_vertexHandles.selected(handle)) {
-                    m_vertexHandles.deselectAll();
-                    m_vertexHandles.select(handle);
-                    refreshViews();
-                }
-            } else {
-                assert(hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
+            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                 m_vertexHandles.deselectAll();
                 if (hit.hasType(EdgeHandleManager::HandleHit)) {
                     m_edgeHandles.select(hit.target<Edge3>());
@@ -99,33 +92,16 @@ namespace TrenchBroom {
                     m_faceHandles.select(hit.target<Polygon3>());
                     m_mode = Mode_Split_Face;
                 }
+                refreshViews();
+            } else {
+                m_mode = Mode_Move;
             }
             
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction(actionName());
-
-            m_dragHandlePosition = handle;
-            m_dragging = true;
             return true;
         }
         
         VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
             return moveVertices(delta);
-        }
-        
-        void VertexTool::endMove() {
-            MapDocumentSPtr document = lock(m_document);
-            document->commitTransaction();
-            rebuildBrushGeometry();
-            m_mode = Mode_Move;
-            m_dragging = false;
-        }
-        
-        void VertexTool::cancelMove() {
-            MapDocumentSPtr document = lock(m_document);
-            document->cancelTransaction();
-            m_mode = Mode_Move;
-            m_dragging = false;
         }
 
         const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
@@ -255,24 +231,24 @@ namespace TrenchBroom {
         }
 
         void VertexTool::addHandles(const Model::NodeList& nodes) {
-            AddHandles<Vec3> addVertexHandles(m_edgeHandles);
+            AddHandles<Vec3> addVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
             AddHandles<Edge3> addEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
             
-            AddHandles<Polygon3> addFaceHandles(m_edgeHandles);
+            AddHandles<Polygon3> addFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
         
         void VertexTool::removeHandles(const Model::NodeList& nodes) {
-            RemoveHandles<Vec3> removeVertexHandles(m_edgeHandles);
+            RemoveHandles<Vec3> removeVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
             
             RemoveHandles<Edge3> removeEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
             
-            RemoveHandles<Polygon3> removeFaceHandles(m_edgeHandles);
+            RemoveHandles<Polygon3> removeFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
 

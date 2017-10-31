@@ -58,7 +58,7 @@ namespace Math {
 template <typename T>
 void safeDelete(T*& p) {
     delete p;
-    p = NULL;
+    p = nullptr;
 }
 
 #endif
