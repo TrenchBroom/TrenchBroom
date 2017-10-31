@@ -254,58 +254,26 @@ namespace TrenchBroom {
             return VertexToolBase::doDeactivate();
         }
 
-        class VertexTool::AddToHandleManager : public Model::NodeVisitor {
-        private:
-            VertexHandleManagerBase& m_vertexHandles;
-            VertexHandleManagerBase& m_edgeHandles;
-            VertexHandleManagerBase& m_faceHandles;
-        public:
-            AddToHandleManager(VertexHandleManagerBase& vertexHandles, VertexHandleManagerBase& edgeHandles, VertexHandleManagerBase& faceHandles) :
-            m_vertexHandles(vertexHandles),
-            m_edgeHandles(edgeHandles),
-            m_faceHandles(faceHandles) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {
-                m_vertexHandles.addHandles(brush);
-                m_edgeHandles.addHandles(brush);
-                m_faceHandles.addHandles(brush);
-            }
-        };
-
-        class VertexTool::RemoveFromHandleManager : public Model::NodeVisitor {
-        private:
-            VertexHandleManagerBase& m_vertexHandles;
-            VertexHandleManagerBase& m_edgeHandles;
-            VertexHandleManagerBase& m_faceHandles;
-        public:
-            RemoveFromHandleManager(VertexHandleManagerBase& vertexHandles, VertexHandleManagerBase& edgeHandles, VertexHandleManagerBase& faceHandles) :
-            m_vertexHandles(vertexHandles),
-            m_edgeHandles(edgeHandles),
-            m_faceHandles(faceHandles) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {
-                m_vertexHandles.removeHandles(brush);
-                m_edgeHandles.addHandles(brush);
-                m_faceHandles.addHandles(brush);
-            }
-        };
-        
         void VertexTool::addHandles(const Model::NodeList& nodes) {
-            AddToHandleManager addVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
+            AddHandles<Vec3> addVertexHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
+
+            AddHandles<Edge3> addEdgeHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
+            
+            AddHandles<Polygon3> addFaceHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
         
         void VertexTool::removeHandles(const Model::NodeList& nodes) {
-            RemoveFromHandleManager removeVisitor(m_vertexHandles, m_edgeHandles, m_faceHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
+            RemoveHandles<Vec3> removeVertexHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
+            
+            RemoveHandles<Edge3> removeEdgeHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
+            
+            RemoveHandles<Polygon3> removeFaceHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
 
         void VertexTool::addHandles(VertexCommand* command) {

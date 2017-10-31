@@ -96,9 +96,6 @@ namespace TrenchBroom {
             bool doActivate() override;
             bool doDeactivate() override;
         private:
-            class AddToHandleManager;
-            class RemoveFromHandleManager;
-            
             void addHandles(const Model::NodeList& nodes) override;
             void removeHandles(const Model::NodeList& nodes) override;
 

@@ -334,8 +334,49 @@ namespace TrenchBroom {
                 command->selectOldHandlePositions(handleManager());
             }
             
-            virtual void addHandles(const Model::NodeList& nodes) = 0;
-            virtual void removeHandles(const Model::NodeList& nodes) = 0;
+            template <typename HT>
+            class AddHandles : public Model::NodeVisitor {
+            private:
+                VertexHandleManagerBaseT<HT>& m_handles;
+            public:
+                AddHandles(VertexHandleManagerBaseT<HT>& handles) :
+                m_handles(handles) {}
+            private:
+                void doVisit(Model::World* world) override  {}
+                void doVisit(Model::Layer* layer) override   {}
+                void doVisit(Model::Group* group) override   {}
+                void doVisit(Model::Entity* entity) override {}
+                void doVisit(Model::Brush* brush) override   {
+                    m_handles.addHandles(brush);
+                }
+            };
+            
+            template <typename HT>
+            class RemoveHandles : public Model::NodeVisitor {
+            private:
+                VertexHandleManagerBaseT<HT>& m_handles;
+            public:
+                RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
+                m_handles(handles) {}
+            private:
+                void doVisit(Model::World* world) override   {}
+                void doVisit(Model::Layer* layer) override   {}
+                void doVisit(Model::Group* group) override   {}
+                void doVisit(Model::Entity* entity) override {}
+                void doVisit(Model::Brush* brush) override   {
+                    m_handles.removeHandles(brush);
+                }
+            };
+            
+            virtual void addHandles(const Model::NodeList& nodes) {
+                AddHandles<H> addVisitor(handleManager());
+                Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
+            }
+            
+            virtual void removeHandles(const Model::NodeList& nodes) {
+                RemoveHandles<H> removeVisitor(handleManager());
+                Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
+            }
         };
     }
 }
