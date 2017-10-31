@@ -55,8 +55,8 @@ namespace TrenchBroom {
 
             bool doCollateWith(UndoableCommand::Ptr command) override;
 
-            void doSelectNewHandlePositions(VertexHandleManager& manager) const override;
-            void doSelectOldHandlePositions(VertexHandleManager& manager) const override;
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const override;
         };
     }
 }

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             manager.selectFaceHandles(m_oldFacePositions);
         }
         
-        void RemoveBrushFacesCommand::doSelectOldHandlePositions(FaceHandleManager& manager) const {
+        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }

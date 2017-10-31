@@ -49,7 +49,7 @@ namespace TrenchBroom {
             manager.selectEdgeHandles(m_oldEdgePositions);
         }
 
-        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(EdgeHandleManager& manager) const {
+        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }

@@ -86,11 +86,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager) const {
+        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
             manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
         }
         
-        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager) const {
+        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
             manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
         }
     }

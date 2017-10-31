@@ -77,10 +77,10 @@ namespace TrenchBroom {
             return false;
         }
         
-        void SplitBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager) const {
+        void SplitBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
             manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
         }
         
-        void SplitBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager) const {}
+        void SplitBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}
     }
 }

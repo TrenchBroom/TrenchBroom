@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
 
-            void doSelectOldHandlePositions(FaceHandleManager& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
         };
     }
 }

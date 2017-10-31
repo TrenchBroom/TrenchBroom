@@ -160,27 +160,27 @@ namespace TrenchBroom {
             manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManager& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManager& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
-        void VertexCommand::selectNewHandlePositions(EdgeHandleManager& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(EdgeHandleManager& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
         
-        void VertexCommand::selectNewHandlePositions(FaceHandleManager& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(FaceHandleManager& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
@@ -200,11 +200,11 @@ namespace TrenchBroom {
             doSelectOldHandlePositions(manager, m_brushes);
         }
 
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManager& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManager& manager) const {}
-        void VertexCommand::doSelectNewHandlePositions(EdgeHandleManager& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(EdgeHandleManager& manager) const {}
-        void VertexCommand::doSelectNewHandlePositions(FaceHandleManager& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(FaceHandleManager& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {}
     }
 }
