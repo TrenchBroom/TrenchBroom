@@ -28,22 +28,27 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit& findHandleHit(const InputState& inputState) {
-            const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().first();
-            if (vertexHit.isMatch())
-                return vertexHit;
-            const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
-            if (edgeHit.isMatch())
-                return edgeHit;
-            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
-        }
-
-        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
+        class VertexToolController::VertexPartBase {
+        public:
+            virtual ~VertexPartBase() {}
+        protected:
+            const Model::Hit& findHandleHit(const InputState& inputState) const {
+                const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().first();
+                if (vertexHit.isMatch())
+                    return vertexHit;
+                const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
+                if (edgeHit.isMatch())
+                    return edgeHit;
+                return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
+            }
+        };
+        
+        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3>, private VertexPartBase {
         public:
             SelectVertexPart(VertexTool* tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit) {}
         private:
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 SelectPartBase::doRender(inputState, renderContext, renderBatch);
                 
                 if (!anyToolDragging(inputState)) {
@@ -57,12 +62,16 @@ namespace TrenchBroom {
                     }
                 }
             }
+        private:
+            const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
+                return findHandleHit(inputState);
+            }
         };
 
-        class VertexToolController::MoveVertexPart : public MovePartBase {
+        class VertexToolController::MoveVertexPart : public MovePartBase, private VertexPartBase {
         public:
             MoveVertexPart(VertexTool* tool) :
-            MovePartBase(tool) {}
+            MovePartBase(tool, VertexHandleManager::HandleHit) {}
         private:
             typedef enum {
                 ST_Relative,
@@ -71,7 +80,7 @@ namespace TrenchBroom {
             
             SnapType m_lastSnapType;
         private:
-            void doModifierKeyChange(const InputState& inputState) {
+            void doModifierKeyChange(const InputState& inputState) override {
                 MoveToolController::doModifierKeyChange(inputState);
                 
                 if (Super::thisToolDragging()) {
@@ -83,12 +92,12 @@ namespace TrenchBroom {
                 }
             }
 
-            MoveInfo doStartMove(const InputState& inputState) {
+            MoveInfo doStartMove(const InputState& inputState) override {
                 m_lastSnapType = snapType(inputState);
                 return MovePartBase::doStartMove(inputState);
             }
             
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
                 switch (snapType(inputState)) {
                     case ST_Absolute:
                         return new AbsoluteDragSnapper(m_tool->grid());
@@ -98,11 +107,11 @@ namespace TrenchBroom {
                 }
             }
             
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
                 
                 if (!thisToolDragging()) {
-                    const Model::Hit& hit = findHandleHit(inputState);
+                    const Model::Hit& hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                         const Vec3 handle = m_tool->getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
@@ -120,7 +129,7 @@ namespace TrenchBroom {
                 return ST_Relative;
             }
         private:
-            const Model::Hit& findDragHandle(const InputState& inputState) const {
+            const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
                 return findHandleHit(inputState);
             }
         };

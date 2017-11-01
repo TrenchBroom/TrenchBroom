@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class EdgeToolController::MoveEdgePart : public MovePartBase {
         public:
             MoveEdgePart(EdgeTool* tool) :
-            MovePartBase(tool) {}
+            MovePartBase(tool, EdgeHandleManager::HandleHit) {}
         private:
             const Model::Hit& findDragHandle(const InputState& inputState) const {
                 return inputState.pickResult().query().type(EdgeHandleManager::HandleHit).occluded().first();

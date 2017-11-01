@@ -63,11 +63,6 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             renderService.renderEdgeHandleHighlight(handle);
-            
-            renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
-            renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderService.renderString(handle.start().asString(), handle.start());
-            renderService.renderString(handle.end().asString(), handle.end());
         }
         
         void EdgeTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& position) const {

@@ -40,20 +40,30 @@ namespace TrenchBroom {
             class PartBase {
             protected:
                 T* m_tool;
+                Model::Hit::HitType m_hitType;
             protected:
-                PartBase(T* tool) :
-                m_tool(tool) {}
+                PartBase(T* tool, const Model::Hit::HitType hitType) :
+                m_tool(tool),
+                m_hitType(hitType) {}
+            public:
+                virtual ~PartBase() {}
+            protected:
+                const Model::Hit& findDraggableHandle(const InputState& inputState) const {
+                    return doFindDraggableHandle(inputState);
+                }
+            private:
+                virtual const Model::Hit& doFindDraggableHandle(const InputState& inputState) const {
+                    return inputState.pickResult().query().type(m_hitType).occluded().first();
+                }
             };
             
             template <typename H>
             class SelectPartBase : public ToolControllerBase<PickingPolicy, NoKeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy>, public PartBase {
             private:
-                Model::Hit::HitType m_hitType;
                 Lasso* m_lasso;
             protected:
                 SelectPartBase(T* tool, const Model::Hit::HitType hitType) :
-                PartBase(tool),
-                m_hitType(hitType),
+                PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
                 virtual ~SelectPartBase() {
@@ -61,6 +71,8 @@ namespace TrenchBroom {
                 }
             protected:
                 using PartBase::m_tool;
+                using PartBase::m_hitType;
+                using PartBase::findDraggableHandle;
             private:
                 Tool* doGetTool() {
                     return m_tool;
@@ -129,8 +141,20 @@ namespace TrenchBroom {
                 
                 virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                     m_tool->renderHandles(renderContext, renderBatch);
-                    if (m_lasso != nullptr)
+                    if (m_lasso != nullptr) {
                         m_lasso->render(renderContext, renderBatch);
+                    } else {
+                        if (!anyToolDragging(inputState)) {
+                            const Model::Hit& hit = findDraggableHandle(inputState);
+                            if (hit.hasType(m_hitType)) {
+                                const H& handle = hit.target<H>();
+                                m_tool->renderHighlight(renderContext, renderBatch, handle);
+                                
+                                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                                    m_tool->renderGuide(renderContext, renderBatch, handle);
+                            }
+                        }
+                    }
                 }
             protected:
                 Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
@@ -167,13 +191,15 @@ namespace TrenchBroom {
             
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
             protected:
-                MovePartBase(T* tool) :
+                MovePartBase(T* tool, const Model::Hit::HitType hitType) :
                 MoveToolController(tool->grid()),
-                PartBase(tool) {}
+                PartBase(tool, hitType) {}
             public:
                 virtual ~MovePartBase() {}
             protected:
                 using PartBase::m_tool;
+                using PartBase::m_hitType;
+                using PartBase::findDraggableHandle;
             protected:
                 Tool* doGetTool() {
                     return m_tool;
@@ -194,7 +220,7 @@ namespace TrenchBroom {
                            )))
                         return MoveInfo();
                     
-                    const Model::Hit& hit = findDragHandle(inputState);
+                    const Model::Hit& hit = findDraggableHandle(inputState);
                     if (!hit.isMatch())
                         return MoveInfo();
                     
@@ -237,8 +263,6 @@ namespace TrenchBroom {
                         m_tool->renderDragGuide(renderContext, renderBatch);
                     }
                 }
-            private:
-                virtual const Model::Hit& findDragHandle(const InputState& inputState) const = 0;
             };
             
         protected:

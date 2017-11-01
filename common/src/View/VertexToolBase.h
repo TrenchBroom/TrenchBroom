@@ -107,7 +107,7 @@ namespace TrenchBroom {
             bool select(const Model::Hit::List& hits, const bool addToSelection) {
                 assert(!hits.empty());
                 const Model::Hit& firstHit = hits.front();
-                if (firstHit.type() == VertexHandleManager::HandleHit) {
+                if (firstHit.type() == handleManager().hitType()) {
                     if (!addToSelection)
                         handleManager().deselectAll();
                     
@@ -231,6 +231,11 @@ namespace TrenchBroom {
             virtual bool doActivate() override {
                 m_changeCount = 0;
                 bindObservers();
+                
+                const Model::BrushList& brushes = selectedBrushes();
+                handleManager().clear();
+                handleManager().addHandles(std::begin(brushes), std::end(brushes));
+
                 return true;
             }
             
@@ -242,6 +247,7 @@ namespace TrenchBroom {
                  }
                  */
                 unbindObservers();
+                handleManager().clear();
                 return true;
             }
         private: // Observers and state management

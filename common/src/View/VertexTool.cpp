@@ -205,29 +205,25 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::doActivate() {
-            if (!VertexToolBase::doActivate())
-                return false;
+            VertexToolBase::doActivate();
             
-            m_vertexHandles.clear();
             m_edgeHandles.clear();
             m_faceHandles.clear();
             
-            m_mode = Mode_Move;
-            
             const Model::BrushList& brushes = selectedBrushes();
-            m_vertexHandles.addHandles(std::begin(brushes), std::end(brushes));
             m_edgeHandles.addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles.addHandles(std::begin(brushes), std::end(brushes));
             
+            m_mode = Mode_Move;
             return true;
         }
         
         bool VertexTool::doDeactivate() {
-            m_vertexHandles.clear();
+            VertexToolBase::doDeactivate();
+            
             m_edgeHandles.clear();
             m_faceHandles.clear();
-            
-            return VertexToolBase::doDeactivate();
+            return true;
         }
 
         void VertexTool::addHandles(const Model::NodeList& nodes) {
