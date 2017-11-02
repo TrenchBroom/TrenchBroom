@@ -42,9 +42,30 @@ namespace TrenchBroom {
         public:
             virtual ~VertexCommand();
         protected:
+            template <typename H, typename C>
+            static void extract(const std::map<H, Model::BrushSet, C>& handleToBrushes, Model::BrushList& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
+                
+                for (const auto& entry : handleToBrushes) {
+                    const H& handle = entry.first;
+                    const Model::BrushSet& mappedBrushes = entry.second;
+                    for (Model::Brush* brush : mappedBrushes) {
+                        const auto result = brushToHandles.insert(std::make_pair(brush, std::vector<H>()));
+                        if (result.second)
+                            brushes.push_back(brush);
+                        result.first->second.push_back(handle);
+                    }
+                    handles.push_back(handle);
+                }
+            }
+            
             static void extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, Vec3::List& vertexPositions);
+            static void extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions);
+            static void extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions);
+
+            // TODO 1720: Remove these methods if possible.
             static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions);
             static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions);
+            
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushFacesMap& faces);
         private:

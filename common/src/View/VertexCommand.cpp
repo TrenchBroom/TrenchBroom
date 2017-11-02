@@ -40,18 +40,15 @@ namespace TrenchBroom {
         }
         
         void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, Vec3::List& vertexPositions) {
+            extract(vertices, brushes, brushVertices, vertexPositions);
+        }
 
-            for (const auto& entry : vertices) {
-                const Vec3& position = entry.first;
-                const Model::BrushSet& mappedBrushes = entry.second;
-                for (Model::Brush* brush : mappedBrushes) {
-                    const auto result = brushVertices.insert(std::make_pair(brush, Vec3::List()));
-                    if (result.second)
-                        brushes.push_back(brush);
-                    result.first->second.push_back(position);
-                }
-                vertexPositions.push_back(position);
-            }
+        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
+            extract(edges, brushes, brushEdges, edgePositions);
+        }
+
+        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
+            extract(faces, brushes, brushFaces, facePositions);
         }
 
         void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {

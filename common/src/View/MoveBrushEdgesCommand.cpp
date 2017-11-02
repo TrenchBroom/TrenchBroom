@@ -38,6 +38,15 @@ namespace TrenchBroom {
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
         
+        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
+            Model::BrushList brushes;
+            Model::BrushEdgesMap brushEdges;
+            Edge3::List edgePositions;
+            extractEdgeMap(edges, brushes, brushEdges, edgePositions);
+            
+            return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
+        }
+
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
@@ -82,11 +91,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveBrushEdgesCommand::selectNewHandlePositions(EdgeHandleManager& manager) const {
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
         }
         
-        void MoveBrushEdgesCommand::selectOldHandlePositions(EdgeHandleManager& manager) const {
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }

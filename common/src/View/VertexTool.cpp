@@ -132,8 +132,8 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             if (m_mode == Mode_Move) {
-                const Vec3::List handles = m_vertexHandles.selectedHandles();
-                const Model::VertexToBrushesMap brushMap = buildBrushMap(handles);
+                const auto handles = m_vertexHandles.selectedHandles();
+                const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
                 
                 const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
                 if (result.success) {
@@ -167,14 +167,6 @@ namespace TrenchBroom {
                 
                 return MR_Continue;
             }
-        }
-
-        Model::VertexToBrushesMap VertexTool::buildBrushMap(const Vec3::List& handles) const {
-            Model::VertexToBrushesMap result;
-            for (const auto& handle : handles) {
-                result[handle] = findIncidentBrushes(handle);
-            }
-            return result;
         }
 
         void VertexTool::renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const {

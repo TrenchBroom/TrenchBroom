@@ -1134,6 +1134,14 @@ namespace TrenchBroom {
             return MoveVerticesResult(success, hasRemainingVertices);
         }
         
+        bool MapDocument::moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
+            return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
+        }
+
+        bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
+            return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
+        }
+
         bool MapDocument::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
             return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
         }

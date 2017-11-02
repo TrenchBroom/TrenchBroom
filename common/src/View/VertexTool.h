@@ -80,7 +80,6 @@ namespace TrenchBroom {
             String actionName() const override;
         private:
             MoveResult moveVertices(const Vec3& delta);
-            Model::VertexToBrushesMap buildBrushMap(const Vec3::List& handles) const;
         public: // Rendering
             using VertexToolBase::renderHandle;
             using VertexToolBase::renderHandles;

@@ -164,9 +164,9 @@ namespace TrenchBroom {
             void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
         private:
             template <typename Element>
-            inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& map) {
+            inline bool removeHandle(const Vec3& position, Element* element, std::map<Vec3, std::set<Element*>>& map) {
                 typedef std::set<Element*> Set;
-                typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
+                typedef std::map<Vec3, Set> Map;
                 
                 typename Map::iterator mapIt = map.find(position);
                 if (mapIt == std::end(map))
@@ -184,9 +184,9 @@ namespace TrenchBroom {
             }
             
             template <typename Element>
-            inline size_t moveHandle(const Vec3& position, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& from, std::map<Vec3, std::set<Element*>, Vec3::LexicographicOrder >& to) {
+            inline size_t moveHandle(const Vec3& position, std::map<Vec3, std::set<Element*>>& from, std::map<Vec3, std::set<Element*>>& to) {
                 typedef std::set<Element*> Set;
-                typedef std::map<Vec3, Set, Vec3::LexicographicOrder> Map;
+                typedef std::map<Vec3, Set> Map;
                 
                 typename Map::iterator mapIt = from.find(position);
                 if (mapIt == std::end(from))

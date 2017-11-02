@@ -102,6 +102,10 @@ namespace TrenchBroom {
             }
             return result;
         }
+    public:
+        friend Edge<T,S> translate(const Edge<T,S>& edge, const Vec<T,S>& offset) {
+            return Edge<T,S>(edge.m_start + offset, edge.m_end + offset);
+        }
     private:
         void flip() {
             using std::swap;

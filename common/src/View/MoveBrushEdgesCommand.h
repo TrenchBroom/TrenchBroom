@@ -43,19 +43,21 @@ namespace TrenchBroom {
             Vec3 m_delta;
         public:
             static Ptr move(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            static Ptr move(const Model::EdgeToBrushesMap& edges, const Vec3& delta);
+        private:
         private:
             MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta);
             
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
             
-            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
+            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
+            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
-        public:
-            void selectNewHandlePositions(EdgeHandleManager& manager) const;
-            void selectOldHandlePositions(EdgeHandleManager& manager) const;
+            bool doCollateWith(UndoableCommand::Ptr command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;
         };
     }
 }

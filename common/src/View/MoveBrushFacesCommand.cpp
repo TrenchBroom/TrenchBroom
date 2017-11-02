@@ -39,6 +39,15 @@ namespace TrenchBroom {
             return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
 
+        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
+            Model::BrushList brushes;
+            Model::BrushFacesMap brushFaces;
+            Polygon3::List facePositions;
+            extractFaceMap(faces, brushes, brushFaces, facePositions);
+            
+            return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
+        }
+
         MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
@@ -84,11 +93,11 @@ namespace TrenchBroom {
         }
 
 
-        void MoveBrushFacesCommand::selectNewHandlePositions(FaceHandleManager& manager) const {
+        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
         }
         
-        void MoveBrushFacesCommand::selectOldHandlePositions(FaceHandleManager& manager) const {
+        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }

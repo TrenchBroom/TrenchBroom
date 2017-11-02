@@ -310,6 +310,9 @@ namespace TrenchBroom {
             bool findPlanePoints();
             
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            bool moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta);
+            bool moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta);
+            // TODO 1720: Remove the following two methods.
             bool moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
             bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);

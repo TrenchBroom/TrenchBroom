@@ -96,6 +96,17 @@ namespace TrenchBroom {
                 return document->selectedNodes().brushes();
             }
         public:
+            template <typename M, typename I>
+            std::map<typename M::Handle, Model::BrushSet> buildBrushMap(const M& manager, I cur, I end) const {
+                typedef typename M::Handle H2;
+                std::map<H2, Model::BrushSet> result;
+                while (cur != end) {
+                    const H2& handle = *cur++;
+                    result[handle] = findIncidentBrushes(manager, handle);
+                }
+                return result;
+            }
+
             template <typename M, typename H2>
             Model::BrushSet findIncidentBrushes(const M& manager, const H2& handle) const {
                 const Model::BrushList& brushes = selectedBrushes();

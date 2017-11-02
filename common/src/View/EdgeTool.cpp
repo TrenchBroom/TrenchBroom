@@ -41,7 +41,15 @@ namespace TrenchBroom {
         }
 
         EdgeTool::MoveResult EdgeTool::move(const Vec3& delta) {
-            return MR_Cancel;
+            MapDocumentSPtr document = lock(m_document);
+
+            const auto handles = m_edgeHandles.selectedHandles();
+            const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
+            if (document->moveEdges(brushMap, delta)) {
+                m_dragHandlePosition = translate(m_dragHandlePosition, delta);
+                return MR_Continue;
+            }
+            return MR_Deny;
         }
         
         String EdgeTool::actionName() const {
