@@ -134,6 +134,19 @@ namespace TrenchBroom {
         void RenderService::renderEdgeHandleHighlight(const Edge3f& position) {
             m_primitiveRenderer->renderLine(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.start(), position.end());
         }
+        
+        void RenderService::renderFaceHandles(const Polygon3f::List& positions) {
+            for (const Polygon3f& position : positions)
+                renderFaceHandle(position);
+        }
+        
+        void RenderService::renderFaceHandle(const Polygon3f& position) {
+            m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.2f), m_occlusionPolicy, position.vertices());
+        }
+        
+        void RenderService::renderFaceHandleHighlight(const Polygon3f& position) {
+            m_primitiveRenderer->renderPolygon(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.vertices());
+        }
 
         void RenderService::renderLine(const Vec3f& start, const Vec3f& end) {
             m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, start, end);

@@ -29,6 +29,10 @@ namespace TrenchBroom {
         public:
             SelectEdgePart(EdgeTool* tool) :
             SelectPartBase(tool, EdgeHandleManager::HandleHit) {}
+        private:
+            bool equalHandles(const Edge3& lhs, const Edge3& rhs) const override {
+                return lhs.squaredDistanceTo(rhs) < MaxHandleDistance * MaxHandleDistance;
+            }
         };
         
         class EdgeToolController::MoveEdgePart : public MovePartBase {

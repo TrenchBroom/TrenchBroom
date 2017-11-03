@@ -347,7 +347,7 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::MoveRotationCenterBackward, "Move rotation center backward", true),
                                Action(View::CommandIds::Actions::MoveRotationCenterDown, "Move rotation center down", true));
 
-            createViewShortcut(KeyboardShortcut('F'), ActionContext_Any, Action(),
+            createViewShortcut(KeyboardShortcut('Y'), ActionContext_Any, Action(),
                                Action(View::CommandIds::Actions::ToggleFlyMode, "Toggle fly mode", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_NodeSelection,

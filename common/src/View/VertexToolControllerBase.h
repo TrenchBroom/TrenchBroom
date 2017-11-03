@@ -74,15 +74,15 @@ namespace TrenchBroom {
                 using PartBase::m_hitType;
                 using PartBase::findDraggableHandle;
             private:
-                Tool* doGetTool() {
+                Tool* doGetTool() override {
                     return m_tool;
                 }
                 
-                void doPick(const InputState& inputState, Model::PickResult& pickResult) {
+                void doPick(const InputState& inputState, Model::PickResult& pickResult) override {
                     m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
                 }
                 
-                bool doMouseClick(const InputState& inputState) {
+                bool doMouseClick(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
                         return false;
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                         return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
                 }
 
-                DragInfo doStartDrag(const InputState& inputState) {
+                DragInfo doStartDrag(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                         !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
                         return DragInfo();
@@ -112,34 +112,34 @@ namespace TrenchBroom {
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
                 }
                 
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     m_lasso->update(nextHandlePosition);
                     return DR_Continue;
                 }
                 
-                void doEndDrag(const InputState& inputState) {
+                void doEndDrag(const InputState& inputState) override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
                     delete m_lasso;
                     m_lasso = nullptr;
                 }
                 
-                void doCancelDrag() {
+                void doCancelDrag() override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     delete m_lasso;
                     m_lasso = nullptr;
                 }
 
-                bool doCancel() {
+                bool doCancel() override {
                     return m_tool->deselectAll();
                 }
             protected:
-                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override {
                     renderContext.setForceHideSelectionGuide();
                 }
                 
-                virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
                     if (m_lasso != nullptr) {
                         m_lasso->render(renderContext, renderBatch);
@@ -169,7 +169,7 @@ namespace TrenchBroom {
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<H>();
                             
-                            if (handle.squaredDistanceTo(firstHandle) < MaxHandleDistance * MaxHandleDistance) {
+                            if (equalHandles(handle, firstHandle)) {
                                 if (allIncidentBrushesVisited(handle, visitedBrushes))
                                     result.push_back(match);
                             }
@@ -187,6 +187,8 @@ namespace TrenchBroom {
                     }
                     return result;
                 }
+            private:
+                virtual bool equalHandles(const H& lhs, const H& rhs) const = 0;
             };
             
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
@@ -201,15 +203,15 @@ namespace TrenchBroom {
                 using PartBase::m_hitType;
                 using PartBase::findDraggableHandle;
             protected:
-                Tool* doGetTool() {
+                Tool* doGetTool() override {
                     return m_tool;
                 }
                 
-                bool doCancel() {
+                bool doCancel() override {
                     return m_tool->deselectAll();
                 }
 
-                MoveInfo doStartMove(const InputState& inputState) {
+                MoveInfo doStartMove(const InputState& inputState) override {
                     if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                           (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                            inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
@@ -230,7 +232,7 @@ namespace TrenchBroom {
                     return MoveInfo(hit.hitPoint());
                 }
                 
-                DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+                DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                         case T::MR_Continue:
                             return DR_Continue;
@@ -242,19 +244,19 @@ namespace TrenchBroom {
                     }
                 }
                 
-                void doEndMove(const InputState& inputState) {
+                void doEndMove(const InputState& inputState) override {
                     m_tool->endMove();
                 }
                 
-                void doCancelMove() {
+                void doCancelMove() override {
                     m_tool->cancelMove();
                 }
                 
-                DragSnapper* doCreateDragSnapper(const InputState& inputState) const {
+                DragSnapper* doCreateDragSnapper(const InputState& inputState) const  override{
                     return new DeltaDragSnapper(m_tool->grid());
                 }
                 
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     MoveToolController::doRender(inputState, renderContext, renderBatch);
                     
                     if (thisToolDragging()) {
@@ -273,7 +275,7 @@ namespace TrenchBroom {
         public:
             virtual ~VertexToolControllerBase() {}
         private:
-            Tool* doGetTool() {
+            Tool* doGetTool() override {
                 return m_tool;
             }
         };

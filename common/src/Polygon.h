@@ -54,12 +54,19 @@ namespace TrenchBroom {
             CollectionUtils::rotateMinToFront(m_vertices);
         }
         
+        template <typename TT, size_t SS>
+        Polygon(const Polygon<TT,SS>& other) {
+            m_vertices.reserve(other.vertexCount());
+            for (const auto& vertex : other)
+                m_vertices.push_back(Vec<T,S>(vertex));
+        }
+
         bool operator==(const Polygon<T,S>& rhs) const {
-            return VectorUtils::equals(m_vertices, rhs.m_vertices);
+            return compare(rhs) == 0;
         }
         
         bool operator!=(const Polygon<T,S>& rhs) const {
-            return !(*this == rhs);
+            return compare(rhs) != 0;
         }
         
         bool operator<(const Polygon<T,S>& rhs) const {
@@ -120,6 +127,10 @@ namespace TrenchBroom {
             for (size_t i = 0; i < polygons.size(); ++i)
                 result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
+        }
+    public:
+        friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
+            return Polygon<T,S>(polygon.vertices() + offset);
         }
     };
     

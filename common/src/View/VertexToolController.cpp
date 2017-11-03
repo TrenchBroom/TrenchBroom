@@ -66,6 +66,10 @@ namespace TrenchBroom {
             const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
                 return findHandleHit(inputState);
             }
+            
+            bool equalHandles(const Vec3& lhs, const Vec3& rhs) const override {
+                return lhs.squaredDistanceTo(rhs) < MaxHandleDistance * MaxHandleDistance;
+            }
         };
 
         class VertexToolController::MoveVertexPart : public MovePartBase, private VertexPartBase {
