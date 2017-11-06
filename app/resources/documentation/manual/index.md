@@ -591,6 +591,24 @@ In the 2D viewport, clip points are just snapped to the visible grid, so they ar
 
 ![Matching a clip plane](MatchingClipPlane.gif) The clip plane can also be defined by matching it to an existing brush face. To match a clip plane to an existing brush face, you have to double click that face in the 3D viewport. As a result, the brush face gets an orange outline, and a clip plane is defined to match the face's plane exactly. This can be quite useful when shaping geometry to other geometry. Note that the plane points of the clip plane are the plane points of the brush face to which the clip plane was matched, so there should be no trouble with microleaks when using this particular function.
 
+### Vertex Editing {#vertex_editing}
+
+TrenchBroom includes three separate tools to edit a brush's vertices: the [vertex tool](#vertex_tool) for editing individual vertices, the [edge tool](#edge_tool) for editing individual edges, and the [face tool](#face_tool) for editing individual faces. The vertex tool is the most powerful of the three because in addition to moving vertices around, you can also add and remove vertices from the brush(es). Conversely, the edge and face tools only allow you to move faces around.
+
+#### Vertex Tool {#vertex_tool}
+
+Using the vertex tool, you can move individual vertices around in 3D space. Additionally, you can add vertices to a brush, and you can remove vertices from a brush. To activate the vertex tool, choose Choose #menu('Menu/Edit/Tools/Vertex Tool'). When the vertex tool is active, yellow handles appear at the vertices of the selected brushes to allow manipulation.
+
+![Vertex Handles](VertexToolHandles.png)
+
+Moving the mouse pointer over a vertex handle highlights that handle with a red circular outline, and the position of that handle is displayed above it. 
+
+Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(308). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. Selected handles are rendered in red.
+
+#### Edge Tool {#edge_tool}
+
+#### Face Tool {#face_tool}
+
 ### Vertex Editing
 
 Unlike other editors, modifying the three geometric aspects of a brush, it's vertices, edges or faces, is all integrated into the vertex tool. To activate the vertex tool, choose #menu('Menu/Edit/Tools/Vertex Tool'). When the vertex tool is active, yellow handles appear at various points on the selected brushes to allow manipulation.
