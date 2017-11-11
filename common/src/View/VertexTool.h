@@ -75,11 +75,11 @@ namespace TrenchBroom {
         public: // Vertex moving
             bool startMove(const Model::Hit& hit) override;
             MoveResult move(const Vec3& delta) override;
+            void endMove() override;
+            void cancelMove() override;
 
             const Vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
-        private:
-            MoveResult moveVertices(const Vec3& delta);
         public: // Rendering
             using VertexToolBase::renderHandle;
             using VertexToolBase::renderHandles;

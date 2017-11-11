@@ -773,8 +773,8 @@ namespace TrenchBroom {
                 return ActionContext_CreateComplexBrushTool;
             if (m_toolBox.clipToolActive())
                 return ActionContext_ClipTool;
-            if (m_toolBox.vertexToolOldActive())
-                return ActionContext_VertexToolOld;
+            if (m_toolBox.anyVertexToolActive())
+                return ActionContext_AnyVertexTool;
             if (m_toolBox.rotateObjectsToolActive())
                 return ActionContext_RotateTool;
 

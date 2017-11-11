@@ -368,7 +368,7 @@ namespace TrenchBroom {
             }
         protected:
             void rebuildBrushGeometry() {
-                // TODO: implement
+                // 1720 TODO: implement
             }
         protected:
             virtual void addHandles(VertexCommand* command) {

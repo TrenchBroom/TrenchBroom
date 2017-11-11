@@ -101,36 +101,8 @@ namespace TrenchBroom {
         }
         
         VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
-            return moveVertices(delta);
-        }
-
-        const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
-            assert(hit.isMatch());
-            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
-            
-            if (hit.hasType(VertexHandleManager::HandleHit))
-                return hit.target<Vec3>();
-            else if (hit.hasType(EdgeHandleManager::HandleHit))
-                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
-            else
-                return std::get<1>(hit.target<FaceHandleManager::HitType>());
-        }
-        
-        String VertexTool::actionName() const {
-            switch (m_mode) {
-                case Mode_Move:
-                    return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
-                case Mode_Split_Edge:
-                    return "Split Edge";
-                case Mode_Split_Face:
-                    return "Split Face";
-                switchDefault();
-            }
-        }
-
-        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-
+            
             if (m_mode == Mode_Move) {
                 const auto handles = m_vertexHandles.selectedHandles();
                 const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
@@ -166,6 +138,39 @@ namespace TrenchBroom {
                 }
                 
                 return MR_Continue;
+            }
+        }
+
+        void VertexTool::endMove() {
+            VertexToolBase::endMove();
+            m_mode = Mode_Move;
+        }
+        void VertexTool::cancelMove() {
+            VertexToolBase::cancelMove();
+            m_mode = Mode_Move;
+        }
+
+        const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+            assert(hit.isMatch());
+            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
+            
+            if (hit.hasType(VertexHandleManager::HandleHit))
+                return hit.target<Vec3>();
+            else if (hit.hasType(EdgeHandleManager::HandleHit))
+                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
+            else
+                return std::get<1>(hit.target<FaceHandleManager::HitType>());
+        }
+        
+        String VertexTool::actionName() const {
+            switch (m_mode) {
+                case Mode_Move:
+                    return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
+                case Mode_Split_Edge:
+                    return "Split Edge";
+                case Mode_Split_Face:
+                    return "Split Face";
+                switchDefault();
             }
         }
 

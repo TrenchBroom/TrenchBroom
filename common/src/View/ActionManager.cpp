@@ -313,21 +313,21 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::PerformClip, "Perform clip", true));
 
-            createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexToolOld,
+            createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true),
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true));
-            createViewShortcut(KeyboardShortcut(WXK_DOWN), ActionContext_VertexToolOld,
+            createViewShortcut(KeyboardShortcut(WXK_DOWN), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true),
                                Action(View::CommandIds::Actions::MoveVerticesBackward, "Move vertices backward", true));
-            createViewShortcut(KeyboardShortcut(WXK_LEFT), ActionContext_VertexToolOld,
+            createViewShortcut(KeyboardShortcut(WXK_LEFT), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesLeft, "Move vertices left", true));
-            createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_VertexToolOld,
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesRight, "Move vertices right", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_VertexToolOld,
-                               Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true),
-                               Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_VertexToolOld,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_AnyVertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesBackward, "Move vertices backward", true),
+                               Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true));
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_AnyVertexTool,
+                               Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true),
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_RotateTool,
@@ -341,10 +341,10 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::MoveRotationCenterRight, "Move rotation center right", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_RotateTool,
-                               Action(View::CommandIds::Actions::MoveRotationCenterForward, "Move rotation center forward", true),
+                               Action(View::CommandIds::Actions::MoveRotationCenterBackward, "Move rotation center backward", true),
                                Action(View::CommandIds::Actions::MoveRotationCenterUp, "Move rotation center up", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_RotateTool,
-                               Action(View::CommandIds::Actions::MoveRotationCenterBackward, "Move rotation center backward", true),
+                               Action(View::CommandIds::Actions::MoveRotationCenterForward, "Move rotation center forward", true),
                                Action(View::CommandIds::Actions::MoveRotationCenterDown, "Move rotation center down", true));
 
             createViewShortcut(KeyboardShortcut('Y'), ActionContext_Any, Action(),
@@ -361,10 +361,10 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::MoveObjectsRight, "Move objects right", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::MoveObjectsForward, "Move objects forward", true),
+                               Action(View::CommandIds::Actions::MoveObjectsBackward, "Move objects backward", true),
                                Action(View::CommandIds::Actions::MoveObjectsUp, "Move objects up", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::MoveObjectsBackward, "Move objects backward", true),
+                               Action(View::CommandIds::Actions::MoveObjectsForward, "Move objects forward", true),
                                Action(View::CommandIds::Actions::MoveObjectsDown, "Move objects down", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP, WXK_ALT), ActionContext_NodeSelection,
@@ -396,10 +396,10 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_CONTROL), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::DuplicateObjectsRight, "Duplicate and move objects right", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::DuplicateObjectsForward, "Duplicate and move objects forward", true),
+                               Action(View::CommandIds::Actions::DuplicateObjectsBackward, "Duplicate and move objects backward", true),
                                Action(View::CommandIds::Actions::DuplicateObjectsUp, "Duplicate and move objects up", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::DuplicateObjectsBackward, "Duplicate and move objects backward", true),
+                               Action(View::CommandIds::Actions::DuplicateObjectsForward, "Duplicate and move objects forward", true),
                                Action(View::CommandIds::Actions::DuplicateObjectsDown, "Duplicate and move objects down", true));
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_FaceSelection, Action(),

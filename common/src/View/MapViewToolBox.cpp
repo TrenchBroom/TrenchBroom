@@ -148,11 +148,15 @@ namespace TrenchBroom {
             m_rotateObjectsTool->setRotationCenter(center + delta);
         }
 
+        bool MapViewToolBox::anyVertexToolActive() const {
+            return vertexToolActive() || edgeToolActive() || faceToolActive();
+        }
+
         void MapViewToolBox::toggleVertexTool() {
             toggleTool(vertexTool());
         }
         
-        bool MapViewToolBox::vertexToolActive() {
+        bool MapViewToolBox::vertexToolActive() const {
             return toolActive(vertexTool());
         }
         
@@ -160,7 +164,7 @@ namespace TrenchBroom {
             toggleTool(edgeTool());
         }
         
-        bool MapViewToolBox::edgeToolActive() {
+        bool MapViewToolBox::edgeToolActive() const {
             return toolActive(edgeTool());
         }
         
@@ -168,7 +172,7 @@ namespace TrenchBroom {
             toggleTool(faceTool());
         }
         
-        bool MapViewToolBox::faceToolActive() {
+        bool MapViewToolBox::faceToolActive() const {
             return toolActive(faceTool());
         }
 
@@ -181,8 +185,13 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::moveVertices(const Vec3& delta) {
-            assert(vertexToolOldActive());
-            m_vertexToolOld->moveVerticesAndRebuildBrushGeometry(delta);
+            assert(anyVertexToolActive());
+            if (vertexToolActive())
+                vertexTool()->move(delta);
+            else if (edgeToolActive())
+                edgeTool()->move(delta);
+            else if (faceToolActive())
+                faceTool()->move(delta);
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {

@@ -93,14 +93,16 @@ namespace TrenchBroom {
             const Vec3 rotateToolCenter() const;
             void moveRotationCenter(const Vec3& delta);
             
+            bool anyVertexToolActive() const;
+            
             void toggleVertexTool();
-            bool vertexToolActive();
+            bool vertexToolActive() const;
             
             void toggleEdgeTool();
-            bool edgeToolActive();
+            bool edgeToolActive() const;
             
             void toggleFaceTool();
-            bool faceToolActive();
+            bool faceToolActive() const;
             
             void toggleVertexToolOld();
             bool vertexToolOldActive() const;
