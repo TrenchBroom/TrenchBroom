@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 GLint infoLogLength = 0;
                 glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
                 if (infoLogLength > 0) {
-                    char* infoLog = new char[infoLogLength];
+                    char* infoLog = new char[static_cast<size_t>(infoLogLength)];
                     glAssert(glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog));
                     infoLog[infoLogLength-1] = 0;
 
