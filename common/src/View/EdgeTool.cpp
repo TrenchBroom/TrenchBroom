@@ -56,6 +56,12 @@ namespace TrenchBroom {
             return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
         }
         
+        void EdgeTool::removeSelection() {
+            const auto handles = m_edgeHandles.selectedHandles();
+            const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
+            lock(m_document)->removeEdges(brushMap);
+        }
+        
         void EdgeTool::renderHandles(const Edge3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
             renderService.setForegroundColor(color);
             renderService.renderEdgeHandles(VectorUtils::cast<Edge3f>(handles));

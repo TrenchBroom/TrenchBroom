@@ -1166,6 +1166,14 @@ namespace TrenchBroom {
             return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
         }
         
+        bool MapDocument::removeEdges(const Model::EdgeToBrushesMap& edges) {
+            return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
+        }
+        
+        bool MapDocument::removeFaces(const Model::FaceToBrushesMap& faces) {
+            return submitAndStore(RemoveBrushFacesCommand::remove(faces));
+        }
+
         bool MapDocument::removeEdges(const Model::VertexToEdgesMap& edges) {
             return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
         }

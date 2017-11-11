@@ -56,6 +56,12 @@ namespace TrenchBroom {
             return StringUtils::safePlural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");
         }
         
+        void FaceTool::removeSelection() {
+            const auto handles = m_faceHandles.selectedHandles();
+            const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
+            lock(m_document)->removeFaces(brushMap);
+        }
+
         void FaceTool::renderHandles(const Polygon3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
             renderService.setForegroundColor(color);
             renderService.renderFaceHandles(VectorUtils::cast<Polygon3f>(handles));

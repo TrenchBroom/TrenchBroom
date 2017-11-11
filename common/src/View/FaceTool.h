@@ -53,6 +53,8 @@ namespace TrenchBroom {
             MoveResult move(const Vec3& delta) override;
             
             String actionName() const override;
+            
+            void removeSelection();
         public: // Rendering
             using VertexToolBase::renderHandle;
             using VertexToolBase::renderHandles;

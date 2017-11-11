@@ -320,6 +320,9 @@ namespace TrenchBroom {
             
             bool addVertices(const Model::VertexToBrushesMap& vertices);
             bool removeVertices(const Model::VertexToBrushesMap& vertices);
+            bool removeEdges(const Model::EdgeToBrushesMap& edges);
+            bool removeFaces(const Model::FaceToBrushesMap& faces);
+            // TODO 1720: Remove the following two methods.
             bool removeEdges(const Model::VertexToEdgesMap& edges);
             bool removeFaces(const Model::VertexToFacesMap& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass

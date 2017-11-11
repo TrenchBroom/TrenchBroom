@@ -174,6 +174,12 @@ namespace TrenchBroom {
             }
         }
 
+        void VertexTool::removeSelection() {
+            const auto handles = m_vertexHandles.selectedHandles();
+            const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
+            lock(m_document)->removeVertices(brushMap);
+        }
+
         void VertexTool::renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
             renderService.setForegroundColor(color);
             renderService.renderPointHandles(VectorUtils::cast<Vec3f>(handles));

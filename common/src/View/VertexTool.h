@@ -80,6 +80,8 @@ namespace TrenchBroom {
 
             const Vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
+            
+            void removeSelection();
         public: // Rendering
             using VertexToolBase::renderHandle;
             using VertexToolBase::renderHandles;

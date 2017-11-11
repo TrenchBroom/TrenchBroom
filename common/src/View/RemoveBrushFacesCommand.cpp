@@ -40,6 +40,17 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushFacesCommand(brushes, brushVertices, facePositions));
         }
 
+        RemoveBrushFacesCommand::Ptr RemoveBrushFacesCommand::remove(const Model::FaceToBrushesMap& faces) {
+            Model::BrushList brushes;
+            Model::BrushFacesMap brushFaces;
+            Polygon3::List facePositions;
+            
+            extractFaceMap(faces, brushes, brushFaces, facePositions);
+            const Model::BrushVerticesMap brushVertices = brushVertexMap(brushFaces);
+            
+            return Ptr(new RemoveBrushFacesCommand(brushes, brushVertices, facePositions));
+        }
+
         RemoveBrushFacesCommand::RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Polygon3::List& facePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Faces", brushes, vertices),
         m_oldFacePositions(facePositions) {}

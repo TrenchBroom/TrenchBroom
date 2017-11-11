@@ -43,6 +43,8 @@
 #include "View/CommandWindowUpdateLocker.h"
 #include "View/CompilationDialog.h"
 #include "View/Console.h"
+#include "View/EdgeTool.h"
+#include "View/FaceTool.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
@@ -56,6 +58,7 @@
 #include "View/ReplaceTextureDialog.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
+#include "View/VertexTool.h"
 #include "View/VertexToolOld.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
@@ -918,7 +921,13 @@ namespace TrenchBroom {
             if (canDelete()) {
                 if (m_mapView->clipToolActive())
                     m_mapView->clipTool()->removeLastPoint();
-                else if (m_mapView->vertexToolOldActive())
+                else if (m_mapView->vertexToolActive())
+                    m_mapView->vertexTool()->removeSelection();
+                else if (m_mapView->edgeToolActive())
+                    m_mapView->edgeTool()->removeSelection();
+                else if (m_mapView->faceToolActive())
+                    m_mapView->faceTool()->removeSelection();
+                else if (m_mapView->vertexToolOldActive()) // TODO 1720 remove this
                     m_mapView->vertexToolOld()->removeSelection();
                 else if (!m_mapView->anyToolActive())
                     m_document->deleteObjects();
