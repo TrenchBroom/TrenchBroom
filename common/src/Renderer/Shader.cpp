@@ -54,7 +54,7 @@ namespace TrenchBroom {
 				GLint infoLogLength;
                 glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
 				if (infoLogLength > 0) {
-					char* infoLog = new char[infoLogLength];
+					char* infoLog = new char[static_cast<size_t>(infoLogLength)];
 					glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
                     infoLog[infoLogLength-1] = 0;
                     
