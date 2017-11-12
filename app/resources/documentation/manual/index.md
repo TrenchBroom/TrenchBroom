@@ -603,7 +603,7 @@ Using the vertex tool, you can move individual vertices around in 3D space. Addi
 
 Moving the mouse pointer over a vertex handle highlights that handle with a red circular outline, and the position of that handle is displayed above it. 
 
-Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(308). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. Selected handles are rendered in red.
+Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(308). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. Selected handles are rendered in red. The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. If the lasso rectangle contains a vertex handle that's already selected, then it will be deselected. To ensure that all vertex handles inside the lasso are selected regardless of their previous selection state, hold #key(308). 
 
 #### Edge Tool {#edge_tool}
 
@@ -617,7 +617,7 @@ There are three types of handles: vertex handles, edge handles, and face handles
 
 ![Selection highlighting for vertices, edges, and faces](VertexToolHighlighting.png)
 
-Selecting handles is treated in the same way as selecting objects. To select a handle, click on a handle to select it. Multiple handles can be selected by holding #key(308). Once you select a handle of a particular type, all other handles except those of the same type are hidden. For example, if you select a vertex handle, only vertex handles are shown and the edge and face handles are hidden. As a consequence, you cannot mix handles of different types in a handle selection. The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. Note that lasso selection defaults to selecting vertex handles if no handle has been selected yet. Selected handles are rendered in red, and in the case of edge or face handles, the selected edges and faces are rendered in yellow.
+Selecting handles is treated in the same way as selecting objects. To select a handle, click on a handle to select it. Multiple handles can be selected by holding #key(308). Once you select a handle of a particular type, all other handles except those of the same type are hidden. For example, if you select a vertex handle, only vertex handles are shown and the edge and face handles are hidden. As a consequence, you cannot mix handles of different types in a handle selection.  Note that lasso selection defaults to selecting vertex handles if no handle has been selected yet. Selected handles are rendered in red, and in the case of edge or face handles, the selected edges and faces are rendered in yellow.
 
 ![Selected handles turn red](VertexToolSelections.png)
 
