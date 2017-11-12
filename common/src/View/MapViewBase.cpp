@@ -945,7 +945,8 @@ namespace TrenchBroom {
             
             if (newGroup != NULL && newGroup != currentGroup) {
                 menu.Append(CommandIds::MapViewPopupMenu::AddObjectsToGroup, "Add Objects to Group " + newGroup->name());
-            } else if (currentGroup != NULL) {
+            }
+            if (currentGroup != nullptr && !document->selectedNodes().empty()) {
                 menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
             }
             menu.AppendSeparator();
