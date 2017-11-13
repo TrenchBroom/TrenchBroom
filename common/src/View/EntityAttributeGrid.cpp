@@ -222,8 +222,7 @@ namespace TrenchBroom {
                 wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(editor->GetControl());
                 if (textCtrl != nullptr) {
                     const wxArrayString completions = m_table->getCompletions(event.GetRow(), event.GetCol());
-                    if (!completions.empty())
-                    	textCtrl->AutoComplete(completions);
+                    textCtrl->AutoComplete(completions);
                 }
             }
         }
