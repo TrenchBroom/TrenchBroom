@@ -195,6 +195,7 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const;
 
             const Model::AttributableNodeList allSelectedAttributableNodes() const;
+            const Model::AttributableNodeList allAttributableNodes() const;
             const Model::NodeCollection& selectedNodes() const;
             const Model::BrushFaceList allSelectedBrushFaces() const;
             const Model::BrushFaceList& selectedBrushFaces() const;

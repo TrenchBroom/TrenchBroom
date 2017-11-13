@@ -133,6 +133,8 @@ namespace TrenchBroom {
             
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
+            
+            wxArrayString getCompletions(int row, int col) const;
         private:
             void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             void updateAttribute(size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);

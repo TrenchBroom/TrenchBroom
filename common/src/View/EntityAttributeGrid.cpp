@@ -31,6 +31,7 @@
 #include <wx/checkbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -211,6 +212,21 @@ namespace TrenchBroom {
 
             event.Check(m_table->showDefaultRows());
         }
+        
+        void EntityAttributeGrid::OnGridEditorShown(wxGridEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            // set up autocompletion if it's a wxTextCtrl
+            wxGridCellEditor* editor = m_grid->GetCellEditor(event.GetRow(), event.GetCol());
+            if (editor != nullptr) {
+                wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(editor->GetControl());
+                if (textCtrl != nullptr) {
+                    const wxArrayString completions = m_table->getCompletions(event.GetRow(), event.GetCol());
+                    if (!completions.empty())
+                    	textCtrl->AutoComplete(completions);
+                }
+            }
+        }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
             for (const int rowIndex : m_grid->GetSelectedRows()) {
@@ -248,7 +264,8 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_KEY_UP, &EntityAttributeGrid::OnAttributeGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnAttributeGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAttributeView, this);
-
+            m_grid->Bind(wxEVT_GRID_EDITOR_SHOWN, &EntityAttributeGrid::OnGridEditorShown, this);
+            
             wxWindow* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
             wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
 

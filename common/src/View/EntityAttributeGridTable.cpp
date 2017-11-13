@@ -511,6 +511,34 @@ namespace TrenchBroom {
             m_showDefaultRows = showDefaultRows;
             update();
         }
+        
+        static StringSet allSortedValuesForAttribute(MapDocumentSPtr document, const Model::AttributeName &name) {
+            StringSet valueset;
+            const Model::AttributableNodeList nodes = document->allAttributableNodes();
+            for (const auto& node : nodes) {
+                if (node->hasAttribute(name))
+                    valueset.insert(node->attribute(name));
+            }
+            return valueset;
+        }
+        
+        wxArrayString EntityAttributeGridTable::getCompletions(int row, int col) const {
+            const Model::AttributeName name = attributeName(row);
+            wxArrayString result;
+            MapDocumentSPtr document = lock(m_document);
+            
+            if (col == 1) {
+                if (name == Model::AttributeNames::Target) {
+	                for (const String& value : allSortedValuesForAttribute(document, Model::AttributeNames::Targetname))
+    	                result.Add(value);
+                } else if (name == Model::AttributeNames::Targetname) {
+                    for (const String& value : allSortedValuesForAttribute(document, Model::AttributeNames::Target))
+                        result.Add(value);
+                }
+            }
+            
+            return result;
+        }
 
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.attributeRowCount(), "row index out of bounds");
