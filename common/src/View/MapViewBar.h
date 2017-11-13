@@ -36,6 +36,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             wxBookCtrlBase* m_toolBook;
             ViewPopupEditor* m_viewEditor;
+            wxSearchCtrl* m_searchBox;
         public:
             MapViewBar(wxWindow* parent, MapDocumentWPtr document);
             

@@ -48,6 +48,8 @@ namespace TrenchBroom {
             bool m_blockSelection;
             
             Model::Group* m_currentGroup;
+            
+            String m_searchString;
         public:
             Notifier0 editorContextDidChangeNotifier;
         public:
@@ -62,6 +64,9 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType hiddenBrushContentTypes() const;
             void setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes);
             
+            bool entityMatchesSearch(const Model::AttributableNode* entity) const;
+            bool brushMatchesSearch(const Model::Brush* brush) const;
+                
             bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
@@ -71,6 +76,9 @@ namespace TrenchBroom {
             
             bool blockSelection() const;
             void setBlockSelection(bool blockSelection);
+            
+            String searchString() const;
+            void setSearchString(const String& searchString);
         public:
             Model::Group* currentGroup() const;
             void pushGroup(Model::Group* group);
