@@ -512,32 +512,55 @@ namespace TrenchBroom {
             update();
         }
         
-        static StringSet allSortedValuesForAttribute(MapDocumentSPtr document, const Model::AttributeName &name) {
+        static StringSet allSortedAttributeNames(MapDocumentSPtr document) {
+            StringSet keySet;
+            const Model::AttributableNodeList nodes = document->allAttributableNodes();
+            for (const auto& node : nodes) {
+                for (const auto& attribute : node->attributes()) {
+                    keySet.insert(attribute.name());
+                }
+            }
+            return keySet;
+        }
+        
+        static StringSet allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names) {
             StringSet valueset;
             const Model::AttributableNodeList nodes = document->allAttributableNodes();
             for (const auto& node : nodes) {
-                if (node->hasAttribute(name))
-                    valueset.insert(node->attribute(name));
+                for (const auto& attribute : node->attributes()) {
+                    if (VectorUtils::contains(names, attribute.name())) {
+                        valueset.insert(attribute.value());
+                    }
+                }
             }
             return valueset;
         }
         
+        static wxArrayString arrayString(const StringSet& set) {
+            wxArrayString result;
+            for (const String& string : set)
+                result.Add(wxString(string));
+            return result;
+        }
+        
         wxArrayString EntityAttributeGridTable::getCompletions(int row, int col) const {
             const Model::AttributeName name = attributeName(row);
-            wxArrayString result;
             MapDocumentSPtr document = lock(m_document);
             
+            if (col == 0) {
+                return arrayString(allSortedAttributeNames(document));
+            }
+            
             if (col == 1) {
-                if (name == Model::AttributeNames::Target) {
-	                for (const String& value : allSortedValuesForAttribute(document, Model::AttributeNames::Targetname))
-    	                result.Add(value);
+                if (name == Model::AttributeNames::Target
+                    || name == Model::AttributeNames::Killtarget) {
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
                 } else if (name == Model::AttributeNames::Targetname) {
-                    for (const String& value : allSortedValuesForAttribute(document, Model::AttributeNames::Target))
-                        result.Add(value);
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
                 }
             }
             
-            return result;
+            return wxArrayString();
         }
 
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
