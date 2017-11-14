@@ -198,7 +198,7 @@ namespace TrenchBroom {
                                     type = RotationType_Mangle;
                                 attribute = AttributeNames::Mangle;
                             } else {
-                                type = RotationType_Angle;
+                                type = RotationType_AngleUpDown;
                                 attribute = AttributeNames::Angle;
                             }
                         }
