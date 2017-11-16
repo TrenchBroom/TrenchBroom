@@ -165,11 +165,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid) :
-        m_grid(grid) {}
+        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid, const Vec3& offset) :
+        m_grid(grid),
+        m_offset(offset) {}
 
         bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
-            curPoint = m_grid.snap(curPoint);
+            curPoint = m_grid.snap(curPoint) - m_offset;
             return true;
         }
 

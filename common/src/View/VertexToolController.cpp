@@ -83,6 +83,7 @@ namespace TrenchBroom {
             } SnapType;
             
             SnapType m_lastSnapType;
+            Vec3 m_handleOffset;
         private:
             void doModifierKeyChange(const InputState& inputState) override {
                 MoveToolController::doModifierKeyChange(inputState);
@@ -97,14 +98,20 @@ namespace TrenchBroom {
             }
 
             MoveInfo doStartMove(const InputState& inputState) override {
-                m_lastSnapType = snapType(inputState);
-                return MovePartBase::doStartMove(inputState);
+                const MoveInfo info = MovePartBase::doStartMove(inputState);
+                if (info.move) {
+                    m_lastSnapType = snapType(inputState);
+                    const Model::Hit& hit = findDraggableHandle(inputState);
+                    const Vec3& handlePos = hit.target<Vec3>();
+                    m_handleOffset = handlePos - hit.hitPoint();
+                }
+                return info;
             }
             
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
                 switch (snapType(inputState)) {
                     case ST_Absolute:
-                        return new AbsoluteDragSnapper(m_tool->grid());
+                        return new AbsoluteDragSnapper(m_tool->grid(), m_handleOffset);
                     case ST_Relative:
                         return new DeltaDragSnapper(m_tool->grid());
                     switchDefault();

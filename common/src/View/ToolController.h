@@ -187,8 +187,9 @@ namespace TrenchBroom {
         class AbsoluteDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
+            Vec3 m_offset;
         public:
-            AbsoluteDragSnapper(const Grid& grid);
+            AbsoluteDragSnapper(const Grid& grid, const Vec3& offset = Vec3::Null);
         private:
             bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
         };
