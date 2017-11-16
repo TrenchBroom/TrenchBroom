@@ -32,6 +32,7 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Polygon {
     public:
+        typedef Polygon<float, S> FloatType;
         typedef std::vector<Polygon<T,S> > List;
     private:
         typename Vec<T,S>::List m_vertices;

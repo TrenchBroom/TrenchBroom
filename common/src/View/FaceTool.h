@@ -55,14 +55,6 @@ namespace TrenchBroom {
             String actionName() const override;
             
             void removeSelection();
-        public: // Rendering
-            using VertexToolBase::renderHandle;
-            using VertexToolBase::renderHandles;
-            
-            void renderHandles(const Polygon3::List& handles, Renderer::RenderService& renderService, const Color& color) const override;
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& handle, const Color& color) const override;
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& handle) const override;
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& position) const override;
         };
     }
 }

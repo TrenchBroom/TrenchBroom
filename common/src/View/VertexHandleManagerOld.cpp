@@ -571,25 +571,25 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
-                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
+                renderService.renderHandles(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
             
             if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
-                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedEdgeHandlePositions));
+                renderService.renderHandles(VectorUtils::cast<Vec3f>(m_unselectedEdgeHandlePositions));
             
             if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode)
-                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
+                renderService.renderHandles(VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
             
             if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode)
                 renderService.renderLines(m_edgeVertices);
             
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
+            renderService.renderHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
         }
 
         void VertexHandleManagerOld::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.renderPointHandleHighlight(position);
+            renderService.renderHandleHighlight(position);
             
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));

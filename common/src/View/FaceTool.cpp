@@ -61,26 +61,5 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
             lock(m_document)->removeFaces(brushMap);
         }
-
-        void FaceTool::renderHandles(const Polygon3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
-            renderService.setForegroundColor(color);
-            renderService.renderFaceHandles(VectorUtils::cast<Polygon3f>(handles));
-        }
-        
-        void FaceTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& handle, const Color& color) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(color);
-            renderService.renderFaceHandle(handle);
-        }
-        
-        void FaceTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& handle) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.renderFaceHandleHighlight(handle);
-        }
-        
-        void FaceTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polygon3& position) const {
-            
-        }
     }
 }

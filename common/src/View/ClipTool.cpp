@@ -159,7 +159,7 @@ namespace TrenchBroom {
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
-                renderService.renderPointHandle(point);
+                renderService.renderHandle(point);
             }
 
             bool doComputeThirdPoint(Vec3& point) const {
@@ -359,7 +359,7 @@ namespace TrenchBroom {
                 
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const Vec3& point = m_points[i].point;
-                    renderService.renderPointHandle(point);
+                    renderService.renderHandle(point);
                     
                     StringStream str;
                     str << (i+1) << ": " << point.asString();
@@ -383,7 +383,7 @@ namespace TrenchBroom {
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const size_t index) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderPointHandleHighlight(m_points[index].point);
+                renderService.renderHandleHighlight(m_points[index].point);
             }
         };
         

@@ -28,6 +28,7 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Edge {
     public:
+        typedef Edge<float, S> FloatType;
         typedef std::vector<Edge<T,S> > List;
     private:
         Vec<T,S> m_start;

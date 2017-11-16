@@ -46,22 +46,7 @@ namespace TrenchBroom {
         class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3>, private VertexPartBase {
         public:
             SelectVertexPart(VertexTool* tool) :
-            SelectPartBase(tool, VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit) {}
-        private:
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
-                SelectPartBase::doRender(inputState, renderContext, renderBatch);
-                
-                if (!anyToolDragging(inputState)) {
-                    const Model::Hit& hit = findHandleHit(inputState);
-                    if (hit.hasType(VertexHandleManager::HandleHit)) {
-                        const Vec3& handle = hit.target<Vec3>();
-                        m_tool->renderHighlight(renderContext, renderBatch, handle);
-
-                        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                            m_tool->renderGuide(renderContext, renderBatch, handle);
-                    }
-                }
-            }
+            SelectPartBase(tool, VertexHandleManager::HandleHit) {}
         private:
             const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
                 return findHandleHit(inputState);

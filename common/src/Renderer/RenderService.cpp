@@ -109,42 +109,42 @@ namespace TrenchBroom {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
         }
 
-        void RenderService::renderPointHandles(const Vec3f::List& positions) {
+        void RenderService::renderHandles(const Vec3f::List& positions) {
             for (const Vec3f& position : positions)
-                renderPointHandle(position);
+                renderHandle(position);
         }
         
-        void RenderService::renderPointHandle(const Vec3f& position) {
+        void RenderService::renderHandle(const Vec3f& position) {
             m_pointHandleRenderer->addPoint(m_foregroundColor, position);
         }
 
-        void RenderService::renderPointHandleHighlight(const Vec3f& position) {
+        void RenderService::renderHandleHighlight(const Vec3f& position) {
             m_pointHandleRenderer->addHighlight(m_foregroundColor, position);
         }
         
-        void RenderService::renderEdgeHandles(const Edge3f::List& positions) {
+        void RenderService::renderHandles(const Edge3f::List& positions) {
             for (const Edge3f& position : positions)
-                renderEdgeHandle(position);
+                renderHandle(position);
         }
         
-        void RenderService::renderEdgeHandle(const Edge3f& position) {
+        void RenderService::renderHandle(const Edge3f& position) {
             m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, position.start(), position.end());
         }
         
-        void RenderService::renderEdgeHandleHighlight(const Edge3f& position) {
+        void RenderService::renderHandleHighlight(const Edge3f& position) {
             m_primitiveRenderer->renderLine(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.start(), position.end());
         }
         
-        void RenderService::renderFaceHandles(const Polygon3f::List& positions) {
+        void RenderService::renderHandles(const Polygon3f::List& positions) {
             for (const Polygon3f& position : positions)
-                renderFaceHandle(position);
+                renderHandle(position);
         }
         
-        void RenderService::renderFaceHandle(const Polygon3f& position) {
+        void RenderService::renderHandle(const Polygon3f& position) {
             m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.2f), m_occlusionPolicy, position.vertices());
         }
         
-        void RenderService::renderFaceHandleHighlight(const Polygon3f& position) {
+        void RenderService::renderHandleHighlight(const Polygon3f& position) {
             m_primitiveRenderer->renderPolygon(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.vertices());
         }
 

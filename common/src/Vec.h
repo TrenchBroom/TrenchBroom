@@ -60,9 +60,11 @@ private:
         return 2;
     }
 public:
+    typedef Vec<float, S> FloatType;
+
     typedef T Type;
     static const size_t Size = S;
-    
+
     static const Vec<T,S> PosX;
     static const Vec<T,S> PosY;
     static const Vec<T,S> PosZ;

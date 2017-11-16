@@ -61,26 +61,5 @@ namespace TrenchBroom {
             const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
             lock(m_document)->removeEdges(brushMap);
         }
-        
-        void EdgeTool::renderHandles(const Edge3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
-            renderService.setForegroundColor(color);
-            renderService.renderEdgeHandles(VectorUtils::cast<Edge3f>(handles));
-        }
-        
-        void EdgeTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle, const Color& color) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(color);
-            renderService.renderEdgeHandle(handle);
-        }
-        
-        void EdgeTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& handle) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.renderEdgeHandleHighlight(handle);
-        }
-        
-        void EdgeTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Edge3& position) const {
-            
-        }
     }
 }

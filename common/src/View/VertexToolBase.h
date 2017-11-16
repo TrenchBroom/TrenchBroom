@@ -222,7 +222,8 @@ namespace TrenchBroom {
                 renderHandle(renderContext, renderBatch, m_dragHandlePosition, pref(Preferences::SelectedHandleColor));
             }
             
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& handle) const {
+            template <typename HH>
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle) const {
                 renderHandle(renderContext, renderBatch, handle, pref(Preferences::HandleColor));
             }
             
@@ -233,11 +234,41 @@ namespace TrenchBroom {
             void renderDragGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
                 renderGuide(renderContext, renderBatch, m_dragHandlePosition);
             }
+
+            template <typename HH>
+            void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
+                renderService.setForegroundColor(color);
+                renderService.renderHandles(VectorUtils::cast<typename HH::FloatType>(handles));
+            }
             
-            virtual void renderHandles(const std::vector<H>& handles, Renderer::RenderService& renderService, const Color& color) const = 0;
-            virtual void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& handle, const Color& color) const = 0;
-            virtual void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& handle) const = 0;
-            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const H& position) const = 0;
+            template <typename HH>
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle, const Color& color) const {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(color);
+                renderService.renderHandle(handle);
+            }
+            
+            template <typename HH>
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle) const {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+                renderService.renderHandleHighlight(handle);
+            }
+            
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+                renderService.renderHandleHighlight(handle);
+                
+                renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
+                renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+                renderService.renderString(handle.asString(), handle);
+            }
+
+            template <typename HH>
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& position) const {}
+            
+            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {}
         protected: // Tool interface
             virtual bool doActivate() override {
                 m_changeCount = 0;

@@ -180,27 +180,6 @@ namespace TrenchBroom {
             lock(m_document)->removeVertices(brushMap);
         }
 
-        void VertexTool::renderHandles(const Vec3::List& handles, Renderer::RenderService& renderService, const Color& color) const {
-            renderService.setForegroundColor(color);
-            renderService.renderPointHandles(VectorUtils::cast<Vec3f>(handles));
-        }
-
-        void VertexTool::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle, const Color& color) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(color);
-            renderService.renderPointHandle(handle);
-        }
-        
-        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-            renderService.renderPointHandleHighlight(handle);
-            
-            renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
-            renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderService.renderString(handle.asString(), handle);
-        }
-        
         void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
