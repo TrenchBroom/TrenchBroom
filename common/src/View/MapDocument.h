@@ -190,36 +190,36 @@ namespace TrenchBroom {
             bool isPointFileLoaded() const;
             void unloadPointFile();
         public: // selection
-            bool hasSelection() const;
-            bool hasSelectedNodes() const;
-            bool hasSelectedBrushFaces() const;
+            bool hasSelection() const override;
+            bool hasSelectedNodes() const override;
+            bool hasSelectedBrushFaces() const override;
 
-            const Model::AttributableNodeList allSelectedAttributableNodes() const;
-            const Model::NodeCollection& selectedNodes() const;
-            const Model::BrushFaceList allSelectedBrushFaces() const;
-            const Model::BrushFaceList& selectedBrushFaces() const;
+            const Model::AttributableNodeList allSelectedAttributableNodes() const override;
+            const Model::NodeCollection& selectedNodes() const override;
+            const Model::BrushFaceList allSelectedBrushFaces() const override;
+            const Model::BrushFaceList& selectedBrushFaces() const override;
 
-            const BBox3& referenceBounds() const;
-            const BBox3& lastSelectionBounds() const;
-            const BBox3& selectionBounds() const;
-            const String& currentTextureName() const;
+            const BBox3& referenceBounds() const override;
+            const BBox3& lastSelectionBounds() const override;
+            const BBox3& selectionBounds() const override;
+            const String& currentTextureName() const override;
             void setCurrentTextureName(const String& currentTextureName);
             
-            void selectAllNodes();
-            void selectSiblings();
-            void selectTouching(bool del);
-            void selectInside(bool del);
-            void selectNodesWithFilePosition(const std::vector<size_t>& positions);
-            void select(const Model::NodeList& nodes);
-            void select(Model::Node* node);
-            void select(const Model::BrushFaceList& faces);
-            void select(Model::BrushFace* face);
-            void convertToFaceSelection();
+            void selectAllNodes() override;
+            void selectSiblings() override;
+            void selectTouching(bool del) override;
+            void selectInside(bool del) override;
+            void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
+            void select(const Model::NodeList& nodes) override;
+            void select(Model::Node* node) override;
+            void select(const Model::BrushFaceList& faces) override;
+            void select(Model::BrushFace* face) override;
+            void convertToFaceSelection() override;
             
-            void deselectAll();
-            void deselect(Model::Node* node);
-            void deselect(const Model::NodeList& nodes);
-            void deselect(Model::BrushFace* face);
+            void deselectAll() override;
+            void deselect(Model::Node* node) override;
+            void deselect(const Model::NodeList& nodes) override;
+            void deselect(Model::BrushFace* face) override;
         protected:
             void updateLastSelectionBounds();
             void invalidateSelectionBounds();
@@ -227,13 +227,13 @@ namespace TrenchBroom {
             void validateSelectionBounds() const;
             void clearSelection();
         public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade interface
-            void addNode(Model::Node* node, Model::Node* parent);
-            void removeNode(Model::Node* node);
+            void addNode(Model::Node* node, Model::Node* parent) override;
+            void removeNode(Model::Node* node) override;
 
-            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
-            Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent);
+            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes) override;
+            Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent) override;
             
-            void removeNodes(const Model::NodeList& nodes);
+            void removeNodes(const Model::NodeList& nodes) override;
         private:
             Model::ParentChildrenMap collectRemovableParents(const Model::ParentChildrenMap& nodes) const;
             
@@ -242,13 +242,13 @@ namespace TrenchBroom {
             
             void closeRemovedGroups(const Model::ParentChildrenMap& toRemove);
         public:
-            bool reparentNodes(Model::Node* newParent, const Model::NodeList& children);
-            bool reparentNodes(const Model::ParentChildrenMap& nodesToAdd);
+            bool reparentNodes(Model::Node* newParent, const Model::NodeList& children) override;
+            bool reparentNodes(const Model::ParentChildrenMap& nodesToAdd) override;
         private:
             bool checkReparenting(const Model::ParentChildrenMap& nodesToAdd) const;
         public:
-            bool deleteObjects();
-            bool duplicateObjects();
+            bool deleteObjects() override;
+            bool duplicateObjects() override;
         public: // group management
             Model::Group* groupSelection(const String& name);
         private:
@@ -262,20 +262,20 @@ namespace TrenchBroom {
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate(const Model::NodeList& nodes);
-            void hide(const Model::NodeList nodes); // Don't take the nodes by reference!
+            void hide(const Model::NodeList nodes) override; // Don't take the nodes by reference!
             void hideSelection();
-            void show(const Model::NodeList& nodes);
+            void show(const Model::NodeList& nodes) override;
             void showAll();
             void ensureVisible(const Model::NodeList& nodes);
-            void resetVisibility(const Model::NodeList& nodes);
+            void resetVisibility(const Model::NodeList& nodes) override;
             
-            void lock(const Model::NodeList& nodes);
-            void unlock(const Model::NodeList& nodes);
-            void resetLock(const Model::NodeList& nodes);
+            void lock(const Model::NodeList& nodes) override;
+            void unlock(const Model::NodeList& nodes) override;
+            void resetLock(const Model::NodeList& nodes) override;
         public: // modifying objects, declared in MapFacade interface
-            bool translateObjects(const Vec3& delta);
-            bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
-            bool flipObjects(const Vec3& center, Math::Axis::Type axis);
+            bool translateObjects(const Vec3& delta) override;
+            bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
+            bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
         public:
             bool createBrush(const Vec3::List& points);
             bool csgConvexMerge();
@@ -284,47 +284,39 @@ namespace TrenchBroom {
         public:
             bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
-            bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
-            bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
-            bool removeAttribute(const Model::AttributeName& name);
+            bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) override;
+            bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) override;
+            bool removeAttribute(const Model::AttributeName& name) override;
             
-            bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
-            bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
+            bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) override;
+            bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta);
+            bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface
-            void setTexture(Assets::Texture* texture);
+            void setTexture(Assets::Texture* texture) override;
         private:
             bool hasTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) const;
         public:
-            bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
-            bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
+            bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
+            bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
             bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal);
-            bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
-            bool rotateTextures(float angle);
-            bool shearTextures(const Vec2f& factors);
+            bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) override;
+            bool rotateTextures(float angle) override;
+            bool shearTextures(const Vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
-            void rebuildBrushGeometry(const Model::BrushList& brushes);
+            void rebuildBrushGeometry(const Model::BrushList& brushes) override;
             
-            bool snapVertices(size_t snapTo);
-            bool findPlanePoints();
+            bool snapVertices(size_t snapTo) override;
+            bool findPlanePoints() override;
             
-            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
-            bool moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta);
-            bool moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta);
-            // TODO 1720: Remove the following two methods.
-            bool moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
-            bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
-            bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
-            bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) override;
+            bool moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta) override;
+            bool moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) override;
             
             bool addVertices(const Model::VertexToBrushesMap& vertices);
             bool removeVertices(const Model::VertexToBrushesMap& vertices);
             bool removeEdges(const Model::EdgeToBrushesMap& edges);
             bool removeFaces(const Model::FaceToBrushesMap& faces);
-            // TODO 1720: Remove the following two methods.
-            bool removeEdges(const Model::VertexToEdgesMap& edges);
-            bool removeFaces(const Model::VertexToFacesMap& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // debug commands
@@ -412,8 +404,8 @@ namespace TrenchBroom {
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
         public:
-            StringList mods() const;
-            void setMods(const StringList& mods);
+            StringList mods() const override;
+            void setMods(const StringList& mods) override;
             String defaultMod() const;
         private: // issue management
             void registerIssueGenerators();

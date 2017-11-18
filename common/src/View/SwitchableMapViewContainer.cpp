@@ -104,7 +104,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::anyToolActive() const {
-            return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || vertexToolOldActive();
+            return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || anyVertexToolActive();
         }
 
         void SwitchableMapViewContainer::deactivateTool() {
@@ -158,6 +158,10 @@ namespace TrenchBroom {
             return vertexToolActive() || edgeToolActive() || faceToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
         
+        bool SwitchableMapViewContainer::anyVertexToolActive() const {
+            return vertexToolActive() || edgeToolActive() || faceToolActive();
+        }
+
         bool SwitchableMapViewContainer::vertexToolActive() const {
             return m_toolBox->vertexToolActive();
         }
@@ -195,23 +199,6 @@ namespace TrenchBroom {
         
         FaceTool* SwitchableMapViewContainer::faceTool() {
             return m_toolBox->faceTool();
-        }
-
-        bool SwitchableMapViewContainer::vertexToolOldActive() const {
-            return m_toolBox->vertexToolOldActive();
-        }
-
-        bool SwitchableMapViewContainer::canToggleVertexToolOld() const {
-            return vertexToolOldActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
-        }
-
-        void SwitchableMapViewContainer::toggleVertexToolOld() {
-            assert(canToggleVertexToolOld());
-            m_toolBox->toggleVertexToolOld();
-        }
-
-        VertexToolOld* SwitchableMapViewContainer::vertexToolOld() {
-            return m_toolBox->vertexToolOld();
         }
 
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {

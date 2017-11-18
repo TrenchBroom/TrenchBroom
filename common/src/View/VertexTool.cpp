@@ -173,8 +173,10 @@ namespace TrenchBroom {
                 switchDefault();
             }
         }
-
+        
         void VertexTool::removeSelection() {
+            assert(canRemoveSelection());
+            
             const auto handles = m_vertexHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
             lock(m_document)->removeVertices(brushMap);

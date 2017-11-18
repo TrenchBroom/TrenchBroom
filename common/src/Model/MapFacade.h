@@ -68,6 +68,7 @@ namespace TrenchBroom {
             virtual void removeNode(Node* node) = 0;
             
             virtual NodeList addNodes(const ParentChildrenMap& nodes) = 0;
+            virtual Model::NodeList addNodes(const Model::NodeList& nodes, Model::Node* parent) = 0;
             virtual void removeNodes(const NodeList& nodes) = 0;
             
             virtual bool reparentNodes(Node* newParent, const NodeList& children) = 0;
@@ -114,10 +115,8 @@ namespace TrenchBroom {
             };
             
             virtual MoveVerticesResult moveVertices(const VertexToBrushesMap& vertices, const Vec3& delta) = 0;
-            virtual bool moveEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
-            virtual bool moveFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
-            virtual bool splitEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
-            virtual bool splitFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
+            virtual bool moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta) = 0;
+            virtual bool moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) = 0;
         public: // search paths and mods
             virtual StringList mods() const = 0;
             virtual void setMods(const StringList& mods) = 0;

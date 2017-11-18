@@ -30,15 +30,6 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
-        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            Model::BrushList brushes;
-            Model::BrushFacesMap brushFaces;
-            Polygon3::List facePositions;
-            extractFaceMap(faces, brushes, brushFaces, facePositions);
-            
-            return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
-        }
-
         MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;

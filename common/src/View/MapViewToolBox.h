@@ -60,7 +60,6 @@ namespace TrenchBroom {
             std::unique_ptr<VertexTool> m_vertexTool;
             std::unique_ptr<EdgeTool> m_edgeTool;
             std::unique_ptr<FaceTool> m_faceTool;
-            std::unique_ptr<VertexToolOld> m_vertexToolOld;
         public:
             MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             ~MapViewToolBox();
@@ -75,7 +74,6 @@ namespace TrenchBroom {
             VertexTool* vertexTool() const;
             EdgeTool* edgeTool() const;
             FaceTool* faceTool() const;
-            VertexToolOld* vertexToolOld() const;
             
             void toggleCreateComplexBrushTool();
             bool createComplexBrushToolActive() const;
@@ -103,9 +101,7 @@ namespace TrenchBroom {
             
             void toggleFaceTool();
             bool faceToolActive() const;
-            
-            void toggleVertexToolOld();
-            bool vertexToolOldActive() const;
+
             void moveVertices(const Vec3& delta);
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);

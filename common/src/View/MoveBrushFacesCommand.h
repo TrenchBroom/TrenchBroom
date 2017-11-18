@@ -42,7 +42,6 @@ namespace TrenchBroom {
             Polygon3::List m_newFacePositions;
             Vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToFacesMap& faces, const Vec3& delta);
             static Ptr move(const Model::FaceToBrushesMap& faces, const Vec3& delta);
         private:
             MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);

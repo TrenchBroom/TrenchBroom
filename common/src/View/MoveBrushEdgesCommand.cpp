@@ -29,15 +29,6 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
         
-        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
-            Model::BrushList brushes;
-            Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
-            extractEdgeMap(edges, brushes, brushEdges, edgePositions);
-            
-            return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
-        }
-        
         MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;

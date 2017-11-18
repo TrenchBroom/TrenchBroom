@@ -59,8 +59,6 @@
 #include "View/SelectionTool.h"
 #include "View/SetBrushFaceAttributesTool.h"
 #include "View/VertexToolController.h"
-#include "View/VertexToolOld.h"
-#include "View/VertexToolOldController.h"
 #include "View/wxUtils.h"
 
 #include <wx/frame.h>
@@ -96,7 +94,6 @@ namespace TrenchBroom {
             addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
             addTool(new ClipToolController3D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
-            addTool(new VertexToolOldController(toolBox.vertexToolOld()));
             addTool(new EdgeToolController(toolBox.edgeTool()));
             addTool(new FaceToolController(toolBox.faceTool()));
             addTool(new CreateEntityToolController3D(toolBox.createEntityTool()));

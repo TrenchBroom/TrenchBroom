@@ -52,7 +52,6 @@ namespace TrenchBroom {
         class VertexTool;
         class EdgeTool;
         class FaceTool;
-        class VertexToolOld;
         
         class SwitchableMapViewContainer : public wxPanel, public MapView {
         private:
@@ -92,6 +91,7 @@ namespace TrenchBroom {
             void toggleRotateObjectsTool();
             
             bool canToggleVertexTools() const;
+            bool anyVertexToolActive() const;
             bool vertexToolActive() const;
             bool edgeToolActive() const;
             bool faceToolActive() const;
@@ -101,11 +101,6 @@ namespace TrenchBroom {
             VertexTool* vertexTool();
             EdgeTool* edgeTool();
             FaceTool* faceTool();
-            
-            bool vertexToolOldActive() const;
-            bool canToggleVertexToolOld() const;
-            void toggleVertexToolOld();
-            VertexToolOld* vertexToolOld();
             
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;

@@ -42,7 +42,6 @@ namespace TrenchBroom {
             Edge3::List m_newEdgePositions;
             Vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToEdgesMap& edges, const Vec3& delta);
             static Ptr move(const Model::EdgeToBrushesMap& edges, const Vec3& delta);
         private:
         private:

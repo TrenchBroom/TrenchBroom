@@ -58,8 +58,6 @@
 #include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/VertexToolController.h"
-#include "View/VertexToolOld.h"
-#include "View/VertexToolOldController.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -117,7 +115,6 @@ namespace TrenchBroom {
             addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
             addTool(new ClipToolController2D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
-            addTool(new VertexToolOldController(toolBox.vertexToolOld()));
             addTool(new EdgeToolController(toolBox.edgeTool()));
             addTool(new FaceToolController(toolBox.faceTool()));
             addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));

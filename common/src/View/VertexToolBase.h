@@ -37,8 +37,6 @@
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/Selection.h"
-#include "View/SplitBrushEdgesCommand.h"
-#include "View/SplitBrushFacesCommand.h"
 #include "View/Tool.h"
 #include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
@@ -209,6 +207,10 @@ namespace TrenchBroom {
             }
             
             virtual String actionName() const = 0;
+        public:
+            bool canRemoveSelection() const {
+                return handleManager().selectedHandleCount() > 0;
+            }
         public: // rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -378,7 +380,7 @@ namespace TrenchBroom {
             }
             
             bool isVertexCommand(const Command::Ptr command) const {
-                return command->isType(MoveBrushVerticesCommand::Type, SplitBrushEdgesCommand::Type, SplitBrushFacesCommand::Type, RemoveBrushVerticesCommand::Type, RemoveBrushEdgesCommand::Type, RemoveBrushFacesCommand::Type, MoveBrushEdgesCommand::Type, MoveBrushFacesCommand::Type);
+                return command->isType(MoveBrushVerticesCommand::Type, RemoveBrushVerticesCommand::Type, RemoveBrushEdgesCommand::Type, RemoveBrushFacesCommand::Type, MoveBrushEdgesCommand::Type, MoveBrushFacesCommand::Type);
             }
             
             void selectionDidChange(const Selection& selection) {

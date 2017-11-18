@@ -55,7 +55,7 @@ namespace TrenchBroom {
         String EdgeTool::actionName() const {
             return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
         }
-        
+
         void EdgeTool::removeSelection() {
             const auto handles = m_edgeHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));

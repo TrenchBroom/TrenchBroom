@@ -59,7 +59,6 @@
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
-#include "View/VertexToolOld.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
@@ -708,7 +707,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
-            Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexToolOld, this, CommandIds::Menu::EditToggleVertexToolOld);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
@@ -927,8 +925,6 @@ namespace TrenchBroom {
                     m_mapView->edgeTool()->removeSelection();
                 else if (m_mapView->faceToolActive())
                     m_mapView->faceTool()->removeSelection();
-                else if (m_mapView->vertexToolOldActive()) // TODO 1720 remove this
-                    m_mapView->vertexToolOld()->removeSelection();
                 else if (!m_mapView->anyToolActive())
                     m_document->deleteObjects();
             }
@@ -1070,12 +1066,6 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             m_mapView->toggleFaceTool();
-        }
-
-        void MapFrame::OnEditToggleVertexToolOld(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            m_mapView->toggleVertexToolOld();
         }
 
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
@@ -1488,10 +1478,6 @@ namespace TrenchBroom {
                     event.Check(m_mapView->rotateObjectsToolActive());
                     event.Enable(m_mapView->canToggleRotateObjectsTool());
                     break;
-                case CommandIds::Menu::EditToggleVertexToolOld:
-                    event.Check(m_mapView->vertexToolOldActive());
-                    event.Enable(m_mapView->canToggleVertexToolOld());
-                    break;
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Check(m_mapView->vertexToolActive());
                     event.Enable(m_mapView->canToggleVertexTools());
@@ -1681,13 +1667,18 @@ namespace TrenchBroom {
         bool MapFrame::canDelete() const {
             if (m_mapView->clipToolActive())
                 return m_mapView->clipTool()->canRemoveLastPoint();
-            if (m_mapView->vertexToolOldActive())
-                return m_mapView->vertexToolOld()->canRemoveSelection();
-            return canCut();
+            else if (m_mapView->vertexToolActive())
+                return m_mapView->vertexTool()->canRemoveSelection();
+            else if (m_mapView->edgeToolActive())
+                return m_mapView->edgeTool()->canRemoveSelection();
+            else if (m_mapView->faceToolActive())
+                return m_mapView->faceTool()->canRemoveSelection();
+            else
+                return canCut();
         }
 
         bool MapFrame::canDuplicate() const {
-            return m_document->hasSelectedNodes() && !m_mapView->clipToolActive() && !m_mapView->vertexToolOldActive();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canSelectSiblings() const {

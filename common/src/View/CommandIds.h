@@ -79,7 +79,6 @@ namespace TrenchBroom {
                 const int EditReplaceTexture                 = Lowest + 110;
 
                 const int EditToggleCreateComplexBrushTool   = Lowest + 111;
-                const int EditToggleVertexToolOld            = Lowest + 112;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
                 const int EditCsgConvexMerge                 = Lowest + 116;
                 const int EditCsgSubtract                    = Lowest + 117;

@@ -105,8 +105,6 @@
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
-#include "View/SplitBrushEdgesCommand.h"
-#include "View/SplitBrushFacesCommand.h"
 #include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManagerOld.h"
@@ -1141,22 +1139,6 @@ namespace TrenchBroom {
         bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
             return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
         }
-
-        bool MapDocument::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
-            return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
-        }
-        
-        bool MapDocument::moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
-        }
-        
-        bool MapDocument::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
-            return submitAndStore(SplitBrushEdgesCommand::split(edges, delta));
-        }
-        
-        bool MapDocument::splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            return submitAndStore(SplitBrushFacesCommand::split(faces, delta));
-        }
         
         bool MapDocument::addVertices(const Model::VertexToBrushesMap& vertices) {
             return submitAndStore(AddBrushVerticesCommand::add(vertices));
@@ -1171,14 +1153,6 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::removeFaces(const Model::FaceToBrushesMap& faces) {
-            return submitAndStore(RemoveBrushFacesCommand::remove(faces));
-        }
-
-        bool MapDocument::removeEdges(const Model::VertexToEdgesMap& edges) {
-            return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
-        }
-        
-        bool MapDocument::removeFaces(const Model::VertexToFacesMap& faces) {
             return submitAndStore(RemoveBrushFacesCommand::remove(faces));
         }
 

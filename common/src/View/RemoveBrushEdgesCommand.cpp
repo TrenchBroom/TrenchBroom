@@ -29,17 +29,6 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushEdgesCommand::Type = Command::freeType();
 
-        RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const Model::VertexToEdgesMap& edges) {
-            Model::BrushList brushes;
-            Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
-            
-            extractEdgeMap(edges, brushes, brushEdges, edgePositions);
-            Model::BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
-            
-            return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
-        }
-
         RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const Model::EdgeToBrushesMap& edges) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
