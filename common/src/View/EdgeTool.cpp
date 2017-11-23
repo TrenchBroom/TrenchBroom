@@ -59,7 +59,10 @@ namespace TrenchBroom {
         void EdgeTool::removeSelection() {
             const auto handles = m_edgeHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
+
+            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
             lock(m_document)->removeEdges(brushMap);
+            rebuildBrushGeometry();
         }
     }
 }

@@ -110,7 +110,20 @@ namespace TrenchBroom {
                 const Model::BrushList& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
-            
+
+            template <typename M, typename I>
+            Model::BrushSet findIncidentBrushes(const M& manager, I cur, I end) const {
+                const Model::BrushList& brushes = selectedBrushes();
+                Model::BrushSet result;
+                auto out = std::inserter(result, std::end(result));
+                
+                std::for_each(cur, end, [&manager, &brushes, &out](const auto& handle) {
+                    manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes), out);
+                });
+
+                return result;
+            }
+
             virtual void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
         public: // Handle selection
             bool select(const Model::Hit::List& hits, const bool addToSelection) {
@@ -189,8 +202,8 @@ namespace TrenchBroom {
             
             virtual void endMove() {
                 MapDocumentSPtr document = lock(m_document);
-                document->commitTransaction();
                 rebuildBrushGeometry();
+                document->commitTransaction();
                 m_dragging = false;
             }
             
@@ -208,6 +221,12 @@ namespace TrenchBroom {
             
             virtual String actionName() const = 0;
         public:
+            void moveSelection(const Vec3& delta) {
+                Transaction transaction(m_document, actionName());
+                move(delta);
+                rebuildBrushGeometry();
+            }
+            
             bool canRemoveSelection() const {
                 return handleManager().selectedHandleCount() > 0;
             }
@@ -401,7 +420,17 @@ namespace TrenchBroom {
             }
         protected:
             void rebuildBrushGeometry() {
-                // 1720 TODO: implement
+                
+                const SetBool ignoreChangeNotifications(m_ignoreChangeNotifications);
+                const auto selectedHandles = handleManager().selectedHandles();
+                const Model::BrushSet brushes = findIncidentBrushes(handleManager(), std::begin(selectedHandles), std::end(selectedHandles));
+                handleManager().removeHandles(std::begin(brushes), std::end(brushes));
+
+                MapDocumentSPtr document = lock(m_document);
+                document->rebuildBrushGeometry(Model::BrushList(std::begin(brushes), std::end(brushes)));
+                
+                handleManager().addHandles(std::begin(brushes), std::end(brushes));
+                handleManager().select(std::begin(selectedHandles), std::end(selectedHandles));
             }
         protected:
             virtual void addHandles(VertexCommand* command) {

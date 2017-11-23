@@ -179,7 +179,10 @@ namespace TrenchBroom {
             
             const auto handles = m_vertexHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
+            
+            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
             lock(m_document)->removeVertices(brushMap);
+            rebuildBrushGeometry();
         }
 
         void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {

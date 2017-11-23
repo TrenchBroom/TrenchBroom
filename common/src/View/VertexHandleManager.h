@@ -274,16 +274,6 @@ namespace TrenchBroom {
                         pickResult.addHit(hit);
                 });
             }
-        };
-
-        class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
-        public:
-            static const Model::Hit::HitType HandleHit;
-        public:
-            using VertexHandleManagerBase::addHandles;
-            using VertexHandleManagerBase::removeHandles;
-        public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             template <typename I>
             Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
@@ -301,17 +291,33 @@ namespace TrenchBroom {
                 });
                 return result;
             }
-        private:
+            
             template <typename I, typename O>
             void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasVertex(handle); });
+                std::copy_if(begin, end, out, [this, &handle](const Model::Brush* brush) { return this->isIncident(handle, brush); });
             }
+        private:
+            virtual bool isIncident(const Handle& handle, const Model::Brush* brush) const = 0;
+        };
+
+        class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
+        public:
+            static const Model::Hit::HitType HandleHit;
+        public:
+            using VertexHandleManagerBase::addHandles;
+            using VertexHandleManagerBase::removeHandles;
+        public:
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
             Model::Hit::HitType hitType() const override {
                 return HandleHit;
+            }
+        private:
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
+                return brush->hasVertex(handle);
             }
         };
         
@@ -326,33 +332,15 @@ namespace TrenchBroom {
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
         public:
-            template <typename I>
-            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                Model::BrushSet result;
-                findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
-                return result;
-            }
-            
-            template <typename I1, typename I2>
-            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                Model::BrushSet result;
-                auto out = std::inserter(result, std::end(result));
-                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
-                    findIncidentBrushes(handle, bBegin, bEnd, out);
-                });
-                return result;
-            }
-        private:
-            template <typename I, typename O>
-            void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasEdge(handle); });
-            }
-        public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
             Model::Hit::HitType hitType() const override {
                 return HandleHit;
+            }
+        private:
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
+                return brush->hasEdge(handle);
             }
         };
         
@@ -367,33 +355,15 @@ namespace TrenchBroom {
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
         public:
-            template <typename I>
-            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                Model::BrushSet result;
-                findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
-                return result;
-            }
-            
-            template <typename I1, typename I2>
-            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                Model::BrushSet result;
-                auto out = std::inserter(result, std::end(result));
-                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
-                    findIncidentBrushes(handle, bBegin, bEnd, out);
-                });
-                return result;
-            }
-        private:
-            template <typename I, typename O>
-            void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [&handle](const Model::Brush* brush) { return brush->hasFace(handle); });
-            }
-        public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
             Model::Hit::HitType hitType() const override {
                 return HandleHit;
+            }
+        private:
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
+                return brush->hasFace(handle);
             }
         };
     }

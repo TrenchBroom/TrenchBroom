@@ -174,11 +174,11 @@ namespace TrenchBroom {
         void MapViewToolBox::moveVertices(const Vec3& delta) {
             assert(anyVertexToolActive());
             if (vertexToolActive())
-                vertexTool()->move(delta);
+                vertexTool()->moveSelection(delta);
             else if (edgeToolActive())
-                edgeTool()->move(delta);
+                edgeTool()->moveSelection(delta);
             else if (faceToolActive())
-                faceTool()->move(delta);
+                faceTool()->moveSelection(delta);
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
