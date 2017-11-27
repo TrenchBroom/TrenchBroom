@@ -44,7 +44,9 @@
 #include "View/CreateComplexBrushToolController3D.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController3D.h"
+#include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
+#include "View/FaceTool.h"
 #include "View/FaceToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -58,6 +60,7 @@
 #include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/SetBrushFaceAttributesTool.h"
+#include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 

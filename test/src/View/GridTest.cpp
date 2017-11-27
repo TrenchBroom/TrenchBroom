@@ -51,45 +51,45 @@ namespace TrenchBroom {
         }
         
         TEST(GridTest, offsetScalars) {
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).offset(0.0));
-            ASSERT_FLOAT_EQ(0.3, Grid(2u).offset(0.3));
-            ASSERT_FLOAT_EQ(-0.3, Grid(2u).offset(-0.3));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).offset(0.0));
+            ASSERT_DOUBLE_EQ(0.3, Grid(2u).offset(0.3));
+            ASSERT_DOUBLE_EQ(-0.3, Grid(2u).offset(-0.3));
 
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).offset(4.0));
-            ASSERT_FLOAT_EQ(0.3, Grid(2u).offset(4.3));
-            ASSERT_FLOAT_EQ(-0.3, Grid(2u).offset(-4.3));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).offset(4.0));
+            ASSERT_DOUBLE_EQ(0.3, Grid(2u).offset(4.3));
+            ASSERT_DOUBLE_EQ(-0.3, Grid(2u).offset(-4.3));
 
-            ASSERT_FLOAT_EQ(-1.0, Grid(2u).offset(3.0));
-            ASSERT_FLOAT_EQ(1.0, Grid(2u).offset(5.0));
+            ASSERT_DOUBLE_EQ(-1.0, Grid(2u).offset(3.0));
+            ASSERT_DOUBLE_EQ(1.0, Grid(2u).offset(5.0));
         }
         
         TEST(GridTest, snapScalars) {
-            ASSERT_FLOAT_EQ(0.0, Grid(0u).snap(0.0));
-            ASSERT_FLOAT_EQ(0.0, Grid(0u).snap(0.3));
-            ASSERT_FLOAT_EQ(0.0, Grid(0u).snap(0.49));
-            ASSERT_FLOAT_EQ(1.0, Grid(0u).snap(0.5));
-            ASSERT_FLOAT_EQ(1.0, Grid(0u).snap(1.3));
+            ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.0));
+            ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.3));
+            ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.49));
+            ASSERT_DOUBLE_EQ(1.0, Grid(0u).snap(0.5));
+            ASSERT_DOUBLE_EQ(1.0, Grid(0u).snap(1.3));
 
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snap(0.0));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snap(1.999));
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snap(2.0));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snap(-1.999));
-            ASSERT_FLOAT_EQ(-4.0, Grid(2u).snap(-2.0));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snap(0.0));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snap(1.999));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snap(2.0));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snap(-1.999));
+            ASSERT_DOUBLE_EQ(-4.0, Grid(2u).snap(-2.0));
 
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(0.0, false));
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snapUp(1.999, false));
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snapUp(2.0, false));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(-1.999, false));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(-2.0, false));
-            ASSERT_FLOAT_EQ(-4.0, Grid(2u).snapUp(-4.0, false));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(0.0, false));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snapUp(1.999, false));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snapUp(2.0, false));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-1.999, false));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-2.0, false));
+            ASSERT_DOUBLE_EQ(-4.0, Grid(2u).snapUp(-4.0, false));
 
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snapUp(0.0, true));
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snapUp(1.999, true));
-            ASSERT_FLOAT_EQ(4.0, Grid(2u).snapUp(2.0, true));
-            ASSERT_FLOAT_EQ(8.0, Grid(2u).snapUp(4.0, true));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(-1.999, true));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(-2.0, true));
-            ASSERT_FLOAT_EQ(0.0, Grid(2u).snapUp(-4.0, true));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snapUp(0.0, true));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snapUp(1.999, true));
+            ASSERT_DOUBLE_EQ(4.0, Grid(2u).snapUp(2.0, true));
+            ASSERT_DOUBLE_EQ(8.0, Grid(2u).snapUp(4.0, true));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-1.999, true));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-2.0, true));
+            ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-4.0, true));
         }
         
         TEST(GridTest, snapOnLine) {

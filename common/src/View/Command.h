@@ -24,6 +24,7 @@
 #include "SharedPointer.h"
 #include "View/ViewTypes.h"
 
+#include <functional>
 #include <vector>
 
 namespace TrenchBroom {

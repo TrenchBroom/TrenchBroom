@@ -46,7 +46,9 @@
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController2D.h"
+#include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
+#include "View/FaceTool.h"
 #include "View/FaceToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
@@ -57,6 +59,7 @@
 #include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
 #include "View/SelectionTool.h"
+#include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
