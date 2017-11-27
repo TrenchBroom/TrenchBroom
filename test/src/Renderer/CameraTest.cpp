@@ -17,39 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MapDocumentTest_h
-#define MapDocumentTest_h
-
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
-#include "Model/MapFormat.h"
-#include "View/MapDocument.h"
+#include "Renderer/Camera.h"
+#include "Renderer/PerspectiveCamera.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-    }
-    
-    namespace View {
-        class MapDocumentTest : public ::testing::Test {
-        private:
-            Model::MapFormat::Type m_mapFormat;
-        protected:
-            MapDocumentSPtr document;
-        protected:
-            MapDocumentTest();
-            MapDocumentTest(Model::MapFormat::Type mapFormat);
+    namespace Renderer {
+        TEST(CameraTest, testInvalidUp) {
+            PerspectiveCamera c;
+            c.setDirection(Vec3f(0,0,1), Vec3f(0,0,1));
             
-            void SetUp();
-            
-            Model::Brush* createBrush(const String& textureName = "texture");
-        };
-        
-        class ValveMapDocumentTest : public MapDocumentTest {
-        protected:
-            ValveMapDocumentTest();
-        };
+            ASSERT_FALSE(c.direction().nan());
+            ASSERT_FALSE(c.right().nan());
+            ASSERT_FALSE(c.up().nan());
+        }
     }
 }
-
-#endif /* MapDocumentTest_h */
