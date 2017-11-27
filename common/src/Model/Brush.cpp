@@ -534,8 +534,15 @@ namespace TrenchBroom {
         void Brush::cloneFaceAttributesFrom(const Brush* brush) {
             for (BrushFace* destination : m_faces) {
                 const BrushFace* source = brush->findFace(destination->boundary());
-                if (source != NULL)
+                if (source != nullptr) {
                     destination->setAttribs(source->attribs());
+                    
+                    Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
+                    if (snapshot != nullptr) {
+                        destination->copyTexCoordSystemFromFace(snapshot, source->boundary().normal);
+                        delete snapshot;
+                    }
+                }
             }
         }
 
@@ -547,9 +554,15 @@ namespace TrenchBroom {
         void Brush::cloneInvertedFaceAttributesFrom(const Brush* brush) {
             for (BrushFace* destination : m_faces) {
                 const BrushFace* source = brush->findFace(destination->boundary().flipped());
-                if (source != NULL) {
+                if (source != nullptr) {
                     // Todo: invert the face attributes?
                     destination->setAttribs(source->attribs());
+                    
+                    Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
+                    if (snapshot != nullptr) {
+                        destination->copyTexCoordSystemFromFace(snapshot, destination->boundary().normal);
+                        delete snapshot;
+                    }
                 }
             }
         }
