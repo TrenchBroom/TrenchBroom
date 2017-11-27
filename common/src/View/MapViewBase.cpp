@@ -813,8 +813,14 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
 
-            const Grid& grid = document->grid();
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            // If we snap the selection bounds' center to the grid size, then
+            // selections that are an odd number of grid units wide get translated.
+            // Instead, snap to 1/2 the grid size.
+            // (see: https://github.com/kduske/TrenchBroom/issues/1495 )
+            Grid halfGrid(document->grid().size());
+            halfGrid.decSize();
+            
+            const Vec3 center = halfGrid.referencePoint(document->selectionBounds());
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
