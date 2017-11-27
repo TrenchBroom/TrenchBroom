@@ -812,8 +812,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
-            
-            const Vec3 center = document->selectionBounds().center();
+
+            const Grid& grid = document->grid();
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
