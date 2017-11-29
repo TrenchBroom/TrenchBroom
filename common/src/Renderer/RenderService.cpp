@@ -141,7 +141,7 @@ namespace TrenchBroom {
         }
         
         void RenderService::renderHandle(const Polygon3f& position) {
-            m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.2f), m_occlusionPolicy, position.vertices());
+            m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.07f), m_occlusionPolicy, position.vertices());
         }
         
         void RenderService::renderHandleHighlight(const Polygon3f& position) {

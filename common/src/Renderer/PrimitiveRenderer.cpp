@@ -168,7 +168,7 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromLists(positions, positions.size()));
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromLists(std::rbegin(positions), positions.size()));
         }
 
         void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end) {

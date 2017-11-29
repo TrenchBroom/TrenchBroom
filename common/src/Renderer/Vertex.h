@@ -69,15 +69,23 @@ namespace TrenchBroom {
             bool operator==(const Vertex1<A1>& other) const {
                 return v1 == other.v1;
             }
-            
+
             static List fromLists(const std::vector<typename A1::ElementType>& list,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1) {
+                return fromLists(std::begin(list), count, offset1, stride1);
+            }
+
+            template <typename I1>
+            static List fromLists(I1 cur1,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1) {
                 List result;
-                size_t index1 = offset1;
+                result.reserve(count);
+                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex1(list[index1]));
-                    index1 += stride1;
+                    result.push_back(Vertex1(*cur1));
+                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
                 }
                 return result;
             }
@@ -109,12 +117,22 @@ namespace TrenchBroom {
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1) {
+                return fromLists(std::begin(list1), std::begin(list2), count, offset1, stride1, offset2, stride2);
+            }
+
+            template <typename I1, typename I2>
+            static List fromLists(I1 cur1, I2 cur2,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1) {
                 List result;
-                size_t index1 = offset1, index2 = offset2;
+                result.reserve(count);
+                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex2(list1[index1], list2[index2]));
-                    index1 += stride1;
-                    index2 += stride2;
+                    result.push_back(Vertex2(*cur1, *cur2));
+                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
                 }
                 return result;
             }
@@ -152,13 +170,25 @@ namespace TrenchBroom {
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
                                   const size_t offset3 = 0, const size_t stride3 = 1) {
+                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), count, offset1, stride1, offset2, stride2, offset3, stride3);
+            }
+
+            template <typename I1, typename I2, typename I3>
+            static List fromLists(I1 cur1, I2 cur2, I3 cur3,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1) {
                 List result;
-                size_t index1 = offset1, index2 = offset2, index3 = offset3;
+                result.reserve(count);
+                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex3(list1[index1], list2[index2], list3[index3]));
-                    index1 += stride1;
-                    index2 += stride2;
-                    index3 += stride3;
+                    result.push_back(Vertex3(*cur1, *cur2, *cur3));
+                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
                 }
                 return result;
             }
@@ -202,14 +232,28 @@ namespace TrenchBroom {
                                   const size_t offset2 = 0, const size_t stride2 = 1,
                                   const size_t offset3 = 0, const size_t stride3 = 1,
                                   const size_t offset4 = 0, const size_t stride4 = 1) {
+                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), std::begin(list4), count, offset1, stride1, offset2, stride2, offset3, stride3, offset4, stride4);
+            }
+            
+            template <typename I1, typename I2, typename I3, typename I4>
+            static List fromLists(I1 cur1, I2 cur2, I3 cur3, I4 cur4,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1,
+                                  const size_t offset4 = 0, const size_t stride4 = 1) {
                 List result;
-                size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4;
+                result.reserve(count);
+                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
+                std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex4(list1[index1], list2[index2], list3[index3], list4[index4]));
-                    index1 += stride1;
-                    index2 += stride2;
-                    index3 += stride3;
-                    index4 += stride4;
+                    result.push_back(Vertex4(*cur1, *cur2, *cur3, *cur4));
+                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                    std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
                 }
                 return result;
             }
@@ -259,15 +303,31 @@ namespace TrenchBroom {
                                   const size_t offset3 = 0, const size_t stride3 = 1,
                                   const size_t offset4 = 0, const size_t stride4 = 1,
                                   const size_t offset5 = 0, const size_t stride5 = 1) {
+                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), std::begin(list4), std::begin(list5), count, offset1, stride1, offset2, stride2, offset3, stride3, offset4, stride4, offset5, stride5);
+            }
+            
+            template <typename I1, typename I2, typename I3, typename I4, typename I5>
+            static List fromLists(I1 cur1, I2 cur2, I3 cur3, I4 cur4, I5 cur5,
+                                  const size_t count,
+                                  const size_t offset1 = 0, const size_t stride1 = 1,
+                                  const size_t offset2 = 0, const size_t stride2 = 1,
+                                  const size_t offset3 = 0, const size_t stride3 = 1,
+                                  const size_t offset4 = 0, const size_t stride4 = 1,
+                                  const size_t offset5 = 0, const size_t stride5 = 1) {
                 List result;
-                size_t index1 = offset1, index2 = offset2, index3 = offset3, index4 = offset4, index5 = offset5;
+                result.reserve(count);
+                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
+                std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
+                std::advance(cur5, static_cast<typename I5::difference_type>(offset5));
                 for (size_t i = 0; i < count; ++i) {
-                    result.push_back(Vertex5(list1[index1], list2[index2], list3[index3], list4[index4], list5[index5]));
-                    index1 += stride1;
-                    index2 += stride2;
-                    index3 += stride3;
-                    index4 += stride4;
-                    index5 += stride5;
+                    result.push_back(Vertex5(*cur1, *cur2, *cur3, *cur4, *cur5));
+                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                    std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
+                    std::advance(cur5, static_cast<typename I5::difference_type>(stride5));
                 }
                 return result;
             }
