@@ -111,7 +111,7 @@ namespace TrenchBroom {
             BrushFaceSnapshot* takeSnapshot();
             TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Plane3& sourceFacePlane);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane);
 
             Brush* brush() const;
             void setBrush(Brush* brush);

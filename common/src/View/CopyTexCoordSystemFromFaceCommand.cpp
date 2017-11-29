@@ -27,15 +27,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CopyTexCoordSystemFromFaceCommand::Type = Command::freeType();
 
-        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Plane3& sourceFacePlane) {
-            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, sourceFacePlane));
+        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
+            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, attribs, sourceFacePlane));
         }
 
-        CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Plane3& sourceFacePlane) :
+        CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) :
         DocumentCommand(Type, "Copy Texture Alignment"),
         m_snapshot(nullptr),
         m_coordSystemSanpshot(coordSystemSnapshot->clone()),
-        m_sourceFacePlane(sourceFacePlane) {}
+        m_sourceFacePlane(sourceFacePlane),
+        m_attribs(attribs) {}
 
         CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() {
             delete m_snapshot;
@@ -52,7 +53,7 @@ namespace TrenchBroom {
             assert(m_snapshot == nullptr);
             m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
             
-            document->performCopyTexCoordSystemFromFace(m_coordSystemSanpshot, m_sourceFacePlane);
+            document->performCopyTexCoordSystemFromFace(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane);
             return true;
         }
         
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(m_coordSystemSanpshot, m_sourceFacePlane));
+            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane));
         }
         
         bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr command) {

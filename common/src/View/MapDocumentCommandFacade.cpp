@@ -635,9 +635,9 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
-        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Plane3& sourceFacePlane) {
+        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
             for (Model::BrushFace* face : m_selectedBrushFaces)
-                face->copyTexCoordSystemFromFace(coordSystemSnapshot, sourceFacePlane);
+                face->copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane);
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
         

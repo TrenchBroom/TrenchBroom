@@ -23,6 +23,7 @@
 #include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 #include "Model/TexCoordSystem.h"
+#include "Model/BrushFaceAttributes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,10 +40,11 @@ namespace TrenchBroom {
             Model::Snapshot* m_snapshot;
             Model::TexCoordSystemSnapshot* m_coordSystemSanpshot;
             const Plane3 m_sourceFacePlane;
+            const Model::BrushFaceAttributes m_attribs;
         public:
-            static Ptr command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Plane3& sourceFacePlane);
+            static Ptr command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane);
         private:
-            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Plane3& sourceFacePlane);
+            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane);
         public:
             ~CopyTexCoordSystemFromFaceCommand();
         private:
