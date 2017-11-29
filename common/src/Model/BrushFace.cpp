@@ -138,9 +138,9 @@ namespace TrenchBroom {
             coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Plane3& sourceFacePlane) {
             coordSystemSnapshot->restore(m_texCoordSystem);
-            m_texCoordSystem->updateNormal(sourceFaceNormal, m_boundary.normal, m_attribs);
+            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs);
         }
         
         Brush* BrushFace::brush() const {

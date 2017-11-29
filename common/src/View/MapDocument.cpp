@@ -1097,8 +1097,8 @@ namespace TrenchBroom {
             return submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
         }
         
-        bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
-            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, sourceFaceNormal));
+        bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Plane3& sourceFacePlane) {
+            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, sourceFacePlane));
         }
         
         bool MapDocument::moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {

@@ -38,11 +38,11 @@ namespace TrenchBroom {
             
             Model::Snapshot* m_snapshot;
             Model::TexCoordSystemSnapshot* m_coordSystemSanpshot;
-            const Vec3f m_sourceFaceNormal;
+            const Plane3 m_sourceFacePlane;
         public:
-            static Ptr command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Vec3f& sourceFaceNormal);
+            static Ptr command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Plane3& sourceFacePlane);
         private:
-            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Vec3f& sourceFaceNormal);
+            CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Plane3& sourceFacePlane);
         public:
             ~CopyTexCoordSystemFromFaceCommand();
         private:

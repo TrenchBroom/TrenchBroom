@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(snapshot, source->boundary().normal);
+                    document->copyTexCoordSystemFromFace(snapshot, source->boundary());
                     delete snapshot;
                 }
             } else {
