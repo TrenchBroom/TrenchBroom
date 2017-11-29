@@ -56,7 +56,7 @@ namespace TrenchBroom {
         void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            
+
             m_vertexHandles.pick(pickRay, camera, pickResult);
             m_edgeHandles.pick(pickRay, camera, grid, pickResult);
             m_faceHandles.pick(pickRay, camera, grid, pickResult);

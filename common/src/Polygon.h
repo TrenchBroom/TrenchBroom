@@ -74,7 +74,7 @@ namespace TrenchBroom {
             return compare(rhs) < 0;
         }
         
-        int compare(const Polygon<T,S>& other) const {
+        int compare(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
             if (m_vertices.size() < other.m_vertices.size())
                 return -1;
             if (m_vertices.size() > other.m_vertices.size())
@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
             const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
             for (size_t i = 0; i < count; ++i) {
-                const int cmp = m_vertices[i].compare(other.m_vertices[i]);
+                const int cmp = m_vertices[i].compare(other.m_vertices[i], epsilon);
                 if (cmp < 0)
                     return -1;
                 if (cmp > 0)

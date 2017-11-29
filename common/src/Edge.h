@@ -60,13 +60,13 @@ namespace TrenchBroom {
             return compare(other) < 0;
         }
         
-        int compare(const Edge<T,S>& other) const {
-            const int startCmp = m_start.compare(other.m_start);
+        int compare(const Edge<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
+            const int startCmp = m_start.compare(other.m_start, epsilon);
             if (startCmp < 0)
                 return -1;
             if (startCmp > 0)
                 return 1;
-            return m_end.compare(other.m_end);
+            return m_end.compare(other.m_end, epsilon);
         }
 
         T squaredDistanceTo(const Edge<T,S>& other) const {

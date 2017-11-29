@@ -70,6 +70,13 @@ namespace TrenchBroom {
         public:
             typedef H Handle;
             typedef std::vector<H> HandleList;
+        private:
+            class HCmp {
+            public:
+                bool operator()(const H& lhs, const H& rhs) const {
+                    return lhs.compare(rhs, 0.1) < 0;
+                }
+            };
         protected:
             struct HandleInfo {
                 size_t count;
@@ -105,7 +112,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo> HandleMap;
+            typedef std::map<H, HandleInfo, HCmp> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
             HandleMap m_handles;
