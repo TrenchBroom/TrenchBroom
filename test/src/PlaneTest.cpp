@@ -60,6 +60,37 @@ TEST(PlaneTest, intersectWithRay) {
 }
 
 TEST(PlaneTest, intersectWithLine) {
+    const Plane3f p(5.0f, Vec3f::PosZ);
+    const Line3f l(Vec3f(0, 0, 15), Vec3f(1,0,-1).normalized());
+    
+    const Vec3f intersection = l.pointAtDistance(p.intersectWithLine(l));
+    ASSERT_FLOAT_EQ(10, intersection.x());
+    ASSERT_FLOAT_EQ(0, intersection.y());
+    ASSERT_FLOAT_EQ(5, intersection.z());
+}
+
+TEST(PlaneTest, intersectWithPlane_parallel) {
+    const Plane3f p1(10.0f, Vec3f::PosZ);
+    const Plane3f p2(11.0f, Vec3f::PosZ);
+    
+    ASSERT_EQ(Vec3f::Null, p1.intersectWithPlane(p2).direction);
+}
+
+static bool lineOnPlane(const Plane3f& plane, const Line3f& line) {
+    if (plane.pointStatus(line.point) != Math::PointStatus::PSInside)
+        return false;
+    if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside)
+        return false;
+    return true;
+}
+
+TEST(PlaneTest, intersectWithPlane) {
+    const Plane3f p1(10.0f, Vec3f::PosZ);
+    const Plane3f p2(20.0f, Vec3f::PosX);
+    const Line3f line = p1.intersectWithPlane(p2);
+    
+    ASSERT_TRUE(lineOnPlane(p1, line));
+    ASSERT_TRUE(lineOnPlane(p2, line));
 }
 
 TEST(PlaneTest, pointStatus) {

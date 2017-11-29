@@ -122,6 +122,29 @@ public:
         return ((distance * normal - line.point).dot(normal)) / f;
     }
     
+    Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
+        Vec<T,S> lineDirection = crossed(normal, other.normal);
+        if (lineDirection.null()) {
+            // the planes are parallel
+            return Line<T,S>();
+        }
+        
+        lineDirection.normalize();
+        
+        // Now we need to find a point that is on both planes.
+        
+        // From: http://geomalgorithms.com/a05-_intersect-1.html
+        // Project the other plane's normal onto this plane.
+        // This will give us a line direction from this plane's anchor that
+        // intersects the other plane.
+        
+        const Line<T,S> lineToOtherPlane{anchor(), projectVector(other.normal)};
+        const T dist = other.intersectWithLine(lineToOtherPlane);
+        const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
+        
+        return Line<T,S>(point, lineDirection);
+    }
+    
     Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
         const T dist = pointDistance(point);
         if (dist >  epsilon)
