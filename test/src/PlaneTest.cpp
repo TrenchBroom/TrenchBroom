@@ -72,8 +72,20 @@ TEST(PlaneTest, intersectWithLine) {
 TEST(PlaneTest, intersectWithPlane_parallel) {
     const Plane3f p1(10.0f, Vec3f::PosZ);
     const Plane3f p2(11.0f, Vec3f::PosZ);
+    const Line3f line = p1.intersectWithPlane(p2);
     
-    ASSERT_EQ(Vec3f::Null, p1.intersectWithPlane(p2).direction);
+    ASSERT_EQ(Vec3f::Null, line.direction);
+    ASSERT_EQ(Vec3f::Null, line.point);
+}
+
+TEST(PlaneTest, intersectWithPlane_too_similar) {
+    const Vec3f anchor(100,100,100);
+    const Plane3f p1(anchor, Vec3f::PosX);
+    const Plane3f p2(anchor, Quatf(Vec3f::NegY, Math::radians(0.0001f)) * Vec3f::PosX); // p1 rotated by 0.0001 degrees
+    const Line3f line = p1.intersectWithPlane(p2);
+    
+    ASSERT_EQ(Vec3f::Null, line.direction);
+    ASSERT_EQ(Vec3f::Null, line.point);
 }
 
 static bool lineOnPlane(const Plane3f& plane, const Line3f& line) {

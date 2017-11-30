@@ -141,6 +141,9 @@ public:
         const T dist = other.intersectWithLine(lineToOtherPlane);
         const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
+        if (point.nan()) {
+            return Line<T,S>();
+        }
         return Line<T,S>(point, lineDirection);
     }
     
