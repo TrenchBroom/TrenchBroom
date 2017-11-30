@@ -49,6 +49,9 @@ namespace TrenchBroom {
         glLoadMatrixf.bindMemFunc(this, &GLMock::LoadMatrixf);
         glMatrixMode.bindMemFunc(this, &GLMock::MatrixMode);
         
+        glPushAttrib.bindMemFunc(this, &GLMock::PushAttrib);
+        glPopAttrib.bindMemFunc(this, &GLMock::PopAttrib);
+        
         glGetIntegerv.bindMemFunc(this, &GLMock::GetIntegerv);
         
         glPixelStoref.bindMemFunc(this, &GLMock::PixelStoref);

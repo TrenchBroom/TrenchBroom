@@ -71,9 +71,10 @@ namespace TrenchBroom {
             }
         }
 
-        PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(const Color& color, const OcclusionPolicy occlusionPolicy) :
+        PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(const Color& color, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy) :
         m_color(color),
-        m_occlusionPolicy(occlusionPolicy) {}
+        m_occlusionPolicy(occlusionPolicy),
+        m_cullingPolicy(cullingPolicy) {}
         
         bool PrimitiveRenderer::TriangleRenderAttributes::operator<(const TriangleRenderAttributes& other) const {
             if (m_color < other.m_color)
@@ -82,10 +83,18 @@ namespace TrenchBroom {
                 return false;
             if (m_occlusionPolicy < other.m_occlusionPolicy)
                 return true;
+            if (m_cullingPolicy < other.m_cullingPolicy)
+                return true;
             return false;
         }
         
         void PrimitiveRenderer::TriangleRenderAttributes::render(IndexRangeRenderer& renderer, ActiveShader& shader) const {
+            if (m_cullingPolicy == CP_ShowBackfaces) {
+                glAssert(glPushAttrib(GL_POLYGON_BIT));
+                glAssert(glDisable(GL_CULL_FACE));
+                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            }
+            
             switch (m_occlusionPolicy) {
                 case OP_Hide:
                     shader.set("Color", m_color);
@@ -105,6 +114,10 @@ namespace TrenchBroom {
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
+            }
+            
+            if (m_cullingPolicy == CP_ShowBackfaces) {
+                glAssert(glPopAttrib());
             }
         }
 
@@ -167,11 +180,11 @@ namespace TrenchBroom {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::fromLists(positions, positions.size()));
         }
 
-        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, const Vec3f::List& positions) {
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleFan(Vertex::fromLists(std::rbegin(positions), positions.size()));
+        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f::List& positions) {
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleFan(Vertex::fromLists(std::begin(positions), positions.size()));
         }
 
-        void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end) {
+        void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f& start, const Vec3f& end) {
             assert(radius > 0.0);
             assert(segments > 2);
             
@@ -186,7 +199,7 @@ namespace TrenchBroom {
             const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
             const Vec3f::List vertices = transform * cylinder.vertices;
             
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy)].addTriangleStrip(Vertex::fromLists(vertices, vertices.size()));
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::fromLists(vertices, vertices.size()));
         }
 
         void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {

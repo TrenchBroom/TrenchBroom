@@ -29,7 +29,7 @@ namespace TrenchBroom {
         }
         
         void FaceTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            m_faceHandles.pick(pickRay, camera, pickResult);
+            m_faceHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         
         FaceHandleManager& FaceTool::handleManager() {

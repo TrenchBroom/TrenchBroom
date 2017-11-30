@@ -42,6 +42,7 @@ namespace TrenchBroom {
         class RenderService {
         private:
             typedef PrimitiveRenderer::OcclusionPolicy OcclusionPolicy;
+            typedef PrimitiveRenderer::CullingPolicy CullingPolicy;
             class HeadsUpTextAnchor;
             
             RenderContext& m_renderContext;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
             Color m_backgroundColor;
             float m_lineWidth;
             OcclusionPolicy m_occlusionPolicy;
+            CullingPolicy m_cullingPolicy;
         public:
             RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
@@ -65,6 +67,9 @@ namespace TrenchBroom {
             void setShowOccludedObjects();
             void setShowOccludedObjectsTransparent();
             void setHideOccludedObjects();
+            
+            void setShowBackfaces();
+            void setCullBackfaces();
             
             void renderString(const AttrString& string, const Vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);

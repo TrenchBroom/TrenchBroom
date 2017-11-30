@@ -53,6 +53,9 @@ namespace TrenchBroom {
     static Func1<void, const GLfloat*>& _glLoadMatrixf = glLoadMatrixf;
     static Func1<void, GLenum>& _glMatrixMode = glMatrixMode;
     
+    static Func1<void, GLbitfield>& _glPushAttrib = glPushAttrib;
+    static Func0<void>& _glPopAttrib = glPopAttrib;
+    
     static Func2<void, GLenum, GLint*>& _glGetIntegerv = glGetIntegerv;
     
     static Func2<void, GLenum, GLfloat>& _glPixelStoref = glPixelStoref;
@@ -181,6 +184,9 @@ namespace TrenchBroom {
         _glLoadMatrixd.bindFunc(&::glLoadMatrixd);
         _glLoadMatrixf.bindFunc(&::glLoadMatrixf);
         _glMatrixMode.bindFunc(&::glMatrixMode);
+        
+        _glPushAttrib.bindFunc(&::glPushAttrib);
+        _glPopAttrib.bindFunc(&::glPopAttrib);
         
         _glGetIntegerv.bindFunc(&::glGetIntegerv);
         

@@ -361,6 +361,7 @@ namespace TrenchBroom {
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;

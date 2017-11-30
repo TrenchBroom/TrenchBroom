@@ -126,6 +126,19 @@ namespace TrenchBroom {
             }
         }
 
+        void FaceHandleManager::pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Polygon3& position = entry.first;
+                const Vec3 pointHandle = position.center();
+
+                const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                if (!Math::isnan(pointDist)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                    pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
+                }
+            }
+        }
+
         void FaceHandleManager::addHandles(const Model::Brush* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 add(face->polygon());

@@ -44,6 +44,11 @@ namespace TrenchBroom {
                 OP_Show,
                 OP_Transparent
             } OcclusionPolicy;
+            
+            typedef enum {
+                CP_CullBackfaces,
+                CP_ShowBackfaces
+            } CullingPolicy;
         private:
             typedef VertexSpecs::P3::Vertex Vertex;
 
@@ -52,6 +57,7 @@ namespace TrenchBroom {
                 Color m_color;
                 float m_lineWidth;
                 OcclusionPolicy m_occlusionPolicy;
+                CullingPolicy m_cullingPolicy;
             public:
                 LineRenderAttributes(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy);
                 bool operator<(const LineRenderAttributes& other) const;
@@ -69,8 +75,9 @@ namespace TrenchBroom {
             private:
                 Color m_color;
                 OcclusionPolicy m_occlusionPolicy;
+                CullingPolicy m_cullingPolicy;
             public:
-                TriangleRenderAttributes(const Color& color, OcclusionPolicy occlusionPolicy);
+                TriangleRenderAttributes(const Color& color, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy);
                 bool operator<(const TriangleRenderAttributes& other) const;
                 
                 void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
@@ -92,9 +99,9 @@ namespace TrenchBroom {
             void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
             
             void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
-            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f::List& positions);
             
-            void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end);
+            void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f& start, const Vec3f& end);
         private:
             void doPrepareVertices(Vbo& vertexVbo);
             void prepareLines(Vbo& vertexVbo);

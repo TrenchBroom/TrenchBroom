@@ -56,6 +56,9 @@ namespace TrenchBroom {
         MOCK_METHOD1(LoadMatrixf, void(const GLfloat*));
         MOCK_METHOD1(MatrixMode, void(GLenum));
         
+        MOCK_METHOD1(PushAttrib, void(GLbitfield));
+        MOCK_METHOD0(PopAttrib, void());
+        
         MOCK_METHOD2(GetIntegerv, void(GLenum, GLint*));
         
         MOCK_METHOD2(PixelStoref, void(GLenum, GLfloat));
