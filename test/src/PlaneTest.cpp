@@ -93,6 +93,16 @@ TEST(PlaneTest, intersectWithPlane) {
     ASSERT_TRUE(lineOnPlane(p2, line));
 }
 
+TEST(PlaneTest, intersectWithPlane_similar) {
+    const Vec3f anchor(100,100,100);
+    const Plane3f p1(anchor, Vec3f::PosX);
+    const Plane3f p2(anchor, Quatf(Vec3f::NegY, Math::radians(0.5f)) * Vec3f::PosX); // p1 rotated by 0.5 degrees
+    const Line3f line = p1.intersectWithPlane(p2);
+
+    ASSERT_TRUE(lineOnPlane(p1, line));
+    ASSERT_TRUE(lineOnPlane(p2, line));
+}
+
 TEST(PlaneTest, pointStatus) {
     const Plane3f p(10.0f, Vec3f::PosZ);
     ASSERT_EQ(Math::PointStatus::PSAbove, p.pointStatus(Vec3f(0.0f, 0.0f, 11.0f)));

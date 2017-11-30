@@ -123,13 +123,12 @@ public:
     }
     
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
-        Vec<T,S> lineDirection = crossed(normal, other.normal);
-        if (lineDirection.null()) {
+        const Vec<T,S> lineDirection = crossed(normal, other.normal).normalized();
+        
+        if (lineDirection.nan()) {
             // the planes are parallel
             return Line<T,S>();
         }
-        
-        lineDirection.normalize();
         
         // Now we need to find a point that is on both planes.
         
@@ -138,7 +137,7 @@ public:
         // This will give us a line direction from this plane's anchor that
         // intersects the other plane.
         
-        const Line<T,S> lineToOtherPlane{anchor(), projectVector(other.normal)};
+        const Line<T,S> lineToOtherPlane{anchor(), projectVector(other.normal).normalized()};
         const T dist = other.intersectWithLine(lineToOtherPlane);
         const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
