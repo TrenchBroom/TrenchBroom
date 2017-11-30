@@ -103,7 +103,7 @@ public:
     }
     
     T distanceOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
-		return (otherPoint - point).dot(direction);
+        return (otherPoint - point).dot(direction);
     }
 
     const Vec<T,S> pointOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
