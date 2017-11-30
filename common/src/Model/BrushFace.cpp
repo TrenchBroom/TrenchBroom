@@ -466,12 +466,28 @@ namespace TrenchBroom {
             ensure(m_geometry != NULL, "geometry is null");
 
             const BrushHalfEdge* first = m_geometry->boundary().front();
-            const Vec3 oldNormal = m_boundary.normal;
+            const Plane3 oldPlane = m_boundary;
             setPoints(first->next()->origin()->position(),
                       first->origin()->position(),
                       first->previous()->origin()->position());
 
-            m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
+            // Get a line, and a reference point, that are on both the old plane
+            // (before moving the face) and after moving the face.
+            const Line3 seam = oldPlane.intersectWithPlane(m_boundary);
+            if (!seam.direction.null()) {
+                const Vec3 refPoint = seam.pointOnLineClosestToPoint(center());
+                
+                // Get the texcoords at the refPoint using the old face's attribs and tex coord system
+                const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                
+                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs);
+                
+                // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
+                const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const Vec2f offsetChange = desriedCoords - currentCoords;
+                m_attribs.setXOffset(m_attribs.xOffset() + offsetChange.x());
+                m_attribs.setYOffset(m_attribs.yOffset() + offsetChange.y());
+            }
         }
 
         void BrushFace::snapPlanePointsToInteger() {
