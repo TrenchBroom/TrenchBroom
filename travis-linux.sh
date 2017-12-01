@@ -38,3 +38,6 @@ export DISPLAY=:10
 
 echo "Shared libraries used:"
 ldd --verbose ./trenchbroom
+
+echo "Debian dependencies:"
+./print_debian_dependencies.sh
