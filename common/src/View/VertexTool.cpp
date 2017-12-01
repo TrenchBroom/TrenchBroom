@@ -86,10 +86,12 @@ namespace TrenchBroom {
             if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                 m_vertexHandles.deselectAll();
                 if (hit.hasType(EdgeHandleManager::HandleHit)) {
-                    m_edgeHandles.select(hit.target<Edge3>());
+                    const Edge3& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
+                    m_edgeHandles.select(handle);
                     m_mode = Mode_Split_Edge;
                 } else {
-                    m_faceHandles.select(hit.target<Polygon3>());
+                    const Polygon3& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
+                    m_faceHandles.select(handle);
                     m_mode = Mode_Split_Face;
                 }
                 refreshViews();
