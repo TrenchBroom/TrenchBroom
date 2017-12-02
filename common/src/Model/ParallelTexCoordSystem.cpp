@@ -122,8 +122,20 @@ namespace TrenchBroom {
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
                 return;
             
-            // when texture lock is off, don't compensate for the translation part of the transformation
-            const Mat4x4 effectiveTransformation = lockTexture ? transformation : stripTranslation(transformation);
+            // when texture lock is off, strip off the translation and flip part of the transformation
+            Mat4x4 effectiveTransformation;
+            if (lockTexture) {
+                effectiveTransformation = transformation;
+            } else {
+                effectiveTransformation = stripTranslation(transformation);
+                
+                // we also shouldn't compensate for flips
+                if (effectiveTransformation.equals(Mat4x4::MirX)
+                    || effectiveTransformation.equals(Mat4x4::MirY)
+                    || effectiveTransformation.equals(Mat4x4::MirZ)) {
+                    effectiveTransformation = Mat4x4::Identity;
+                }
+            }
             
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
