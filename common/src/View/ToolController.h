@@ -177,9 +177,30 @@ namespace TrenchBroom {
             virtual bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const = 0;
         };
         
+        class MultiDragSnapper : public DragSnapper {
+        private:
+            typedef std::list<std::unique_ptr<DragSnapper>> List;
+            List m_delegates;
+        public:
+            template <typename... T>
+            MultiDragSnapper(T... delegates) {
+                addDelegates(delegates...);
+            }
+        private:
+            template <typename F, typename... R>
+            void addDelegates(F first, R... rest) {
+                m_delegates.push_back(std::unique_ptr<DragSnapper>(first));
+                addDelegates(rest...);
+            }
+            
+            void addDelegates();
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
+        };
+        
         class NoDragSnapper : public DragSnapper {
         private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         };
         
         class Grid;

@@ -28,6 +28,43 @@
 
 namespace TrenchBroom {
     namespace View {
+
+        class VertexToolController::VertexDragSnapper : public DragSnapper {
+        private:
+            typedef VertexHandleManagerBaseT<Vec3> HandleManager;
+            const HandleManager& m_handles;
+            const Vec3 m_offset;
+        public:
+            VertexDragSnapper(const HandleManager& handles, const Vec3& offset) :
+            m_handles(handles),
+            m_offset(offset) {}
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override {
+                const Ray3& pickRay = inputState.pickRay();
+                const auto handles = m_handles.allHandles();
+                
+                bool anyHit = false;
+                FloatType bestError = std::numeric_limits<FloatType>::max();
+                Vec3 bestHandle;
+                for (const Vec3& handle : handles) {
+                    const FloatType dist = pickRay.intersectWithSphere(handle, pref(Preferences::HandleRadius));
+                    if (!Math::isnan(dist)) {
+                        const FloatType curError = pickRay.squaredDistanceToPoint(handle).distance;
+                        if (curError < bestError) {
+                            bestHandle = handle;
+                            bestError = curError;
+                        }
+                        anyHit = true;
+                    }
+                }
+                
+                if (anyHit) {
+                    curPoint = bestHandle - m_offset;
+                }
+                return anyHit;
+            }
+        };
+
         class VertexToolController::VertexPartBase {
         public:
             virtual ~VertexPartBase() {}
@@ -94,15 +131,24 @@ namespace TrenchBroom {
             }
             
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
+                return new MultiDragSnapper(createDistanceSnapper(inputState),
+                                            createVertexSnapper(inputState));
+            }
+            
+            DragSnapper* createDistanceSnapper(const InputState& inputState) const {
                 switch (snapType(inputState)) {
                     case ST_Absolute:
                         return new AbsoluteDragSnapper(m_tool->grid(), m_handleOffset);
                     case ST_Relative:
                         return new DeltaDragSnapper(m_tool->grid());
-                    switchDefault();
+                        switchDefault();
                 }
             }
             
+            DragSnapper* createVertexSnapper(const InputState& inputState) const {
+                return new VertexDragSnapper(m_tool->handleManager(), m_handleOffset);
+            }
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
                 

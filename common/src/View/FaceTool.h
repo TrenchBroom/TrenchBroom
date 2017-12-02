@@ -46,7 +46,7 @@ namespace TrenchBroom {
             using VertexToolBase::findIncidentBrushes;
         public:
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
-        private:
+        public:
             FaceHandleManager& handleManager() override;
             const FaceHandleManager& handleManager() const override;
         public:

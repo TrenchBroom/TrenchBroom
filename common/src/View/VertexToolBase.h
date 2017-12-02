@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 }
                 return false;
             }
-        private:
+        public:
             typedef VertexHandleManagerBaseT<H> HandleManager;
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
@@ -420,8 +420,8 @@ namespace TrenchBroom {
             }
         protected:
             void rebuildBrushGeometry() {
-                
                 const SetBool ignoreChangeNotifications(m_ignoreChangeNotifications);
+                
                 const auto selectedHandles = handleManager().selectedHandles();
                 const Model::BrushSet brushes = findIncidentBrushes(handleManager(), std::begin(selectedHandles), std::end(selectedHandles));
                 handleManager().removeHandles(std::begin(brushes), std::end(brushes));

@@ -69,7 +69,7 @@ namespace TrenchBroom {
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
         public: // Handle selection
             bool deselectAll() override;
-        private:
+        public:
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving

@@ -161,6 +161,34 @@ namespace TrenchBroom {
             return doSnap(inputState, initialPoint, lastPoint, curPoint);
         }
         
+        void MultiDragSnapper::addDelegates() {}
+
+        bool MultiDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& originalCurPoint) const {
+            if (m_delegates.empty())
+                return false;
+            
+            Vec3 bestPoint;
+            bool anySnapped = false;
+            for (const std::unique_ptr<DragSnapper>& delegate : m_delegates) {
+                Vec3 curPoint = originalCurPoint;
+                if (delegate->snap(inputState, initialPoint, lastPoint, curPoint)) {
+                    if (anySnapped) {
+                        if (curPoint.squaredDistanceTo(originalCurPoint) < bestPoint.squaredDistanceTo(originalCurPoint)) {
+                            bestPoint = curPoint;
+                        }
+                    } else {
+                        bestPoint = curPoint;
+                        anySnapped = true;
+                    }
+                }
+            }
+            
+            if (anySnapped) {
+                originalCurPoint = bestPoint;
+            }
+            return anySnapped;
+        }
+
         bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             return true;
         }

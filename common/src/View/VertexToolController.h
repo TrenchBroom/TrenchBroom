@@ -30,10 +30,10 @@ namespace TrenchBroom {
         
         class VertexToolController : public VertexToolControllerBase<VertexTool> {
         private:
+            class VertexDragSnapper;
             class VertexPartBase;
             class SelectVertexPart;
             class MoveVertexPart;
-            class SnapVertexPart;
         public:
             VertexToolController(VertexTool* tool);
         };
