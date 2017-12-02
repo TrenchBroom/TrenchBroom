@@ -212,8 +212,9 @@ namespace TrenchBroom {
             const Vec3 cross = crossed(oldNormal, newNormal);
             Vec3 axis;
             if (cross.null()) {
-                // oldNormal and newNormal are either the same or opposite
-                axis = oldNormal.makePerpendicular();
+                // oldNormal and newNormal are either the same or opposite.
+                // in this case, no need to update the texture axes.
+                return;
             } else {
                 axis = cross.normalized();
             }
