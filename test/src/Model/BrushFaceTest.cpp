@@ -367,7 +367,7 @@ namespace TrenchBroom {
 
             // get UV of each vert using `face` and `resetFace`
             std::vector<Vec2> face_UVs, origFace_UVs;
-            for (const auto& vert : origFace->vertices()) {
+            for (const auto vert : origFace->vertices()) {
                 face_UVs.push_back(face->textureCoords(vert->position()));
                 origFace_UVs.push_back(origFace->textureCoords(vert->position()));
             }
