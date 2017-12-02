@@ -101,6 +101,15 @@ public:
     const Vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
     }
+    
+    T distanceOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
+        return (otherPoint - point).dot(direction);
+    }
+
+    const Vec<T,S> pointOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
+        return pointAtDistance(distanceOnLineClosestToPoint(otherPoint));
+    }
+    
 private:
     bool isCanonical() const {
         const T d = point.dot(direction);
