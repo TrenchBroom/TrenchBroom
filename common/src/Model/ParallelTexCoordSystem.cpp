@@ -180,7 +180,34 @@ namespace TrenchBroom {
             return rotationMatrix(axis, angle);
         }
 
-        void ParallelTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+        static Vec3 chooseRotationAxis(const Vec3& startNormal, const Vec3& endNormal) {
+            Vec3 axis = crossed(startNormal, endNormal).normalized();
+            if (axis.nan()) {
+                // oldNormal and newNormal are either the same or opposite
+                return startNormal.makePerpendicular();
+            }
+            return axis;
+        }
+        
+        void ParallelTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+            // this attempts to emulate ParaxialTexCoordSystem.
+            // when the angle between the texture axis normal and the face normal
+            // is greater than 45 degrees (meaning the texture projection is heavily distorted),
+            // rotate the texture axes by 90 degrees.
+            const Vec3 texNormal = crossed(m_yAxis, m_xAxis).normalized();
+            const Vec3 rotationAxis = chooseRotationAxis(texNormal, newNormal);
+            const FloatType angle = angleBetween(newNormal, texNormal, rotationAxis);
+            
+            if (angle > Math::radians(45.0) && angle < Math::radians(135.0)) {
+                const FloatType rotationAngle = Math::radians(90.0);
+                const Quat3 rotation = Quat3(rotationAxis, rotationAngle);
+                
+                m_xAxis = rotation * m_xAxis;
+                m_yAxis = rotation * m_yAxis;
+            }
+        }
+        
+        void ParallelTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
             const Vec3 cross = crossed(oldNormal, newNormal);
             Vec3 axis;
