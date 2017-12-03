@@ -40,28 +40,21 @@ namespace TrenchBroom {
             m_offset(offset) {}
         private:
             bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override {
-                const Ray3& pickRay = inputState.pickRay();
-                const auto handles = m_handles.allHandles();
-                
-                bool anyHit = false;
+                const auto hits = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().all();
+
                 FloatType bestError = std::numeric_limits<FloatType>::max();
-                Vec3 bestHandle;
-                for (const Vec3& handle : handles) {
-                    const FloatType dist = pickRay.intersectWithSphere(handle, pref(Preferences::HandleRadius));
-                    if (!Math::isnan(dist)) {
-                        const FloatType curError = pickRay.squaredDistanceToPoint(handle).distance;
-                        if (curError < bestError) {
-                            bestHandle = handle;
-                            bestError = curError;
+                for (const auto& hit : hits) {
+                    const Vec3& handle = hit.target<Vec3>();
+                    if (!m_handles.selected(handle)) {
+                        const FloatType error = hit.error();
+                        if (error < bestError) {
+                            curPoint = hit.target<Vec3>() - m_offset;
+                            bestError = error;
                         }
-                        anyHit = true;
                     }
                 }
-                
-                if (anyHit) {
-                    curPoint = bestHandle - m_offset;
-                }
-                return anyHit;
+
+                return bestError != std::numeric_limits<FloatType>::max();
             }
         };
 
@@ -119,6 +112,24 @@ namespace TrenchBroom {
                 }
             }
 
+            bool doMouseClick(const InputState& inputState) override {
+                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
+                    m_tool->handleManager().selectedHandleCount() == 1) {
+                    
+                    const Model::Hit& hit = findHandleHit(inputState);
+                    if (hit.hasType(VertexHandleManager::HandleHit)) {
+                        const Vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
+                        const Vec3 targetPos = hit.target<Vec3>();
+                        const Vec3 delta = targetPos - sourcePos;
+                        m_tool->moveSelection(delta);
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+            
             MoveInfo doStartMove(const InputState& inputState) override {
                 const MoveInfo info = MovePartBase::doStartMove(inputState);
                 if (info.move) {

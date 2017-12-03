@@ -35,7 +35,8 @@ namespace TrenchBroom {
                 const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position));
+                    const FloatType error = pickRay.squaredDistanceToPoint(position).distance;
+                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position, error));
                 }
             }
         }
