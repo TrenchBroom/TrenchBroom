@@ -107,7 +107,6 @@
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
-#include "View/VertexHandleManagerOld.h"
 #include "View/ViewEffectsService.h"
 
 #include <cassert>

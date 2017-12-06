@@ -24,7 +24,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -62,15 +61,7 @@ namespace TrenchBroom {
             m_newFacePositions = document->performMoveFaces(m_faces, m_delta);
             return true;
         }
-        
-        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectFaceHandles(m_newFacePositions);
-        }
-        
-        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectFaceHandles(m_oldFacePositions);
-        }
-        
+
         bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
             MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
             

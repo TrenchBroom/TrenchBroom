@@ -24,7 +24,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {

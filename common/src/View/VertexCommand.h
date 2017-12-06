@@ -30,7 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManagerOld;
         class VertexTool;
         
         class VertexCommand : public DocumentCommand {
@@ -82,11 +81,6 @@ namespace TrenchBroom {
             void removeHandles(VertexHandleManagerBase& manager);
             void addHandles(VertexHandleManagerBase& manager);
         public:
-            void removeBrushes(VertexHandleManagerOld& manager);
-            void addBrushes(VertexHandleManagerOld& manager);
-            void selectNewHandlePositions(VertexHandleManagerOld& manager);
-            void selectOldHandlePositions(VertexHandleManagerOld& manager);
-            
             void selectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const;
             void selectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const;
             void selectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const;
@@ -94,9 +88,6 @@ namespace TrenchBroom {
             void selectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
             void selectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
         private:
-            virtual void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
-            virtual void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) = 0;
-            
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const;
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const;
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const;

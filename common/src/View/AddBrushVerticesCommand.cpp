@@ -59,10 +59,7 @@ namespace TrenchBroom {
             document->performAddVertices(m_vertices);
             return true;
         }
-        
-        void AddBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
-        void AddBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {}
-        
+
         bool AddBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
             return false;
         }

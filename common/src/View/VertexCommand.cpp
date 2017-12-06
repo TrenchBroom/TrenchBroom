@@ -25,7 +25,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexTool.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -179,22 +178,6 @@ namespace TrenchBroom {
         
         void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
             doSelectOldHandlePositions(manager);
-        }
-
-        void VertexCommand::removeBrushes(VertexHandleManagerOld& manager) {
-            manager.removeBrushes(std::begin(m_brushes), std::end(m_brushes));
-        }
-        
-        void VertexCommand::addBrushes(VertexHandleManagerOld& manager) {
-            manager.addBrushes(std::begin(m_brushes), std::end(m_brushes));
-        }
-        
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerOld& manager) {
-            doSelectNewHandlePositions(manager, m_brushes);
-        }
-        
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerOld& manager) {
-            doSelectOldHandlePositions(manager, m_brushes);
         }
 
         void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}

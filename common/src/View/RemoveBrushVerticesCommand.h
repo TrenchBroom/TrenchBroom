@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManagerOld;
-        
         class RemoveBrushVerticesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
@@ -42,8 +40,6 @@ namespace TrenchBroom {
             static Ptr remove(const Model::VertexToBrushesMap& vertices);
         private:
             RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions);
-            
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
         public:
             void selectNewHandlePositions(VertexHandleManager& manager) const;
             void selectOldHandlePositions(VertexHandleManager& manager) const;

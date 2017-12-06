@@ -23,7 +23,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -43,11 +42,6 @@ namespace TrenchBroom {
         RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
-
-        
-        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectEdgeHandles(m_oldEdgePositions);
-        }
 
         void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));

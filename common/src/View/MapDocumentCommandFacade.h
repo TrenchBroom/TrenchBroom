@@ -37,8 +37,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManagerOld;
-        
         class MapDocumentCommandFacade : public MapDocument {
         private:
             CommandProcessor m_commandProcessor;

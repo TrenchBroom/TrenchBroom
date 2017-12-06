@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManagerOld;
-        
         class MoveBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;
@@ -49,10 +47,7 @@ namespace TrenchBroom {
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
-            
-            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) override;
-            
+
             bool doCollateWith(UndoableCommand::Ptr command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;

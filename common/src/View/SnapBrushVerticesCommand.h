@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManagerOld;
-        
         class SnapBrushVerticesCommand : public DocumentCommand {
         public:
             static const CommandType Type;

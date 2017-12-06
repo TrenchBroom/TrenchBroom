@@ -369,6 +369,7 @@ namespace TrenchBroom {
             void commandDoOrUndo(Command::Ptr command) {
                 if (isVertexCommand(command)) {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    deselectHandles();
                     removeHandles(vertexCommand);
                     m_ignoreChangeNotifications = true;
                 }
@@ -440,7 +441,11 @@ namespace TrenchBroom {
             virtual void removeHandles(VertexCommand* command) {
                 command->removeHandles(handleManager());
             }
-            
+
+            virtual void deselectHandles() {
+                handleManager().deselectAll();
+            }
+
             virtual void selectNewHandlePositions(VertexCommand* command) {
                 command->selectNewHandlePositions(handleManager());
             }

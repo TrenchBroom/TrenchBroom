@@ -19,11 +19,9 @@
 
 #include "MoveBrushVerticesCommand.h"
 
-#include "Model/Brush.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -64,14 +62,6 @@ namespace TrenchBroom {
         bool MoveBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
             m_newVertexPositions = document->performMoveVertices(m_vertices, m_delta);
             return true;
-        }
-
-        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectVertexHandles(m_newVertexPositions);
-        }
-        
-        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectVertexHandles(m_oldVertexPositions);
         }
 
         bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {

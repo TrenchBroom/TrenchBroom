@@ -23,7 +23,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManagerOld.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -62,14 +61,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectEdgeHandles(m_newEdgePositions);
-        }
-        
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes) {
-            manager.selectEdgeHandles(m_oldEdgePositions);
-        }
-        
         bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
             MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
             

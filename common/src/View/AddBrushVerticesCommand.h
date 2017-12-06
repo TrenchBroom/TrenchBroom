@@ -26,8 +26,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class VertexHandleManagerOld;
-        
         class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
@@ -41,9 +39,6 @@ namespace TrenchBroom {
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
-            
-            void doSelectOldHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
-            void doSelectNewHandlePositions(VertexHandleManagerOld& manager, const Model::BrushList& brushes);
             
             bool doCollateWith(UndoableCommand::Ptr command);
         };

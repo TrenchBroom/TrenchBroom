@@ -106,6 +106,7 @@ namespace TrenchBroom {
                 }
                 return info;
             }
+
             DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 const auto result = MovePartBase::doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == DR_Continue && m_tool->handleManager().contains(nextHandlePosition + m_handleOffset)) {
