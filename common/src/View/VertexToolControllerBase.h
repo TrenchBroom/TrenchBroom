@@ -231,7 +231,7 @@ namespace TrenchBroom {
                     
                     return MoveInfo(hit.hitPoint());
                 }
-                
+
                 DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                         case T::MR_Continue:
@@ -252,7 +252,7 @@ namespace TrenchBroom {
                     m_tool->cancelMove();
                 }
                 
-                DragSnapper* doCreateDragSnapper(const InputState& inputState) const  override{
+                DragSnapper* doCreateDragSnapper(const InputState& inputState) const  override {
                     return new DeltaDragSnapper(m_tool->grid());
                 }
                 

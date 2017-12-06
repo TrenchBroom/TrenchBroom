@@ -90,6 +90,8 @@ namespace TrenchBroom {
             virtual bool doMouseDrag(const InputState& inputState) = 0;
             virtual void doEndMouseDrag(const InputState& inputState) = 0;
             virtual void doCancelMouseDrag() = 0;
+        protected:
+            void restartDrag(const InputState& inputState);
         };
         
         class NoMouseDragPolicy : public MouseDragPolicy {
@@ -272,20 +274,22 @@ namespace TrenchBroom {
 
                 bool skip() const;
             };
-            
+
+        public:
+            RestrictedDragPolicy();
+            virtual ~RestrictedDragPolicy();
+
             typedef enum {
                 DR_Continue,
                 DR_Deny,
                 DR_Cancel
             } DragResult;
-        public:
-            RestrictedDragPolicy();
-            virtual ~RestrictedDragPolicy();
+
         private:
             bool dragging() const;
             void deleteRestricter();
             void deleteSnapper();
-        protected:
+        public:
             const Vec3& initialHandlePosition() const;
             const Vec3& currentHandlePosition() const;
             const Vec3& initialMousePosition() const;
@@ -302,6 +306,8 @@ namespace TrenchBroom {
             void setSnapper(const InputState& inputState, DragSnapper* snapper, bool resetCurrentHandlePosition);
             
             bool snapPoint(const InputState& inputState, Vec3& point) const;
+        private:
+            void resetInitialPoint(const InputState& inputState);
         private: // subclassing interface
             virtual DragInfo doStartDrag(const InputState& inputState) = 0;
             virtual DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) = 0;

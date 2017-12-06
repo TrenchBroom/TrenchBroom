@@ -19,45 +19,11 @@
 
 #include "VertexToolController.h"
 
-#include "Renderer/RenderContext.h"
+#include "View/Grid.h"
 #include "View/VertexTool.h"
-#include "View/VertexHandleManager.h"
-
-#include <algorithm>
-#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
-
-        class VertexToolController::VertexDragSnapper : public DragSnapper {
-        private:
-            typedef VertexHandleManagerBaseT<Vec3> HandleManager;
-            const HandleManager& m_handles;
-            const Vec3 m_offset;
-        public:
-            VertexDragSnapper(const HandleManager& handles, const Vec3& offset) :
-            m_handles(handles),
-            m_offset(offset) {}
-        private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override {
-                const auto hits = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().all();
-
-                FloatType bestError = std::numeric_limits<FloatType>::max();
-                for (const auto& hit : hits) {
-                    const Vec3& handle = hit.target<Vec3>();
-                    if (!m_handles.selected(handle)) {
-                        const FloatType error = hit.error();
-                        if (error < bestError) {
-                            curPoint = hit.target<Vec3>() - m_offset;
-                            bestError = error;
-                        }
-                    }
-                }
-
-                return bestError != std::numeric_limits<FloatType>::max();
-            }
-        };
-
         class VertexToolController::VertexPartBase {
         public:
             virtual ~VertexPartBase() {}
@@ -140,13 +106,18 @@ namespace TrenchBroom {
                 }
                 return info;
             }
-            
-            DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
-                return new MultiDragSnapper(createDistanceSnapper(inputState),
-                                            createVertexSnapper(inputState));
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+                const auto result = MovePartBase::doMove(inputState, lastHandlePosition, nextHandlePosition);
+                if (result == DR_Continue && m_tool->handleManager().contains(nextHandlePosition + m_handleOffset)) {
+                    if ((snapType(inputState) == ST_Absolute && m_grid.snap(nextHandlePosition + m_handleOffset) != nextHandlePosition + m_handleOffset) ||
+                        (snapType(inputState) == ST_Relative && m_grid.offset(lastHandlePosition + m_handleOffset) != m_grid.offset(nextHandlePosition + m_handleOffset))) {
+                        restartDrag(inputState);
+                    }
+                }
+                return result;
             }
-            
-            DragSnapper* createDistanceSnapper(const InputState& inputState) const {
+
+            DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
                 switch (snapType(inputState)) {
                     case ST_Absolute:
                         return new AbsoluteDragSnapper(m_tool->grid(), m_handleOffset);
@@ -156,10 +127,6 @@ namespace TrenchBroom {
                 }
             }
             
-            DragSnapper* createVertexSnapper(const InputState& inputState) const {
-                return new VertexDragSnapper(m_tool->handleManager(), m_handleOffset);
-            }
-
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
                 

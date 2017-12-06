@@ -168,8 +168,11 @@ namespace TrenchBroom {
                         out = handle;
                 }
             }
-            
         public:
+            bool contains(const Handle& handle) const {
+                return m_handles.count(handle) > 0;
+            }
+
             bool selected(const Handle& handle) const {
                 const auto it = m_handles.find(handle);
                 if (it == std::end(m_handles))
