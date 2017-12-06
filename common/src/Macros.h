@@ -37,11 +37,7 @@
 #define switchDefault() default: assert(false); throw "Unhandled switch case";
 #endif
 
-#ifndef NDEBUG // in debug mode
-#define assertResult(funexp) assert(funexp);
-#else
-#define assertResult(funexp) funexp;
-#endif
+#define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
 
 #define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
 
