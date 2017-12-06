@@ -23,6 +23,8 @@
 #include "Exceptions.h"
 #include "Ensure.h"
 
+#include <cassert>
+
 // This macro is used to silence compiler warnings about unused variables. These are usually only used in assertions
 // and thus may become unused in release builds.
 #define unused(x) ((void)x)
@@ -35,7 +37,11 @@
 #define switchDefault() default: assert(false); throw "Unhandled switch case";
 #endif
 
-#define assertResult(funexp) { const bool result = (funexp); assert(result); }
+#ifndef NDEBUG // in debug mode
+#define assertResult(funexp) assert(funexp);
+#else
+#define assertResult(funexp) funexp;
+#endif
 
 #define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);
 
