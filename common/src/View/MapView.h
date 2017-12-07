@@ -48,6 +48,8 @@ namespace TrenchBroom {
             void moveCameraToPosition(const Vec3& position, bool animate);
             
             void moveCameraToCurrentTracePoint();
+
+            bool cancelMouseDrag();
         private:
             virtual bool doGetIsCurrent() const = 0;
             
@@ -66,6 +68,8 @@ namespace TrenchBroom {
             virtual void doMoveCameraToPosition(const Vec3& position, bool animate) = 0;
             
             virtual void doMoveCameraToCurrentTracePoint() = 0;
+
+            virtual bool doCancelMouseDrag() = 0;
         };
     }
 }

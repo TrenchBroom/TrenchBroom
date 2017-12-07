@@ -46,7 +46,7 @@ namespace TrenchBroom {
         m_mapViewBar(new MapViewBar(this, m_document)),
         m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
-        m_mapView(NULL) {
+        m_mapView(nullptr) {
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             bindObservers();
         }
@@ -58,10 +58,10 @@ namespace TrenchBroom {
             DestroyChildren();
             
             delete m_toolBox;
-            m_toolBox = NULL;
+            m_toolBox = nullptr;
             
             delete m_mapRenderer;
-            m_mapRenderer = NULL;
+            m_mapRenderer = nullptr;
         }
 
         void SwitchableMapViewContainer::connectTopWidgets(Inspector* inspector) {
@@ -69,13 +69,13 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::viewportHasFocus() const {
-            return m_mapView != NULL && m_mapView->isCurrent();
+            return m_mapView != nullptr && m_mapView->isCurrent();
         }
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
-            if (m_mapView != NULL) {
+            if (m_mapView != nullptr) {
                 m_mapView->Destroy();
-                m_mapView = NULL;
+                m_mapView = nullptr;
             }
 
             switch (viewId) {
@@ -93,7 +93,7 @@ namespace TrenchBroom {
                     break;
             }
             
-            SetSizer(NULL); // delete the old sizer first
+            SetSizer(nullptr); // delete the old sizer first
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapViewBar, 0, wxEXPAND);
             sizer->Add(m_mapView, 1, wxEXPAND);
@@ -309,6 +309,10 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::doFlashSelection() {
             m_mapView->flashSelection();
+        }
+
+        bool SwitchableMapViewContainer::doCancelMouseDrag() {
+            return m_mapView->cancelMouseDrag();
         }
     }
 }

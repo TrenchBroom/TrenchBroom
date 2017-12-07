@@ -196,6 +196,7 @@ namespace TrenchBroom {
             void doClearDropTarget();
             bool doCanFlipObjects() const;
             void doFlipObjects(Math::Direction direction);
+            bool doCancelMouseDrag();
         private: // implement RenderView interface
             void doInitializeGL(bool firstInitialization);
             bool doShouldRenderFocusIndicator() const;

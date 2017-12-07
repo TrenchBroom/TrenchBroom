@@ -100,8 +100,9 @@ namespace TrenchBroom {
             void startDrag(wxMouseEvent& event);
             void drag(wxMouseEvent& event);
             void endDrag(wxMouseEvent& event);
-            void cancelDrag();
-
+        public:
+            bool cancelDrag();
+        private:
             void captureMouse();
             void releaseMouse();
 

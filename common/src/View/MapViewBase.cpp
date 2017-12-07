@@ -825,7 +825,11 @@ namespace TrenchBroom {
             
             document->flipObjects(center, axis);
         }
-        
+
+        bool MapViewBase::doCancelMouseDrag() {
+            return ToolBoxConnector::cancelDrag();
+        }
+
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
                 GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));

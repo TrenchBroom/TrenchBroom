@@ -823,8 +823,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUndo())
+            if (canUndo() && !m_mapView->cancelMouseDrag()) {
                 m_document->undoLastCommand();
+            }
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
-        m_currentMapView(NULL) {
+        m_currentMapView(nullptr) {
             createGui(toolBox, mapRenderer, contextManager, views);
             bindEvents();
         }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             MapViewBase* previousMapView = m_currentMapView;
             m_currentMapView = mapView;
             m_currentMapView->Show();
-            if (previousMapView != NULL)
+            if (previousMapView != nullptr)
                 previousMapView->Hide();
             m_currentMapView->SetFocus();
 
@@ -144,6 +144,13 @@ namespace TrenchBroom {
         void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->linkCamera(helper);
+        }
+
+        bool CyclingMapView::doCancelMouseDrag() {
+            bool result = false;
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
+                result |= m_mapViews[i]->cancelMouseDrag();
+            return result;
         }
     }
 }

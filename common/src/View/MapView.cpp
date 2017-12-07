@@ -69,5 +69,9 @@ namespace TrenchBroom {
         void MapView::moveCameraToCurrentTracePoint() {
             doMoveCameraToCurrentTracePoint();
         }
+
+        bool MapView::cancelMouseDrag() {
+            return doCancelMouseDrag();
+        }
     }
 }
