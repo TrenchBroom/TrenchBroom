@@ -65,15 +65,9 @@ namespace TrenchBroom {
         }
 
         bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
-            
-            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
-                return false;
-            
-            m_newVertexPositions = other->m_newVertexPositions;
-            m_delta += other->m_delta;
-            
-            return true;
+            // Don't collate vertex moves. Collation changes the path along which the vertices are moved, and as a result
+            // changes the outcome of the entire operation.
+            return false;
         }
         
         void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
