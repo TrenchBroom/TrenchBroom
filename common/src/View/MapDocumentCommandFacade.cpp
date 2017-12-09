@@ -760,50 +760,6 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
-        Vec3::List MapDocumentCommandFacade::performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
-            const Model::NodeList parents = collectParents(nodes);
-            
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            Vec3::List newVertexPositions;
-            for (const auto& entry : edges) {
-                Model::Brush* brush = entry.first;
-                const Edge3::List& oldPositions = entry.second;
-                for (const Edge3& edgePosition : oldPositions) {
-                    const Vec3 vertexPosition = brush->splitEdge(m_worldBounds, edgePosition, delta);
-                    newVertexPositions.push_back(vertexPosition);
-                }
-            }
-            
-            invalidateSelectionBounds();
-
-            return newVertexPositions;
-        }
-
-        Vec3::List MapDocumentCommandFacade::performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
-            const Model::NodeList parents = collectParents(nodes);
-            
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            Vec3::List newVertexPositions;
-            for (const auto& entry : faces) {
-                Model::Brush* brush = entry.first;
-                const Polygon3::List& oldPositions = entry.second;
-                for (const Polygon3& facePosition : oldPositions) {
-                    const Vec3 vertexPosition = brush->splitFace(m_worldBounds, facePosition, delta);
-                    newVertexPositions.push_back(vertexPosition);
-                }
-            }
-            
-            invalidateSelectionBounds();
-
-            return newVertexPositions;
-        }
-
         void MapDocumentCommandFacade::performAddVertices(const Model::VertexToBrushesMap& vertices) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);

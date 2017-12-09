@@ -23,7 +23,6 @@
 #include "View/ToolChain.h"
 
 #include <wx/window.h>
-#include <wx/event.h>
 #include <wx/time.h>
 
 namespace TrenchBroom {
