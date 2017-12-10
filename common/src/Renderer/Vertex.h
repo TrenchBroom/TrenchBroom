@@ -82,10 +82,13 @@ namespace TrenchBroom {
                                   const size_t offset1 = 0, const size_t stride1 = 1) {
                 List result;
                 result.reserve(count);
-                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
-                for (size_t i = 0; i < count; ++i) {
+                if (count > 0) {
+                    std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
                     result.push_back(Vertex1(*cur1));
-                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                    for (size_t i = 1; i < count; ++i) {
+                        std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                        result.push_back(Vertex1(*cur1));
+                    }
                 }
                 return result;
             }
@@ -127,12 +130,15 @@ namespace TrenchBroom {
                                   const size_t offset2 = 0, const size_t stride2 = 1) {
                 List result;
                 result.reserve(count);
-                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
-                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
-                for (size_t i = 0; i < count; ++i) {
+                if (count > 0) {
+                    std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
                     result.push_back(Vertex2(*cur1, *cur2));
-                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
-                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                    for (size_t i = 1; i < count; ++i) {
+                        std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                        std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                        result.push_back(Vertex2(*cur1, *cur2));
+                    }
                 }
                 return result;
             }
@@ -181,14 +187,17 @@ namespace TrenchBroom {
                                   const size_t offset3 = 0, const size_t stride3 = 1) {
                 List result;
                 result.reserve(count);
-                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
-                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
-                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
-                for (size_t i = 0; i < count; ++i) {
+                if (count > 0) {
+                    std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
                     result.push_back(Vertex3(*cur1, *cur2, *cur3));
-                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
-                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
-                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                    for (size_t i = 1; i < count; ++i) {
+                        std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                        std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                        std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                        result.push_back(Vertex3(*cur1, *cur2, *cur3));
+                    }
                 }
                 return result;
             }
@@ -244,16 +253,19 @@ namespace TrenchBroom {
                                   const size_t offset4 = 0, const size_t stride4 = 1) {
                 List result;
                 result.reserve(count);
-                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
-                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
-                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
-                std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
-                for (size_t i = 0; i < count; ++i) {
+                if (count > 0) {
+                    std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
+                    std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
                     result.push_back(Vertex4(*cur1, *cur2, *cur3, *cur4));
-                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
-                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
-                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
-                    std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
+                    for (size_t i = 1; i < count; ++i) {
+                        std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                        std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                        std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                        std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
+                        result.push_back(Vertex4(*cur1, *cur2, *cur3, *cur4));
+                    }
                 }
                 return result;
             }
@@ -316,18 +328,21 @@ namespace TrenchBroom {
                                   const size_t offset5 = 0, const size_t stride5 = 1) {
                 List result;
                 result.reserve(count);
-                std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
-                std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
-                std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
-                std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
-                std::advance(cur5, static_cast<typename I5::difference_type>(offset5));
-                for (size_t i = 0; i < count; ++i) {
+                if (count > 0) {
+                    std::advance(cur1, static_cast<typename I1::difference_type>(offset1));
+                    std::advance(cur2, static_cast<typename I2::difference_type>(offset2));
+                    std::advance(cur3, static_cast<typename I3::difference_type>(offset3));
+                    std::advance(cur4, static_cast<typename I4::difference_type>(offset4));
+                    std::advance(cur5, static_cast<typename I5::difference_type>(offset5));
                     result.push_back(Vertex5(*cur1, *cur2, *cur3, *cur4, *cur5));
-                    std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
-                    std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
-                    std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
-                    std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
-                    std::advance(cur5, static_cast<typename I5::difference_type>(stride5));
+                    for (size_t i = 1; i < count; ++i) {
+                        std::advance(cur1, static_cast<typename I1::difference_type>(stride1));
+                        std::advance(cur2, static_cast<typename I2::difference_type>(stride2));
+                        std::advance(cur3, static_cast<typename I3::difference_type>(stride3));
+                        std::advance(cur4, static_cast<typename I4::difference_type>(stride4));
+                        std::advance(cur5, static_cast<typename I5::difference_type>(stride5));
+                        result.push_back(Vertex5(*cur1, *cur2, *cur3, *cur4, *cur5));
+                    }
                 }
                 return result;
             }
