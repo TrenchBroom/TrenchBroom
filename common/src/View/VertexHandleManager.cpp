@@ -135,7 +135,7 @@ namespace TrenchBroom {
                 const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                 if (!Math::isnan(pointDist)) {
                     const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
-                    pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
+                    pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }
             }
         }
