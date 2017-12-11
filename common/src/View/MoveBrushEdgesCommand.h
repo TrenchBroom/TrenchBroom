@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class MoveBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;
@@ -42,17 +40,18 @@ namespace TrenchBroom {
             Edge3::List m_newEdgePositions;
             Vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            static Ptr move(const Model::EdgeToBrushesMap& edges, const Vec3& delta);
+        private:
         private:
             MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta);
             
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
-            
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand::Ptr command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;
         };
     }
 }

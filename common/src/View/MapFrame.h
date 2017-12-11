@@ -175,6 +175,8 @@ namespace TrenchBroom {
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
             void OnEditToggleVertexTool(wxCommandEvent& event);
+            void OnEditToggleEdgeTool(wxCommandEvent& event);
+            void OnEditToggleFaceTool(wxCommandEvent& event);
 
             void OnEditCsgConvexMerge(wxCommandEvent& event);
             void OnEditCsgSubtract(wxCommandEvent& event);

@@ -70,23 +70,26 @@ namespace TrenchBroom {
         private:
             void switchToMapView(MapViewBase* mapView);
         private: // implement ViewEffectsService interface
-            void doFlashSelection();
+            void doFlashSelection() override;
         private: // implement MapView interface
-            bool doGetIsCurrent() const;
-            void doSetToolBoxDropTarget();
-            void doClearDropTarget();
-            bool doCanSelectTall();
-            void doSelectTall();
-            void doFocusCameraOnSelection(bool animate);
-            void doMoveCameraToPosition(const Vec3& position, bool animate);
-            void doMoveCameraToCurrentTracePoint();
-            bool doCanMaximizeCurrentView() const;
-            bool doCurrentViewMaximized() const;
-            void doToggleMaximizeCurrentView();
+            bool doGetIsCurrent() const override;
+            void doSetToolBoxDropTarget() override;
+            void doClearDropTarget() override;
+            bool doCanSelectTall() override;
+            void doSelectTall() override;
+            void doFocusCameraOnSelection(bool animate) override;
+            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
+            void doMoveCameraToCurrentTracePoint() override;
+            bool doCanMaximizeCurrentView() const override;
+            bool doCurrentViewMaximized() const override;
+            void doToggleMaximizeCurrentView() override;
+
+            bool doCancelMouseDrag() override;
+
         private: // implement MapViewContainer interface
-            MapView* doGetCurrentMapView() const;
+            MapView* doGetCurrentMapView() const override;
         private: // implement CameraLinkableView interface
-            void doLinkCamera(CameraLinkHelper& linkHelper);
+            void doLinkCamera(CameraLinkHelper& linkHelper) override;
         };
     }
 }

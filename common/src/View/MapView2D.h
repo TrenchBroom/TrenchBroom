@@ -61,8 +61,6 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void cameraDidChange(const Renderer::Camera* camera);
-        private: // interaction events
-            void bindEvents();
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const;
             Model::PickResult doPick(const Ray3& pickRay) const;

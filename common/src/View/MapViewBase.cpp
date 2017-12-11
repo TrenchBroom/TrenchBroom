@@ -773,8 +773,8 @@ namespace TrenchBroom {
                 return ActionContext_CreateComplexBrushTool;
             if (m_toolBox.clipToolActive())
                 return ActionContext_ClipTool;
-            if (m_toolBox.vertexToolActive())
-                return ActionContext_VertexTool;
+            if (m_toolBox.anyVertexToolActive())
+                return ActionContext_AnyVertexTool;
             if (m_toolBox.rotateObjectsToolActive())
                 return ActionContext_RotateTool;
 
@@ -825,7 +825,11 @@ namespace TrenchBroom {
             
             document->flipObjects(center, axis);
         }
-        
+
+        bool MapViewBase::doCancelMouseDrag() {
+            return ToolBoxConnector::cancelDrag();
+        }
+
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
                 GLVendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));

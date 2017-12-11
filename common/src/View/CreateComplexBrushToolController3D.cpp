@@ -266,7 +266,7 @@ namespace TrenchBroom {
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 
                 for (const Polyhedron3::Vertex* vertex : polyhedron.vertices())
-                    renderService.renderPointHandle(vertex->position());
+                    renderService.renderHandle(vertex->position());
                 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     const Polyhedron3::FaceHit hit = polyhedron.pickFace(inputState.pickRay());

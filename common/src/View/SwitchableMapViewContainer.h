@@ -50,6 +50,8 @@ namespace TrenchBroom {
         class MapViewToolBox;
         class Tool;
         class VertexTool;
+        class EdgeTool;
+        class FaceTool;
         
         class SwitchableMapViewContainer : public wxPanel, public MapView {
         private:
@@ -88,10 +90,17 @@ namespace TrenchBroom {
             bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
             
+            bool canToggleVertexTools() const;
+            bool anyVertexToolActive() const;
             bool vertexToolActive() const;
-            bool canToggleVertexTool() const;
+            bool edgeToolActive() const;
+            bool faceToolActive() const;
             void toggleVertexTool();
+            void toggleEdgeTool();
+            void toggleFaceTool();
             VertexTool* vertexTool();
+            EdgeTool* edgeTool();
+            FaceTool* faceTool();
             
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;
@@ -106,19 +115,20 @@ namespace TrenchBroom {
             void unbindObservers();
             void refreshViews(Tool* tool);
         private: // implement MapView interface
-            bool doGetIsCurrent() const;
-            void doSetToolBoxDropTarget();
-            void doClearDropTarget();
-            bool doCanSelectTall();
-            void doSelectTall();
-            bool doCanFlipObjects() const;
-            void doFlipObjects(Math::Direction direction);
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
-            void doFocusCameraOnSelection(bool animate);
-            void doMoveCameraToPosition(const Vec3& position, bool animate);
-            void doMoveCameraToCurrentTracePoint();
+            bool doGetIsCurrent() const override;
+            void doSetToolBoxDropTarget() override;
+            void doClearDropTarget() override;
+            bool doCanSelectTall() override;
+            void doSelectTall() override;
+            bool doCanFlipObjects() const override;
+            void doFlipObjects(Math::Direction direction) override;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
+            void doFocusCameraOnSelection(bool animate) override;
+            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
+            void doMoveCameraToCurrentTracePoint() override;
+            bool doCancelMouseDrag() override;
         private: // implement ViewEffectsService interface
-            void doFlashSelection();
+            void doFlashSelection() override;
         };
     }
 }

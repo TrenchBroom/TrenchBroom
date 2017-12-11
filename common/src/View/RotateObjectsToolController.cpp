@@ -138,6 +138,8 @@ namespace TrenchBroom {
                 
                 void doRender(Renderer::RenderContext& renderContext) {
                     glAssert(glDisable(GL_DEPTH_TEST));
+                    
+                    glAssert(glPushAttrib(GL_POLYGON_BIT));
                     glAssert(glDisable(GL_CULL_FACE));
                     glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
                     
@@ -146,9 +148,8 @@ namespace TrenchBroom {
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
                     
-                    glAssert(glPolygonMode(GL_FRONT, GL_FILL));
-                    glAssert(glEnable(GL_CULL_FACE));
                     glAssert(glEnable(GL_DEPTH_TEST));
+                    glAssert(glPopAttrib());
                 }
             };
             

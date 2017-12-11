@@ -37,8 +37,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class MapDocumentCommandFacade : public MapDocument {
         private:
             CommandProcessor m_commandProcessor;
@@ -100,8 +98,7 @@ namespace TrenchBroom {
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
             Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
             Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
-            Vec3::List performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Vec3::List performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations
             void performRebuildBrushGeometry(const Model::BrushList& brushes);

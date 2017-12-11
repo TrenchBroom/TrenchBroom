@@ -40,6 +40,18 @@ public:
     }
 };
 
+TEST(CollectionUtilsTest, rotateMinToFront) {
+    using CollectionUtils::minRotatedToFront;
+    
+    typedef std::vector<size_t> V;
+    
+    ASSERT_EQ(V{}, minRotatedToFront(V{}));
+    ASSERT_EQ(V{1}, minRotatedToFront(V{1}));
+    ASSERT_EQ((V{1, 2, 3}), minRotatedToFront(V{1, 2, 3}));
+    ASSERT_EQ((V{1, 2, 3}), minRotatedToFront(V{2, 3, 1}));
+    ASSERT_EQ((V{1, 2, 3}), minRotatedToFront(V{3, 1, 2}));
+}
+
 TEST(CollectionUtilsTest, equivalenceClasses) {
     typedef std::vector<int> In;
     typedef std::list<int> Cls;

@@ -81,6 +81,9 @@ namespace TrenchBroom {
     Func1<void, const GLfloat*> glLoadMatrixf;
     Func1<void, GLenum> glMatrixMode;
     
+    Func1<void, GLbitfield> glPushAttrib;
+    Func0<void> glPopAttrib;
+    
     Func2<void, GLenum, GLint*> glGetIntegerv;
     
     Func2<void, GLenum, GLfloat> glPixelStoref;

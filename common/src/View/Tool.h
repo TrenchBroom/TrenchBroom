@@ -52,14 +52,11 @@ namespace TrenchBroom {
             
             void createPage(wxBookCtrlBase* book);
             void showPage();
-            
-            wxBitmap icon() const;
         private:
             virtual bool doActivate();
             virtual bool doDeactivate();
 
             virtual wxWindow* doCreatePage(wxWindow* parent);
-            virtual String doGetIconName() const;
         };
     }
 }

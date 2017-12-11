@@ -603,6 +603,15 @@ Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
     return rotation;
 }
 
+/**
+ Returns a matrix that will rotate the given from vector onto the given to vector
+ about their perpendicular axis. The vectors are expected to be normalized.
+ */
+template <typename T>
+Mat<T,4,4> rotationMatrix(const Vec<T,3>& from, const Vec<T,3>& to) {
+    return rotationMatrix(Quat<T>(from, to));
+}
+
 template <typename T, size_t S>
 Mat<T,S+1,S+1> translationMatrix(const Vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
