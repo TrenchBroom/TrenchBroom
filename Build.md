@@ -9,7 +9,11 @@
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
     - VS2015 and VS2017 are supported.
-    - Install the `v140_xp` platform toolset (listed as "Windows XP Support for C++" in the installer).
+    - For VS2015, install the `v140_xp` platform toolset (listed as "Windows XP Support for C++" in the installer).
+    - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
+      - VC++ 2015.3 v140 toolset for desktop (x86,x64)
+      - Windows XP support for C++
+
     - Get the binary build of wxWidgets 3 for your platform from
       [http://www.wxwidgets.org](http://www.wxwidgets.org)
 
