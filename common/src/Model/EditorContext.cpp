@@ -73,6 +73,19 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
         
+        bool EditorContext::groupMatchesSearch(const Model::Group* group) const {
+            if (m_searchString.empty())
+                return true;
+            
+            if (StringUtils::containsCaseInsensitive(group->name(), m_searchString))
+                return true;
+            
+            if (anyChildVisible(group))
+                return true;
+
+            return false;
+        }
+        
         bool EditorContext::entityMatchesSearch(const Model::AttributableNode* entity) const {
             if (m_searchString.empty())
                 return true;
@@ -200,6 +213,8 @@ namespace TrenchBroom {
         bool EditorContext::visible(const Model::Group* group) const {
             if (group->selected())
                 return true;
+            if (!groupMatchesSearch(group))
+                return false;
             return group->visible();
         }
         

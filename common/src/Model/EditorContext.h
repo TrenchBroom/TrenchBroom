@@ -64,6 +64,7 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType hiddenBrushContentTypes() const;
             void setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes);
             
+            bool groupMatchesSearch(const Model::Group* group) const;
             bool entityMatchesSearch(const Model::AttributableNode* entity) const;
             bool brushMatchesSearch(const Model::Brush* brush) const;
                 
