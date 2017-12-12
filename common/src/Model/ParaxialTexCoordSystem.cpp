@@ -225,10 +225,15 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             setRotation(newNormal, attribs.rotation(), attribs.rotation());
         }
 
+        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+            // not supported; fall back to doUpdateNormalWithProjection
+            doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+        }
+        
         void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
             // not supported
         }

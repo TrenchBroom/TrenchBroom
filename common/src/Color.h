@@ -51,6 +51,10 @@ public:
     const Color mixed(const Color& other, const float f) const {
         return Color(*this).mix(other, f);
     }
+    
+    friend Color mixAlpha(const Color& color, const float f) {
+        return Color(color.r(), color.g(), color.b(), f * color.a());
+    }
 
     static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 };

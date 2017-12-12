@@ -175,7 +175,7 @@ public:
         Vec<T,S> v = direction;
         Vec<T,S> w = start - origin;
         
-        const T a = u.dot(u);
+        const T a = u.dot(u); // squared length of u
         const T b = u.dot(v);
         const T c = v.dot(v);
         const T d = u.dot(w);
@@ -211,7 +211,7 @@ public:
         w = w + u;
         const Vec<T,S> dP = w - v;
         
-        return LineDistance::NonParallel(tc, dP.squaredLength(), sc);
+        return LineDistance::NonParallel(tc, dP.squaredLength(), sc * std::sqrt(a));
     }
     
     const LineDistance distanceToRay(const Ray<T,3>& ray) const {

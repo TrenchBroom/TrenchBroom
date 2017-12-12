@@ -37,8 +37,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class MapDocumentCommandFacade : public MapDocument {
         private:
             CommandProcessor m_commandProcessor;
@@ -92,7 +90,7 @@ namespace TrenchBroom {
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
             void performShearTextures(const Vec2f& factors);
-            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal);
+            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             Model::Snapshot* performFindPlanePoints();
@@ -100,8 +98,7 @@ namespace TrenchBroom {
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
             Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
             Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
-            Vec3::List performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Vec3::List performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations
             void performRebuildBrushGeometry(const Model::BrushList& brushes);

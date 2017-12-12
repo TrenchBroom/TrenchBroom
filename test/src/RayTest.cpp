@@ -87,13 +87,19 @@ TEST(RayTest, distanceToSegment) {
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_FLOAT_EQ(0.5f, segDist.lineDistance);
+    ASSERT_FLOAT_EQ(0.70710677f, segDist.lineDistance);
     
     segDist = ray.squaredDistanceToSegment(Vec3f(1.0f, 0.0f, 0.0f), Vec3f(2.0f, -1.0f, 0.0f));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(1.0f, segDist.distance);
     ASSERT_FLOAT_EQ(0.0f, segDist.lineDistance);
+    
+    segDist = ray.distanceToSegment(Vec3f(-1.0f, 1.5f, 2.0f), Vec3f(+1.0f, 1.5f, 2.0f));
+    ASSERT_FALSE(segDist.parallel);
+    ASSERT_FLOAT_EQ(2.0f, segDist.rayDistance);
+    ASSERT_FLOAT_EQ(1.5f, segDist.distance);
+    ASSERT_FLOAT_EQ(1.0f, segDist.lineDistance);
 }
 
 TEST(RayTest, distanceToLine) {

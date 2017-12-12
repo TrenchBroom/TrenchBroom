@@ -32,31 +32,11 @@ namespace TrenchBroom {
         m_start(point),
         m_cur(m_start) {}
         
-        void Lasso::setPoint(const Vec3& point) {
+        void Lasso::update(const Vec3& point) {
             m_cur = point;
         }
-        
-        Vec3::List Lasso::containedPoints(const Vec3::List& points) const {
-            const Plane3 plane(m_camera.defaultPoint(static_cast<float>(m_distance)), m_camera.direction());
-            const BBox2 box = computeBox();
-            
-            Vec3::List result;
-            result.reserve(points.size());
-            
-            for (const Vec3& point : points) {
-                if (containsPoint(point, plane, box))
-                    result.push_back(point);
-            }
-            return result;
-        }
 
-        bool Lasso::containsPoint(const Vec3& point) const {
-            const Plane3 plane(m_camera.defaultPoint(static_cast<float>(m_distance)), m_camera.direction());
-            const BBox2 box = computeBox();
-            return containsPoint(point, plane, box);
-        }
-
-        bool Lasso::containsPoint(const Vec3& point, const Plane3& plane, const BBox2& box) const {
+        bool Lasso::selects(const Vec3& point, const Plane3& plane, const BBox2& box) const {
             const Ray3 ray(m_camera.pickRay(point));
             const FloatType hitDistance = plane.intersectWithRay(ray);
             if (Math::isnan(hitDistance))
@@ -66,9 +46,47 @@ namespace TrenchBroom {
             const Vec3 projected = m_transform * hitPoint;
             return box.contains(projected);
         }
+        
+        bool Lasso::selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const {
+            const Vec3 prStart = project(edge.start(), plane);
+            const Vec3 prEnd = project(edge.end(), plane);
+            if (prStart.nan() || prEnd.nan())
+                return false;
+            
+            return box.touches(prStart, prEnd);
+        }
+        
+        bool Lasso::selects(const Polygon3& polygon, const Plane3& plane, const BBox2& box) const {
+            if (polygon.vertexCount() == 0)
+                return false;
+            if (polygon.vertexCount() == 1)
+                return selects(polygon.vertices().front());
+            
+            Vec3 prStart = project(polygon.vertices().back(), plane);
+            for (const Vec3& cur : polygon) {
+                Vec3 prEnd = project(cur, plane);
+                if (!prStart.nan() && !prEnd.nan() && box.touches(prStart, prEnd)) {
+                    return true;
+                }
+                
+                prStart = prEnd;
+            }
+            
+            return false;
+        }
+        
+        Vec3 Lasso::project(const Vec3& point, const Plane3& plane) const {
+            const Ray3 ray(m_camera.pickRay(point));
+            const FloatType hitDistance = plane.intersectWithRay(ray);
+            if (Math::isnan(hitDistance))
+                return Vec3::NaN;
+            
+            const Vec3 hitPoint = ray.pointAtDistance(hitDistance);
+            return m_transform * hitPoint;
+        }
 
         void Lasso::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
-            const BBox2 box = computeBox();
+            const BBox2 box = this->box();
             const Mat4x4 inverted = invertedMatrix(m_transform);
             
             Vec3f::List polygon(4);
@@ -86,7 +104,11 @@ namespace TrenchBroom {
             renderService.renderFilledPolygon(polygon);
         }
 
-        BBox2 Lasso::computeBox() const {
+        Plane3 Lasso::plane() const {
+            return Plane3(m_camera.defaultPoint(static_cast<float>(m_distance)), m_camera.direction());
+        }
+        
+        BBox2 Lasso::box() const {
             const Vec3 start = m_transform * m_start;
             const Vec3 cur   = m_transform * m_cur;
             

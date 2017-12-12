@@ -36,12 +36,12 @@ namespace TrenchBroom {
             } else {
                 if (actionContext & ActionContext_CreateComplexBrushTool)
                     actionContexts.push_back("Create Brush Tool");
-                if (actionContext & ActionContext_VertexTool)
-                    actionContexts.push_back("Vertex Tool");
                 if (actionContext & ActionContext_ClipTool)
                     actionContexts.push_back("Clip Tool");
                 if (actionContext & ActionContext_RotateTool)
                     actionContexts.push_back("Rotate Tool");
+                if (actionContext & ActionContext_AnyVertexTool)
+                    actionContexts.push_back("Any Vertex Tool");
             }
 
             if (actionContext & ActionContext_FlyMode)

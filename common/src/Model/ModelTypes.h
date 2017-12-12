@@ -106,9 +106,11 @@ namespace TrenchBroom {
         typedef std::set<BrushEdge*> BrushEdgeSet;
         static const BrushEdgeSet EmptyBrushEdgeSet;
         
-        typedef std::map<Vec3, BrushSet, Vec3::LexicographicOrder> VertexToBrushesMap;
-        typedef std::map<Vec3, BrushEdgeSet, Vec3::LexicographicOrder> VertexToEdgesMap;
-        typedef std::map<Vec3, BrushFaceSet, Vec3::LexicographicOrder> VertexToFacesMap;
+        typedef std::map<Vec3, BrushSet> VertexToBrushesMap;
+        typedef std::map<Edge3, BrushSet> EdgeToBrushesMap;
+        typedef std::map<Polygon3, BrushSet> FaceToBrushesMap;
+        typedef std::map<Vec3, BrushEdgeSet> VertexToEdgesMap;
+        typedef std::map<Vec3, BrushFaceSet> VertexToFacesMap;
         typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
         typedef std::map<Model::Brush*, Edge3::List> BrushEdgesMap;
         typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;

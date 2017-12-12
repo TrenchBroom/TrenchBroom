@@ -430,9 +430,7 @@ private:
     }
     
     HalfEdge* findOrCopyHalfEdge(const HalfEdge* original) {
-        typedef std::pair<bool, typename HalfEdgeMap::iterator> InsertPos;
-        
-        InsertPos insertPos = MapUtils::findInsertPos(m_halfEdgeMap, original);
+        const auto insertPos = MapUtils::findInsertPos(m_halfEdgeMap, original);
         if (!insertPos.first) {
             const Vertex* originalOrigin = original->origin();
             Vertex* myOrigin = findVertex(originalOrigin);
@@ -440,7 +438,10 @@ private:
             m_halfEdgeMap.insert(insertPos.second, std::make_pair(original, copy));
             return copy;
         }
-        return insertPos.second->second;
+        
+        const auto it = insertPos.second;
+        assert(it != std::begin(m_halfEdgeMap));
+        return std::prev(it)->second;
     }
     
     void swapContents() {

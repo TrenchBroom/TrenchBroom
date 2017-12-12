@@ -74,7 +74,8 @@ namespace TrenchBroom {
             float computeTextureAngle(const Plane3& oldBoundary, const Mat4x4& transformation) const;
             Mat4x4 computeNonTextureRotation(const Vec3& oldNormal, const Vec3& newNormal, const Mat4x4& rotation) const;
             
-            void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
+            void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
+            void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
 
             void doShearTexture(const Vec3& normal, const Vec2f& factors);
 

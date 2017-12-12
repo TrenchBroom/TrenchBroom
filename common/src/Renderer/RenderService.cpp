@@ -64,7 +64,8 @@ namespace TrenchBroom {
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
         m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
         m_lineWidth(1.0f),
-        m_occlusionPolicy(PrimitiveRenderer::OP_Transparent) {}
+        m_occlusionPolicy(PrimitiveRenderer::OP_Transparent),
+        m_cullingPolicy(PrimitiveRenderer::CP_CullBackfaces) {}
         
         RenderService::~RenderService() {
             flush();
@@ -94,6 +95,14 @@ namespace TrenchBroom {
             m_occlusionPolicy = PrimitiveRenderer::OP_Hide;
         }
 
+        void RenderService::setShowBackfaces() {
+            m_cullingPolicy = PrimitiveRenderer::CP_ShowBackfaces;
+        }
+        
+        void RenderService::setCullBackfaces() {
+            m_cullingPolicy = PrimitiveRenderer::CP_CullBackfaces;
+        }
+
         void RenderService::renderString(const AttrString& string, const Vec3f& position) {
             renderString(string, SimpleTextAnchor(position, TextAlignment::Bottom, Vec2f(0.0f, 16.0f)));
         }
@@ -109,17 +118,47 @@ namespace TrenchBroom {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, HeadsUpTextAnchor());
         }
 
-        void RenderService::renderPointHandles(const Vec3f::List& positions) {
+        void RenderService::renderHandles(const Vec3f::List& positions) {
             for (const Vec3f& position : positions)
-                renderPointHandle(position);
+                renderHandle(position);
         }
         
-        void RenderService::renderPointHandle(const Vec3f& position) {
+        void RenderService::renderHandle(const Vec3f& position) {
             m_pointHandleRenderer->addPoint(m_foregroundColor, position);
         }
 
-        void RenderService::renderPointHandleHighlight(const Vec3f& position) {
+        void RenderService::renderHandleHighlight(const Vec3f& position) {
             m_pointHandleRenderer->addHighlight(m_foregroundColor, position);
+        }
+        
+        void RenderService::renderHandles(const Edge3f::List& positions) {
+            for (const Edge3f& position : positions)
+                renderHandle(position);
+        }
+        
+        void RenderService::renderHandle(const Edge3f& position) {
+            m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+        }
+        
+        void RenderService::renderHandleHighlight(const Edge3f& position) {
+            m_primitiveRenderer->renderLine(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+        }
+        
+        void RenderService::renderHandles(const Polygon3f::List& positions) {
+            for (const Polygon3f& position : positions)
+                renderHandle(position);
+        }
+        
+        void RenderService::renderHandle(const Polygon3f& position) {
+            setShowBackfaces();
+            m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.07f), m_occlusionPolicy, m_cullingPolicy, position.vertices());
+            renderHandle(position.center());
+            setCullBackfaces();
+        }
+        
+        void RenderService::renderHandleHighlight(const Polygon3f& position) {
+            m_primitiveRenderer->renderPolygon(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.vertices());
+            renderHandleHighlight(position.center());
         }
 
         void RenderService::renderLine(const Vec3f& start, const Vec3f& end) {
@@ -163,7 +202,7 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderFilledPolygon(const Vec3f::List& positions) {
-            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
+            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
         }
 
         void RenderService::renderBounds(const BBox3f& bounds) {
@@ -211,7 +250,7 @@ namespace TrenchBroom {
         
         void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
             const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
-            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, positions);
+            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
         }
         
         void RenderService::flush() {

@@ -958,52 +958,7 @@ namespace TrenchBroom {
 
             delete brush;
         }
-        
-        TEST(BrushTest, splitEdge) {
-            const BBox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
-            
-            BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
-            
-            const Vec3 p1(-32.0, -32.0, -32.0);
-            const Vec3 p2(-32.0, -32.0, +32.0);
-            const Vec3 p3(-32.0, +32.0, -32.0);
-            const Vec3 p4(-32.0, +32.0, +32.0);
-            const Vec3 p5(+32.0, -32.0, -32.0);
-            const Vec3 p6(+32.0, -32.0, +32.0);
-            const Vec3 p7(+32.0, +32.0, -32.0);
-            const Vec3 p8(+32.0, +32.0, +32.0);
-            const Vec3 p9(-48.0, -48.0,   0.0);
 
-            assertTexture("left",   brush, p1, p2, p4, p3);
-            assertTexture("right",  brush, p5, p7, p8, p6);
-            assertTexture("front",  brush, p1, p5, p6, p2);
-            assertTexture("back",   brush, p3, p4, p8, p7);
-            assertTexture("top",    brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-            
-            const Edge3 edge(p1, p2);
-            const Vec3 newVertexPosition = brush->splitEdge(worldBounds, edge, Vec3(-16.0, -16.0, 0.0));
-            
-            ASSERT_VEC_EQ(p9, newVertexPosition);
-            ASSERT_EQ(9u, brush->vertexCount());
-            ASSERT_EQ(17u, brush->edgeCount());
-            
-            assertTexture("left",   brush, p1, p9, p3);
-            assertTexture("left",   brush, p3, p9, p4);
-            assertTexture("left",   brush, p2, p4, p9);
-            assertTexture("right",  brush, p5, p7, p8, p6);
-            assertTexture("front",  brush, p1, p5, p9);
-            assertTexture("front",  brush, p5, p6, p9);
-            assertTexture("front",  brush, p2, p9, p6);
-            assertTexture("back",   brush, p3, p4, p8, p7);
-            assertTexture("top",    brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-            
-            delete brush;
-        }
-        
         TEST(BrushTest, moveFace) {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
@@ -1023,16 +978,16 @@ namespace TrenchBroom {
             
             Polygon3::List newFacePositions = brush->moveFaces(worldBounds, Polygon3::List(1, face), Vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, -48.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(-48.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(-48.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(+16.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(Vec3(+16.0, -48.0, +32.0)));
             
             newFacePositions = brush->moveFaces(worldBounds, newFacePositions, Vec3(16.0, 16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)
-                ASSERT_TRUE(newFacePositions[0].contains(face.vertices()[i]));
+                ASSERT_TRUE(newFacePositions[0].hasVertex(face.vertices()[i]));
             
             delete brush;
         }
@@ -1657,57 +1612,6 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->canMoveFaces(worldBounds, Polygon3::List(1, topFace), Vec3(  0.0,   0.0, -16.0)));
         }
 
-        TEST(BrushTest, splitFace) {
-            const BBox3 worldBounds(4096.0);
-            World world(MapFormat::Standard, nullptr, worldBounds);
-            
-            BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
-            
-            const Vec3 p1(-32.0, -32.0, -32.0);
-            const Vec3 p2(-32.0, -32.0, +32.0);
-            const Vec3 p3(-32.0, +32.0, -32.0);
-            const Vec3 p4(-32.0, +32.0, +32.0);
-            const Vec3 p5(+32.0, -32.0, -32.0);
-            const Vec3 p6(+32.0, -32.0, +32.0);
-            const Vec3 p7(+32.0, +32.0, -32.0);
-            const Vec3 p8(+32.0, +32.0, +32.0);
-            const Vec3 p9(  0.0,   0.0, +48.0);
-            
-            assertTexture("left",   brush, p1, p2, p4, p3);
-            assertTexture("right",  brush, p5, p7, p8, p6);
-            assertTexture("front",  brush, p1, p5, p6, p2);
-            assertTexture("back",   brush, p3, p4, p8, p7);
-            assertTexture("top",    brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-
-            Vec3::List vertexPositions(4);
-            vertexPositions[0] = p2;
-            vertexPositions[1] = p6;
-            vertexPositions[2] = p8;
-            vertexPositions[3] = p4;
-            
-            const Polygon3 face(vertexPositions);
-            
-            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(0.0, 0.0, +16.0));
-            
-            ASSERT_VEC_EQ(p9, newVertexPosition);
-            ASSERT_EQ(9u, brush->vertexCount());
-            ASSERT_EQ(16u, brush->edgeCount());
-            
-            assertTexture("left",   brush, p1, p2, p4, p3);
-            assertTexture("right",  brush, p5, p7, p8, p6);
-            assertTexture("front",  brush, p1, p5, p6, p2);
-            assertTexture("back",   brush, p3, p4, p8, p7);
-            assertTexture("top",    brush, p2, p6, p9);
-            assertTexture("top",    brush, p6, p8, p9);
-            assertTexture("top",    brush, p8, p4, p9);
-            assertTexture("top",    brush, p4, p2, p9);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-
-            delete brush;
-        }
-        
         TEST(BrushTest, moveVertexFail) {
             const String data("{\n"
                               "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
@@ -3381,6 +3285,66 @@ namespace TrenchBroom {
             
             EXPECT_TRUE(brush1->canMoveVertices(worldBounds, allVertexPositions, Vec3(16,0,0)));
             EXPECT_FALSE(brush1->canMoveVertices(worldBounds, allVertexPositions, Vec3(8192,0,0)));
+        }
+        
+        // https://github.com/kduske/TrenchBroom/issues/1893
+        TEST(BrushTest, intersectsIssue1893) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( 2368 173.07179676972467 525.07179676972441 ) ( 2368 194.92820323027539 530.92820323027559 ) ( 2368 186.92820323027561 517.07179676972441 ) mt_sr_v1x [ 0 0 1 -32 ] [ 0 -1 0 32 ] 0 1 1\n"
+                              "( 2048 173.07179676972467 525.07179676972441 ) ( 2048 194.92820323027539 530.92820323027559 ) ( 2048 181.07179676972444 538.92820323027536 ) mt_sr_v1x [ 0 0 1 -32 ] [ 0 -1 0 32 ] 0 1 1\n"
+                              "( 1680 181.07179676972444 538.92820323027536 ) ( 1664 194.92820323027539 530.92820323027559 ) ( 1680 194.92820323027539 530.92820323027559 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 184 539.31370849898462 ) ( 1664 195.31370849898465 528 ) ( 1680 195.31370849898465 528 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 186.92820323027561 538.92820323027536 ) ( 1664 194.92820323027539 525.07179676972441 ) ( 1680 194.92820323027539 525.07179676972441 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 189.65685424949245 537.79795897113263 ) ( 1664 193.79795897113243 522.34314575050757 ) ( 1680 193.79795897113243 522.34314575050757 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 178.3431457505076 537.79795897113263 ) ( 1664 193.79795897113266 533.65685424949243 ) ( 1680 193.79795897113266 533.65685424949243 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 186.92820323027561 517.07179676972441 ) ( 1664 194.92820323027539 530.92820323027559 ) ( 1664 186.92820323027561 517.07179676972441 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 184 516.68629150101515 ) ( 1664 195.31370849898465 528 ) ( 1664 184 516.68629150101515 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 181.07179676972444 517.07179676972441 ) ( 1664 194.92820323027539 525.07179676972441 ) ( 1664 181.07179676972444 517.07179676972441 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 178.34314575050738 518.20204102886714 ) ( 1664 193.79795897113243 522.34314575050757 ) ( 1664 178.34314575050738 518.20204102886714 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 189.65685424949245 518.20204102886737 ) ( 1664 193.79795897113266 533.65685424949243 ) ( 1664 189.65685424949245 518.20204102886737 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 192 520 ) ( 1664 192 536 ) ( 1664 192 520 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 173.07179676972467 525.07179676972441 ) ( 1664 181.07179676972444 538.92820323027536 ) ( 1680 181.07179676972444 538.92820323027536 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 172.68629150101518 528 ) ( 1664 184 539.31370849898462 ) ( 1680 184 539.31370849898462 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 173.07179676972444 530.92820323027559 ) ( 1664 186.92820323027561 538.92820323027536 ) ( 1680 186.92820323027561 538.92820323027536 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 174.20204102886717 533.65685424949243 ) ( 1664 189.65685424949245 537.79795897113263 ) ( 1680 189.65685424949245 537.79795897113263 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 174.2020410288674 522.34314575050757 ) ( 1664 178.3431457505076 537.79795897113263 ) ( 1680 178.3431457505076 537.79795897113263 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 173.07179676972467 525.07179676972441 ) ( 1664 186.92820323027561 517.07179676972441 ) ( 1664 173.07179676972467 525.07179676972441 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 172.68629150101518 528 ) ( 1664 184 516.68629150101515 ) ( 1664 172.68629150101518 528 ) mt_sr_v1x [ 0 0 -1 28.6864 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 173.07179676972444 530.92820323027559 ) ( 1664 181.07179676972444 517.07179676972441 ) ( 1664 173.07179676972444 530.92820323027559 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 174.20204102886717 533.65685424949243 ) ( 1664 178.34314575050738 518.20204102886714 ) ( 1664 174.20204102886717 533.65685424949243 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 174.2020410288674 522.34314575050757 ) ( 1664 189.65685424949245 518.20204102886737 ) ( 1664 174.2020410288674 522.34314575050757 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 176 520 ) ( 1664 176 536 ) ( 1680 176 536 ) mt_sr_v1x [ 0 0 1 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 176 536 ) ( 1664 192 536 ) ( 1680 192 536 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "( 1680 176 520 ) ( 1664 192 520 ) ( 1664 176 520 ) mt_sr_v1x [ 0 1 0 -32 ] [ 1 0 0 -48 ] 0 1 1\n"
+                              "}\n"
+                              "{\n"
+                              "( 784 -624 656 ) ( 5536 -624 672 ) ( 5536 -624 656 ) __TB_empty [ 1 0 0 -0 ] [ 0 0 -1 -0 ] -0 1 1\n"
+                              "( 784 -208 656 ) ( 784 4672 672 ) ( 784 -208 672 ) __TB_empty [ 0 -1 0 -0 ] [ 0 0 -1 -0 ] -0 1 1\n"
+                              "( 784 -208 -1792 ) ( 5536 4672 -1792 ) ( 784 4672 -1792 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                              "( 784 -208 1200 ) ( 5536 4672 1200 ) ( 5536 -208 1200 ) __TB_empty [ 1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
+                              "( 784 4672 656 ) ( 5536 4672 672 ) ( 784 4672 672 ) __TB_empty [ -1 0 0 -0 ] [ 0 0 -1 -0 ] -0 1 1\n"
+                              "( 5536 -208 656 ) ( 5536 4672 672 ) ( 5536 4672 656 ) __TB_empty [ 0 1 0 -0 ] [ 0 0 -1 -0 ] -0 1 1\n"
+                              "}\n"
+                              "}\n");
+            
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Valve, nullptr, worldBounds);
+            
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+            
+            NodeList nodes = reader.read(worldBounds, status);
+            ASSERT_EQ(1, nodes.size());
+            ASSERT_TRUE(nodes.at(0)->hasChildren());
+            ASSERT_EQ(2, nodes.at(0)->children().size());
+            
+            Brush* pipe = static_cast<Brush*>(nodes.at(0)->children().at(0));
+            Brush* cube = static_cast<Brush*>(nodes.at(0)->children().at(1));
+            
+            ASSERT_TRUE(pipe->intersects(cube));
+            ASSERT_TRUE(cube->intersects(pipe));
         }
     }
 }

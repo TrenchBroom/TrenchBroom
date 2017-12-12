@@ -266,13 +266,14 @@ namespace TrenchBroom {
                 return;
             m_direction = direction;
             
-            // I can't remember what this is for, but this condition is too weak.
-            // if (m_direction.absolute().equals(up.absolute())) {
-            //    m_up = crossed(m_right, m_direction);
-            // } else {
-                m_right = crossed(m_direction, up).normalized();
-                m_up = crossed(m_right, m_direction);
-            // }
+            const Vec3f rightUnnormalized = crossed(m_direction, up);
+            if (rightUnnormalized.null()) {
+                // `direction` and `up` were colinear.
+                m_right = m_direction.makePerpendicular();
+            } else {
+                m_right = rightUnnormalized.normalized();
+            }
+            m_up = crossed(m_right, m_direction);
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
@@ -342,6 +343,15 @@ namespace TrenchBroom {
         FloatType Camera::pickPointHandle(const Ray3& pickRay, const Vec3& handlePosition, const FloatType handleRadius) const {
             const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(Vec3f(handlePosition)));
             return pickRay.intersectWithSphere(handlePosition, 2.0 * handleRadius * scaling);
+        }
+
+        FloatType Camera::pickLineSegmentHandle(const Ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const {
+            const Ray3::LineDistance distance = pickRay.distanceToSegment(handlePosition.start(), handlePosition.end());
+            if (distance.parallel)
+                return Math::nan<FloatType>();
+            
+            const Vec3 pointHandlePosition = handlePosition.pointAtDistance(distance.lineDistance);
+            return pickPointHandle(pickRay, pointHandlePosition, handleRadius);
         }
 
         Camera::Camera() :

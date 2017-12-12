@@ -46,6 +46,11 @@ namespace TrenchBroom {
 
         MouseDragPolicy::~MouseDragPolicy() {}
 
+        void MouseDragPolicy::restartDrag(const InputState& inputState) {
+            doEndMouseDrag(inputState);
+            doStartMouseDrag(inputState);
+        }
+
         NoMouseDragPolicy::~NoMouseDragPolicy() {}
 
         bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
@@ -161,15 +166,44 @@ namespace TrenchBroom {
             return doSnap(inputState, initialPoint, lastPoint, curPoint);
         }
         
+        void MultiDragSnapper::addDelegates() {}
+
+        bool MultiDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& originalCurPoint) const {
+            if (m_delegates.empty())
+                return false;
+            
+            Vec3 bestPoint;
+            bool anySnapped = false;
+            for (const std::unique_ptr<DragSnapper>& delegate : m_delegates) {
+                Vec3 curPoint = originalCurPoint;
+                if (delegate->snap(inputState, initialPoint, lastPoint, curPoint)) {
+                    if (anySnapped) {
+                        if (curPoint.squaredDistanceTo(originalCurPoint) < bestPoint.squaredDistanceTo(originalCurPoint)) {
+                            bestPoint = curPoint;
+                        }
+                    } else {
+                        bestPoint = curPoint;
+                        anySnapped = true;
+                    }
+                }
+            }
+            
+            if (anySnapped) {
+                originalCurPoint = bestPoint;
+            }
+            return anySnapped;
+        }
+
         bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
             return true;
         }
 
-        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid) :
-        m_grid(grid) {}
+        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid, const Vec3& offset) :
+        m_grid(grid),
+        m_offset(offset) {}
 
         bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
-            curPoint = m_grid.snap(curPoint);
+            curPoint = m_grid.snap(curPoint) - m_offset;
             return true;
         }
 
@@ -221,14 +255,14 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragInfo::DragInfo() :
-        restricter(NULL) {}
+        restricter(nullptr) {}
         
         RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper) :
         restricter(i_restricter),
         snapper(i_snapper),
         computeInitialHandlePosition(true) {
-            ensure(restricter != NULL, "restricter is null");
-            ensure(snapper != NULL, "snapper is null");
+            ensure(restricter != nullptr, "restricter is null");
+            ensure(snapper != nullptr, "snapper is null");
         }
         
         RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialHandlePosition) :
@@ -236,17 +270,17 @@ namespace TrenchBroom {
         snapper(i_snapper),
         initialHandlePosition(i_initialHandlePosition),
         computeInitialHandlePosition(false) {
-            ensure(restricter != NULL, "restricter is null");
-            ensure(snapper != NULL, "snapper is null");
+            ensure(restricter != nullptr, "restricter is null");
+            ensure(snapper != nullptr, "snapper is null");
         }
 
         bool RestrictedDragPolicy::DragInfo::skip() const {
-            return restricter == NULL;
+            return restricter == nullptr;
         }
 
         RestrictedDragPolicy::RestrictedDragPolicy() :
-        m_restricter(NULL),
-        m_snapper(NULL) {}
+        m_restricter(nullptr),
+        m_snapper(nullptr) {}
         
 
         RestrictedDragPolicy::~RestrictedDragPolicy() {
@@ -255,17 +289,17 @@ namespace TrenchBroom {
         }
 
         bool RestrictedDragPolicy::dragging() const {
-            return m_restricter != NULL;
+            return m_restricter != nullptr;
         }
 
         void RestrictedDragPolicy::deleteRestricter() {
             delete m_restricter;
-            m_restricter = NULL;
+            m_restricter = nullptr;
         }
 
         void RestrictedDragPolicy::deleteSnapper() {
             delete m_snapper;
-            m_snapper = NULL;
+            m_snapper = nullptr;
         }
 
         const Vec3& RestrictedDragPolicy::initialHandlePosition() const {
@@ -317,7 +351,7 @@ namespace TrenchBroom {
         }
         
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
-            ensure(m_restricter != NULL, "restricter is null");
+            ensure(m_restricter != nullptr, "restricter is null");
 
             Vec3 newMousePosition;
             if (!hitPoint(inputState, newMousePosition))
@@ -339,14 +373,14 @@ namespace TrenchBroom {
         }
         
         void RestrictedDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            ensure(m_restricter != NULL, "restricter is null");
+            ensure(m_restricter != nullptr, "restricter is null");
             doEndDrag(inputState);
             deleteRestricter();
             deleteSnapper();
         }
         
         void RestrictedDragPolicy::doCancelMouseDrag() {
-            ensure(m_restricter != NULL, "restricter is null");
+            ensure(m_restricter != nullptr, "restricter is null");
             doCancelDrag();
             deleteRestricter();
             deleteSnapper();
@@ -354,18 +388,13 @@ namespace TrenchBroom {
         
         void RestrictedDragPolicy::setRestricter(const InputState& inputState, DragRestricter* restricter, const bool resetInitialPoint) {
             assert(dragging());
-            ensure(restricter != NULL, "restricter is null");
+            ensure(restricter != nullptr, "restricter is null");
             
             deleteRestricter();
             m_restricter = restricter;
 
             if (resetInitialPoint) {
-                assertResult(hitPoint(inputState, m_initialMousePosition));
-                m_currentMousePosition = m_initialMousePosition;
-                
-                Vec3 newHandlePosition = m_currentMousePosition;
-                assertResult(snapPoint(inputState, newHandlePosition));
-                m_initialHandlePosition = m_currentHandlePosition = newHandlePosition;
+                this->resetInitialPoint(inputState);
             }
             
             doMouseDrag(inputState);
@@ -373,7 +402,7 @@ namespace TrenchBroom {
         
         void RestrictedDragPolicy::setSnapper(const InputState& inputState, DragSnapper* snapper, const bool resetCurrentHandlePosition) {
             assert(dragging());
-            ensure(snapper != NULL, "snapper is null");
+            ensure(snapper != nullptr, "snapper is null");
             
             deleteSnapper();
             m_snapper = snapper;
@@ -390,6 +419,14 @@ namespace TrenchBroom {
         bool RestrictedDragPolicy::snapPoint(const InputState& inputState, Vec3& point) const {
             assert(dragging());
             return m_snapper->snap(inputState, m_initialHandlePosition, m_currentHandlePosition, point);
+        }
+
+        void RestrictedDragPolicy::resetInitialPoint(const InputState& inputState) {
+            assertResult(hitPoint(inputState, m_initialMousePosition));
+            m_currentMousePosition = m_initialHandlePosition = m_initialMousePosition;
+
+            assertResult(snapPoint(inputState, m_initialHandlePosition));
+            m_currentHandlePosition = m_initialHandlePosition;
         }
 
         RenderPolicy::~RenderPolicy() {}
@@ -411,13 +448,13 @@ namespace TrenchBroom {
         void ToolController::refreshViews() { tool()->refreshViews(); }
 
         ToolControllerGroup::ToolControllerGroup() :
-        m_dragReceiver(NULL),
-        m_dropReceiver(NULL) {}
+        m_dragReceiver(nullptr),
+        m_dropReceiver(nullptr) {}
         
         ToolControllerGroup::~ToolControllerGroup() {}
 
         void ToolControllerGroup::addController(ToolController* controller) {
-            ensure(controller != NULL, "controller is null");
+            ensure(controller != nullptr, "controller is null");
             m_chain.append(controller);
         }
 
@@ -454,17 +491,17 @@ namespace TrenchBroom {
         }
         
         bool ToolControllerGroup::doStartMouseDrag(const InputState& inputState) {
-            assert(m_dragReceiver == NULL);
+            assert(m_dragReceiver == nullptr);
             if (!doShouldHandleMouseDrag(inputState))
                 return false;
             m_dragReceiver = m_chain.startMouseDrag(inputState);
-            if (m_dragReceiver != NULL)
+            if (m_dragReceiver != nullptr)
                 doMouseDragStarted(inputState);
-            return m_dragReceiver != NULL;
+            return m_dragReceiver != nullptr;
         }
         
         bool ToolControllerGroup::doMouseDrag(const InputState& inputState) {
-            ensure(m_dragReceiver != NULL, "dragReceiver is null");
+            ensure(m_dragReceiver != nullptr, "dragReceiver is null");
             if (m_dragReceiver->mouseDrag(inputState)) {
                 doMouseDragged(inputState);
                 return true;
@@ -473,16 +510,16 @@ namespace TrenchBroom {
         }
         
         void ToolControllerGroup::doEndMouseDrag(const InputState& inputState) {
-            ensure(m_dragReceiver != NULL, "dragReceiver is null");
+            ensure(m_dragReceiver != nullptr, "dragReceiver is null");
             m_dragReceiver->endMouseDrag(inputState);
-            m_dragReceiver = NULL;
+            m_dragReceiver = nullptr;
             doMouseDragEnded(inputState);
         }
         
         void ToolControllerGroup::doCancelMouseDrag() {
-            ensure(m_dragReceiver != NULL, "dragReceiver is null");
+            ensure(m_dragReceiver != nullptr, "dragReceiver is null");
             m_dragReceiver->cancelMouseDrag();
-            m_dragReceiver = NULL;
+            m_dragReceiver = nullptr;
             doMouseDragCancelled();
         }
         
@@ -495,28 +532,28 @@ namespace TrenchBroom {
         }
         
         bool ToolControllerGroup::doDragEnter(const InputState& inputState, const String& payload) {
-            assert(m_dropReceiver == NULL);
+            assert(m_dropReceiver == nullptr);
             if (!doShouldHandleDrop(inputState, payload))
                 return false;
             m_dropReceiver = m_chain.dragEnter(inputState, payload);
-            return m_dropReceiver != NULL;
+            return m_dropReceiver != nullptr;
         }
         
         bool ToolControllerGroup::doDragMove(const InputState& inputState) {
-            ensure(m_dropReceiver != NULL, "dropReceiver is null");
+            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
             return m_dropReceiver->dragMove(inputState);
         }
         
         void ToolControllerGroup::doDragLeave(const InputState& inputState) {
-            ensure(m_dropReceiver != NULL, "dropReceiver is null");
+            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
             m_dropReceiver->dragLeave(inputState);
-            m_dropReceiver = NULL;
+            m_dropReceiver = nullptr;
         }
         
         bool ToolControllerGroup::doDragDrop(const InputState& inputState) {
-            ensure(m_dropReceiver != NULL, "dropReceiver is null");
+            ensure(m_dropReceiver != nullptr, "dropReceiver is null");
             const bool result = m_dropReceiver->dragDrop(inputState);
-            m_dropReceiver = NULL;
+            m_dropReceiver = nullptr;
             return result;
         }
 

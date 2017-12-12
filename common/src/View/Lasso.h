@@ -40,16 +40,34 @@ namespace TrenchBroom {
             Vec3 m_cur;
         public:
             Lasso(const Renderer::Camera& camera, FloatType distance, const Vec3& point);
-            void setPoint(const Vec3& point);
             
-            Vec3::List containedPoints(const Vec3::List& points) const;
-            bool containsPoint(const Vec3& point) const;
+            void update(const Vec3& point);
+            
+            template <typename I, typename O>
+            void selected(I cur, I end, O out) const {
+                const Plane3 plane = this->plane();
+                const BBox2 box = this->box();
+                while (cur != end) {
+                    if (selects(*cur, plane, box))
+                        out = *cur;
+                    ++cur;
+                }
+            }
+            
+            template <typename H>
+            bool selects(const H& h) const {
+                return selects(h, plane(), box());
+            }
         private:
-            bool containsPoint(const Vec3& point, const Plane3& plane, const BBox2& box) const;
+            bool selects(const Vec3& point, const Plane3& plane, const BBox2& box) const;
+            bool selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const;
+            bool selects(const Polygon3& polygon, const Plane3& plane, const BBox2& box) const;
+            Vec3 project(const Vec3& point, const Plane3& plane) const;
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:
-            BBox2 computeBox() const;
+            Plane3 plane() const;
+            BBox2 box() const;
         };
     }
 }

@@ -81,7 +81,6 @@ namespace TrenchBroom {
             void updateRecentlyUsedCenters(const Vec3& center);
         private:
             wxWindow* doCreatePage(wxWindow* parent);
-            String doGetIconName() const;
         };
     }
 }

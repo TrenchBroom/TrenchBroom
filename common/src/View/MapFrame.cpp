@@ -43,6 +43,8 @@
 #include "View/CommandWindowUpdateLocker.h"
 #include "View/CompilationDialog.h"
 #include "View/Console.h"
+#include "View/EdgeTool.h"
+#include "View/FaceTool.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
@@ -448,6 +450,8 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", IO::loadImageResource("EdgeTool.png"), wxNullBitmap, "Edge Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleFaceTool, "Face Tool", IO::loadImageResource("FaceTool.png"), wxNullBitmap, "Face Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
             toolBar->AddSeparator();
             toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
@@ -701,6 +705,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
@@ -817,8 +823,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUndo())
+            if (canUndo() && !m_mapView->cancelMouseDrag()) {
                 m_document->undoLastCommand();
+            }
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
@@ -915,6 +922,10 @@ namespace TrenchBroom {
                     m_mapView->clipTool()->removeLastPoint();
                 else if (m_mapView->vertexToolActive())
                     m_mapView->vertexTool()->removeSelection();
+                else if (m_mapView->edgeToolActive())
+                    m_mapView->edgeTool()->removeSelection();
+                else if (m_mapView->faceToolActive())
+                    m_mapView->faceTool()->removeSelection();
                 else if (!m_mapView->anyToolActive())
                     m_document->deleteObjects();
             }
@@ -1042,8 +1053,20 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
+            
             m_mapView->toggleVertexTool();
+        }
+        
+        void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleEdgeTool();
+        }
+        
+        void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleFaceTool();
         }
 
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
@@ -1458,7 +1481,15 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Check(m_mapView->vertexToolActive());
-                    event.Enable(m_mapView->canToggleVertexTool());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleEdgeTool:
+                    event.Check(m_mapView->edgeToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleFaceTool:
+                    event.Check(m_mapView->faceToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditCsgConvexMerge:
                     event.Enable(canDoCsgConvexMerge());
@@ -1637,13 +1668,18 @@ namespace TrenchBroom {
         bool MapFrame::canDelete() const {
             if (m_mapView->clipToolActive())
                 return m_mapView->clipTool()->canRemoveLastPoint();
-            if (m_mapView->vertexToolActive())
+            else if (m_mapView->vertexToolActive())
                 return m_mapView->vertexTool()->canRemoveSelection();
-            return canCut();
+            else if (m_mapView->edgeToolActive())
+                return m_mapView->edgeTool()->canRemoveSelection();
+            else if (m_mapView->faceToolActive())
+                return m_mapView->faceTool()->canRemoveSelection();
+            else
+                return canCut();
         }
 
         bool MapFrame::canDuplicate() const {
-            return m_document->hasSelectedNodes() && !m_mapView->clipToolActive() && !m_mapView->vertexToolActive();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canSelectSiblings() const {
