@@ -23,13 +23,12 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
         
-        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
             Edge3::List edgePositions;
@@ -37,7 +36,7 @@ namespace TrenchBroom {
             
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
-        
+
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
@@ -61,25 +60,19 @@ namespace TrenchBroom {
             m_newEdgePositions = document->performMoveEdges(m_edges, m_delta);
             return true;
         }
-        
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectEdgeHandles(m_newEdgePositions);
-        }
-        
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectEdgeHandles(m_oldEdgePositions);
-        }
-        
+
         bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
-            
-            if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions))
-                return false;
-            
-            m_newEdgePositions = other->m_newEdgePositions;
-            m_delta += other->m_delta;
-            
-            return true;
+            // Don't collate vertex moves. Collation changes the path along which the vertices are moved, and as a result
+            // changes the outcome of the entire operation.
+            return false;
+        }
+
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+            manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
+        }
+        
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+            manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }
 }

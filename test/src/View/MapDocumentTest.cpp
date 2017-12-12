@@ -26,6 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
 #include "Model/MapFormat.h"
+#include "Model/ParallelTexCoordSystem.h"
 #include "Model/TestGame.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
@@ -165,6 +166,70 @@ namespace TrenchBroom {
             document->select(brush1);
             
             document->setTexture(nullptr);
+        }
+        
+        ValveMapDocumentTest::ValveMapDocumentTest() :
+        MapDocumentTest(Model::MapFormat::Valve) {}
+        
+        TEST_F(ValveMapDocumentTest, csgConvexMergeTexturing) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            
+            Model::ParallelTexCoordSystem texAlignment(Vec3(1, 0, 0), Vec3(0, 1, 0));
+            Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
+            
+            Model::Brush* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(32, 64, 64)), "texture");
+            Model::Brush* brush2 = builder.createCuboid(BBox3(Vec3(32, 0, 0), Vec3(64, 64, 64)), "texture");
+            brush1->findFace(Vec3::PosZ)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
+            brush2->findFace(Vec3::PosZ)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
+            document->addNode(brush1, entity);
+            document->addNode(brush2, entity);
+            ASSERT_EQ(2, entity->children().size());
+            
+            document->select(Model::NodeList { brush1, brush2 });
+            ASSERT_TRUE(document->csgConvexMerge());
+            ASSERT_EQ(1, entity->children().size());
+            
+            Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
+            Model::BrushFace* top = brush3->findFace(Vec3::PosZ);
+            ASSERT_EQ(Vec3(1, 0, 0), top->textureXAxis());
+            ASSERT_EQ(Vec3(0, 1, 0), top->textureYAxis());
+            
+            delete texAlignmentSnapshot;
+        }
+        
+        TEST_F(ValveMapDocumentTest, csgSubtractTexturing) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            
+            Model::ParallelTexCoordSystem texAlignment(Vec3(1, 0, 0), Vec3(0, 1, 0));
+            Model::TexCoordSystemSnapshot* texAlignmentSnapshot = texAlignment.takeSnapshot();
+            
+            Model::Brush* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            Model::Brush* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 32)), "texture");
+            brush2->findFace(Vec3::PosZ)->restoreTexCoordSystemSnapshot(texAlignmentSnapshot);
+            document->addNode(brush1, entity);
+            document->addNode(brush2, entity);
+            ASSERT_EQ(2, entity->children().size());
+            
+            document->select(Model::NodeList { brush1, brush2 });
+            ASSERT_TRUE(document->csgSubtract());
+            ASSERT_EQ(1, entity->children().size());
+            
+            Model::Brush* brush3 = static_cast<Model::Brush*>(entity->children()[0]);
+            ASSERT_EQ(BBox3(Vec3(0, 0, 32), Vec3(64, 64, 64)), brush3->bounds());
+            
+            // the texture alignment from the top of brush2 should have transferred
+            // to the bottom face of brush3
+            Model::BrushFace* top = brush3->findFace(Vec3::NegZ);
+            ASSERT_EQ(Vec3(1, 0, 0), top->textureXAxis());
+            ASSERT_EQ(Vec3(0, 1, 0), top->textureYAxis());
+            
+            delete texAlignmentSnapshot;
         }
     }
 }

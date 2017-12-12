@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class RemoveBrushEdgesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
@@ -39,10 +37,11 @@ namespace TrenchBroom {
         private:
             Edge3::List m_oldEdgePositions;
         public:
-            static Ptr remove(const Model::VertexToEdgesMap& edges);
+            static Ptr remove(const Model::EdgeToBrushesMap& edges);
         private:
             RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const override;
         };
     }
 }

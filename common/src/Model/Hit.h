@@ -52,6 +52,7 @@ namespace TrenchBroom {
             m_target(Reference::copy(target)),
             m_error(error) {}
             
+            // TODO: rename to create
             template <typename T>
             static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, const T& target, const FloatType error = 0.0) {
                 return Hit(type, distance, hitPoint, target);

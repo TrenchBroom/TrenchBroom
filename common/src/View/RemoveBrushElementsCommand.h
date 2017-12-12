@@ -30,19 +30,17 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
+
         class RemoveBrushElementsCommand : public VertexCommand {
         private:
             Model::BrushVerticesMap m_vertices;
         protected:
             RemoveBrushElementsCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices);
         private:
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
             
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

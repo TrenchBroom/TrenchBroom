@@ -144,16 +144,16 @@ namespace TrenchBroom {
             renderService.renderCircle(m_position, camera.direction().firstComponent(), 64, radius);
             
             renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderPointHandle(m_position);
+            renderService.renderHandle(m_position);
             
             const Vec3 viewDirection = camera.direction();
             switch (viewDirection.firstComponent()) {
                 case Math::Axis::AX:
                 case Math::Axis::AZ:
-                    renderService.renderPointHandle(m_position + radius * camera.right());
+                    renderService.renderHandle(m_position + radius * camera.right());
                     break;
                 case Math::Axis::AY:
-                    renderService.renderPointHandle(m_position + radius * camera.up());
+                    renderService.renderHandle(m_position + radius * camera.up());
                     break;
                switchDefault()
             };
@@ -190,16 +190,16 @@ namespace TrenchBroom {
 
              */
             renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderPointHandle(m_position);
+            renderService.renderHandle(m_position);
 
             renderService.setForegroundColor(pref(Preferences::ZAxisColor));
-            renderService.renderPointHandle(m_position + radius * xAxis);
+            renderService.renderHandle(m_position + radius * xAxis);
 
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
-            renderService.renderPointHandle(m_position + radius * yAxis);
+            renderService.renderHandle(m_position + radius * yAxis);
 
             renderService.setForegroundColor(pref(Preferences::YAxisColor));
-            renderService.renderPointHandle(m_position + radius * zAxis);
+            renderService.renderHandle(m_position + radius * zAxis);
 
         }
 
@@ -213,14 +213,14 @@ namespace TrenchBroom {
 
             switch (area) {
                 case RotateObjectsHandle::HitArea_Center:
-                    renderService.renderPointHandleHighlight(m_position);
+                    renderService.renderHandleHighlight(m_position);
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                 case RotateObjectsHandle::HitArea_YAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * camera.right());
+                    renderService.renderHandleHighlight(m_position + radius * camera.right());
                     break;
                 case RotateObjectsHandle::HitArea_ZAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * camera.up());
+                    renderService.renderHandleHighlight(m_position + radius * camera.up());
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;
@@ -239,19 +239,19 @@ namespace TrenchBroom {
 
             switch (area) {
                 case RotateObjectsHandle::HitArea_Center:
-                    renderService.renderPointHandleHighlight(m_position);
+                    renderService.renderHandleHighlight(m_position);
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
                     renderService.renderString(m_position.asString(), m_position);
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * xAxis);
+                    renderService.renderHandleHighlight(m_position + radius * xAxis);
                     break;
                 case RotateObjectsHandle::HitArea_YAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * yAxis);
+                    renderService.renderHandleHighlight(m_position + radius * yAxis);
                     break;
                 case RotateObjectsHandle::HitArea_ZAxis:
-                    renderService.renderPointHandleHighlight(m_position + radius * zAxis);
+                    renderService.renderHandleHighlight(m_position + radius * zAxis);
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;

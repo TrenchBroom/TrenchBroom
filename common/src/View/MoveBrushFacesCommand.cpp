@@ -24,13 +24,12 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
-        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
             Polygon3::List facePositions;
@@ -62,25 +61,20 @@ namespace TrenchBroom {
             m_newFacePositions = document->performMoveFaces(m_faces, m_delta);
             return true;
         }
-        
-        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectFaceHandles(m_newFacePositions);
-        }
-        
-        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectFaceHandles(m_oldFacePositions);
-        }
-        
+
         bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
-            
-            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions))
-                return false;
-            
-            m_newFacePositions = other->m_newFacePositions;
-            m_delta += other->m_delta;
-            
-            return true;
+            // Don't collate vertex moves. Collation changes the path along which the vertices are moved, and as a result
+            // changes the outcome of the entire operation.
+            return false;
+        }
+
+
+        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+            manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
+        }
+        
+        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+            manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }
 }

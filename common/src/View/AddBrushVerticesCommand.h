@@ -17,44 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SplitBrushFacesCommand
-#define TrenchBroom_SplitBrushFacesCommand
+#ifndef AddBrushVerticesCommand_h
+#define AddBrushVerticesCommand_h
 
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-    
     namespace View {
-        class VertexHandleManager;
-        
-        class SplitBrushFacesCommand : public VertexCommand {
+        class AddBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            typedef std::shared_ptr<SplitBrushFacesCommand> Ptr;
+            typedef std::shared_ptr<AddBrushVerticesCommand> Ptr;
         private:
-            Model::BrushFacesMap m_faces;
-            Polygon3::List m_oldFacePositions;
-            Vec3::List m_newVertexPositions;
-            Vec3 m_delta;
+            Model::VertexToBrushesMap m_vertices;
         public:
-            static Ptr split(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            static Ptr add(const Model::VertexToBrushesMap& vertices);
+        protected:
+            AddBrushVerticesCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::VertexToBrushesMap& vertices);
         private:
-            SplitBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
-            
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
-            
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
             
             bool doCollateWith(UndoableCommand::Ptr command);
         };
     }
 }
 
-#endif /* defined(TrenchBroom_SplitBrushFacesCommand) */
+#endif /* AddBrushVerticesCommand_h */

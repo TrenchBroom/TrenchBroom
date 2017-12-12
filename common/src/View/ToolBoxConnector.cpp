@@ -23,17 +23,16 @@
 #include "View/ToolChain.h"
 
 #include <wx/window.h>
-#include <wx/event.h>
 #include <wx/time.h>
 
 namespace TrenchBroom {
     namespace View {
         ToolBoxConnector::ToolBoxConnector(wxWindow* window) :
         m_window(window),
-        m_toolBox(NULL),
+        m_toolBox(nullptr),
         m_toolChain(new ToolChain()),
         m_ignoreNextDrag(false) {
-            ensure(m_window != NULL, "window is null");
+            ensure(m_window != nullptr, "window is null");
             bindEvents();
         }
 
@@ -51,7 +50,7 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::updatePickResult() {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
             Model::PickResult pickResult = doPick(m_inputState.pickRay());
@@ -60,12 +59,12 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::updateLastActivation() {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
             m_toolBox->updateLastActivation();
         }
 
         void ToolBoxConnector::setToolBox(ToolBox& toolBox) {
-            assert(m_toolBox == NULL);
+            assert(m_toolBox == nullptr);
             m_toolBox = &toolBox;
         }
 
@@ -74,7 +73,7 @@ namespace TrenchBroom {
         }
 
         bool ToolBoxConnector::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(wxPoint(x, y));
             updatePickResult();
@@ -85,7 +84,7 @@ namespace TrenchBroom {
         }
 
         bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             mouseMoved(wxPoint(x, y));
             updatePickResult();
@@ -96,14 +95,14 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::dragLeave() {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             m_toolBox->dragLeave(m_toolChain, m_inputState);
             m_window->Refresh();
         }
 
         bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             updatePickResult();
 
@@ -115,19 +114,19 @@ namespace TrenchBroom {
         }
 
         bool ToolBoxConnector::cancel() {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
             const bool result = m_toolBox->cancel(m_toolChain);
             m_inputState.setAnyToolDragging(false);
             return result;
         }
 
         void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext) {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
             m_toolBox->setRenderOptions(m_toolChain, m_inputState, renderContext);
         }
 
         void ToolBoxConnector::renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
             m_toolBox->renderTools(m_toolChain, m_inputState, renderContext, renderBatch);
         }
         
@@ -184,7 +183,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnKey(wxKeyEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
             updateModifierKeys();
@@ -194,7 +193,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
 
@@ -248,7 +247,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseDoubleClick(wxMouseEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
 
@@ -276,7 +275,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseMotion(wxMouseEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
 
@@ -302,7 +301,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
 
@@ -322,7 +321,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
             
@@ -333,7 +332,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnSetFocus(wxFocusEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
             
             event.Skip();
             updateModifierKeys();
@@ -345,7 +344,7 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnKillFocus(wxFocusEvent& event) {
             if (m_window->IsBeingDeleted()) return;
 
-            ensure(m_toolBox != NULL, "toolBox is null");
+            ensure(m_toolBox != nullptr, "toolBox is null");
 
             event.Skip();
             
@@ -401,11 +400,14 @@ namespace TrenchBroom {
             releaseMouse();
         }
 
-        void ToolBoxConnector::cancelDrag() {
+        bool ToolBoxConnector::cancelDrag() {
             if (m_toolBox->dragging()) {
                 m_toolBox->cancelMouseDrag();
                 m_inputState.setAnyToolDragging(false);
                 m_inputState.clearMouseButtons();
+                return true;
+            } else {
+                return false;
             }
         }
         

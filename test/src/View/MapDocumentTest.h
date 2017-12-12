@@ -44,6 +44,11 @@ namespace TrenchBroom {
             
             Model::Brush* createBrush(const String& textureName = "texture");
         };
+        
+        class ValveMapDocumentTest : public MapDocumentTest {
+        protected:
+            ValveMapDocumentTest();
+        };
     }
 }
 

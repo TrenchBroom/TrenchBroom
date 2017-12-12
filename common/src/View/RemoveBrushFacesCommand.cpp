@@ -23,13 +23,12 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType RemoveBrushFacesCommand::Type = Command::freeType();
 
-        RemoveBrushFacesCommand::Ptr RemoveBrushFacesCommand::remove(const Model::VertexToFacesMap& faces) {
+        RemoveBrushFacesCommand::Ptr RemoveBrushFacesCommand::remove(const Model::FaceToBrushesMap& faces) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
             Polygon3::List facePositions;
@@ -43,9 +42,9 @@ namespace TrenchBroom {
         RemoveBrushFacesCommand::RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Polygon3::List& facePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Faces", brushes, vertices),
         m_oldFacePositions(facePositions) {}
-        
-        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
-            manager.selectFaceHandles(m_oldFacePositions);
+
+        void RemoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+            manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }
 }

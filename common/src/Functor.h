@@ -23,7 +23,7 @@
 #include "Macros.h"
 
 #include <cassert>
-#include <iostream> // for NULL
+#include <iostream> // for nullptr
 
 namespace TrenchBroom {
     // ====== Function pointer with 0 arguments ======
@@ -106,11 +106,11 @@ namespace TrenchBroom {
         FuncBase0<R>* m_func;
     public:
         Func0() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func0() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr0<R>::F func) {
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
         
         R operator()() {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)();
         }
     };
@@ -222,11 +222,11 @@ namespace TrenchBroom {
         FuncBase1<R,A1>* m_func;
     public:
         Func1() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func1() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr1<R,A1>::F func) {
@@ -253,7 +253,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1);
         }
     };
@@ -338,11 +338,11 @@ namespace TrenchBroom {
         FuncBase2<R,A1,A2>* m_func;
     public:
         Func2() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func2() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr2<R,A1,A2>::F func) {
@@ -369,7 +369,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2);
         }
     };
@@ -454,11 +454,11 @@ namespace TrenchBroom {
         FuncBase3<R,A1,A2,A3>* m_func;
     public:
         Func3() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func3() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr3<R,A1,A2,A3>::F func) {
@@ -485,7 +485,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3);
         }
     };
@@ -570,11 +570,11 @@ namespace TrenchBroom {
         FuncBase4<R,A1,A2,A3,A4>* m_func;
     public:
         Func4() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func4() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr4<R,A1,A2,A3,A4>::F func) {
@@ -601,7 +601,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4);
         }
     };
@@ -686,11 +686,11 @@ namespace TrenchBroom {
         FuncBase5<R,A1,A2,A3,A4,A5>* m_func;
     public:
         Func5() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func5() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr5<R,A1,A2,A3,A4,A5>::F func) {
@@ -717,7 +717,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5);
         }
     };
@@ -802,11 +802,11 @@ namespace TrenchBroom {
         FuncBase6<R,A1,A2,A3,A4,A5,A6>* m_func;
     public:
         Func6() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func6() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr6<R,A1,A2,A3,A4,A5,A6>::F func) {
@@ -833,7 +833,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6);
         }
     };
@@ -918,11 +918,11 @@ namespace TrenchBroom {
         FuncBase7<R,A1,A2,A3,A4,A5,A6,A7>* m_func;
     public:
         Func7() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func7() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr7<R,A1,A2,A3,A4,A5,A6,A7>::F func) {
@@ -949,7 +949,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7);
         }
     };
@@ -1034,11 +1034,11 @@ namespace TrenchBroom {
         FuncBase8<R,A1,A2,A3,A4,A5,A6,A7,A8>* m_func;
     public:
         Func8() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func8() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr8<R,A1,A2,A3,A4,A5,A6,A7,A8>::F func) {
@@ -1065,7 +1065,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7, a8);
         }
     };
@@ -1150,11 +1150,11 @@ namespace TrenchBroom {
         FuncBase9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>* m_func;
     public:
         Func9() :
-        m_func(NULL) {}
+        m_func(nullptr) {}
         
         ~Func9() {
             delete m_func;
-            m_func = NULL;
+            m_func = nullptr;
         }
         
         void bindFunc(typename FuncPtr9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>::F func) {
@@ -1181,7 +1181,7 @@ namespace TrenchBroom {
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) {
-            ensure(m_func != NULL, "func is null");
+            ensure(m_func != nullptr, "func is null");
             return (*m_func)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     };

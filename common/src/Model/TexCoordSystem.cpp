@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         void TexCoordSystem::updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             if (oldNormal != newNormal)
-                doUpdateNormal(oldNormal, newNormal, attribs);
+                doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const {

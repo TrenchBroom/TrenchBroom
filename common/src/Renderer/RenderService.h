@@ -24,6 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Edge.h"
 #include "Renderer/PrimitiveRenderer.h"
 
 namespace TrenchBroom {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
         class RenderService {
         private:
             typedef PrimitiveRenderer::OcclusionPolicy OcclusionPolicy;
+            typedef PrimitiveRenderer::CullingPolicy CullingPolicy;
             class HeadsUpTextAnchor;
             
             RenderContext& m_renderContext;
@@ -53,6 +55,7 @@ namespace TrenchBroom {
             Color m_backgroundColor;
             float m_lineWidth;
             OcclusionPolicy m_occlusionPolicy;
+            CullingPolicy m_cullingPolicy;
         public:
             RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
@@ -65,14 +68,25 @@ namespace TrenchBroom {
             void setShowOccludedObjectsTransparent();
             void setHideOccludedObjects();
             
+            void setShowBackfaces();
+            void setCullBackfaces();
+            
             void renderString(const AttrString& string, const Vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
             
-            void renderPointHandles(const Vec3f::List& positions);
-            void renderPointHandle(const Vec3f& position);
-            void renderPointHandleHighlight(const Vec3f& position);
+            void renderHandles(const Vec3f::List& positions);
+            void renderHandle(const Vec3f& position);
+            void renderHandleHighlight(const Vec3f& position);
             
+            void renderHandles(const Edge3f::List& positions);
+            void renderHandle(const Edge3f& position);
+            void renderHandleHighlight(const Edge3f& position);
+            
+            void renderHandles(const Polygon3f::List& positions);
+            void renderHandle(const Polygon3f& position);
+            void renderHandleHighlight(const Polygon3f& position);
+
             void renderLine(const Vec3f& start, const Vec3f& end);
             void renderLines(const Vec3f::List& positions);
             void renderLineStrip(const Vec3f::List& positions);

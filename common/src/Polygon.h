@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Polygon_h
 #define TrenchBroom_Polygon_h
 
+#include "Algorithms.h"
 #include "CollectionUtils.h"
 #include "Vec.h"
 
@@ -31,36 +32,49 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Polygon {
     public:
+        typedef Polygon<float, S> FloatType;
         typedef std::vector<Polygon<T,S> > List;
     private:
         typename Vec<T,S>::List m_vertices;
     public:
         Polygon() {}
         
+        Polygon(std::initializer_list<Vec<T,S>> i_vertices) :
+        m_vertices(i_vertices) {
+            CollectionUtils::rotateMinToFront(m_vertices);
+        }
+        
         Polygon(const typename Vec<T,S>::List& i_vertices) :
         m_vertices(i_vertices) {
-            orderVertices(m_vertices);
+            CollectionUtils::rotateMinToFront(m_vertices);
         }
         
         Polygon(typename Vec<T,S>::List& i_vertices) {
             using std::swap;
             swap(m_vertices, i_vertices);
-            orderVertices(m_vertices);
+            CollectionUtils::rotateMinToFront(m_vertices);
         }
         
+        template <typename TT, size_t SS>
+        Polygon(const Polygon<TT,SS>& other) {
+            m_vertices.reserve(other.vertexCount());
+            for (const auto& vertex : other)
+                m_vertices.push_back(Vec<T,S>(vertex));
+        }
+
         bool operator==(const Polygon<T,S>& rhs) const {
-            return VectorUtils::equals(m_vertices, rhs.m_vertices);
+            return compare(rhs) == 0;
         }
         
         bool operator!=(const Polygon<T,S>& rhs) const {
-            return !(*this == rhs);
+            return compare(rhs) != 0;
         }
         
         bool operator<(const Polygon<T,S>& rhs) const {
             return compare(rhs) < 0;
         }
         
-        int compare(const Polygon<T,S>& other) const {
+        int compare(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
             if (m_vertices.size() < other.m_vertices.size())
                 return -1;
             if (m_vertices.size() > other.m_vertices.size())
@@ -68,7 +82,7 @@ namespace TrenchBroom {
 
             const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
             for (size_t i = 0; i < count; ++i) {
-                const int cmp = m_vertices[i].compare(other.m_vertices[i]);
+                const int cmp = m_vertices[i].compare(other.m_vertices[i], epsilon);
                 if (cmp < 0)
                     return -1;
                 if (cmp > 0)
@@ -77,12 +91,24 @@ namespace TrenchBroom {
             return 0;
         }
         
-        bool contains(const Vec<T,S>& vertex) const {
+        bool hasVertex(const Vec<T,S>& vertex) const {
             return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
+        }
+        
+        bool contains(const Vec<T,S>& point, const Vec<T,3>& normal) const {
+            return polygonContainsPoint(point, normal, std::begin(m_vertices), std::end(m_vertices));
         }
         
         size_t vertexCount() const {
             return m_vertices.size();
+        }
+        
+        typename Vec<T,3>::List::const_iterator begin() const {
+            return std::begin(m_vertices);
+        }
+        
+        typename Vec<T,3>::List::const_iterator end() const {
+            return std::end(m_vertices);
         }
         
         const typename Vec<T,S>::List& vertices() const {
@@ -103,24 +129,9 @@ namespace TrenchBroom {
                 result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
         }
-        
-    private:
-        void orderVertices(typename Vec<T,S>::List& vertices) {
-            if (vertices.size() < 2)
-                return;
-            
-            typedef typename Vec<T,S>::List::iterator Iter;
-            Iter it = std::begin(vertices);
-            Iter end = std::end(vertices);
-            Iter smallest = it++;
-            
-            while (it != end) {
-                if (*it < *smallest)
-                    smallest = it;
-                ++it;
-            }
-
-            std::rotate(std::begin(vertices), smallest, std::end(vertices));
+    public:
+        friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
+            return Polygon<T,S>(polygon.vertices() + offset);
         }
     };
     

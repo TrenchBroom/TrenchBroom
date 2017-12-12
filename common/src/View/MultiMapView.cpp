@@ -110,5 +110,12 @@ namespace TrenchBroom {
             }
             return nullptr;
         }
+
+        bool MultiMapView::doCancelMouseDrag() {
+            bool result = false;
+            for (MapView* mapView : m_mapViews)
+                result |= mapView->cancelMouseDrag();
+            return result;
+        }
     }
 }

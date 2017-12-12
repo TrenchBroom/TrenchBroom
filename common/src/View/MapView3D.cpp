@@ -44,6 +44,10 @@
 #include "View/CreateComplexBrushToolController3D.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController3D.h"
+#include "View/EdgeTool.h"
+#include "View/EdgeToolController.h"
+#include "View/FaceTool.h"
+#include "View/FaceToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -93,6 +97,8 @@ namespace TrenchBroom {
             addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
             addTool(new ClipToolController3D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new EdgeToolController(toolBox.edgeTool()));
+            addTool(new FaceToolController(toolBox.faceTool()));
             addTool(new CreateEntityToolController3D(toolBox.createEntityTool()));
             addTool(new SetBrushFaceAttributesTool(m_document));
             addTool(new SelectionTool(m_document));

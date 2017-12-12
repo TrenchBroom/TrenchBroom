@@ -591,27 +591,27 @@ In the 2D viewport, clip points are just snapped to the visible grid, so they ar
 
 ![Matching a clip plane](MatchingClipPlane.gif) The clip plane can also be defined by matching it to an existing brush face. To match a clip plane to an existing brush face, you have to double click that face in the 3D viewport. As a result, the brush face gets an orange outline, and a clip plane is defined to match the face's plane exactly. This can be quite useful when shaping geometry to other geometry. Note that the plane points of the clip plane are the plane points of the brush face to which the clip plane was matched, so there should be no trouble with microleaks when using this particular function.
 
-### Vertex Editing
+### Vertex Editing {#vertex_editing}
 
-Unlike other editors, modifying the three geometric aspects of a brush, it's vertices, edges or faces, is all integrated into the vertex tool. To activate the vertex tool, choose #menu('Menu/Edit/Tools/Vertex Tool'). When the vertex tool is active, yellow handles appear at various points on the selected brushes to allow manipulation.
+TrenchBroom includes three separate tools to edit a brush's vertices: the [vertex tool](#vertex_tool) for editing individual vertices, the [edge tool](#edge_tool) for editing individual edges, and the [face tool](#face_tool) for editing individual faces. The vertex tool is the most powerful of the three because in addition to moving vertices around, you can also add and remove vertices from the brush(es). Conversely, the edge and face tools only allow you to move faces around.
 
-There are three types of handles: vertex handles, edge handles, and face handles. The vertex handles are positioned at the vertices of the brush, edge handles are positioned at the centers of the edges, and face handles are positioned at the centers of the faces. All handles are rendered as yellow spheres. Moving the mouse pointer over a handle highlights that handle with a red circular outline, and the position of that handle is displayed above it. When hovering over an edge handle, the edge itself is rendered in yellow, and when hovering over a face handle, the face itself is also rendered in yellow. See the following three images for examples.
+#### Vertex Tool {#vertex_tool}
 
-![Selection highlighting for vertices, edges, and faces](VertexToolHighlighting.png)
+Using the vertex tool, you can move individual vertices around in 3D space. Additionally, you can add vertices to a brush, and you can remove vertices from a brush. To activate the vertex tool, choose Choose #menu('Menu/Edit/Tools/Vertex Tool'). When the vertex tool is active, yellow handles appear at the vertices of the selected brushes to allow manipulation.
 
-Selecting handles is treated in the same way as selecting objects. To select a handle, click on a handle to select it. Multiple handles can be selected by holding #key(308). Once you select a handle of a particular type, all other handles except those of the same type are hidden. For example, if you select a vertex handle, only vertex handles are shown and the edge and face handles are hidden. As a consequence, you cannot mix handles of different types in a handle selection. The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. Note that lasso selection defaults to selecting vertex handles if no handle has been selected yet. Selected handles are rendered in red, and in the case of edge or face handles, the selected edges and faces are rendered in yellow.
+![Vertex Handles](VertexToolHandles.png)
 
-![Selected handles turn red](VertexToolSelections.png)
+Moving the mouse pointer over a vertex handle highlights that handle with a red circular outline, and the position of that handle is displayed above it. 
 
-When you have selected some handles, you can move them around by dragging them with the left mouse button. Moving handles (and their respective vertices, edges, or faces) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(307) to move them vertically. In a 2D viewport, you can move the handles on the view plane of that viewport. If you begin your drag on an unselected handle, that handle is automatically selected, so if you just want to move a single handle around, you do not need to select it first. Once you press the left mouse button on a handle to begin a drag, yellow guide lines show up that help you to position the handle in relation to other objects. When moving handles around, the move distances are snapped to the current grid size component wise, just like when you move objects. If you prefer to have the handle positions snapped to the grid, you can hold #key(306) when you begin the drag.
+Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(308). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. If the lasso rectangle contains a vertex handle that's already selected, then it will be deselected. To ensure that all vertex handles inside the lasso are selected regardless of their previous selection state, hold #key(308). 
 
-If you wish to quickly snap a vertex onto another vertex, you can use the following two shorthands. Either select the vertex to be snapped and then left click on the vertex that you wish to snap the selected vertex onto while holding #key(307)#key(306). Alternatively, you can achieve the same effect by dragging the selected vertex onto the target vertex with the left mouse button while holding the same keys. Note that if the two vertices belong to the same brush, and the vertices are connected with an edge, then the vertices will be fused together (see below).
-
-Manipulating edges and faces with the vertex tool is just a shorthand to selecting all vertices incident to the edge or face at once. Thus, moving an edge with its handle is equivalent to selecting both vertices of that edge and move them at once, and the same applies to faces. Because of this, we will only discuss vertex editing in the remainder of this section, as all other operations are just special cases of vertex editing.
+When you have selected some vertex handles, you can move them around by dragging them with the left mouse button. Moving vertex handles (and their corresponding vertices) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(307) to move them vertically. In a 2D viewport, you can move the vertex handles on the view plane of that viewport. If you begin your drag on an unselected vertex handle, that vertex handle is automatically selected, so if you just want to move a single vertex around, you do not need to select it first. Once you press the left mouse button on a vertex handle to begin a drag, yellow guide lines show up that help you to position the vertex in relation to other objects. When moving vertex handles around, the move distances are snapped to the current grid size component wise, just like when you move objects. If you prefer to have the absolute vertex positions snapped to the grid, you can toggle between relative and absolute snapping using #key(308) during the drag.
 
 ![Chopping faces](VertexToolFaceChopping.gif) TrenchBroom ensures that you do not create invalid brushes with the vertex tool. For example, it is impossible to make a brush concave by pushing a vertex into the brush. To achieve this, TrenchBroom will chop up the faces incident to that vertex into triangles depending on the direction in which that vertex is moved. In the animation on the left, you can see that the top face of the cube has one triangle chopped off in the first move where the vertex is moved downward, while in the second move, the front face is chopped into a triangle fan when the vertex is moved outward. Sometimes, TrenchBroom will even delete a vertex if a move would push it inside the brush, which would make it concave. In such a case, the vertex move is concluded.
 
-The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once. 
+The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once.
+
+If you wish to snap a vertex onto another vertex quickly without performing a drag, you can just click on the target vertex while holding #key(306)#key(307).
 
 <br clear="all" />
 
@@ -621,7 +621,7 @@ Additionally, you can delete the selected vertices, edges, and faces from brushe
 
 <br clear="all" />
 
-![Vertex clumping](VertexToolVertexClumping.gif) Vertex editing is not limited to working with single brushes. Selecting more than one brush and activating the vertex tool will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection. Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together, making editing terrain much quicker and easier. In the following animation, the vertices under the cursor were moved with a single drag operation because they share the same position. This behaviour also applies to edge and face editing if the handles of those components share the same position in space.
+![Vertex clumping](VertexToolVertexClumping.gif) Vertex editing is not limited to working with single brushes. Selecting more than one brush and activating the vertex tool will cause vertex handles to appear for all brushes in the selection. This is more useful when working on organic brushwork such as terrain. You can build a large group of brushes and modify them all at once without having to change the selection. Trenchbroom will recognize when vertices of multiple brushes share the same position. In this case, when trying to move a vertex, Trenchbroom will move all those vertices together, making editing terrain much quicker and easier. In the following animation, the vertices under the cursor were moved with a single drag operation because they share the same position.
 
 <br clear="all" />
 
@@ -638,7 +638,32 @@ Backward      #action('Controls/Map view/Move vertices backward; Move vertices d
 
 This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
 
-#### Best Practices
+
+#### Edge Tool {#edge_tool}
+
+Using the edge tool, you can move individual edge around in 3D space. To activate the edge tool, choose Choose #menu('Menu/Edit/Tools/Edge Tool'). When the edge tool is active, the edges of the selected brushes are rendered yellow to indicate that they allow manipulation.
+
+![Edge Handles](EdgeTool.png)
+
+Moving the mouse pointer over an edge handle highlights that handle in red. Selecting edge handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(308). Selected handles are rendered in red. The edge tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles touched by the lasso are selected. If the lasso rectangle touches a edge handle that's already selected, then it will be deselected. To ensure that all edge handles touched by the lasso are selected regardless of their previous selection state, hold #key(308). 
+
+When you have selected some edge handles, you can move them around by dragging them with the left mouse button. Moving edge handles (and their corresponding edges) works in same way as moving vertices, with the exception that the tool only supports relative snapping of the move distances. Like the vertex tool, the edge tool will detect if two or more brushes share an edge and move the edges of all selected brushes if a shared edge is moved.
+
+Finally, the edge tool also supports the same keyboard commands as the vertex tool.
+
+#### Face Tool {#face_tool}
+
+Using the face tool, you can move individual face around in 3D space. To activate the face tool, choose Choose #menu('Menu/Edit/Tools/Face Tool'). When the face tool is active, the faces of the selected brushes are rendered yellow to indicate that they allow manipulation. Additionally, the tool shows point handles at the centers of the faces; these handles allow selection and manipulation of the faces. Note that the handles allow you to select and manipulate faces which face away from the camera, too.
+
+![Face Handles](FaceTool.png)
+
+Moving the mouse pointer over an face handle highlights that handle with a red outline. Additionally, the face edges are rendered thicker. Selecting face handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(308). Selected handles are rendered in red. The face tool also allows you to select multiple faces using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all faces touched by the lasso are selected. If the lasso rectangle touches a face that's already selected, then it will be deselected. To ensure that all faces touched by the lasso are selected regardless of their previous selection state, hold #key(308). 
+
+When you have selected some face handles, you can move them around by dragging them with the left mouse button. Moving face handles (and their corresponding faces) works in same way as moving vertices, with the exception that the tool only supports relative snapping of the move distances. Like the vertex tool, the face tool will detect if two or more brushes share an face and move the faces of all selected brushes if a shared face is moved.
+
+Finally, the face tool also supports the same keyboard commands as the vertex tool.
+
+#### Vertex Editing Best Practices
 
 - Don't use it too much on sealing brushes, better to use it on detail.
 - Don't do too much in one go, compile and test often.

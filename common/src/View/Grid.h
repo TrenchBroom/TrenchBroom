@@ -23,8 +23,12 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Edge.h"
+#include "Polygon.h"
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
+
+#include <array>
 
 namespace TrenchBroom {
     namespace View {
@@ -210,6 +214,83 @@ namespace TrenchBroom {
                         break;
                 }
                 return result;
+            }
+        public:
+            // Snapping on an a line means finding the closest point on a line such that at least one coordinate
+            // is on the grid, ignoring a coordinate if the line direction is identical to the corresponding axis.
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Line<T,3> line) const {
+                // Project the point onto the line.
+                const Vec<T,3> pr = line.project(p);
+                const T prDist = line.distance(pr);
+                
+                Vec<T,3> result = pr;
+                T bestDiff = std::numeric_limits<T>::max();
+                for (size_t i = 0; i < 3; ++i) {
+                    if (line.direction[i] != 0.0) {
+                        const std::array<T,2> v = { {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]} };
+                        for (size_t j = 0; j < 2; ++j) {
+                            const T s = v[j] / line.direction[i];
+                            const T diff = Math::absDifference(s, prDist);
+                            if (diff < bestDiff) {
+                                result = line.pointAtDistance(s);
+                                bestDiff = diff;
+                            }
+                        }
+                    }
+                }
+                
+                return result;
+            }
+            
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Edge<T,3> edge) const {
+                const Vec<T,3> vec = edge.end() - edge.start();
+                const T length = vec.length();
+                
+                const Vec<T,3> orig = edge.start();
+                const Vec<T,3> dir = vec / length;
+                
+                const Vec<T,3> snapped = snap(p, Line<T,3>(orig, dir));
+                const T dist = dir.dot(snapped - orig);
+                if (dist < 0.0 || dist > length)
+                    return Vec<T,3>::NaN;
+                
+                return snapped;
+            }
+            
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Polygon<T,3>& polygon, const Vec<T,3>& normal) const {
+                ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
+                
+                const Plane<T,3> plane(polygon.vertices().front(), normal);
+                Vec<T,3> ps = snap(p, plane);
+                T err = (p - ps).squaredLength();
+                
+                if (!polygon.contains(ps, plane.normal)) {
+                    ps = Vec<T,3>::NaN;
+                    err = std::numeric_limits<T>::max();
+                }
+                
+                auto last = std::begin(polygon);
+                auto cur = std::next(last);
+                auto end = std::end(polygon);
+                
+                while (cur != end) {
+                    const Vec<T,3> cand = snap(p, Edge<T,3>(*last, *cur));
+                    if (!cand.nan()) {
+                        const T cerr = (p - cand).squaredLength();
+                        if (cerr < err) {
+                            err = cerr;
+                            ps = cand;
+                        }
+                    }
+                    
+                    last = cur;
+                    ++cur;
+                }
+                
+                return ps;
             }
         public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;

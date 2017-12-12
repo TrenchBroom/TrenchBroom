@@ -17,132 +17,86 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexTool
-#define TrenchBroom_VertexTool
+#ifndef VertexTool_h
+#define VertexTool_h
 
-#include "StringUtils.h"
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Model/Hit.h"
-#include "View/Tool.h"
+#include "Renderer/PointGuideRenderer.h"
 #include "View/UndoableCommand.h"
+#include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
-        class SelectionResult;
     }
     
     namespace Renderer {
         class Camera;
-        class RenderBatch;
         class RenderContext;
+        class RenderBatch;
+        class RenderService;
     }
     
     namespace View {
         class Grid;
-        class InputState;
         class Lasso;
-        class MovementRestriction;
         class Selection;
         
-        class VertexTool : public Tool {
-        public:
-            typedef enum {
-                MR_Continue,
-                MR_Deny,
-                MR_Cancel
-            } MoveResult;
+        class VertexTool : public VertexToolBase<Vec3> {
         private:
             typedef enum {
                 Mode_Move,
-                Mode_Split
+                Mode_Split_Edge,
+                Mode_Split_Face
             } Mode;
-
-            MapDocumentWPtr m_document;
-            VertexHandleManager m_handleManager;
+            
             Mode m_mode;
-            size_t m_changeCount;
-            bool m_ignoreChangeNotifications;
-            Vec3 m_dragHandlePosition;
-            bool m_dragging;
+
+            VertexHandleManager m_vertexHandles;
+            EdgeHandleManager m_edgeHandles;
+            FaceHandleManager m_faceHandles;
+
+            mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
             VertexTool(MapDocumentWPtr document);
-            
-            const Grid& grid() const;
-            
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            
-            bool deselectAll();
-            bool mergeVertices(const Model::Hit& hit);
-            bool handleDoubleClicked(const Model::Hit& hit);
-            bool select(const Model::Hit::List& hits, bool addToSelection);
-            void select(const Lasso& lasso, bool modifySelection);
-            
-            bool canRemoveSelection() const;
-            void removeSelection();
-
-            bool beginMove(const Model::Hit& hit);
-            MoveResult move(const Vec3& delta);
-            void endMove();
-            void cancelMove();
-            
-            void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
-            void renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
-            void renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition);
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
-            
-            bool cancel();
-            
-            bool handleBrushes(const Vec3& position, Model::BrushSet& brushes) const;
-            bool handleSelected(const Vec3& position) const;
-            bool hasSelectedHandles() const;
-            void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);
+        public:
+            Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
+            Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
+            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
         private:
-            void selectVertex(const Model::Hit::List& hits, bool addToSelection);
-            void selectEdge(const Model::Hit::List& hits, bool addToSelection);
-            void selectFace(const Model::Hit::List& hits, bool addToSelection);
-            
-            String actionName() const;
-            
-            MoveResult moveVertices(const Vec3& delta);
-            MoveResult doMoveVertices(const Vec3& delta);
-            MoveResult doMoveEdges(const Vec3& delta);
-            MoveResult doMoveFaces(const Vec3& delta);
-            MoveResult doSplitEdges(const Vec3& delta);
-            MoveResult doSplitFaces(const Vec3& delta);
+            using VertexToolBase::findIncidentBrushes;
+        public:
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
+        public: // Handle selection
+            bool deselectAll() override;
+        public:
+            VertexHandleManager& handleManager() override;
+            const VertexHandleManager& handleManager() const override;
+        public: // Vertex moving
+            bool startMove(const Model::Hit& hit) override;
+            MoveResult move(const Vec3& delta) override;
+            void endMove() override;
+            void cancelMove() override;
 
-            void rebuildBrushGeometry();
+            const Vec3& getHandlePosition(const Model::Hit& hit) const override;
+            String actionName() const override;
+            
+            void removeSelection();
+        public: // Rendering
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const override;
+        private: // Tool interface
+            bool doActivate() override;
+            bool doDeactivate() override;
+        private:
+            void addHandles(const Model::NodeList& nodes) override;
+            void removeHandles(const Model::NodeList& nodes) override;
 
-            bool doActivate();
-            bool doDeactivate();
-            
-            void bindObservers();
-            void unbindObservers();
-            
-            void commandDo(Command::Ptr command);
-            void commandDone(Command::Ptr command);
-            void commandDoFailed(Command::Ptr command);
-            void commandUndo(UndoableCommand::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
-            void commandUndoFailed(UndoableCommand::Ptr command);
-
-            void commandDoOrUndo(Command::Ptr command);
-            void commandDoneOrUndoFailed(Command::Ptr command);
-            void commandDoFailedOrUndone(Command::Ptr command);
-            bool isVertexCommand(const Command::Ptr command) const;
-            
-            void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-        private: // implement Tool interface
-            String doGetIconName() const;
+            void addHandles(VertexCommand* command) override;
+            void removeHandles(VertexCommand* command) override;
+        private: // General helper methods
+            void resetModeAfterDeselection();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexTool) */
+#endif /* VertexTool_h */

@@ -75,6 +75,7 @@
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
@@ -104,11 +105,8 @@
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
-#include "View/SplitBrushEdgesCommand.h"
-#include "View/SplitBrushFacesCommand.h"
 #include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
-#include "View/VertexHandleManager.h"
 #include "View/ViewEffectsService.h"
 
 #include <cassert>
@@ -1097,8 +1095,8 @@ namespace TrenchBroom {
             return submitAndStore(ChangeBrushFaceAttributesCommand::command(request));
         }
         
-        bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
-            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, sourceFaceNormal));
+        bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
+            return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, attribs, sourceFacePlane));
         }
         
         bool MapDocument::moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
@@ -1133,31 +1131,27 @@ namespace TrenchBroom {
             return MoveVerticesResult(success, hasRemainingVertices);
         }
         
-        bool MapDocument::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+        bool MapDocument::moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
             return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
         }
-        
-        bool MapDocument::moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+
+        bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
             return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
         }
         
-        bool MapDocument::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
-            return submitAndStore(SplitBrushEdgesCommand::split(edges, delta));
+        bool MapDocument::addVertices(const Model::VertexToBrushesMap& vertices) {
+            return submitAndStore(AddBrushVerticesCommand::add(vertices));
         }
-        
-        bool MapDocument::splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
-            return submitAndStore(SplitBrushFacesCommand::split(faces, delta));
-        }
-        
+
         bool MapDocument::removeVertices(const Model::VertexToBrushesMap& vertices) {
             return submitAndStore(RemoveBrushVerticesCommand::remove(vertices));
         }
         
-        bool MapDocument::removeEdges(const Model::VertexToEdgesMap& edges) {
+        bool MapDocument::removeEdges(const Model::EdgeToBrushesMap& edges) {
             return submitAndStore(RemoveBrushEdgesCommand::remove(edges));
         }
         
-        bool MapDocument::removeFaces(const Model::VertexToFacesMap& faces) {
+        bool MapDocument::removeFaces(const Model::FaceToBrushesMap& faces) {
             return submitAndStore(RemoveBrushFacesCommand::remove(faces));
         }
 
