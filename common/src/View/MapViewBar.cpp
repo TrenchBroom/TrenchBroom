@@ -25,6 +25,7 @@
 #include "View/ViewConstants.h"
 #include "View/ViewEditor.h"
 #include "View/wxUtils.h"
+#include "Model/EditorContext.h"
 
 #include <wx/dcclient.h>
 #include <wx/simplebook.h>
@@ -38,8 +39,9 @@ namespace TrenchBroom {
         MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
         ContainerBar(parent, wxBOTTOM),
         m_document(document),
-        m_toolBook(NULL),
-        m_viewEditor(NULL) {
+        m_toolBook(nullptr),
+        m_viewEditor(nullptr),
+        m_searchBox(nullptr) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -52,15 +54,28 @@ namespace TrenchBroom {
 
         void MapViewBar::OnSearchPatternChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
+            
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            
+            const String searchString = m_searchBox->GetValue().ToStdString();
+            editorContext.setSearchString(searchString);
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
+            m_searchBox = new wxSearchCtrl(this, wxID_ANY);
+            
+            m_searchBox->Bind(wxEVT_TEXT, &MapViewBar::OnSearchPatternChanged, this);
+            m_searchBox->ShowCancelButton(true);
+            m_searchBox->ShowSearchButton(true);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             hSizer->Add(m_toolBook, 1, wxEXPAND);
+            hSizer->AddSpacer(LayoutConstants::MediumHMargin);
+            hSizer->Add(m_searchBox, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);

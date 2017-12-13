@@ -73,6 +73,46 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
         
+        bool EditorContext::groupMatchesSearch(const Model::Group* group) const {
+            if (m_searchString.empty())
+                return true;
+            
+            if (StringUtils::containsCaseInsensitive(group->name(), m_searchString))
+                return true;
+            
+            if (anyChildVisible(group))
+                return true;
+
+            return false;
+        }
+        
+        bool EditorContext::entityMatchesSearch(const Model::AttributableNode* entity) const {
+            if (m_searchString.empty())
+                return true;
+            
+            for (const EntityAttribute& attribute : entity->attributes()) {
+                if (StringUtils::containsCaseInsensitive(attribute.name(), m_searchString)
+                    || StringUtils::containsCaseInsensitive(attribute.value(), m_searchString)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        bool EditorContext::brushMatchesSearch(const Model::Brush* brush) const {
+            if (m_searchString.empty())
+                return true;
+            
+            if (entityMatchesSearch(brush->entity()))
+                return true;
+            
+            for (const BrushFace* face : brush->faces()) {
+                if (StringUtils::containsCaseInsensitive(face->textureName(), m_searchString))
+                    return true;
+            }
+            return false;
+        }
+        
         bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
             if (entity == NULL)
                 return false;
@@ -109,6 +149,15 @@ namespace TrenchBroom {
         
         void EditorContext::setBlockSelection(const bool blockSelection) {
             m_blockSelection = blockSelection;
+            editorContextDidChangeNotifier();
+        }
+
+        String EditorContext::searchString() const {
+            return m_searchString;
+        }
+
+        void EditorContext::setSearchString(const String& searchString) {
+            m_searchString = searchString;
             editorContextDidChangeNotifier();
         }
 
@@ -164,6 +213,8 @@ namespace TrenchBroom {
         bool EditorContext::visible(const Model::Group* group) const {
             if (group->selected())
                 return true;
+            if (!groupMatchesSearch(group))
+                return false;
             return group->visible();
         }
         
@@ -181,6 +232,8 @@ namespace TrenchBroom {
                 return false;
             if (entityDefinitionHidden(entity))
                 return false;
+            if (!entityMatchesSearch(entity))
+                return false;
             return true;
         }
         
@@ -192,6 +245,8 @@ namespace TrenchBroom {
             if (brush->hasContentType(m_hiddenBrushContentTypes))
                 return false;
             if (entityDefinitionHidden(brush->entity()))
+                return false;
+            if (!brushMatchesSearch(brush))
                 return false;
             return brush->visible();
         }
