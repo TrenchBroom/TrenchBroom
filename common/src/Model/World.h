@@ -41,7 +41,6 @@ namespace TrenchBroom {
             Layer* m_defaultLayer;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
-            bool m_issuesMustBeValidated;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management

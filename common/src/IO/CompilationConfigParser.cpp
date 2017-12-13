@@ -19,10 +19,6 @@
 
 #include "CompilationConfigParser.h"
 
-#include "Macros.h"
-#include "CollectionUtils.h"
-#include "Exceptions.h"
-
 namespace TrenchBroom {
     namespace IO {
         CompilationConfigParser::CompilationConfigParser(const char* begin, const char* end, const Path& path) :
