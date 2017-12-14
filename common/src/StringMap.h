@@ -255,6 +255,16 @@ namespace TrenchBroom {
                         child.collectIfNumbered(result);
                 }
             }
+            
+            void getKeys(const String& prefix, StringList& result) const {
+                const String prefixAndKey = prefix + m_key;
+                if (!m_values.empty()) {
+                    result.push_back(prefixAndKey);
+                }
+                for (const auto& child : m_children) {
+                    child.getKeys(prefixAndKey, result);
+                }
+            }
         private:
             void insertValue(const V& value) const {
                 P::insertValue(m_values, value);
@@ -355,6 +365,13 @@ namespace TrenchBroom {
             ensure(m_root != NULL, "root is null");
             QueryResult result;
             m_root->queryExact(prefix, result);
+            return result;
+        }
+        
+        StringList getKeys() const {
+            ensure(m_root != NULL, "root is null");
+            StringList result;
+            m_root->getKeys("", result);
             return result;
         }
     private:
