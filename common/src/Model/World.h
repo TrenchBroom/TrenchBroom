@@ -49,6 +49,8 @@ namespace TrenchBroom {
             LayerList customLayers() const;
         private:
             void createDefaultLayer(const BBox3& worldBounds);
+        public: // index
+            const AttributableNodeIndex& attributableNodeIndex() const;
         public: // selection
             // issue generator registration
             const IssueGeneratorList& registeredIssueGenerators() const;

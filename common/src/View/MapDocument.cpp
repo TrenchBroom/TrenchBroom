@@ -387,13 +387,6 @@ namespace TrenchBroom {
             return visitor.nodes();
         }
         
-        const Model::AttributableNodeList MapDocument::allAttributableNodes() const {
-            const Model::LayerList& layers = m_world->allLayers();
-            Model::CollectAttributableNodesVisitor visitor;
-            Model::Node::recurse(std::begin(layers), std::end(layers), visitor);
-            return visitor.nodes();
-        }
-        
         const Model::NodeCollection& MapDocument::selectedNodes() const {
             return m_selectedNodes;
         }

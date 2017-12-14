@@ -56,6 +56,10 @@ namespace TrenchBroom {
             m_defaultLayer = createLayer("Default Layer", worldBounds);
             addChild(m_defaultLayer);
         }
+        
+        const AttributableNodeIndex& World::attributableNodeIndex() const {
+            return m_attributableIndex;
+        }
 
         const IssueGeneratorList& World::registeredIssueGenerators() const {
             return m_issueGeneratorRegistry.registeredGenerators();

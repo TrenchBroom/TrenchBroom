@@ -24,6 +24,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+#include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -512,25 +513,24 @@ namespace TrenchBroom {
             update();
         }
         
-        static StringSet allSortedAttributeNames(MapDocumentSPtr document) {
+        static StringSet allSortedAttributeNames(MapDocumentSPtr document) {            
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            const StringList names = index.allNames();
+            
             StringSet keySet;
-            const Model::AttributableNodeList nodes = document->allAttributableNodes();
-            for (const auto& node : nodes) {
-                for (const auto& attribute : node->attributes()) {
-                    keySet.insert(attribute.name());
-                }
+            for (const auto& name : names) {
+                keySet.insert(name);
             }
             return keySet;
         }
         
         static StringSet allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names) {
             StringSet valueset;
-            const Model::AttributableNodeList nodes = document->allAttributableNodes();
-            for (const auto& node : nodes) {
-                for (const auto& attribute : node->attributes()) {
-                    if (VectorUtils::contains(names, attribute.name())) {
-                        valueset.insert(attribute.value());
-                    }
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            for (const auto& name : names) {
+                const StringList values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
+                for (const auto& value : values) {
+                    valueset.insert(value);
                 }
             }
             return valueset;

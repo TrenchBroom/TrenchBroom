@@ -194,7 +194,6 @@ namespace TrenchBroom {
             bool hasSelectedBrushFaces() const override;
 
             const Model::AttributableNodeList allSelectedAttributableNodes() const override;
-            const Model::AttributableNodeList allAttributableNodes() const;
             const Model::NodeCollection& selectedNodes() const override;
             const Model::BrushFaceList allSelectedBrushFaces() const override;
             const Model::BrushFaceList& selectedBrushFaces() const override;
