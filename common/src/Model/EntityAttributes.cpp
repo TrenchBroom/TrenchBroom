@@ -240,6 +240,17 @@ namespace TrenchBroom {
             
             return false;
         }
+        
+        EntityAttribute::List EntityAttributes::listFromQueryResult(const AttributeIndex::QueryResult& matches) const {
+            EntityAttribute::List result;
+            
+            for (auto attrIt : matches) {
+                const EntityAttribute& attribute = *attrIt;
+                result.push_back(attribute);
+            }
+            
+            return result;
+        }
 
         const AttributeNameSet EntityAttributes::names() const {
             AttributeNameSet result;
@@ -262,6 +273,14 @@ namespace TrenchBroom {
             return *value;
         }
 
+        EntityAttribute::List EntityAttributes::attributeWithName(const AttributeName& name) const {
+            return listFromQueryResult(m_index.queryExactMatches(name));
+        }
+        
+        EntityAttribute::List EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
+            return listFromQueryResult(m_index.queryPrefixMatches(prefix));
+        }
+        
         EntityAttribute::List EntityAttributes::numberedAttributes(const String& prefix) const {
             EntityAttribute::List result;
 
