@@ -70,6 +70,20 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
+        
+        Model::EntityAttribute::List AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
+            switch (m_type) {
+                case Type_Exact:
+                    return node->attributeWithName(m_pattern);
+                case Type_Prefix:
+                    return node->attributesWithPrefix(m_pattern);
+                case Type_Numbered:
+                    return node->numberedAttributes(m_pattern);
+                case Type_Any:
+                    return node->attributes();
+                switchDefault()
+            }
+        }
 
         AttributableNodeIndexQuery::AttributableNodeIndexQuery(const Type type, const String& pattern) :
         m_type(type),
@@ -112,6 +126,24 @@ namespace TrenchBroom {
                     it = result.erase(it);
                 else
                     ++it;
+            }
+            
+            return result;
+        }
+        
+        StringList AttributableNodeIndex::allNames() const {
+            return m_nameIndex.getKeys();
+        }
+        
+        StringList AttributableNodeIndex::allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const {
+            StringList result;
+
+            const AttributableNodeSet nameResult = keyQuery.execute(m_nameIndex);
+            for (const auto node : nameResult) {
+                const Model::EntityAttribute::List matchingAttributes = keyQuery.execute(node);
+                for (const auto& attribute : matchingAttributes) {
+                    result.push_back(attribute.value());
+                }
             }
             
             return result;

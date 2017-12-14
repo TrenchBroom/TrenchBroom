@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+#include "Model/EntityAttributes.h"
 #include "StringMap.h"
 
 #include <map>
@@ -50,6 +51,7 @@ namespace TrenchBroom {
 
             AttributableNodeSet execute(const AttributableNodeStringIndex& index) const;
             bool execute(const AttributableNode* node, const String& value) const;
+            Model::EntityAttribute::List execute(const AttributableNode* node) const;
         private:
             AttributableNodeIndexQuery(Type type, const String& pattern = "");
         };
@@ -66,6 +68,8 @@ namespace TrenchBroom {
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             
             AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
+            StringList allNames() const;
+            StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };
     }
 }
