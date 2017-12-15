@@ -523,7 +523,7 @@ namespace TrenchBroom {
             // also add keys from all loaded entity definitions
             for (const auto& group : document->entityDefinitionManager().groups()) {
                 for (const auto entityDefinition : group.definitions()) {
-                    for (const auto attribute : entityDefinition->attributeDefinitions()) {
+                    for (const auto& attribute : entityDefinition->attributeDefinitions()) {
                         keySet.insert(attribute->name());
                     }
                 }
