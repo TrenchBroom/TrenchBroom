@@ -21,6 +21,7 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -517,9 +518,15 @@ namespace TrenchBroom {
             const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
             const StringList names = index.allNames();
             
-            StringSet keySet;
-            for (const auto& name : names) {
-                keySet.insert(name);
+            StringSet keySet = SetUtils::makeSet(names);
+            
+            // also add keys from all loaded entity definitions
+            for (const auto& group : document->entityDefinitionManager().groups()) {
+                for (const auto entityDefinition : group.definitions()) {
+                    for (const auto attribute : entityDefinition->attributeDefinitions()) {
+                        keySet.insert(attribute->name());
+                    }
+                }
             }
 
             // an empty string prevents the completion popup from opening on macOS
