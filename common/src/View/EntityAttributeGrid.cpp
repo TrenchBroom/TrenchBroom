@@ -212,20 +212,6 @@ namespace TrenchBroom {
 
             event.Check(m_table->showDefaultRows());
         }
-        
-        void EntityAttributeGrid::OnGridEditorShown(wxGridEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            // set up autocompletion if it's a wxTextCtrl
-            wxGridCellEditor* editor = m_grid->GetCellEditor(event.GetRow(), event.GetCol());
-            if (editor != nullptr) {
-                wxTextCtrl* textCtrl = dynamic_cast<wxTextCtrl*>(editor->GetControl());
-                if (textCtrl != nullptr) {
-                    const wxArrayString completions = m_table->getCompletions(event.GetRow(), event.GetCol());
-                    textCtrl->AutoComplete(completions);
-                }
-            }
-        }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
             for (const int rowIndex : m_grid->GetSelectedRows()) {
@@ -235,6 +221,29 @@ namespace TrenchBroom {
             return true;
         }
 
+        /**
+         * Subclass of wxGridCellTextEditor for setting up autocompletion
+         */
+        class EntityAttributeCellEditor : public wxGridCellTextEditor
+        {
+        private:
+            EntityAttributeGridTable* m_table;
+            
+        public:
+            EntityAttributeCellEditor(EntityAttributeGridTable* table)
+            : m_table(table) {}
+
+            virtual void BeginEdit(int row, int col, wxGrid* grid) override {
+                wxGridCellTextEditor::BeginEdit(row, col, grid);
+                
+                wxTextCtrl *textCtrl = Text();
+                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
+
+                const wxArrayString completions = m_table->getCompletions(row, col);
+                textCtrl->AutoComplete(completions);
+            }
+        };
+        
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
@@ -247,6 +256,9 @@ namespace TrenchBroom {
             m_grid->SetColLabelSize(18);
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
+            
+            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(m_table);
+            m_grid->SetDefaultEditor(editor);
             
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
@@ -263,7 +275,6 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_KEY_UP, &EntityAttributeGrid::OnAttributeGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnAttributeGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAttributeView, this);
-            m_grid->Bind(wxEVT_GRID_EDITOR_SHOWN, &EntityAttributeGrid::OnGridEditorShown, this);
             
             wxWindow* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
             wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");

@@ -75,7 +75,6 @@ namespace TrenchBroom {
             void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
-            void OnGridEditorShown(wxGridEvent& event);
 
             bool canRemoveSelectedAttributes() const;
         private:
