@@ -521,6 +521,10 @@ namespace TrenchBroom {
             for (const auto& name : names) {
                 keySet.insert(name);
             }
+
+            // an empty string prevents the completion popup from opening on macOS
+            keySet.erase("");
+            
             return keySet;
         }
         
@@ -533,6 +537,9 @@ namespace TrenchBroom {
                     valueset.insert(value);
                 }
             }
+            
+            valueset.erase("");
+            
             return valueset;
         }
         
