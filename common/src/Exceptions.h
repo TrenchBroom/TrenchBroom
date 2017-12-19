@@ -28,10 +28,10 @@ class Exception : public std::exception {
 protected:
     std::string m_msg;
 public:
-    Exception() noexcept {}
-    explicit Exception(const std::string& str) noexcept : m_msg(str) {}
+    Exception() noexcept = default;
+    explicit Exception(std::string str) noexcept : m_msg(std::move(str)) {}
     
-    const char* what() const noexcept {
+    const char* what() const noexcept override {
         return m_msg.c_str();
     }
 };
