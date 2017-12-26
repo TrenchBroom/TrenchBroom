@@ -28,7 +28,8 @@ class Exception : public std::exception {
 protected:
     std::string m_msg;
 public:
-    Exception() noexcept = default;
+    Exception() noexcept {}
+
     explicit Exception(std::string str) noexcept :
             m_msg(std::move(str)) {}
     
@@ -40,7 +41,8 @@ public:
 template <class C>
 class ExceptionStream : public Exception {
 public:
-    ExceptionStream() noexcept = default;
+    ExceptionStream() noexcept {}
+
     explicit ExceptionStream(std::string str) noexcept :
             Exception(std::move(str)) {}
 
