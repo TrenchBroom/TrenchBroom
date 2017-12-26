@@ -24,6 +24,7 @@
 
 #include "GLInit.h"
 #include "Macros.h"
+#include "RecoverableExceptions.h"
 #include "TrenchBroomAppTraits.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -190,6 +191,8 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
+            static bool recovering = false;
+
             MapFrame* frame = nullptr;
 
             try {
@@ -197,15 +200,33 @@ namespace TrenchBroom {
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
                 if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
                     return false;
-                
+
                 frame = m_frameManager->newFrame();
 
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GameFactory &gameFactory = Model::GameFactory::instance();
                 Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
-                
+
                 frame->newDocument(game, mapFormat);
                 return true;
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
+                    frame->Close();
+
+                // Guard against recursion.
+                if (!recovering) {
+                    StringStream message;
+                    message << e.what() << "\n\n" << e.query();
+                    if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
+                        SetBool setRecovering(recovering);
+                        e.recover();
+                        newDocument();
+                    }
+                } else {
+                    ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
+                }
+
+                return false;
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->Close();

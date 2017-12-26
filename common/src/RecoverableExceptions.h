@@ -27,17 +27,20 @@ namespace TrenchBroom {
         class Path;
     }
 
-    class RecoverableException {
+    class RecoverableException : public Exception {
     public:
         using Op = std::function<void()>;
     private:
         std::string m_query;
         Op m_op;
     protected:
-        RecoverableException(const std::string& query, const Op& op);
+        RecoverableException(const std::string& str, const std::string& query, const Op& op);
+    public:
+        const std::string& query() const;
+        void recover() const;
     };
 
-    class FileDeletingException : public Exception, public RecoverableException {
+    class FileDeletingException : public RecoverableException {
     public:
         FileDeletingException(const std::string& str, const IO::Path& path) noexcept;
     private:

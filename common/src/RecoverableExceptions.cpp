@@ -22,13 +22,21 @@
 #include "IO/DiskIO.h"
 
 namespace TrenchBroom {
-    RecoverableException::RecoverableException(const std::string& query, const Op& op) :
+    RecoverableException::RecoverableException(const std::string& str, const std::string& query, const Op& op) :
+            Exception(str),
             m_query(query),
             m_op(op) {}
 
+    const std::string& RecoverableException::query() const {
+        return m_query;
+    }
+
+    void RecoverableException::recover() const {
+        return m_op();
+    }
+
     FileDeletingException::FileDeletingException(const std::string& str, const IO::Path& path) noexcept :
-            Exception(str),
-            RecoverableException(getQuery(path), getOp(path)) {}
+            RecoverableException(str, getQuery(path), getOp(path)) {}
 
     std::string FileDeletingException::getQuery(const IO::Path& path) {
         return "Do you want to delete the file?";
