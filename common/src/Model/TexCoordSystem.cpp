@@ -19,7 +19,6 @@
 
 #include "TexCoordSystem.h"
 
-#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
@@ -52,6 +51,10 @@ namespace TrenchBroom {
         
         Vec3 TexCoordSystem::yAxis() const {
             return getYAxis();
+        }
+
+        void TexCoordSystem::reset(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+            doReset(point0, point1, point2, attribs);
         }
 
         void TexCoordSystem::resetTextureAxes(const Vec3& normal) {
