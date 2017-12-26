@@ -32,7 +32,7 @@ namespace TrenchBroom {
     }
 
     void RecoverableException::recover() const {
-        return m_op();
+        m_op();
     }
 
     FileDeletingException::FileDeletingException(const std::string& str, const IO::Path& path) noexcept :
