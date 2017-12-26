@@ -29,7 +29,8 @@ protected:
     std::string m_msg;
 public:
     Exception() noexcept = default;
-    explicit Exception(std::string str) noexcept : m_msg(std::move(str)) {}
+    explicit Exception(std::string str) noexcept :
+            m_msg(std::move(str)) {}
     
     const char* what() const noexcept override {
         return m_msg.c_str();
@@ -39,8 +40,10 @@ public:
 template <class C>
 class ExceptionStream : public Exception {
 public:
-    using Exception::Exception;
-    
+    ExceptionStream() noexcept = default;
+    explicit ExceptionStream(std::string str) noexcept :
+            Exception(std::move(str)) {}
+
     template <typename T>
     C& operator<< (T value) {
         std::stringstream stream;
