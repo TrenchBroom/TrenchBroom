@@ -105,12 +105,12 @@ namespace TrenchBroom {
                 LENIENT // Only parses up to the end of the outermost expression.
             };
         protected:
-            Mode m_mode;
+            ELParser::Mode m_mode;
             ELTokenizer m_tokenizer;
             typedef ELTokenizer::Token Token;
         public:
-            ELParser(Mode mode, const char* begin, const char* end);
-            ELParser(Mode mode, const String& str);
+            ELParser(ELParser::Mode mode, const char* begin, const char* end);
+            ELParser(ELParser::Mode mode, const String& str);
 
             static EL::Expression parseStrict(const String& str);
             static EL::Expression parseLenient(const String& str);

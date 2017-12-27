@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 else if (extension == "pcx")
                     return loadPcx(file);
                 else
-                    throw new AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
+                    throw AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
             } catch (const FileSystemException& e) {
                 throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
             }

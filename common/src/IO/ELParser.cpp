@@ -222,11 +222,11 @@ namespace TrenchBroom {
             return Token(ELToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        ELParser::ELParser(const Mode mode, const char* begin, const char* end) :
+        ELParser::ELParser(const ELParser::Mode mode, const char* begin, const char* end) :
         m_mode(mode),
         m_tokenizer(begin, end) {}
         
-        ELParser::ELParser(const Mode mode, const String& str) :
+        ELParser::ELParser(const ELParser::Mode mode, const String& str) :
         m_mode(mode),
         m_tokenizer(str) {}
         
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             else if (token.hasType(ELToken::BitwiseNegation))
                 return EL::BitwiseNegationOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else
-                throw new ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
+                throw ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
         }
 
         EL::ExpressionBase* ELParser::parseSwitch() {
@@ -515,7 +515,7 @@ namespace TrenchBroom {
                 else if (token.hasType(ELToken::Case))
                     lhs = EL::CaseOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else
-                    throw new ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
+                    throw ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
             }
             
             return lhs;
