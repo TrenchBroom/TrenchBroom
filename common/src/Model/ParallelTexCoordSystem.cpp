@@ -46,7 +46,9 @@ namespace TrenchBroom {
         }
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            reset(point0, point1, point2, attribs);
+            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            computeInitialAxes(normal, m_xAxis, m_yAxis);
+            applyRotation(normal, attribs.rotation());
         }
 
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis) :
@@ -78,9 +80,7 @@ namespace TrenchBroom {
         }
 
         void ParallelTexCoordSystem::doReset(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            computeInitialAxes(normal, m_xAxis, m_yAxis);
-            applyRotation(normal, attribs.rotation());
+            // no-op
         }
 
         void ParallelTexCoordSystem::doResetTextureAxes(const Vec3& normal) {
