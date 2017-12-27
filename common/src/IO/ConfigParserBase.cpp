@@ -27,11 +27,11 @@
 namespace TrenchBroom {
     namespace IO {
         ConfigParserBase::ConfigParserBase(const char* begin, const char* end, const Path& path) :
-        m_parser(begin, end),
+        m_parser(ELParser::Mode::STRICT, begin, end),
         m_path(path) {}
         
         ConfigParserBase::ConfigParserBase(const String& str, const Path& path) :
-        m_parser(str),
+        m_parser(ELParser::Mode::STRICT, str),
         m_path(path) {}
 
         ConfigParserBase::~ConfigParserBase() {}
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
-            ELParser parser(structure);
+            ELParser parser(ELParser::Mode::STRICT, structure);
             const EL::Value expected = parser.parse().evaluate(EL::EvaluationContext());
             assert(expected.type() == EL::Type_Array);
             
@@ -55,13 +55,15 @@ namespace TrenchBroom {
             
             const EL::Value& optional = expected[1];
             assert(optional.type() == EL::Type_Map);
-            
+
+            // Are all mandatory keys present?
             for (const String& key : mandatory.keys()) {
                 const String& typeName = mandatory[key].stringValue();
                 const EL::ValueType type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
-            
+
+            // Are there any unexpected keys present?
             for (const String& key : value.keys()) {
                 if (!mandatory.contains(key) && !optional.contains(key))
                     throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
