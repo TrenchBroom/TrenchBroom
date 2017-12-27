@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) :
         m_index(0) {
-            reset(point0, point1, point2, attribs);
+            resetCache(point0, point1, point2, attribs);
         }
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal, const BrushFaceAttributes& attribs) :
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             return BaseAxes[m_index * 3 + 0];
         }
 
-        void ParaxialTexCoordSystem::doReset(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
             setRotation(normal, 0.0f, attribs.rotation());
         }

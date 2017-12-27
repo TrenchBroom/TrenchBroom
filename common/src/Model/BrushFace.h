@@ -126,7 +126,7 @@ namespace TrenchBroom {
             const BrushFaceAttributes& attribs() const;
             void setAttribs(const BrushFaceAttributes& attribs);
 
-            void resetTexCoordSystem();
+            void resetTexCoordSystemCache();
             
             const String& textureName() const;
             Assets::Texture* texture() const;

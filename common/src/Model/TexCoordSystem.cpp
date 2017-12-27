@@ -53,8 +53,8 @@ namespace TrenchBroom {
             return getYAxis();
         }
 
-        void TexCoordSystem::reset(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            doReset(point0, point1, point2, attribs);
+        void TexCoordSystem::resetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+            doResetCache(point0, point1, point2, attribs);
         }
 
         void TexCoordSystem::resetTextureAxes(const Vec3& normal) {

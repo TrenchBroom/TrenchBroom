@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return crossed(m_xAxis, m_yAxis).normalized();
         }
 
-        void ParallelTexCoordSystem::doReset(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+        void ParallelTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
             // no-op
         }
 

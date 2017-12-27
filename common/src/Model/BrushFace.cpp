@@ -249,9 +249,9 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::resetTexCoordSystem() {
+        void BrushFace::resetTexCoordSystemCache() {
             if (m_texCoordSystem != nullptr) {
-                m_texCoordSystem->reset(m_points[0], m_points[1], m_points[2], m_attribs);
+                m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attribs);
             }
         }
 

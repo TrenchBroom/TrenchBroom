@@ -1110,7 +1110,7 @@ namespace TrenchBroom {
                     } else {
                         m_faces.push_back(face);
                     }
-                    face->resetTexCoordSystem();
+                    face->resetTexCoordSystemCache();
                 }
             }
 
