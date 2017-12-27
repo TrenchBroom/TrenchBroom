@@ -295,26 +295,37 @@ namespace TrenchBroom {
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
                             [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
                 return false;
-            
-            Model::ParentChildrenMap newNodes;
+
+            Model::BrushList newBrushes;
             Model::BrushFaceList newDragFaces;
+            Model::ParentChildrenMap newNodes;
+
             for (Model::BrushFace* dragFace : m_dragFaces) {
                 Model::Brush* brush = dragFace->brush();
-                
+
                 Model::Brush* newBrush = brush->clone(worldBounds);
                 Model::BrushFace* newDragFace = findMatchingFace(newBrush, dragFace);
-                Model::BrushFace* clipFace = newDragFace->clone();
-                clipFace->invert();
-                
-                newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
-                const bool clipResult = newBrush->clip(worldBounds, clipFace);
-                assert(clipResult);
-                unused(clipResult);
-                
-                newNodes[brush->parent()].push_back(newBrush);
+
+                newBrushes.push_back(newBrush);
                 newDragFaces.push_back(newDragFace);
+
+                if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
+                    // There is a brush for which the move is not applicable. Abort.
+                    VectorUtils::deleteAll(newBrushes);
+                    return false;
+                } else {
+                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
+
+                    Model::BrushFace* clipFace = newDragFace->clone();
+                    clipFace->invert();
+                    const bool clipResult = newBrush->clip(worldBounds, clipFace);
+                    assert(clipResult);
+                    unused(clipResult);
+
+                    newNodes[brush->parent()].push_back(newBrush);
+                }
             }
-            
+
             document->deselectAll();
             const Model::NodeList addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
