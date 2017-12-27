@@ -34,11 +34,11 @@ namespace TrenchBroom {
         public:
             TransformObjectVisitor(const Mat4x4d& transformation, bool lockTextures, const BBox3& worldBounds);
         private:
-            void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
-            void doVisit(Group* group) override;
-            void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(World* world);
+            void doVisit(Layer* layer);
+            void doVisit(Group* group);
+            void doVisit(Entity* entity);
+            void doVisit(Brush* brush);
         };
     }
 }
