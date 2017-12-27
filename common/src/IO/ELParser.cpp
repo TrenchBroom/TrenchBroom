@@ -231,15 +231,15 @@ namespace TrenchBroom {
         m_tokenizer(str) {}
         
         EL::Expression ELParser::parseStrict(const String& str) {
-            return ELParser(Mode::STRICT, str).parse();
+            return ELParser(Mode::Strict, str).parse();
         }
 
         EL::Expression ELParser::parseLenient(const String& str) {
-            return ELParser(Mode::LENIENT, str).parse();
+            return ELParser(Mode::Lenient, str).parse();
         }
 
         EL::Expression ELParser::parse() {
-            if (m_mode == Mode::STRICT) {
+            if (m_mode == Mode::Strict) {
                 const auto result = EL::Expression(parseExpression());
                 expect(ELToken::Eof, m_tokenizer.peekToken()); // avoid trailing garbage
                 return result;

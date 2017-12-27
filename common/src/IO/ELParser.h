@@ -101,8 +101,8 @@ namespace TrenchBroom {
         class ELParser : public Parser<ELToken::Type> {
         public:
             enum class Mode {
-                STRICT, // Throws an exception if there is trailing garbage after the outermost expression was parsed.
-                LENIENT // Only parses up to the end of the outermost expression.
+                Strict,
+                Lenient
             };
         protected:
             ELParser::Mode m_mode;

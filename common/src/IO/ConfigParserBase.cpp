@@ -27,11 +27,11 @@
 namespace TrenchBroom {
     namespace IO {
         ConfigParserBase::ConfigParserBase(const char* begin, const char* end, const Path& path) :
-        m_parser(ELParser::Mode::STRICT, begin, end),
+        m_parser(ELParser::Mode::Strict, begin, end),
         m_path(path) {}
         
         ConfigParserBase::ConfigParserBase(const String& str, const Path& path) :
-        m_parser(ELParser::Mode::STRICT, str),
+        m_parser(ELParser::Mode::Strict, str),
         m_path(path) {}
 
         ConfigParserBase::~ConfigParserBase() {}
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
-            ELParser parser(ELParser::Mode::STRICT, structure);
+            ELParser parser(ELParser::Mode::Strict, structure);
             const EL::Value expected = parser.parse().evaluate(EL::EvaluationContext());
             assert(expected.type() == EL::Type_Array);
             

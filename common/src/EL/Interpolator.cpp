@@ -22,7 +22,7 @@
 namespace TrenchBroom {
     namespace EL {
         Interpolator::Interpolator(const String& str) :
-        ELParser(ELParser::Mode::LENIENT, str) {}
+        ELParser(ELParser::Mode::Lenient, str) {}
         
         String Interpolator::interpolate(const EvaluationContext& context) {
             StringStream result;
