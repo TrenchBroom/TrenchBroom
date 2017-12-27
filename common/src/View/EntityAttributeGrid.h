@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
-            
+
             bool canRemoveSelectedAttributes() const;
         private:
             void createGui(MapDocumentWPtr document);

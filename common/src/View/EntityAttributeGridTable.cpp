@@ -21,9 +21,11 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+#include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -510,6 +512,69 @@ namespace TrenchBroom {
                 return;
             m_showDefaultRows = showDefaultRows;
             update();
+        }
+
+        wxArrayString EntityAttributeGridTable::getCompletions(int row, int col) const {
+            const Model::AttributeName name = attributeName(row);
+            MapDocumentSPtr document = lock(m_document);
+            
+            if (col == 0) {
+                return arrayString(allSortedAttributeNames(document));
+            }
+            
+            if (col == 1) {
+                if (name == Model::AttributeNames::Target
+                    || name == Model::AttributeNames::Killtarget) {
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
+                } else if (name == Model::AttributeNames::Targetname) {
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
+                }
+            }
+            
+            return wxArrayString();
+        }
+        
+        StringSet EntityAttributeGridTable::allSortedAttributeNames(MapDocumentSPtr document) {
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            const StringList names = index.allNames();
+            
+            StringSet keySet = SetUtils::makeSet(names);
+            
+            // also add keys from all loaded entity definitions
+            for (const auto& group : document->entityDefinitionManager().groups()) {
+                for (const auto entityDefinition : group.definitions()) {
+                    for (const auto& attribute : entityDefinition->attributeDefinitions()) {
+                        keySet.insert(attribute->name());
+                    }
+                }
+            }
+            
+            // an empty string prevents the completion popup from opening on macOS
+            keySet.erase("");
+            
+            return keySet;
+        }
+        
+        StringSet EntityAttributeGridTable::allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names) {
+            StringSet valueset;
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            for (const auto& name : names) {
+                const StringList values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
+                for (const auto& value : values) {
+                    valueset.insert(value);
+                }
+            }
+            
+            valueset.erase("");
+            
+            return valueset;
+        }
+        
+        wxArrayString EntityAttributeGridTable::arrayString(const StringSet& set) {
+            wxArrayString result;
+            for (const String& string : set)
+                result.Add(wxString(string));
+            return result;
         }
 
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {

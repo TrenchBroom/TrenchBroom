@@ -975,7 +975,7 @@ namespace SetUtils {
     template <typename T>
     std::set<T> makeSet(const std::vector<T>& vec) {
         std::set<T> result;
-        makeSet(vec);
+        makeSet(vec, result);
         return result;
     }
 

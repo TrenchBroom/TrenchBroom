@@ -147,6 +147,18 @@ namespace TrenchBroom {
             return m_attributes.hasNumberedAttribute(prefix, value);
         }
         
+        EntityAttribute::List AttributableNode::attributeWithName(const AttributeName& name) const {
+            return m_attributes.attributeWithName(name);
+        }
+        
+        EntityAttribute::List AttributableNode::attributesWithPrefix(const AttributeName& prefix) const {
+            return m_attributes.attributesWithPrefix(prefix);
+        }
+        
+        EntityAttribute::List AttributableNode::numberedAttributes(const String& prefix) const {
+            return m_attributes.numberedAttributes(prefix);
+        }
+        
         const AttributeValue& AttributableNode::attribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = m_attributes.attribute(name);
             if (value == NULL)
