@@ -191,8 +191,6 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
-            static bool recovering = false;
-
             MapFrame* frame = nullptr;
 
             try {
@@ -213,20 +211,7 @@ namespace TrenchBroom {
                 if (frame != nullptr)
                     frame->Close();
 
-                // Guard against recursion.
-                if (!recovering) {
-                    StringStream message;
-                    message << e.what() << "\n\n" << e.query();
-                    if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
-                        SetBool setRecovering(recovering);
-                        e.recover();
-                        newDocument();
-                    }
-                } else {
-                    ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
-                }
-
-                return false;
+                return recoverFromException(e, [this](){ return this->newDocument(); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->Close();
@@ -263,6 +248,11 @@ namespace TrenchBroom {
                     frame->Close();
                 ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
+                    frame->Close();
+
+                return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
             } catch (const Exception& e) {
                 if (frame != nullptr)
                     frame->Close();
@@ -272,6 +262,26 @@ namespace TrenchBroom {
                 if (frame != nullptr)
                     frame->Close();
                 ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
+                return false;
+            }
+        }
+
+        bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
+            // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
+            static bool recovering = false;
+
+            if (!recovering) {
+                StringStream message;
+                message << e.what() << "\n\n" << e.query();
+                if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
+                    SetBool setRecovering(recovering);
+                    e.recover();
+                    return op(); // Recursive call here.
+                } else {
+                    return false;
+                }
+            } else {
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             }
         }

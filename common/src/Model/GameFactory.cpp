@@ -186,10 +186,8 @@ namespace TrenchBroom {
                     IO::CompilationConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(path));
                     gameConfig.setCompilationConfig(parser.parse());
                 }
-            } catch (const ParserException& e) {
-                throw FileDeletingException("Cannot load compilation configuration '" + path.asString() + "': " + String(e.what()), m_configFS.makeAbsolute(path));
             } catch (const Exception& e) {
-                throw GameException("Cannot load compilation configuration '" + path.asString() + "': " + String(e.what()));
+                throw FileDeletingException("Cannot load compilation configuration '" + path.asString() + "': " + String(e.what()), m_configFS.makeAbsolute(path));
             }
         }
         
@@ -201,10 +199,8 @@ namespace TrenchBroom {
                     IO::GameEngineConfigParser parser(profilesFile->begin(), profilesFile->end(), m_configFS.makeAbsolute(path));
                     gameConfig.setGameEngineConfig(parser.parse());
                 }
-            } catch (const ParserException& e) {
-                throw FileDeletingException("Cannot load game engine configuration '" + path.asString() + "': " + String(e.what()), m_configFS.makeAbsolute(path));
             } catch (const Exception& e) {
-                throw GameException("Cannot load game engine configuration '" + path.asString() + "': " + String(e.what()));
+                throw FileDeletingException("Cannot load game engine configuration '" + path.asString() + "': " + String(e.what()), m_configFS.makeAbsolute(path));
             }
         }
         
