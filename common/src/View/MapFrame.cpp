@@ -1149,7 +1149,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
-            assert(size < Grid::MaxSize);
+            assert(size <= Grid::MaxSize);
             m_document->grid().setSize(size);
         }
 
@@ -1633,7 +1633,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t size = static_cast<size_t>(event.GetSelection());
-            assert(size < Grid::MaxSize);
+            assert(size <= Grid::MaxSize);
             m_document->grid().setSize(size);
         }
 
