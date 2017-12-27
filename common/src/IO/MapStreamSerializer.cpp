@@ -161,7 +161,7 @@ namespace TrenchBroom {
                     return NodeSerializer::Ptr(new Hexen2StreamSerializer(stream));
                 case Model::MapFormat::Unknown:
                 default:
-                    throw new FileFormatException("Unknown map file format");
+                    throw FileFormatException("Unknown map file format");
             }
         }
 

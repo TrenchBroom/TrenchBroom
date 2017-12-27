@@ -31,11 +31,11 @@
 #include <string>
 #include <vector>
 
-typedef std::string String;
-typedef std::stringstream StringStream;
-typedef std::set<String> StringSet;
-typedef std::vector<String> StringList;
-typedef std::map<String, String> StringMap;
+using String = std::string;
+using StringStream = std::stringstream;
+using StringSet = std::set<String>;
+using StringList = std::vector<String>;
+using StringMap = std::map<String, String>;
 
 static const String EmptyString("");
 static const StringList EmptyStringList(0);

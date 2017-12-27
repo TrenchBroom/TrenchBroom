@@ -53,7 +53,7 @@ namespace TrenchBroom {
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
-        
+
         TEST(GameConfigParserTest, parseQuakeConfig) {
             const String config("{\n"
                                 "    \"version\": 1,\n"
@@ -337,46 +337,46 @@ namespace TrenchBroom {
             const GameConfig actual = parser.parse();
             
             GameConfig::FlagConfigList surfaceFlags;
-            surfaceFlags.push_back(GameConfig::FlagConfig("light", "Emit light from the surface, brightness is specified in the 'value' field"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("slick", "The surface is slippery"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("warp", "The surface warps (like water textures do)"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("trans33", "The surface is 33% transparent"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("trans66", "The surface is 66% transparent"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)"));
-            surfaceFlags.push_back(GameConfig::FlagConfig("nodraw", "Used for non-fixed-size brush triggers and clip brushes"));
+            surfaceFlags.emplace_back("light", "Emit light from the surface, brightness is specified in the 'value' field");
+            surfaceFlags.emplace_back("slick", "The surface is slippery");
+            surfaceFlags.emplace_back("sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead");
+            surfaceFlags.emplace_back("warp", "The surface warps (like water textures do)");
+            surfaceFlags.emplace_back("trans33", "The surface is 33% transparent");
+            surfaceFlags.emplace_back("trans66", "The surface is 66% transparent");
+            surfaceFlags.emplace_back("flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)");
+            surfaceFlags.emplace_back("nodraw", "Used for non-fixed-size brush triggers and clip brushes");
             
             GameConfig::FlagConfigList contentFlags;
-            contentFlags.push_back(GameConfig::FlagConfig("solid", "Default for all brushes"));
-            contentFlags.push_back(GameConfig::FlagConfig("window", "Brush is a window (not really used)"));
-            contentFlags.push_back(GameConfig::FlagConfig("aux", "Unused by the engine"));
-            contentFlags.push_back(GameConfig::FlagConfig("lava", "The brush is lava"));
-            contentFlags.push_back(GameConfig::FlagConfig("slime", "The brush is slime"));
-            contentFlags.push_back(GameConfig::FlagConfig("water", "The brush is water"));
-            contentFlags.push_back(GameConfig::FlagConfig("mist", "The brush is non-solid"));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("unused", ""));
-            contentFlags.push_back(GameConfig::FlagConfig("playerclip", "Player cannot pass through the brush (other things can)"));
-            contentFlags.push_back(GameConfig::FlagConfig("mosterclip", "Monster cannot pass through the brush (player and other things can)"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_0", "Brush has a current in direction of 0 degrees"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_90", "Brush has a current in direction of 90 degrees"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_180", "Brush has a current in direction of 180 degrees"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_270", "Brush has a current in direction of 270 degrees"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_up", "Brush has a current in the up direction"));
-            contentFlags.push_back(GameConfig::FlagConfig("current_dn", "Brush has a current in the down direction"));
-            contentFlags.push_back(GameConfig::FlagConfig("origin", "Special brush used for specifying origin of rotation for rotating brushes"));
-            contentFlags.push_back(GameConfig::FlagConfig("monster", "Purpose unknown"));
-            contentFlags.push_back(GameConfig::FlagConfig("corpse", "Purpose unknown"));
-            contentFlags.push_back(GameConfig::FlagConfig("detail", "Detail brush"));
-            contentFlags.push_back(GameConfig::FlagConfig("translucent", "Use for opaque water that does not block vis"));
-            contentFlags.push_back(GameConfig::FlagConfig("ladder", "Brushes with this flag allow a player to move up and down a vertical surface"));
+            contentFlags.emplace_back("solid", "Default for all brushes");
+            contentFlags.emplace_back("window", "Brush is a window (not really used)");
+            contentFlags.emplace_back("aux", "Unused by the engine");
+            contentFlags.emplace_back("lava", "The brush is lava");
+            contentFlags.emplace_back("slime", "The brush is slime");
+            contentFlags.emplace_back("water", "The brush is water");
+            contentFlags.emplace_back("mist", "The brush is non-solid");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back(GameConfig::FlagConfig("unused", ""));
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("unused", "");
+            contentFlags.emplace_back("playerclip", "Player cannot pass through the brush (other things can)");
+            contentFlags.emplace_back("mosterclip", "Monster cannot pass through the brush (player and other things can)");
+            contentFlags.emplace_back("current_0", "Brush has a current in direction of 0 degrees");
+            contentFlags.emplace_back("current_90", "Brush has a current in direction of 90 degrees");
+            contentFlags.emplace_back("current_180", "Brush has a current in direction of 180 degrees");
+            contentFlags.emplace_back("current_270", "Brush has a current in direction of 270 degrees");
+            contentFlags.emplace_back("current_up", "Brush has a current in the up direction");
+            contentFlags.emplace_back("current_dn", "Brush has a current in the down direction");
+            contentFlags.emplace_back("origin", "Special brush used for specifying origin of rotation for rotating brushes");
+            contentFlags.emplace_back("monster", "Purpose unknown");
+            contentFlags.emplace_back("corpse", "Purpose unknown");
+            contentFlags.emplace_back("detail", "Detail brush");
+            contentFlags.emplace_back("translucent", "Use for opaque water that does not block vis");
+            contentFlags.emplace_back("ladder", "Brushes with this flag allow a player to move up and down a vertical surface");
 
             using Model::BrushContentType;
             const GameConfig expected("Quake 2",

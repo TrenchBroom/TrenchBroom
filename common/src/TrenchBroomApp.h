@@ -26,11 +26,14 @@
 #include "View/RecentDocuments.h"
 #include <wx/app.h>
 
+#include <functional>
+
 class wxExtHelpController;
 
 namespace TrenchBroom {
     class Logger;
-    
+    class RecoverableException;
+
     namespace View {
         class ExecutableEvent;
         
@@ -60,6 +63,7 @@ namespace TrenchBroom {
             
             bool newDocument();
             bool openDocument(const String& pathStr);
+            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
             void openPreferences();
             void openAbout();
 

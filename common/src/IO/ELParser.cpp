@@ -189,21 +189,21 @@ namespace TrenchBroom {
                         }
                         
                         const char* e;
-                        if ((e = readDecimal(NumberDelim())) != NULL) {
+                        if ((e = readDecimal(NumberDelim())) != nullptr) {
                             if (!eof() && curChar() == '.' && lookAhead() != '.')
                                 throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                             return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
                         }
 
-                        if ((e = readInteger(IntegerDelim())) != NULL)
+                        if ((e = readInteger(IntegerDelim())) != nullptr)
                             return Token(ELToken::Number, c, e, offset(c), startLine, startColumn);
                         
-                        if ((e = discard("true")) != NULL)
+                        if ((e = discard("true")) != nullptr)
                             return Token(ELToken::Boolean, c, e, offset(c), startLine, startColumn);
-                        if ((e = discard("false")) != NULL)
+                        if ((e = discard("false")) != nullptr)
                             return Token(ELToken::Boolean, c, e, offset(c), startLine, startColumn);
                         
-                        if ((e = discard("null")) != NULL)
+                        if ((e = discard("null")) != nullptr)
                             return Token(ELToken::Null, c, e, offset(c), startLine, startColumn);
 
                         if (isLetter(*c) || *c == '_') {
@@ -219,21 +219,33 @@ namespace TrenchBroom {
                     }
                 }
             }
-            return Token(ELToken::Eof, NULL, NULL, length(), line(), column());
+            return Token(ELToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        ELParser::ELParser(const char* begin, const char* end) :
+        ELParser::ELParser(const ELParser::Mode mode, const char* begin, const char* end) :
+        m_mode(mode),
         m_tokenizer(begin, end) {}
         
-        ELParser::ELParser(const String& str) :
+        ELParser::ELParser(const ELParser::Mode mode, const String& str) :
+        m_mode(mode),
         m_tokenizer(str) {}
         
-        EL::Expression ELParser::parse(const String& str) {
-            return ELParser(str).parse();
+        EL::Expression ELParser::parseStrict(const String& str) {
+            return ELParser(Mode::Strict, str).parse();
+        }
+
+        EL::Expression ELParser::parseLenient(const String& str) {
+            return ELParser(Mode::Lenient, str).parse();
         }
 
         EL::Expression ELParser::parse() {
-            return EL::Expression(parseExpression());
+            if (m_mode == Mode::Strict) {
+                const auto result = EL::Expression(parseExpression());
+                expect(ELToken::Eof, m_tokenizer.peekToken()); // avoid trailing garbage
+                return result;
+            } else {
+                return EL::Expression(parseExpression());
+            }
         }
 
         EL::ExpressionBase* ELParser::parseExpression() {
@@ -278,7 +290,7 @@ namespace TrenchBroom {
             Token token = m_tokenizer.peekToken();
             expect(ELToken::SimpleTerm, token);
             
-            EL::ExpressionBase* term = NULL;
+            EL::ExpressionBase* term = nullptr;
             if (token.hasType(ELToken::UnaryOperator))
                 term = parseUnaryOperator();
             else if (token.hasType(ELToken::OParen))
@@ -377,7 +389,7 @@ namespace TrenchBroom {
         }
 
         EL::ExpressionBase* ELParser::parseExpressionOrAnyRange() {
-            EL::ExpressionBase* expression = NULL;
+            EL::ExpressionBase* expression = nullptr;
             if (m_tokenizer.peekToken().hasType(ELToken::Range)) {
                 Token token = m_tokenizer.nextToken();
                 expression = EL::RangeOperator::createAutoRangeWithRightOperand(parseExpression(), token.line(), token.column());
@@ -434,7 +446,7 @@ namespace TrenchBroom {
             else if (token.hasType(ELToken::BitwiseNegation))
                 return EL::BitwiseNegationOperator::create(parseSimpleTermOrSwitch(), token.line(), token.column());
             else
-                throw new ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
+                throw ParserException(token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type()));
         }
 
         EL::ExpressionBase* ELParser::parseSwitch() {
@@ -503,7 +515,7 @@ namespace TrenchBroom {
                 else if (token.hasType(ELToken::Case))
                     lhs = EL::CaseOperator::create(lhs, parseSimpleTermOrSwitch(), token.line(), token.column());
                 else
-                    throw new ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
+                    throw ParserException(token.line(), token.column(), "Unhandled binary operator: " + tokenName(token.type()));
             }
             
             return lhs;
