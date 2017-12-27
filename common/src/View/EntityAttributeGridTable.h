@@ -136,6 +136,10 @@ namespace TrenchBroom {
             
             wxArrayString getCompletions(int row, int col) const;
         private:
+            static StringSet allSortedAttributeNames(MapDocumentSPtr document);
+            static StringSet allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names);
+            static wxArrayString arrayString(const StringSet& set);
+        private:
             void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             void updateAttribute(size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);
             
