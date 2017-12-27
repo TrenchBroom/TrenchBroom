@@ -68,17 +68,18 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
-            const IO::Path::List availableCollections = availableTextureCollections();
-            IO::Path::List enabledCollections = enabledTextureCollections();
+            const auto availableCollections = availableTextureCollections();
+            auto enabledCollections = enabledTextureCollections();
             
             wxArrayInt selections;
-            m_availableCollectionsList->GetSelections(selections);
-            
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const size_t index = static_cast<size_t>(selections[i]);
-                VectorUtils::erase(enabledCollections, availableCollections[index]);
+            m_enabledCollectionsList->GetSelections(selections);
+
+            // erase back to front
+            for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
+                const auto index = static_cast<size_t>(*sIt);
+                VectorUtils::erase(enabledCollections, index);
             }
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
