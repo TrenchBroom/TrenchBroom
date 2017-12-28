@@ -135,7 +135,7 @@ String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
     if (destination() != nullptr)
         destination()->position().write(str);
     else
-        str << "nullptr";
+        str << "NULL";
     return str.str();
 }
 
