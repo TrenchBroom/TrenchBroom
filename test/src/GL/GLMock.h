@@ -29,7 +29,7 @@ namespace TrenchBroom {
     class GLMock {
     public:
         GLenum GetError() { return GL_NO_ERROR; }
-        const GLubyte* GetString(GLenum) { return NULL; }
+        const GLubyte* GetString(GLenum) { return nullptr; }
         
         MOCK_METHOD0(GlewInitialize, void());
         

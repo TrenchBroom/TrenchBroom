@@ -40,23 +40,23 @@ namespace TrenchBroom {
             MoveToolController(grid),
             m_tool() {}
         protected:
-            MoveInfo doStartMove(const InputState& inputState) {
+            MoveInfo doStartMove(const InputState& inputState) override {
                 return mockDoStartMove(inputState);
             }
             
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 return mockDoMove(inputState, lastHandlePosition, nextHandlePosition);
             }
             
-            void doEndMove(const InputState& inputState) {
+            void doEndMove(const InputState& inputState) override {
                 mockDoEndMove(inputState);
             }
             
-            void doCancelMove() {
+            void doCancelMove() override {
                 mockDoCancelMove();
             }
-            Tool* doGetTool() { return &m_tool; }
-            bool doCancel() { return false; }
+            Tool* doGetTool() override { return &m_tool; }
+            bool doCancel() override { return false; }
         public:
             MOCK_METHOD1(mockDoStartMove, MoveInfo(const InputState&));
             MOCK_METHOD3(mockDoMove, DragResult(const InputState&, const Vec3&, const Vec3&));

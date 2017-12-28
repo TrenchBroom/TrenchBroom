@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     const int result = RUN_ALL_TESTS();
     
     wxEntryCleanup();
-    delete wxConfig::Set(NULL);
+    delete wxConfig::Set(nullptr);
     
     return result;
 }

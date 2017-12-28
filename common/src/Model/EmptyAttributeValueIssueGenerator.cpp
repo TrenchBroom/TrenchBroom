@@ -40,11 +40,11 @@ namespace TrenchBroom {
             Issue(node),
             m_attributeName(attributeName) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return "Attribute '" + m_attributeName + "' of " + attributableNode->classname() + " has an empty value.";
             }
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             EmptyAttributeValueIssueQuickFix() :
             IssueQuickFix(EmptyAttributeValueIssue::Type, "Delete property") {}
         private:
-            void doApply(MapFacade* facade, const Issue* issue) const {
+            void doApply(MapFacade* facade, const Issue* issue) const override {
                 const EmptyAttributeValueIssue* actualIssue = static_cast<const EmptyAttributeValueIssue*>(issue);
                 const AttributeName& attributeName = actualIssue->attributeName();
                 

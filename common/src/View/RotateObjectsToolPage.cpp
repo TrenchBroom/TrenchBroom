@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         void RotateObjectsToolPage::createGui() {
             wxStaticText* centerText = new wxStaticText(this, wxID_ANY, "Center");
-            m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxTE_PROCESS_ENTER);
+            m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
             
             m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");

@@ -123,12 +123,12 @@ namespace TrenchBroom {
             if (row >= 0 && row < GetNumberRows()) {
                 const KeyboardShortcutEntry* entry = m_entries[static_cast<size_t>(row)];
                 if (entry->hasConflicts()) {
-                    if (attr == NULL)
+                    if (attr == nullptr)
                         attr = new wxGridCellAttr();
                     attr->SetTextColour(*wxRED);
                 }
                 if (col == 0) {
-                    if (attr == NULL)
+                    if (attr == nullptr)
                         attr = new wxGridCellAttr();
                     if (entry->modifiable()) {
                         attr->SetEditor(m_cellEditor);
@@ -138,7 +138,7 @@ namespace TrenchBroom {
                         attr->SetTextColour(*wxLIGHT_GREY);
                     }
                 } else {
-                    if (attr == NULL)
+                    if (attr == nullptr)
                         attr = new wxGridCellAttr();
                     attr->SetReadOnly(true);
                 }
@@ -174,7 +174,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -183,7 +183,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -192,7 +192,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutGridTable::notifyRowsAppended(size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
                                            static_cast<int>(numRows));
                 GetView()->ProcessTableMessage(message);
@@ -200,7 +200,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));

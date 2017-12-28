@@ -36,9 +36,9 @@ namespace TrenchBroom {
         UVEditor::UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
         m_document(document),
-        m_uvView(NULL),
-        m_xSubDivisionEditor(NULL),
-        m_ySubDivisionEditor(NULL) {
+        m_uvView(nullptr),
+        m_xSubDivisionEditor(nullptr),
+        m_ySubDivisionEditor(nullptr) {
             createGui(contextManager);
         }
 

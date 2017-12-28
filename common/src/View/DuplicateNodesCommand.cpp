@@ -55,7 +55,7 @@ namespace TrenchBroom {
                     Model::Node* parent = original->parent();
                     if (cloneParent(parent)) {
                         NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
-                        Model::Node* newParent = NULL;
+                        Model::Node* newParent = nullptr;
                         if (insertPos.first) {
                             assert(insertPos.second != std::begin(newParentMap));
                             newParent = std::prev(insertPos.second)->second;
@@ -91,11 +91,11 @@ namespace TrenchBroom {
         
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
-            void doVisit(const Model::World* world)   { setResult(false); }
-            void doVisit(const Model::Layer* layer)   { setResult(false); }
-            void doVisit(const Model::Group* group)   { setResult(false);  }
-            void doVisit(const Model::Entity* entity) { setResult(true);  }
-            void doVisit(const Model::Brush* brush)   { setResult(false); }
+            void doVisit(const Model::World* world) override   { setResult(false); }
+            void doVisit(const Model::Layer* layer) override   { setResult(false); }
+            void doVisit(const Model::Group* group) override   { setResult(false);  }
+            void doVisit(const Model::Entity* entity) override { setResult(true);  }
+            void doVisit(const Model::Brush* brush) override   { setResult(false); }
         };
         
         bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {

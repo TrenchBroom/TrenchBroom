@@ -55,7 +55,7 @@ private:
         
         T* allocate() {
             if (m_numFreeBlocks == 0)
-                return NULL;
+                return nullptr;
             
             unsigned char* block = m_blocks + m_firstFreeBlock * sizeof(T);
             m_firstFreeBlock = *block;
@@ -122,7 +122,7 @@ public:
             return t;
         }
         
-        Chunk* chunk = NULL;
+        Chunk* chunk = nullptr;
         if (mixedChunks().empty()) {
             if (!emptyChunks().empty()) {
                 chunk = emptyChunks().back();
@@ -159,7 +159,7 @@ public:
         mixedIt = mixedChunks().rbegin();
         mixedEnd = mixedChunks().rend();
         
-        Chunk* chunk = NULL;
+        Chunk* chunk = nullptr;
         while (fullIt < fullEnd || mixedIt < mixedEnd) {
             if (fullIt < fullEnd) {
                 Chunk* fullChunk = *fullIt;
@@ -179,7 +179,7 @@ public:
             }
         }
         
-        assert(chunk != NULL);
+        assert(chunk != nullptr);
         
         if (chunk->full()) {
             fullChunks().erase((fullIt + 1).base());

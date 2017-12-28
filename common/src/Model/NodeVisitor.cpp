@@ -97,39 +97,39 @@ namespace TrenchBroom {
         
         class _NodeVisitorPrototype : public NodeVisitor {
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   {}
-            void doVisit(Entity* entity) {}
-            void doVisit(Brush* brush)   {}
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override {}
+            void doVisit(Brush* brush) override   {}
         };
         
         class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
         private:
-            void doVisit(const World* world)   {}
-            void doVisit(const Layer* layer)   {}
-            void doVisit(const Group* group)   {}
-            void doVisit(const Entity* entity) {}
-            void doVisit(const Brush* brush)   {}
+            void doVisit(const World* world) override   {}
+            void doVisit(const Layer* layer) override   {}
+            void doVisit(const Group* group) override   {}
+            void doVisit(const Entity* entity) override {}
+            void doVisit(const Brush* brush) override   {}
         };
     }
 
     
     class _NodeVisitorPrototype : public Model::NodeVisitor {
     private:
-        void doVisit(Model::World* world)   {}
-        void doVisit(Model::Layer* layer)   {}
-        void doVisit(Model::Group* group)   {}
-        void doVisit(Model::Entity* entity) {}
-        void doVisit(Model::Brush* brush)   {}
+        void doVisit(Model::World* world) override   {}
+        void doVisit(Model::Layer* layer) override   {}
+        void doVisit(Model::Group* group) override   {}
+        void doVisit(Model::Entity* entity) override {}
+        void doVisit(Model::Brush* brush) override   {}
     };
     
     class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
     private:
-        void doVisit(const Model::World* world)   {}
-        void doVisit(const Model::Layer* layer)   {}
-        void doVisit(const Model::Group* group)   {}
-        void doVisit(const Model::Entity* entity) {}
-        void doVisit(const Model::Brush* brush)   {}
+        void doVisit(const Model::World* world) override   {}
+        void doVisit(const Model::Layer* layer) override   {}
+        void doVisit(const Model::Group* group) override   {}
+        void doVisit(const Model::Entity* entity) override {}
+        void doVisit(const Model::Brush* brush) override   {}
     };
 }

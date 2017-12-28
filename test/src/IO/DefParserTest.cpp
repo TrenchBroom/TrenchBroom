@@ -133,7 +133,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
             
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
-            ASSERT_TRUE(spawnflags != NULL);
+            ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
             
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();

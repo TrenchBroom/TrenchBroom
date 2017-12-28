@@ -31,10 +31,10 @@ namespace TrenchBroom {
     namespace View {
         FlagsPopupEditor::FlagsPopupEditor(wxWindow* parent, const size_t numCols, const wxString& buttonLabel , const bool showFlagsText) :
         wxPanel(parent),
-        m_flagsTxt(NULL),
-        m_button(NULL),
-        m_editor(NULL) {
-            wxPanel* flagsPanel = NULL;
+        m_flagsTxt(nullptr),
+        m_button(nullptr),
+        m_editor(nullptr) {
+            wxPanel* flagsPanel = nullptr;
             if (showFlagsText) {
                 flagsPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
                 flagsPanel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            if (flagsPanel != NULL) {
+            if (flagsPanel != nullptr) {
                 sizer->Add(flagsPanel, 1, wxEXPAND);
                 sizer->AddSpacer(LayoutConstants::MediumHMargin);
             }
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
         
         void FlagsPopupEditor::updateFlagsText() {
-            if (m_flagsTxt == NULL)
+            if (m_flagsTxt == nullptr)
                 return;
             
             if (!IsEnabled()) {

@@ -60,16 +60,16 @@ namespace TrenchBroom {
                         return Token(MdlToken::String, c, readQuotedString(), offset(c), startLine, startColumn);
                     default: {
                         const char* e = readInteger(WordDelims);
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(MdlToken::Integer, c, e, offset(c), startLine, startColumn);
                         e = readUntil(WordDelims);
-                        if (e == NULL)
+                        if (e == nullptr)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(MdlToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }
-            return Token(MdlToken::Eof, NULL, NULL, length(), line(), column());
+            return Token(MdlToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
         LegacyModelDefinitionParser::LegacyModelDefinitionParser(const char* begin, const char* end) :

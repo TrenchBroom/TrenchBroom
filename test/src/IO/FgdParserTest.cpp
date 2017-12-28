@@ -301,7 +301,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("message");
-            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
 
             const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(stringAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
-            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
             
             const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
@@ -348,7 +348,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
-            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute1->type());
             
             const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
@@ -358,7 +358,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(intAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
-            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute2->type());
             
             const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
@@ -395,7 +395,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("test");
-            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute1->type());
             
             const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
@@ -405,7 +405,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(floatAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
-            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute2->type());
             
             const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
@@ -451,7 +451,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
-            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute1->type());
             
             const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
@@ -470,7 +470,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Base"), options1[2].description());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("worldtype2");
-            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute2->type());
             
             const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
@@ -519,7 +519,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definition->attributeDefinitions().size());
             
             const Assets::AttributeDefinition* attribute = definition->attributeDefinition("spawnflags");
-            ASSERT_TRUE(attribute != NULL);
+            ASSERT_TRUE(attribute != nullptr);
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
             
             const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);

@@ -31,7 +31,7 @@ namespace TrenchBroom {
         NodeReader::NodeReader(const String& str, Model::ModelFactory* factory) :
         MapReader(str),
         m_factory(factory) {
-            ensure(m_factory != NULL, "factory is null");
+            ensure(m_factory != nullptr, "factory is null");
         }
         
         Model::NodeList NodeReader::read(const String& str, Model::ModelFactory* factory, const BBox3& worldBounds, ParserStatus& status) {
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
         
         void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != NULL)
+            if (parent != nullptr)
                 parent->addChild(node);
             else
                 m_nodes.push_back(node);
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         }
         
         void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != NULL)
+            if (parent != nullptr)
                 parent->addChild(brush);
             else
                 m_nodes.push_back(brush);

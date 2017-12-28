@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
         
         void GameEngineConfig::addProfile(GameEngineProfile* profile) {
-            ensure(profile != NULL, "profile is null");
+            ensure(profile != nullptr, "profile is null");
             m_profiles.push_back(profile);
             profilesDidChange();
         }

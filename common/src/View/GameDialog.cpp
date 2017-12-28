@@ -107,16 +107,16 @@ namespace TrenchBroom {
         }
 
         void GameDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != NULL)
+            if (GetParent() != nullptr)
                 GetParent()->Raise();
             event.Skip();
         }
 
         GameDialog::GameDialog() :
         wxDialog(),
-        m_gameListBox(NULL),
-        m_mapFormatChoice(NULL),
-        m_openPreferencesButton(NULL) {}
+        m_gameListBox(nullptr),
+        m_mapFormatChoice(nullptr),
+        m_openPreferencesButton(nullptr) {}
 
         void GameDialog::createDialog(wxWindow* parent, const wxString& title, const wxString& infoText) {
             Create(wxGetTopLevelParent(parent), wxID_ANY, title);

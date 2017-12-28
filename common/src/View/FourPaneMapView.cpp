@@ -36,11 +36,11 @@ namespace TrenchBroom {
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
-        m_splitter(NULL),
-        m_mapView3D(NULL),
-        m_mapViewXY(NULL),
-        m_mapViewXZ(NULL),
-        m_mapViewYZ(NULL) {
+        m_splitter(nullptr),
+        m_mapView3D(nullptr),
+        m_mapViewXY(nullptr),
+        m_mapViewXZ(nullptr),
+        m_mapViewYZ(nullptr) {
             createGui(toolBox, mapRenderer, contextManager);
         }
         

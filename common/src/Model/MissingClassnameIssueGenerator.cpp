@@ -38,11 +38,11 @@ namespace TrenchBroom {
             MissingClassnameIssue(AttributableNode* node) :
             Issue(node) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Entity has no classname property";
             }
         };
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             MissingClassnameIssueQuickFix() :
             IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->deleteObjects();
             }
         };

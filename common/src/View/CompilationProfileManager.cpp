@@ -36,7 +36,7 @@ namespace TrenchBroom {
         CompilationProfileManager::CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config) :
         wxPanel(parent),
         m_config(config),
-        m_profileList(NULL),
+        m_profileList(nullptr),
         m_profileEditor() {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {
             const int index = m_profileList->GetSelection();
             if (index == wxNOT_FOUND)
-                return NULL;
+                return nullptr;
             return m_config.profile(static_cast<size_t>(index));
         }
 
@@ -124,7 +124,7 @@ namespace TrenchBroom {
                 Model::CompilationProfile* profile = m_config.profile(static_cast<size_t>(selection));
                 m_profileEditor->setProfile(profile);
             } else {
-                m_profileEditor->setProfile(NULL);
+                m_profileEditor->setProfile(nullptr);
             }
         }
     }

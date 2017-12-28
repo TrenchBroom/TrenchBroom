@@ -31,10 +31,10 @@ namespace TrenchBroom {
         VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
         DocumentCommand(type, name),
         m_brushes(brushes),
-        m_snapshot(NULL) {}
+        m_snapshot(nullptr) {}
 
         VertexCommand::~VertexCommand() {
-            if (m_snapshot != NULL)
+            if (m_snapshot != nullptr)
                 deleteSnapshot();
         }
         
@@ -127,7 +127,7 @@ namespace TrenchBroom {
         }
         
         bool VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != NULL, "snapshot is null");
+            ensure(m_snapshot != nullptr, "snapshot is null");
             document->restoreSnapshot(m_snapshot);
             deleteSnapshot();
             return true;
@@ -138,14 +138,14 @@ namespace TrenchBroom {
         }
 
         void VertexCommand::takeSnapshot() {
-            assert(m_snapshot == NULL);
+            assert(m_snapshot == nullptr);
             m_snapshot = new Model::Snapshot(std::begin(m_brushes), std::end(m_brushes));
         }
         
         void VertexCommand::deleteSnapshot() {
-            ensure(m_snapshot != NULL, "snapshot is null");
+            ensure(m_snapshot != nullptr, "snapshot is null");
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
         }
 
         void VertexCommand::removeHandles(VertexHandleManagerBase& manager) {

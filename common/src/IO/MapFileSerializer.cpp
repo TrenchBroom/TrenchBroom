@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 FaceFormat = str.str();
             }
         private:
-            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) {
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Model::BrushFace::Points& points = face->points();
                 
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 FaceFormat = str.str();
             }
         private:
-            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) {
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Model::BrushFace::Points& points = face->points();
                 
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 FaceFormat = str.str();
             }
         private:
-            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) {
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Vec3 xAxis = face->textureXAxis();
                 const Vec3 yAxis = face->textureYAxis();
@@ -223,7 +223,7 @@ namespace TrenchBroom {
         MapFileSerializer::MapFileSerializer(FILE* stream) :
         m_line(1),
         m_stream(stream) {
-            ensure(m_stream != NULL, "stream is null");
+            ensure(m_stream != nullptr, "stream is null");
         }
         
         void MapFileSerializer::doBeginFile() {}

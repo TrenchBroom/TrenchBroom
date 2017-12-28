@@ -192,7 +192,7 @@ namespace TrenchBroom {
             if (showDefaultRows) {
                 for (const Model::AttributableNode* attributable : attributables) {
                     const Assets::EntityDefinition* entityDefinition = attributable->definition();
-                    if (entityDefinition != NULL) {
+                    if (entityDefinition != nullptr) {
                         for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
                             const String& name = attributeDefinition->name();
                             if (findRow(m_rows, name) != std::end(m_rows))
@@ -422,11 +422,11 @@ namespace TrenchBroom {
         wxGridCellAttr* EntityAttributeGridTable::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
             if (row < 0 || row >= GetRowsCount() ||
                 col < 0 || col >= GetColsCount())
-                return NULL;
+                return nullptr;
             
             const size_t rowIndex = static_cast<size_t>(row);
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (attr == NULL)
+            if (attr == nullptr)
                 attr = new wxGridCellAttr();
             
             if (m_rows.isDefaultRow(rowIndex) || m_rows.subset(rowIndex)) {
@@ -619,7 +619,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -628,7 +628,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -637,7 +637,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsAppended(size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
                                            static_cast<int>(numRows));
                 GetView()->ProcessTableMessage(message);
@@ -645,7 +645,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             
             for (Model::Node* node : nodes) {
                 Model::Node* parent = node->parent();
-                ensure(parent != NULL, "parent is null");
+                ensure(parent != nullptr, "parent is null");
                 result[parent].push_back(node);
             }
             

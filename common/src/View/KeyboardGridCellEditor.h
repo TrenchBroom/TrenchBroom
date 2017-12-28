@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void HandleReturn(wxKeyEvent& event);
             
             void Reset();
-            void Show(bool show, wxGridCellAttr* attr = NULL);
+            void Show(bool show, wxGridCellAttr* attr = nullptr);
             
             wxString GetValue() const;
         };

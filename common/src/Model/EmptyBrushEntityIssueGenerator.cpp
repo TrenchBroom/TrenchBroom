@@ -38,11 +38,11 @@ namespace TrenchBroom {
             EmptyBrushEntityIssue(Entity* entity) :
             Issue(entity) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return "Entity '" + entity->classname() + "' does not contain any brushes";
             }
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             EmptyBrushEntityIssueQuickFix() :
             IssueQuickFix(EmptyBrushEntityIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->deleteObjects();
             }
         };
@@ -66,9 +66,9 @@ namespace TrenchBroom {
         }
         
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
-            ensure(entity != NULL, "entity is null");
+            ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
+            if (definition != nullptr && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
                 issues.push_back(new EmptyBrushEntityIssue(entity));
         }
     }

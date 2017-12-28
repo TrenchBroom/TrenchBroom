@@ -70,7 +70,7 @@ namespace TrenchBroom {
             template <typename T>
             void addNode(T* node) {
                 Node* actual = getNode(node);
-                if (actual != NULL)
+                if (actual != nullptr)
                     m_delegate.addNode(actual);
             }
         private:

@@ -46,8 +46,8 @@ namespace TrenchBroom {
         }
 
         wxFrame* findFrame(wxWindow* window) {
-            if (window == NULL)
-                return NULL;
+            if (window == nullptr)
+                return nullptr;
             return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
         }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
-            ensure(listCtrl != NULL, "listCtrl is null");
+            ensure(listCtrl != nullptr, "listCtrl is null");
 
 
             std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
@@ -157,7 +157,7 @@ namespace TrenchBroom {
         }
 
         void setWindowIcon(wxTopLevelWindow* window) {
-            ensure(window != NULL, "window is null");
+            ensure(window != nullptr, "window is null");
             window->SetIcon(IO::loadIconResource(IO::Path("AppIcon")));
         }
 

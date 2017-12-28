@@ -37,8 +37,8 @@ namespace TrenchBroom {
         CombineCompareHits::CombineCompareHits(CompareHits* first, CompareHits* second) :
         m_first(first),
         m_second(second) {
-            ensure(m_first != NULL, "first is null");
-            ensure(m_second != NULL, "second is null");
+            ensure(m_first != nullptr, "first is null");
+            ensure(m_second != nullptr, "second is null");
         }
 
         CombineCompareHits::~CombineCompareHits() {
@@ -87,10 +87,10 @@ namespace TrenchBroom {
         
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
             const BrushFace* face = hitToFace(hit);
-            if (face != NULL)
+            if (face != nullptr)
                 return face->area(m_axis);
             const Entity* entity = hitToEntity(hit);
-            if (entity != NULL)
+            if (entity != nullptr)
                 return entity->area(m_axis);
             return 0.0;
         }

@@ -30,7 +30,7 @@ namespace TrenchBroom {
         FontManager::~FontManager() {
             MapUtils::clearAndDelete(m_cache);
             delete m_factory;
-            m_factory = NULL;
+            m_factory = nullptr;
         }
         
         TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {

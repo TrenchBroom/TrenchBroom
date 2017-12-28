@@ -163,7 +163,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             Model::World* world = document->world();
-            if (world != NULL) {
+            if (world != nullptr) {
                 const Model::IssueGeneratorList& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
                 world->acceptAndRecurse(visitor);
@@ -176,10 +176,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
-            ensure(data != NULL, "data is null");
+            ensure(data != nullptr, "data is null");
             
             const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
-            ensure(quickFix != NULL, "quickFix is null");
+            ensure(quickFix != nullptr, "quickFix is null");
 
             MapDocumentSPtr document = lock(m_document);
             const Model::IssueList issues = collectIssues(getSelection());
@@ -245,7 +245,7 @@ namespace TrenchBroom {
                 return &attr;
             }
             
-            return NULL;
+            return nullptr;
         }
 
         wxString IssueBrowserView::OnGetItemText(const long item, const long column) const {

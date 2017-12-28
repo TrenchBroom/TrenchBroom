@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         CreateEntityToolController::CreateEntityToolController(CreateEntityTool* tool) :
         m_tool(tool) {
-            ensure(m_tool != NULL, "tool is null");
+            ensure(m_tool != nullptr, "tool is null");
         }
         
         CreateEntityToolController::~CreateEntityToolController() {}

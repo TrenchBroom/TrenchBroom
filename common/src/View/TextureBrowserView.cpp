@@ -46,7 +46,7 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(SO_Name),
-        m_selectedTexture(NULL) {
+        m_selectedTexture(nullptr) {
             m_textureManager.usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
         }
         
@@ -447,7 +447,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float y) {
-            const Layout::Group::Row::Cell* result = NULL;
+            const Layout::Group::Row::Cell* result = nullptr;
             if (layout.cellAt(x, y, &result)) {
                 if (!result->item().texture->overridden()) {
                     Assets::Texture* texture = result->item().texture;

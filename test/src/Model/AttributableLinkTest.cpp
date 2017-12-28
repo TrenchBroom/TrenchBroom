@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         TEST(AttributableNodeLinkTest, testCreateLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             world.defaultLayer()->addChild(source);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testCreateMultiSourceLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source1 = world.createEntity();
             Entity* source2 = world.createEntity();
             Entity* target = world.createEntity();
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testCreateMultiTargetLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target1 = world.createEntity();
             Entity* target2 = world.createEntity();
@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
         TEST(AttributableNodeLinkTest, testLoadLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -133,7 +133,7 @@ namespace TrenchBroom {
 
         TEST(AttributableNodeLinkTest, testRemoveLinkByChangingSource) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -154,7 +154,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveLinkByChangingTarget) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -175,7 +175,7 @@ namespace TrenchBroom {
 
         TEST(AttributableNodeLinkTest, testRemoveLinkByRemovingSource) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveLinkByRemovingTarget) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -221,7 +221,7 @@ namespace TrenchBroom {
 
         TEST(AttributableNodeLinkTest, testCreateKillLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             world.defaultLayer()->addChild(source);
@@ -241,7 +241,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testLoadKillLink) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -262,7 +262,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveKillLinkByChangingSource) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -283,7 +283,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveKillLinkByChangingTarget) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -304,7 +304,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveKillLinkByRemovingSource) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             
@@ -327,7 +327,7 @@ namespace TrenchBroom {
         
         TEST(AttributableNodeLinkTest, testRemoveKillLinkByRemovingTarget) {
             const BBox3 worldBounds(8192.0);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
             

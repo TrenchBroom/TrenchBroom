@@ -29,12 +29,12 @@ namespace TrenchBroom {
         WorldReader::WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
         MapReader(begin, end),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(NULL) {}
+        m_world(nullptr) {}
         
         WorldReader::WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder) :
         MapReader(str),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
-        m_world(NULL) {}
+        m_world(nullptr) {}
         
         Model::World* WorldReader::read(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         }
 
         Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format, const BBox3& worldBounds) {
-            assert(m_world == NULL);
+            assert(m_world == nullptr);
             m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
             return m_world;
         }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         }
         
         void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != NULL)
+            if (parent != nullptr)
                 parent->addChild(node);
             else
                 m_world->defaultLayer()->addChild(node);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
         
         void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != NULL)
+            if (parent != nullptr)
                 parent->addChild(brush);
             else
                 m_world->defaultLayer()->addChild(brush);

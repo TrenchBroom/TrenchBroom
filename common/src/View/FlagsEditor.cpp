@@ -55,7 +55,7 @@ namespace TrenchBroom {
                                                          static_cast<int>(m_numCols),
                                                          0, LayoutConstants::WideHMargin);
             
-            SetSizer(NULL); // delete the old sizer, otherwise we cannot add the checkboxes to the new sizer
+            SetSizer(nullptr); // delete the old sizer, otherwise we cannot add the checkboxes to the new sizer
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;

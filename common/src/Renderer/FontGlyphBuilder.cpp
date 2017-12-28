@@ -35,7 +35,7 @@ namespace TrenchBroom {
         m_textureBuffer(texture.m_buffer),
         m_x(m_margin),
         m_y(m_margin) {
-            ensure(m_textureBuffer != NULL, "textureBuffer is null");
+            ensure(m_textureBuffer != nullptr, "textureBuffer is null");
         }
 
         FontGlyph FontGlyphBuilder::createGlyph(const size_t left, const size_t top, const size_t width, const size_t height, const size_t advance, const char* glyphBuffer, const size_t pitch) {

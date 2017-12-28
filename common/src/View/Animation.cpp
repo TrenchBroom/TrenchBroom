@@ -36,7 +36,7 @@ namespace TrenchBroom {
         
         Animation::Animation(const Type type, const Curve curve, const wxLongLong duration) :
         m_type(type),
-        m_curve(NULL),
+        m_curve(nullptr),
         m_duration(duration),
         m_elapsed(0),
         m_progress(0.0) {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         
         Animation::~Animation() {
             delete m_curve;
-            m_curve = NULL;
+            m_curve = nullptr;
         }
         
         Animation::Type Animation::type() const {
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
         
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
-            ensure(animation != NULL, "animation is null");
+            ensure(animation != nullptr, "animation is null");
             
             Animation::List& list = m_animations[animation->type()];
             if (replace)
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 }
                 m_lastTime += elapsed;
                 
-                if (!TestDestroy() && wxTheApp != NULL && !updateAnimations.empty()) {
+                if (!TestDestroy() && wxTheApp != nullptr && !updateAnimations.empty()) {
                     ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
                     ExecutableEvent* event = new ExecutableEvent(executable);
                     wxTheApp->QueueEvent(event);
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 Sleep(20);
             }
             
-            return static_cast<ExitCode>(0);
+            return static_cast<ExitCode>(nullptr);
         }
     }
 }

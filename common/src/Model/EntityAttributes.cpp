@@ -88,7 +88,7 @@ namespace TrenchBroom {
         const EntityAttribute::List EntityAttribute::EmptyList(0);
         
         EntityAttribute::EntityAttribute() :
-        m_definition(NULL) {}
+        m_definition(nullptr) {}
         
         EntityAttribute::EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition) :
         m_name(name),
@@ -262,13 +262,13 @@ namespace TrenchBroom {
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
             EntityAttribute::List::const_iterator it = findAttribute(name);
             if (it == std::end(m_attributes))
-                return NULL;
+                return nullptr;
             return &it->value();
         }
 
         const AttributeValue& EntityAttributes::safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = attribute(name);
-            if (value == NULL)
+            if (value == nullptr)
                 return defaultValue;
             return *value;
         }

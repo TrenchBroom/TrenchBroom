@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         AttributableNodeVariableStore::AttributableNodeVariableStore(AttributableNode* node) :
         m_node(node) {
-            ensure(m_node != NULL, "node is null");
+            ensure(m_node != nullptr, "node is null");
         }
 
         EL::VariableStore* AttributableNodeVariableStore::doClone() const {

@@ -233,7 +233,7 @@ namespace TrenchBroom {
             EntityAttributeCellEditor(EntityAttributeGridTable* table)
             : m_table(table) {}
 
-            virtual void BeginEdit(int row, int col, wxGrid* grid) override {
+            void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
                 
                 wxTextCtrl *textCtrl = Text();

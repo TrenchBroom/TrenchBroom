@@ -49,11 +49,11 @@ namespace TrenchBroom {
                 m_entityBrushes(entityBrushes),
                 m_worldBrushes(worldBrushes) {}
             private:
-                void doVisit(Model::World* world)   { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::Layer* layer)   { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::Group* group)   { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::Entity* entity) { m_entityBrushes[entity].push_back(m_brush); }
-                void doVisit(Model::Brush* brush)   {}
+                void doVisit(Model::World* world) override   { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::Layer* layer) override   { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::Group* group) override   { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::Entity* entity) override { m_entityBrushes[entity].push_back(m_brush); }
+                void doVisit(Model::Brush* brush) override   {}
             };
         public:
             const EntityBrushesMap& entityBrushes() const {
@@ -76,26 +76,26 @@ namespace TrenchBroom {
             NodeSerializer& m_serializer;
             const Model::EntityAttribute::List m_parentAttributes;
         public:
-            WriteNode(NodeSerializer& serializer, const Model::Node* parent = NULL) :
+            WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
             m_serializer(serializer),
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
             
-            void doVisit(Model::World* world)   { stopRecursion(); }
-            void doVisit(Model::Layer* layer)   { stopRecursion(); }
+            void doVisit(Model::World* world) override   { stopRecursion(); }
+            void doVisit(Model::Layer* layer) override   { stopRecursion(); }
             
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::Group* group) override   {
                 m_serializer.group(group, m_parentAttributes);
                 WriteNode visitor(m_serializer, group);
                 group->iterate(visitor);
                 stopRecursion();
             }
             
-            void doVisit(Model::Entity* entity) {
+            void doVisit(Model::Entity* entity) override {
                 m_serializer.entity(entity, entity->attributes(), m_parentAttributes, entity);
                 stopRecursion();
             }
 
-            void doVisit(Model::Brush* brush)   { stopRecursion();  }
+            void doVisit(Model::Brush* brush) override   { stopRecursion();  }
         };
         
         NodeWriter::NodeWriter(Model::World* world, FILE* stream) :

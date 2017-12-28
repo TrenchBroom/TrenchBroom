@@ -32,16 +32,16 @@ namespace TrenchBroom {
 
         FindPlanePointsCommand::FindPlanePointsCommand() :
         DocumentCommand(Type, "Find Plane Points"),
-        m_snapshot(NULL) {}
+        m_snapshot(nullptr) {}
         
         bool FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot == NULL);
+            assert(m_snapshot == nullptr);
             m_snapshot = document->performFindPlanePoints();
-            return m_snapshot != NULL;
+            return m_snapshot != nullptr;
         }
         
         bool FindPlanePointsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != NULL, "snapshot is null");
+            ensure(m_snapshot != nullptr, "snapshot is null");
             document->restoreSnapshot(m_snapshot);
             deleteSnapshot();
             return true;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         void FindPlanePointsCommand::deleteSnapshot() {
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
         }
 
         bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

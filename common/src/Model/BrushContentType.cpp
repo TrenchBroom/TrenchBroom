@@ -32,7 +32,7 @@ namespace TrenchBroom {
         m_transparent(transparent),
         m_flagValue(flagValue),
         m_evaluator(evaluator) {
-            ensure(m_evaluator.get() != NULL, "evaluator is null");
+            ensure(m_evaluator.get() != nullptr, "evaluator is null");
         }
         
         const String& BrushContentType::name() const {

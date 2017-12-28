@@ -926,11 +926,11 @@ namespace TrenchBroom {
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
-                void doVisit(const Model::World* world)   { setResult(false); }
-                void doVisit(const Model::Layer* layer)   { setResult(false); }
-                void doVisit(const Model::Group* group)   { setResult(false); }
-                void doVisit(const Model::Entity* entity) { setResult(true); }
-                void doVisit(const Model::Brush* brush)   { setResult(false); }
+                void doVisit(const Model::World* world) override   { setResult(false); }
+                void doVisit(const Model::Layer* layer) override   { setResult(false); }
+                void doVisit(const Model::Group* group) override   { setResult(false); }
+                void doVisit(const Model::Entity* entity) override { setResult(true); }
+                void doVisit(const Model::Brush* brush) override   { setResult(false); }
             };
             
             IsEntity visitor;

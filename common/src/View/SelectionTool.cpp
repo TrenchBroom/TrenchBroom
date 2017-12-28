@@ -160,7 +160,7 @@ namespace TrenchBroom {
                             }
                         }
                     }
-                } else if (document->currentGroup() != NULL) {
+                } else if (document->currentGroup() != nullptr) {
                     document->closeGroup();
                 }
             }
@@ -226,7 +226,7 @@ namespace TrenchBroom {
         
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
-            static Model::Node* const NullNode = NULL;
+            static Model::Node* const NullNode = nullptr;
             
             const I first = findFirstSelected(it, end);
             if (first == end)
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             
             Model::Node* selectedNode = nodePair.first;
             Model::Node* nextNode = nodePair.second;
-            if (nextNode != NULL) {
+            if (nextNode != nullptr) {
                 Transaction transaction(document, "Drill Selection");
                 document->deselect(selectedNode);
                 document->select(nextNode);

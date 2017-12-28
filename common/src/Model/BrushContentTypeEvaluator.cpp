@@ -28,9 +28,9 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceEvaluator : public BrushContentTypeEvaluator {
         public:
-            virtual ~BrushFaceEvaluator() {}
+            ~BrushFaceEvaluator() override {}
         private:
-            bool doEvaluate(const Brush* brush) const {
+            bool doEvaluate(const Brush* brush) const override {
                 const Model::BrushFaceList& faces = brush->faces();
                 Model::BrushFaceList::const_iterator it, end;
                 for (it = std::begin(faces), end = std::end(faces); it != end; ++it) {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             TextureNameEvaluator(const String& pattern) :
             m_pattern(pattern) {}
         private:
-            bool doEvaluate(const BrushFace* face) const {
+            bool doEvaluate(const BrushFace* face) const override {
                 const String& textureName = face->textureName();
                 String::const_iterator begin = std::begin(textureName);
 
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             ContentFlagsEvaluator(const int flags) :
             m_flags(flags) {}
         private:
-            bool doEvaluate(const BrushFace* face) const {
+            bool doEvaluate(const BrushFace* face) const override {
                 return (face->surfaceContents() & m_flags) != 0;
             }
         };
@@ -82,9 +82,9 @@ namespace TrenchBroom {
             EntityClassnameEvaluator(const String& pattern) :
             m_pattern(pattern) {}
         private:
-            bool doEvaluate(const Brush* brush) const {
+            bool doEvaluate(const Brush* brush) const override {
                 const AttributableNode* entity = brush->entity();
-                if (entity == NULL)
+                if (entity == nullptr)
                     return false;
                 
                 return StringUtils::caseInsensitiveMatchesPattern(entity->classname(), m_pattern);

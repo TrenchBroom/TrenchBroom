@@ -32,22 +32,22 @@ namespace TrenchBroom {
     namespace Model {
         class HitFilter::Always : public HitFilter {
         private:
-            HitFilter* doClone() const {
+            HitFilter* doClone() const override {
                 return new Always();
             }
             
-            bool doMatches(const Hit& hit) const {
+            bool doMatches(const Hit& hit) const override {
                 return true;
             }
         };
         
         class HitFilter::Never : public HitFilter {
         private:
-            HitFilter* doClone() const {
+            HitFilter* doClone() const override {
                 return new Never();
             }
             
-            bool doMatches(const Hit& hit) const {
+            bool doMatches(const Hit& hit) const override {
                 return false;
             }
         };
@@ -68,8 +68,8 @@ namespace TrenchBroom {
         HitFilterChain::HitFilterChain(const HitFilter* filter, const HitFilter* next) :
         m_filter(filter),
         m_next(next) {
-            ensure(m_filter != NULL, "filter is null");
-            ensure(m_next != NULL, "next is null");
+            ensure(m_filter != nullptr, "filter is null");
+            ensure(m_next != nullptr, "next is null");
         }
         
         HitFilterChain::~HitFilterChain() {

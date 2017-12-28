@@ -42,8 +42,8 @@ namespace TrenchBroom {
         TabBookPage(parent),
         m_document(document),
         m_view(new IssueBrowserView(this, m_document)),
-        m_showHiddenIssuesCheckBox(NULL),
-        m_filterEditor(NULL) {
+        m_showHiddenIssuesCheckBox(nullptr),
+        m_filterEditor(nullptr) {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_view, 1, wxEXPAND);
             SetSizerAndFit(sizer);

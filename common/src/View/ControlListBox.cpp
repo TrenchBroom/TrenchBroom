@@ -70,7 +70,7 @@ namespace TrenchBroom {
             wxBoxSizer(orient),
             m_restrictToClientWidth(restrictToClientWidth){}
 
-            wxSize CalcMin() {
+            wxSize CalcMin() override {
                 const wxSize originalSize = wxBoxSizer::CalcMin();
                 if (!m_restrictToClientWidth)
                     return originalSize;
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
         m_restrictToClientWidth(restrictToClientWidth),
         m_emptyText(emptyText),
-        m_emptyTextLabel(NULL),
+        m_emptyTextLabel(nullptr),
         m_showLastDivider(true),
         m_valid(true),
         m_newItemCount(0),
@@ -202,7 +202,7 @@ namespace TrenchBroom {
         void ControlListBox::refresh(const size_t itemCount) {
             wxSizer* listSizer = GetSizer();
             listSizer->Clear(true);
-            m_emptyTextLabel = NULL;
+            m_emptyTextLabel = nullptr;
 
             m_items.clear();
             m_items.reserve(itemCount);
@@ -262,7 +262,7 @@ namespace TrenchBroom {
         void ControlListBox::OnSize(wxSizeEvent& event) {
             wxWindowUpdateLocker lock(this);
 
-            if (m_emptyTextLabel != NULL && m_restrictToClientWidth) {
+            if (m_emptyTextLabel != nullptr && m_restrictToClientWidth) {
 				m_emptyTextLabel->SetLabel(m_emptyText);
                 m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
 			}

@@ -114,8 +114,8 @@ namespace TrenchBroom {
         public:
             AutoCompletionListItem(wxWindow* parent, const wxSize& margins, const wxString& value, const wxString& description) :
             Item(parent),
-            m_valueText(NULL),
-            m_descriptionText(NULL) {
+            m_valueText(nullptr),
+            m_descriptionText(nullptr) {
                 m_valueText = new wxStaticText(this, wxID_ANY, value);
                 m_descriptionText = new wxStaticText(this, wxID_ANY, description);
                 m_descriptionText->SetForegroundColour(makeLighter(m_descriptionText->GetForegroundColour()));
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 SetSizer(hSizer);
             }
 
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_descriptionText->SetForegroundColour(makeLighter(m_descriptionText->GetForegroundColour()));
             }
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         AutoCompleteTextControl::AutoCompletionPopup::AutoCompletionPopup(AutoCompleteTextControl* textControl) :
         wxPopupWindow(textControl),
         m_textControl(textControl),
-        m_list(NULL) {
+        m_list(nullptr) {
             BorderPanel* panel = new BorderPanel(this, wxALL);
 
             m_list = new AutoCompletionList(panel);
@@ -239,13 +239,13 @@ namespace TrenchBroom {
 
         AutoCompleteTextControl::AutoCompleteTextControl() :
         wxTextCtrl(),
-        m_helper(NULL),
-        m_autoCompletionPopup(NULL) {}
+        m_helper(nullptr),
+        m_autoCompletionPopup(nullptr) {}
 
         AutoCompleteTextControl::AutoCompleteTextControl(wxWindow* parent, wxWindowID id, const wxString& value, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxTextCtrl(),
-        m_helper(NULL),
-        m_autoCompletionPopup(NULL) {
+        m_helper(nullptr),
+        m_autoCompletionPopup(nullptr) {
             Create(parent, id, value, pos, size, style, validator, name);
         }
 
@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 return;
             delete m_helper;
             m_helper = helper;
-            if (m_helper == NULL)
+            if (m_helper == nullptr)
                 m_helper = new DefaultHelper();
             if (IsAutoCompleting())
                 EndAutoCompletion();
@@ -318,7 +318,7 @@ namespace TrenchBroom {
         }
 
         bool AutoCompleteTextControl::IsAutoCompleting() const {
-            return m_autoCompletionPopup != NULL && m_autoCompletionPopup->IsShown();
+            return m_autoCompletionPopup != nullptr && m_autoCompletionPopup->IsShown();
         }
 
         void AutoCompleteTextControl::StartAutoCompletion(const size_t startIndex) {
@@ -345,7 +345,7 @@ namespace TrenchBroom {
             wxASSERT(IsAutoCompleting());
             m_autoCompletionPopup->Hide();
             m_autoCompletionPopup->Destroy();
-            m_autoCompletionPopup = NULL;
+            m_autoCompletionPopup = nullptr;
         }
 
         void AutoCompleteTextControl::PerformAutoComplete(const wxString& replacement) {

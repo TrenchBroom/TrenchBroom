@@ -29,73 +29,73 @@ namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
         private: // implement Node interface
-            Node* doClone(const BBox3& worldBounds) const {
+            Node* doClone(const BBox3& worldBounds) const override {
                 return new MockNode();
             }
             
-            const String& doGetName() const {
+            const String& doGetName() const override {
                 static const String name("some name");
                 return name;
             }
             
-            const BBox3& doGetBounds() const {
+            const BBox3& doGetBounds() const override {
                 static const BBox3 bounds;
                 return bounds;
             }
             
-            bool doCanAddChild(const Node* child) const {
+            bool doCanAddChild(const Node* child) const override {
                 return mockDoCanAddChild(child);
             }
             
-            bool doCanRemoveChild(const Node* child) const {
+            bool doCanRemoveChild(const Node* child) const override {
                 return mockDoCanRemoveChild(child);
             }
             
-            bool doRemoveIfEmpty() const {
+            bool doRemoveIfEmpty() const override {
                 return false;
             }
             
-            void doParentWillChange() {
+            void doParentWillChange() override {
                 mockDoParentWillChange();
             }
             
-            void doParentDidChange() {
+            void doParentDidChange() override {
                 mockDoParentDidChange();
             }
 
-            bool doSelectable() const {
+            bool doSelectable() const override {
                 return mockDoSelectable();
             }
             
-            void doAncestorWillChange() {
+            void doAncestorWillChange() override {
                 mockDoAncestorWillChange();
             }
             
-            void doAncestorDidChange() {
+            void doAncestorDidChange() override {
                 mockDoAncestorDidChange();
             }
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const {
+            void doPick(const Ray3& ray, PickResult& pickResult) const override {
                 mockDoPick(ray, pickResult);
             }
             
-            void doFindNodesContaining(const Vec3& point, NodeList& result) {
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override {
                 mockDoFindNodesContaining(point, result);
             }
 
-            FloatType doIntersectWithRay(const Ray3& ray) const {
+            FloatType doIntersectWithRay(const Ray3& ray) const override {
                 return mockDoIntersectWithRay(ray);
             }
 
-            void doAccept(NodeVisitor& visitor) {
+            void doAccept(NodeVisitor& visitor) override {
                 mockDoAccept(visitor);
             }
             
-            void doAccept(ConstNodeVisitor& visitor) const {
+            void doAccept(ConstNodeVisitor& visitor) const override {
                 mockDoAccept(visitor);
             }
         
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
@@ -116,48 +116,48 @@ namespace TrenchBroom {
         
         class TestNode : public Node {
         private: // implement Node interface
-            virtual Node* doClone(const BBox3& worldBounds) const {
+            Node* doClone(const BBox3& worldBounds) const override {
                 return new TestNode();
             }
             
-            virtual const String& doGetName() const {
+            const String& doGetName() const override {
                 static const String name("some name");
                 return name;
             }
             
-            virtual const BBox3& doGetBounds() const {
+            const BBox3& doGetBounds() const override {
                 static const BBox3 bounds;
                 return bounds;
             }
             
-            virtual bool doCanAddChild(const Node* child) const {
+            bool doCanAddChild(const Node* child) const override {
                 return true;
             }
             
-            virtual bool doCanRemoveChild(const Node* child) const {
+            bool doCanRemoveChild(const Node* child) const override {
                 return true;
             }
             
-            virtual bool doRemoveIfEmpty() const {
+            bool doRemoveIfEmpty() const override {
                 return false;
             }
             
-            virtual bool doSelectable() const {
+            bool doSelectable() const override {
                 return true;
             }
             
-            virtual void doParentWillChange() {}
-            virtual void doParentDidChange() {}
-            virtual void doAncestorWillChange() {}
-            virtual void doAncestorDidChange() {}
+            void doParentWillChange() override {}
+            void doParentDidChange() override {}
+            void doAncestorWillChange() override {}
+            void doAncestorDidChange() override {}
             
-            virtual void doPick(const Ray3& ray, PickResult& pickResult) const {}
-            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) {}
-            virtual FloatType doIntersectWithRay(const Ray3& ray) const { return Math::nan<FloatType>(); }
+            void doPick(const Ray3& ray, PickResult& pickResult) const override {}
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override {}
+            FloatType doIntersectWithRay(const Ray3& ray) const override { return Math::nan<FloatType>(); }
 
-            virtual void doAccept(NodeVisitor& visitor) {}
-            virtual void doAccept(ConstNodeVisitor& visitor) const {}
-            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
+            void doAccept(NodeVisitor& visitor) override {}
+            void doAccept(ConstNodeVisitor& visitor) const override {}
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override {}
         };
         
         class DestroyableNode : public TestNode {
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             DestroyableNode(bool& destroyed) :
             m_destroyed(destroyed) {}
             
-            ~DestroyableNode() {
+            ~DestroyableNode() override {
                 m_destroyed = true;
             }
         };
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*grandChild2, mockDoAncestorDidChange());
 
             root.removeChild(child);
-            ASSERT_EQ(NULL, child->parent());
+            ASSERT_EQ(nullptr, child->parent());
             ASSERT_FALSE(VectorUtils::contains(root.children(), child));
             ASSERT_EQ(0u, root.childCount());
             ASSERT_EQ(1u, root.familySize());

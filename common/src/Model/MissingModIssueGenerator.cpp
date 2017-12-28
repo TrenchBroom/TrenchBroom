@@ -45,11 +45,11 @@ namespace TrenchBroom {
             m_mod(mod),
             m_message(message) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             MissingModIssueQuickFix() :
             IssueQuickFix(MissingModIssue::Type, "Remove mod") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection pushSelection(facade);
                 
                  // If nothing is selected, attribute changes will affect only world.

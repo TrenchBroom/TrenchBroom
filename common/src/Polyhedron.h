@@ -123,7 +123,7 @@ public:
         HalfEdge* m_second;
         EdgeLink m_link;
     private:
-        Edge(HalfEdge* first, HalfEdge* second = NULL);
+        Edge(HalfEdge* first, HalfEdge* second = nullptr);
     public:
         Vertex* firstVertex() const;
         Vertex* secondVertex() const;
@@ -365,7 +365,7 @@ public: // Accessors
     
     FaceHit pickFace(const Ray<T,3>& ray) const;
 public: // General purpose methods
-    Vertex* findVertexByPosition(const V& position, const Vertex* except = NULL, T epsilon = Math::Constants<T>::almostZero()) const;
+    Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = Math::Constants<T>::almostZero()) const;
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;

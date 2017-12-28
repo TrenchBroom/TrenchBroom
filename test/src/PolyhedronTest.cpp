@@ -1600,11 +1600,11 @@ private:
     typedef std::set<Face*> FaceSet;
     FaceSet m_originals;
 public:
-    void faceWillBeDeleted(Face* face) {
+    void faceWillBeDeleted(Face* face) override {
         ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
-    void faceWasSplit(Face* original, Face* clone) {
+    void faceWasSplit(Face* original, Face* clone) override {
         m_originals.insert(original);
     }
 };

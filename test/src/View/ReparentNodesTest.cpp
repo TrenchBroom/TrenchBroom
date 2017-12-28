@@ -85,7 +85,7 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, entity)));
             ASSERT_EQ(document->currentParent(), entity->parent());
-            ASSERT_TRUE(group->parent() == NULL);
+            ASSERT_TRUE(group->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(document->currentParent(), group->parent());
@@ -104,8 +104,8 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, entity)));
             ASSERT_EQ(document->currentParent(), entity->parent());
-            ASSERT_TRUE(inner->parent() == NULL);
-            ASSERT_TRUE(outer->parent() == NULL);
+            ASSERT_TRUE(inner->parent() == nullptr);
+            ASSERT_TRUE(outer->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(document->currentParent(), outer->parent());
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, brush)));
             ASSERT_EQ(document->currentParent(), brush->parent());
-            ASSERT_TRUE(entity->parent() == NULL);
+            ASSERT_TRUE(entity->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(document->currentParent(), entity->parent());
@@ -141,8 +141,8 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), Model::NodeList(1, brush)));
             ASSERT_EQ(document->currentParent(), brush->parent());
-            ASSERT_TRUE(group->parent() == NULL);
-            ASSERT_TRUE(entity->parent() == NULL);
+            ASSERT_TRUE(group->parent() == nullptr);
+            ASSERT_TRUE(entity->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(document->currentParent(), group->parent());

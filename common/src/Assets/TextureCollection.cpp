@@ -61,7 +61,7 @@ namespace TrenchBroom {
         }
 
         void TextureCollection::addTexture(Texture* texture) {
-            ensure(texture != NULL, "texture is null");
+            ensure(texture != nullptr, "texture is null");
             m_textures.push_back(texture);
             texture->setCollection(this);
             m_loaded = true;

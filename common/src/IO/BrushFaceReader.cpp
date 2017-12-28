@@ -32,7 +32,7 @@ namespace TrenchBroom {
         BrushFaceReader::BrushFaceReader(const String& str, Model::ModelFactory* factory) :
         MapReader(str),
         m_factory(factory) {
-            ensure(m_factory != NULL, "factory is null");
+            ensure(m_factory != nullptr, "factory is null");
         }
         
         const Model::BrushFaceList& BrushFaceReader::read(const BBox3& worldBounds, ParserStatus& status) {
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return m_factory;
         }
         
-        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) { return NULL; }
+        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) { return nullptr; }
         void BrushFaceReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {}
         void BrushFaceReader::onLayer(Model::Layer* layer, ParserStatus& status) {}
         void BrushFaceReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {}

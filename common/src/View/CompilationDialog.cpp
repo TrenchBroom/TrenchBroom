@@ -44,8 +44,8 @@ namespace TrenchBroom {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
         wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
         m_mapFrame(mapFrame),
-        m_currentRunLabel(NULL),
-        m_output(NULL) {
+        m_currentRunLabel(nullptr),
+        m_output(nullptr) {
             createGui();
             SetMinSize(wxSize(600, 300));
             SetSize(wxSize(800, 600));
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 m_run.terminate();
             } else {
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
-                ensure(profile != NULL, "profile is null");
+                ensure(profile != nullptr, "profile is null");
                 ensure(profile->taskCount() > 0, "profile has no tasks");
                 
                 m_output->Clear();
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                 else
                     event.SetText("Run");
                 const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
-                event.Enable(profile != NULL && profile->taskCount() > 0);
+                event.Enable(profile != nullptr && profile->taskCount() > 0);
             }
         }
 
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             }
             if (!event.GetVeto()) {
                 m_mapFrame->compilationDialogWillClose();
-                if (GetParent() != NULL)
+                if (GetParent() != nullptr)
                     GetParent()->Raise();
                 Destroy();
             }

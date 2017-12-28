@@ -33,7 +33,7 @@ namespace TrenchBroom {
         wxIMPLEMENT_DYNAMIC_CLASS(ChoosePathTypeDialog, wxDialog)
         
         ChoosePathTypeDialog::ChoosePathTypeDialog() :
-        wxDialog(NULL, wxID_ANY, "Path Type"),
+        wxDialog(nullptr, wxID_ANY, "Path Type"),
         m_absPath(""),
         m_docRelativePath(""),
         m_gameRelativePath(""),
@@ -141,7 +141,7 @@ namespace TrenchBroom {
         }
 
         void ChoosePathTypeDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != NULL)
+            if (GetParent() != nullptr)
                 GetParent()->Raise();
             event.Skip();
         }

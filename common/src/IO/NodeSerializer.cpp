@@ -33,11 +33,11 @@ namespace TrenchBroom {
         public:
             BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
             
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   { m_serializer.brush(brush); }
         };
 
         NodeSerializer::NodeSerializer() :
@@ -159,15 +159,15 @@ namespace TrenchBroom {
                 return m_attributes;
             }
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
-            void doVisit(const Model::Group* group)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush)   {}
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
+            void doVisit(const Model::Group* group) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override   {}
         };
         
         Model::EntityAttribute::List NodeSerializer::parentAttributes(const Model::Node* node) {
-            if (node == NULL)
+            if (node == nullptr)
                 return Model::EntityAttribute::List(0);
             
             GetParentAttributes visitor(m_layerIds, m_groupIds);

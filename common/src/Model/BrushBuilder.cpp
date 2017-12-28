@@ -31,7 +31,7 @@ namespace TrenchBroom {
         BrushBuilder::BrushBuilder(ModelFactory* factory, const BBox3& worldBounds) :
         m_factory(factory),
         m_worldBounds(worldBounds) {
-            ensure(m_factory != NULL, "factory is null");
+            ensure(m_factory != nullptr, "factory is null");
         }
         
         Brush* BrushBuilder::createCube(const FloatType size, const String& textureName) const {

@@ -24,13 +24,13 @@
 namespace TrenchBroom {
     namespace Model {
         Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const AttributableNodeList& attributables) {
-            Assets::EntityDefinition* definition = NULL;
+            Assets::EntityDefinition* definition = nullptr;
             
             for (AttributableNode* attributable : attributables) {
-                if (definition == NULL) {
+                if (definition == nullptr) {
                     definition = attributable->definition();
                 } else if (definition != attributable->definition()) {
-                    definition = NULL;
+                    definition = nullptr;
                     break;
                 }
             }
@@ -42,21 +42,21 @@ namespace TrenchBroom {
             AttributableNodeList::const_iterator it = std::begin(attributables);
             AttributableNodeList::const_iterator end = std::end(attributables);
             if (it == end)
-                return NULL;
+                return nullptr;
             
             const AttributableNode* attributable = *it;
             const Assets::AttributeDefinition* definition = attributable->attributeDefinition(name);
-            if (definition == NULL)
-                return NULL;
+            if (definition == nullptr)
+                return nullptr;
             
             while (++it != end) {
                 attributable = *it;
                 const Assets::AttributeDefinition* currentDefinition = attributable->attributeDefinition(name);
-                if (currentDefinition == NULL)
-                    return NULL;
+                if (currentDefinition == nullptr)
+                    return nullptr;
                 
                 if (!definition->equals(currentDefinition))
-                    return NULL;
+                    return nullptr;
             }
             
             return definition;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         const String AttributableNode::DefaultAttributeValue("");
 
         AttributableNode::~AttributableNode() {
-            m_definition = NULL;
+            m_definition = nullptr;
         }
         
         Assets::EntityDefinition* AttributableNode::definition() const {
@@ -98,16 +98,16 @@ namespace TrenchBroom {
                 return;
             
             const NotifyAttributeChange notifyChange(this);
-            if (m_definition != NULL)
+            if (m_definition != nullptr)
                 m_definition->decUsageCount();
             m_definition = definition;
             m_attributes.updateDefinitions(m_definition);
-            if (m_definition != NULL)
+            if (m_definition != nullptr)
                 m_definition->incUsageCount();
         }
 
         const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const AttributeName& name) const {
-            return m_definition == NULL ? NULL : m_definition->attributeDefinition(name);
+            return m_definition == nullptr ? nullptr : m_definition->attributeDefinition(name);
         }
 
         const EntityAttribute::List& AttributableNode::attributes() const {
@@ -161,7 +161,7 @@ namespace TrenchBroom {
         
         const AttributeValue& AttributableNode::attribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = m_attributes.attribute(name);
-            if (value == NULL)
+            if (value == nullptr)
                 return defaultValue;
             return *value;
         }
@@ -183,7 +183,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
-            if (oldValue != NULL) {
+            if (oldValue != nullptr) {
                 attributeWillChangeNotifier(this, name);
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
@@ -193,9 +193,9 @@ namespace TrenchBroom {
             addAttributeToIndex(name, value);
             addLinks(name, value);
             
-            if (oldValue == NULL)
+            if (oldValue == nullptr)
                 attributeWasAddedNotifier(this, name);
-            return oldValue == NULL;
+            return oldValue == nullptr;
         }
         
         bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 return;
             
             const AttributeValue* valuePtr = m_attributes.attribute(name);
-            if (valuePtr == NULL)
+            if (valuePtr == nullptr)
                 return;
             
             const AttributeValue value = *valuePtr;
@@ -229,7 +229,7 @@ namespace TrenchBroom {
         
         void AttributableNode::removeAttribute(const AttributeName& name) {
             const AttributeValue* valuePtr = m_attributes.attribute(name);
-            if (valuePtr == NULL)
+            if (valuePtr == nullptr)
                 return;
 
             attributeWillBeRemovedNotifier(this, name);
@@ -270,7 +270,7 @@ namespace TrenchBroom {
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node) {
-            ensure(m_node != NULL, "node is null");
+            ensure(m_node != nullptr, "node is null");
             m_node->attributesWillChange();
         }
         
@@ -605,7 +605,7 @@ namespace TrenchBroom {
             addAllKillTargets();
             
             const AttributeValue* targetname = m_attributes.attribute(AttributeNames::Targetname);
-            if (targetname != NULL && !targetname->empty()) {
+            if (targetname != nullptr && !targetname->empty()) {
                 addAllLinkSources(*targetname);
                 addAllKillSources(*targetname);
             }
@@ -622,50 +622,50 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addLinkSource(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             m_linkSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addLinkTarget(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             m_linkTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillSource(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             m_killSources.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::addKillTarget(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             m_killTargets.push_back(attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             VectorUtils::erase(m_linkSources, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             VectorUtils::erase(m_linkTargets, attributable);
             invalidateIssues();
         }
         
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             VectorUtils::erase(m_killSources, attributable);
             invalidateIssues();
         }
         
         AttributableNode::AttributableNode() :
         Node(),
-        m_definition(NULL) {}
+        m_definition(nullptr) {}
 
         const String& AttributableNode::doGetName() const {
             static const String defaultName("<missing classname>");
@@ -673,7 +673,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             VectorUtils::erase(m_killTargets, attributable);
         }
     }

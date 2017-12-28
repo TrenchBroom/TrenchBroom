@@ -329,16 +329,16 @@ namespace TrenchBroom {
         
         ~StringMap() {
             delete m_root;
-            m_root = NULL;
+            m_root = nullptr;
         }
         
         void insert(const String& key, const V& value) {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             m_root->insert(key, value);
         }
         
         void remove(const String& key, const V& value) {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             m_root->remove(key, value);
         }
         
@@ -348,28 +348,28 @@ namespace TrenchBroom {
         }
         
         QueryResult queryPrefixMatches(const String& prefix) const {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
         
         QueryResult queryNumberedMatches(const String& prefix) const {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
         
         QueryResult queryExactMatches(const String& prefix) const {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             QueryResult result;
             m_root->queryExact(prefix, result);
             return result;
         }
         
         StringList getKeys() const {
-            ensure(m_root != NULL, "root is null");
+            ensure(m_root != nullptr, "root is null");
             StringList result;
             m_root->getKeys("", result);
             return result;

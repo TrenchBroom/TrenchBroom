@@ -42,7 +42,7 @@ namespace TrenchBroom {
             FindGroupVisitor visitor(false);
             node->escalate(visitor);
             if (!visitor.hasResult())
-                return NULL;
+                return nullptr;
             return visitor.result();
         }
 
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             FindGroupVisitor visitor(true);
             node->escalate(visitor);
             if (!visitor.hasResult())
-                return NULL;
+                return nullptr;
             return visitor.result();
         }
     }

@@ -39,7 +39,7 @@ namespace TrenchBroom {
         
         void TakeSnapshotVisitor::handleNode(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();
-            if (snapshot != NULL)
+            if (snapshot != nullptr)
                 m_result.push_back(snapshot);
         }
     }

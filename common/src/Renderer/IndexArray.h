@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 }
                 
                 virtual void prepare(Vbo& vbo) {
-                    if (m_indexCount > 0 && m_block == NULL) {
+                    if (m_indexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
                         
@@ -76,20 +76,20 @@ namespace TrenchBroom {
                 }
             protected:
                 Holder(const size_t indexCount) :
-                m_block(NULL),
+                m_block(nullptr),
                 m_indexCount(indexCount) {}
                 
                 virtual ~Holder() {
-                    if (m_block != NULL) {
+                    if (m_block != nullptr) {
                         m_block->free();
-                        m_block = NULL;
+                        m_block = nullptr;
                     }
                 }
             private:
                 size_t indexOffset() const {
                     if (m_indexCount == 0)
                         return 0;
-                    ensure(m_block != NULL, "block is null");
+                    ensure(m_block != nullptr, "block is null");
                     return m_block->offset();
                     
                 }

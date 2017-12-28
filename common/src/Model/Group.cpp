@@ -74,11 +74,11 @@ namespace TrenchBroom {
         public:
             SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { group->setEditState(m_editState); }
-            void doVisit(Entity* entity) {}
-            void doVisit(Brush* brush)   {}
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { group->setEditState(m_editState); }
+            void doVisit(Entity* entity) override {}
+            void doVisit(Brush* brush) override   {}
         };
         
         void Group::openAncestors() {
@@ -117,11 +117,11 @@ namespace TrenchBroom {
         
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(true); }
-            void doVisit(const Entity* entity) { setResult(true); }
-            void doVisit(const Brush* brush)   { setResult(true); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(true); }
+            void doVisit(const Entity* entity) override { setResult(true); }
+            void doVisit(const Brush* brush) override   { setResult(true); }
         };
         
         bool Group::doCanAddChild(const Node* child) const {
@@ -210,19 +210,19 @@ namespace TrenchBroom {
         Node* Group::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         Layer* Group::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
         
         Group* Group::doGetGroup() const {
             FindGroupVisitor visitor(false);
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {

@@ -36,10 +36,10 @@ namespace TrenchBroom {
     namespace View {
         GameEngineProfileEditor::GameEngineProfileEditor(wxWindow* parent) :
         wxPanel(parent),
-        m_profile(NULL),
-        m_book(NULL),
-        m_nameText(NULL),
-        m_pathText(NULL) {
+        m_profile(nullptr),
+        m_book(nullptr),
+        m_nameText(nullptr),
+        m_pathText(nullptr) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_book = new wxSimplebook(this);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         GameEngineProfileEditor::~GameEngineProfileEditor() {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &GameEngineProfileEditor::profileDidChange);
             }
@@ -98,12 +98,12 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::OnNameChanged(wxCommandEvent& event) {
-            ensure(m_profile != NULL, "profile is null");
+            ensure(m_profile != nullptr, "profile is null");
             m_profile->setName(m_nameText->GetValue().ToStdString());
         }
 
         void GameEngineProfileEditor::OnPathChanged(wxCommandEvent& event) {
-            ensure(m_profile != NULL, "profile is null");
+            ensure(m_profile != nullptr, "profile is null");
             updatePath(m_pathText->GetValue());
         }
 
@@ -131,12 +131,12 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile) {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &GameEngineProfileEditor::profileDidChange);
             }
             m_profile = profile;
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.addObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &GameEngineProfileEditor::profileDidChange);
                 m_book->SetSelection(1);
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::profileWillBeRemoved() {
-            setProfile(NULL);
+            setProfile(nullptr);
         }
 
         void GameEngineProfileEditor::profileDidChange() {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::refresh() {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_nameText->ChangeValue(m_profile->name());
                 m_pathText->ChangeValue(m_profile->path().asString());
             }

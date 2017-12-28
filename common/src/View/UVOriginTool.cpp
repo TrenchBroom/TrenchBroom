@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return delta;
             
             const Model::BrushFace* face = m_helper.face();
-            ensure(face != NULL, "face is null");
+            ensure(face != nullptr, "face is null");
             
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
             // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();
-            if (texture != NULL)
+            if (texture != nullptr)
                 distanceInTexCoords = absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(Vec3(newOriginInTexCoords)));
             
             // finally snap to the face center
@@ -255,11 +255,11 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                 m_originHandle.prepare(vertexVbo);
             }
             
-            void doRender(Renderer::RenderContext& renderContext) {
+            void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
                 const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
                 

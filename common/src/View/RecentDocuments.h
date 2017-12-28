@@ -48,8 +48,8 @@ namespace TrenchBroom {
             Notifier0 didChangeNotifier;
         public:
             RecentDocuments(const int baseId, const size_t maxSize) :
-            m_handler(NULL),
-            m_function(NULL),
+            m_handler(nullptr),
+            m_function(nullptr),
             m_baseId(baseId),
             m_maxSize(maxSize) {
                 assert(m_maxSize > 0);
@@ -61,26 +61,26 @@ namespace TrenchBroom {
             }
 
             void addMenu(wxMenu* menu) {
-                ensure(menu != NULL, "menu is null");
+                ensure(menu != nullptr, "menu is null");
                 clearMenu(menu);
                 createMenuItems(menu);
                 m_menus.push_back(menu);
             }
             
             void removeMenu(wxMenu* menu) {
-                ensure(menu != NULL, "menu is null");
+                ensure(menu != nullptr, "menu is null");
                 clearMenu(menu);
                 VectorUtils::erase(m_menus, menu);
             }
             
             void setHandler(EventHandler* handler, Function function) {
-                if (m_handler != NULL && m_function != NULL)
+                if (m_handler != nullptr && m_function != nullptr)
                     clearBindings();
                 
                 m_handler = handler;
                 m_function = function;
                 
-                if (m_handler != NULL && m_function != NULL)
+                if (m_handler != nullptr && m_function != nullptr)
                     createBindings();
             }
             
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             }
             
             void updateBindings() {
-                if (m_handler != NULL && m_function != NULL) {
+                if (m_handler != nullptr && m_function != nullptr) {
                     clearBindings();
                     createBindings();
                 }

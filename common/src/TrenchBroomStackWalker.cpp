@@ -59,12 +59,12 @@ namespace TrenchBroom {
         // StackWalker is not threadsafe so acquire a mutex
         wxMutexLocker lock(s_stackWalkerMutex);
 
-        if (s_stackWalker == NULL) {
+        if (s_stackWalker == nullptr) {
             // create a shared instance on first use
             s_stackWalker = new TBStackWalker();
         }
         s_stackWalker->clear();
-        if (context == NULL) {
+        if (context == nullptr) {
             // get the current call stack
             s_stackWalker->ShowCallstack();
         } else {
@@ -76,7 +76,7 @@ namespace TrenchBroom {
     }
 
     String TrenchBroomStackWalker::getStackTrace() {
-        return getStackTraceInternal(NULL);
+        return getStackTraceInternal(nullptr);
     }
 
     String TrenchBroomStackWalker::getStackTraceFromContext(void *context) {

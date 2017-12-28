@@ -77,9 +77,9 @@ namespace TrenchBroom {
 
     namespace Model {
         void assertTexture(const String& expected, const Brush* brush, const Vec3& faceNormal) {
-            assert(brush != NULL);
+            assert(brush != nullptr);
             BrushFace* face = brush->findFace(faceNormal);
-            assert(face != NULL);
+            assert(face != nullptr);
             
             ASSERT_EQ(expected, face->textureName());
         }
@@ -97,9 +97,9 @@ namespace TrenchBroom {
         }
 
         void assertTexture(const String& expected, const Brush* brush, const Polygon3d& vertices) {
-            assert(brush != NULL);
+            assert(brush != nullptr);
             BrushFace* face = brush->findFace(vertices);
-            assert(face != NULL);
+            assert(face != nullptr);
             
             ASSERT_EQ(expected, face->textureName());
         }

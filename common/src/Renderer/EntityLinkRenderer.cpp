@@ -117,11 +117,11 @@ namespace TrenchBroom {
             m_selectedColor(selectedColor),
             m_links(links) {}
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Brush* brush)   {}
-            void doVisit(Model::Entity* entity) {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Brush* brush) override   {}
+            void doVisit(Model::Entity* entity) override {
                 if (m_editorContext.visible(entity))
                     visitEntity(entity);
                 stopRecursion();
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) {
+            void visitEntity(Model::Entity* entity) override {
                 if (m_editorContext.visible(entity)) {
                     addTargets(entity, entity->linkTargets());
                     addTargets(entity, entity->killTargets());
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) {
+            void visitEntity(Model::Entity* entity) override {
                 if (m_editorContext.visible(entity)) {
                     const bool visited = !m_visited.insert(entity).second;
                     if (!visited) {
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) {
+            void visitEntity(Model::Entity* entity) override {
                 if (entity->selected() || entity->descendantSelected()) {
                     addSources(entity->linkSources(), entity);
                     addSources(entity->killSources(), entity);
@@ -252,7 +252,7 @@ namespace TrenchBroom {
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
             
             Model::World* world = document->world();
-            if (world != NULL)
+            if (world != nullptr)
                 world->acceptAndRecurse(collectLinks);
         }
         

@@ -53,9 +53,9 @@ namespace TrenchBroom {
             ProfileItem(wxWindow* parent, Model::CompilationProfile* profile, const wxSize& margins) :
             Item(parent),
             m_profile(profile),
-            m_nameText(NULL),
-            m_taskCountText(NULL) {
-                ensure(m_profile != NULL, "profile is null");
+            m_nameText(nullptr),
+            m_taskCountText(nullptr) {
+                ensure(m_profile != nullptr, "profile is null");
 
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
@@ -81,8 +81,8 @@ namespace TrenchBroom {
                 addObservers();
             }
             
-            ~ProfileItem() {
-                if (m_profile != NULL)
+            ~ProfileItem() override {
+                if (m_profile != nullptr)
                     removeObservers();
             }
         private:
@@ -97,9 +97,9 @@ namespace TrenchBroom {
             }
             
             void profileWillBeRemoved() {
-                if (m_profile != NULL) {
+                if (m_profile != nullptr) {
                     removeObservers();
-                    m_profile = NULL;
+                    m_profile = nullptr;
                 }
             }
             
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             }
             
             void refresh() {
-                if (m_profile == NULL) {
+                if (m_profile == nullptr) {
                     m_nameText->SetLabel("");
                     m_taskCountText->SetLabel("");
                 } else {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
             }

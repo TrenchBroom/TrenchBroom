@@ -40,8 +40,8 @@ namespace TrenchBroom {
         public:
             TokenTemplate() :
             m_type(0),
-            m_begin(NULL),
-            m_end(NULL),
+            m_begin(nullptr),
+            m_end(nullptr),
             m_position(0),
             m_line(0),
             m_column(0) {}

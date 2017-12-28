@@ -39,14 +39,14 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const {
+            Vec3f basePosition() const override {
                 const Vec3 half = m_bounds.size() / 2.0;
                 Vec3 pos = m_bounds.min;
                 pos[m_axis] += half[m_axis];
                 return Vec3f(pos);
             }
             
-            TextAlignment::Type alignment() const {
+            TextAlignment::Type alignment() const override {
                 if (m_axis == Math::Axis::AX)
                     return TextAlignment::Top;
                 if (m_axis == Math::Axis::AY && m_camera.direction().x() != 0.0f)
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 return TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const {
+            Vec3f basePosition() const override {
                 const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
                 Vec3 pos;
                 const Vec3 half = m_bounds.size() / 2.0;
@@ -154,7 +154,7 @@ namespace TrenchBroom {
                 return Vec3f(pos);
             }
             
-            TextAlignment::Type alignment() const {
+            TextAlignment::Type alignment() const override {
                 if (m_axis == Math::Axis::AZ)
                     return TextAlignment::Right;
                 
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
@@ -189,13 +189,13 @@ namespace TrenchBroom {
             m_minMax(minMax),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const {
+            Vec3f basePosition() const override {
                 if (m_minMax == BBox3::Corner_Min)
                     return m_bounds.min;
                 return m_bounds.max;
             }
             
-            TextAlignment::Type alignment() const {
+            TextAlignment::Type alignment() const override {
                 const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
                 if (m_minMax == BBox3::Corner_Min) {
                     if ((camPos[1] == BBox3::RelativePosition::Range_Less) ||
@@ -211,7 +211,7 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom | TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;

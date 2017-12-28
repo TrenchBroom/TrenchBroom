@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
             m_oldPolyhedron() {
-                ensure(m_tool != NULL, "tool is null");
+                ensure(m_tool != nullptr, "tool is null");
             }
         public:
             virtual ~Part() {}
@@ -61,9 +61,9 @@ namespace TrenchBroom {
             DrawFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
         private:
-            Tool* doGetTool() { return m_tool; }
+            Tool* doGetTool() override { return m_tool; }
             
-            DragInfo doStartDrag(const InputState& inputState) {
+            DragInfo doStartDrag(const InputState& inputState) override {
                 if (inputState.modifierKeysDown(ModifierKeys::MKShift))
                     return DragInfo();
                 
@@ -86,19 +86,19 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
             
-            void doEndDrag(const InputState& inputState) {
+            void doEndDrag(const InputState& inputState) override {
             }
             
-            void doCancelDrag() {
+            void doCancelDrag() override {
                 m_tool->update(m_oldPolyhedron);
             }
             
-            bool doCancel() { return false; }
+            bool doCancel() override { return false; }
         private:
             void updatePolyhedron(const Vec3& current) {
                 const Grid& grid = m_tool->grid();
@@ -134,9 +134,9 @@ namespace TrenchBroom {
             DuplicateFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
         private:
-            Tool* doGetTool() { return m_tool; }
+            Tool* doGetTool() override { return m_tool; }
 
-            DragInfo doStartDrag(const InputState& inputState) {
+            DragInfo doStartDrag(const InputState& inputState) override {
                 if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
                     return DragInfo();
                 
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
@@ -180,19 +180,19 @@ namespace TrenchBroom {
                 return DR_Continue;
             }
             
-            void doEndDrag(const InputState& inputState) {
+            void doEndDrag(const InputState& inputState) override {
             }
             
-            void doCancelDrag() {
+            void doCancelDrag() override {
                 m_tool->update(m_oldPolyhedron);
             }
             
-            bool doCancel() { return false; }
+            bool doCancel() override { return false; }
         };
         
         CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(CreateComplexBrushTool* tool) :
         m_tool(tool) {
-            ensure(m_tool != NULL, "tool is null");
+            ensure(m_tool != nullptr, "tool is null");
             addController(new DrawFacePart(m_tool));
             addController(new DuplicateFacePart(m_tool));
         }

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             TaskRunner(CompilationContext& context) :
             m_context(context) {}
         public:
-            virtual ~TaskRunner() {}
+            ~TaskRunner() override {}
             
             void execute() {
                 doExecute();
@@ -99,11 +99,11 @@ namespace TrenchBroom {
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationExportMap*>(task->clone())) {}
             
-            ~ExportMapRunner() {
+            ~ExportMapRunner() override {
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 notifyStart();
                 
                 try {
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 
             }
             
-            void doTerminate() {}
+            void doTerminate() override {}
         private:
             ExportMapRunner(const ExportMapRunner& other);
             ExportMapRunner& operator=(const ExportMapRunner& other);
@@ -144,11 +144,11 @@ namespace TrenchBroom {
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationCopyFiles*>(task->clone())) {}
             
-            ~CopyFilesRunner() {
+            ~CopyFilesRunner() override {
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 notifyStart();
                 
                 try {
@@ -172,7 +172,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doTerminate() {}
+            void doTerminate() override {}
         private:
             CopyFilesRunner(const CopyFilesRunner& other);
             CopyFilesRunner& operator=(const CopyFilesRunner& other);
@@ -189,24 +189,24 @@ namespace TrenchBroom {
             RunToolRunner(CompilationContext& context, const Model::CompilationRunTool* task) :
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationRunTool*>(task->clone())),
-            m_process(NULL),
-            m_timer(NULL),
+            m_process(nullptr),
+            m_timer(nullptr),
             m_terminated(false) {}
             
-            ~RunToolRunner() {
-                assert(m_process == NULL);
-                assert(m_timer == NULL);
+            ~RunToolRunner() override {
+                assert(m_process == nullptr);
+                assert(m_timer == nullptr);
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 start();
             }
             
-            void doTerminate() {
+            void doTerminate() override {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL) {
+                if (m_process != nullptr) {
                     readRemainingOutput();
                     m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
                     m_process->Detach();
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         private:
             void OnTimer(wxTimerEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL)
+                if (m_process != nullptr)
                     readOutput();
             }
             
@@ -229,7 +229,7 @@ namespace TrenchBroom {
             
             void OnEndProcessSync(wxProcessEvent& event) {
                 wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != NULL) {
+                if (m_process != nullptr) {
                     readRemainingOutput();
                     m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
                     end();
@@ -238,8 +238,8 @@ namespace TrenchBroom {
             }
         private:
             void start() {
-                assert(m_process == NULL);
-                assert(m_timer == NULL);
+                assert(m_process == nullptr);
+                assert(m_timer == nullptr);
                 
                 try {
                     const IO::Path toolPath(interpolate(m_task->toolSpec()));
@@ -271,12 +271,12 @@ namespace TrenchBroom {
             }
             
             void end() {
-                ensure(m_process != NULL, "process is null");
-                ensure(m_timer != NULL, "timer is null");
+                ensure(m_process != nullptr, "process is null");
+                ensure(m_timer != nullptr, "timer is null");
 
                 delete m_timer;
-                m_timer = NULL;
-                m_process = NULL; // process will be deleted by the library
+                m_timer = nullptr;
+                m_process = nullptr; // process will be deleted by the library
                 
                 notifyEnd();
             }
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             }
             
             wxString readStream(wxInputStream* stream) {
-                ensure(stream != NULL, "stream is null");
+                ensure(stream != nullptr, "stream is null");
                 wxStringOutputStream out;
                 if (stream->CanRead()) {
                     static const size_t BUF_SIZE = 8192;
@@ -366,15 +366,15 @@ namespace TrenchBroom {
                 return m_runners;
             }
             
-            void visit(const Model::CompilationExportMap* task) {
+            void visit(const Model::CompilationExportMap* task) override {
                 appendRunner(new ExportMapRunner(m_context, task));
             }
             
-            void visit(const Model::CompilationCopyFiles* task) {
+            void visit(const Model::CompilationCopyFiles* task) override {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
             
-            void visit(const Model::CompilationRunTool* task) {
+            void visit(const Model::CompilationRunTool* task) override {
                 appendRunner(new RunToolRunner(m_context, task));
             }
             

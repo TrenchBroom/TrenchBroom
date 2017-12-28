@@ -38,11 +38,11 @@ namespace TrenchBroom {
             MixedBrushContentsIssue(Brush* brush) :
             Issue(brush) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Brush has mixed content flags";
             }
         };

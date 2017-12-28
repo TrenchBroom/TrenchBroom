@@ -523,7 +523,7 @@ const typename Polyhedron<T,FP,VP>::VertexList& Polyhedron<T,FP,VP>::vertices() 
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasVertex(const V& position, const T epsilon) const {
-    return findVertexByPosition(position, NULL, epsilon) != NULL;
+    return findVertexByPosition(position, nullptr, epsilon) != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -588,7 +588,7 @@ const typename Polyhedron<T,FP,VP>::EdgeList& Polyhedron<T,FP,VP>::edges() const
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasEdge(const V& pos1, const V& pos2, const T epsilon) const {
-    return findEdgeByPositions(pos1, pos2, epsilon) != NULL;
+    return findEdgeByPositions(pos1, pos2, epsilon) != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -603,7 +603,7 @@ const typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() const
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasFace(const typename V::List& positions, const T epsilon) const {
-    return findFaceByPositions(positions, epsilon) != NULL;
+    return findFaceByPositions(positions, epsilon) != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -652,10 +652,10 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::FaceHit::FaceHit(Face* i_face, const T i_distance) : face(i_face), distance(i_distance) {}
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::FaceHit::FaceHit() : face(NULL), distance(Math::nan<T>()) {}
+Polyhedron<T,FP,VP>::FaceHit::FaceHit() : face(nullptr), distance(Math::nan<T>()) {}
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != NULL; }
+bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != nullptr; }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,3>& ray) const {
@@ -680,13 +680,13 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
             return currentVertex;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
-    return NULL;
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position) const {
     T closestDistance = std::numeric_limits<T>::max();
-    Vertex* closestVertex = NULL;
+    Vertex* closestVertex = nullptr;
     
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
@@ -722,7 +722,7 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(con
         if (currentEdge->hasPositions(pos1, pos2, epsilon))
             return currentEdge;
     } while (currentEdge != firstEdge);
-    return NULL;
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -734,7 +734,7 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(con
             return currentFace;
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
-    return NULL;
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP> template <typename O>
@@ -856,7 +856,7 @@ bool Polyhedron<T,FP,VP>::checkFaceBoundaries() const {
         do {
             if (currentEdge->face() != currentFace)
                 return false;
-            if (currentEdge->edge() == NULL)
+            if (currentEdge->edge() == nullptr)
                 return false;
             if (!hasEdge(currentEdge->edge()))
                 return false;
@@ -980,7 +980,7 @@ bool Polyhedron<T,FP,VP>::checkNoDegenerateFaces() const {
         const HalfEdge* currentHalfEdge = firstHalfEdge;
         do {
             const Edge* edge = currentHalfEdge->edge();
-            if (edge == NULL || !edge->fullySpecified())
+            if (edge == nullptr || !edge->fullySpecified())
                 return false;
             currentHalfEdge = currentHalfEdge->next();
         } while (currentHalfEdge != firstHalfEdge);
@@ -1000,13 +1000,13 @@ bool Polyhedron<T,FP,VP>::checkVertexLeavingEdges() const {
     const Vertex* currentVertex = firstVertex;
     do {
         const HalfEdge* leaving = currentVertex->leaving();
-        if (leaving == NULL)
+        if (leaving == nullptr)
             return false;
         if (leaving->origin() != currentVertex)
             return false;
         if (!point()) {
             const Edge* edge = leaving->edge();
-            if (edge == NULL)
+            if (edge == nullptr)
                 return false;
             if (!hasEdge(edge))
                 return false;
@@ -1029,13 +1029,13 @@ bool Polyhedron<T,FP,VP>::checkEdges() const {
         if (!currentEdge->fullySpecified())
             return false;
         Face* firstFace = currentEdge->firstFace();
-        if (firstFace == NULL)
+        if (firstFace == nullptr)
             return false;
         if (!m_faces.contains(firstFace))
             return false;
         
         Face* secondFace = currentEdge->secondFace();
-        if (secondFace == NULL)
+        if (secondFace == nullptr)
             return false;
         if (!m_faces.contains(secondFace))
             return false;
@@ -1065,9 +1065,9 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::checkLeavingEdges(const Vertex* v) const {
-    ensure(v != NULL, "v is null");
+    ensure(v != nullptr, "v is null");
     const HalfEdge* firstEdge = v->leaving();
-    ensure(firstEdge != NULL, "firstEdge is null");
+    ensure(firstEdge != nullptr, "firstEdge is null");
     const HalfEdge* curEdge = firstEdge;
     
     do {
@@ -1145,14 +1145,14 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
     // This results in the edge being a loop and the second vertex to be orphaned.
     Vertex* firstVertex = edge->firstVertex();
     Vertex* secondVertex = edge->secondVertex();
-    while (secondVertex->leaving() != NULL) {
+    while (secondVertex->leaving() != nullptr) {
         HalfEdge* leaving = secondVertex->leaving();
         HalfEdge* newLeaving = leaving->previous()->twin();
         leaving->setOrigin(firstVertex);
         if (newLeaving->origin() == secondVertex)
             secondVertex->setLeaving(newLeaving);
         else
-            secondVertex->setLeaving(NULL);
+            secondVertex->setLeaving(nullptr);
     }
     
     // Remove the edge's first edge from its first face and delete the face if it degenerates

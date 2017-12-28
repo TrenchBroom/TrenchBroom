@@ -260,7 +260,7 @@ namespace TrenchBroom {
 
             const char* readInteger(const String& delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar()))
-                    return NULL;
+                    return nullptr;
 
                 const TokenizerState previous = *m_state;
                 if (curChar() == '+' || curChar() == '-')
@@ -271,12 +271,12 @@ namespace TrenchBroom {
                     return curPos();
 
                 *m_state = previous;
-                return NULL;
+                return nullptr;
             }
 
             const char* readDecimal(const String& delims) {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar()))
-                    return NULL;
+                    return nullptr;
 
                 const TokenizerState previous = *m_state;
                 if (curChar() != '.') {
@@ -301,7 +301,7 @@ namespace TrenchBroom {
                     return curPos();
 
                 *m_state = previous;
-                return NULL;
+                return nullptr;
             }
             
         private:
@@ -376,7 +376,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < str.size(); ++i) {
                     const char c = lookAhead(i);
                     if (c == 0 || c != str[i])
-                        return NULL;
+                        return nullptr;
 
                 }
 

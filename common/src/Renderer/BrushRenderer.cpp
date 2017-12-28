@@ -133,7 +133,7 @@ namespace TrenchBroom {
         
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
-            m_filter = NULL;
+            m_filter = nullptr;
         }
 
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
@@ -259,21 +259,21 @@ namespace TrenchBroom {
             m_showHiddenBrushes(showHiddenBrushes),
             m_noFilter(false) {}
             
-            void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const {
+            void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const override {
                 if (m_showHiddenBrushes)
                     m_noFilter.provideFaces(brush, faceAcceptor);
                 else
                     m_filter.provideFaces(brush, faceAcceptor);
             }
             
-            void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const {
+            void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const override {
                 if (m_showHiddenBrushes)
                     m_noFilter.provideEdges(brush, edgeAcceptor);
                 else
                     m_filter.provideEdges(brush, edgeAcceptor);
             }
 
-            bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
+            bool doIsTransparent(const Model::Brush* brush) const override { return m_filter.transparent(brush); }
         };
         
         class BrushRenderer::CountVertices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor {
@@ -289,11 +289,11 @@ namespace TrenchBroom {
                 return m_vertexCount;
             }
         private:
-            void doVisit(const Model::World* world) {}
-            void doVisit(const Model::Layer* layer) {}
-            void doVisit(const Model::Group* group) {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush) {
+            void doVisit(const Model::World* world) override {}
+            void doVisit(const Model::Layer* layer) override {}
+            void doVisit(const Model::Group* group) override {}
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override {
                 countFaceVertices(brush);
             }
             
@@ -301,7 +301,7 @@ namespace TrenchBroom {
                 m_filter.provideFaces(brush, *this);
             }
             
-            void accept(const Model::BrushFace* face) {
+            void accept(const Model::BrushFace* face) override {
                 m_vertexCount += face->vertexCount();
             }
         };
@@ -319,11 +319,11 @@ namespace TrenchBroom {
                 return VertexArray::swap(m_builder.vertices());
             }
         private:
-            void doVisit(const Model::World* world) {}
-            void doVisit(const Model::Layer* layer) {}
-            void doVisit(const Model::Group* group) {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush) {
+            void doVisit(const Model::World* world) override {}
+            void doVisit(const Model::Layer* layer) override {}
+            void doVisit(const Model::Group* group) override {}
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override {
                 collectFaceVertices(brush);
             }
             
@@ -331,7 +331,7 @@ namespace TrenchBroom {
                 m_filter.provideFaces(brush, *this);
             }
             
-            void accept(const Model::BrushFace* face) {
+            void accept(const Model::BrushFace* face) override {
                 face->getVertices(m_builder);
             }
         };
@@ -359,11 +359,11 @@ namespace TrenchBroom {
                 return m_edgeIndexSize;
             }
         private:
-            void doVisit(const Model::World* world) {}
-            void doVisit(const Model::Layer* layer) {}
-            void doVisit(const Model::Group* group) {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush) {
+            void doVisit(const Model::World* world) override {}
+            void doVisit(const Model::Layer* layer) override {}
+            void doVisit(const Model::Group* group) override {}
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override {
                 countFaceIndices(brush);
                 countEdgeIndices(brush);
             }
@@ -374,7 +374,7 @@ namespace TrenchBroom {
                 m_filter.provideFaces(brush, *this);
             }
             
-            void accept(const Model::BrushFace* face) {
+            void accept(const Model::BrushFace* face) override {
                 if (m_brushTransparent)
                     face->countIndices(m_transparentIndexSize);
                 else
@@ -385,7 +385,7 @@ namespace TrenchBroom {
                 m_filter.provideEdges(brush, *this);
             }
             
-            void accept(const Model::BrushEdge* edge) {
+            void accept(const Model::BrushEdge* edge) override {
                 m_edgeIndexSize.inc(GL_LINES, 2);
             }
         };
@@ -416,11 +416,11 @@ namespace TrenchBroom {
                 return m_edgeIndexBuilder;
             }
         private:
-            void doVisit(const Model::World* world) {}
-            void doVisit(const Model::Layer* layer) {}
-            void doVisit(const Model::Group* group) {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush) {
+            void doVisit(const Model::World* world) override {}
+            void doVisit(const Model::Layer* layer) override {}
+            void doVisit(const Model::Group* group) override {}
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override {
                 collectFaceIndices(brush);
                 collectEdgeIndices(brush);
             }
@@ -432,7 +432,7 @@ namespace TrenchBroom {
                 m_filter.provideFaces(brush, *this);
             }
             
-            void accept(const Model::BrushFace* face) {
+            void accept(const Model::BrushFace* face) override {
                 if (m_brushTransparent)
                     face->getFaceIndices(m_transparentFaceIndexBuilder);
                 else
@@ -443,7 +443,7 @@ namespace TrenchBroom {
                 m_filter.provideEdges(brush, *this);
             }
             
-            void accept(const Model::BrushEdge* edge) {
+            void accept(const Model::BrushEdge* edge) override {
                 const Model::BrushVertex* v1 = edge->firstVertex();
                 const Model::BrushVertex* v2 = edge->secondVertex();
                 m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());

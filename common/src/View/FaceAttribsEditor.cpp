@@ -49,19 +49,19 @@ namespace TrenchBroom {
         FaceAttribsEditor::FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
         m_document(document),
-        m_uvEditor(NULL),
-        m_xOffsetEditor(NULL),
-        m_yOffsetEditor(NULL),
-        m_xScaleEditor(NULL),
-        m_yScaleEditor(NULL),
-        m_rotationEditor(NULL),
-        m_surfaceValueLabel(NULL),
-        m_surfaceValueEditor(NULL),
-        m_faceAttribsSizer(NULL),
-        m_surfaceFlagsLabel(NULL),
-        m_surfaceFlagsEditor(NULL),
-        m_contentFlagsLabel(NULL),
-        m_contentFlagsEditor(NULL) {
+        m_uvEditor(nullptr),
+        m_xOffsetEditor(nullptr),
+        m_yOffsetEditor(nullptr),
+        m_xScaleEditor(nullptr),
+        m_yScaleEditor(nullptr),
+        m_rotationEditor(nullptr),
+        m_surfaceValueLabel(nullptr),
+        m_surfaceValueEditor(nullptr),
+        m_faceAttribsSizer(nullptr),
+        m_surfaceFlagsLabel(nullptr),
+        m_surfaceFlagsEditor(nullptr),
+        m_contentFlagsLabel(nullptr),
+        m_contentFlagsEditor(nullptr) {
             createGui(contextManager);
             bindEvents();
             bindObservers();
@@ -449,7 +449,7 @@ namespace TrenchBroom {
                         m_textureSize->SetLabel("");
                         m_textureSize->SetForegroundColour(*wxLIGHT_GREY);
                     } else {
-                        if (texture != NULL) {
+                        if (texture != nullptr) {
                             wxString sizeLabel;
                             sizeLabel << texture->width() << "*" << texture->height();
 
@@ -521,7 +521,7 @@ namespace TrenchBroom {
                 m_rotationEditor->Disable();
                 m_surfaceValueEditor->SetValue("n/a");
                 m_surfaceValueEditor->Disable();
-                // m_textureView->setTexture(NULL);
+                // m_textureView->setTexture(nullptr);
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
             }

@@ -35,7 +35,7 @@ namespace TrenchBroom {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
             }
-            return NULL;
+            return nullptr;
         }
         
         Object* hitToObject(const Hit& hit) {
@@ -47,31 +47,31 @@ namespace TrenchBroom {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
             }
-            return NULL;
+            return nullptr;
         }
         
         Group* hitToGroup(const Hit& hit) {
             if (hit.type() == Group::GroupHit)
                 return hit.target<Group*>();
-            return NULL;
+            return nullptr;
         }
 
         Entity* hitToEntity(const Hit& hit) {
             if (hit.type() == Entity::EntityHit)
                 return hit.target<Entity*>();
-            return NULL;
+            return nullptr;
         }
         
         Brush* hitToBrush(const Hit& hit) {
             if (hit.type() == Brush::BrushHit)
                 return hit.target<BrushFace*>()->brush();
-            return NULL;
+            return nullptr;
         }
         
         BrushFace* hitToFace(const Hit& hit) {
             if (hit.type() == Brush::BrushHit)
                 return hit.target<BrushFace*>();
-            return NULL;
+            return nullptr;
         }
     }
 }

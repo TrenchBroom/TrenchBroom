@@ -47,7 +47,7 @@ namespace TrenchBroom {
         LayerEditor::LayerEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
-        m_layerList(NULL) {
+        m_layerList(nullptr) {
             createGui();
         }
 
@@ -104,7 +104,7 @@ namespace TrenchBroom {
 
         void LayerEditor::OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
-            if (layer == NULL) {
+            if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
-            ensure(layer != NULL, "layer is null");
+            ensure(layer != nullptr, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->hidden())
                 document->hide(Model::NodeList(1, layer));
@@ -141,7 +141,7 @@ namespace TrenchBroom {
 
         void LayerEditor::OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
-            if (layer == NULL) {
+            if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
-            ensure(layer != NULL, "layer is null");
+            ensure(layer != nullptr, "layer is null");
             MapDocumentSPtr document = lock(m_document);
             if (!layer->locked())
                 document->lock(Model::NodeList(1, layer));
@@ -180,30 +180,30 @@ namespace TrenchBroom {
                 return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
             
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::Group* group) override   {
                 assert(group->selected());
 
-                if (group->group() == NULL) {
+                if (group->group() == nullptr) {
                     m_moveNodes.insert(group);
                     m_selectNodes.insert(group);
                 }
             }
             
-            void doVisit(Model::Entity* entity) {
+            void doVisit(Model::Entity* entity) override {
                 assert(entity->selected());
                 
-                if (entity->group() == NULL) {
+                if (entity->group() == nullptr) {
                     m_moveNodes.insert(entity);
                     m_selectNodes.insert(entity);
                 }
             }
             
-            void doVisit(Model::Brush* brush)   {
+            void doVisit(Model::Brush* brush) override   {
                 assert(brush->selected());
-                if (brush->group() == NULL) {
+                if (brush->group() == nullptr) {
                     Model::AttributableNode* entity = brush->entity();
                     if (entity == m_world) {
                         m_moveNodes.insert(brush);
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            ensure(layer != NULL, "layer is null");
+            ensure(layer != nullptr, "layer is null");
 
             MapDocumentSPtr document = lock(m_document);
             Transaction transaction(document, "Move Nodes to " + layer->name());
@@ -233,7 +233,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Model::Layer* layer = m_layerList->selectedLayer();
-            if (layer == NULL) {
+            if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
@@ -247,7 +247,7 @@ namespace TrenchBroom {
 
             for (Model::Node* node : nodes) {
                 Model::Group* nodeGroup = Model::findGroup(node);
-                if (nodeGroup != NULL) {
+                if (nodeGroup != nullptr) {
                     event.Enable(false);
                     return;
                 }
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            ensure(layer != NULL, "layer is null");
+            ensure(layer != nullptr, "layer is null");
             
             MapDocumentSPtr document = lock(m_document);
             
@@ -320,7 +320,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             Model::Layer* layer = m_layerList->selectedLayer();
-            ensure(layer != NULL, "layer is null");
+            ensure(layer != nullptr, "layer is null");
             
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();
@@ -338,12 +338,12 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Model::Layer* layer = m_layerList->selectedLayer();
-            if (layer == NULL) {
+            if (layer == nullptr) {
                 event.Enable(false);
                 return;
             }
 
-            if (findVisibleAndUnlockedLayer(layer) == NULL) {
+            if (findVisibleAndUnlockedLayer(layer) == nullptr) {
                 event.Enable(false);
                 return;
             }
@@ -371,7 +371,7 @@ namespace TrenchBroom {
                     return layer;
             }
             
-            return NULL;
+            return nullptr;
         }
 
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {

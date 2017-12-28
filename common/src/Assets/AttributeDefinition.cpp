@@ -63,11 +63,11 @@ namespace TrenchBroom {
         }
 
         String AttributeDefinition::safeFullDescription(const AttributeDefinition* definition) {
-            return definition == NULL ? EmptyString : definition->fullDescription();
+            return definition == nullptr ? EmptyString : definition->fullDescription();
         }
 
         bool AttributeDefinition::equals(const AttributeDefinition* other) const {
-            ensure(other != NULL, "other is null");
+            ensure(other != nullptr, "other is null");
             if (type() != other->type())
                 return false;
             if (name() != other->name())

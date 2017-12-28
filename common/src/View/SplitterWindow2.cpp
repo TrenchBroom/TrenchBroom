@@ -37,15 +37,15 @@ namespace TrenchBroom {
         SplitterWindow2::SplitterWindow2(wxWindow* parent) :
         wxPanel(parent, wxID_ANY),
         m_splitMode(SplitMode_Unset),
-        m_sash(NULL),
-        m_maximizedWindow(NULL),
+        m_sash(nullptr),
+        m_maximizedWindow(nullptr),
         m_sashGravity(0.5),
         m_initialSplitRatio(-1.0),
         m_currentSplitRatio(m_initialSplitRatio),
         m_sashCursorSet(0),
         m_oldSize(GetSize()) {
             for (size_t i = 0; i < NumWindows; ++i) {
-                m_windows[i] = NULL;
+                m_windows[i] = nullptr;
                 m_minSizes[i] = wxDefaultSize;
             }
             
@@ -95,9 +95,9 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::restore() {
-            if (m_maximizedWindow != NULL) {
+            if (m_maximizedWindow != nullptr) {
                 unmaximizedWindow()->Show();
-                m_maximizedWindow = NULL;
+                m_maximizedWindow = nullptr;
                 sizeWindows();
             }
         }
@@ -122,9 +122,9 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow2::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
-            ensure(window1 != NULL, "window1 is null");
+            ensure(window1 != nullptr, "window1 is null");
             assert(window1->GetParent() == this);
-            ensure(window2 != NULL, "window2 is null");
+            ensure(window2 != nullptr, "window2 is null");
             assert(window2->GetParent() == this);
             assert(m_splitMode == SplitMode_Unset);
             
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                if (m_maximizedWindow != NULL) {
+                if (m_maximizedWindow != nullptr) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                     m_sash->SetSize(wxRect(wxPoint(0, 0),wxPoint(0, 0)));
                 } else {
@@ -305,7 +305,7 @@ namespace TrenchBroom {
         }
  
         wxWindow* SplitterWindow2::unmaximizedWindow() {
-            ensure(m_maximizedWindow != NULL, "maximizedWindow is null");
+            ensure(m_maximizedWindow != nullptr, "maximizedWindow is null");
             return m_windows[0] == m_maximizedWindow ? m_windows[1] : m_windows[0];
         }
     }

@@ -37,11 +37,11 @@ namespace TrenchBroom {
         UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera) :
         m_camera(camera),
         m_zoomValid(false),
-        m_face(NULL),
+        m_face(nullptr),
         m_subDivisions(1, 1) {}
         
         bool UVViewHelper::valid() const {
-            return m_face != NULL;
+            return m_face != nullptr;
         }
         
         Model::BrushFace* UVViewHelper::face() const {
@@ -50,14 +50,14 @@ namespace TrenchBroom {
         
         const Assets::Texture* UVViewHelper::texture() const {
             if (!valid())
-                return NULL;
+                return nullptr;
             return m_face->texture();
         }
         
         void UVViewHelper::setFace(Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
-                if (m_face != NULL) {
+                if (m_face != nullptr) {
                     resetCamera();
                     resetOrigin();
                 }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             assert(valid());
             
             const Assets::Texture* texture = m_face->texture();
-            if (texture == NULL)
+            if (texture == nullptr)
                 return Vec2::Null;
             const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
             const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             assert(valid());
             
             const Assets::Texture* texture = m_face->texture();
-            if (texture != NULL) {
+            if (texture != nullptr) {
                 
                 const Plane3& boundary = m_face->boundary();
                 const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());

@@ -36,13 +36,13 @@ namespace TrenchBroom {
     namespace View {
         SplitterWindow4::SplitterWindow4(wxWindow* parent) :
         wxPanel(parent),
-        m_maximizedWindow(NULL),
+        m_maximizedWindow(nullptr),
         m_gravity(0.5, 0.5),
         m_initialSplitRatios(-1.0, -1.0),
         m_currentSplitRatios(m_initialSplitRatios),
         m_oldSize(GetSize()) {
             for (size_t i = 0; i < NumWindows; ++i) {
-                m_windows[i] = NULL;
+                m_windows[i] = nullptr;
                 m_minSizes[i] = wxDefaultSize;
             }
             
@@ -65,13 +65,13 @@ namespace TrenchBroom {
                                     const wxSize& topRightMin,
                                     const wxSize& bottomRightMin,
                                     const wxSize& bottomLeftMin) {
-            ensure(topLeft != NULL, "topLeft is null");
+            ensure(topLeft != nullptr, "topLeft is null");
             assert(topLeft->GetParent() == this);
-            ensure(topRight != NULL, "topRight is null");
+            ensure(topRight != nullptr, "topRight is null");
             assert(topRight->GetParent() == this);
-            ensure(bottomRight != NULL, "bottomRight is null");
+            ensure(bottomRight != nullptr, "bottomRight is null");
             assert(bottomRight->GetParent() == this);
-            ensure(bottomLeft != NULL, "bottomLeft is null");
+            ensure(bottomLeft != nullptr, "bottomLeft is null");
             assert(bottomLeft->GetParent() == this);
             
             m_windows[Window_TopLeft] = topLeft;
@@ -121,8 +121,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow4::restore() {
-            if (m_maximizedWindow != NULL) {
-                m_maximizedWindow = NULL;
+            if (m_maximizedWindow != nullptr) {
+                m_maximizedWindow = nullptr;
                 for (size_t i = 0; i < NumWindows; ++i)
                     m_windows[i]->Show();
                 sizeWindows();
@@ -166,7 +166,7 @@ namespace TrenchBroom {
         }
 
         bool SplitterWindow4::hasWindows() const {
-            return m_windows[0] != NULL;
+            return m_windows[0] != nullptr;
         }
 
         bool SplitterWindow4::containsWindow(wxWindow* window) const {
@@ -177,7 +177,7 @@ namespace TrenchBroom {
         }
 
         void SplitterWindow4::bindMouseEvents(wxWindow* window) {
-            ensure(window != NULL, "window is null");
+            ensure(window != nullptr, "window is null");
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow4::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow4::OnMouseLeave, this);
             window->Bind(wxEVT_MOTION, &SplitterWindow4::OnMouseMotion, this);
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (hasWindows()) {
-                if (m_maximizedWindow != NULL) {
+                if (m_maximizedWindow != nullptr) {
                     m_maximizedWindow->SetSize(wxRect(GetClientAreaOrigin(), GetClientSize()));
                 } else {
                     const wxPoint origin = GetClientAreaOrigin();
