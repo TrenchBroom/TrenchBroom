@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
         m_textureName(textureName),
-        m_texture(NULL),
+        m_texture(nullptr),
         m_offset(Vec2f::Null),
         m_scale(Vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
@@ -42,12 +42,12 @@ namespace TrenchBroom {
         m_surfaceContents(other.m_surfaceContents),
         m_surfaceFlags(other.m_surfaceFlags),
         m_surfaceValue(other.m_surfaceValue) {
-            if (m_texture != NULL)
+            if (m_texture != nullptr)
                 m_texture->incUsageCount();
         }
         
         BrushFaceAttributes::~BrushFaceAttributes() {
-            if (m_texture != NULL)
+            if (m_texture != nullptr)
                 m_texture->decUsageCount();
         }
 
@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
         
         Vec2f BrushFaceAttributes::textureSize() const {
-            if (m_texture == NULL)
+            if (m_texture == nullptr)
                 return Vec2f::One;
             const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
@@ -141,19 +141,19 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
-            if (m_texture != NULL)
+            if (m_texture != nullptr)
                 m_texture->decUsageCount();
             m_texture = texture;
-            if (m_texture != NULL) {
+            if (m_texture != nullptr) {
                 m_texture->incUsageCount();
                 m_textureName = m_texture->name();
             }
         }
         
         void BrushFaceAttributes::unsetTexture() {
-            if (m_texture != NULL)
+            if (m_texture != nullptr)
                 m_texture->decUsageCount();
-            m_texture = NULL;
+            m_texture = nullptr;
             m_textureName = BrushFace::NoTextureName;
         }
 

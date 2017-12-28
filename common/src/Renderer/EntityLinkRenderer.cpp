@@ -252,7 +252,7 @@ namespace TrenchBroom {
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
             
             Model::World* world = document->world();
-            if (world != NULL)
+            if (world != nullptr)
                 world->acceptAndRecurse(collectLinks);
         }
         

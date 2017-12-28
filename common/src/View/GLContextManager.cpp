@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
             GLContext::Ptr context(new GLContext(canvas, this));
-            if (m_mainContext.get() == NULL)
+            if (m_mainContext.get() == nullptr)
                 m_mainContext = context;
             return context;
         }

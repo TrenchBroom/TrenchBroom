@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         CompilationRun::CompilationRun() :
-        m_currentRun(NULL) {}
+        m_currentRun(nullptr) {}
         
         CompilationRun::~CompilationRun() {
             if (running())
@@ -62,19 +62,19 @@ namespace TrenchBroom {
         }
 
         bool CompilationRun::doIsRunning() const {
-            return m_currentRun != NULL && m_currentRun->running();
+            return m_currentRun != nullptr && m_currentRun->running();
         }
 
         void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, const bool test) {
-            ensure(profile != NULL, "profile is null");
-            ensure(document.get() != NULL, "document is null");
-            ensure(currentOutput != NULL, "currentOutput is null");
+            ensure(profile != nullptr, "profile is null");
+            ensure(document.get() != nullptr, "document is null");
+            ensure(currentOutput != nullptr, "currentOutput is null");
             
             wxCriticalSectionLocker lock(m_currentRunSection);
             assert(!doIsRunning());
-            if (m_currentRun != NULL) {
+            if (m_currentRun != nullptr) {
                 delete m_currentRun;
-                m_currentRun = NULL;
+                m_currentRun = nullptr;
             }
             
             CompilationVariables variables(document, buildWorkDir(profile, document));
@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
         void CompilationRun::cleanup() {
             delete m_currentRun;
-            m_currentRun = NULL;
+            m_currentRun = nullptr;
         }
     }
 }

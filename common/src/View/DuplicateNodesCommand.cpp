@@ -55,7 +55,7 @@ namespace TrenchBroom {
                     Model::Node* parent = original->parent();
                     if (cloneParent(parent)) {
                         NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
-                        Model::Node* newParent = NULL;
+                        Model::Node* newParent = nullptr;
                         if (insertPos.first) {
                             assert(insertPos.second != std::begin(newParentMap));
                             newParent = std::prev(insertPos.second)->second;

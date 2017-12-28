@@ -34,8 +34,8 @@ namespace TrenchBroom {
         }
         
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& path) :
-        m_stream(NULL),
-        m_bitmap(NULL),
+        m_stream(nullptr),
+        m_bitmap(nullptr),
         m_paletteInitialized(false),
         m_indicesInitialized(false),
         m_pixelsInitialized(false) {
@@ -48,8 +48,8 @@ namespace TrenchBroom {
         }
         
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end) :
-        m_stream(NULL),
-        m_bitmap(NULL),
+        m_stream(nullptr),
+        m_bitmap(nullptr),
         m_paletteInitialized(false),
         m_indicesInitialized(false),
         m_pixelsInitialized(false) {
@@ -66,13 +66,13 @@ namespace TrenchBroom {
         }
         
         ImageLoaderImpl::~ImageLoaderImpl() {
-            if (m_bitmap != NULL) {
+            if (m_bitmap != nullptr) {
                 FreeImage_Unload(m_bitmap);
-                m_bitmap = NULL;
+                m_bitmap = nullptr;
             }
-            if (m_stream != NULL) {
+            if (m_stream != nullptr) {
                 FreeImage_CloseMemory(m_stream);
-                m_stream = NULL;
+                m_stream = nullptr;
             }
         }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         }
         
         bool ImageLoaderImpl::hasPalette() const {
-            return FreeImage_GetPalette(m_bitmap) != NULL;
+            return FreeImage_GetPalette(m_bitmap) != nullptr;
         }
         
         bool ImageLoaderImpl::hasIndices() const {
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             assert(hasPalette());
             if (!m_paletteInitialized) {
                 const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
-                if (pal != NULL) {
+                if (pal != nullptr) {
                     m_palette = Buffer<unsigned char>(paletteSize() * 3);
                     for (size_t i = 0; i < paletteSize(); ++i) {
                         m_palette[i * 3 + 0] = static_cast<unsigned char>(pal[i].rgbRed);
@@ -173,7 +173,7 @@ namespace TrenchBroom {
         void ImageLoaderImpl::initializeIndexedPixels(const size_t pSize) const {
             assert(pSize == 3);
             const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
-            ensure(pal != NULL, "pal is null");
+            ensure(pal != nullptr, "pal is null");
             
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {

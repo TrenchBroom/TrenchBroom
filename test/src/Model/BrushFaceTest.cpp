@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
                 // test destructor
                 delete clone;
-                clone = NULL;
+                clone = nullptr;
                 EXPECT_EQ(2, texture.usageCount());
                 
                 // test setTexture
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             BrushFace::VertexList verts = face->vertices();
             for (it = std::begin(verts); it != std::end(verts); ++it) {
                 vertPositions->push_back(it->position());
-                if (vertTexCoords != NULL) {
+                if (vertTexCoords != nullptr) {
                     vertTexCoords->push_back(face->textureCoords(it->position()));
                 }
             }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             // UVs of the verts of `face` and `resetFace` should be the same now
             
             std::vector<Vec3> verts;
-            getFaceVertsAndTexCoords(origFace, &verts, NULL);
+            getFaceVertsAndTexCoords(origFace, &verts, nullptr);
             
             // transform the verts
             std::vector<Vec3> transformedVerts;
@@ -380,7 +380,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -400,7 +400,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, NULL, worldBounds);
+            World world(MapFormat::Valve, nullptr, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");

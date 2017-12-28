@@ -43,7 +43,7 @@ namespace TrenchBroom {
     namespace View {
         LayerCommand::LayerCommand(const wxEventType commandType, const int id) :
         wxCommandEvent(commandType, id),
-        m_layer(NULL) {}
+        m_layer(nullptr) {}
 
         Model::Layer* LayerCommand::layer() const {
             return m_layer;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
 
         Model::Layer* LayerListBox::selectedLayer() const {
             if (GetSelection() == wxNOT_FOUND)
-                return NULL;
+                return nullptr;
 
             const Model::World* world = lock(m_document)->world();
             const Model::LayerList layers = world->allLayers();
@@ -218,7 +218,7 @@ namespace TrenchBroom {
 
         void LayerListBox::OnRightClick(wxCommandEvent& event) {
             Model::Layer* layer = selectedLayer();
-            if (layer != NULL) {
+            if (layer != nullptr) {
                 LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);
                 command->SetId(GetId());
                 command->SetEventObject(this);
@@ -253,7 +253,7 @@ namespace TrenchBroom {
 
         void LayerListBox::documentDidChange(MapDocument* document) {
             const Model::World* world = document->world();
-            if (world != NULL) {
+            if (world != nullptr) {
                 SetItemCount(world->allLayers().size());
             } else {
                 SetItemCount(0);
@@ -263,7 +263,7 @@ namespace TrenchBroom {
         void LayerListBox::nodesDidChange(const Model::NodeList& nodes) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            if (world != NULL) {
+            if (world != nullptr) {
                 SetItemCount(world->allLayers().size());
             } else {
                 SetItemCount(0);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
         void LayerListBox::currentLayerDidChange(const Model::Layer* layer) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            if (world != NULL) {
+            if (world != nullptr) {
                 SetItemCount(world->allLayers().size());
             } else {
                 SetItemCount(0);
@@ -289,7 +289,7 @@ namespace TrenchBroom {
         ControlListBox::Item* LayerListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            ensure(world != NULL, "world is null");
+            ensure(world != nullptr, "world is null");
             
             const Model::LayerList layers = world->allLayers();
             ensure(index < layers.size(), "index out of range");

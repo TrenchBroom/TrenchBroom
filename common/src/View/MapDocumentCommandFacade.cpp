@@ -574,7 +574,7 @@ namespace TrenchBroom {
 
             for (const auto& entry : attributes) {
                 Model::AttributableNode* node = entry.first;
-                assert(node->parent() == NULL || node->selected() || node->descendantSelected());
+                assert(node->parent() == nullptr || node->selected() || node->descendantSelected());
                 
                 const Model::EntityAttributeSnapshot& snapshot = entry.second;
                 snapshot.restore(node);
@@ -592,7 +592,7 @@ namespace TrenchBroom {
             
             for (Model::Brush* brush : selectedBrushes) {
                 Model::BrushFace* face = brush->findFace(polygons);
-                if (face != NULL) {
+                if (face != nullptr) {
                     if (!brush->canMoveBoundary(m_worldBounds, face, delta))
                         return result;
                     

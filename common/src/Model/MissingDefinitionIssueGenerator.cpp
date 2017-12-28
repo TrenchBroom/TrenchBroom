@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
         
         void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->definition() == NULL)
+            if (node->definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));
         }
     }

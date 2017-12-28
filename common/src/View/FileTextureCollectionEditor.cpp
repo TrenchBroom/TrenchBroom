@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
         
         void FileTextureCollectionEditor::createGui() {
-            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxWindow* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
             wxWindow* removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");

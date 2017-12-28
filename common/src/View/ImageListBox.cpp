@@ -43,17 +43,17 @@ namespace TrenchBroom {
         public:
             ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle) :
             Item(parent),
-            m_titleText(NULL),
-            m_subtitleText(NULL),
-            m_imageBmp(NULL) {
-                createGui(margins, title, subtitle, NULL);
+            m_titleText(nullptr),
+            m_subtitleText(nullptr),
+            m_imageBmp(nullptr) {
+                createGui(margins, title, subtitle, nullptr);
             }
             
             ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap& image)  :
             Item(parent),
-            m_titleText(NULL),
-            m_subtitleText(NULL),
-            m_imageBmp(NULL) {
+            m_titleText(nullptr),
+            m_subtitleText(nullptr),
+            m_imageBmp(nullptr) {
                 createGui(margins, title, subtitle, &image);
             }
 
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
                 hSizer->AddSpacer(margins.x);
                 
-                if (image != NULL) {
+                if (image != nullptr) {
                     m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
                     hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
                 }

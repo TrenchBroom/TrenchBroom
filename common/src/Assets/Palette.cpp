@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_size(size),
         m_data(data) {
             assert(m_size > 0);
-            ensure(m_data != NULL, "data is null");
+            ensure(m_data != nullptr, "data is null");
         }
 
         Palette::Palette(const Palette& other) :

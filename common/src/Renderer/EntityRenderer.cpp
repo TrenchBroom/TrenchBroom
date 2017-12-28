@@ -359,7 +359,7 @@ namespace TrenchBroom {
 
         const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition == NULL)
+            if (definition == nullptr)
                 return m_boundsColor;
             return definition->color();
         }

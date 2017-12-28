@@ -116,7 +116,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedBrushFaces();
             if (faces.size() != 1)
-                m_helper.setFace(NULL);
+                m_helper.setFace(nullptr);
             else
                 m_helper.setFace(faces.back());
 
@@ -244,7 +244,7 @@ namespace TrenchBroom {
                 const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
-                ensure(texture != NULL, "texture is null");
+                ensure(texture != nullptr, "texture is null");
 
                 texture->activate();
                 
@@ -270,7 +270,7 @@ namespace TrenchBroom {
         void UVView::renderTexture(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             const Model::BrushFace* face = m_helper.face();
             const Assets::Texture* texture = face->texture();
-            if (texture == NULL)
+            if (texture == nullptr)
                 return;
 
             renderBatch.addOneShot(new RenderTexture(m_helper));

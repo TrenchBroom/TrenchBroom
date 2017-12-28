@@ -250,7 +250,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*grandChild2, mockDoAncestorDidChange());
 
             root.removeChild(child);
-            ASSERT_EQ(NULL, child->parent());
+            ASSERT_EQ(nullptr, child->parent());
             ASSERT_FALSE(VectorUtils::contains(root.children(), child));
             ASSERT_EQ(0u, root.childCount());
             ASSERT_EQ(1u, root.familySize());

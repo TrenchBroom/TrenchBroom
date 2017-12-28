@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         Tool::Tool(const bool initiallyActive) :
         m_active(initiallyActive),
-        m_book(NULL),
+        m_book(nullptr),
         m_pageIndex(0) {}
 
         Tool::~Tool() {}
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         }
 
         void Tool::createPage(wxBookCtrlBase* book) {
-            assert(m_book == NULL);
+            assert(m_book == nullptr);
             
             m_book = book;
             m_pageIndex = m_book->GetPageCount();

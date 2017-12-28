@@ -34,7 +34,7 @@ namespace TrenchBroom {
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
-        m_mapView(NULL) {
+        m_mapView(nullptr) {
             createGui(toolBox, mapRenderer, contextManager);
         }
         

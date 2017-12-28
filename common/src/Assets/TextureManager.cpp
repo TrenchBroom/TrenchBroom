@@ -99,7 +99,7 @@ namespace TrenchBroom {
             if (collection->loaded() && !collection->prepared())
                 m_toPrepare.push_back(collection);
             
-            if (m_logger != NULL)
+            if (m_logger != nullptr)
                 m_logger->debug("Added texture collection %s", collection->path().asString().c_str());
         }
 
@@ -129,7 +129,7 @@ namespace TrenchBroom {
         Texture* TextureManager::texture(const String& name) const {
             TextureMap::const_iterator it = m_texturesByName.find(StringUtils::toLower(name));
             if (it == std::end(m_texturesByName))
-                return NULL;
+                return nullptr;
             return it->second;
         }
         

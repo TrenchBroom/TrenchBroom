@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
         m_blockSelection(false),
-        m_currentGroup(NULL) {}
+        m_currentGroup(nullptr) {}
         
         bool EditorContext::showPointEntities() const {
             return m_showPointEntities;
@@ -74,19 +74,19 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
-            if (entity == NULL)
+            if (entity == nullptr)
                 return false;
             return entityDefinitionHidden(entity->definition());
         }
 
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
-            if (definition == NULL)
+            if (definition == nullptr)
                 return false;
             return m_hiddenEntityDefinitions[definition->index()];
         }
         
         void EditorContext::setEntityDefinitionHidden(const Assets::EntityDefinition* definition, const bool hidden) {
-            if (definition == NULL || entityDefinitionHidden(definition) == hidden)
+            if (definition == nullptr || entityDefinitionHidden(definition) == hidden)
                 return;
             m_hiddenEntityDefinitions[definition->index()] = hidden;
             editorContextDidChangeNotifier();
@@ -117,20 +117,20 @@ namespace TrenchBroom {
         }
 
         void EditorContext::pushGroup(Model::Group* group) {
-            ensure(group != NULL, "group is null");
-            assert(m_currentGroup == NULL || group->group() == m_currentGroup);
+            ensure(group != nullptr, "group is null");
+            assert(m_currentGroup == nullptr || group->group() == m_currentGroup);
             
-            if (m_currentGroup != NULL)
+            if (m_currentGroup != nullptr)
                 m_currentGroup->close();
             m_currentGroup = group;
             m_currentGroup->open();
         }
         
         void EditorContext::popGroup() {
-            ensure(m_currentGroup != NULL, "currentGroup is null");
+            ensure(m_currentGroup != nullptr, "currentGroup is null");
             m_currentGroup->close();
             m_currentGroup = m_currentGroup->group();
-            if (m_currentGroup != NULL)
+            if (m_currentGroup != nullptr)
                 m_currentGroup->open();
         }
         
@@ -241,7 +241,7 @@ namespace TrenchBroom {
             // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
             
             Model::Group* containingGroup = group->group();
-            return (containingGroup == NULL || containingGroup->opened()) /* && visible(group) */;
+            return (containingGroup == nullptr || containingGroup->opened()) /* && visible(group) */;
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {

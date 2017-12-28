@@ -283,7 +283,7 @@ namespace TrenchBroom {
             m_definition(definition) {}
             
             bool operator()(const Model::Brush* brush) {
-                return brush->entity() != NULL && brush->entity()->definition() == m_definition;
+                return brush->entity() != nullptr && brush->entity()->definition() == m_definition;
             }
             
             bool operator()(const Model::Node* node) { return false; }

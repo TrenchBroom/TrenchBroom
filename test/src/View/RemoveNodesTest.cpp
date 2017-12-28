@@ -39,7 +39,7 @@ namespace TrenchBroom {
             document->addNode(layer, document->world());
 
             document->removeNode(layer);
-            ASSERT_TRUE(layer->parent() == NULL);
+            ASSERT_TRUE(layer->parent() == nullptr);
 
             document->undoLastCommand();
             ASSERT_EQ(document->world(), layer->parent());
@@ -56,8 +56,8 @@ namespace TrenchBroom {
             document->addNode(brush, entity);
             
             document->removeNode(brush);
-            ASSERT_TRUE(brush->parent() == NULL);
-            ASSERT_TRUE(entity->parent() == NULL);
+            ASSERT_TRUE(brush->parent() == nullptr);
+            ASSERT_TRUE(entity->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(entity, brush->parent());
@@ -74,9 +74,9 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             
             document->removeNode(brush);
-            ASSERT_TRUE(document->currentGroup() == NULL);
-            ASSERT_TRUE(brush->parent() == NULL);
-            ASSERT_TRUE(group->parent() == NULL);
+            ASSERT_TRUE(document->currentGroup() == nullptr);
+            ASSERT_TRUE(brush->parent() == nullptr);
+            ASSERT_TRUE(group->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(group, document->currentGroup());
@@ -99,10 +99,10 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             
             document->removeNode(brush);
-            ASSERT_TRUE(document->currentGroup() == NULL);
-            ASSERT_TRUE(brush->parent() == NULL);
-            ASSERT_TRUE(inner->parent() == NULL);
-            ASSERT_TRUE(outer->parent() == NULL);
+            ASSERT_TRUE(document->currentGroup() == nullptr);
+            ASSERT_TRUE(brush->parent() == nullptr);
+            ASSERT_TRUE(inner->parent() == nullptr);
+            ASSERT_TRUE(outer->parent() == nullptr);
             
             document->undoLastCommand();
             ASSERT_EQ(inner, document->currentGroup());

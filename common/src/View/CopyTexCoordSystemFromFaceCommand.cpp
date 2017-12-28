@@ -60,7 +60,7 @@ namespace TrenchBroom {
         bool CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreSnapshot(m_snapshot);
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
             return true;
         }
         

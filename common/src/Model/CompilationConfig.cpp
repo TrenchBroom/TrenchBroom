@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
         
         void CompilationConfig::addProfile(CompilationProfile* profile) {
-            ensure(profile != NULL, "profile is null");
+            ensure(profile != nullptr, "profile is null");
             m_profiles.push_back(profile);
             profilesDidChange();
         }

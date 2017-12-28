@@ -41,8 +41,8 @@ namespace TrenchBroom {
         DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
-        m_availableCollectionsList(NULL),
-        m_enabledCollectionsList(NULL),
+        m_availableCollectionsList(nullptr),
+        m_enabledCollectionsList(nullptr),
         m_ignoreNotifier(false) {
             createGui();
             bindObservers();
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             TitledPanel* availableCollectionsContainer = new TitledPanel(this, "Available", false);
             availableCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
-            m_availableCollectionsList = new wxListBox(availableCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_availableCollectionsList = new wxListBox(availableCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
             wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
             availableModContainerSizer->Add(m_availableCollectionsList, wxSizerFlags().Expand().Proportion(1));
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         
             TitledPanel* enabledCollectionsContainer = new TitledPanel(this, "Enabled", false);
             enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_enabledCollectionsList = new wxListBox(enabledCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_enabledCollectionsList = new wxListBox(enabledCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
             wxSizer* enabledCollectionsContainerSizer = new wxBoxSizer(wxVERTICAL);
             enabledCollectionsContainerSizer->Add(m_enabledCollectionsList, wxSizerFlags().Expand().Proportion(1));

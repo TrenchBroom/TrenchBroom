@@ -41,11 +41,11 @@ namespace TrenchBroom {
         CompilationProfileEditor::CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
-        m_profile(NULL),
-        m_book(NULL),
-        m_nameTxt(NULL),
-        m_workDirTxt(NULL),
-        m_taskList(NULL) {
+        m_profile(nullptr),
+        m_book(nullptr),
+        m_nameTxt(nullptr),
+        m_workDirTxt(nullptr),
+        m_taskList(nullptr) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
 
             m_book = new wxSimplebook(this);
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
         
         CompilationProfileEditor::~CompilationProfileEditor() {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
             }
@@ -139,12 +139,12 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::OnNameChanged(wxCommandEvent& event) {
-            ensure(m_profile != NULL, "profile is null");
+            ensure(m_profile != nullptr, "profile is null");
             m_profile->setName(m_nameTxt->GetValue().ToStdString());
         }
         
         void CompilationProfileEditor::OnWorkDirChanged(wxCommandEvent& event) {
-            ensure(m_profile != NULL, "profile is null");
+            ensure(m_profile != nullptr, "profile is null");
             m_profile->setWorkDirSpec(m_workDirTxt->GetValue().ToStdString());
         }
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             menu.Append(3, "Run Tool");
             const int result = GetPopupMenuSelectionFromUser(menu);
             
-            Model::CompilationTask* task = NULL;
+            Model::CompilationTask* task = nullptr;
             switch (result) {
                 case 1:
                     task = new Model::CompilationExportMap("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
@@ -170,7 +170,7 @@ namespace TrenchBroom {
                     return;
             }
             
-            ensure(task != NULL, "task is null");
+            ensure(task != nullptr, "task is null");
             const int index = m_taskList->GetSelection();
             if (index == wxNOT_FOUND) {
                 m_profile->addTask(task);
@@ -214,29 +214,29 @@ namespace TrenchBroom {
         }
         
         void CompilationProfileEditor::OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL);
+            event.Enable(m_profile != nullptr);
         }
         
         void CompilationProfileEditor::OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND);
+            event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND);
         }
         
         void CompilationProfileEditor::OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && m_taskList->GetSelection() > 0);
+            event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND && m_taskList->GetSelection() > 0);
         }
         
         void CompilationProfileEditor::OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(m_profile != NULL && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) < m_profile->taskCount() - 1);
+            event.Enable(m_profile != nullptr && m_taskList->GetSelection() != wxNOT_FOUND && static_cast<size_t>(m_taskList->GetSelection()) < m_profile->taskCount() - 1);
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
             }
             m_profile = profile;
             m_taskList->setProfile(profile);
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
                 m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
                 m_book->SetSelection(1);
@@ -247,7 +247,7 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::profileWillBeRemoved() {
-            setProfile(NULL);
+            setProfile(nullptr);
         }
 
         void CompilationProfileEditor::profileDidChange() {
@@ -255,7 +255,7 @@ namespace TrenchBroom {
         }
         
         void CompilationProfileEditor::refresh() {
-            if (m_profile != NULL) {
+            if (m_profile != nullptr) {
                 m_nameTxt->ChangeValue(m_profile->name());
                 m_workDirTxt->ChangeValue(m_profile->workDirSpec());
             }

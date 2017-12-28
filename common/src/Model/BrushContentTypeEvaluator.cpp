@@ -84,7 +84,7 @@ namespace TrenchBroom {
         private:
             bool doEvaluate(const Brush* brush) const override {
                 const AttributableNode* entity = brush->entity();
-                if (entity == NULL)
+                if (entity == nullptr)
                     return false;
                 
                 return StringUtils::caseInsensitiveMatchesPattern(entity->classname(), m_pattern);

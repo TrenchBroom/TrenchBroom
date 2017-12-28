@@ -34,7 +34,7 @@ namespace TrenchBroom {
         MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Node* parent) :
         m_world(world),
         m_parent(parent != nullptr ? parent : m_world->defaultLayer()) {
-            ensure(m_world != NULL, "world is null");
+            ensure(m_world != nullptr, "world is null");
             assert(m_parent->isDescendantOf(m_world));
         }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         void MergeNodesIntoWorldVisitor::detachNode(Node* node) {
             Node* parent = node->parent();
-            if (parent != NULL)
+            if (parent != nullptr)
                 m_nodesToDetach.push_back(node);
         }
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         void MergeNodesIntoWorldVisitor::detachNodes() const {
             for (Node* node : m_nodesToDetach) {
                 Node* parent = node->parent();
-                ensure(parent != NULL, "parent is null");
+                ensure(parent != nullptr, "parent is null");
                 parent->removeChild(node);
             }
             m_nodesToDetach.clear();

@@ -191,7 +191,7 @@ namespace TrenchBroom {
         }
 
         ChangeBrushFaceAttributesRequest::ChangeBrushFaceAttributesRequest() :
-        m_texture(NULL),
+        m_texture(nullptr),
         m_xOffset(0.0f),
         m_yOffset(0.0f),
         m_rotation(0.0f),
@@ -212,7 +212,7 @@ namespace TrenchBroom {
         m_surfaceValueOp(ValueOp_None) {}
 
         void ChangeBrushFaceAttributesRequest::clear() {
-            m_texture = NULL;
+            m_texture = nullptr;
             m_xOffset = m_yOffset = 0.0f;
             m_rotation = 0.0f;
             m_xScale = m_yScale = 1.0f;
@@ -280,7 +280,7 @@ namespace TrenchBroom {
         }
         
         void ChangeBrushFaceAttributesRequest::unsetTexture() {
-            m_texture = NULL;
+            m_texture = nullptr;
             m_textureOp = TextureOp_Unset;
         }
 

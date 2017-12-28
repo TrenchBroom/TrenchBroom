@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 return manager.model(spec.path);
             } catch (const GameException& e) {
                 logger.error(String(e.what()));
-                return NULL;
+                return nullptr;
             }
         }
 

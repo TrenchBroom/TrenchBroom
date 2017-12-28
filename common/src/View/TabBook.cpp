@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
         
         void TabBook::addPage(TabBookPage* page, const wxString& title) {
-            ensure(page != NULL, "page is null");
+            ensure(page != nullptr, "page is null");
             assert(page->GetParent() == this);
             
             RemoveChild(page);

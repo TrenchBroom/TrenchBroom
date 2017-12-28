@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
-            ensure(file != NULL, "file is null");
+            ensure(file != nullptr, "file is null");
             const Path filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win

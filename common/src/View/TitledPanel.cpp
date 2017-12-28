@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace View {
         TitledPanel::TitledPanel(wxWindow* parent, const wxString& title, const bool showDivider, const bool boldTitle) :
         wxPanel(parent),
-        m_panel(NULL) {
+        m_panel(nullptr) {
             const int hMargin = showDivider ? LayoutConstants::NarrowHMargin : 0;
             const int vMargin = showDivider ? LayoutConstants::NarrowVMargin : 0;
 

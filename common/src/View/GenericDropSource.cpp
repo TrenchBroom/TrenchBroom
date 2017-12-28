@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        GenericDropSource* GenericDropSource::m_currentDropSource = NULL;
+        GenericDropSource* GenericDropSource::m_currentDropSource = nullptr;
         
         GenericDropSource::GenericDropSource(wxDataObject& data, wxWindow* window) :
         wxDropSource(data, window) {
@@ -29,7 +29,7 @@ namespace TrenchBroom {
         }
         
         GenericDropSource::~GenericDropSource() {
-            m_currentDropSource = NULL;
+            m_currentDropSource = nullptr;
         }
 
         GenericDropSource* GenericDropSource::getCurrentDropSource() {

@@ -133,7 +133,7 @@ namespace TrenchBroom {
         
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
-            m_filter = NULL;
+            m_filter = nullptr;
         }
 
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {

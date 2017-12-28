@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         ImageLoader::~ImageLoader() {
             delete m_impl;
-            m_impl = NULL;
+            m_impl = nullptr;
         }
 
         size_t ImageLoader::paletteSize() const {

@@ -76,7 +76,7 @@ namespace TrenchBroom {
             NodeSerializer& m_serializer;
             const Model::EntityAttribute::List m_parentAttributes;
         public:
-            WriteNode(NodeSerializer& serializer, const Model::Node* parent = NULL) :
+            WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
             m_serializer(serializer),
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
             

@@ -43,13 +43,13 @@ namespace TrenchBroom {
 
         void Snapshot::takeSnapshot(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();
-            if (snapshot != NULL)
+            if (snapshot != nullptr)
                 m_nodeSnapshots.push_back(snapshot);
         }
 
         void Snapshot::takeSnapshot(BrushFace* face) {
             BrushFaceSnapshot* snapshot = face->takeSnapshot();
-            if (snapshot != NULL)
+            if (snapshot != nullptr)
                 m_brushFaceSnapshots.push_back(snapshot);
         }
     }

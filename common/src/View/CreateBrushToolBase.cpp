@@ -35,7 +35,7 @@ namespace TrenchBroom {
         CreateBrushToolBase::CreateBrushToolBase(const bool initiallyActive, MapDocumentWPtr document) :
         Tool(initiallyActive),
         m_document(document),
-        m_brush(NULL),
+        m_brush(nullptr),
         m_brushRenderer(new Renderer::BrushRenderer(false)) {}
 
         CreateBrushToolBase::~CreateBrushToolBase() {
@@ -48,30 +48,30 @@ namespace TrenchBroom {
         }
 
         void CreateBrushToolBase::createBrush() {
-            if (m_brush != NULL) {
+            if (m_brush != nullptr) {
                 MapDocumentSPtr document = lock(m_document);
                 const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
                 document->addNode(m_brush, document->currentParent());
                 document->select(m_brush);
-                m_brush = NULL;
+                m_brush = nullptr;
                 doBrushWasCreated();
             }
         }
 
         void CreateBrushToolBase::cancel() {
             delete m_brush;
-            m_brush = NULL;
+            m_brush = nullptr;
         }
 
         void CreateBrushToolBase::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 renderBrush(renderContext, renderBatch);
             
         }
         
         void CreateBrushToolBase::renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            ensure(m_brush != NULL, "brush is null");
+            ensure(m_brush != nullptr, "brush is null");
             
             m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));

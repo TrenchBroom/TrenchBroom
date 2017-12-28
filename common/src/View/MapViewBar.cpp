@@ -38,8 +38,8 @@ namespace TrenchBroom {
         MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
         ContainerBar(parent, wxBOTTOM),
         m_document(document),
-        m_toolBook(NULL),
-        m_viewEditor(NULL) {
+        m_toolBook(nullptr),
+        m_viewEditor(nullptr) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif

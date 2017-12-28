@@ -49,17 +49,17 @@ namespace TrenchBroom {
         bool Entity::pointEntity() const {
             if (!hasChildren())
                 return true;
-            if (definition() == NULL)
+            if (definition() == nullptr)
                 return !hasChildren();
             return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasBrushEntityDefinition() const {
-            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasPointEntityModel() const {
@@ -118,10 +118,10 @@ namespace TrenchBroom {
         }
 
         NodeSnapshot* Entity::doTakeSnapshot() {
-            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), NULL);
+            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
             
             const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
-            const EntityAttribute rotation(rotationName, attribute(rotationName), NULL);
+            const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
             
             return new EntitySnapshot(this, origin, rotation);
         }
@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 ComputeNodeBoundsVisitor visitor(DefaultBounds);
                 iterate(visitor);
                 m_bounds = visitor.bounds();
-            } else if (def != NULL && def->type() == Assets::EntityDefinition::Type_PointEntity) {
+            } else if (def != nullptr && def->type() == Assets::EntityDefinition::Type_PointEntity) {
                 m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
                 m_bounds.translate(origin());
             } else {

@@ -60,7 +60,7 @@ namespace TrenchBroom {
         };
         
         bool Issue::addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const {
-            if (m_node->parent() == NULL)
+            if (m_node->parent() == nullptr)
                 return false;
             
             typedef CollectMatchingNodesVisitor<MatchSelectableIssueNodes, StandardNodeCollectionStrategy, StopRecursionIfMatched> CollectSelectableIssueNodesVisitor;
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         Issue::Issue(Node* node) :
         m_seqId(nextSeqId()),
         m_node(node) {
-            ensure(m_node != NULL, "node is null");
+            ensure(m_node != nullptr, "node is null");
         }
 
         size_t Issue::nextSeqId() {

@@ -46,11 +46,11 @@ namespace TrenchBroom {
         wxMenu* ActionManager::findRecentDocumentsMenu(const wxMenuBar* menuBar) {
             const size_t fileMenuIndex = static_cast<size_t>(menuBar->FindMenu("File"));
             const wxMenu* fileMenu = menuBar->GetMenu(fileMenuIndex);
-            if (fileMenu == NULL)
-                return NULL;
+            if (fileMenu == nullptr)
+                return nullptr;
             const wxMenuItem* recentDocumentsItem = fileMenu->FindItem(CommandIds::Menu::FileOpenRecent);
-            if (recentDocumentsItem == NULL)
-                return NULL;
+            if (recentDocumentsItem == nullptr)
+                return nullptr;
             return recentDocumentsItem->GetSubMenu();
         }
         
@@ -152,13 +152,13 @@ namespace TrenchBroom {
         }
 
         ActionManager::ActionManager() :
-        m_menuBar(NULL) {
+        m_menuBar(nullptr) {
             createMenuBar();
             createViewShortcuts();
         }
 
         void ActionManager::createMenuBar() {
-            assert(m_menuBar == NULL);
+            assert(m_menuBar == nullptr);
             m_menuBar = new MenuBar();
 
             Menu* fileMenu = m_menuBar->addMenu("File");

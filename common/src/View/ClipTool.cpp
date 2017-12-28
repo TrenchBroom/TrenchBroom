@@ -392,12 +392,12 @@ namespace TrenchBroom {
             const Model::BrushFace* m_face;
         public:
             FaceClipStrategy() :
-            m_face(NULL) {}
+            m_face(nullptr) {}
         private:
             void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {}
             
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) override {
-                if (m_face != NULL) {
+                if (m_face != nullptr) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     
                     const Model::BrushFace::VertexList vertices = m_face->vertices();
@@ -422,7 +422,7 @@ namespace TrenchBroom {
             
             bool doComputeThirdPoint(Vec3& point) const override { return false; }
 
-            bool doCanClip() const override { return m_face != NULL; }
+            bool doCanClip() const override { return m_face != nullptr; }
             bool doHasPoints() const override { return false; }
             bool doCanAddPoint(const Vec3& point) const override { return false; }
             void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) override {}
@@ -437,16 +437,16 @@ namespace TrenchBroom {
             void doCancelDragPoint() override {}
             
             bool doSetFace(const Model::BrushFace* face) override {
-                ensure(face != NULL, "face is null");
+                ensure(face != nullptr, "face is null");
                 m_face = face;
                 return true; }
             
             void doReset() override {
-                m_face = NULL;
+                m_face = nullptr;
             }
             
             size_t doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const override {
-                if (m_face == NULL)
+                if (m_face == nullptr)
                     return 0;
                 
                 const Model::BrushFace::Points& points = m_face->points();
@@ -461,7 +461,7 @@ namespace TrenchBroom {
         Tool(false),
         m_document(document),
         m_clipSide(ClipSide_Front),
-        m_strategy(NULL),
+        m_strategy(nullptr),
         m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
         m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
         m_ignoreNotifications(false) {}
@@ -494,7 +494,7 @@ namespace TrenchBroom {
         }
         
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            if (m_strategy != NULL)
+            if (m_strategy != nullptr)
                 m_strategy->pick(pickRay, camera, pickResult);
         }
         
@@ -522,12 +522,12 @@ namespace TrenchBroom {
         }
         
         void ClipTool::renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
-            if (m_strategy != NULL)
+            if (m_strategy != nullptr)
                 m_strategy->render(renderContext, renderBatch, pickResult);
         }
         
         void ClipTool::renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const {
-            if (m_strategy != NULL) {
+            if (m_strategy != nullptr) {
                 m_strategy->renderFeedback(renderContext, renderBatch, point);
             } else {
                 PointClipStrategy().renderFeedback(renderContext, renderBatch, point);
@@ -535,7 +535,7 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::canClip() const {
-            return m_strategy != NULL && m_strategy->canClip();
+            return m_strategy != nullptr && m_strategy->canClip();
         }
         
         void ClipTool::performClip() {
@@ -587,16 +587,16 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::canAddPoint(const Vec3& point) const {
-            return m_strategy == NULL || m_strategy->canAddPoint(point);
+            return m_strategy == nullptr || m_strategy->canAddPoint(point);
         }
         
         bool ClipTool::hasPoints() const {
-            return m_strategy != NULL && m_strategy->hasPoints();
+            return m_strategy != nullptr && m_strategy->hasPoints();
         }
 
         void ClipTool::addPoint(const Vec3& point, const Vec3::List& helpVectors) {
             assert(canAddPoint(point));
-            if (m_strategy == NULL)
+            if (m_strategy == nullptr)
                 m_strategy = new PointClipStrategy();
             
             m_strategy->addPoint(point, helpVectors);
@@ -604,7 +604,7 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::canRemoveLastPoint() const {
-            return m_strategy != NULL && m_strategy->canRemoveLastPoint();
+            return m_strategy != nullptr && m_strategy->canRemoveLastPoint();
         }
 
         bool ClipTool::removeLastPoint() {
@@ -617,7 +617,7 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
-            if (m_strategy == NULL)
+            if (m_strategy == nullptr)
                 return false;
             if (!m_strategy->canDragPoint(pickResult, initialPosition))
                 return false;
@@ -626,12 +626,12 @@ namespace TrenchBroom {
         }
         
         void ClipTool::beginDragLastPoint() {
-            ensure(m_strategy != NULL, "strategy is null");
+            ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->beginDragLastPoint();
         }
 
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
-            ensure(m_strategy != NULL, "strategy is null");
+            ensure(m_strategy != nullptr, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
             update();
@@ -639,13 +639,13 @@ namespace TrenchBroom {
         }
         
         void ClipTool::endDragPoint() {
-            ensure(m_strategy != NULL, "strategy is null");
+            ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->endDragPoint();
             refreshViews();
         }
 
         void ClipTool::cancelDragPoint() {
-            ensure(m_strategy != NULL, "strategy is null");
+            ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->cancelDragPoint();
             refreshViews();
         }
@@ -658,7 +658,7 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::reset() {
-            if (m_strategy != NULL) {
+            if (m_strategy != nullptr) {
                 resetStrategy();
                 return true;
             }
@@ -667,7 +667,7 @@ namespace TrenchBroom {
         
         void ClipTool::resetStrategy() {
             delete m_strategy;
-            m_strategy = NULL;
+            m_strategy = nullptr;
             update();
         }
         
@@ -749,8 +749,8 @@ namespace TrenchBroom {
                 ++faceIt;
             }
             
-            ensure(bestFrontFace != NULL, "bestFrontFace is null");
-            ensure(bestBackFace != NULL, "bestBackFace is null");
+            ensure(bestFrontFace != nullptr, "bestFrontFace is null");
+            ensure(bestBackFace != nullptr, "bestBackFace is null");
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }
@@ -809,7 +809,7 @@ namespace TrenchBroom {
             unbindObservers();
 
             delete m_strategy;
-            m_strategy = NULL;
+            m_strategy = nullptr;
             clearRenderers();
             clearBrushes();
             

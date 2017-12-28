@@ -34,18 +34,18 @@ namespace TrenchBroom {
         ChangeBrushFaceAttributesCommand::ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request) :
         DocumentCommand(Type, request.name()),
         m_request(request),
-        m_snapshot(NULL) {}
+        m_snapshot(nullptr) {}
 
         ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() {
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
         }
 
         bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const Model::BrushFaceList faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
             
-            assert(m_snapshot == NULL);
+            assert(m_snapshot == nullptr);
             m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
             
             document->performChangeBrushFaceAttributes(m_request);
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         bool ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreSnapshot(m_snapshot);
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
             return true;
         }
         

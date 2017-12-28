@@ -57,15 +57,15 @@ namespace TrenchBroom {
 
         MapReader::MapReader(const char* begin, const char* end) :
         StandardMapParser(begin, end),
-        m_factory(NULL),
-        m_brushParent(NULL),
-        m_currentNode(NULL) {}
+        m_factory(nullptr),
+        m_brushParent(nullptr),
+        m_currentNode(nullptr) {}
         
         MapReader::MapReader(const String& str) :
         StandardMapParser(str),
-        m_factory(NULL),
-        m_brushParent(NULL),
-        m_currentNode(NULL) {}
+        m_factory(nullptr),
+        m_brushParent(nullptr),
+        m_currentNode(nullptr) {}
         
         MapReader::~MapReader() {
             VectorUtils::clearAndDelete(m_faces);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
 
         void MapReader::onFormatSet(const Model::MapFormat::Type format) {
             m_factory = initialize(format, m_worldBounds);
-            ensure(m_factory != NULL, "factory is null");
+            ensure(m_factory != nullptr, "factory is null");
         }
         
         void MapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -111,12 +111,12 @@ namespace TrenchBroom {
         }
         
         void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
-            if (m_currentNode != NULL)
+            if (m_currentNode != nullptr)
                 setFilePosition(m_currentNode, startLine, lineCount);
             else
                 onWorldspawnFilePosition(startLine, lineCount, status);
-            m_currentNode = NULL;
-            m_brushParent = NULL;
+            m_currentNode = nullptr;
+            m_brushParent = nullptr;
         }
         
         void MapReader::onBeginBrush(const size_t line, ParserStatus& status) {
@@ -248,8 +248,8 @@ namespace TrenchBroom {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
                     const Model::IdType layerId = static_cast<Model::IdType>(rawId);
-                    Model::Layer* layer = MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(NULL));
-                    if (layer != NULL)
+                    Model::Layer* layer = MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
+                    if (layer != nullptr)
                         onNode(layer, node, status);
                     else
                         m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerId)));
@@ -265,8 +265,8 @@ namespace TrenchBroom {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
                         const Model::IdType groupId = static_cast<Model::IdType>(rawId);
-                        Model::Group* group = MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(NULL));
-                        if (group != NULL)
+                        Model::Group* group = MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(nullptr));
+                        if (group != nullptr)
                             onNode(group, node, status);
                         else
                             m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupId)));
@@ -279,7 +279,7 @@ namespace TrenchBroom {
                 }
             }
             
-            onNode(NULL, node, status);
+            onNode(nullptr, node, status);
             return ParentInfo::Type_None;
         }
 
@@ -303,7 +303,7 @@ namespace TrenchBroom {
                 const ParentInfo& info = entry.second;
                 
                 Model::Node* parent = resolveParent(info);
-                if (parent == NULL)
+                if (parent == nullptr)
                     onUnresolvedNode(info, node, status);
                 else
                     onNode(parent, node, status);
@@ -313,10 +313,10 @@ namespace TrenchBroom {
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
-                return MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(NULL));
+                return MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
             }
             const Model::IdType groupId = parentInfo.id();
-            return MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(NULL));
+            return MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(nullptr));
         }
 
         MapReader::EntityType MapReader::entityType(const Model::EntityAttribute::List& attributes) const {

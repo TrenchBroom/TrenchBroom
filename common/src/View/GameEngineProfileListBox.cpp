@@ -42,7 +42,7 @@ namespace TrenchBroom {
         
         Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const {
             if (GetSelection() == wxNOT_FOUND)
-                return NULL;
+                return nullptr;
             return m_config.profile(static_cast<size_t>(GetSelection()));
         }
 
@@ -59,9 +59,9 @@ namespace TrenchBroom {
             ProfileItem(wxWindow* parent, Model::GameEngineProfile* profile, const wxSize& margins) :
             Item(parent),
             m_profile(profile),
-            m_nameText(NULL),
-            m_pathText(NULL) {
-                ensure(m_profile != NULL, "profile is null");
+            m_nameText(nullptr),
+            m_pathText(nullptr) {
+                ensure(m_profile != nullptr, "profile is null");
                 
                 m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
                 m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             }
             
             ~ProfileItem() override {
-                if (m_profile != NULL)
+                if (m_profile != nullptr)
                     removeObservers();
             }
         private:
@@ -103,9 +103,9 @@ namespace TrenchBroom {
             }
             
             void profileWillBeRemoved() {
-                if (m_profile != NULL) {
+                if (m_profile != nullptr) {
                     removeObservers();
-                    m_profile = NULL;
+                    m_profile = nullptr;
                 }
             }
             
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             }
             
             void refresh() {
-                if (m_profile == NULL) {
+                if (m_profile == nullptr) {
                     m_nameText->SetLabel("");
                     m_pathText->SetLabel("");
                 } else {

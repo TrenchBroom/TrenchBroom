@@ -75,7 +75,7 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::log(const Logger::LogLevel level, const size_t line, const size_t column, const String& str) {
-            if (m_logger != NULL)
+            if (m_logger != nullptr)
                 m_logger->log(level, buildMessage(line, column, str));
         }
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::log(const Logger::LogLevel level, const size_t line, const String& str) {
-            if (m_logger != NULL)
+            if (m_logger != nullptr)
                 m_logger->log(level, buildMessage(line, str));
         }
         

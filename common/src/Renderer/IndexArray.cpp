@@ -49,11 +49,11 @@ namespace TrenchBroom {
         }
         
         size_t IndexArray::sizeInBytes() const {
-            return m_holder.get() == NULL ? 0 : m_holder->sizeInBytes();
+            return m_holder.get() == nullptr ? 0 : m_holder->sizeInBytes();
         }
         
         size_t IndexArray::indexCount() const {
-            return m_holder.get() == NULL ? 0 : m_holder->indexCount();
+            return m_holder.get() == nullptr ? 0 : m_holder->indexCount();
         }
         
         bool IndexArray::prepared() const {

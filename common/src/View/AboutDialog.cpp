@@ -34,10 +34,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        AboutDialog* AboutDialog::instance = NULL;
+        AboutDialog* AboutDialog::instance = nullptr;
 
         void AboutDialog::showAboutDialog() {
-            if (AboutDialog::instance == NULL) {
+            if (AboutDialog::instance == nullptr) {
                 AboutDialog::instance = new AboutDialog();
                 AboutDialog::instance->Show();
             } else {
@@ -46,12 +46,12 @@ namespace TrenchBroom {
         }
         
         void AboutDialog::closeAboutDialog() {
-            if (AboutDialog::instance != NULL)
+            if (AboutDialog::instance != nullptr)
                 AboutDialog::instance->Close();
         }
 
         AboutDialog::~AboutDialog() {
-            instance = NULL;
+            instance = nullptr;
         }
 
         void AboutDialog::OnClickUrl(wxMouseEvent& event) {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         AboutDialog::AboutDialog() :
-        wxDialog(NULL, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP) {
+        wxDialog(nullptr, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP) {
             createGui();
             CenterOnScreen();
         }

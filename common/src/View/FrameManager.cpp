@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
 
         MapFrame *FrameManager::topFrame() const {
-            return m_frames.empty() ? NULL : m_frames.front();
+            return m_frames.empty() ? nullptr : m_frames.front();
         }
 
         bool FrameManager::closeAllFrames() {
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         }
 
         bool FrameManager::closeAllFrames(const bool force) {
-            MapFrame* lastFrame = NULL;
+            MapFrame* lastFrame = nullptr;
             unused(lastFrame);
             while (!m_frames.empty()) {
                 MapFrame* frame = m_frames.back();

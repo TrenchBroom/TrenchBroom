@@ -99,10 +99,10 @@ namespace TrenchBroom {
 
         Vec2f UVOffsetTool::snapDelta(const Vec2f& delta) const {
             const Model::BrushFace* face = m_helper.face();
-            ensure(face != NULL, "face is null");
+            ensure(face != nullptr, "face is null");
             
             const Assets::Texture* texture = face->texture();
-            if (texture == NULL)
+            if (texture == nullptr)
                 return delta.rounded();
             
             const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);

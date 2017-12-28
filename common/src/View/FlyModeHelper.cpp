@@ -199,7 +199,7 @@ namespace TrenchBroom {
                 const Vec2f angles = lookDelta();
 
                 if (!delta.null() || !angles.null()) {
-                    if (!TestDestroy() && wxTheApp != NULL) {
+                    if (!TestDestroy() && wxTheApp != nullptr) {
                         CameraEvent* event = new CameraEvent(*this, m_camera);
                         event->setMoveDelta(delta);
                         event->setRotateAngles(angles);
@@ -211,7 +211,7 @@ namespace TrenchBroom {
 
                 Sleep(20);
             }
-            return static_cast<ExitCode>(0);
+            return static_cast<ExitCode>(nullptr);
         }
 
         Vec3f FlyModeHelper::moveDelta() {

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         
         TextureFont::~TextureFont() {
             delete m_texture;
-            m_texture = NULL;
+            m_texture = nullptr;
         }
         
         class MeasureString : public AttrString::LineFunc {

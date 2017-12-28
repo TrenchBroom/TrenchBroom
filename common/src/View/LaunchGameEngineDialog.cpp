@@ -45,9 +45,9 @@ namespace TrenchBroom {
         LaunchGameEngineDialog::LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document) :
         wxDialog(parent, wxID_ANY, "Launch Engine"),
         m_document(document),
-        m_gameEngineList(NULL),
-        m_parameterText(NULL),
-        m_lastProfile(NULL) {
+        m_gameEngineList(nullptr),
+        m_parameterText(nullptr),
+        m_lastProfile(nullptr) {
             createGui();
         }
         
@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::OnSelectGameEngineProfile(wxCommandEvent& event) {
             m_lastProfile = m_gameEngineList->selectedProfile();
-            if (m_lastProfile != NULL) {
+            if (m_lastProfile != nullptr) {
                 m_parameterText->ChangeValue(m_lastProfile->parameterSpec());
             } else {
                 m_parameterText->ChangeValue("");
@@ -155,7 +155,7 @@ namespace TrenchBroom {
 
         void LaunchGameEngineDialog::OnParameterTextChanged(wxCommandEvent& event) {
             Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
-            if (profile != NULL)
+            if (profile != nullptr)
                 profile->setParameterSpec(m_parameterText->GetValue().ToStdString());
         }
 
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         void LaunchGameEngineDialog::OnLaunch(wxCommandEvent& event) {
             try {
                 const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
-                ensure(profile != NULL, "profile is null");
+                ensure(profile != nullptr, "profile is null");
                 
                 const IO::Path& path = profile->path();
                 const String& parameterSpec = profile->parameterSpec();
@@ -199,7 +199,7 @@ namespace TrenchBroom {
                 wxExecuteEnv env;
                 env.cwd = path.deleteLastComponent().asString();
                 
-                wxExecute(launchStr, wxEXEC_ASYNC, NULL, &env);
+                wxExecute(launchStr, wxEXEC_ASYNC, nullptr, &env);
                 EndModal(wxOK);
             } catch (const Exception& e) {
                 StringStream message;
@@ -213,7 +213,7 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != NULL)
+            if (GetParent() != nullptr)
                 GetParent()->Raise();
             event.Skip();
         }

@@ -35,8 +35,8 @@ namespace TrenchBroom {
     namespace View {
         SmartChoiceEditor::SmartChoiceEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
-        m_panel(NULL),
-        m_comboBox(NULL) {}
+        m_panel(nullptr),
+        m_comboBox(nullptr) {}
 
         void SmartChoiceEditor::OnComboBox(wxCommandEvent& event) {
             if (m_panel->IsBeingDeleted()) return;
@@ -53,15 +53,15 @@ namespace TrenchBroom {
         }
 
         wxWindow* SmartChoiceEditor::doCreateVisual(wxWindow* parent) {
-            assert(m_panel == NULL);
-            assert(m_comboBox == NULL);
+            assert(m_panel == nullptr);
+            assert(m_comboBox == nullptr);
             
             m_panel = new wxPanel(parent);
             wxStaticText* infoText = new wxStaticText(m_panel, wxID_ANY, "Select a choice option:");
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-            m_comboBox = new wxComboBox(m_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxTE_PROCESS_ENTER);
+            m_comboBox = new wxComboBox(m_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
             m_comboBox->Bind(wxEVT_COMBOBOX, &SmartChoiceEditor::OnComboBox, this);
             m_comboBox->Bind(wxEVT_TEXT_ENTER, &SmartChoiceEditor::OnTextEnter, this);
             
@@ -77,23 +77,23 @@ namespace TrenchBroom {
         }
         
         void SmartChoiceEditor::doDestroyVisual() {
-            ensure(m_panel != NULL, "panel is null");
-            ensure(m_comboBox != NULL, "comboBox is null");
+            ensure(m_panel != nullptr, "panel is null");
+            ensure(m_comboBox != nullptr, "comboBox is null");
             
             m_panel->Destroy();
-            m_panel = NULL;
-            m_comboBox= NULL;
+            m_panel = nullptr;
+            m_comboBox= nullptr;
         }
         
         void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            ensure(m_panel != NULL, "panel is null");
-            ensure(m_comboBox != NULL, "comboBox is null");
+            ensure(m_panel != nullptr, "panel is null");
+            ensure(m_comboBox != nullptr, "comboBox is null");
             
             wxWindowUpdateLocker locker(m_panel);
             m_comboBox->Clear();
 
             const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);
-            if (attrDef == NULL || attrDef->type() != Assets::AttributeDefinition::Type_ChoiceAttribute) {
+            if (attrDef == nullptr || attrDef->type() != Assets::AttributeDefinition::Type_ChoiceAttribute) {
                 m_comboBox->Disable();
             } else {
                 const Assets::ChoiceAttributeDefinition* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);

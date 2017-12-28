@@ -30,17 +30,17 @@ namespace TrenchBroom {
         }
         
         CurrentGroupCommand::Ptr CurrentGroupCommand::pop() {
-            return Ptr(new CurrentGroupCommand(NULL));
+            return Ptr(new CurrentGroupCommand(nullptr));
         }
         
         CurrentGroupCommand::CurrentGroupCommand(Model::Group* group) :
-        UndoableCommand(Type, group != NULL ? "Push Group" : "Pop Group"),
+        UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group"),
         m_group(group) {}
         
         bool CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            if (m_group != NULL) {
+            if (m_group != nullptr) {
                 document->performPushGroup(m_group);
-                m_group = NULL;
+                m_group = nullptr;
             } else {
                 m_group = document->currentGroup();
                 document->performPopGroup();
@@ -49,12 +49,12 @@ namespace TrenchBroom {
         }
         
         bool CurrentGroupCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            if (m_group == NULL) {
+            if (m_group == nullptr) {
                 m_group = document->currentGroup();
                 document->performPopGroup();
             } else {
                 document->performPushGroup(m_group);
-                m_group = NULL;
+                m_group = nullptr;
             }
             return true;
         }

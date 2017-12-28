@@ -45,13 +45,13 @@ namespace TrenchBroom {
         CreateEntityTool::CreateEntityTool(MapDocumentWPtr document) :
         Tool(true),
         m_document(document),
-        m_entity(NULL) {}
+        m_entity(nullptr) {}
 
         bool CreateEntityTool::createEntity(const String& classname) {
             MapDocumentSPtr document = lock(m_document);
             const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(classname);
-            if (definition == NULL)
+            if (definition == nullptr)
                 return false;
             
             if (definition->type() != Assets::EntityDefinition::Type_PointEntity)
@@ -72,21 +72,21 @@ namespace TrenchBroom {
         }
         
         void CreateEntityTool::removeEntity() {
-            ensure(m_entity != NULL, "entity is null");
+            ensure(m_entity != nullptr, "entity is null");
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
-            m_entity = NULL;
+            m_entity = nullptr;
         }
         
         void CreateEntityTool::commitEntity() {
-            ensure(m_entity != NULL, "entity is null");
+            ensure(m_entity != nullptr, "entity is null");
             MapDocumentSPtr document = lock(m_document);
             document->commitTransaction();
-            m_entity = NULL;
+            m_entity = nullptr;
         }
         
         void CreateEntityTool::updateEntityPosition2D(const Ray3& pickRay) {
-            ensure(m_entity != NULL, "entity is null");
+            ensure(m_entity != nullptr, "entity is null");
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
-            ensure(m_entity != NULL, "entity is null");
+            ensure(m_entity != nullptr, "entity is null");
             
             MapDocumentSPtr document = lock(m_document);
             

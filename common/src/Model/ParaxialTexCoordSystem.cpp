@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {
-            return NULL;
+            return nullptr;
         }
         
         void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {

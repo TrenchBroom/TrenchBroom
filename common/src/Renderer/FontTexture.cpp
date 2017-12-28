@@ -27,12 +27,12 @@ namespace TrenchBroom {
     namespace Renderer {
         FontTexture::FontTexture() :
         m_size(0),
-        m_buffer(NULL),
+        m_buffer(nullptr),
         m_textureId(0) {}
         
         FontTexture::FontTexture(const size_t cellCount, const size_t cellSize, const size_t margin) :
         m_size(computeTextureSize(cellCount, cellSize, margin)),
-        m_buffer(NULL),
+        m_buffer(nullptr),
         m_textureId(0) {
             m_buffer = new char[m_size * m_size];
             std::memset(m_buffer, 0, m_size * m_size);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         
         FontTexture::FontTexture(const FontTexture& other) :
         m_size(other.m_size),
-        m_buffer(NULL),
+        m_buffer(nullptr),
         m_textureId(0) {
             m_buffer = new char[m_size * m_size];
             std::memcpy(m_buffer, other.m_buffer, m_size * m_size);
@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 m_textureId = 0;
             }
             delete [] m_buffer;
-            m_buffer = NULL;
+            m_buffer = nullptr;
         }
         
         size_t FontTexture::size() const {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
  
         void FontTexture::activate() {
             if (m_textureId == 0) {
-                ensure(m_buffer != NULL, "buffer is null");
+                ensure(m_buffer != nullptr, "buffer is null");
                 glAssert(glGenTextures(1, &m_textureId));
                 glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
                 glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 glAssert(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
                 glAssert(glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, static_cast<GLsizei>(m_size), static_cast<GLsizei>(m_size), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_buffer));
                 delete [] m_buffer;
-                m_buffer = NULL;
+                m_buffer = nullptr;
             }
             
             assert(m_textureId > 0);

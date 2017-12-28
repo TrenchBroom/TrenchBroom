@@ -26,7 +26,7 @@ namespace TrenchBroom {
         wxIMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
         TextureSelectedCommand::TextureSelectedCommand() :
         wxNotifyEvent(TEXTURE_SELECTED_EVENT, wxID_ANY),
-        m_texture(NULL) {}
+        m_texture(nullptr) {}
         
         Assets::Texture* TextureSelectedCommand::texture() const {
             return m_texture;

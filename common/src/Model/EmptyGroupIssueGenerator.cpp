@@ -65,7 +65,7 @@ namespace TrenchBroom {
         }
         
         void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueList& issues) const {
-            ensure(group != NULL, "group is null");
+            ensure(group != nullptr, "group is null");
             if (!group->hasChildren())
                 issues.push_back(new EmptyGroupIssue(group));
         }

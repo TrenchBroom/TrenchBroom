@@ -34,7 +34,7 @@ namespace TrenchBroom {
         }
         
         void FileSystemHierarchy::addFileSystem(FileSystem* fileSystem) {
-            ensure(fileSystem != NULL, "fileSystem is null");
+            ensure(fileSystem != nullptr, "fileSystem is null");
             m_fileSystems.push_back(fileSystem);
         }
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
         Path FileSystemHierarchy::doMakeAbsolute(const Path& relPath) const {
             const FileSystem* fileSystem = findFileSystemContaining(relPath);
-            if (fileSystem != NULL)
+            if (fileSystem != nullptr)
                 return fileSystem->makeAbsolute(relPath);
             return Path("");
         }
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
         
         bool FileSystemHierarchy::doFileExists(const Path& path) const {
-            return (findFileSystemContaining(path)) != NULL;
+            return (findFileSystemContaining(path)) != nullptr;
         }
         
         FileSystem* FileSystemHierarchy::findFileSystemContaining(const Path& path) const {
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 if (fileSystem->fileExists(path))
                     return fileSystem;
             }
-            return NULL;
+            return nullptr;
         }
 
         Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
@@ -90,7 +90,7 @@ namespace TrenchBroom {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     const MappedFile::Ptr file = fileSystem->openFile(path);
-                    if (file.get() != NULL)
+                    if (file.get() != nullptr)
                         return file;
                 }
             }
@@ -98,45 +98,45 @@ namespace TrenchBroom {
         }
 
         WritableFileSystemHierarchy::WritableFileSystemHierarchy() :
-        m_writableFileSystem(NULL) {}
+        m_writableFileSystem(nullptr) {}
         
         void WritableFileSystemHierarchy::addReadableFileSystem(FileSystem* fileSystem) {
             addFileSystem(fileSystem);
         }
         
         void WritableFileSystemHierarchy::addWritableFileSystem(WritableFileSystem* fileSystem) {
-            assert(m_writableFileSystem == NULL);
+            assert(m_writableFileSystem == nullptr);
             addFileSystem(fileSystem);
             m_writableFileSystem = fileSystem;
         }
         
         void WritableFileSystemHierarchy::clear() {
             FileSystemHierarchy::clear();
-            m_writableFileSystem = NULL;
+            m_writableFileSystem = nullptr;
         }
 
         void WritableFileSystemHierarchy::doCreateFile(const Path& path, const String& contents) {
-            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
+            ensure(m_writableFileSystem != nullptr, "writableFileSystem is null");
             m_writableFileSystem->createFile(path, contents);
         }
 
         void WritableFileSystemHierarchy::doCreateDirectory(const Path& path) {
-            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
+            ensure(m_writableFileSystem != nullptr, "writableFileSystem is null");
             m_writableFileSystem->createDirectory(path);
         }
         
         void WritableFileSystemHierarchy::doDeleteFile(const Path& path) {
-            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
+            ensure(m_writableFileSystem != nullptr, "writableFileSystem is null");
             m_writableFileSystem->deleteFile(path);
         }
         
         void WritableFileSystemHierarchy::doCopyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
+            ensure(m_writableFileSystem != nullptr, "writableFileSystem is null");
             m_writableFileSystem->copyFile(sourcePath, destPath, overwrite);
         }
         
         void WritableFileSystemHierarchy::doMoveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
-            ensure(m_writableFileSystem != NULL, "writableFileSystem is null");
+            ensure(m_writableFileSystem != nullptr, "writableFileSystem is null");
             m_writableFileSystem->moveFile(sourcePath, destPath, overwrite);
         }
     }

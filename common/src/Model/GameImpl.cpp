@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 const IO::Path::List packages = diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtension));
                 for (const IO::Path& packagePath : packages) {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
-                    ensure(packageFile.get() != NULL, "packageFile is null");
+                    ensure(packageFile.get() != nullptr, "packageFile is null");
 
                     if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
                         m_gameFS.addFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
@@ -342,7 +342,7 @@ namespace TrenchBroom {
         Assets::EntityModel* GameImpl::doLoadEntityModel(const IO::Path& path) const {
             try {
                 const IO::MappedFile::Ptr file = m_gameFS.openFile(path);
-                ensure(file.get() != NULL, "file is null");
+                ensure(file.get() != nullptr, "file is null");
 
                 const String modelName = path.lastComponent().asString();
                 const String extension = StringUtils::toLower(path.extension());
@@ -443,7 +443,7 @@ namespace TrenchBroom {
         }
 
         String GameImpl::readLongAttribute(const AttributableNode* node, const AttributeName& baseName) const {
-            ensure(node != NULL, "node is null");
+            ensure(node != nullptr, "node is null");
 
             size_t index = 1;
             StringStream nameStr;

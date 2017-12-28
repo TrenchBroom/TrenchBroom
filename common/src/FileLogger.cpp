@@ -30,16 +30,16 @@
 
 namespace TrenchBroom {
     FileLogger::FileLogger(const IO::Path& filePath) :
-    m_file(NULL) {
+    m_file(nullptr) {
         IO::Disk::ensureDirectoryExists(filePath.deleteLastComponent());
         m_file = fopen(filePath.asString().c_str(), "w");
-        ensure(m_file != NULL, "log file could not be opened");
+        ensure(m_file != nullptr, "log file could not be opened");
     }
     
     FileLogger::~FileLogger() {
-        if (m_file != NULL) {
+        if (m_file != nullptr) {
             fclose(m_file);
-            m_file = NULL;
+            m_file = nullptr;
         }
     }
     
@@ -49,8 +49,8 @@ namespace TrenchBroom {
     }
 
     void FileLogger::doLog(const LogLevel level, const String& message) {
-        assert(m_file != NULL);
-        if (m_file != NULL) {
+        assert(m_file != nullptr);
+        if (m_file != nullptr) {
             std::fprintf(m_file, "%s\n", message.c_str());
             std::fflush(m_file);
         }

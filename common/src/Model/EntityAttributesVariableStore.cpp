@@ -33,7 +33,7 @@ namespace TrenchBroom {
         EL::Value EntityAttributesVariableStore::doGetValue(const String& name) const {
             static const EL::Value DefaultValue("");
             const AttributeValue* value = m_attributes.attribute(name);
-            if (value == NULL)
+            if (value == nullptr)
                 return DefaultValue;
             return EL::Value::ref(*value);
         }

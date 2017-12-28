@@ -97,7 +97,7 @@ namespace TrenchBroom {
         
         const MdlFrame* MdlFrameGroup::firstFrame() const {
             if (m_frames.empty())
-                return NULL;
+                return nullptr;
             return m_frames[0]->firstFrame();
         }
         
@@ -124,9 +124,9 @@ namespace TrenchBroom {
 
         Renderer::TexturedIndexRangeRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
-                return NULL;
+                return nullptr;
             if (frameIndex >= m_frames.size())
-                return NULL;
+                return nullptr;
             
             const MdlSkin* skin = m_skins[skinIndex];
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();

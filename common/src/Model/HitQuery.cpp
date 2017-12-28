@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         HitQuery::HitQuery(const Hit::List& hits) :
         m_hits(&hits),
-        m_editorContext(NULL),
+        m_editorContext(nullptr),
         m_include(HitFilter::always()),
         m_exclude(HitFilter::never()) {}
         
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         HitQuery& HitQuery::pickable() {
-            if (m_editorContext != NULL)
+            if (m_editorContext != nullptr)
                 m_include = new HitFilterChain(new ContextHitFilter(*m_editorContext), m_include);
             return *this;
         }
@@ -136,10 +136,10 @@ namespace TrenchBroom {
         }
 
         bool HitQuery::visible(const Hit& hit) const {
-            if (m_editorContext == NULL)
+            if (m_editorContext == nullptr)
                 return true;
             Node* node = hitToNode(hit);
-            if (node == NULL)
+            if (node == nullptr)
                 return true;
             return m_editorContext->visible(hitToNode(hit));
         }

@@ -1337,7 +1337,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
         static void debugSegfault() {
-            volatile void *test = 0;
+            volatile void *test = nullptr;
             printf("%p\n", *((void **)test));
         }
 #ifdef __clang__
