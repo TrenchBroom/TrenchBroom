@@ -213,7 +213,7 @@ namespace TrenchBroom {
                     const int pid = static_cast<int>(m_process->GetPid());
                     end();
                     ::wxKill(pid, wxSIGKILL);
-                    m_context << "#### Terminated\n";
+                    m_context << "\n\n#### Terminated\n";
                 }
             }
         private:
