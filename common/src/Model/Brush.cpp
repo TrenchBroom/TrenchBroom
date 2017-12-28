@@ -55,12 +55,12 @@ namespace TrenchBroom {
                 ensure(m_addedFace != NULL, "addedFace is null");
             }
 
-            void faceWasCreated(BrushFaceGeometry* face) {
+            void faceWasCreated(BrushFaceGeometry* face) override {
                 face->setPayload(m_addedFace);
                 m_addedFace->setGeometry(face);
             }
 
-            void faceWillBeDeleted(BrushFaceGeometry* face) {
+            void faceWillBeDeleted(BrushFaceGeometry* face) override {
                 BrushFace* brushFace = face->payload();
                 if (brushFace != NULL) {
                     ensure(!brushFace->selected(), "brush face is selected");
@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
         class Brush::HealEdgesCallback : public BrushGeometry::Callback {
         public:
-            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
+            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) override {
                 BrushFace* remainingFace = remainingGeometry->payload();
                 ensure(remainingFace != NULL, "remainingFace is null");
                 remainingFace->invalidate();
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 geometryToDelete->setPayload(NULL);
             }
 
-            void faceWillBeDeleted(BrushFaceGeometry* face) {
+            void faceWillBeDeleted(BrushFaceGeometry* face) override {
                 BrushFace* brushFace = face->payload();
                 ensure(brushFace != NULL, "brushFace is null");
                 ensure(!brushFace->selected(), "brush face is selected");
@@ -143,12 +143,12 @@ namespace TrenchBroom {
                 ensure(m_addedFace != NULL, "addedFace is null");
             }
 
-            void faceWasCreated(BrushFaceGeometry* face) {
+            void faceWasCreated(BrushFaceGeometry* face) override {
                 face->setPayload(m_addedFace);
                 m_addedFace->setGeometry(face);
             }
 
-            void faceWillBeDeleted(BrushFaceGeometry* face) {
+            void faceWillBeDeleted(BrushFaceGeometry* face) override {
                 if (face->payload() != NULL)
                     m_hasDroppedFaces = true;
             }
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 buildIncidences(geometry, Vec3::Set(), Vec3::Null);
             }
 
-            ~MoveVerticesCallback() {
+            ~MoveVerticesCallback() override {
                 VectorUtils::clearAndDelete(m_removedFaces);
             }
         private:
@@ -252,15 +252,15 @@ namespace TrenchBroom {
                 return result;
             }
         public:
-            void vertexWasAdded(BrushVertex* vertex) {}
+            void vertexWasAdded(BrushVertex* vertex) override {}
 
-            void vertexWillBeRemoved(BrushVertex* vertex) {}
+            void vertexWillBeRemoved(BrushVertex* vertex) override {}
 
-            void faceWasCreated(BrushFaceGeometry* faceGeometry) {
+            void faceWasCreated(BrushFaceGeometry* faceGeometry) override {
                 m_addedGeometries.insert(faceGeometry);
             }
 
-            void faceWillBeDeleted(BrushFaceGeometry* faceGeometry) {
+            void faceWillBeDeleted(BrushFaceGeometry* faceGeometry) override {
                 if (m_addedGeometries.erase(faceGeometry) == 0) {
                     BrushFace* face = faceGeometry->payload();
                     ensure(face != NULL, "face is null");
@@ -271,21 +271,21 @@ namespace TrenchBroom {
                 }
             }
 
-            void faceDidChange(BrushFaceGeometry* faceGeometry) {
+            void faceDidChange(BrushFaceGeometry* faceGeometry) override {
                 ensure(false, "faceDidChange called");
             }
 
-            void faceWasFlipped(BrushFaceGeometry* faceGeometry) {
+            void faceWasFlipped(BrushFaceGeometry* faceGeometry) override {
                 BrushFace* face = faceGeometry->payload();
                 if (face != NULL)
                     face->invert();
             }
 
-            void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) {
+            void faceWasSplit(BrushFaceGeometry* originalGeometry, BrushFaceGeometry* cloneGeometry) override {
                 ensure(false, "faceWasSplit called");
             }
 
-            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
+            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) override {
                 ensure(false, "facesWillBeMerged called");
             }
         public:
@@ -347,7 +347,7 @@ namespace TrenchBroom {
 
         class Brush::QueryCallback : public BrushGeometry::Callback {
         public:
-            Plane3 plane(const BrushFaceGeometry* face) const {
+            Plane3 plane(const BrushFaceGeometry* face) const override {
                 return face->payload()->boundary();
             }
         };
@@ -401,11 +401,11 @@ namespace TrenchBroom {
 
         class FindBrushOwner : public NodeVisitor, public NodeQuery<AttributableNode*> {
         private:
-            void doVisit(World* world)   { setResult(world); cancel(); }
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   {}
-            void doVisit(Entity* entity) { setResult(entity); cancel(); }
-            void doVisit(Brush* brush)   {}
+            void doVisit(World* world) override   { setResult(world); cancel(); }
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override { setResult(entity); cancel(); }
+            void doVisit(Brush* brush) override   {}
         };
 
         AttributableNode* Brush::entity() const {
@@ -1328,11 +1328,11 @@ namespace TrenchBroom {
             Contains(const Brush* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(contains(group->bounds())); }
-            void doVisit(const Entity* entity) { setResult(contains(entity->bounds())); }
-            void doVisit(const Brush* brush)   { setResult(contains(brush)); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(contains(group->bounds())); }
+            void doVisit(const Entity* entity) override { setResult(contains(entity->bounds())); }
+            void doVisit(const Brush* brush) override   { setResult(contains(brush)); }
 
             bool contains(const BBox3& bounds) const {
                 if (m_this->bounds().contains(bounds))
@@ -1364,11 +1364,11 @@ namespace TrenchBroom {
             Intersects(const Brush* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(intersects(group->bounds())); }
-            void doVisit(const Entity* entity) { setResult(intersects(entity->bounds())); }
-            void doVisit(const Brush* brush)   { setResult(intersects(brush)); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(intersects(group->bounds())); }
+            void doVisit(const Entity* entity) override { setResult(intersects(entity->bounds())); }
+            void doVisit(const Brush* brush) override   { setResult(intersects(brush)); }
 
             bool intersects(const BBox3& bounds) const {
                 return m_this->bounds().intersects(bounds);

@@ -48,11 +48,11 @@ namespace TrenchBroom {
                 ensure(m_tool != NULL, "tool is null");
             }
         private:
-            Tool* doGetTool() {
+            Tool* doGetTool() override {
                 return m_tool;
             }
             
-            bool doMouseClick(const InputState& inputState) {
+            bool doMouseClick(const InputState& inputState) override {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                     return false;
                 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            DragInfo doStartDrag(const InputState& inputState) {
+            DragInfo doStartDrag(const InputState& inputState) override {
                 if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                     inputState.modifierKeys() != ModifierKeys::MKNone)
                     return DragInfo();
@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_start, m_center, m_axis, radius));
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 const Vec3 ref = (m_start - m_center).normalized();
                 const Vec3 vec = (nextHandlePosition - m_center).normalized();
                 m_angle = angleBetween(vec, ref, m_axis);
@@ -100,15 +100,15 @@ namespace TrenchBroom {
                 return DR_Continue;
             }
             
-            void doEndDrag(const InputState& inputState) {
+            void doEndDrag(const InputState& inputState) override {
                 m_tool->commitRotation();
             }
             
-            void doCancelDrag() {
+            void doCancelDrag() override {
                 m_tool->cancelRotation();
             }
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 if (thisToolDragging()) {
                     doRenderHighlight(inputState, renderContext, renderBatch, m_area);
                     renderAngleIndicator(renderContext, renderBatch);
@@ -132,11 +132,11 @@ namespace TrenchBroom {
                 m_position(position),
                 m_circle(radius, 24, true, axis, startAxis, endAxis) {}
             private:
-                void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+                void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                     m_circle.prepare(vertexVbo);
                 }
                 
-                void doRender(Renderer::RenderContext& renderContext) {
+                void doRender(Renderer::RenderContext& renderContext) override {
                     glAssert(glDisable(GL_DEPTH_TEST));
                     
                     glAssert(glPushAttrib(GL_POLYGON_BIT));
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 return str.str();
             }
             
-            bool doCancel() {
+            bool doCancel() override {
                 return false;
             }
         private:
@@ -195,11 +195,11 @@ namespace TrenchBroom {
                 ensure(m_tool != NULL, "tool is null");
             }
 
-            Tool* doGetTool() {
+            Tool* doGetTool() override {
                 return m_tool;
             }
             
-            MoveInfo doStartMove(const InputState& inputState) {
+            MoveInfo doStartMove(const InputState& inputState) override {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                     !inputState.checkModifierKeys(ModifierKeyPressed::MK_No, ModifierKeyPressed::MK_DontCare, ModifierKeyPressed::MK_No))
                     return MoveInfo();
@@ -214,18 +214,18 @@ namespace TrenchBroom {
                 return MoveInfo(m_tool->rotationCenter());
             }
             
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 m_tool->setRotationCenter(nextHandlePosition);
                 return DR_Continue;
             }
             
-            void doEndMove(const InputState& inputState) {}
+            void doEndMove(const InputState& inputState) override {}
             
-            void doCancelMove() {
+            void doCancelMove() override {
                 m_tool->setRotationCenter(initialHandlePosition());
             }
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MoveToolController::doRender(inputState, renderContext, renderBatch);
                 if (thisToolDragging()) {
                     doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea_Center);
@@ -236,7 +236,7 @@ namespace TrenchBroom {
                 }
             }
             
-            bool doCancel() {
+            bool doCancel() override {
                 return false;
             }
         private:
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) {
+            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) {
+            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -313,7 +313,7 @@ namespace TrenchBroom {
             MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) {
+            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };
@@ -323,7 +323,7 @@ namespace TrenchBroom {
             RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) {
+            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };

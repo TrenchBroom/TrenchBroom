@@ -70,7 +70,7 @@ namespace TrenchBroom {
             wxBoxSizer(orient),
             m_restrictToClientWidth(restrictToClientWidth){}
 
-            wxSize CalcMin() {
+            wxSize CalcMin() override {
                 const wxSize originalSize = wxBoxSizer::CalcMin();
                 if (!m_restrictToClientWidth)
                     return originalSize;

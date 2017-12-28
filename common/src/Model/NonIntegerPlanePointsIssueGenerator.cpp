@@ -39,11 +39,11 @@ namespace TrenchBroom {
             NonIntegerPlanePointsIssue(Brush* brush) :
             Issue(brush) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Brush has non-integer plane points";
             }
         };
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             NonIntegerPlanePointsIssueQuickFix() :
             IssueQuickFix(NonIntegerPlanePointsIssue::Type, "Convert plane points to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->findPlanePoints();
             }
         };

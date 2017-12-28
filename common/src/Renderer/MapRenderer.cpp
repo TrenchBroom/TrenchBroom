@@ -226,7 +226,7 @@ namespace TrenchBroom {
         
         class SetupGL : public Renderable {
         private:
-            void doRender(RenderContext& renderContext) {
+            void doRender(RenderContext& renderContext) override {
                 glAssert(glFrontFace(GL_CW));
                 glAssert(glEnable(GL_CULL_FACE));
                 glAssert(glEnable(GL_DEPTH_TEST));
@@ -291,7 +291,7 @@ namespace TrenchBroom {
         
         class MapRenderer::FilterTutorialEntities : public Model::FilteringNodeCollectionStrategy<Model::UniqueNodeCollectionStrategy> {
         private:
-            Model::Node* getNode(Model::Brush* brush) const { return brush->entity();  }
+            Model::Node* getNode(Model::Brush* brush) const override { return brush->entity();  }
         };
         
         class MapRenderer::CollectTutorialEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchTutorialEntities, FilterTutorialEntities> {
@@ -399,10 +399,10 @@ namespace TrenchBroom {
             const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
             const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
             
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::Group* group) override   {
                 if (group->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(group);
                 } else if (selected(group) || group->opened()) {
@@ -412,7 +412,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(Model::Entity* entity) {
+            void doVisit(Model::Entity* entity) override {
                 if (entity->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(entity);
                 } else if (selected(entity)) {
@@ -422,7 +422,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(Model::Brush* brush)   {
+            void doVisit(Model::Brush* brush) override   {
                 if (brush->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(brush);
                 } else if (selected(brush)) {

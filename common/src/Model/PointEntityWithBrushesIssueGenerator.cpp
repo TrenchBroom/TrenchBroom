@@ -38,11 +38,11 @@ namespace TrenchBroom {
             PointEntityWithBrushesIssue(Entity* entity) :
             Issue(entity) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const Entity* entity = static_cast<Entity*>(node());
                 return entity->classname() + " contains brushes";
             }
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             PointEntityWithBrushesIssueQuickFix() :
             IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 NodeList affectedNodes;
                 ParentChildrenMap nodesToReparent;
                 

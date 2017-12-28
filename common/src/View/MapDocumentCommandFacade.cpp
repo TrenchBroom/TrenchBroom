@@ -374,14 +374,14 @@ namespace TrenchBroom {
             RenameGroupsVisitor(const String& newName) : m_newName(newName) {}
             const Model::GroupNameMap& oldNames() const { return m_oldNames; }
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {
                 m_oldNames[group] = group->name();
                 group->setName(m_newName);
             }
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {}
         };
 
         class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
@@ -390,15 +390,15 @@ namespace TrenchBroom {
         public:
             UndoRenameGroupsVisitor(const Model::GroupNameMap& newNames) : m_newNames(newNames) {}
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {
                 assert(m_newNames.count(group) == 1);
                 const String& newName = MapUtils::find(m_newNames, group, group->name());
                 group->setName(newName);
             }
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {}
         };
         
         Model::GroupNameMap MapDocumentCommandFacade::performRenameGroups(const String& newName) {

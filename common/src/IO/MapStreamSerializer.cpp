@@ -31,7 +31,7 @@ namespace TrenchBroom {
             MapStreamSerializer(stream),
             m_longFormat(longFormat) {}
         private:
-            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) {
+            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Model::BrushFace::Points& points = face->points();
                 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ValveStreamSerializer(std::ostream& stream) :
             MapStreamSerializer(stream) {}
         private:
-            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) {
+            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Vec3& xAxis = face->textureXAxis();
                 const Vec3& yAxis = face->textureYAxis();
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             Hexen2StreamSerializer(std::ostream& stream) :
             MapStreamSerializer(stream) {}
         private:
-            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) {
+            void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Model::BrushFace::Points& points = face->points();
                 

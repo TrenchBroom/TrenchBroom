@@ -39,11 +39,11 @@ namespace TrenchBroom {
             
             Assets::ColorRange::Type result() const { return m_range; }
         private:
-            void doVisit(const World* world)   { visitAttributableNode(world); }
-            void doVisit(const Layer* layer)   {}
-            void doVisit(const Group* group)   {}
-            void doVisit(const Entity* entity) { visitAttributableNode(entity); }
-            void doVisit(const Brush* brush)   {}
+            void doVisit(const World* world) override   { visitAttributableNode(world); }
+            void doVisit(const Layer* layer) override   {}
+            void doVisit(const Group* group) override   {}
+            void doVisit(const Entity* entity) override { visitAttributableNode(entity); }
+            void doVisit(const Brush* brush) override   {}
             
             void visitAttributableNode(const AttributableNode* attributable) {
                 static const AttributeValue NullValue("");

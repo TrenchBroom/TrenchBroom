@@ -36,15 +36,15 @@ namespace TrenchBroom {
                 ensure(m_wrappee != NULL, "wrappee is null");
             }
         private:
-            void doPrepareVertices(Vbo& vertexVbo) {
+            void doPrepareVertices(Vbo& vertexVbo) override {
                 m_wrappee->prepareVertices(vertexVbo);
             }
             
-            void doPrepareIndices(Vbo& indexVbo) {
+            void doPrepareIndices(Vbo& indexVbo) override {
                 m_wrappee->prepareIndices(indexVbo);
             }
             
-            void doRender(RenderContext& renderContext) {
+            void doRender(RenderContext& renderContext) override {
                 ActivateVbo activate(m_indexBuffer);
                 m_wrappee->render(renderContext);
             }

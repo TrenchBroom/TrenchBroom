@@ -255,11 +255,11 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                 m_originHandle.prepare(vertexVbo);
             }
             
-            void doRender(Renderer::RenderContext& renderContext) {
+            void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
                 const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
                 

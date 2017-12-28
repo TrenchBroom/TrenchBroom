@@ -379,11 +379,11 @@ namespace TrenchBroom {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
             
-            void doVisit(const Model::Entity* entity) {
+            void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i)
@@ -391,7 +391,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(const Model::Brush* brush)   {
+            void doVisit(const Model::Brush* brush) override   {
                 for (const Model::BrushVertex* vertex : brush->vertices())
                     addPoint(vertex->position());
             }
@@ -423,11 +423,11 @@ namespace TrenchBroom {
                 return m_offset;
             }
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
             
-            void doVisit(const Model::Entity* entity) {
+            void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
@@ -437,7 +437,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(const Model::Brush* brush)   {
+            void doVisit(const Model::Brush* brush) override   {
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
                     for (size_t j = 0; j < 4; ++j)
                         addPoint(vertex->position(), m_frustumPlanes[j]);

@@ -74,11 +74,11 @@ namespace TrenchBroom {
         public:
             SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { group->setEditState(m_editState); }
-            void doVisit(Entity* entity) {}
-            void doVisit(Brush* brush)   {}
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { group->setEditState(m_editState); }
+            void doVisit(Entity* entity) override {}
+            void doVisit(Brush* brush) override   {}
         };
         
         void Group::openAncestors() {
@@ -117,11 +117,11 @@ namespace TrenchBroom {
         
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(true); }
-            void doVisit(const Entity* entity) { setResult(true); }
-            void doVisit(const Brush* brush)   { setResult(true); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(true); }
+            void doVisit(const Entity* entity) override { setResult(true); }
+            void doVisit(const Brush* brush) override   { setResult(true); }
         };
         
         bool Group::doCanAddChild(const Node* child) const {

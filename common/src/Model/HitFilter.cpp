@@ -32,22 +32,22 @@ namespace TrenchBroom {
     namespace Model {
         class HitFilter::Always : public HitFilter {
         private:
-            HitFilter* doClone() const {
+            HitFilter* doClone() const override {
                 return new Always();
             }
             
-            bool doMatches(const Hit& hit) const {
+            bool doMatches(const Hit& hit) const override {
                 return true;
             }
         };
         
         class HitFilter::Never : public HitFilter {
         private:
-            HitFilter* doClone() const {
+            HitFilter* doClone() const override {
                 return new Never();
             }
             
-            bool doMatches(const Hit& hit) const {
+            bool doMatches(const Hit& hit) const override {
                 return false;
             }
         };

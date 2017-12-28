@@ -37,11 +37,11 @@ namespace TrenchBroom {
             EmptyGroupIssue(Group* group) :
             Issue(group) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const Group* group = static_cast<Group*>(node());
                 return "Group '" + group->name() + "' does not contain any objects";
             }
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EmptyGroupIssueQuickFix() :
             IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->deleteObjects();
             }
         };

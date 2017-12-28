@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 addObservers();
             }
             
-            ~ProfileItem() {
+            ~ProfileItem() override {
                 if (m_profile != NULL)
                     removeObservers();
             }
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
             }

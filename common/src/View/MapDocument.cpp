@@ -1372,11 +1372,11 @@ namespace TrenchBroom {
             SetEntityDefinition(Assets::EntityDefinitionManager& manager) :
             m_manager(manager) {}
         private:
-            void doVisit(Model::World* world)   { handle(world); }
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { handle(entity); }
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::World* world) override   { handle(world); }
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { handle(entity); }
+            void doVisit(Model::Brush* brush) override   {}
             void handle(Model::AttributableNode* attributable) {
                 Assets::EntityDefinition* definition = m_manager.definition(attributable);
                 attributable->setDefinition(definition);
@@ -1385,11 +1385,11 @@ namespace TrenchBroom {
         
         class UnsetEntityDefinition : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world)   { world->setDefinition(NULL); }
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { entity->setDefinition(NULL); }
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::World* world) override   { world->setDefinition(NULL); }
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { entity->setDefinition(NULL); }
+            void doVisit(Model::Brush* brush) override   {}
         };
         
         void MapDocument::setEntityDefinitions() {
@@ -1430,11 +1430,11 @@ namespace TrenchBroom {
             SetTextures(Assets::TextureManager* manager) :
             m_manager(manager) {}
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {
                 for (Model::BrushFace* face : brush->faces())
                     face->updateTexture(m_manager);
             }
@@ -1457,11 +1457,11 @@ namespace TrenchBroom {
         
         class UnsetTextures : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {
                 for (Model::BrushFace* face : brush->faces())
                     face->setTexture(NULL);
             }

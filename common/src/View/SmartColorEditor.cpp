@@ -188,11 +188,11 @@ namespace TrenchBroom {
             
             const wxColorList& colors() const { return m_colors; }
         private:
-            void doVisit(const Model::World* world)   { visitAttributableNode(world); }
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); stopRecursion(); }
-            void doVisit(const Model::Brush* brush)   {}
+            void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
+            void doVisit(const Model::Brush* brush) override   {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const Model::AttributeValue NullValue("");

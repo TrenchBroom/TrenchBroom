@@ -180,10 +180,10 @@ namespace TrenchBroom {
                 return Model::NodeList(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
             
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::Group* group) override   {
                 assert(group->selected());
 
                 if (group->group() == NULL) {
@@ -192,7 +192,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(Model::Entity* entity) {
+            void doVisit(Model::Entity* entity) override {
                 assert(entity->selected());
                 
                 if (entity->group() == NULL) {
@@ -201,7 +201,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(Model::Brush* brush)   {
+            void doVisit(Model::Brush* brush) override   {
                 assert(brush->selected());
                 if (brush->group() == NULL) {
                     Model::AttributableNode* entity = brush->entity();

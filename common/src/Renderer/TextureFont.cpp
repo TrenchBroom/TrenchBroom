@@ -47,15 +47,15 @@ namespace TrenchBroom {
                 return m_size;
             }
         private:
-            void justifyLeft(const String& str) {
+            void justifyLeft(const String& str) override {
                 measure(str);
             }
             
-            void justifyRight(const String& str) {
+            void justifyRight(const String& str) override {
                 measure(str);
             }
             
-            void center(const String& str) {
+            void center(const String& str) override {
                 measure(str);
             }
             
@@ -78,15 +78,15 @@ namespace TrenchBroom {
                 return m_sizes;
             }
         private:
-            void justifyLeft(const String& str) {
+            void justifyLeft(const String& str) override {
                 measure(str);
             }
             
-            void justifyRight(const String& str) {
+            void justifyRight(const String& str) override {
                 measure(str);
             }
             
-            void center(const String& str) {
+            void center(const String& str) override {
                 measure(str);
             }
             
@@ -127,16 +127,16 @@ namespace TrenchBroom {
                 return m_vertices;
             }
         private:
-            void justifyLeft(const String& str) {
+            void justifyLeft(const String& str) override {
                 makeQuads(str, 0.0f);
             }
             
-            void justifyRight(const String& str) {
+            void justifyRight(const String& str) override {
                 const float w = m_sizes[m_index].x();
                 makeQuads(str, m_maxSize.x() - w);
             }
             
-            void center(const String& str) {
+            void center(const String& str) override {
                 const float w = m_sizes[m_index].x();
                 makeQuads(str, (m_maxSize.x() - w) / 2.0f);
             }

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             TaskRunner(CompilationContext& context) :
             m_context(context) {}
         public:
-            virtual ~TaskRunner() {}
+            ~TaskRunner() override {}
             
             void execute() {
                 doExecute();
@@ -99,11 +99,11 @@ namespace TrenchBroom {
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationExportMap*>(task->clone())) {}
             
-            ~ExportMapRunner() {
+            ~ExportMapRunner() override {
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 notifyStart();
                 
                 try {
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 
             }
             
-            void doTerminate() {}
+            void doTerminate() override {}
         private:
             ExportMapRunner(const ExportMapRunner& other);
             ExportMapRunner& operator=(const ExportMapRunner& other);
@@ -144,11 +144,11 @@ namespace TrenchBroom {
             TaskRunner(context),
             m_task(static_cast<const Model::CompilationCopyFiles*>(task->clone())) {}
             
-            ~CopyFilesRunner() {
+            ~CopyFilesRunner() override {
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 notifyStart();
                 
                 try {
@@ -172,7 +172,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doTerminate() {}
+            void doTerminate() override {}
         private:
             CopyFilesRunner(const CopyFilesRunner& other);
             CopyFilesRunner& operator=(const CopyFilesRunner& other);
@@ -193,18 +193,18 @@ namespace TrenchBroom {
             m_timer(NULL),
             m_terminated(false) {}
             
-            ~RunToolRunner() {
+            ~RunToolRunner() override {
                 assert(m_process == NULL);
                 assert(m_timer == NULL);
                 delete m_task;
             }
         private:
-            void doExecute() {
+            void doExecute() override {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 start();
             }
             
-            void doTerminate() {
+            void doTerminate() override {
                 wxCriticalSectionLocker lockProcess(m_processSection);
                 if (m_process != NULL) {
                     readRemainingOutput();
@@ -366,15 +366,15 @@ namespace TrenchBroom {
                 return m_runners;
             }
             
-            void visit(const Model::CompilationExportMap* task) {
+            void visit(const Model::CompilationExportMap* task) override {
                 appendRunner(new ExportMapRunner(m_context, task));
             }
             
-            void visit(const Model::CompilationCopyFiles* task) {
+            void visit(const Model::CompilationCopyFiles* task) override {
                 appendRunner(new CopyFilesRunner(m_context, task));
             }
             
-            void visit(const Model::CompilationRunTool* task) {
+            void visit(const Model::CompilationRunTool* task) override {
                 appendRunner(new RunToolRunner(m_context, task));
             }
             

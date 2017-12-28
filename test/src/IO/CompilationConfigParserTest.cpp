@@ -211,16 +211,16 @@ namespace TrenchBroom {
             m_sourceSpec(sourceSpec),
             m_targetSpec(targetSpec) {}
 
-            void visit(const Model::CompilationExportMap* task) const {
+            void visit(const Model::CompilationExportMap* task) const override {
                 ASSERT_TRUE(false);
             }
             
-            void visit(const Model::CompilationCopyFiles* task) const {
+            void visit(const Model::CompilationCopyFiles* task) const override {
                 ASSERT_EQ(m_sourceSpec, task->sourceSpec());
                 ASSERT_EQ(m_targetSpec, task->targetSpec());
             }
             
-            void visit(const Model::CompilationRunTool* task) const {
+            void visit(const Model::CompilationRunTool* task) const override {
                 ASSERT_TRUE(false);
             }
         };
@@ -234,15 +234,15 @@ namespace TrenchBroom {
             m_toolSpec(toolSpec),
             m_parameterSpec(parameterSpec) {}
             
-            void visit(const Model::CompilationExportMap* task) const {
+            void visit(const Model::CompilationExportMap* task) const override {
                 ASSERT_TRUE(false);
             }
             
-            void visit(const Model::CompilationCopyFiles* task) const {
+            void visit(const Model::CompilationCopyFiles* task) const override {
                 ASSERT_TRUE(false);
             }
             
-            void visit(const Model::CompilationRunTool* task) const {
+            void visit(const Model::CompilationRunTool* task) const override {
                 ASSERT_EQ(m_toolSpec, task->toolSpec());
                 ASSERT_EQ(m_parameterSpec, task->parameterSpec());
             }

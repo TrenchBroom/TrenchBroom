@@ -42,7 +42,7 @@ namespace TrenchBroom {
             applyTexture(i_applyTexture),
             defaultColor(i_defaultColor) {}
             
-            void before(const Assets::Texture* texture) {
+            void before(const Assets::Texture* texture) override {
                 if (texture != NULL) {
                     texture->activate();
                     shader.set("ApplyTexture", applyTexture);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void after(const Assets::Texture* texture) {
+            void after(const Assets::Texture* texture) override {
                 if (texture != NULL)
                     texture->deactivate();
             }

@@ -128,11 +128,11 @@ namespace TrenchBroom {
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(true); }
-            void doVisit(const Entity* entity) { setResult(true); }
-            void doVisit(const Brush* brush)   { setResult(true); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(true); }
+            void doVisit(const Entity* entity) override { setResult(true); }
+            void doVisit(const Brush* brush) override   { setResult(true); }
         };
 
         bool Entity::doCanAddChild(const Node* child) const {
@@ -275,11 +275,11 @@ namespace TrenchBroom {
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   {}
-            void doVisit(Entity* entity) {}
-            void doVisit(Brush* brush)   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override {}
+            void doVisit(Brush* brush) override   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {

@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 createGui(margins, title, subtitle, &image);
             }
 
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
             }

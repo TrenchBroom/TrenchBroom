@@ -39,12 +39,12 @@ namespace TrenchBroom {
         
         class RenderService::HeadsUpTextAnchor : public TextAnchor {
         private:
-            Vec3f offset(const Camera& camera, const Vec2f& size) const {
+            Vec3f offset(const Camera& camera, const Vec2f& size) const override {
                 Vec3f off = getOffset(camera);
                 return Vec3f(off.x() - size.x() / 2.0f, off.y() - size.y(), off.z());
             }
             
-            Vec3f position(const Camera& camera) const {
+            Vec3f position(const Camera& camera) const override {
                 return camera.unproject(getOffset(camera));
             }
             

@@ -233,11 +233,11 @@ namespace TrenchBroom {
                 return vertices;
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) {
+            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                 m_vertexArray.prepare(vertexVbo);
             }
             
-            void doRender(Renderer::RenderContext& renderContext) {
+            void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
                 const Vec2f& offset = face->offset();
                 const Vec2f& scale = face->scale();

@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 addObservers();
             }
             
-            ~ProfileItem() {
+            ~ProfileItem() override {
                 if (m_profile != NULL)
                     removeObservers();
             }
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                     m_nameText->SetLabel("not set");
             }
         private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_pathText->SetForegroundColour(makeLighter(m_pathText->GetForegroundColour()));
             }

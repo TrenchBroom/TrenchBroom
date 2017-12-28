@@ -37,14 +37,14 @@ namespace TrenchBroom {
             GroupNameAnchor(const Model::Group* group) :
             m_group(group) {}
         private:
-            Vec3f basePosition() const {
+            Vec3f basePosition() const override {
                 Vec3f position = m_group->bounds().center();
                 position[2] = float(m_group->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
             }
             
-            TextAlignment::Type alignment() const {
+            TextAlignment::Type alignment() const override {
                 return TextAlignment::Bottom;
             }
         };

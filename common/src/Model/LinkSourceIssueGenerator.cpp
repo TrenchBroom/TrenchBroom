@@ -37,11 +37,11 @@ namespace TrenchBroom {
             LinkSourceIssue(AttributableNode* node) :
             Issue(node) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has unused targetname key";
             }
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             LinkSourceIssueQuickFix() :
             IssueQuickFix(LinkSourceIssue::Type, "Delete property") {}
         private:
-            void doApply(MapFacade* facade, const Issue* issue) const {
+            void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
                 
                 // If world node is affected, the selection will fail, but if nothing is selected,

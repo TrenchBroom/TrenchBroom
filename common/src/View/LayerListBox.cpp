@@ -159,7 +159,7 @@ namespace TrenchBroom {
                 event.Enable(m_layer->locked() || m_layer != document->currentLayer());
             }
         private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_infoText->SetForegroundColour(makeLighter(m_infoText->GetForegroundColour()));
             }

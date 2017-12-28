@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 SetSizer(hSizer);
             }
 
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 Item::setDefaultColours(foreground, background);
                 m_descriptionText->SetForegroundColour(makeLighter(m_descriptionText->GetForegroundColour()));
             }

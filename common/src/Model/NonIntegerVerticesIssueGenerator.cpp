@@ -38,11 +38,11 @@ namespace TrenchBroom {
             NonIntegerVerticesIssue(Brush* brush) :
             Issue(brush) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Brush has non-integer vertices";
             }
         };
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             NonIntegerVerticesIssueQuickFix() :
             IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->snapVertices(1);
             }
         };

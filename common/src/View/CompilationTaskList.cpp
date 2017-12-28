@@ -81,16 +81,16 @@ namespace TrenchBroom {
                 addTaskObservers();
             }
         public:
-            virtual ~TaskEditor() {
+            ~TaskEditor() override {
                 removeProfileObservers();
                 removeTaskObservers();
             }
         private:
-            void setSelectionColours(const wxColour& foreground, const wxColour& background) {
+            void setSelectionColours(const wxColour& foreground, const wxColour& background) override {
                 setColours(m_panel->getPanel(), foreground, background);
             }
 
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) {
+            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
                 setColours(m_panel->getPanel(), foreground, background);
             }
         protected:
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             TaskEditor(parent, margins, "Export Map", document, profile, task),
             m_targetEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) {
+            wxWindow* createGui(wxWindow* parent) override {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* targetLabel = new wxStaticText(container, wxID_ANY, "Target");
@@ -189,7 +189,7 @@ namespace TrenchBroom {
                 m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
             }
 
-            void refresh() {
+            void refresh() override {
                 m_targetEditor->ChangeValue(m_task->targetSpec());
             }
         };
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             m_sourceEditor(nullptr),
             m_targetEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) {
+            wxWindow* createGui(wxWindow* parent) override {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* sourceLabel = new wxStaticText(container, wxID_ANY, "Source");
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                 m_task->setTargetSpec(m_targetEditor->GetValue().ToStdString());
             }
 
-            void refresh() {
+            void refresh() override {
                 // call ChangeValue to avoid sending a change event
                 m_sourceEditor->ChangeValue(m_task->sourceSpec());
                 m_targetEditor->ChangeValue(m_task->targetSpec());
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             m_toolEditor(nullptr),
             m_parametersEditor(nullptr) {}
         private:
-            wxWindow* createGui(wxWindow* parent) {
+            wxWindow* createGui(wxWindow* parent) override {
                 wxPanel* container = new wxPanel(parent);
 
                 wxStaticText* toolLabel = new wxStaticText(container, wxID_ANY, "Tool");
@@ -304,7 +304,7 @@ namespace TrenchBroom {
                 m_task->setParameterSpec(m_parametersEditor->GetValue().ToStdString());
             }
 
-            void refresh() {
+            void refresh() override {
                 m_toolEditor->ChangeValue(m_task->toolSpec());
                 m_parametersEditor->ChangeValue(m_task->parameterSpec());
             }
@@ -359,19 +359,19 @@ namespace TrenchBroom {
                 return m_result;
             }
 
-            void visit(Model::CompilationExportMap* task) {
+            void visit(Model::CompilationExportMap* task) override {
                 TaskEditor<Model::CompilationExportMap>* editor = new ExportMapTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;
             }
 
-            void visit(Model::CompilationCopyFiles* task) {
+            void visit(Model::CompilationCopyFiles* task) override {
                 TaskEditor<Model::CompilationCopyFiles>* editor = new CopyFilesTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;
             }
 
-            void visit(Model::CompilationRunTool* task) {
+            void visit(Model::CompilationRunTool* task) override {
                 TaskEditor<Model::CompilationRunTool>* editor = new RunToolTaskEditor(m_parent, m_margins, m_document, m_profile, task);
                 editor->initialize();
                 m_result = editor;

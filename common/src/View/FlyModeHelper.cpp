@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 m_rotateAngles = rotateAngles;
             }
         private:
-            void execute() {
+            void execute() override {
                 m_camera.moveBy(m_moveDelta);
                 m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
                 m_helper.resetMouse();

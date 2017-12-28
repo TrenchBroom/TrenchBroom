@@ -41,7 +41,7 @@ namespace TrenchBroom {
         public:
             typedef Tokenizer<SimpleToken::Type>::Token Token;
         private:
-            Token emitToken() {
+            Token emitToken() override {
                 while (!eof()) {
                     size_t startLine = line();
                     size_t startColumn = column();

@@ -38,11 +38,11 @@ namespace TrenchBroom {
             WorldBoundsIssue(Node* node) :
             Issue(node) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 return "Object is out of world bounds";
             }
         };
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             WorldBoundsIssueQuickFix() :
             IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->deleteObjects();
             }
         };
