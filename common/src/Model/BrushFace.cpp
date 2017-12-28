@@ -19,21 +19,15 @@
 
 #include "BrushFace.h"
 
-#include "Algorithms.h"
-#include "Exceptions.h"
-#include "VecMath.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
-#include "Model/TexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
@@ -255,6 +249,12 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        void BrushFace::resetTexCoordSystemCache() {
+            if (m_texCoordSystem != nullptr) {
+                m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attribs);
+            }
+        }
+
         const String& BrushFace::textureName() const {
             return m_attribs.textureName();
         }
@@ -443,16 +443,18 @@ namespace TrenchBroom {
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
-            const Vec3 invariant = m_geometry != NULL ? center() : m_boundary.anchor();
+            const Vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
             m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, invariant);
 
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
-            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
+
+            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
-            correctPoints();
-            invalidateVertexCache();
+            }
+
+            setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
         void BrushFace::invert() {

@@ -78,7 +78,11 @@ namespace TrenchBroom {
         Vec3 ParallelTexCoordSystem::getZAxis() const {
             return crossed(m_xAxis, m_yAxis).normalized();
         }
-        
+
+        void ParallelTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+            // no-op
+        }
+
         void ParallelTexCoordSystem::doResetTextureAxes(const Vec3& normal) {
             computeInitialAxes(normal, m_xAxis, m_yAxis);
         }
