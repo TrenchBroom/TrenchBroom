@@ -1105,7 +1105,7 @@ namespace TrenchBroom {
             for (const BrushFaceGeometry* geometry : m_geometry->faces()) {
                 BrushFace* face = geometry->payload();
                 if (face != nullptr) { // could happen if the brush isn't fully specified
-                    if (face->brush() == nullptr)
+                    if (face->brush() == nullptr) {
                         addFace(face);
                     } else {
                         m_faces.push_back(face);
