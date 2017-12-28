@@ -33,6 +33,8 @@
 #include <wx/slider.h>
 #include <wx/stattext.h>
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         MousePreferencePane::MousePreferencePane(wxWindow* parent) :
@@ -161,67 +163,76 @@ namespace TrenchBroom {
         void MousePreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
+            if (!setShortcut(shortcut, Preferences::CameraFlyForward))
                 event.Veto();
-            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
-                event.Veto();
-            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
-                event.Veto();
-            else
-                prefs.set(Preferences::CameraFlyForward, shortcut);
         }
         
         void MousePreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
+            if (!setShortcut(shortcut, Preferences::CameraFlyBackward))
                 event.Veto();
-            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
-                event.Veto();
-            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
-                event.Veto();
-            else
-                prefs.set(Preferences::CameraFlyBackward, shortcut);
         }
         
         void MousePreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
-
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
+            if (!setShortcut(shortcut, Preferences::CameraFlyLeft))
                 event.Veto();
-            else if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
-                event.Veto();
-            else if (pref(Preferences::CameraFlyRight).hasKey() && pref(Preferences::CameraFlyRight) == shortcut)
-                event.Veto();
-            else
-                prefs.set(Preferences::CameraFlyLeft, shortcut);
         }
         
         void MousePreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
             if (IsBeingDeleted()) return;
 
-            PreferenceManager& prefs = PreferenceManager::instance();
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (!setShortcut(shortcut, Preferences::CameraFlyRight))
+                event.Veto();
+        }
+
+        void MousePreferencePane::OnUpKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
-            if (pref(Preferences::CameraFlyForward).hasKey() && pref(Preferences::CameraFlyForward) == shortcut)
+            if (!setShortcut(shortcut, Preferences::CameraFlyUp))
                 event.Veto();
-            else if (pref(Preferences::CameraFlyBackward).hasKey() && pref(Preferences::CameraFlyBackward) == shortcut)
-                event.Veto();
-            else if (pref(Preferences::CameraFlyLeft).hasKey() && pref(Preferences::CameraFlyLeft) == shortcut)
-                event.Veto();
-            else
-                prefs.set(Preferences::CameraFlyRight, shortcut);
         }
-        
+
+        void MousePreferencePane::OnDownKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (!setShortcut(shortcut, Preferences::CameraFlyDown))
+                event.Veto();
+        }
+
+        bool MousePreferencePane::setShortcut(const KeyboardShortcut& shortcut, Preference<KeyboardShortcut>& preference) {
+            if (!hasConflict(shortcut, preference)) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                prefs.set(preference, shortcut);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        bool MousePreferencePane::hasConflict(const KeyboardShortcut& shortcut, const Preference<KeyboardShortcut>& preference) const {
+            const auto prefs = std::vector<Preference<KeyboardShortcut>*>{
+                    &Preferences::CameraFlyForward,
+                    &Preferences::CameraFlyBackward,
+                    &Preferences::CameraFlyLeft,
+                    &Preferences::CameraFlyRight,
+                    &Preferences::CameraFlyUp,
+                    &Preferences::CameraFlyDown
+            };
+
+            return std::any_of(std::begin(prefs), std::end(prefs), [this, &shortcut, &preference](const auto* other){
+                return preference.path() != other->path() && pref(*other).hasKey() && pref(*other) == shortcut;
+            });
+        }
+
         void MousePreferencePane::OnFlyMoveSpeedChanged(wxScrollEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -288,7 +299,13 @@ namespace TrenchBroom {
             wxStaticText* rightKeyLabel = new wxStaticText(box, wxID_ANY, "Right");
             m_rightKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
             m_rightKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
-            
+            wxStaticText* upKeyLabel = new wxStaticText(box, wxID_ANY, "Up");
+            m_upKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
+            m_upKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
+            wxStaticText* downKeyLabel = new wxStaticText(box, wxID_ANY, "Down");
+            m_downKeyEditor = new KeyboardShortcutEditor(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_THEME);
+            m_downKeyEditor->SetMinSize(wxSize(80, wxDefaultCoord));
+
             wxStaticText* flyMoveSpeedLabel = new wxStaticText(box, wxID_ANY, "Speed");
             m_flyMoveSpeedSlider = new wxSlider(box, wxID_ANY, 256, 64, 512, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
 
@@ -385,7 +402,15 @@ namespace TrenchBroom {
             sizer->Add(rightKeyLabel,               wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_rightKeyEditor,            wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             ++r;
-            
+
+            sizer->Add(upKeyLabel,                  wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_upKeyEditor,               wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+
+            sizer->Add(downKeyLabel,                wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_downKeyEditor,             wxGBPosition(r, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
+            ++r;
+
             sizer->Add(flyMoveSpeedLabel,           wxGBPosition(r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_flyMoveSpeedSlider,        wxGBPosition(r, 1), wxDefaultSpan, SliderFlags, HMargin);
             ++r;
@@ -416,6 +441,8 @@ namespace TrenchBroom {
             m_backwardKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnBackwardKeyChanged, this);
             m_leftKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnLeftKeyChanged, this);
             m_rightKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnRightKeyChanged, this);
+            m_upKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnUpKeyChanged, this);
+            m_downKeyEditor->Bind(KEYBOARD_SHORTCUT_EVENT, &MousePreferencePane::OnDownKeyChanged, this);
 
             bindSliderEvents(m_flyMoveSpeedSlider, &MousePreferencePane::OnFlyMoveSpeedChanged, this);
         }
@@ -474,6 +501,8 @@ namespace TrenchBroom {
             m_backwardKeyEditor->SetShortcut(pref(Preferences::CameraFlyBackward));
             m_leftKeyEditor->SetShortcut(pref(Preferences::CameraFlyLeft));
             m_rightKeyEditor->SetShortcut(pref(Preferences::CameraFlyRight));
+            m_upKeyEditor->SetShortcut(pref(Preferences::CameraFlyUp));
+            m_downKeyEditor->SetShortcut(pref(Preferences::CameraFlyDown));
 
             setSliderValue(m_flyMoveSpeedSlider, pref(Preferences::CameraFlyMoveSpeed));
         }

@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_MousePreferencePane
 #define TrenchBroom_MousePreferencePane
 
+#include "Preferences.h"
 #include "View/PreferencePane.h"
 
 class wxButton;
@@ -30,6 +31,7 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
+        class KeyboardShortcut;
         class KeyboardShortcutEditor;
         class KeyboardShortcutEvent;
         
@@ -53,10 +55,12 @@ namespace TrenchBroom {
             KeyboardShortcutEditor* m_backwardKeyEditor;
             KeyboardShortcutEditor* m_leftKeyEditor;
             KeyboardShortcutEditor* m_rightKeyEditor;
+            KeyboardShortcutEditor* m_upKeyEditor;
+            KeyboardShortcutEditor* m_downKeyEditor;
             wxSlider* m_flyMoveSpeedSlider;
         public:
             MousePreferencePane(wxWindow* parent);
-
+        private:
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
             void OnInvertLookVAxisChanged(wxCommandEvent& event);
@@ -79,6 +83,11 @@ namespace TrenchBroom {
             void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
             void OnLeftKeyChanged(KeyboardShortcutEvent& event);
             void OnRightKeyChanged(KeyboardShortcutEvent& event);
+            void OnUpKeyChanged(KeyboardShortcutEvent& event);
+            void OnDownKeyChanged(KeyboardShortcutEvent& event);
+
+            bool setShortcut(const KeyboardShortcut& shortcut, Preference<KeyboardShortcut>& preference);
+            bool hasConflict(const KeyboardShortcut& shortcut, const Preference<KeyboardShortcut>& preference) const;
 
             void OnFlyMoveSpeedChanged(wxScrollEvent& event);
         private:

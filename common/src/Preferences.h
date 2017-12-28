@@ -141,6 +141,8 @@ namespace TrenchBroom {
         extern Preference<View::KeyboardShortcut> CameraFlyBackward;
         extern Preference<View::KeyboardShortcut> CameraFlyLeft;
         extern Preference<View::KeyboardShortcut> CameraFlyRight;
+        extern Preference<View::KeyboardShortcut> CameraFlyUp;
+        extern Preference<View::KeyboardShortcut> CameraFlyDown;
     }
 }
 
