@@ -566,7 +566,7 @@ namespace TrenchBroom {
             }
 
             setEntityDefinitions(nodes);
-            
+
             return snapshot;
         }
         
