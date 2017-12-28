@@ -5,6 +5,8 @@ if (navigator.platform.indexOf("X11")!=-1)   platform = "linux";
 if (navigator.platform.indexOf("Linux")!=-1) platform = "linux";
 //platform = "mac"; //debug
 
+console.log(`Platform detected as ${platform} with navigator.platform=${navigator.platform}`);
+
 function key_str(key) {
 	if (keys[platform][key])
 		return "<span class=\"shortcut\">" + keys[platform][key] + "</span>";
