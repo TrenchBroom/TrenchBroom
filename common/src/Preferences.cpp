@@ -148,5 +148,7 @@ namespace TrenchBroom {
         Preference<View::KeyboardShortcut> CameraFlyBackward(IO::Path("Controls/Camera/Move backward"), 'S');
         Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camera/Move left"), 'A');
         Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), 'D');
+        Preference<View::KeyboardShortcut> CameraFlyUp(IO::Path("Controls/Camera/Move up"), 'Q');
+        Preference<View::KeyboardShortcut> CameraFlyDown(IO::Path("Controls/Camera/Move down"), 'X');
     }
 }

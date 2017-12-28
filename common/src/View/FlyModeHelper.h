@@ -48,6 +48,8 @@ namespace TrenchBroom {
             bool m_backward;
             bool m_left;
             bool m_right;
+            bool m_up;
+            bool m_down;
             
             bool m_enabled;
             
