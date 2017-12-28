@@ -465,7 +465,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map snapshot;
             
             for (Model::AttributableNode* node : attributableNodes) {
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                snapshot[node].push_back(node->attributeSnapshot(name));
                 node->addOrUpdateAttribute(name, value);
             }
             
@@ -486,7 +486,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map snapshot;
             
             for (Model::AttributableNode* node : attributableNodes) {
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                snapshot[node].push_back(node->attributeSnapshot(name));
                 node->removeAttribute(name);
             }
             
@@ -508,8 +508,8 @@ namespace TrenchBroom {
             Model::AttributableNodeList::const_iterator it, end;
             for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
                 Model::AttributableNode* node = *it;
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
-                
+                snapshot[node].push_back(node->attributeSnapshot(name));
+
                 int intValue = node->hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
                 const int flagValue = (1 << flagIndex);
                 
@@ -542,7 +542,7 @@ namespace TrenchBroom {
             for (Model::AttributableNode* node : attributableNodes) {
                 const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
-                    snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                    snapshot[node].push_back(node->attributeSnapshot(name));
                     node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
                 }
             }
@@ -560,8 +560,8 @@ namespace TrenchBroom {
 
             Model::EntityAttributeSnapshot::Map snapshot;
             for (Model::AttributableNode* node : attributableNodes) {
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(oldName)));
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(newName)));
+                snapshot[node].push_back(node->attributeSnapshot(oldName));
+                snapshot[node].push_back(node->attributeSnapshot(newName));
                 node->renameAttribute(oldName, newName);
             }
 
@@ -579,11 +579,13 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
             for (const auto& entry : attributes) {
-                Model::AttributableNode* node = entry.first;
+                auto* node = entry.first;
                 assert(node->parent() == nullptr || node->selected() || node->descendantSelected());
-                
-                const Model::EntityAttributeSnapshot& snapshot = entry.second;
-                snapshot.restore(node);
+
+                const auto& snapshots = entry.second;
+                for (const auto& snapshot : snapshots) {
+                    snapshot.restore(node);
+                }
             }
 
             setEntityDefinitions(nodes);
