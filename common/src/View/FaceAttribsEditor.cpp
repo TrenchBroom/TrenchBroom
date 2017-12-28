@@ -521,7 +521,7 @@ namespace TrenchBroom {
                 m_rotationEditor->Disable();
                 m_surfaceValueEditor->SetValue("n/a");
                 m_surfaceValueEditor->Disable();
-                // m_textureView->setTexture(NULL);
+                // m_textureView->setTexture(nullptr);
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
             }

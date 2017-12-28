@@ -44,29 +44,29 @@ m_link(this)
 m_link(this)
 #endif
 {
-    ensure(m_first != NULL, "first is null");
+    ensure(m_first != nullptr, "first is null");
     m_first->setEdge(this);
-    if (m_second != NULL)
+    if (m_second != nullptr)
         m_second->setEdge(this);
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Edge::firstVertex() const {
-    ensure(m_first != NULL, "first is null");
+    ensure(m_first != nullptr, "first is null");
     return m_first->origin();
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Edge::secondVertex() const {
-    ensure(m_first != NULL, "first is null");
-    if (m_second != NULL)
+    ensure(m_first != nullptr, "first is null");
+    if (m_second != nullptr)
         return m_second->origin();
     return m_first->next()->origin();
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Edge::otherVertex(Vertex* vertex) const {
-    ensure(vertex != NULL, "vertex is null");
+    ensure(vertex != nullptr, "vertex is null");
     assert(vertex == firstVertex() || vertex == secondVertex());
     if (vertex == firstVertex())
         return secondVertex();
@@ -75,19 +75,19 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Edge::otherVertex(Ver
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Edge::firstEdge() const {
-    ensure(m_first != NULL, "first is null");
+    ensure(m_first != nullptr, "first is null");
     return m_first;
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Edge::secondEdge() const {
-    ensure(m_second != NULL, "second is null");
+    ensure(m_second != nullptr, "second is null");
     return m_second;
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Edge::twin(const HalfEdge* halfEdge) const {
-    ensure(halfEdge != NULL, "halfEdge is null");
+    ensure(halfEdge != nullptr, "halfEdge is null");
     assert(halfEdge == m_first || halfEdge == m_second);
     if (halfEdge == m_first)
         return m_second;
@@ -107,24 +107,24 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Edge::center() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::Edge::firstFace() const {
-    ensure(m_first != NULL, "first is null");
+    ensure(m_first != nullptr, "first is null");
     return m_first->face();
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::Edge::secondFace() const {
-    ensure(m_second != NULL, "second is null");
+    ensure(m_second != nullptr, "second is null");
     return m_second->face();
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::Edge::commonVertex(const Edge* other) const {
-    ensure(other != NULL, "other is null");
+    ensure(other != nullptr, "other is null");
     if (other->hasVertex(firstVertex()))
         return firstVertex();
     if (other->hasVertex(secondVertex()))
         return secondVertex();
-    return NULL;
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -149,13 +149,13 @@ bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& positi
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::orphaned() const {
-    return m_first == NULL && m_second == NULL;
+    return m_first == nullptr && m_second == nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::fullySpecified() const {
-    ensure(m_first != NULL, "first is null");
-    return m_second != NULL;
+    ensure(m_first != nullptr, "first is null");
+    return m_second != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -228,7 +228,7 @@ void Polyhedron<T,FP,VP>::Edge::flip() {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::makeFirstEdge(HalfEdge* edge) {
-    ensure(edge != NULL, "edge is null");
+    ensure(edge != nullptr, "edge is null");
     assert(m_first == edge || m_second == edge);
     if (edge != m_first)
         flip();
@@ -236,7 +236,7 @@ void Polyhedron<T,FP,VP>::Edge::makeFirstEdge(HalfEdge* edge) {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::makeSecondEdge(HalfEdge* edge) {
-    ensure(edge != NULL, "edge is null");
+    ensure(edge != nullptr, "edge is null");
     assert(m_first == edge || m_second == edge);
     if (edge != m_second)
         flip();
@@ -244,22 +244,22 @@ void Polyhedron<T,FP,VP>::Edge::makeSecondEdge(HalfEdge* edge) {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::setFirstAsLeaving() {
-    ensure(m_first != NULL, "first is null");
+    ensure(m_first != nullptr, "first is null");
     m_first->setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::unsetSecondEdge() {
-    ensure(m_second != NULL, "second is null");
+    ensure(m_second != nullptr, "second is null");
     m_second->unsetEdge();
-    m_second = NULL;
+    m_second = nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Edge::setSecondEdge(HalfEdge* second) {
-    ensure(second != NULL, "second is null");
-    assert(m_second == NULL);
-    assert(second->edge() == NULL);
+    ensure(second != nullptr, "second is null");
+    assert(m_second == nullptr);
+    assert(second->edge() == nullptr);
     m_second = second;
     m_second->setEdge(this);
 }

@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 }
                 
                 virtual void prepare(Vbo& vbo) {
-                    if (m_vertexCount > 0 && m_block == NULL) {
+                    if (m_vertexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
                         
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 }
                 
                 virtual void setup() {
-                    ensure(m_block != NULL, "block is null");
+                    ensure(m_block != nullptr, "block is null");
                     VertexSpec::setup(m_block->offset());
                 }
                 
@@ -81,13 +81,13 @@ namespace TrenchBroom {
                 }
             protected:
                 Holder(const size_t vertexCount) :
-                m_block(NULL),
+                m_block(nullptr),
                 m_vertexCount(vertexCount) {}
                 
                 virtual ~Holder() {
-                    if (m_block != NULL) {
+                    if (m_block != nullptr) {
                         m_block->free();
-                        m_block = NULL;
+                        m_block = nullptr;
                     }
                 }
             private:

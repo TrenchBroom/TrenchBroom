@@ -252,7 +252,7 @@ namespace TrenchBroom {
             // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
 
             // Model::Group* containingGroup = entity->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
+            return /*(containingGroup == nullptr || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
 
             // Model::Group* containingGroup = brush->group();
-            return /*(containingGroup == NULL || containingGroup->opened()) && visible(brush) */ true;
+            return /*(containingGroup == nullptr || containingGroup->opened()) && visible(brush) */ true;
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {

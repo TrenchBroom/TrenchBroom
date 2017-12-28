@@ -402,7 +402,7 @@ namespace VectorUtils {
     T* findIf(const std::vector<T*>& vec, const P& predicate) {
         typename std::vector<T*>::const_iterator it = std::find_if(std::begin(vec), std::end(vec), predicate);
         if (it == std::end(vec))
-            return NULL;
+            return nullptr;
         return *it;
     }
 
@@ -418,7 +418,7 @@ namespace VectorUtils {
     const T* findIf(const std::vector<T>& vec, const P& predicate) {
         typename std::vector<T>::const_iterator it = std::find_if(std::begin(vec), std::end(vec), predicate);
         if (it == std::end(vec))
-            return NULL;
+            return nullptr;
         return &(*it);
     }
 

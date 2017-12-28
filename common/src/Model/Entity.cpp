@@ -249,19 +249,19 @@ namespace TrenchBroom {
         Node* Entity::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         Layer* Entity::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
         
         Group* Entity::doGetGroup() const {
             FindGroupVisitor visitor(false);
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         class TransformEntity : public NodeVisitor {

@@ -210,19 +210,19 @@ namespace TrenchBroom {
         Node* Group::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         Layer* Group::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
         
         Group* Group::doGetGroup() const {
             FindGroupVisitor visitor(false);
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {

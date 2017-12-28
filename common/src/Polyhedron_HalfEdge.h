@@ -33,8 +33,8 @@ const typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::HalfEdge, typename
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::HalfEdge::HalfEdge(Vertex* origin) :
 m_origin(origin),
-m_edge(NULL),
-m_face(NULL),
+m_edge(nullptr),
+m_face(nullptr),
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
 #pragma warning(push)
@@ -45,14 +45,14 @@ m_link(this)
 m_link(this)
 #endif
 {
-    ensure(m_origin != NULL, "origin is null");
+    ensure(m_origin != nullptr, "origin is null");
     setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::HalfEdge::~HalfEdge() {
     if (m_origin->leaving() == this)
-        m_origin->setLeaving(NULL);
+        m_origin->setLeaving(nullptr);
 }
 
 template <typename T, typename FP, typename VP>
@@ -102,7 +102,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::previous(
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::HalfEdge::twin() const {
-    ensure(m_edge != NULL, "edge is null");
+    ensure(m_edge != nullptr, "edge is null");
     return m_edge->twin(this);
 }
 
@@ -132,10 +132,10 @@ String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
     StringStream str;
     origin()->position().write(str);
     str << " --> ";
-    if (destination() != NULL)
+    if (destination() != nullptr)
         destination()->position().write(str);
     else
-        str << "NULL";
+        str << "nullptr";
     return str.str();
 }
 
@@ -153,7 +153,7 @@ bool Polyhedron<T,FP,VP>::HalfEdge::isLeavingEdge() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
-    ensure(other != NULL, "other is null");
+    ensure(other != nullptr, "other is null");
     assert(other != this);
     assert(destination() == other->origin());
     
@@ -179,35 +179,35 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setOrigin(Vertex* origin) {
-    ensure(origin != NULL, "origin is null");
+    ensure(origin != nullptr, "origin is null");
     m_origin = origin;
     setAsLeaving();
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setEdge(Edge* edge) {
-    ensure(edge != NULL, "edge is null");
-    assert(m_edge == NULL);
+    ensure(edge != nullptr, "edge is null");
+    assert(m_edge == nullptr);
     m_edge = edge;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetEdge() {
-    ensure(m_edge != NULL, "edge is null");
-    m_edge = NULL;
+    ensure(m_edge != nullptr, "edge is null");
+    m_edge = nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::setFace(Face* face) {
-    ensure(face != NULL, "face is null");
-    assert(m_face == NULL);
+    ensure(face != nullptr, "face is null");
+    assert(m_face == nullptr);
     m_face = face;
 }
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::HalfEdge::unsetFace() {
-    ensure(m_face != NULL, "face is null");
-    m_face = NULL;
+    ensure(m_face != nullptr, "face is null");
+    m_face = nullptr;
 }
 
 template <typename T, typename FP, typename VP>

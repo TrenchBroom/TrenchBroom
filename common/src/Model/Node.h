@@ -363,13 +363,13 @@ namespace TrenchBroom {
             
             template <class V>
             void escalate(V& visitor) {
-                if (parent() != NULL && !visitor.cancelled())
+                if (parent() != nullptr && !visitor.cancelled())
                     parent()->acceptAndEscalate(visitor);
             }
             
             template <class V>
             void escalate(V& visitor) const {
-                if (parent() != NULL && !visitor.cancelled())
+                if (parent() != nullptr && !visitor.cancelled())
                     parent()->acceptAndEscalate(visitor);
             }
 

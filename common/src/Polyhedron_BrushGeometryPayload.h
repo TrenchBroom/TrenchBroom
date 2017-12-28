@@ -40,7 +40,7 @@ struct BrushVertexPayload {
 struct BrushFacePayload {
     typedef TrenchBroom::Model::BrushFace* Type;
     static Type defaultValue() {
-        return NULL;
+        return nullptr;
     }
 };
 

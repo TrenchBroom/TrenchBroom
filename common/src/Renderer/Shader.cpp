@@ -40,7 +40,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
 
-            glAssert(glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, NULL));
+            glAssert(glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, nullptr));
             delete[] linePtrs;
             
             glAssert(glCompileShader(m_shaderId));

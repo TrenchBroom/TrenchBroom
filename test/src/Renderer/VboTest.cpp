@@ -45,7 +45,7 @@ namespace TrenchBroom {
             // activate for the first time
             EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
             EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, nullptr, GL_DYNAMIC_DRAW));
             {
                 ActivateVbo activate(vbo);
                 ASSERT_TRUE(vbo.active());
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             // activate for the first time
             EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
             EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, nullptr, GL_DYNAMIC_DRAW));
             {
                 ActivateVbo activate(vbo);
                 
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
                 EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(14));
                 EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 14));
-                EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0x17FFE, NULL, GL_DYNAMIC_DRAW));
+                EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0x17FFE, nullptr, GL_DYNAMIC_DRAW));
                 EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
                 EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
 
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             // activate for the first time
             EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
             EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, nullptr, GL_DYNAMIC_DRAW));
             {
                 ActivateVbo activate(vbo);
                 
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             // activate for the first time
             EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
             EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, nullptr, GL_DYNAMIC_DRAW));
             {
                 ActivateVbo activate(vbo);
                 

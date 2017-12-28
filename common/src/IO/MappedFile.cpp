@@ -93,8 +93,8 @@ namespace TrenchBroom {
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
         MappedFile(path),
         m_fileHandle(INVALID_HANDLE_VALUE),
-        m_mappingHandle(NULL),
-        m_address(NULL) {
+        m_mappingHandle(nullptr),
+        m_address(nullptr) {
             size_t size = 0;
             
             DWORD accessMode = 0;
@@ -135,13 +135,13 @@ namespace TrenchBroom {
 		    delete [] mappingName;
             
 		    m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
-		    if (m_mappingHandle == NULL) {
-			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		    if (m_mappingHandle == nullptr) {
+			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 delete [] uFilename;
 
 			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
-				    size = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
-				    m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, uMappingName);
+				    size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
+				    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
                     delete [] uMappingName;
 			    } else {
                     delete [] uMappingName;
@@ -158,18 +158,18 @@ namespace TrenchBroom {
                     size = (attrs.nFileSizeHigh << 16) + attrs.nFileSizeLow;
                 } else {
 				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = NULL;
+				    m_mappingHandle = nullptr;
                     throw FileSystemException("Cannot open file " + path.asString());
                 }
 		    }
             
-		    if (m_mappingHandle != NULL) {
+		    if (m_mappingHandle != nullptr) {
 			    m_address = static_cast<char*>(MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0));
-			    if (m_address != NULL) {
+			    if (m_address != nullptr) {
                     init(m_address, m_address + size);
 			    } else {
 				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = NULL;
+				    m_mappingHandle = nullptr;
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
                     throw FileSystemException("Cannot open file " + path.asString());
@@ -184,14 +184,14 @@ namespace TrenchBroom {
         }
         
         WinMappedFile::~WinMappedFile() {
-            if (m_address != NULL) {
+            if (m_address != nullptr) {
         	    UnmapViewOfFile(m_address);
-                m_address = NULL;
+                m_address = nullptr;
             }
             
-		    if (m_mappingHandle != NULL) {
+		    if (m_mappingHandle != nullptr) {
 			    CloseHandle(m_mappingHandle);
-			    m_mappingHandle = NULL;
+			    m_mappingHandle = nullptr;
 		    }
             
 		    if (m_fileHandle != INVALID_HANDLE_VALUE) {

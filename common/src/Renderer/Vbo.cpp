@@ -117,7 +117,7 @@ namespace TrenchBroom {
             if (m_vboId == 0) {
                 glAssert(glGenBuffers(1, &m_vboId));
                 glAssert(glBindBuffer(m_type, m_vboId));
-                glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), NULL, m_usage));
+                glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_totalCapacity), nullptr, m_usage));
             } else {
                 glAssert(glBindBuffer(m_type, m_vboId));
             }
