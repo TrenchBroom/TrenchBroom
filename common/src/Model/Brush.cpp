@@ -1107,8 +1107,10 @@ namespace TrenchBroom {
                 if (face != nullptr) { // could happen if the brush isn't fully specified
                     if (face->brush() == nullptr)
                         addFace(face);
-                    else
+                    } else {
                         m_faces.push_back(face);
+                    }
+                    face->resetTexCoordSystemCache();
                 }
             }
 
