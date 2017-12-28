@@ -88,7 +88,9 @@ namespace TrenchBroom {
                 const String& tooltip(size_t rowIndex) const;
                 bool multi(size_t rowIndex) const;
                 bool subset(size_t rowIndex) const;
-                const StringList names(size_t rowIndex, size_t count) const;
+                StringList names(size_t rowIndex, size_t count) const;
+
+                bool hasRowWithName(const String& name) const;
                 
                 void updateRows(const Model::AttributableNodeList& attributables, bool showDefaultProperties);
                 void addAttribute(const Model::AttributeName& name, const Model::AttributeValue& value, const Assets::AttributeDefinition* definition, bool nameMutable, bool valueMutable, bool isDefault, size_t index);

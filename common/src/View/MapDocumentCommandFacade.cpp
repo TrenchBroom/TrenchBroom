@@ -550,18 +550,24 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        void MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const Model::NodeList parents = collectParents(std::begin(nodes), std::end(nodes));
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            for (Model::AttributableNode* node : attributableNodes)
+
+            Model::EntityAttributeSnapshot::Map snapshot;
+            for (Model::AttributableNode* node : attributableNodes) {
+                snapshot.insert(std::make_pair(node, node->attributeSnapshot(oldName)));
+                snapshot.insert(std::make_pair(node, node->attributeSnapshot(newName)));
                 node->renameAttribute(oldName, newName);
+            }
 
             setEntityDefinitions(nodes);
+            
+            return snapshot;
         }
         
         void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {

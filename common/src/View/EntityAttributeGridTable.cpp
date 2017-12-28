@@ -163,13 +163,22 @@ namespace TrenchBroom {
             return m_rows[rowIndex].subset();
         }
 
-        const StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
+        StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
             ensure(rowIndex + count <= totalRowCount(), "row range exceeds row count");
             
             StringList result(count);
             for (size_t i = 0; i < count; ++i)
                 result[i] = m_rows[rowIndex + i].name();
             return result;
+        }
+
+        bool EntityAttributeGridTable::RowManager::hasRowWithName(const String& name) const {
+            for (size_t i = 0; i < attributeRowCount(); ++i) {
+                const auto& row = m_rows[i];
+                if (row.name() == name)
+                    return true;
+            }
+            return false;
         }
 
         void EntityAttributeGridTable::RowManager::updateRows(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
@@ -583,9 +592,17 @@ namespace TrenchBroom {
             const String& oldName = m_rows.name(rowIndex);
             if (!m_rows.nameMutable(rowIndex)) {
                 wxString msg;
-                msg << "Cannot rename attribute '" << oldName << "' to '" << newName << "'";
+                msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
                 wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                 return;
+            }
+
+            if (m_rows.hasRowWithName(newName)) {
+                wxString msg;
+                msg << "A property with key '" << newName << "' already exists.\n\n Do you wish to overwrite it?";
+                if (wxMessageBox(msg, "Error", wxYES_NO | wxICON_ERROR | wxCENTRE, GetView()) == wxNO) {
+                    return;
+                }
             }
 
             MapDocumentSPtr document = lock(m_document);
