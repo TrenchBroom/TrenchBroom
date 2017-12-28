@@ -314,13 +314,17 @@ namespace TrenchBroom {
                     VectorUtils::deleteAll(newBrushes);
                     return false;
                 } else {
-                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
-
                     Model::BrushFace* clipFace = newDragFace->clone();
                     clipFace->invert();
-                    const bool clipResult = newBrush->clip(worldBounds, clipFace);
-                    assert(clipResult);
-                    unused(clipResult);
+
+                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
+
+                    // This should never happen, but let's be on the safe side.
+                    if (!newBrush->clip(worldBounds, clipFace)) {
+                        delete clipFace;
+                        VectorUtils::deleteAll(newBrushes);
+                        return false;
+                    }
 
                     newNodes[brush->parent()].push_back(newBrush);
                 }
