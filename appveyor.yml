@@ -13,7 +13,7 @@ install:
 - ps: 7z x dev.7z -oc:\wxWidgets-3.1.0
 - ps: 7z x dll.7z -oc:\wxWidgets-3.1.0
 - ps: 7z x pdb.7z -oc:\wxWidgets-3.1.0
-shallow_clone: true
+clone_depth: 50
 build_script:
 - cmd: call appveyor.bat
 artifacts:
