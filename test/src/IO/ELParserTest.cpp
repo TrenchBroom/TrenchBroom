@@ -27,18 +27,18 @@
 
 namespace TrenchBroom {
     namespace IO {
-#define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser(str).parse().evaluate(EL::EvaluationContext()), exception)
-        
+#define ASSERT_EL_THROW(str, exception) ASSERT_THROW(ELParser::parseStrict(str).evaluate(EL::EvaluationContext()), exception)
+
         template <typename Exp>
         void ASSERT_EL_EQ(const Exp& expected, const String& str, const EL::EvaluationContext& context = EL::EvaluationContext()) {
-            const EL::Expression expression = ELParser::parse(str);
+            const EL::Expression expression = ELParser::parseStrict(str);
             ASSERT_EQ(EL::Value(expected), expression.evaluate(context));
         }
         
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context = EL::EvaluationContext());
         void ASSERT_ELS_EQ(const String& lhs, const String& rhs, const EL::EvaluationContext& context) {
-            const EL::Expression expression1 = ELParser::parse(lhs);
-            const EL::Expression expression2 = ELParser::parse(rhs);
+            const EL::Expression expression1 = ELParser::parseStrict(lhs);
+            const EL::Expression expression2 = ELParser::parseStrict(rhs);
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
         }
 
@@ -99,7 +99,15 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(EL::MapType(), "{}");
             ASSERT_EL_EQ(map, " { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }");
         }
-        
+
+        TEST(ELParserTest, parseMapLiteralWithTrailingGarbage) {
+            ASSERT_EL_THROW("{\n"
+                            "\t\"profiles\": [],\n"
+                            "\t\"version\": 1\n"
+                            "}\n"
+                            "asdf", ParserException);
+        }
+
         TEST(ELParserTest, parseVariable) {
             EL::EvaluationContext context;
             context.declareVariable("test", EL::Value(1.0));

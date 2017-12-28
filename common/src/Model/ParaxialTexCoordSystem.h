@@ -52,7 +52,8 @@ namespace TrenchBroom {
             Vec3 getXAxis() const;
             Vec3 getYAxis() const;
             Vec3 getZAxis() const;
-            
+
+            void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
             void doResetTextureAxes(const Vec3& normal);
             void doResetTextureAxesToParaxial(const Vec3& normal, float angle);
             void doResetTextureAxesToParallel(const Vec3& normal, float angle);

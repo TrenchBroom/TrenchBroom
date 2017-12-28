@@ -63,7 +63,7 @@ namespace TrenchBroom {
         void MappedFile::init(const char* begin, const char* end) {
             assert(m_begin == NULL && m_end == NULL);
             if (end < begin)
-                throw new FileSystemException("End of mapped file is before begin");
+                throw FileSystemException("End of mapped file is before begin");
             m_begin = begin;
             m_end = end;
         }

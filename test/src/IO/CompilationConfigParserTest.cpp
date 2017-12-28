@@ -39,7 +39,13 @@ namespace TrenchBroom {
             CompilationConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
-        
+
+        TEST(CompilationConfigParserTest, parseEmptyConfigWithTrailingGarbage) {
+            const String config("  {  } asdf");
+            CompilationConfigParser parser(config);
+            ASSERT_THROW(parser.parse(), ParserException);
+        }
+
         TEST(CompilationConfigParserTest, parseMissingProfiles) {
             const String config("  { 'version' : 1 } ");
             CompilationConfigParser parser(config);

@@ -99,14 +99,21 @@ namespace TrenchBroom {
         };
 
         class ELParser : public Parser<ELToken::Type> {
+        public:
+            enum class Mode {
+                Strict,
+                Lenient
+            };
         protected:
+            ELParser::Mode m_mode;
             ELTokenizer m_tokenizer;
             typedef ELTokenizer::Token Token;
         public:
-            ELParser(const char* begin, const char* end);
-            ELParser(const String& str);
+            ELParser(ELParser::Mode mode, const char* begin, const char* end);
+            ELParser(ELParser::Mode mode, const String& str);
 
-            static EL::Expression parse(const String& str);
+            static EL::Expression parseStrict(const String& str);
+            static EL::Expression parseLenient(const String& str);
 
             template <typename OtherToken>
             ELParser(Tokenizer<OtherToken>& nestedTokenizer) :

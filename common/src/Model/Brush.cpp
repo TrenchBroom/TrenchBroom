@@ -1104,11 +1104,13 @@ namespace TrenchBroom {
 
             for (const BrushFaceGeometry* geometry : m_geometry->faces()) {
                 BrushFace* face = geometry->payload();
-                if (face != NULL) { // could happen if the brush isn't fully specified
-                    if (face->brush() == NULL)
+                if (face != nullptr) { // could happen if the brush isn't fully specified
+                    if (face->brush() == nullptr) {
                         addFace(face);
-                    else
+                    } else {
                         m_faces.push_back(face);
+                    }
+                    face->resetTexCoordSystemCache();
                 }
             }
 

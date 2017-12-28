@@ -24,6 +24,7 @@
 
 #include "GLInit.h"
 #include "Macros.h"
+#include "RecoverableExceptions.h"
 #include "TrenchBroomAppTraits.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -66,8 +67,8 @@ namespace TrenchBroom {
 
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
-        m_frameManager(NULL),
-        m_recentDocuments(NULL),
+        m_frameManager(nullptr),
+        m_recentDocuments(nullptr),
         m_lastActivation(0) {
 
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -109,7 +110,7 @@ namespace TrenchBroom {
             wxMenuBar::MacSetCommonMenuBar(menuBar);
 
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
+            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
             addRecentDocumentMenu(recentDocumentsMenu);
 
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
@@ -146,18 +147,18 @@ namespace TrenchBroom {
             wxImage::CleanUpHandlers();
             
             delete m_frameManager;
-            m_frameManager = NULL;
+            m_frameManager = nullptr;
 
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
-            m_recentDocuments = NULL;
+            m_recentDocuments = nullptr;
         }
 
         void TrenchBroomApp::detectAndSetupUbuntu() {
             // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
 #ifdef __WXGTK20__
             static const wxString varName("UBUNTU_MENUPROXY");
-            if (!wxGetEnv(varName, NULL)) {
+            if (!wxGetEnv(varName, nullptr)) {
                 const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
                 if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
                     wxSetEnv(varName, "1");
@@ -190,32 +191,37 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
-            MapFrame* frame = NULL;
+            MapFrame* frame = nullptr;
 
             try {
                 String gameName;
                 Model::MapFormat::Type mapFormat = Model::MapFormat::Unknown;
-                if (!GameDialog::showNewDocumentDialog(NULL, gameName, mapFormat))
+                if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
                     return false;
-                
+
                 frame = m_frameManager->newFrame();
 
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                Model::GameFactory &gameFactory = Model::GameFactory::instance();
                 Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
-                ensure(game.get() != NULL, "game is null");
-                
+                ensure(game.get() != nullptr, "game is null");
+
                 frame->newDocument(game, mapFormat);
                 return true;
-            } catch (const Exception& e) {
-                if (frame != NULL)
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+
+                return recoverFromException(e, [this](){ return this->newDocument(); });
+            } catch (const Exception& e) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             }
         }
 
         bool TrenchBroomApp::openDocument(const String& pathStr) {
-            MapFrame* frame = NULL;
+            MapFrame* frame = nullptr;
             const IO::Path path(pathStr);
             try {
                 String gameName = "";
@@ -225,32 +231,57 @@ namespace TrenchBroom {
                 std::tie(gameName, mapFormat) = gameFactory.detectGame(path);
                 
                 if (gameName.empty() || mapFormat == Model::MapFormat::Unknown) {
-                    if (!GameDialog::showOpenDocumentDialog(NULL, gameName, mapFormat))
+                    if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
                         return false;
                 }
 
                 frame = m_frameManager->newFrame();
 
                 Model::GameSPtr game = gameFactory.createGame(gameName, frame->logger());
-                ensure(game.get() != NULL, "game is null");
+                ensure(game.get() != nullptr, "game is null");
 
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
                 m_recentDocuments->removePath(IO::Path(path));
-                if (frame != NULL)
+                if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
-            } catch (const Exception& e) {
-                if (frame != NULL)
+            } catch (const RecoverableException& e) {
+                if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+
+                return recoverFromException(e, [this, &pathStr](){ return this->openDocument(pathStr); });
+            } catch (const Exception& e) {
+                if (frame != nullptr)
+                    frame->Close();
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             } catch (...) {
-                if (frame != NULL)
+                if (frame != nullptr)
                     frame->Close();
-                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, NULL);
+                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, nullptr);
+                return false;
+            }
+        }
+
+        bool TrenchBroomApp::recoverFromException(const RecoverableException &e, const std::function<bool()>& op) {
+            // Guard against recursion. It's ok to use a static here since the functions calling this are not reentrant.
+            static bool recovering = false;
+
+            if (!recovering) {
+                StringStream message;
+                message << e.what() << "\n\n" << e.query();
+                if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
+                    SetBool setRecovering(recovering);
+                    e.recover();
+                    return op(); // Recursive call here.
+                } else {
+                    return false;
+                }
+            } else {
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, nullptr);
                 return false;
             }
         }
@@ -300,11 +331,11 @@ namespace TrenchBroom {
         // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
         static MapDocumentSPtr topDocument() {
             FrameManager *fm = TrenchBroomApp::instance().frameManager();
-            if (fm == NULL)
+            if (fm == nullptr)
                 return MapDocumentSPtr();
             
             MapFrame *frame = fm->topFrame();
-            if (frame == NULL)
+            if (frame == nullptr)
                 return MapDocumentSPtr();
             
             return frame->document();
@@ -313,7 +344,7 @@ namespace TrenchBroom {
         // returns the empty path for unsaved maps, or if we can't determine the current map
         static IO::Path savedMapPath() {
             MapDocumentSPtr doc = topDocument();
-            if (doc.get() == NULL)
+            if (doc.get() == nullptr)
                 return IO::Path();
             
             IO::Path mapPath = doc->path();
@@ -444,7 +475,7 @@ namespace TrenchBroom {
         int TrenchBroomApp::OnRun() {
             const int result = wxApp::OnRun();
             wxConfigBase* config = wxConfig::Get(false);
-            if (config != NULL)
+            if (config != nullptr)
                 config->Flush();
             DeletePendingObjects();
             return result;
@@ -461,14 +492,14 @@ namespace TrenchBroom {
 #else
                                                           "map",
 #endif
-                                                          "", NULL);
+                                                          "", nullptr);
             if (!pathStr.empty())
                 openDocument(pathStr.ToStdString());
         }
 
         void TrenchBroomApp::OnFileOpenRecent(wxCommandEvent& event) {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
-            ensure(object != NULL, "object is null");
+            ensure(object != nullptr, "object is null");
             const wxString data = object->GetString();
 
             openDocument(data.ToStdString());
@@ -502,7 +533,7 @@ namespace TrenchBroom {
         }
 
         int TrenchBroomApp::FilterEvent(wxEvent& event) {
-            if (event.GetEventObject() != NULL) {
+            if (event.GetEventObject() != nullptr) {
                 if (event.GetEventType() == wxEVT_ACTIVATE) {
                     m_lastActivation = wxGetLocalTimeMillis();
                 } else if (event.GetEventType() == wxEVT_LEFT_DOWN ||
@@ -560,8 +591,8 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {
             static const wxCmdLineEntryDesc cmdLineDesc[] =
             {
-                { wxCMD_LINE_PARAM,  NULL, NULL, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },
-                { wxCMD_LINE_NONE, NULL, NULL, NULL, wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL }
+                { wxCMD_LINE_PARAM,  nullptr, nullptr, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },
+                { wxCMD_LINE_NONE, nullptr, nullptr, nullptr, wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL }
             };
 
             parser.SetDesc(cmdLineDesc);
