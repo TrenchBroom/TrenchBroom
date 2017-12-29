@@ -113,11 +113,16 @@ namespace TrenchBroom {
         }
         
         TEST(PathTest, addExtension) {
-            ASSERT_THROW(Path("").addExtension("map"), PathException);
+			const auto test = Path("c:\\").addExtension("map").asString();
+			const auto test2 = test;
+			const auto test3 = test + test2;
+			
+			ASSERT_THROW(Path("").addExtension("map"), PathException);
             ASSERT_EQ(Path("c:\\asdf."), Path("c:\\asdf").addExtension(""));
             ASSERT_EQ(Path("c:\\asdf.map"), Path("c:\\asdf").addExtension("map"));
             ASSERT_EQ(Path("c:\\asdf.map.test"), Path("c:\\asdf.map").addExtension("test"));
             ASSERT_EQ(Path("c:\\.map"), Path("c:\\").addExtension("map"));
+
         }
         
         TEST(PathTest, makeAbsolute) {

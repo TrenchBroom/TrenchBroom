@@ -282,7 +282,11 @@ namespace TrenchBroom {
             if (isEmpty())
                 throw PathException("Cannot add extension to empty path");
             auto components = m_components;
-            if (components.empty()) {
+            if (components.empty()
+#ifdef _WIN32
+				|| hasDriveSpec(m_components.back())
+#endif
+				) {
                 components.push_back("." + extension);
             } else {
                 components.back() += "." + extension;
