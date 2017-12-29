@@ -1707,11 +1707,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canGroup() const {
-            return m_document->hasSelectedNodes();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canUngroup() const {
-            return m_document->selectedNodes().hasOnlyGroups();
+            return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canHide() const {

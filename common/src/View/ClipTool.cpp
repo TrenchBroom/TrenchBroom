@@ -688,39 +688,39 @@ namespace TrenchBroom {
         
         void ClipTool::updateBrushes() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::BrushList& brushes = document->selectedNodes().brushes();
-            const BBox3& worldBounds = document->worldBounds();
+            const auto& brushes = document->selectedNodes().brushes();
+            const auto& worldBounds = document->worldBounds();
             
             if (canClip()) {
                 Vec3 point1, point2, point3;
-                const size_t numPoints = m_strategy->getPoints(point1, point2, point3);
+                const auto numPoints = m_strategy->getPoints(point1, point2, point3);
                 unused(numPoints);
                 ensure(numPoints == 3, "invalid number of points");
                 
-                Model::World* world = document->world();
-                for (Model::Brush* brush : brushes) {
-                    Model::Node* parent = brush->parent();
+                auto* world = document->world();
+                for (auto* brush : brushes) {
+                    auto* parent = brush->parent();
                     
-                    Model::BrushFace* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
-                    Model::BrushFace* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
+                    auto* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
+                    auto* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
                     setFaceAttributes(brush->faces(), frontFace, backFace);
                     
-                    Model::Brush* frontBrush = brush->clone(worldBounds);
+                    auto* frontBrush = brush->clone(worldBounds);
                     if (frontBrush->clip(worldBounds, frontFace))
                         m_frontBrushes[parent].push_back(frontBrush);
                     else
                         delete frontBrush;
                     
-                    Model::Brush* backBrush = brush->clone(worldBounds);
+                    auto* backBrush = brush->clone(worldBounds);
                     if (backBrush->clip(worldBounds, backFace))
                         m_backBrushes[parent].push_back(backBrush);
                     else
                         delete backBrush;
                 }
             } else {
-                for (Model::Brush* brush : brushes) {
-                    Model::Node* parent = brush->parent();
-                    Model::Brush* frontBrush = brush->clone(worldBounds);
+                for (auto* brush : brushes) {
+                    auto* parent = brush->parent();
+                    auto* frontBrush = brush->clone(worldBounds);
                     m_frontBrushes[parent].push_back(frontBrush);
                 }
             }
@@ -729,21 +729,21 @@ namespace TrenchBroom {
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
             
-            Model::BrushFaceList::const_iterator faceIt = std::begin(faces);
-            Model::BrushFaceList::const_iterator faceEnd = std::end(faces);
-            const Model::BrushFace* bestFrontFace = *faceIt++;
-            const Model::BrushFace* bestBackFace = bestFrontFace;
+            auto faceIt = std::begin(faces);
+            const auto faceEnd = std::end(faces);
+            const auto* bestFrontFace = *faceIt++;
+            const auto* bestBackFace = bestFrontFace;
             
             while (faceIt != faceEnd) {
-                const Model::BrushFace* face = *faceIt;
+                const auto* face = *faceIt;
                 
-                const Vec3 bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
-                const Vec3 frontDiff = face->boundary().normal - frontFace->boundary().normal;
+                const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
+                const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
                 if (frontDiff.squaredLength() < bestFrontDiff.squaredLength())
                     bestFrontFace = face;
                 
-                const Vec3f bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
-                const Vec3f backDiff = face->boundary().normal - backFace->boundary().normal;
+                const auto bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
+                const auto backDiff = face->boundary().normal - backFace->boundary().normal;
                 if (backDiff.squaredLength() < bestBackDiff.squaredLength())
                     bestBackFace = face;
                 ++faceIt;
