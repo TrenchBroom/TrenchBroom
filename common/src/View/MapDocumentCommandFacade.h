@@ -82,7 +82,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
             Model::EntityAttributeSnapshot::Map performUpdateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag);
             Model::EntityAttributeSnapshot::Map performConvertColorRange(const Model::AttributeName& name, Assets::ColorRange::Type colorRange);
-            void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            Model::EntityAttributeSnapshot::Map performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
             Polygon3::List performResizeBrushes(const Polygon3::List& polygons, const Vec3& delta);
