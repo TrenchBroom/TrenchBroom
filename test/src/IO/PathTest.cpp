@@ -136,6 +136,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("d:\\asdf\\test")), PathException);
+            ASSERT_THROW(Path("\\").makeRelative(Path("\\")), PathException);
             ASSERT_EQ(Path("..\\hurr\\hello"), Path("c:\\asdf").makeRelative(Path("c:\\hurr\\hello")));
             ASSERT_EQ(Path("..\\hello"), Path("c:\\asdf\\test\\blah").makeRelative(Path("c:\\asdf\\test\\hello")));
             ASSERT_EQ(Path("hello"), Path("c:\\asdf").makeRelative(Path("c:\\asdf\\hello")));
@@ -149,6 +150,22 @@ namespace TrenchBroom {
             ASSERT_THROW(Path("c:\\..").makeCanonical(), PathException);
             ASSERT_THROW(Path("c:\\asdf\\..\\..").makeCanonical(), PathException);
             ASSERT_EQ(Path("c:\\asdf"), Path("c:\\asdf\\test\\..").makeCanonical());
+        }
+
+        TEST(PathTest, canMakeRelative) {
+            // copied from makeRelative test
+            ASSERT_FALSE(Path("c:\\asdf").canMakeRelative(Path("asdf\\hello")));
+            ASSERT_FALSE(Path("asdf").canMakeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_FALSE(Path("asdf").canMakeRelative(Path("c:\\")));
+            ASSERT_FALSE(Path("c:\\asdf").canMakeRelative(Path("d:\\asdf\\test")));
+            ASSERT_FALSE(Path("\\").canMakeRelative(Path("\\")));
+            ASSERT_TRUE(Path("c:\\asdf").canMakeRelative(Path("c:\\hurr\\hello")));
+            ASSERT_TRUE(Path("c:\\asdf\\test\\blah").canMakeRelative(Path("c:\\asdf\\test\\hello")));
+            ASSERT_TRUE(Path("c:\\asdf").canMakeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_TRUE(Path("c:\\.\\asdf").canMakeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_TRUE(Path("c:\\.\\asdf").canMakeRelative(Path("c:\\asdf\\hello")));
+            ASSERT_TRUE(Path("c:\\asdf\\test\\..").canMakeRelative(Path("c:\\asdf\\.\\hello")));
+            ASSERT_TRUE(Path("c:\\asdf\\test\\..\\").canMakeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
 #else
         TEST(PathTest, constructWithString) {

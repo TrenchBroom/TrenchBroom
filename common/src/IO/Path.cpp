@@ -306,6 +306,8 @@ namespace TrenchBroom {
             return (!isEmpty() && !absolutePath.isEmpty() &&
                     isAbsolute() && absolutePath.isAbsolute()
 #ifdef _WIN32
+                    && 
+                    !m_components.empty() && !absolutePath.m_components.empty()
                     &&
                     m_components[0] == absolutePath.m_components[0]
 #endif
@@ -331,6 +333,10 @@ namespace TrenchBroom {
                 throw PathException("Cannot make relative path with relative sub path");
 
 #ifdef _WIN32
+            if (m_components.empty())
+                throw PathException("Cannot make relative path from an reference path with no drive spec");
+            if (absolutePath.m_components.empty())
+                throw PathException("Cannot make relative path with sub path with no drive spec");
             if (m_components[0] != absolutePath.m_components[0])
                 throw PathException("Cannot make relative path if reference path has different drive spec");
 #endif
