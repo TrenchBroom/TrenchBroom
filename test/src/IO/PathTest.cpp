@@ -66,6 +66,7 @@ namespace TrenchBroom {
             ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent().asString());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
             ASSERT_EQ(Path("path.map"), Path("c:\\this\\is\\a\\path.map").lastComponent());
+            ASSERT_EQ(Path(""), Path("/").lastComponent());
         }
         
         TEST(PathTest, deleteLastComponent) {
@@ -108,6 +109,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
             ASSERT_EQ(String("map"), Path("c:\\this\\is\\a\\path.map").extension());
             ASSERT_EQ(String("textfile"), Path("c:\\this\\is\\a\\path.map.textfile").extension());
+            ASSERT_EQ(String(""), Path("c:\\").extension());
         }
         
         TEST(PathTest, addExtension) {
@@ -115,6 +117,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("c:\\asdf."), Path("c:\\asdf").addExtension(""));
             ASSERT_EQ(Path("c:\\asdf.map"), Path("c:\\asdf").addExtension("map"));
             ASSERT_EQ(Path("c:\\asdf.map.test"), Path("c:\\asdf.map").addExtension("test"));
+            ASSERT_EQ(Path("c:\\.map"), Path("c:\\").addExtension("map"));
         }
         
         TEST(PathTest, makeAbsolute) {
@@ -183,6 +186,7 @@ namespace TrenchBroom {
             ASSERT_EQ("asdf", Path("/asdf").lastComponent().asString());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
             ASSERT_EQ(Path("path.map"), Path("/this/is/a/path.map").lastComponent());
+            ASSERT_EQ(Path(""), Path("/").lastComponent());
         }
         
         TEST(PathTest, deleteLastComponent) {
@@ -190,6 +194,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("/this/is/a"), Path("/this/is/a/path.map").deleteLastComponent());
+            ASSERT_EQ(Path("/"), Path("/").deleteLastComponent());
         }
         
         TEST(PathTest, getFirstComponet) {
@@ -222,6 +227,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("map"), Path("asdf.map").extension());
             ASSERT_EQ(String("map"), Path("/this/is/a/path.map").extension());
             ASSERT_EQ(String("textfile"), Path("/this/is/a/path.map.textfile").extension());
+            ASSERT_EQ(String(""), Path("/").extension());
         }
         
         TEST(PathTest, addExtension) {
@@ -229,6 +235,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/asdf."), Path("/asdf").addExtension(""));
             ASSERT_EQ(Path("/asdf.map"), Path("/asdf").addExtension("map"));
             ASSERT_EQ(Path("/asdf.map.test"), Path("/asdf.map").addExtension("test"));
+            ASSERT_EQ(Path("/.map"), Path("/").addExtension("map"));
         }
         
         TEST(PathTest, makeAbsolute) {
