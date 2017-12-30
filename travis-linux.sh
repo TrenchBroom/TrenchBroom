@@ -24,7 +24,7 @@ cd ..
 mkdir build
 cd build
 CC=gcc-5 CXX=g++-5 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
-ninja || exit 1
+cmake --build . --config Release || exit 1
 cpack || exit 1
 
 ./generate_checksum_deb.sh

@@ -7,6 +7,7 @@ cd cmakebuild
 
 cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
 cmake --build . --config Release
+cpack
 
 IF ERRORLEVEL 1 GOTO ERROR
 
