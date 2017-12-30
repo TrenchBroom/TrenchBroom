@@ -201,16 +201,24 @@ namespace TrenchBroom {
         Path Path::lastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot return last component of empty path");
-            return Path(m_components.back());
+            if (!m_components.empty()) {
+                return Path(m_components.back());
+            } else {
+                return Path("");
+            }
         }
 
         Path Path::deleteLastComponent() const {
             if (isEmpty())
                 throw PathException("Cannot delete last component of empty path");
-            StringList components;
-            components.reserve(m_components.size() - 1);
-            components.insert(std::begin(components), std::begin(m_components), std::end(m_components) - 1);
-            return Path(m_absolute, components);
+            if (!m_components.empty()) {
+                StringList components;
+                components.reserve(m_components.size() - 1);
+                components.insert(std::begin(components), std::begin(m_components), std::end(m_components) - 1);
+                return Path(m_absolute, components);
+            } else {
+                return Path(m_absolute, m_components);
+            }
         }
 
         Path Path::prefix(const size_t count) const {
@@ -227,9 +235,9 @@ namespace TrenchBroom {
             if (count == 0)
                 return Path("");
             
-            StringList::const_iterator begin = std::begin(m_components);
+            auto begin = std::begin(m_components);
             std::advance(begin, static_cast<StringList::const_iterator::difference_type>(index));
-            StringList::const_iterator end = begin;
+            auto end = begin;
             std::advance(end, static_cast<StringList::const_iterator::difference_type>(count));
             StringList newComponents(count);
             std::copy(begin, end, std::begin(newComponents));
@@ -239,27 +247,31 @@ namespace TrenchBroom {
         String Path::filename() const {
             if (isEmpty())
                 throw PathException("Cannot get filename of empty path");
-            return m_components.back();
+            if (m_components.empty()) {
+                return "";
+            } else {
+                return m_components.back();
+            }
         }
         
         String Path::basename() const {
             if (isEmpty())
                 throw PathException("Cannot get basename of empty path");
-            const String& lastComponent = m_components.back();
-            const size_t dotIndex = lastComponent.rfind('.');
+            const auto filename = this->filename();
+            const auto dotIndex = filename.rfind('.');
             if (dotIndex == String::npos)
-                return lastComponent;
-            return lastComponent.substr(0, dotIndex);
+                return filename;
+            return filename.substr(0, dotIndex);
         }
 
         String Path::extension() const {
             if (isEmpty())
                 throw PathException("Cannot get extension of empty path");
-            const String& lastComponent = m_components.back();
-            const size_t dotIndex = lastComponent.rfind('.');
+            const auto filename = this->filename();
+            const auto dotIndex = filename.rfind('.');
             if (dotIndex == String::npos)
                 return "";
-            return lastComponent.substr(dotIndex + 1);
+            return filename.substr(dotIndex + 1);
         }
         
         Path Path::deleteExtension() const {
@@ -268,10 +280,17 @@ namespace TrenchBroom {
 
         Path Path::addExtension(const String& extension) const {
             if (isEmpty())
-                throw PathException("Cannot get extension of empty path");
-            StringList components = m_components;
-            String& lastComponent = components.back();
-            lastComponent += "." + extension;
+                throw PathException("Cannot add extension to empty path");
+            auto components = m_components;
+            if (components.empty()
+#ifdef _WIN32
+				|| hasDriveSpec(m_components.back())
+#endif
+				) {
+                components.push_back("." + extension);
+            } else {
+                components.back() += "." + extension;
+            }
             return Path(m_absolute, components);
         }
 
@@ -287,6 +306,8 @@ namespace TrenchBroom {
             return (!isEmpty() && !absolutePath.isEmpty() &&
                     isAbsolute() && absolutePath.isAbsolute()
 #ifdef _WIN32
+                    && 
+                    !m_components.empty() && !absolutePath.m_components.empty()
                     &&
                     m_components[0] == absolutePath.m_components[0]
 #endif
@@ -312,6 +333,10 @@ namespace TrenchBroom {
                 throw PathException("Cannot make relative path with relative sub path");
 
 #ifdef _WIN32
+            if (m_components.empty())
+                throw PathException("Cannot make relative path from an reference path with no drive spec");
+            if (absolutePath.m_components.empty())
+                throw PathException("Cannot make relative path with sub path with no drive spec");
             if (m_components[0] != absolutePath.m_components[0])
                 throw PathException("Cannot make relative path if reference path has different drive spec");
 #endif
