@@ -48,8 +48,6 @@ bool getPlane(I cur, I end, Plane<T,3>& plane, const F& getPosition = F()) {
     if (cur == end)
         return false;
     const Vec<T,3> p1 = *cur++;
-    if (cur == end)
-        return false;
     return setPlanePoints(plane, p0, p1, p2);
 }
 

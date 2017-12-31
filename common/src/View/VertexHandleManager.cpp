@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 
                 const FloatType distance = intersectPolygonWithRay(pickRay, plane, std::begin(position), std::end(position));
                 if (!Math::isnan(distance)) {
-                    const Vec3 pointHandle = grid.snap(pickRay.pointAtDistance(distance), position, plane.normal);
+                    const Vec3 pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
                     
                     const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                     if (!Math::isnan(pointDist)) {
