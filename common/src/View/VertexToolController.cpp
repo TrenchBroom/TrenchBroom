@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
                     m_tool->handleManager().selectedHandleCount() == 1) {
                     
-                    const Model::Hit& hit = findHandleHit(inputState);
+                    const Model::Hit& hit = VertexToolController::findHandleHit(inputState, *this);
                     if (hit.hasType(VertexHandleManager::HandleHit)) {
                         const Vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
                         const Vec3 targetPos = hit.target<Vec3>();
