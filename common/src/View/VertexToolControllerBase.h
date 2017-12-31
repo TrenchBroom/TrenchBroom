@@ -53,7 +53,22 @@ namespace TrenchBroom {
                 }
             private:
                 virtual const Model::Hit& doFindDraggableHandle(const InputState& inputState) const {
-                    return inputState.pickResult().query().type(m_hitType).occluded().first();
+                    return findDraggableHandle(inputState, m_hitType);
+                }
+            public:
+                const Model::Hit& findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                    const auto query = inputState.pickResult().query().type(m_hitType).occluded();
+                    const auto hits = query.all();
+                    const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return selected(hit); });
+                    if (it != std::end(hits)) {
+                        return *it;
+                    } else {
+                        return query.first();
+                    }
+                }
+            private:
+                bool selected(const Model::Hit& hit) const {
+                    return m_tool->selected(hit);
                 }
             };
             

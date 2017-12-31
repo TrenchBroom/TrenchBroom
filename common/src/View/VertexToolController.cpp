@@ -24,36 +24,36 @@
 
 namespace TrenchBroom {
     namespace View {
-        class VertexToolController::VertexPartBase {
-        public:
-            virtual ~VertexPartBase() {}
-        protected:
-            const Model::Hit& findHandleHit(const InputState& inputState) const {
-                const Model::Hit& vertexHit = inputState.pickResult().query().type(VertexHandleManager::HandleHit).occluded().first();
-                if (vertexHit.isMatch())
-                    return vertexHit;
-                const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
-                if (edgeHit.isMatch())
-                    return edgeHit;
-                return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
-            }
-        };
-        
-        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3>, private VertexPartBase {
+        /*
+         * This is a bit awkward, but I'd rather not duplicate this logic into the two part classes, and I can't move
+         * it up the inheritance hierarchy either. Nor can I introduce a separate common base class for the two parts
+         * to contain this method due to the call to the inherited findDraggableHandle method.
+         */
+        const Model::Hit& VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
+            const Model::Hit& vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
+            if (vertexHit.isMatch())
+                return vertexHit;
+            const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
+            if (edgeHit.isMatch())
+                return edgeHit;
+            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
+        }
+
+        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
         public:
             SelectVertexPart(VertexTool* tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHit) {}
         private:
             const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
-                return findHandleHit(inputState);
+                return VertexToolController::findHandleHit(inputState, *this);
             }
-            
+
             bool equalHandles(const Vec3& lhs, const Vec3& rhs) const override {
                 return lhs.squaredDistanceTo(rhs) < MaxHandleDistance * MaxHandleDistance;
             }
         };
 
-        class VertexToolController::MoveVertexPart : public MovePartBase, private VertexPartBase {
+        class VertexToolController::MoveVertexPart : public MovePartBase {
         public:
             MoveVertexPart(VertexTool* tool) :
             MovePartBase(tool, VertexHandleManager::HandleHit) {}
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             }
         private:
             const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
-                return findHandleHit(inputState);
+                return VertexToolController::findHandleHit(inputState, *this);
             }
         };
         
