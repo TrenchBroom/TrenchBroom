@@ -164,7 +164,12 @@ namespace TrenchBroom {
                     handleManager().deselectAll();
                 handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
             }
-            
+
+            bool selected(const Model::Hit& hit) const {
+                const H& handle = hit.target<H>();
+                return handleManager().selected(handle);
+            }
+
             virtual bool deselectAll() {
                 if (handleManager().anySelected()) {
                     handleManager().deselectAll();

@@ -29,8 +29,9 @@ namespace TrenchBroom {
         class VertexTool;
         
         class VertexToolController : public VertexToolControllerBase<VertexTool> {
+        protected:
+            static const Model::Hit& findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base);
         private:
-            class VertexPartBase;
             class SelectVertexPart;
             class MoveVertexPart;
         public:
