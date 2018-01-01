@@ -46,5 +46,18 @@ FOREACH(GAME_CONFIG_FILE ${GAME_CONFIG_FILES})
     )
 ENDFOREACH(GAME_CONFIG_FILE)
 
+# Prepare to collect all definition files to copy them to the test data
+FILE(GLOB_RECURSE GAME_DEF_FILES
+		"${APP_DIR}/resources/games/*.def"
+        "${APP_DIR}/resources/games/*.fgd"
+		)
+
+FOREACH(GAME_CONFIG_FILE ${GAME_DEF_FILES})
+	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy "${GAME_CONFIG_FILE}" "${RESOURCE_DEST_DIR}/data/GameConfig"
+			)
+ENDFOREACH(GAME_CONFIG_FILE)
+
+
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)
 

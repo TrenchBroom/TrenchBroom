@@ -24,12 +24,30 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
+#include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
+#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
+        TEST(FgdParserTest, parseIncludedFgdFiles) {
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/GameConfig");
+            const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
+                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "fgd");
+            });
+
+            for (const Path& path : cfgFiles) {
+                MappedFile::Ptr file = Disk::openFile(path);
+                const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+                FgdParser parser(file->begin(), file->end(), defaultColor);
+
+                TestParserStatus status;
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+            }
+        }
+
         TEST(FgdParserTest, parseEmptyFile) {
             const String file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
