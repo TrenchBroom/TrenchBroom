@@ -43,11 +43,11 @@ namespace TrenchBroom {
             Issue(node),
             m_name(name) {}
             
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has missing target for key '" + m_name + "'";
             }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             LinkTargetIssueQuickFix() :
             IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
         private:
-            void doApply(MapFacade* facade, const Issue* issue) const {
+            void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
                 
                 const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);

@@ -37,11 +37,11 @@ namespace TrenchBroom {
             AddNode(NodeCollection& collection) :
             m_collection(collection) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   { m_collection.m_nodes.push_back(layer);  m_collection.m_layers.push_back(layer); }
-            void doVisit(Group* group)   { m_collection.m_nodes.push_back(group);  m_collection.m_groups.push_back(group); }
-            void doVisit(Entity* entity) { m_collection.m_nodes.push_back(entity); m_collection.m_entities.push_back(entity); }
-            void doVisit(Brush* brush)   { m_collection.m_nodes.push_back(brush);  m_collection.m_brushes.push_back(brush); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   { m_collection.m_nodes.push_back(layer);  m_collection.m_layers.push_back(layer); }
+            void doVisit(Group* group) override   { m_collection.m_nodes.push_back(group);  m_collection.m_groups.push_back(group); }
+            void doVisit(Entity* entity) override { m_collection.m_nodes.push_back(entity); m_collection.m_entities.push_back(entity); }
+            void doVisit(Brush* brush) override   { m_collection.m_nodes.push_back(brush);  m_collection.m_brushes.push_back(brush); }
         };
 
         class NodeCollection::RemoveNode : public NodeVisitor {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             m_entityRem(std::end(m_collection.m_entities)),
             m_brushRem(std::end(m_collection.m_brushes)) {}
             
-            ~RemoveNode() {
+            ~RemoveNode() override {
                 m_collection.m_nodes.erase(m_nodeRem, std::end(m_collection.m_nodes));
                 m_collection.m_layers.erase(m_layerRem, std::end(m_collection.m_layers));
                 m_collection.m_groups.erase(m_groupRem, std::end(m_collection.m_groups));
@@ -69,11 +69,11 @@ namespace TrenchBroom {
                 m_collection.m_brushes.erase(m_brushRem, std::end(m_collection.m_brushes));
             }
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   { remove(m_collection.m_nodes, m_nodeRem, layer);  remove(m_collection.m_layers, m_layerRem, layer); }
-            void doVisit(Group* group)   { remove(m_collection.m_nodes, m_nodeRem, group);  remove(m_collection.m_groups, m_groupRem, group); }
-            void doVisit(Entity* entity) { remove(m_collection.m_nodes, m_nodeRem, entity); remove(m_collection.m_entities, m_entityRem, entity); }
-            void doVisit(Brush* brush)   { remove(m_collection.m_nodes, m_nodeRem, brush);  remove(m_collection.m_brushes, m_brushRem, brush); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   { remove(m_collection.m_nodes, m_nodeRem, layer);  remove(m_collection.m_layers, m_layerRem, layer); }
+            void doVisit(Group* group) override   { remove(m_collection.m_nodes, m_nodeRem, group);  remove(m_collection.m_groups, m_groupRem, group); }
+            void doVisit(Entity* entity) override { remove(m_collection.m_nodes, m_nodeRem, entity); remove(m_collection.m_entities, m_entityRem, entity); }
+            void doVisit(Brush* brush) override   { remove(m_collection.m_nodes, m_nodeRem, brush);  remove(m_collection.m_brushes, m_brushRem, brush); }
             
             template <typename V, typename E>
             void remove(V& collection, typename V::iterator& rem, E& elem) {
@@ -179,7 +179,7 @@ namespace TrenchBroom {
         }
         
         void NodeCollection::addNode(Node* node) {
-            ensure(node != NULL, "node is null");
+            ensure(node != nullptr, "node is null");
             AddNode visitor(*this);
             node->accept(visitor);
         }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         }
         
         void NodeCollection::removeNode(Node* node) {
-            ensure(node != NULL, "node is null");
+            ensure(node != nullptr, "node is null");
             RemoveNode visitor(*this);
             node->accept(visitor);
         }

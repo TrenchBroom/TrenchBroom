@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class RemoveBrushFacesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
@@ -39,11 +37,11 @@ namespace TrenchBroom {
         private:
             Polygon3::List m_oldFacePositions;
         public:
-            static Ptr remove(const Model::VertexToFacesMap& faces);
+            static Ptr remove(const Model::FaceToBrushesMap& faces);
         private:
             RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Polygon3::List& facePositions);
 
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
         };
     }
 }

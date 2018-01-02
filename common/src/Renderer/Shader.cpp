@@ -40,7 +40,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
 
-            glAssert(glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, NULL));
+            glAssert(glShaderSource(m_shaderId, static_cast<GLsizei>(source.size()), linePtrs, nullptr));
             delete[] linePtrs;
             
             glAssert(glCompileShader(m_shaderId));
@@ -54,7 +54,7 @@ namespace TrenchBroom {
 				GLint infoLogLength;
                 glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
 				if (infoLogLength > 0) {
-					char* infoLog = new char[infoLogLength];
+					char* infoLog = new char[static_cast<size_t>(infoLogLength)];
 					glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
                     infoLog[infoLogLength-1] = 0;
                     

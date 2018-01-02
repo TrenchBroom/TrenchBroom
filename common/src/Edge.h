@@ -28,6 +28,7 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Edge {
     public:
+        typedef Edge<float, S> FloatType;
         typedef std::vector<Edge<T,S> > List;
     private:
         Vec<T,S> m_start;
@@ -42,6 +43,11 @@ namespace TrenchBroom {
                 flip();
         }
         
+        template <typename TT, size_t SS>
+        Edge(const Edge<TT,SS>& other) :
+        m_start(other.start()),
+        m_end(other.end()) {}
+        
         bool operator==(const Edge<T,S>& other) const {
             return m_start == other.m_start && m_end == other.m_end;
         }
@@ -54,13 +60,19 @@ namespace TrenchBroom {
             return compare(other) < 0;
         }
         
-        int compare(const Edge<T,S>& other) const {
-            const int startCmp = m_start.compare(other.m_start);
+        int compare(const Edge<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
+            const int startCmp = m_start.compare(other.m_start, epsilon);
             if (startCmp < 0)
                 return -1;
             if (startCmp > 0)
                 return 1;
-            return m_end.compare(other.m_end);
+            return m_end.compare(other.m_end, epsilon);
+        }
+
+        T squaredDistanceTo(const Edge<T,S>& other) const {
+            const T startDistance = m_start.squaredDistanceTo(other.m_start);
+            const T endDistance = m_end.squaredDistanceTo(other.m_end);
+            return Math::max(startDistance, endDistance);
         }
         
         const Vec<T,S>& start() const {
@@ -79,6 +91,10 @@ namespace TrenchBroom {
             return (m_end - m_start).normalized();
         }
         
+        Vec<T,S> pointAtDistance(const T distance) const {
+            return m_start + distance * direction();
+        }
+        
         static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
             typename Vec<T,S>::List result(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {
@@ -86,6 +102,10 @@ namespace TrenchBroom {
                 result[2*i+1] = edges[i].end();
             }
             return result;
+        }
+    public:
+        friend Edge<T,S> translate(const Edge<T,S>& edge, const Vec<T,S>& offset) {
+            return Edge<T,S>(edge.m_start + offset, edge.m_end + offset);
         }
     private:
         void flip() {
@@ -95,6 +115,9 @@ namespace TrenchBroom {
     };
     
     typedef Edge<double, 3> Edge3d;
+    typedef Edge<float, 3> Edge3f;
+    typedef Edge<double, 2> Edge2d;
+    typedef Edge<float, 2> Edge2f;
 }
 
 #endif

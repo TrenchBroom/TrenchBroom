@@ -35,13 +35,13 @@ namespace TrenchBroom {
     namespace IO {
         MappedFile::MappedFile(const Path& path) :
         m_path(path),
-        m_begin(NULL),
-        m_end(NULL) {
+        m_begin(nullptr),
+        m_end(nullptr) {
         }
         
         MappedFile::~MappedFile() {
-            m_begin = NULL;
-            m_end = NULL;
+            m_begin = nullptr;
+            m_end = nullptr;
         }
 
         const Path& MappedFile::path() const {
@@ -61,9 +61,9 @@ namespace TrenchBroom {
         }
 
         void MappedFile::init(const char* begin, const char* end) {
-            assert(m_begin == NULL && m_end == NULL);
+            assert(m_begin == nullptr && m_end == nullptr);
             if (end < begin)
-                throw new FileSystemException("End of mapped file is before begin");
+                throw FileSystemException("End of mapped file is before begin");
             m_begin = begin;
             m_end = end;
         }
@@ -93,8 +93,8 @@ namespace TrenchBroom {
         WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :
         MappedFile(path),
         m_fileHandle(INVALID_HANDLE_VALUE),
-        m_mappingHandle(NULL),
-        m_address(NULL) {
+        m_mappingHandle(nullptr),
+        m_address(nullptr) {
             size_t size = 0;
             
             DWORD accessMode = 0;
@@ -135,13 +135,13 @@ namespace TrenchBroom {
 		    delete [] mappingName;
             
 		    m_mappingHandle = OpenFileMapping(mapAccess, true, uMappingName);
-		    if (m_mappingHandle == NULL) {
-			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		    if (m_mappingHandle == nullptr) {
+			    m_fileHandle = CreateFile(uFilename, accessMode, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
                 delete [] uFilename;
 
 			    if (m_fileHandle != INVALID_HANDLE_VALUE) {
-				    size = static_cast<size_t>(GetFileSize(m_fileHandle, NULL));
-				    m_mappingHandle = CreateFileMapping(m_fileHandle, NULL, protect, 0, 0, uMappingName);
+				    size = static_cast<size_t>(GetFileSize(m_fileHandle, nullptr));
+				    m_mappingHandle = CreateFileMapping(m_fileHandle, nullptr, protect, 0, 0, uMappingName);
                     delete [] uMappingName;
 			    } else {
                     delete [] uMappingName;
@@ -158,18 +158,18 @@ namespace TrenchBroom {
                     size = (attrs.nFileSizeHigh << 16) + attrs.nFileSizeLow;
                 } else {
 				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = NULL;
+				    m_mappingHandle = nullptr;
                     throw FileSystemException("Cannot open file " + path.asString());
                 }
 		    }
             
-		    if (m_mappingHandle != NULL) {
+		    if (m_mappingHandle != nullptr) {
 			    m_address = static_cast<char*>(MapViewOfFile(m_mappingHandle, mapAccess, 0, 0, 0));
-			    if (m_address != NULL) {
+			    if (m_address != nullptr) {
                     init(m_address, m_address + size);
 			    } else {
 				    CloseHandle(m_mappingHandle);
-				    m_mappingHandle = NULL;
+				    m_mappingHandle = nullptr;
 				    CloseHandle(m_fileHandle);
 				    m_fileHandle = INVALID_HANDLE_VALUE;
                     throw FileSystemException("Cannot open file " + path.asString());
@@ -184,14 +184,14 @@ namespace TrenchBroom {
         }
         
         WinMappedFile::~WinMappedFile() {
-            if (m_address != NULL) {
+            if (m_address != nullptr) {
         	    UnmapViewOfFile(m_address);
-                m_address = NULL;
+                m_address = nullptr;
             }
             
-		    if (m_mappingHandle != NULL) {
+		    if (m_mappingHandle != nullptr) {
 			    CloseHandle(m_mappingHandle);
-			    m_mappingHandle = NULL;
+			    m_mappingHandle = nullptr;
 		    }
             
 		    if (m_fileHandle != INVALID_HANDLE_VALUE) {
@@ -202,7 +202,7 @@ namespace TrenchBroom {
 #else
         PosixMappedFile::PosixMappedFile(const Path& path, std::ios_base::openmode mode) :
         MappedFile(path),
-        m_address(NULL),
+        m_address(nullptr),
         m_size(0),
         m_filedesc(-1) {
             int flags = 0;
@@ -224,8 +224,8 @@ namespace TrenchBroom {
             if (m_filedesc >= 0) {
                 m_size = static_cast<size_t>(lseek(m_filedesc, 0, SEEK_END));
                 lseek(m_filedesc, 0, SEEK_SET);
-                m_address = static_cast<char*>(mmap(NULL, m_size, prot, MAP_FILE | MAP_PRIVATE, m_filedesc, 0));
-                if (m_address != NULL) {
+                m_address = static_cast<char*>(mmap(nullptr, m_size, prot, MAP_FILE | MAP_PRIVATE, m_filedesc, 0));
+                if (m_address != nullptr) {
                     init(m_address, m_address + m_size);
                 } else {
                     close(m_filedesc);
@@ -238,7 +238,7 @@ namespace TrenchBroom {
         }
         
         PosixMappedFile::~PosixMappedFile() {
-            if (m_address != NULL) {
+            if (m_address != nullptr) {
                 munmap(m_address, m_size);
             }
             

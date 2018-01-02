@@ -152,8 +152,8 @@ namespace TrenchBroom {
             ASSERT_THROW(Disk::openFile(env.dir() + Path("does/not/exist")), FileNotFoundException);
             
             ASSERT_THROW(Disk::openFile(env.dir() + Path("does_not_exist.txt")), FileNotFoundException);
-            ASSERT_TRUE(Disk::openFile(env.dir() + Path("test.txt")) != NULL);
-            ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != NULL);
+            ASSERT_TRUE(Disk::openFile(env.dir() + Path("test.txt")) != nullptr);
+            ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
         }
         
         TEST(DiskTest, resolvePath) {
@@ -310,9 +310,9 @@ namespace TrenchBroom {
             ASSERT_THROW(fs.openFile(Path(".")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("anotherDir")), FileSystemException);
             
-            ASSERT_TRUE(fs.openFile(Path("test.txt")) != NULL);
-            ASSERT_TRUE(fs.openFile(Path("anotherDir/test3.map")) != NULL);
-            ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != NULL);
+            ASSERT_TRUE(fs.openFile(Path("test.txt")) != nullptr);
+            ASSERT_TRUE(fs.openFile(Path("anotherDir/test3.map")) != nullptr);
+            ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != nullptr);
         }
         
         TEST(WritableDiskFileSystemTest, createWritableDiskFileSystem) {

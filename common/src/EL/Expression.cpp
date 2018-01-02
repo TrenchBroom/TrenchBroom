@@ -26,12 +26,12 @@ namespace TrenchBroom {
     namespace EL {
         Expression::Expression(ExpressionBase* expression) :
         m_expression(expression) {
-            ensure(m_expression.get() != NULL, "expression is null");
+            ensure(m_expression.get() != nullptr, "expression is null");
         }
         
         bool Expression::optimize() {
             ExpressionBase* optimized = m_expression->optimize();
-            if (optimized != NULL && optimized != m_expression.get()) {
+            if (optimized != nullptr && optimized != m_expression.get()) {
                 m_expression.reset(optimized);
                 return true;
             }
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         void ExpressionBase::replaceExpression(ExpressionBase*& oldExpression, ExpressionBase* newExpression) {
-            if (newExpression != NULL && newExpression != oldExpression) {
+            if (newExpression != nullptr && newExpression != oldExpression) {
                 delete oldExpression;
                 oldExpression = newExpression;
             }
@@ -152,7 +152,7 @@ namespace TrenchBroom {
         }
         
         ExpressionBase* VariableExpression::doOptimize() {
-            return NULL;
+            return nullptr;
         }
         
         Value VariableExpression::doEvaluate(const EvaluationContext& context) const {
@@ -189,13 +189,13 @@ namespace TrenchBroom {
             for (ExpressionBase*& expression : m_elements) {
                 ExpressionBase* optimized = expression->optimize();
                 replaceExpression(expression, optimized);
-                allOptimized &= optimized != NULL;
+                allOptimized &= optimized != nullptr;
             }
             
             if (allOptimized)
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
             
-            return NULL;
+            return nullptr;
         }
         
         Value ArrayExpression::doEvaluate(const EvaluationContext& context) const {
@@ -260,13 +260,13 @@ namespace TrenchBroom {
                 ExpressionBase*& expression = entry.second;
                 ExpressionBase* optimized = expression->optimize();
                 replaceExpression(expression, optimized);
-                allOptimized &= optimized != NULL;
+                allOptimized &= optimized != nullptr;
             }
             
             if (allOptimized)
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
             
-            return NULL;
+            return nullptr;
         }
         
         Value MapExpression::doEvaluate(const EvaluationContext& context) const {
@@ -298,7 +298,7 @@ namespace TrenchBroom {
         UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
         ExpressionBase(line, column),
         m_operand(operand) {
-            ensure(m_operand != NULL, "operand is null");
+            ensure(m_operand != nullptr, "operand is null");
         }
         
         UnaryOperator::~UnaryOperator() {
@@ -309,10 +309,10 @@ namespace TrenchBroom {
             ExpressionBase* optimized = m_operand->optimize();
             replaceExpression(m_operand, optimized);
             
-            if (optimized != NULL)
+            if (optimized != nullptr)
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
             
-            return NULL;
+            return nullptr;
         }
         
         UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
@@ -414,8 +414,8 @@ namespace TrenchBroom {
         ExpressionBase(line, column),
         m_indexableOperand(indexableOperand),
         m_indexOperand(indexOperand) {
-            ensure(m_indexableOperand != NULL, "indexableOperand is null");
-            ensure(m_indexOperand != NULL, "indexOperand is null");
+            ensure(m_indexableOperand != nullptr, "indexableOperand is null");
+            ensure(m_indexOperand != nullptr, "indexOperand is null");
         }
         
         SubscriptOperator::~SubscriptOperator() {
@@ -438,10 +438,10 @@ namespace TrenchBroom {
             replaceExpression(m_indexableOperand, indexableOptimized);
             replaceExpression(m_indexOperand, indexOptimized);
             
-            if (indexableOptimized != NULL && indexOptimized != NULL)
+            if (indexableOptimized != nullptr && indexOptimized != nullptr)
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
             
-            return NULL;
+            return nullptr;
         }
         
         Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
@@ -462,8 +462,8 @@ namespace TrenchBroom {
         ExpressionBase(line, column),
         m_leftOperand(leftOperand),
         m_rightOperand(rightOperand) {
-            ensure(m_leftOperand != NULL, "leftOperand is null");
-            ensure(m_rightOperand != NULL, "rightOperand is null");
+            ensure(m_leftOperand != nullptr, "leftOperand is null");
+            ensure(m_rightOperand != nullptr, "rightOperand is null");
         }
         
         BinaryOperator::~BinaryOperator() {
@@ -513,10 +513,10 @@ namespace TrenchBroom {
             replaceExpression(m_leftOperand, leftOptimized);
             replaceExpression(m_rightOperand, rightOptimized);
             
-            if (leftOptimized != NULL && rightOptimized != NULL)
+            if (leftOptimized != nullptr && rightOptimized != nullptr)
                 return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
             
-            return NULL;
+            return nullptr;
         }
         
         struct BinaryOperator::Traits {
@@ -1022,7 +1022,7 @@ namespace TrenchBroom {
             for (ExpressionBase* case_ : m_cases) {
                 ExpressionBase* optimized = case_->optimize();
                 
-                if (optimized != NULL && optimized != case_) {
+                if (optimized != nullptr && optimized != case_) {
                     const Value result = optimized->evaluate(EvaluationContext());
                     if (!result.undefined())
                         return LiteralExpression::create(result, m_line, m_column);
@@ -1032,7 +1032,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return NULL;
+            return nullptr;
         }
 
         ExpressionBase* SwitchOperator::doClone() const {

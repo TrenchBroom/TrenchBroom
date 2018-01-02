@@ -19,21 +19,15 @@
 
 #include "BrushFace.h"
 
-#include "Algorithms.h"
-#include "Exceptions.h"
-#include "VecMath.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
-#include "Model/TexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,17 +42,17 @@ namespace TrenchBroom {
         }
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
-        m_brush(NULL),
+        m_brush(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
-        m_geometry(NULL),
+        m_geometry(nullptr),
         m_vertexIndex(0),
         m_cachedVertices(0),
         m_verticesValid(false),
         m_attribs(attribs) {
-            ensure(m_texCoordSystem != NULL, "texCoordSystem is null");
+            ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
         }
 
@@ -108,13 +102,13 @@ namespace TrenchBroom {
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = Vec3::Null;
-            m_brush = NULL;
+            m_brush = nullptr;
             m_lineNumber = 0;
             m_lineCount = 0;
             m_selected = false;
             delete m_texCoordSystem;
-            m_texCoordSystem = NULL;
-            m_geometry = NULL;
+            m_texCoordSystem = nullptr;
+            m_geometry = nullptr;
         }
 
         BrushFace* BrushFace::clone() const {
@@ -138,9 +132,24 @@ namespace TrenchBroom {
             coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
+            // Get a line, and a reference point, that are on both the source face's plane and our plane
+            const Line3 seam = sourceFacePlane.intersectWithPlane(m_boundary);
+            const Vec3 refPoint = seam.pointOnLineClosestToPoint(center());
+            
             coordSystemSnapshot->restore(m_texCoordSystem);
-            m_texCoordSystem->updateNormal(sourceFaceNormal, m_boundary.normal, m_attribs);
+            
+            // Get the texcoords at the refPoint using the source face's attribs and tex coord system
+            const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
+            
+            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs);
+            
+            // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
+            if (!seam.direction.null()) {
+                const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const Vec2f offsetChange = desriedCoords - currentCoords;
+                m_attribs.setOffset(m_attribs.modOffset(m_attribs.offset() + offsetChange).corrected(4));
+            }
         }
         
         Brush* BrushFace::brush() const {
@@ -148,7 +157,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setBrush(Brush* brush) {
-            assert((m_brush == NULL) ^ (brush == NULL));
+            assert((m_brush == nullptr) ^ (brush == nullptr));
             m_brush = brush;
         }
 
@@ -168,13 +177,13 @@ namespace TrenchBroom {
         }
 
         Vec3 BrushFace::center() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
             return Vec3::center(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
         Vec3 BrushFace::boundsCenter() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
 
             const Mat4x4 toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
@@ -234,10 +243,16 @@ namespace TrenchBroom {
             m_attribs = attribs;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
 
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->faceDidChange();
             
             invalidateVertexCache();
+        }
+
+        void BrushFace::resetTexCoordSystemCache() {
+            if (m_texCoordSystem != nullptr) {
+                m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attribs);
+            }
         }
 
         const String& BrushFace::textureName() const {
@@ -301,7 +316,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
-            ensure(textureManager != NULL, "textureManager is null");
+            ensure(textureManager != nullptr, "textureManager is null");
             Assets::Texture* texture = textureManager->texture(textureName());
             setTexture(texture);
             invalidateVertexCache();
@@ -311,16 +326,16 @@ namespace TrenchBroom {
             if (texture == m_attribs.texture())
                 return;
             m_attribs.setTexture(texture);
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->faceDidChange();
             invalidateVertexCache();
         }
 
         void BrushFace::unsetTexture() {
-            if (m_attribs.texture() == NULL)
+            if (m_attribs.texture() == nullptr)
                 return;
             m_attribs.unsetTexture();
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->faceDidChange();
             invalidateVertexCache();
         }
@@ -367,7 +382,7 @@ namespace TrenchBroom {
             if (surfaceContents == m_attribs.surfaceContents())
                 return;
             m_attribs.setSurfaceContents(surfaceContents);
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->faceDidChange();
         }
 
@@ -428,16 +443,18 @@ namespace TrenchBroom {
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
-            const Vec3 invariant = m_geometry != NULL ? center() : m_boundary.anchor();
+            const Vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
             m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, invariant);
 
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
-            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
+
+            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
-            correctPoints();
-            invalidateVertexCache();
+            }
+
+            setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
         void BrushFace::invert() {
@@ -449,15 +466,30 @@ namespace TrenchBroom {
         }
 
         void BrushFace::updatePointsFromVertices() {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
 
             const BrushHalfEdge* first = m_geometry->boundary().front();
-            const Vec3 oldNormal = m_boundary.normal;
+            const Plane3 oldPlane = m_boundary;
             setPoints(first->next()->origin()->position(),
                       first->origin()->position(),
                       first->previous()->origin()->position());
 
-            m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
+            // Get a line, and a reference point, that are on both the old plane
+            // (before moving the face) and after moving the face.
+            const Line3 seam = oldPlane.intersectWithPlane(m_boundary);
+            if (!seam.direction.null()) {
+                const Vec3 refPoint = seam.pointOnLineClosestToPoint(center());
+                
+                // Get the texcoords at the refPoint using the old face's attribs and tex coord system
+                const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                
+                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs);
+                
+                // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
+                const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const Vec2f offsetChange = desriedCoords - currentCoords;
+                m_attribs.setOffset(m_attribs.modOffset(m_attribs.offset() + offsetChange).corrected(4));
+            }
         }
 
         void BrushFace::snapPlanePointsToInteger() {
@@ -496,28 +528,28 @@ namespace TrenchBroom {
         }
 
         size_t BrushFace::vertexCount() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->boundary().size();
         }
 
         BrushFace::EdgeList BrushFace::edges() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
             return EdgeList(m_geometry->boundary());
         }
 
         BrushFace::VertexList BrushFace::vertices() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
             return VertexList(m_geometry->boundary());
         }
 
         bool BrushFace::hasVertices(const Polygon3& vertices) const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
 
             if (vertices.vertexCount() != vertexCount())
                 return false;
             
             const BrushGeometry::HalfEdge* currentEdge = m_geometry->findHalfEdge(vertices.vertices().front());
-            if (currentEdge == NULL)
+            if (currentEdge == nullptr)
                 return false;
             
             for (size_t i = 1; i < vertexCount(); ++i) {
@@ -529,7 +561,7 @@ namespace TrenchBroom {
         }
 
         Polygon3 BrushFace::polygon() const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
             return Polygon3(m_geometry->vertexPositions());
         }
 
@@ -560,14 +592,14 @@ namespace TrenchBroom {
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->childWasSelected();
         }
 
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
-            if (m_brush != NULL)
+            if (m_brush != nullptr)
                 m_brush->childWasDeselected();
         }
 
@@ -616,7 +648,7 @@ namespace TrenchBroom {
         }
 
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
-            ensure(m_geometry != NULL, "geometry is null");
+            ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType dot = m_boundary.normal.dot(ray.direction);
             if (!Math::neg(dot))

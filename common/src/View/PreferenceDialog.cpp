@@ -43,13 +43,13 @@ namespace TrenchBroom {
         wxIMPLEMENT_DYNAMIC_CLASS(PreferenceDialog, wxDialog)
 
         PreferenceDialog::PreferenceDialog() :
-        m_toolBar(NULL),
-        m_book(NULL) {
+        m_toolBar(nullptr),
+        m_book(nullptr) {
             Create();
         }
         
         bool PreferenceDialog::Create() {
-            if (!wxDialog::Create(NULL, wxID_ANY, "Preferences"))
+            if (!wxDialog::Create(nullptr, wxID_ANY, "Preferences"))
                 return false;
             
             createGui();
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != NULL)
+            if (GetParent() != nullptr)
                 GetParent()->Raise();
             event.Skip();
         }
@@ -205,7 +205,7 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
-            if (currentPane() != NULL && !currentPane()->validate()) {
+            if (currentPane() != nullptr && !currentPane()->validate()) {
                 toggleTools(currentPaneId());
                 return;
             }
@@ -250,7 +250,7 @@ namespace TrenchBroom {
                 wxAcceleratorTable accceleratorTable(2, acceleratorEntries);
                 SetAcceleratorTable(accceleratorTable);
             } else {
-                wxAcceleratorTable accceleratorTable(0, NULL);
+                wxAcceleratorTable accceleratorTable(0, nullptr);
                 SetAcceleratorTable(accceleratorTable);
             }
         }

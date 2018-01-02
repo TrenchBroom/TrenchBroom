@@ -85,21 +85,21 @@ namespace TrenchBroom {
                         break;
                     default: {
                         const char* e = readInteger(WordDelims);
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(FgdToken::Integer, c, e, offset(c), startLine, startColumn);
                         
                         e = readDecimal(WordDelims);
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(FgdToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
                         e = readUntil(WordDelims);
-                        if (e == NULL)
+                        if (e == nullptr)
                             throw ParserException(startLine, startColumn, "Unexpected character: '" + String(c, 1) + "'");
                         return Token(FgdToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }
-            return Token(FgdToken::Eof, NULL, NULL, length(), line(), column());
+            return Token(FgdToken::Eof, nullptr, nullptr, length(), line(), column());
         }
         
         FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor) :
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
-                while (definition != NULL) {
+                while (definition != nullptr) {
                     definitions.push_back(definition);
                     definition = parseDefinition(status);
                     status.progress(m_tokenizer.progress());
@@ -149,7 +149,7 @@ namespace TrenchBroom {
         Assets::EntityDefinition* FgdParser::parseDefinition(ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Eof)
-                return NULL;
+                return nullptr;
             
             const String classname = token.data();
             if (StringUtils::caseInsensitiveEqual(classname, "@SolidClass")) {

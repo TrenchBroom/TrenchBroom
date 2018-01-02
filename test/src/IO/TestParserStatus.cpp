@@ -21,7 +21,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TestParserStatus::TestParserStatus() : ParserStatus(NULL) {}
+        TestParserStatus::TestParserStatus() : ParserStatus(nullptr) {}
         
         void TestParserStatus::doProgress(const double progress) {}
     }

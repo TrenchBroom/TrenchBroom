@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::createGui() {
-            wxWindow* collectionEditor = NULL;
+            wxWindow* collectionEditor = nullptr;
             
             MapDocumentSPtr document = lock(m_document);
             const Model::Game::TexturePackageType type = document->game()->texturePackageType();

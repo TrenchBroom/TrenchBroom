@@ -37,7 +37,7 @@ namespace TrenchBroom {
         wxIMPLEMENT_DYNAMIC_CLASS(WelcomeFrame, wxFrame)
 
         WelcomeFrame::WelcomeFrame() :
-        wxFrame(NULL, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
+        wxFrame(nullptr, wxID_ANY, "Welcome to TrenchBroom", wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX | wxCLIP_CHILDREN) {
             createGui();
             bindEvents();
             Centre();
@@ -86,7 +86,7 @@ namespace TrenchBroom {
 #else
                                                           "map",
 #endif
-                                                          "", NULL);
+                                                          "", nullptr);
             if (!pathStr.empty()) {
                 Hide();
                 TrenchBroomApp& app = TrenchBroomApp::instance();

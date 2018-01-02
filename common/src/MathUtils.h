@@ -154,6 +154,11 @@ namespace Math {
     }
     
     template <typename T>
+    T absDifference(const T v1, const T v2) {
+        return Math::abs(Math::abs(v1) - Math::abs(v2));
+    }
+    
+    template <typename T>
     T radians(const T d) {
         return d * Constants<T>::piOverStraightAngle();
     }
@@ -176,6 +181,11 @@ namespace Math {
     template <typename T>
     T round(const T v) {
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
+    }
+    
+    template <typename T>
+    T integerOffset(const T v) {
+        return v - round(v);
     }
     
     template <typename T>

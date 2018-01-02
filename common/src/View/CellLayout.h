@@ -675,8 +675,8 @@ namespace TrenchBroom {
 
                 size_t groupIndex = m_groups.size();
                 for (size_t i = 0; i < m_groups.size(); ++i) {
-                    Group* candidate = &m_groups[i];
-                    const LayoutBounds groupBounds = candidate->bounds();
+                    const Group& candidate = m_groups[i];
+                    const LayoutBounds groupBounds = candidate.bounds();
                     if (y + m_rowMargin > groupBounds.bottom())
                         continue;
                     groupIndex = i;
@@ -686,13 +686,10 @@ namespace TrenchBroom {
                 if (groupIndex == m_groups.size())
                     return y;
                 
-                size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
-                if (rowIndex == m_groups[groupIndex].size())
-                    return y;
-
                 if (offset == 0)
                     return y;
                 
+                size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
                 int newIndex = static_cast<int>(rowIndex) + offset;
                 if (newIndex < 0) {
                     while (newIndex < 0 && groupIndex > 0)
@@ -788,7 +785,7 @@ namespace TrenchBroom {
             }
             
             float outerMargin() const {
-                return m_outerMargin();
+                return m_outerMargin;
             }
             
             float groupMargin() const {
@@ -800,7 +797,7 @@ namespace TrenchBroom {
             }
             
             float cellMargin() const {
-                return m_cellMargin();
+                return m_cellMargin;
             }
         };
     }

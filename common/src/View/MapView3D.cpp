@@ -44,6 +44,10 @@
 #include "View/CreateComplexBrushToolController3D.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController3D.h"
+#include "View/EdgeTool.h"
+#include "View/EdgeToolController.h"
+#include "View/FaceTool.h"
+#include "View/FaceToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -72,6 +76,7 @@ namespace TrenchBroom {
             initializeCamera();
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass3D());
+			SetName("MapView3D");
         }
 
         MapView3D::~MapView3D() {
@@ -92,6 +97,8 @@ namespace TrenchBroom {
             addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
             addTool(new ClipToolController3D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new EdgeToolController(toolBox.edgeTool()));
+            addTool(new FaceToolController(toolBox.faceTool()));
             addTool(new CreateEntityToolController3D(toolBox.createEntityTool()));
             addTool(new SetBrushFaceAttributesTool(m_document));
             addTool(new SelectionTool(m_document));
@@ -372,11 +379,11 @@ namespace TrenchBroom {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
             
-            void doVisit(const Model::Entity* entity) {
+            void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i)
@@ -384,7 +391,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(const Model::Brush* brush)   {
+            void doVisit(const Model::Brush* brush) override   {
                 for (const Model::BrushVertex* vertex : brush->vertices())
                     addPoint(vertex->position());
             }
@@ -416,11 +423,11 @@ namespace TrenchBroom {
                 return m_offset;
             }
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
             
-            void doVisit(const Model::Entity* entity) {
+            void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
@@ -430,7 +437,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void doVisit(const Model::Brush* brush)   {
+            void doVisit(const Model::Brush* brush) override   {
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
                     for (size_t j = 0; j < 4; ++j)
                         addPoint(vertex->position(), m_frustumPlanes[j]);

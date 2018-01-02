@@ -57,12 +57,12 @@ namespace TrenchBroom {
         void TextureRenderFunc::after(const Assets::Texture* texture) {}
         
         void DefaultTextureRenderFunc::before(const Assets::Texture* texture) {
-            if (texture != NULL)
+            if (texture != nullptr)
                 texture->activate();
         }
         
         void DefaultTextureRenderFunc::after(const Assets::Texture* texture) {
-            if (texture != NULL)
+            if (texture != nullptr)
                 texture->deactivate();
         }
 

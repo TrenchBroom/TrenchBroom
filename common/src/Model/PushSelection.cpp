@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         PushSelection::PushSelection(MapFacade* facade) :
-        m_facade(NULL) {
+        m_facade(nullptr) {
             initialize(facade);
         }
         
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
         
         void PushSelection::initialize(MapFacade* facade) {
-            assert(facade != NULL);
+            assert(facade != nullptr);
             m_facade = facade;
             m_nodes = m_facade->selectedNodes().nodes();
             m_faces = m_facade->selectedBrushFaces();

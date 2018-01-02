@@ -24,7 +24,6 @@
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -37,23 +36,23 @@ namespace TrenchBroom {
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const size_t snapTo) :
         DocumentCommand(Type, "Snap Brush Vertices"),
         m_snapTo(snapTo),
-        m_snapshot(NULL) {}
+        m_snapshot(nullptr) {}
         
         SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
             delete m_snapshot;
         }
 
         bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot == NULL);
+            assert(m_snapshot == nullptr);
             m_snapshot = document->performSnapVertices(m_snapTo);
             return true;
         }
         
         bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != NULL, "snapshot is null");
+            ensure(m_snapshot != nullptr, "snapshot is null");
             document->restoreSnapshot(m_snapshot);
             delete m_snapshot;
-            m_snapshot = NULL;
+            m_snapshot = nullptr;
             return true;
         }
         

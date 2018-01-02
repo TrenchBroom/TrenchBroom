@@ -37,8 +37,8 @@ namespace TrenchBroom {
         GameEngineProfileManager::GameEngineProfileManager(wxWindow* parent, Model::GameEngineConfig& config) :
         wxPanel(parent),
         m_config(config),
-        m_profileList(NULL),
-        m_profileEditor(NULL) {
+        m_profileList(nullptr),
+        m_profileEditor(nullptr) {
             TitledPanel* listPanel = new TitledPanel(this, "Profiles");
             TitledPanel* editorPanel = new TitledPanel(this, "Details");
             listPanel->getPanel()->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 Model::GameEngineProfile* profile = m_config.profile(static_cast<size_t>(selection));
                 m_profileEditor->setProfile(profile);
             } else {
-                m_profileEditor->setProfile(NULL);
+                m_profileEditor->setProfile(nullptr);
             }
         }
     }

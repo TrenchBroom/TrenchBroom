@@ -29,7 +29,7 @@ namespace TrenchBroom {
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
-        m_toolPage(NULL),
+        m_toolPage(nullptr),
         m_handle(),
         m_angle(Math::radians(15.0)) {}
 
@@ -145,13 +145,9 @@ namespace TrenchBroom {
         }
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
-            assert(m_toolPage == NULL);
+            assert(m_toolPage == nullptr);
             m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
             return m_toolPage;
-        }
-
-        String RotateObjectsTool::doGetIconName() const {
-            return "RotateTool.png";
         }
     }
 }

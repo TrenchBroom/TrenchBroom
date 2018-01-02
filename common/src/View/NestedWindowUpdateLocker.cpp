@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_nestingLevel(0) {}
         
         void NestedWindowUpdateLocker::Freeze() {
-            if (m_nestingLevel == 0 && m_window != NULL)
+            if (m_nestingLevel == 0 && m_window != nullptr)
                 m_window->Freeze();
             ++m_nestingLevel;
         }
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         void NestedWindowUpdateLocker::Thaw() {
             assert(m_nestingLevel > 0);
             --m_nestingLevel;
-            if (m_nestingLevel == 0 && m_window != NULL)
+            if (m_nestingLevel == 0 && m_window != nullptr)
                 m_window->Thaw();
         }
         

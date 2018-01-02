@@ -7,12 +7,18 @@
 ## Windows
 
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
-- For Visual Studio (only tested with 2010)
+- For Visual Studio:
+    - VS2015 and VS2017 are supported.
+    - For VS2015, install the `v140_xp` platform toolset (listed as "Windows XP Support for C++" in the installer).
+    - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
+      - VC++ 2015.3 v140 toolset for desktop (x86,x64)
+      - Windows XP support for C++
+
     - Get the binary build of wxWidgets 3 for your platform from
       [http://www.wxwidgets.org](http://www.wxwidgets.org)
 
     - For 32bit builds, you need the following files:
-        If you are using a different version of Visual Studio, you will have to download other binaries, e.g., `wxMSW-<version>-vc120_Dev.7z` etc. and you will also have to use different directory names instead of vc140_dll below.
+        If you are using a different version of Visual Studio, you will have to download other binaries, e.g., `wxMSW-<version>-vc140_Dev.7z` etc. and you will also have to use different directory names instead of vc140_dll below.
         - `wxWidgets-<version>_headers.7z`
         - `wxMSW-<version>_vc140_Dev.7z`
         - `wxMSW-<version>_vc140_ReleaseDLL.7z`
@@ -46,11 +52,14 @@
   - Run the following two commands
 
     ```
-    cmake .. -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v140_xp -DCMAKE_BUILD_TYPE=Release
     cmake --build . --config Release --target TrenchBroom
     ```
 
+    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v140_xp` is the _Visual Studio 2015_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v140_xp`; earlier versions won't be able to compile TrenchBroom.
+
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
+
 - For MinGW 64
   - Download and install [MinGW](http://mingw-w64.sourceforge.net/)
     - Scroll down to Mingw-builds and select the appropriate version for your OS (32 or 64 Bit), then select the SJLJ variant.
@@ -199,7 +208,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run
 
       ```
-      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=11 --prefix=$(pwd)/install
+      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=14 --prefix=$(pwd)/install
       ```
 
     - Run
@@ -213,7 +222,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run 
 
       ```
-      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=11 --prefix=$(pwd)/install
+      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=14 --prefix=$(pwd)/install
       ```
 
     - Run
@@ -246,3 +255,5 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 
 ### Notes
 - You can install your preferred wxWidgets configuration using `make install`. If you wish to do this, then you can omit specifying the `wxWidgets_PREFIX` variable when generating the build configs with Cmake.
+- The changelog is generated with `git log --oneline --decorate <LAST_REL_TAG>..HEAD`, where <LAST_REL_TAG> is replaced by whatever tag marks the last release. The generated log is then manually cleaned up.
+- To create a release, push the appropriate tag, e.g. `git tag -a v2.0.0-RC5 -m "This tag marks TrenchBroom 2 release candidate 5."`, then `git push origin v2.0.0-RC5`.

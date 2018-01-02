@@ -87,11 +87,11 @@ namespace TrenchBroom {
             m_pickRay(pickRay),
             m_closest(std::numeric_limits<FloatType>::max()) {}
         private:
-            void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) {}
-            void doVisit(const Model::Brush* brush)   {
+            void doVisit(const Model::World* world) override   {}
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::Entity* entity) override {}
+            void doVisit(const Model::Brush* brush) override   {
                 for (const auto edge : brush->edges())
                     visitEdge(edge);
             }
@@ -169,7 +169,7 @@ namespace TrenchBroom {
         public:
             MatchFaceBoundary(const Model::BrushFace* reference) :
             m_reference(reference) {
-                ensure(m_reference != NULL, "reference is null");
+                ensure(m_reference != nullptr, "reference is null");
             }
             
             bool operator()(Model::BrushFace* face) const {
@@ -295,26 +295,41 @@ namespace TrenchBroom {
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
                             [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
                 return false;
-            
-            Model::ParentChildrenMap newNodes;
+
+            Model::BrushList newBrushes;
             Model::BrushFaceList newDragFaces;
+            Model::ParentChildrenMap newNodes;
+
             for (Model::BrushFace* dragFace : m_dragFaces) {
                 Model::Brush* brush = dragFace->brush();
-                
+
                 Model::Brush* newBrush = brush->clone(worldBounds);
                 Model::BrushFace* newDragFace = findMatchingFace(newBrush, dragFace);
-                Model::BrushFace* clipFace = newDragFace->clone();
-                clipFace->invert();
-                
-                newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
-                const bool clipResult = newBrush->clip(worldBounds, clipFace);
-                assert(clipResult);
-                unused(clipResult);
-                
-                newNodes[brush->parent()].push_back(newBrush);
+
+                newBrushes.push_back(newBrush);
                 newDragFaces.push_back(newDragFace);
+
+                if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
+                    // There is a brush for which the move is not applicable. Abort.
+                    VectorUtils::deleteAll(newBrushes);
+                    return false;
+                } else {
+                    Model::BrushFace* clipFace = newDragFace->clone();
+                    clipFace->invert();
+
+                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
+
+                    // This should never happen, but let's be on the safe side.
+                    if (!newBrush->clip(worldBounds, clipFace)) {
+                        delete clipFace;
+                        VectorUtils::deleteAll(newBrushes);
+                        return false;
+                    }
+
+                    newNodes[brush->parent()].push_back(newBrush);
+                }
             }
-            
+
             document->deselectAll();
             const Model::NodeList addedNodes = document->addNodes(newNodes);
             document->select(addedNodes);
@@ -327,7 +342,7 @@ namespace TrenchBroom {
             Model::FindMatchingBrushFaceVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(reference)));
             visitor.visit(brush);
             if (!visitor.hasResult())
-                return NULL;
+                return nullptr;
             return visitor.result();
         }
 

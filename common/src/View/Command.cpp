@@ -38,6 +38,10 @@ namespace TrenchBroom {
             return m_type;
         }
         
+        bool Command::isType(CommandType type) const {
+            return m_type == type;
+        }
+        
         Command::CommandState Command::state() const {
             return m_state;
         }

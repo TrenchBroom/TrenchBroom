@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
-            ensure(file != NULL, "file is null");
+            ensure(file != nullptr, "file is null");
             const Path filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                 return *this;
             DirMap::const_iterator it = m_directories.find(path.firstComponent());
             if (it == std::end(m_directories))
-                throw new FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
+                throw FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
             return it->second->findDirectory(path.deleteFirstComponent());
         }
         
@@ -98,12 +98,12 @@ namespace TrenchBroom {
             if (path.length() == 1) {
                 FileMap::const_iterator it = m_files.find(name);
                 if (it == std::end(m_files))
-                    throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
+                    throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
                 return it->second->open();
             }
             DirMap::const_iterator it = m_directories.find(name);
             if (it == std::end(m_directories))
-                throw new FileSystemException("File not found: '" + (m_path + path).asString() + "'");
+                throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
             return it->second->findFile(path.deleteFirstComponent());
         }
         

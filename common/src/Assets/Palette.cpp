@@ -34,7 +34,7 @@ namespace TrenchBroom {
         m_size(size),
         m_data(data) {
             ensure(m_size > 0, "size is 0");
-            ensure(m_data != NULL, "data is null");
+            ensure(m_data != nullptr, "data is null");
         }
         
         Palette::Data::~Data() {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 else if (extension == "pcx")
                     return loadPcx(file);
                 else
-                    throw new AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
+                    throw AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
             } catch (const FileSystemException& e) {
                 throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
             }

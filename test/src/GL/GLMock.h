@@ -29,7 +29,7 @@ namespace TrenchBroom {
     class GLMock {
     public:
         GLenum GetError() { return GL_NO_ERROR; }
-        const GLubyte* GetString(GLenum) { return NULL; }
+        const GLubyte* GetString(GLenum) { return nullptr; }
         
         MOCK_METHOD0(GlewInitialize, void());
         
@@ -55,6 +55,9 @@ namespace TrenchBroom {
         MOCK_METHOD1(LoadMatrixd, void(const GLdouble*));
         MOCK_METHOD1(LoadMatrixf, void(const GLfloat*));
         MOCK_METHOD1(MatrixMode, void(GLenum));
+        
+        MOCK_METHOD1(PushAttrib, void(GLbitfield));
+        MOCK_METHOD0(PopAttrib, void());
         
         MOCK_METHOD2(GetIntegerv, void(GLenum, GLint*));
         

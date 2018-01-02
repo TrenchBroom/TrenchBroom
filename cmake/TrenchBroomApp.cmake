@@ -337,5 +337,6 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
     SET(CPACK_PACKAGE_FILE_EXT "deb")
     CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
+    CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/PrintDebianDependencies.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/print_debian_dependencies.sh" @ONLY)
 ENDIF()
 INCLUDE(CPack)

@@ -374,14 +374,14 @@ namespace TrenchBroom {
             RenameGroupsVisitor(const String& newName) : m_newName(newName) {}
             const Model::GroupNameMap& oldNames() const { return m_oldNames; }
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {
                 m_oldNames[group] = group->name();
                 group->setName(m_newName);
             }
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {}
         };
 
         class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
@@ -390,15 +390,15 @@ namespace TrenchBroom {
         public:
             UndoRenameGroupsVisitor(const Model::GroupNameMap& newNames) : m_newNames(newNames) {}
         private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {
+            void doVisit(Model::World* world) override   {}
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {
                 assert(m_newNames.count(group) == 1);
                 const String& newName = MapUtils::find(m_newNames, group, group->name());
                 group->setName(newName);
             }
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::Entity* entity) override {}
+            void doVisit(Model::Brush* brush) override   {}
         };
         
         Model::GroupNameMap MapDocumentCommandFacade::performRenameGroups(const String& newName) {
@@ -465,7 +465,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map snapshot;
             
             for (Model::AttributableNode* node : attributableNodes) {
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                snapshot[node].push_back(node->attributeSnapshot(name));
                 node->addOrUpdateAttribute(name, value);
             }
             
@@ -486,7 +486,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map snapshot;
             
             for (Model::AttributableNode* node : attributableNodes) {
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                snapshot[node].push_back(node->attributeSnapshot(name));
                 node->removeAttribute(name);
             }
             
@@ -508,8 +508,8 @@ namespace TrenchBroom {
             Model::AttributableNodeList::const_iterator it, end;
             for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
                 Model::AttributableNode* node = *it;
-                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
-                
+                snapshot[node].push_back(node->attributeSnapshot(name));
+
                 int intValue = node->hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
                 const int flagValue = (1 << flagIndex);
                 
@@ -542,7 +542,7 @@ namespace TrenchBroom {
             for (Model::AttributableNode* node : attributableNodes) {
                 const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
-                    snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                    snapshot[node].push_back(node->attributeSnapshot(name));
                     node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
                 }
             }
@@ -550,18 +550,24 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        void MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(std::begin(attributableNodes), std::end(attributableNodes));
             const Model::NodeList parents = collectParents(std::begin(nodes), std::end(nodes));
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            for (Model::AttributableNode* node : attributableNodes)
+
+            Model::EntityAttributeSnapshot::Map snapshot;
+            for (Model::AttributableNode* node : attributableNodes) {
+                snapshot[node].push_back(node->attributeSnapshot(oldName));
+                snapshot[node].push_back(node->attributeSnapshot(newName));
                 node->renameAttribute(oldName, newName);
+            }
 
             setEntityDefinitions(nodes);
+
+            return snapshot;
         }
         
         void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {
@@ -573,11 +579,13 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
             for (const auto& entry : attributes) {
-                Model::AttributableNode* node = entry.first;
-                assert(node->parent() == NULL || node->selected() || node->descendantSelected());
-                
-                const Model::EntityAttributeSnapshot& snapshot = entry.second;
-                snapshot.restore(node);
+                auto* node = entry.first;
+                assert(node->parent() == nullptr || node->selected() || node->descendantSelected());
+
+                const auto& snapshots = entry.second;
+                for (const auto& snapshot : snapshots) {
+                    snapshot.restore(node);
+                }
             }
 
             setEntityDefinitions(nodes);
@@ -592,7 +600,7 @@ namespace TrenchBroom {
             
             for (Model::Brush* brush : selectedBrushes) {
                 Model::BrushFace* face = brush->findFace(polygons);
-                if (face != NULL) {
+                if (face != nullptr) {
                     if (!brush->canMoveBoundary(m_worldBounds, face, delta))
                         return result;
                     
@@ -635,9 +643,9 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
-        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Vec3f& sourceFaceNormal) {
+        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
             for (Model::BrushFace* face : m_selectedBrushFaces)
-                face->copyTexCoordSystemFromFace(coordSystemSnapshot, sourceFaceNormal);
+                face->copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane);
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
         
@@ -760,48 +768,21 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
-        Vec3::List MapDocumentCommandFacade::performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta) {
+        void MapDocumentCommandFacade::performAddVertices(const Model::VertexToBrushesMap& vertices) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Vec3::List newVertexPositions;
-            for (const auto& entry : edges) {
-                Model::Brush* brush = entry.first;
-                const Edge3::List& oldPositions = entry.second;
-                for (const Edge3& edgePosition : oldPositions) {
-                    const Vec3 vertexPosition = brush->splitEdge(m_worldBounds, edgePosition, delta);
-                    newVertexPositions.push_back(vertexPosition);
-                }
+            for (const auto& entry : vertices) {
+                const Vec3& position = entry.first;
+                const Model::BrushSet& brushes = entry.second;
+                for (Model::Brush* brush : brushes)
+                    brush->addVertex(m_worldBounds, position);
             }
             
             invalidateSelectionBounds();
-
-            return newVertexPositions;
-        }
-
-        Vec3::List MapDocumentCommandFacade::performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
-            const Model::NodeList parents = collectParents(nodes);
-            
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            Vec3::List newVertexPositions;
-            for (const auto& entry : faces) {
-                Model::Brush* brush = entry.first;
-                const Polygon3::List& oldPositions = entry.second;
-                for (const Polygon3& facePosition : oldPositions) {
-                    const Vec3 vertexPosition = brush->splitFace(m_worldBounds, facePosition, delta);
-                    newVertexPositions.push_back(vertexPosition);
-                }
-            }
-            
-            invalidateSelectionBounds();
-
-            return newVertexPositions;
         }
 
         void MapDocumentCommandFacade::performRemoveVertices(const Model::BrushVerticesMap& vertices) {
@@ -811,7 +792,6 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Vec3::List newVertexPositions;
             for (const auto& entry : vertices) {
                 Model::Brush* brush = entry.first;
                 const Vec3::List& positions = entry.second;

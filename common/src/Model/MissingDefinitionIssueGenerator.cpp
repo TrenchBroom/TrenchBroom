@@ -38,11 +38,11 @@ namespace TrenchBroom {
             MissingDefinitionIssue(AttributableNode* node) :
             Issue(node) {}
         private:
-            IssueType doGetType() const {
+            IssueType doGetType() const override {
                 return Type;
             }
             
-            const String doGetDescription() const {
+            const String doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " not found in entity definitions";
             }
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             MissingDefinitionIssueQuickFix() :
             IssueQuickFix(MissingDefinitionIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const {
+            void doApply(MapFacade* facade, const IssueList& issues) const override {
                 facade->deleteObjects();
             }
         };
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
         
         void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->definition() == NULL)
+            if (node->definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));
         }
     }

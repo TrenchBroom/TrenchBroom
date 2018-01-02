@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = builder.createBrush(m_polyhedron, document->currentTextureName());
                 updateBrush(brush);
             } else {
-                updateBrush(NULL);
+                updateBrush(nullptr);
             }
         }
 

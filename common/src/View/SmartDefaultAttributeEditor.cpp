@@ -30,8 +30,8 @@ namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
-        m_descriptionTxt(NULL),
-        m_currentDefinition(NULL) {}
+        m_descriptionTxt(nullptr),
+        m_currentDefinition(nullptr) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
@@ -40,8 +40,8 @@ namespace TrenchBroom {
         
         void SmartDefaultAttributeEditor::doDestroyVisual() {
             m_descriptionTxt->Destroy();
-            m_descriptionTxt = NULL;
-            m_currentDefinition = NULL;
+            m_descriptionTxt = nullptr;
+            m_currentDefinition = nullptr;
         }
 
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 
                 wxWindowUpdateLocker locker(m_descriptionTxt);
                 m_descriptionTxt->Clear();
-                if (m_currentDefinition != NULL)
+                if (m_currentDefinition != nullptr)
                     m_descriptionTxt->AppendText(m_currentDefinition->description());
             }
         }

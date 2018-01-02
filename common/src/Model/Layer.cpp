@@ -52,11 +52,11 @@ namespace TrenchBroom {
 
         class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(true); }
-            void doVisit(const Entity* entity) { setResult(true); }
-            void doVisit(const Brush* brush)   { setResult(true); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(true); }
+            void doVisit(const Entity* entity) override { setResult(true); }
+            void doVisit(const Brush* brush) override   { setResult(true); }
         };
 
         bool Layer::doCanAddChild(const Node* child) const {
@@ -80,11 +80,11 @@ namespace TrenchBroom {
             AddNodeToOctree(NodeTree& octree) :
             m_octree(octree) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { m_octree.addObject(group->bounds(), group); }
-            void doVisit(Entity* entity) { m_octree.addObject(entity->bounds(), entity); }
-            void doVisit(Brush* brush)   { m_octree.addObject(brush->bounds(), brush); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_octree.addObject(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_octree.addObject(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_octree.addObject(brush->bounds(), brush); }
         };
         
         class Layer::RemoveNodeFromOctree : public NodeVisitor {
@@ -94,11 +94,11 @@ namespace TrenchBroom {
             RemoveNodeFromOctree(NodeTree& octree) :
             m_octree(octree) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { m_octree.removeObject(group); }
-            void doVisit(Entity* entity) { m_octree.removeObject(entity); }
-            void doVisit(Brush* brush)   { m_octree.removeObject(brush); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_octree.removeObject(group); }
+            void doVisit(Entity* entity) override { m_octree.removeObject(entity); }
+            void doVisit(Brush* brush) override   { m_octree.removeObject(brush); }
         };
         
         class Layer::UpdateNodeInOctree : public NodeVisitor {
@@ -108,11 +108,11 @@ namespace TrenchBroom {
             UpdateNodeInOctree(NodeTree& octree) :
             m_octree(octree) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { m_octree.updateObject(group->bounds(), group); }
-            void doVisit(Entity* entity) { m_octree.updateObject(entity->bounds(), entity); }
-            void doVisit(Brush* brush)   { m_octree.updateObject(brush->bounds(), brush); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_octree.updateObject(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_octree.updateObject(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_octree.updateObject(brush->bounds(), brush); }
         };
 
         void Layer::doChildWasAdded(Node* node) {

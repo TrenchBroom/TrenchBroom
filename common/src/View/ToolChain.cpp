@@ -26,8 +26,8 @@
 namespace TrenchBroom {
     namespace View {
         ToolChain::ToolChain() :
-        m_tool(NULL),
-        m_suffix(NULL) {}
+        m_tool(nullptr),
+        m_suffix(nullptr) {}
         
         ToolChain::~ToolChain() {
             delete m_suffix;
@@ -37,11 +37,11 @@ namespace TrenchBroom {
         void ToolChain::append(ToolController* tool) {
             assert(checkInvariant());
             if (chainEndsHere()) {
-                assert(m_suffix == NULL);
+                assert(m_suffix == nullptr);
                 m_tool = tool;
                 m_suffix = new ToolChain();
             } else {
-                ensure(m_suffix != NULL, "suffix is null");
+                ensure(m_suffix != nullptr, "suffix is null");
                 m_suffix->append(tool);
             }
             assert(checkInvariant());
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         ToolController* ToolChain::startMouseDrag(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())
-                return NULL;
+                return nullptr;
             if (m_tool->startMouseDrag(inputState))
                 return m_tool;
             return m_suffix->startMouseDrag(inputState);
@@ -125,7 +125,7 @@ namespace TrenchBroom {
         ToolController* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
             assert(checkInvariant());
             if (chainEndsHere())
-                return NULL;
+                return nullptr;
             if (m_tool->dragEnter(inputState, payload))
                 return m_tool;
             return m_suffix->dragEnter(inputState, payload);
@@ -157,11 +157,11 @@ namespace TrenchBroom {
         }
 
         bool ToolChain::checkInvariant() const {
-            return (m_tool == NULL) == (m_suffix == NULL);
+            return (m_tool == nullptr) == (m_suffix == nullptr);
         }
 
         bool ToolChain::chainEndsHere() const {
-            return m_tool == NULL;
+            return m_tool == nullptr;
         }
     }
 }

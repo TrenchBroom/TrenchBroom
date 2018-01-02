@@ -40,7 +40,7 @@ namespace TrenchBroom {
         CrashDialog::CrashDialog() {}
         
         void CrashDialog::Create(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath) {
-            wxDialog::Create(NULL, wxID_ANY, "Crash");
+            wxDialog::Create(nullptr, wxID_ANY, "Crash");
             
             wxPanel* containerPanel = new wxPanel(this);
             wxPanel* headerPanel = new wxPanel(containerPanel);

@@ -21,9 +21,11 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+#include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -161,13 +163,22 @@ namespace TrenchBroom {
             return m_rows[rowIndex].subset();
         }
 
-        const StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
+        StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
             ensure(rowIndex + count <= totalRowCount(), "row range exceeds row count");
             
             StringList result(count);
             for (size_t i = 0; i < count; ++i)
                 result[i] = m_rows[rowIndex + i].name();
             return result;
+        }
+
+        bool EntityAttributeGridTable::RowManager::hasRowWithName(const String& name) const {
+            for (size_t i = 0; i < attributeRowCount(); ++i) {
+                const auto& row = m_rows[i];
+                if (row.name() == name)
+                    return true;
+            }
+            return false;
         }
 
         void EntityAttributeGridTable::RowManager::updateRows(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
@@ -190,7 +201,7 @@ namespace TrenchBroom {
             if (showDefaultRows) {
                 for (const Model::AttributableNode* attributable : attributables) {
                     const Assets::EntityDefinition* entityDefinition = attributable->definition();
-                    if (entityDefinition != NULL) {
+                    if (entityDefinition != nullptr) {
                         for (Assets::AttributeDefinitionPtr attributeDefinition : entityDefinition->attributeDefinitions()) {
                             const String& name = attributeDefinition->name();
                             if (findRow(m_rows, name) != std::end(m_rows))
@@ -420,11 +431,11 @@ namespace TrenchBroom {
         wxGridCellAttr* EntityAttributeGridTable::GetAttr(const int row, const int col, const wxGridCellAttr::wxAttrKind kind) {
             if (row < 0 || row >= GetRowsCount() ||
                 col < 0 || col >= GetColsCount())
-                return NULL;
+                return nullptr;
             
             const size_t rowIndex = static_cast<size_t>(row);
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
-            if (attr == NULL)
+            if (attr == nullptr)
                 attr = new wxGridCellAttr();
             
             if (m_rows.isDefaultRow(rowIndex) || m_rows.subset(rowIndex)) {
@@ -512,15 +523,86 @@ namespace TrenchBroom {
             update();
         }
 
+        wxArrayString EntityAttributeGridTable::getCompletions(int row, int col) const {
+            const Model::AttributeName name = attributeName(row);
+            MapDocumentSPtr document = lock(m_document);
+            
+            if (col == 0) {
+                return arrayString(allSortedAttributeNames(document));
+            }
+            
+            if (col == 1) {
+                if (name == Model::AttributeNames::Target
+                    || name == Model::AttributeNames::Killtarget) {
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Targetname}));
+                } else if (name == Model::AttributeNames::Targetname) {
+                    return arrayString(allSortedValuesForAttributeNames(document, StringList{Model::AttributeNames::Target, Model::AttributeNames::Killtarget}));
+                }
+            }
+            
+            return wxArrayString();
+        }
+        
+        StringSet EntityAttributeGridTable::allSortedAttributeNames(MapDocumentSPtr document) {
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            const StringList names = index.allNames();
+            
+            StringSet keySet = SetUtils::makeSet(names);
+            
+            // also add keys from all loaded entity definitions
+            for (const auto& group : document->entityDefinitionManager().groups()) {
+                for (const auto entityDefinition : group.definitions()) {
+                    for (const auto& attribute : entityDefinition->attributeDefinitions()) {
+                        keySet.insert(attribute->name());
+                    }
+                }
+            }
+            
+            // an empty string prevents the completion popup from opening on macOS
+            keySet.erase("");
+            
+            return keySet;
+        }
+        
+        StringSet EntityAttributeGridTable::allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names) {
+            StringSet valueset;
+            const Model::AttributableNodeIndex& index = document->world()->attributableNodeIndex();
+            for (const auto& name : names) {
+                const StringList values = index.allValuesForNames(Model::AttributableNodeIndexQuery::numbered(name));
+                for (const auto& value : values) {
+                    valueset.insert(value);
+                }
+            }
+            
+            valueset.erase("");
+            
+            return valueset;
+        }
+        
+        wxArrayString EntityAttributeGridTable::arrayString(const StringSet& set) {
+            wxArrayString result;
+            for (const String& string : set)
+                result.Add(wxString(string));
+            return result;
+        }
+
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.attributeRowCount(), "row index out of bounds");
             
             const String& oldName = m_rows.name(rowIndex);
             if (!m_rows.nameMutable(rowIndex)) {
                 wxString msg;
-                msg << "Cannot rename attribute '" << oldName << "' to '" << newName << "'";
+                msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
                 wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                 return;
+            }
+
+            if (m_rows.hasRowWithName(newName)) {
+                wxString msg;
+                msg << "A property with key '" << newName << "' already exists.\n\n Do you wish to overwrite it?";
+                if (wxMessageBox(msg, "Error", wxYES_NO | wxICON_ERROR | wxCENTRE, GetView()) == wxNO) {
+                    return;
+                }
             }
 
             MapDocumentSPtr document = lock(m_document);
@@ -554,7 +636,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -563,7 +645,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));
@@ -572,7 +654,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsAppended(size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
                                            static_cast<int>(numRows));
                 GetView()->ProcessTableMessage(message);
@@ -580,7 +662,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
+            if (GetView() != nullptr) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
                                            static_cast<int>(pos),
                                            static_cast<int>(numRows));

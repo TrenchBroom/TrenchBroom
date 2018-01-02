@@ -44,10 +44,10 @@ namespace TrenchBroom {
     namespace View {
         GamesPreferencePane::GamesPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
-        m_gameListBox(NULL),
-        m_book(NULL),
-        m_gamePathText(NULL),
-        m_chooseGamePathButton(NULL) {
+        m_gameListBox(nullptr),
+        m_book(nullptr),
+        m_gamePathText(nullptr),
+        m_chooseGamePathButton(nullptr) {
             createGui();
             updateControls();
         }

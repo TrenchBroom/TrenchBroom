@@ -100,19 +100,19 @@ namespace TrenchBroom {
                     }
                     default: { // integer, decimal or word
                         const char* e = readInteger(WordDelims);
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(DefToken::Integer, c, e, offset(c), startLine, startColumn);
                         e = readDecimal(WordDelims);
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(DefToken::Decimal, c, e, offset(c), startLine, startColumn);
                         e = readUntil(WordDelims);
-                        if (e == NULL)
+                        if (e == nullptr)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(DefToken::Word, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }
-            return Token(DefToken::Eof, NULL, NULL, length(), line(), column());
+            return Token(DefToken::Eof, nullptr, nullptr, length(), line(), column());
         }
         
         DefParser::DefParser(const char* begin, const char* end, const Color& defaultEntityColor) :
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             try {
                 Assets::EntityDefinition* definition = parseDefinition(status);
                 status.progress(m_tokenizer.progress());
-                while (definition != NULL) {
+                while (definition != nullptr) {
                     definitions.push_back(definition);
                     definition = parseDefinition(status);
                     status.progress(m_tokenizer.progress());
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             while (token.type() != DefToken::Eof && token.type() != DefToken::ODefinition)
                 token = m_tokenizer.nextToken();
             if (token.type() == DefToken::Eof)
-                return NULL;
+                return nullptr;
             
             expect(status, DefToken::ODefinition, token);
             

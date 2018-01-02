@@ -46,7 +46,9 @@ typedef Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload
 
 namespace TrenchBroom {
     typedef Edge<FloatType, 3> Edge3;
+    typedef Edge<FloatType, 2> Edge2;
     typedef Polygon<FloatType, 3> Polygon3;
+    typedef Polygon<FloatType, 2> Polygon2;
 }
 
 namespace Math {
@@ -56,7 +58,7 @@ namespace Math {
 template <typename T>
 void safeDelete(T*& p) {
     delete p;
-    p = NULL;
+    p = nullptr;
 }
 
 #endif

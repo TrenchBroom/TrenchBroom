@@ -32,7 +32,7 @@ namespace TrenchBroom {
         TEST(DkPakFileSystemTest, directoryExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != NULL);
+            assert(pakFile != nullptr);
 
             const DkPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.directoryExists(Path("/asdf")), FileSystemException);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         TEST(DkPakFileSystemTest, fileExists) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != NULL);
+            assert(pakFile != nullptr);
             
             const DkPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.fileExists(Path("/asdf.blah")), FileSystemException);
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         TEST(DkPakFileSystemTest, findItems) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != NULL);
+            assert(pakFile != nullptr);
             
             const DkPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItems(Path("/")), FileSystemException);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         TEST(DkPakFileSystemTest, findItemsRecursively) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != NULL);
+            assert(pakFile != nullptr);
             
             const DkPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.findItemsRecursively(Path("/")), FileSystemException);
@@ -140,14 +140,14 @@ namespace TrenchBroom {
         TEST(DkPakFileSystemTest, openFile) {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("data/IO/Pak/dkpak_test.pak");
             const MappedFile::Ptr pakFile = Disk::openFile(pakPath);
-            assert(pakFile != NULL);
+            assert(pakFile != nullptr);
             
             const DkPakFileSystem fs(pakPath, pakFile);
             ASSERT_THROW(fs.openFile(Path("")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/amnet.cfg")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("/textures")), FileSystemException);
             
-            ASSERT_TRUE(fs.openFile(Path("amnet.cfg")) != NULL);
+            ASSERT_TRUE(fs.openFile(Path("amnet.cfg")) != nullptr);
         }
     }
 }

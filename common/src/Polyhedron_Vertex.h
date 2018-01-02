@@ -42,7 +42,7 @@ m_link(this),
 #else
 m_link(this),
 #endif
-m_leaving(NULL),
+m_leaving(nullptr),
 m_payload(VP::defaultValue()) {}
 
 template <typename T, typename FP, typename VP>
@@ -77,8 +77,8 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::leaving() c
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
-    ensure(face != NULL, "face is null");
-    ensure(m_leaving != NULL, "leaving is null");
+    ensure(face != nullptr, "face is null");
+    ensure(m_leaving != nullptr, "leaving is null");
     
     HalfEdge* curEdge = m_leaving;
     do {
@@ -91,22 +91,22 @@ bool Polyhedron<T,FP,VP>::Vertex::incident(const Face* face) const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findConnectingEdge(const Vertex* vertex) const {
-    ensure(vertex != NULL, "vertex is null");
-    ensure(m_leaving != NULL, "leaving is null");
+    ensure(vertex != nullptr, "vertex is null");
+    ensure(m_leaving != nullptr, "leaving is null");
     
     HalfEdge* curEdge = m_leaving;
     do {
         if (vertex == curEdge->destination())
             return curEdge;
         curEdge = curEdge->nextIncident();
-    } while (curEdge != NULL && curEdge != m_leaving);
-    return NULL;
+    } while (curEdge != nullptr && curEdge != m_leaving);
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinearEdge(const HalfEdge* arriving) const {
-    ensure(arriving != NULL, "arriving is null");
-    ensure(m_leaving != NULL, "leaving is null");
+    ensure(arriving != nullptr, "arriving is null");
+    ensure(m_leaving != nullptr, "leaving is null");
     assert(arriving->destination() == this);
     
     HalfEdge* curEdge = m_leaving;
@@ -115,7 +115,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Vertex::findColinea
             return curEdge;
         curEdge = curEdge->nextIncident();
     } while (curEdge != m_leaving);
-    return NULL;
+    return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
@@ -130,7 +130,7 @@ void Polyhedron<T,FP,VP>::Vertex::setPosition(const V& position) {
 
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Vertex::setLeaving(HalfEdge* edge) {
-    assert(edge == NULL || edge->origin() == this);
+    assert(edge == nullptr || edge->origin() == this);
     m_leaving = edge;
 }
 

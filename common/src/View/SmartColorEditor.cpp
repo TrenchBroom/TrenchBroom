@@ -43,11 +43,11 @@ namespace TrenchBroom {
     namespace View {
         SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
-        m_panel(NULL),
-        m_floatRadio(NULL),
-        m_byteRadio(NULL),
-        m_colorPicker(NULL),
-        m_colorHistory(NULL) {}
+        m_panel(nullptr),
+        m_floatRadio(nullptr),
+        m_byteRadio(nullptr),
+        m_colorPicker(nullptr),
+        m_colorHistory(nullptr) {}
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
             if (m_panel->IsBeingDeleted()) return;
@@ -70,11 +70,11 @@ namespace TrenchBroom {
         }
 
         wxWindow* SmartColorEditor::doCreateVisual(wxWindow* parent) {
-            assert(m_panel == NULL);
-            assert(m_floatRadio == NULL);
-            assert(m_byteRadio == NULL);
-            assert(m_colorPicker == NULL);
-            assert(m_colorHistory == NULL);
+            assert(m_panel == nullptr);
+            assert(m_floatRadio == nullptr);
+            assert(m_byteRadio == nullptr);
+            assert(m_colorPicker == nullptr);
+            assert(m_colorHistory == nullptr);
             
             m_panel = new wxPanel(parent);
             wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
@@ -112,26 +112,26 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::doDestroyVisual() {
-            ensure(m_panel != NULL, "panel is null");
-            ensure(m_floatRadio != NULL, "floatRadio is null");
-            ensure(m_byteRadio != NULL, "byteRadio is null");
-            ensure(m_colorPicker != NULL, "colorPicker is null");
-            ensure(m_colorHistory != NULL, "colorHistory is null");
+            ensure(m_panel != nullptr, "panel is null");
+            ensure(m_floatRadio != nullptr, "floatRadio is null");
+            ensure(m_byteRadio != nullptr, "byteRadio is null");
+            ensure(m_colorPicker != nullptr, "colorPicker is null");
+            ensure(m_colorHistory != nullptr, "colorHistory is null");
             
             m_panel->Destroy();
-            m_panel = NULL;
-            m_floatRadio = NULL;
-            m_byteRadio = NULL;
-            m_colorPicker = NULL;
-            m_colorHistory = NULL;
+            m_panel = nullptr;
+            m_floatRadio = nullptr;
+            m_byteRadio = nullptr;
+            m_colorPicker = nullptr;
+            m_colorHistory = nullptr;
         }
         
         void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-            ensure(m_panel != NULL, "panel is null");
-            ensure(m_floatRadio != NULL, "floatRadio is null");
-            ensure(m_byteRadio != NULL, "byteRadio is null");
-            ensure(m_colorPicker != NULL, "colorPicker is null");
-            ensure(m_colorHistory != NULL, "colorHistory is null");
+            ensure(m_panel != nullptr, "panel is null");
+            ensure(m_floatRadio != nullptr, "floatRadio is null");
+            ensure(m_byteRadio != nullptr, "byteRadio is null");
+            ensure(m_colorPicker != nullptr, "colorPicker is null");
+            ensure(m_colorHistory != nullptr, "colorHistory is null");
             
             wxWindowUpdateLocker locker(m_panel);
             updateColorRange(attributables);
@@ -188,11 +188,11 @@ namespace TrenchBroom {
             
             const wxColorList& colors() const { return m_colors; }
         private:
-            void doVisit(const Model::World* world)   { visitAttributableNode(world); }
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); stopRecursion(); }
-            void doVisit(const Model::Brush* brush)   {}
+            void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
+            void doVisit(const Model::Layer* layer) override   {}
+            void doVisit(const Model::Group* group) override   {}
+            void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
+            void doVisit(const Model::Brush* brush) override   {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const Model::AttributeValue NullValue("");

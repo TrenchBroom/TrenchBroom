@@ -99,5 +99,5 @@ if   (wxWidgets_FOUND)
   #endif()
 
 else ()
-  message("wxWidgets requested but not found.")
+  message(SEND_ERROR "wxWidgets requested but not found.")
 endif()

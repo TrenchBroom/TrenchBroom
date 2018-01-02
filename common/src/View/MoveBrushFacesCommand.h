@@ -30,8 +30,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class VertexHandleManager;
-        
         class MoveBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
@@ -42,17 +40,17 @@ namespace TrenchBroom {
             Polygon3::List m_newFacePositions;
             Vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            static Ptr move(const Model::FaceToBrushesMap& faces, const Vec3& delta);
         private:
             MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
             
-            bool doCanDoVertexOperation(const MapDocument* document) const;
-            bool doVertexOperation(MapDocumentCommandFacade* document);
-            
-            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
-            
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand::Ptr command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
         };
     }
 }

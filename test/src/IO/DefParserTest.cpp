@@ -26,11 +26,29 @@
 #include "Assets/EntityDefinitionTestUtils.h"
 #include "Model/ModelTypes.h"
 #include "IO/DefParser.h"
+#include "IO/DiskIO.h"
+#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace IO {
+        TEST(DefParserTest, parseIncludedDefFiles) {
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/GameConfig");
+            const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
+                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "def");
+            });
+
+            for (const Path& path : cfgFiles) {
+                MappedFile::Ptr file = Disk::openFile(path);
+                const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+                DefParser parser(file->begin(), file->end(), defaultColor);
+
+                TestParserStatus status;
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+            }
+        }
+
         TEST(DefParserTest, parseEmptyFile) {
             const String file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -133,7 +151,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
             
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
-            ASSERT_TRUE(spawnflags != NULL);
+            ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
             
             const Assets::FlagsAttributeOption::List& options = spawnflags->options();

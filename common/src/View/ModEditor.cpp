@@ -48,9 +48,9 @@ namespace TrenchBroom {
         ModEditor::ModEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
-        m_availableModList(NULL),
-        m_enabledModList(NULL),
-        m_filterBox(NULL),
+        m_availableModList(nullptr),
+        m_enabledModList(nullptr),
+        m_filterBox(nullptr),
         m_ignoreNotifier(false) {
             createGui();
             bindObservers();
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         void ModEditor::createGui() {
             TitledPanel* availableModContainer = new TitledPanel(this, "Available", false);
             availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_availableModList = new wxListBox(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_availableModList = new wxListBox(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
             availableModContainerSizer->Add(m_availableModList, wxSizerFlags().Expand().Proportion(1));
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             
             TitledPanel* enabledModContainer = new TitledPanel(this, "Enabled", false);
             enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_enabledModList = new wxListBox(enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_enabledModList = new wxListBox(enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
             wxSizer* enabledModContainerSizer = new wxBoxSizer(wxVERTICAL);
             enabledModContainerSizer->Add(m_enabledModList, wxSizerFlags().Expand().Proportion(1));

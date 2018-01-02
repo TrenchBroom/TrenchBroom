@@ -50,13 +50,13 @@ public:
     
     const T* ptr() const {
         const InternalBuffer* actualBuffer = m_buffer.get();
-        ensure(actualBuffer != NULL, "actualBuffer is null");
+        ensure(actualBuffer != nullptr, "actualBuffer is null");
         return &actualBuffer->front();
     }
     
     T* ptr() {
         InternalBuffer* actualBuffer = m_buffer.get();
-        ensure(actualBuffer != NULL, "actualBuffer is null");
+        ensure(actualBuffer != nullptr, "actualBuffer is null");
         return &actualBuffer->front();
     }
     

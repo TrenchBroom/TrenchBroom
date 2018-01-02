@@ -148,7 +148,7 @@ private:
         do {
             const V& position = currentLeftVertex->position();
             Vertex* currentRightVertex = right.findVertexByPosition(position);
-            if (currentRightVertex != NULL)
+            if (currentRightVertex != nullptr)
                 result.insert(currentLeftVertex, currentRightVertex);
             
             currentLeftVertex = currentLeftVertex->next();
@@ -191,8 +191,8 @@ private:
             Vertex* leftVertex = left.findVertexByPosition(leftPosition);
             Vertex* rightVertex = right.findVertexByPosition(rightPosition);
             
-            assert(leftVertex != NULL);
-            assert(rightVertex != NULL);
+            assert(leftVertex != nullptr);
+            assert(rightVertex != nullptr);
             result.insert(leftVertex, rightVertex);
         }
 

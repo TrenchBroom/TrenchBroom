@@ -19,618 +19,239 @@
 
 #include "VertexTool.h"
 
-#include "SetAny.h"
+#include "Macros.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Brush.h"
-#include "Model/BrushGeometry.h"
-#include "Model/HitAdapter.h"
-#include "Model/NodeVisitor.h"
-#include "Model/Object.h"
-#include "Renderer/RenderContext.h"
-#include "View/InputState.h"
+#include "Renderer/RenderBatch.h"
+#include "Renderer/RenderService.h"
 #include "View/Grid.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/MoveBrushEdgesCommand.h"
-#include "View/MoveBrushFacesCommand.h"
-#include "View/MoveBrushVerticesCommand.h"
-#include "View/RemoveBrushEdgesCommand.h"
-#include "View/RemoveBrushFacesCommand.h"
-#include "View/RemoveBrushVerticesCommand.h"
-#include "View/Selection.h"
-#include "View/SnapBrushVerticesCommand.h"
-#include "View/SplitBrushEdgesCommand.h"
-#include "View/SplitBrushFacesCommand.h"
+#include "View/VertexCommand.h"
 #include "View/VertexCommand.h"
 
 #include <cassert>
+#include <numeric>
 
 namespace TrenchBroom {
     namespace View {
         VertexTool::VertexTool(MapDocumentWPtr document) :
-        Tool(false),
-        m_document(document),
-        m_handleManager(m_document),
+        VertexToolBase(document),
         m_mode(Mode_Move),
-        m_changeCount(0),
-        m_ignoreChangeNotifications(false),
-        m_dragging(false) {}
+        m_guideRenderer(document) {}
 
-        const Grid& VertexTool::grid() const {
-            return lock(m_document)->grid();
+        Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
+            return findIncidentBrushes(m_vertexHandles, handle);
         }
 
-        void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            m_handleManager.pick(pickRay, camera, pickResult, m_mode == Mode_Split);
+        Model::BrushSet VertexTool::findIncidentBrushes(const Edge3& handle) const {
+            return findIncidentBrushes(m_edgeHandles, handle);
         }
         
+        Model::BrushSet VertexTool::findIncidentBrushes(const Polygon3& handle) const {
+            return findIncidentBrushes(m_faceHandles, handle);
+        }
+
+        void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+
+            m_vertexHandles.pick(pickRay, camera, pickResult);
+            m_edgeHandles.pick(pickRay, camera, grid, pickResult);
+            m_faceHandles.pick(pickRay, camera, grid, pickResult);
+        }
+
         bool VertexTool::deselectAll() {
-            if (m_handleManager.selectedVertexHandles().empty() &&
-                m_handleManager.selectedEdgeHandles().empty() &&
-                m_handleManager.selectedFaceHandles().empty())
-                return false;
-            
-            m_handleManager.deselectAllHandles();
-            m_mode = Mode_Move;
-            refreshViews();
-            return true;
-        }
-        
-        bool VertexTool::mergeVertices(const Model::Hit& hit) {
-            if (m_handleManager.selectedVertexCount() != 1)
-                return false;
-            if (hit.type() != VertexHandleManager::VertexHandleHit)
-                return false;
-            const Vec3 targetPosition = hit.target<Vec3>();
-            const Vec3 originalPosition = m_handleManager.selectedVertexHandlePositions().front();
-            const Vec3 delta = targetPosition - originalPosition;
-            moveVerticesAndRebuildBrushGeometry(delta);
-            return true;
-        }
-        
-        bool VertexTool::handleDoubleClicked(const Model::Hit& hit) {
-            if (hit.type() == VertexHandleManager::EdgeHandleHit) {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectEdgeHandle(hit.target<Vec3>());
-                m_mode = Mode_Split;
-            } else {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectFaceHandle(hit.target<Vec3>());
-                m_mode = Mode_Split;
-            }
-            refreshViews();
-            return true;
-        }
-        
-        bool VertexTool::select(const Model::Hit::List& hits, const bool addToSelection) {
-            assert(!hits.empty());
-            const Model::Hit& hit = hits.front();
-            if (hit.type() == VertexHandleManager::VertexHandleHit)
-                selectVertex(hits, addToSelection);
-            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
-                selectEdge(hits, addToSelection);
-            else
-                selectFace(hits, addToSelection);
-            refreshViews();
-            return true;
-        }
-        
-        void VertexTool::select(const Lasso& lasso, const bool modifySelection) {
-            if (m_handleManager.selectedEdgeCount() > 0) {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.edgeHandlePositions());
-                if (!modifySelection) m_handleManager.deselectAllEdgeHandles();
-                m_handleManager.toggleEdgeHandles(contained);
-            } else if (m_handleManager.selectedFaceCount() > 0) {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.faceHandlePositions());
-                if (!modifySelection) m_handleManager.deselectAllFaceHandles();
-                m_handleManager.toggleFaceHandles(contained);
-            } else {
-                const Vec3::List contained = lasso.containedPoints(m_handleManager.vertexHandlePositions());
-                if (!modifySelection) m_handleManager.deselectAllVertexHandles();
-                m_handleManager.toggleVertexHandles(contained);
-            }
-            refreshViews();
-        }
-
-        bool VertexTool::canRemoveSelection() const {
-            return m_handleManager.hasSelectedHandles();
-        }
-        
-        void VertexTool::removeSelection() {
-            assert(canRemoveSelection());
-            
-            if (m_handleManager.selectedVertexCount() > 0) {
-                lock(m_document)->removeVertices(m_handleManager.selectedVertexHandles());
-            } else if (m_handleManager.selectedEdgeCount() > 0) {
-                lock(m_document)->removeEdges(m_handleManager.selectedEdgeHandles());
-            } else if (m_handleManager.selectedFaceCount() > 0) {
-                lock(m_document)->removeFaces(m_handleManager.selectedFaceHandles());
-            }
-        }
-
-        bool VertexTool::beginMove(const Model::Hit& hit) {
-            assert(hit.isMatch());
-            
-            const Vec3 handlePosition = hit.target<Vec3>();
-            if (!m_handleManager.isHandleSelected(handlePosition)) {
-                m_handleManager.deselectAllHandles();
-                if (hit.type() == VertexHandleManager::VertexHandleHit)
-                    m_handleManager.selectVertexHandle(handlePosition);
-                else if (hit.type() == VertexHandleManager::EdgeHandleHit)
-                    m_handleManager.selectEdgeHandle(handlePosition);
-                else
-                    m_handleManager.selectFaceHandle(handlePosition);
-                refreshViews();
-            }
-            
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction(actionName());
-            
-            m_dragHandlePosition = handlePosition;
-            m_dragging = true;
-            return true;
-        }
-
-        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
-            return moveVertices(delta);
-        }
-
-        void VertexTool::endMove() {
-            MapDocumentSPtr document = lock(m_document);
-            document->commitTransaction();
-            rebuildBrushGeometry();
-            m_mode = Mode_Move;
-            m_dragging = false;
-        }
-        
-        void VertexTool::cancelMove() {
-            MapDocumentSPtr document = lock(m_document);
-            document->cancelTransaction();
-            m_mode = Mode_Move;
-            m_dragging = false;
-        }
-
-        void VertexTool::renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_handleManager.render(renderContext, renderBatch, m_mode == Mode_Split);
-        }
-        
-        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
-        }
-        
-        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
-            m_handleManager.renderHighlight(renderContext, renderBatch, position);
-        }
-
-        void VertexTool::renderEdgeHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
-            m_handleManager.renderEdgeHighlight(renderContext, renderBatch, handlePosition);
-        }
-        
-        void VertexTool::renderFaceHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handlePosition) {
-            m_handleManager.renderFaceHighlight(renderContext, renderBatch, handlePosition);
-        }
-
-        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderGuide(renderContext, renderBatch, m_dragHandlePosition);
-        }
-        
-        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
-            m_handleManager.renderGuide(renderContext, renderBatch, position);
-        }
-
-        bool VertexTool::cancel() {
-            if (m_handleManager.hasSelectedHandles()) {
-                m_handleManager.deselectAllHandles();
+            if (VertexToolBase::deselectAll()) {
+                resetModeAfterDeselection();
                 return true;
             }
             return false;
         }
 
-        bool VertexTool::handleBrushes(const Vec3& position, Model::BrushSet& brushes) const {
-            bool newBrush = true;
-            const Model::BrushSet& handleBrushes = m_handleManager.brushes(position);
-            for (Model::Brush* brush : handleBrushes)
-                newBrush &= brushes.insert(brush).second;
-            return newBrush;
+        VertexHandleManager& VertexTool::handleManager() {
+            return m_vertexHandles;
+        }
+        
+        const VertexHandleManager& VertexTool::handleManager() const {
+            return m_vertexHandles;
         }
 
-        bool VertexTool::handleSelected(const Vec3& position) const {
-            return m_handleManager.isEdgeHandleSelected(position);
-        }
-
-        bool VertexTool::hasSelectedHandles() const {
-            return (m_handleManager.selectedVertexCount() > 0 ||
-                    m_handleManager.selectedEdgeCount() > 0 ||
-                    m_handleManager.selectedFaceCount() > 0);
-        }
-
-        void VertexTool::moveVerticesAndRebuildBrushGeometry(const Vec3& delta) {
-            if (hasSelectedHandles()) {
-                moveVertices(delta);
-                rebuildBrushGeometry();
+        bool VertexTool::startMove(const Model::Hit& hit) {
+            if (!VertexToolBase::startMove(hit)) {
+                return false;
+            }
+            
+            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+                m_vertexHandles.deselectAll();
+                if (hit.hasType(EdgeHandleManager::HandleHit)) {
+                    const Edge3& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
+                    m_edgeHandles.select(handle);
+                    m_mode = Mode_Split_Edge;
+                } else {
+                    const Polygon3& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
+                    m_faceHandles.select(handle);
+                    m_mode = Mode_Split_Face;
+                }
+                refreshViews();
+            } else {
                 m_mode = Mode_Move;
             }
-        }
-
-        void VertexTool::selectVertex(const Model::Hit::List& hits, const bool addToSelection) {
-            m_handleManager.deselectAllEdgeHandles();
-            m_handleManager.deselectAllFaceHandles();
-
-            if (!addToSelection)
-                m_handleManager.deselectAllHandles();
             
-            size_t selected = 0;
-            for (const Model::Hit& hit : hits) {
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isVertexHandleSelected(position))
-                    ++selected;
-            }
-            
-            if (selected < hits.size()) {
-                for (const Model::Hit& hit : hits) {
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectVertexHandle(position);
-                }
-            } else {
-                if (addToSelection) {
-                    for (const Model::Hit& hit : hits) {
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectVertexHandle(position);
-                    }
-                }
-            }
+            return true;
         }
         
-        void VertexTool::selectEdge(const Model::Hit::List& hits, const bool addToSelection) {
-            m_handleManager.deselectAllVertexHandles();
-            m_handleManager.deselectAllFaceHandles();
+        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
+            MapDocumentSPtr document = lock(m_document);
             
-            size_t selected = 0;
-            for (const Model::Hit& hit : hits) {
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isEdgeHandleSelected(position))
-                    ++selected;
-            }
-            
-            if (selected < hits.size()) {
-                if (!addToSelection)
-                    m_handleManager.deselectAllHandles();
-                for (const Model::Hit& hit : hits) {
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectEdgeHandle(position);
+            if (m_mode == Mode_Move) {
+                const auto handles = m_vertexHandles.selectedHandles();
+                const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
+                
+                const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
+                if (result.success) {
+                    if (!result.hasRemainingVertices)
+                        return MR_Cancel;
+                    m_dragHandlePosition += delta;
+                    return MR_Continue;
                 }
+                return MR_Deny;
             } else {
-                if (addToSelection) {
-                    for (const Model::Hit& hit : hits) {
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectEdgeHandle(position);
-                    }
+                Model::BrushSet brushes;
+                if (m_mode == Mode_Split_Edge) {
+                    assert(m_edgeHandles.selectedHandleCount() == 1);
+                    const Edge3 handle = m_edgeHandles.selectedHandles().front();
+                    brushes = findIncidentBrushes(handle);
+                } else {
+                    assert(m_mode == Mode_Split_Face);
+                    assert(m_faceHandles.selectedHandleCount() == 1);
+                    const Polygon3 handle = m_faceHandles.selectedHandles().front();
+                    brushes = findIncidentBrushes(handle);
                 }
+                
+                const Model::VertexToBrushesMap vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                if (document->addVertices(vertices)) {
+                    m_mode = Mode_Move;
+                    m_edgeHandles.deselectAll();
+                    m_faceHandles.deselectAll();
+                    m_dragHandlePosition += delta;
+                    m_vertexHandles.select(m_dragHandlePosition);
+                }
+                
+                return MR_Continue;
             }
         }
-        
-        void VertexTool::selectFace(const Model::Hit::List& hits, const bool addToSelection) {
-            m_handleManager.deselectAllVertexHandles();
-            m_handleManager.deselectAllEdgeHandles();
+
+        void VertexTool::endMove() {
+            VertexToolBase::endMove();
+            m_mode = Mode_Move;
+        }
+        void VertexTool::cancelMove() {
+            VertexToolBase::cancelMove();
+            m_mode = Mode_Move;
+        }
+
+        const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+            assert(hit.isMatch());
+            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
             
-            size_t selected = 0;
-            for (const Model::Hit& hit : hits) {
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isFaceHandleSelected(position))
-                    selected++;
-            }
-            
-            if (selected < hits.size()) {
-                if (!addToSelection)
-                    m_handleManager.deselectAllHandles();
-                for (const Model::Hit& hit : hits) {
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectFaceHandle(position);
-                }
-            } else {
-                if (addToSelection) {
-                    for (const Model::Hit& hit : hits) {
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectFaceHandle(position);
-                    }
-                }
-            }
+            if (hit.hasType(VertexHandleManager::HandleHit))
+                return hit.target<Vec3>();
+            else if (hit.hasType(EdgeHandleManager::HandleHit))
+                return std::get<1>(hit.target<EdgeHandleManager::HitType>());
+            else
+                return std::get<1>(hit.target<FaceHandleManager::HitType>());
         }
         
         String VertexTool::actionName() const {
-            if (m_mode == Mode_Move) {
-                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
-                
-                if (!m_handleManager.selectedVertexHandles().empty())
-                    return m_handleManager.selectedVertexHandles().size() == 1 ? "Move Vertex" : "Move Vertices";
-                if (!m_handleManager.selectedEdgeHandles().empty())
-                    return m_handleManager.selectedEdgeHandles().size() == 1 ? "Move Edge" : "Move Edges";
-                return m_handleManager.selectedFaceHandles().size() == 1 ? "Move Face" : "Move Faces";
+            switch (m_mode) {
+                case Mode_Move:
+                    return StringUtils::safePlural(m_vertexHandles.selectedHandleCount(), "Move Vertex", "Move Vertices");
+                case Mode_Split_Edge:
+                    return "Split Edge";
+                case Mode_Split_Face:
+                    return "Split Face";
+                switchDefault();
             }
+        }
+        
+        void VertexTool::removeSelection() {
+            assert(canRemoveSelection());
             
-            assert(m_handleManager.selectedVertexHandles().size() == 0 &&
-                   ((m_handleManager.selectedEdgeHandles().size() == 1) ^
-                    (m_handleManager.selectedFaceHandles().size() == 1))
-                   );
+            const auto handles = m_vertexHandles.selectedHandles();
+            const auto brushMap = buildBrushMap(m_vertexHandles, std::begin(handles), std::end(handles));
             
-            if (!m_handleManager.selectedEdgeHandles().empty())
-                return "Split Edge";
-            return "Split Face";
-        }
-        
-        VertexTool::MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            if (m_mode == Mode_Move) {
-                assert((m_handleManager.selectedVertexCount() > 0) ^
-                       (m_handleManager.selectedEdgeCount() > 0) ^
-                       (m_handleManager.selectedFaceCount() > 0));
-                
-                if (m_handleManager.selectedVertexCount() > 0)
-                    return doMoveVertices(delta);
-                else if (m_handleManager.selectedEdgeCount() > 0)
-                    return doMoveEdges(delta);
-                else if (m_handleManager.selectedFaceCount() > 0)
-                    return doMoveFaces(delta);
-            } else {
-                assert((m_handleManager.selectedVertexCount() == 0) &&
-                       ((m_handleManager.selectedEdgeCount() == 1) ^
-                        (m_handleManager.selectedFaceCount() == 1)));
-                
-                if (m_handleManager.selectedEdgeCount() > 0) {
-                    return doSplitEdges(delta);
-                } else if (m_handleManager.selectedFaceCount() > 0) {
-                    return doSplitFaces(delta);
-                }
-            }
-            return MR_Continue;
-        }
-        
-        VertexTool::MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            const MapDocument::MoveVerticesResult result = document->moveVertices(m_handleManager.selectedVertexHandles(), delta);
-            if (result.success) {
-                if (!result.hasRemainingVertices)
-                    return MR_Cancel;
-                m_dragHandlePosition += delta;
-                return MR_Continue;
-            }
-            return MR_Deny;
-        }
-        
-        VertexTool::MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
-                m_dragHandlePosition += delta;
-                return MR_Continue;
-            }
-            return MR_Deny;
-        }
-        
-        VertexTool::MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
-                m_dragHandlePosition += delta;
-                return MR_Continue;
-            }
-            return MR_Deny;
-        }
-        
-        VertexTool::MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
-                m_mode = Mode_Move;
-                m_dragHandlePosition += delta;
-                return MR_Continue;
-            }
-            return MR_Deny;
-        }
-        
-        VertexTool::MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
-                m_mode = Mode_Move;
-                m_dragHandlePosition += delta;
-                return MR_Continue;
-            }
-            return MR_Deny;
+            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
+            lock(m_document)->removeVertices(brushMap);
+            rebuildBrushGeometry();
         }
 
-        void VertexTool::rebuildBrushGeometry() {
-            MapDocumentSPtr document = lock(m_document);
-
-            const SetBool ignoreChangeNotifications(m_ignoreChangeNotifications);
-            
-            const Vec3::List selectedVertexHandles = m_handleManager.selectedVertexHandlePositions();
-            const Vec3::List selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
-            const Vec3::List selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
-            
-            const Model::BrushSet brushes = m_handleManager.selectedBrushes();
-            
-            m_handleManager.removeBrushes(std::begin(brushes), std::end(brushes));
-            document->rebuildBrushGeometry(Model::BrushList(std::begin(brushes), std::end(brushes)));
-            m_handleManager.addBrushes(std::begin(brushes), std::end(brushes));
-
-            m_handleManager.reselectVertexHandles(brushes, selectedVertexHandles, 0.01);
-            m_handleManager.reselectEdgeHandles(brushes, selectedEdgeHandles, 0.01);
-            m_handleManager.reselectFaceHandles(brushes, selectedFaceHandles, 0.01);
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {
+            m_guideRenderer.setPosition(position);
+            m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
+            renderBatch.add(&m_guideRenderer);
         }
-
+        
         bool VertexTool::doActivate() {
-            MapDocumentSPtr document = lock(m_document);
+            VertexToolBase::doActivate();
+            
+            m_edgeHandles.clear();
+            m_faceHandles.clear();
+            
+            const Model::BrushList& brushes = selectedBrushes();
+            m_edgeHandles.addHandles(std::begin(brushes), std::end(brushes));
+            m_faceHandles.addHandles(std::begin(brushes), std::end(brushes));
+            
             m_mode = Mode_Move;
-            m_handleManager.clear();
-            
-            const Model::BrushList& selectedBrushes = document->selectedNodes().brushes();
-            m_handleManager.addBrushes(std::begin(selectedBrushes), std::end(selectedBrushes));
-            m_changeCount = 0;
-            
-            bindObservers();
             return true;
         }
         
         bool VertexTool::doDeactivate() {
-            unbindObservers();
-            m_handleManager.clear();
+            VertexToolBase::doDeactivate();
             
-            /*
-             if (m_changeCount > 0) {
-             RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document, document.editStateManager().selectedBrushes(), m_changeCount);
-             submitCommand(command);
-             }
-             */
+            m_edgeHandles.clear();
+            m_faceHandles.clear();
             return true;
         }
-        
-        void VertexTool::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
-            document->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
-            document->nodesWillChangeNotifier.addObserver(this, &VertexTool::nodesWillChange);
-            document->nodesDidChangeNotifier.addObserver(this, &VertexTool::nodesDidChange);
-            document->commandDoNotifier.addObserver(this, &VertexTool::commandDo);
-            document->commandDoneNotifier.addObserver(this, &VertexTool::commandDone);
-            document->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailed);
-            document->commandUndoNotifier.addObserver(this, &VertexTool::commandUndo);
-            document->commandUndoneNotifier.addObserver(this, &VertexTool::commandUndone);
-            document->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandUndoFailed);
-        }
-        
-        void VertexTool::unbindObservers() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
-                document->nodesWillChangeNotifier.removeObserver(this, &VertexTool::nodesWillChange);
-                document->nodesDidChangeNotifier.removeObserver(this, &VertexTool::nodesDidChange);
-                document->commandDoNotifier.removeObserver(this, &VertexTool::commandDo);
-                document->commandDoneNotifier.removeObserver(this, &VertexTool::commandDone);
-                document->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailed);
-                document->commandUndoNotifier.removeObserver(this, &VertexTool::commandUndo);
-                document->commandUndoneNotifier.removeObserver(this, &VertexTool::commandUndone);
-                document->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandUndoFailed);
-            }
-        }
-        
-        void VertexTool::commandDo(Command::Ptr command) {
-            commandDoOrUndo(command);
-        }
-        
-        void VertexTool::commandDone(Command::Ptr command) {
-            commandDoneOrUndoFailed(command);
-        }
-        
-        void VertexTool::commandDoFailed(Command::Ptr command) {
-            commandDoFailedOrUndone(command);
-        }
-        
-        void VertexTool::commandUndo(UndoableCommand::Ptr command) {
-            commandDoOrUndo(command);
-        }
-        
-        void VertexTool::commandUndone(UndoableCommand::Ptr command) {
-            commandDoFailedOrUndone(command);
-        }
-        
-        void VertexTool::commandUndoFailed(UndoableCommand::Ptr command) {
-            commandDoneOrUndoFailed(command);
-        }
 
-        void VertexTool::commandDoOrUndo(Command::Ptr command) {
-            if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                vertexCommand->removeBrushes(m_handleManager);
-                m_ignoreChangeNotifications = true;
-            }
-        }
-        
-        void VertexTool::commandDoneOrUndoFailed(Command::Ptr command) {
-            if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                vertexCommand->addBrushes(m_handleManager);
-                vertexCommand->selectNewHandlePositions(m_handleManager);
-                m_ignoreChangeNotifications = false;
-                
-                if (!m_dragging)
-                    rebuildBrushGeometry();
-            }
-        }
-        
-        void VertexTool::commandDoFailedOrUndone(Command::Ptr command) {
-            if (isVertexCommand(command)) {
-                VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
-                vertexCommand->addBrushes(m_handleManager);
-                vertexCommand->selectOldHandlePositions(m_handleManager);
-                m_ignoreChangeNotifications = false;
-                
-                if (!m_dragging)
-                    rebuildBrushGeometry();
-            }
-        }
-        
-        bool VertexTool::isVertexCommand(const Command::Ptr command) const {
-            return (command->type() == MoveBrushVerticesCommand::Type ||
-                    command->type() == MoveBrushEdgesCommand::Type ||
-                    command->type() == MoveBrushFacesCommand::Type ||
-                    command->type() == SplitBrushEdgesCommand::Type ||
-                    command->type() == SplitBrushFacesCommand::Type ||
-                    command->type() == RemoveBrushVerticesCommand::Type ||
-                    command->type() == RemoveBrushEdgesCommand::Type ||
-                    command->type() == RemoveBrushFacesCommand::Type);
-        }
+        void VertexTool::addHandles(const Model::NodeList& nodes) {
+            AddHandles<Vec3> addVertexHandles(m_vertexHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
-        class AddToHandleManager : public Model::NodeVisitor {
-        private:
-            VertexHandleManager& m_handleManager;
-        public:
-            AddToHandleManager(VertexHandleManager& handleManager) :
-            m_handleManager(handleManager) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_handleManager.addBrush(brush); }
-        };
-        
-        class RemoveFromHandleManager : public Model::NodeVisitor {
-        private:
-            VertexHandleManager& m_handleManager;
-        public:
-            RemoveFromHandleManager(VertexHandleManager& handleManager) :
-            m_handleManager(handleManager) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_handleManager.removeBrush(brush); }
-        };
-
-        void VertexTool::selectionDidChange(const Selection& selection) {
-            const Model::NodeList& selectedNodes = selection.selectedNodes();
-            AddToHandleManager addVisitor(m_handleManager);
-            Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), addVisitor);
+            AddHandles<Edge3> addEdgeHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
             
-            const Model::NodeList& deselectedNodes = selection.deselectedNodes();
-            RemoveFromHandleManager removeVisitor(m_handleManager);
-            Model::Node::accept(std::begin(deselectedNodes), std::end(deselectedNodes), removeVisitor);
-        }
-
-        void VertexTool::nodesWillChange(const Model::NodeList& nodes) {
-            if (!m_ignoreChangeNotifications) {
-                RemoveFromHandleManager removeVisitor(m_handleManager);
-                Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
-            }
+            AddHandles<Polygon3> addFaceHandles(m_faceHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
         
-        void VertexTool::nodesDidChange(const Model::NodeList& nodes) {
-            if (!m_ignoreChangeNotifications) {
-                AddToHandleManager addVisitor(m_handleManager);
-                Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
-            }
+        void VertexTool::removeHandles(const Model::NodeList& nodes) {
+            RemoveHandles<Vec3> removeVertexHandles(m_vertexHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
+            
+            RemoveHandles<Edge3> removeEdgeHandles(m_edgeHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
+            
+            RemoveHandles<Polygon3> removeFaceHandles(m_faceHandles);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
 
+        void VertexTool::addHandles(VertexCommand* command) {
+            command->addHandles(m_vertexHandles);
+            command->addHandles(m_edgeHandles);
+            command->addHandles(m_faceHandles);
+        }
         
-        String VertexTool::doGetIconName() const {
-            return "VertexTool.png";
+        void VertexTool::removeHandles(VertexCommand* command) {
+            command->removeHandles(m_vertexHandles);
+            command->removeHandles(m_edgeHandles);
+            command->removeHandles(m_faceHandles);
+        }
+
+        void VertexTool::resetModeAfterDeselection() {
+            if (!m_vertexHandles.anySelected())
+                m_mode = Mode_Move;
         }
     }
 }

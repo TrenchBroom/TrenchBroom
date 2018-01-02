@@ -157,13 +157,13 @@ namespace TrenchBroom {
         
         void EntityBrowserView::dndWillStart() {
             MapFrame* mapFrame = findMapFrame(this);
-            ensure(mapFrame != NULL, "mapFrame is null");
+            ensure(mapFrame != nullptr, "mapFrame is null");
             mapFrame->setToolBoxDropTarget();
         }
         
         void EntityBrowserView::dndDidEnd() {
             MapFrame* mapFrame = findMapFrame(this);
-            ensure(mapFrame != NULL, "mapFrame is null");
+            ensure(mapFrame != nullptr, "mapFrame is null");
             mapFrame->clearDropTarget();
         }
 
@@ -183,10 +183,10 @@ namespace TrenchBroom {
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
                 Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
-                EntityRenderer* modelRenderer = NULL;
+                EntityRenderer* modelRenderer = nullptr;
                 
                 BBox3f rotatedBounds;
-                if (model != NULL) {
+                if (model != nullptr) {
                     const Vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
                     const Mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
@@ -259,7 +259,7 @@ namespace TrenchBroom {
                                 Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
                                 EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
-                                if (modelRenderer == NULL) {
+                                if (modelRenderer == nullptr) {
                                     const Mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     const Color& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
@@ -300,7 +300,7 @@ namespace TrenchBroom {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
-                                if (modelRenderer != NULL) {
+                                if (modelRenderer != nullptr) {
                                     const Mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     Renderer::MultiplyModelMatrix multMatrix(transformation, itemTrans);
                                     modelRenderer->render();

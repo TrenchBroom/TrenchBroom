@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
 
         Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format) :
-        m_collection(NULL),
+        m_collection(nullptr),
         m_name(name),
         m_width(width),
         m_height(height),
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
         
         Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format) :
-        m_collection(NULL),
+        m_collection(nullptr),
         m_name(name),
         m_width(width),
         m_height(height),
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         }
         
         Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format) :
-        m_collection(NULL),
+        m_collection(nullptr),
         m_name(name),
         m_width(width),
         m_height(height),
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         m_textureId(0) {}
 
         Texture::~Texture() {
-            if (m_collection == NULL && m_textureId != 0)
+            if (m_collection == nullptr && m_textureId != 0)
                 glAssert(glDeleteTextures(1, &m_textureId));
             m_textureId = 0;
         }
@@ -107,14 +107,14 @@ namespace TrenchBroom {
         
         void Texture::incUsageCount() {
             ++m_usageCount;
-            if (m_collection != NULL)
+            if (m_collection != nullptr)
                 m_collection->incUsageCount();
         }
         
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
-            if (m_collection != NULL)
+            if (m_collection != nullptr)
                 m_collection->decUsageCount();
         }
         

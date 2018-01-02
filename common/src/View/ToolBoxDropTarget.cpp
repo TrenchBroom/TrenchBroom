@@ -28,7 +28,7 @@ namespace TrenchBroom {
         ToolBoxDropTarget::ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector) :
         wxTextDropTarget(),
         m_toolBoxConnector(toolBoxConnector) {
-            ensure(m_toolBoxConnector != NULL, "toolBoxConnector is null");
+            ensure(m_toolBoxConnector != nullptr, "toolBoxConnector is null");
         }
         
         wxDragResult ToolBoxDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
         String ToolBoxDropTarget::getDragText() const {
             wxDropSource* currentDropSource = DropSource::getCurrentDropSource();
-            ensure(currentDropSource != NULL, "currentDropSource is null");
+            ensure(currentDropSource != nullptr, "currentDropSource is null");
             const wxTextDataObject* dataObject = static_cast<wxTextDataObject*>(currentDropSource->GetDataObject());
             return dataObject->GetText().ToStdString();
         }

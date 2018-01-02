@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 m_rotateAngles = rotateAngles;
             }
         private:
-            void execute() {
+            void execute() override {
                 m_camera.moveBy(m_moveDelta);
                 m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
                 m_helper.resetMouse();
@@ -114,7 +114,9 @@ namespace TrenchBroom {
             const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            
+            const KeyboardShortcut& up = prefs.get(Preferences::CameraFlyUp);
+            const KeyboardShortcut& down = prefs.get(Preferences::CameraFlyDown);
+
             wxCriticalSectionLocker lock(m_critical);
             
             if (forward.matches(event)) {
@@ -133,6 +135,14 @@ namespace TrenchBroom {
                 m_right = true;
                 return true;
             }
+            if (up.matches(event)) {
+                m_up = true;
+                return true;
+            }
+            if (down.matches(event)) {
+                m_down = true;
+                return true;
+            }
             return false;
         }
 
@@ -142,7 +152,9 @@ namespace TrenchBroom {
             const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            
+            const KeyboardShortcut& up = prefs.get(Preferences::CameraFlyUp);
+            const KeyboardShortcut& down = prefs.get(Preferences::CameraFlyDown);
+
             wxCriticalSectionLocker lock(m_critical);
             
             if (forward.matchesKey(event)) {
@@ -161,12 +173,20 @@ namespace TrenchBroom {
                 m_right = false;
                 return true;
             }
+            if (up.matches(event)) {
+                m_up = false;
+                return true;
+            }
+            if (down.matches(event)) {
+                m_down = false;
+                return true;
+            }
             return false;
         }
 
         void FlyModeHelper::resetKeys() {
             wxCriticalSectionLocker lock(m_critical);
-            m_forward = m_backward = m_left = m_right = false;
+            m_forward = m_backward = m_left = m_right = m_up = m_down = false;
         }
 
         void FlyModeHelper::motion(wxMouseEvent& event) {
@@ -199,7 +219,7 @@ namespace TrenchBroom {
                 const Vec2f angles = lookDelta();
 
                 if (!delta.null() || !angles.null()) {
-                    if (!TestDestroy() && wxTheApp != NULL) {
+                    if (!TestDestroy() && wxTheApp != nullptr) {
                         CameraEvent* event = new CameraEvent(*this, m_camera);
                         event->setMoveDelta(delta);
                         event->setRotateAngles(angles);
@@ -211,7 +231,7 @@ namespace TrenchBroom {
 
                 Sleep(20);
             }
-            return static_cast<ExitCode>(0);
+            return static_cast<ExitCode>(nullptr);
         }
 
         Vec3f FlyModeHelper::moveDelta() {
@@ -232,6 +252,10 @@ namespace TrenchBroom {
                 delta -= m_camera.right() * dist;
             if (m_right)
                 delta += m_camera.right() * dist;
+            if (m_up)
+                delta += Vec3f::PosZ * dist;
+            if (m_down)
+                delta += Vec3f::NegZ * dist;
             return delta;
         }
 

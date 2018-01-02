@@ -49,17 +49,17 @@ namespace TrenchBroom {
         bool Entity::pointEntity() const {
             if (!hasChildren())
                 return true;
-            if (definition() == NULL)
+            if (definition() == nullptr)
                 return !hasChildren();
             return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasBrushEntityDefinition() const {
-            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return m_definition != NULL && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasPointEntityModel() const {
@@ -118,21 +118,21 @@ namespace TrenchBroom {
         }
 
         NodeSnapshot* Entity::doTakeSnapshot() {
-            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), NULL);
+            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
             
             const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
-            const EntityAttribute rotation(rotationName, attribute(rotationName), NULL);
+            const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
             
             return new EntitySnapshot(this, origin, rotation);
         }
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(false); }
-            void doVisit(const Group* group)   { setResult(true); }
-            void doVisit(const Entity* entity) { setResult(true); }
-            void doVisit(const Brush* brush)   { setResult(true); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(false); }
+            void doVisit(const Group* group) override   { setResult(true); }
+            void doVisit(const Entity* entity) override { setResult(true); }
+            void doVisit(const Brush* brush) override   { setResult(true); }
         };
 
         bool Entity::doCanAddChild(const Node* child) const {
@@ -249,19 +249,19 @@ namespace TrenchBroom {
         Node* Entity::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         Layer* Entity::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
         
         Group* Entity::doGetGroup() const {
             FindGroupVisitor visitor(false);
             escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : NULL;
+            return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
         class TransformEntity : public NodeVisitor {
@@ -275,11 +275,11 @@ namespace TrenchBroom {
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
         private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   {}
-            void doVisit(Entity* entity) {}
-            void doVisit(Brush* brush)   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   {}
+            void doVisit(Entity* entity) override {}
+            void doVisit(Brush* brush) override   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
@@ -294,7 +294,12 @@ namespace TrenchBroom {
                 const Vec3 transformedCenter = transformation * bottomCenter;
                 
                 setOrigin(transformedCenter - delta);
-                applyRotation(stripTranslation(transformation));
+                
+                // applying rotation has side effects (e.g. normalizing "angles")
+                // so only do it if there is actually some rotation.
+                const Mat4x4 rotation = stripTranslation(transformation);
+                if (!rotation.equals(Mat4x4::Identity))
+                	applyRotation(rotation);
             }
         }
         
@@ -322,7 +327,7 @@ namespace TrenchBroom {
                 ComputeNodeBoundsVisitor visitor(DefaultBounds);
                 iterate(visitor);
                 m_bounds = visitor.bounds();
-            } else if (def != NULL && def->type() == Assets::EntityDefinition::Type_PointEntity) {
+            } else if (def != nullptr && def->type() == Assets::EntityDefinition::Type_PointEntity) {
                 m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
                 m_bounds.translate(origin());
             } else {

@@ -51,17 +51,17 @@ namespace TrenchBroom {
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
             
-            void doVisit(Model::World* world)   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Brush* brush)   {}
+            void doVisit(Model::World* world) override   { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::Group* group) override   {}
+            void doVisit(Model::Entity* entity) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::Brush* brush) override   {}
         };
         
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
-        m_scrolledWindow(NULL),
-        m_flagsEditor(NULL),
+        m_scrolledWindow(nullptr),
+        m_flagsEditor(nullptr),
         m_ignoreUpdates(false) {}
 
         void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
         
         wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {
-            assert(m_scrolledWindow == NULL);
+            assert(m_scrolledWindow == nullptr);
             
             m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_NONE));
             m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
@@ -98,11 +98,11 @@ namespace TrenchBroom {
         }
         
         void SmartSpawnflagsEditor::doDestroyVisual() {
-            ensure(m_scrolledWindow != NULL, "scrolledWindow is null");
+            ensure(m_scrolledWindow != nullptr, "scrolledWindow is null");
             m_lastScrollPos = m_scrolledWindow->GetViewStart();
             m_scrolledWindow->Destroy();
-            m_scrolledWindow = NULL;
-            m_flagsEditor = NULL;
+            m_scrolledWindow = nullptr;
+            m_flagsEditor = nullptr;
         }
 
         void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                     wxString tooltip = "";
 
                     const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
-                    if (flagDef != NULL) {
+                    if (flagDef != nullptr) {
                         label = flagDef->shortDescription();
                         tooltip = flagDef->longDescription();
                     }

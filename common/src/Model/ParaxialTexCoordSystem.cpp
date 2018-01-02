@@ -35,8 +35,7 @@ namespace TrenchBroom {
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) :
         m_index(0) {
-            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            setRotation(normal, 0.0f, attribs.rotation());
+            resetCache(point0, point1, point2, attribs);
         }
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal, const BrushFaceAttributes& attribs) :
@@ -78,7 +77,7 @@ namespace TrenchBroom {
         }
 
         TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {
-            return NULL;
+            return nullptr;
         }
         
         void ParaxialTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) {
@@ -96,7 +95,12 @@ namespace TrenchBroom {
         Vec3 ParaxialTexCoordSystem::getZAxis() const {
             return BaseAxes[m_index * 3 + 0];
         }
-        
+
+        void ParaxialTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
+            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            setRotation(normal, 0.0f, attribs.rotation());
+        }
+
         void ParaxialTexCoordSystem::doResetTextureAxes(const Vec3& normal) {}
         void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const Vec3& normal, const float angle) {}
         void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const Vec3& normal, const float angle) {}
@@ -225,10 +229,15 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             setRotation(newNormal, attribs.rotation(), attribs.rotation());
         }
 
+        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+            // not supported; fall back to doUpdateNormalWithProjection
+            doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+        }
+        
         void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
             // not supported
         }
@@ -247,6 +256,9 @@ namespace TrenchBroom {
             const Quat3 rot(rotAxis, angleInRadians);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;
+
+            xAxis.correct();
+            yAxis.correct();
         }
     }
 }

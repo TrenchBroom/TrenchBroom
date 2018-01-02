@@ -86,23 +86,15 @@ namespace TrenchBroom {
                     m_snapshots = document->performRemoveAttribute(m_oldName);
                     break;
                 case Action_Rename:
-                    document->performRenameAttribute(m_oldName, m_newName);
+                    m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
                     break;
             };
             return true;
         }
         
         bool ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            switch (m_action) {
-                case Action_Set:
-                case Action_Remove:
-                    document->restoreAttributes(m_snapshots);
-                    m_snapshots.clear();
-                    break;
-                case Action_Rename:
-                    document->performRenameAttribute(m_newName, m_oldName);
-                    break;
-            };
+            document->restoreAttributes(m_snapshots);
+            m_snapshots.clear();
             return true;
         }
         

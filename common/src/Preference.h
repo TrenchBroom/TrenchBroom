@@ -27,6 +27,8 @@
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
+#include <memory>
+
 #include <wx/config.h>
 #include <wx/confbase.h>
 #include <wx/tokenzr.h>
@@ -294,7 +296,10 @@ namespace TrenchBroom {
         }
     };
 
-    class ValueHolderBase {};
+    class ValueHolderBase {
+    public:
+        typedef std::unique_ptr<ValueHolderBase> UPtr;
+    };
     
     template <typename T>
     class ValueHolder : public ValueHolderBase {

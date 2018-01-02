@@ -88,7 +88,9 @@ namespace TrenchBroom {
                 const String& tooltip(size_t rowIndex) const;
                 bool multi(size_t rowIndex) const;
                 bool subset(size_t rowIndex) const;
-                const StringList names(size_t rowIndex, size_t count) const;
+                StringList names(size_t rowIndex, size_t count) const;
+
+                bool hasRowWithName(const String& name) const;
                 
                 void updateRows(const Model::AttributableNodeList& attributables, bool showDefaultProperties);
                 void addAttribute(const Model::AttributeName& name, const Model::AttributeValue& value, const Assets::AttributeDefinition* definition, bool nameMutable, bool valueMutable, bool isDefault, size_t index);
@@ -133,6 +135,12 @@ namespace TrenchBroom {
             
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
+            
+            wxArrayString getCompletions(int row, int col) const;
+        private:
+            static StringSet allSortedAttributeNames(MapDocumentSPtr document);
+            static StringSet allSortedValuesForAttributeNames(MapDocumentSPtr document, const StringList& names);
+            static wxArrayString arrayString(const StringSet& set);
         private:
             void renameAttribute(size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables);
             void updateAttribute(size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables);

@@ -14,7 +14,7 @@ cd wxWidgets || exit 1
 patch -p0 < ../patches/wxWidgets/*.patch || exit 1
 mkdir build-release
 cd build-release
-../configure --quiet --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=11 --prefix=$(pwd)/install --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
+../configure --quiet --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=14 --prefix=$(pwd)/install --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
 cd ..
 cd ..
 
@@ -23,7 +23,7 @@ cd ..
 mkdir build
 cd build
 cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
-ninja || exit 1
+cmake --build . --config Release || exit 1
 cpack || exit 1
 
 ./generate_checksum.sh

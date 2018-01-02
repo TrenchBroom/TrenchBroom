@@ -17,37 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexToolController
-#define TrenchBroom_VertexToolController
+#ifndef VertexToolController_h
+#define VertexToolController_h
 
-#include "Model/Hit.h"
-#include "View/MoveToolController.h"
-#include "View/ToolController.h"
-#include "View/ViewTypes.h"
+#include "TrenchBroom.h"
+#include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {
     namespace View {
-        class Lasso;
-        class InputState;
-        class MovementRestriction;
+        class Tool;
         class VertexTool;
         
-        class VertexToolController : public ToolControllerGroup {
+        class VertexToolController : public VertexToolControllerBase<VertexTool> {
+        protected:
+            static const Model::Hit& findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base);
         private:
-            static const FloatType MaxVertexDistance;
-            class VertexPartBase;
             class SelectVertexPart;
             class MoveVertexPart;
-            class SnapVertexPart;
-        protected:
-            VertexTool* m_tool;
         public:
             VertexToolController(VertexTool* tool);
-            ~VertexToolController();
-        private:
-            Tool* doGetTool();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_VertexToolController) */
+#endif /* VertexToolController_h */

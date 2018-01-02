@@ -23,25 +23,19 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
 #include "Model/IssueGenerator.h"
-#include "Model/Layer.h"
-#include "Model/NodeVisitor.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
-        m_defaultLayer(NULL) {
+        m_defaultLayer(nullptr) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
         }
 
         Layer* World::defaultLayer() const {
-            ensure(m_defaultLayer != NULL, "defaultLayer is null");
+            ensure(m_defaultLayer != nullptr, "defaultLayer is null");
             return m_defaultLayer;
         }
 
@@ -61,6 +55,10 @@ namespace TrenchBroom {
         void World::createDefaultLayer(const BBox3& worldBounds) {
             m_defaultLayer = createLayer("Default Layer", worldBounds);
             addChild(m_defaultLayer);
+        }
+        
+        const AttributableNodeIndex& World::attributableNodeIndex() const {
+            return m_attributableIndex;
         }
 
         const IssueGeneratorList& World::registeredIssueGenerators() const {
@@ -83,11 +81,11 @@ namespace TrenchBroom {
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
         private:
-            void doVisit(World* world)   { invalidateIssues(world);  }
-            void doVisit(Layer* layer)   { invalidateIssues(layer);  }
-            void doVisit(Group* group)   { invalidateIssues(group);  }
-            void doVisit(Entity* entity) { invalidateIssues(entity); }
-            void doVisit(Brush* brush)   { invalidateIssues(brush);  }
+            void doVisit(World* world) override   { invalidateIssues(world);  }
+            void doVisit(Layer* layer) override   { invalidateIssues(layer);  }
+            void doVisit(Group* group) override   { invalidateIssues(group);  }
+            void doVisit(Entity* entity) override { invalidateIssues(entity); }
+            void doVisit(Brush* brush) override   { invalidateIssues(brush);  }
             
             void invalidateIssues(Node* node) { node->invalidateIssues(); }
         };
@@ -130,11 +128,11 @@ namespace TrenchBroom {
 
         class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(true); }
-            void doVisit(const Group* group)   { setResult(false); }
-            void doVisit(const Entity* entity) { setResult(false); }
-            void doVisit(const Brush* brush)   { setResult(false); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(true); }
+            void doVisit(const Group* group) override   { setResult(false); }
+            void doVisit(const Entity* entity) override { setResult(false); }
+            void doVisit(const Brush* brush) override   { setResult(false); }
         };
         
         bool World::doCanAddChild(const Node* child) const {
@@ -147,14 +145,14 @@ namespace TrenchBroom {
         private:
             const World* m_this;
         public:
-            CanRemoveChildFromWorld(const World* i_this) :
+            explicit CanRemoveChildFromWorld(const World* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* world)   { setResult(false); }
-            void doVisit(const Layer* layer)   { setResult(layer != m_this->defaultLayer()); }
-            void doVisit(const Group* group)   { setResult(false); }
-            void doVisit(const Entity* entity) { setResult(false); }
-            void doVisit(const Brush* brush)   { setResult(false); }
+            void doVisit(const World* world) override   { setResult(false); }
+            void doVisit(const Layer* layer) override   { setResult(layer != m_this->defaultLayer()); }
+            void doVisit(const Group* group) override   { setResult(false); }
+            void doVisit(const Entity* entity) override { setResult(false); }
+            void doVisit(const Brush* brush) override   { setResult(false); }
         };
         
         bool World::doCanRemoveChild(const Node* child) const {

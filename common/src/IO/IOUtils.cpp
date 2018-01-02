@@ -24,14 +24,14 @@
 namespace TrenchBroom {
     namespace IO {
         OpenFile::OpenFile(const Path& path, const bool write) :
-        file(NULL) {
+        file(nullptr) {
             file = fopen(path.asString().c_str(), write ? "w" : "r");
-            if (file == NULL)
+            if (file == nullptr)
                 throw FileSystemException("Cannot open file: " + path.asString());
         }
         
         OpenFile::~OpenFile() {
-            if (file != NULL)
+            if (file != nullptr)
                 fclose(file);
         }
 

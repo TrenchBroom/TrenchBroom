@@ -31,10 +31,10 @@
 namespace TrenchBroom {
     namespace Renderer {
         FreeTypeFontFactory::FreeTypeFontFactory() :
-        m_library(NULL) {
+        m_library(nullptr) {
             FT_Error error = FT_Init_FreeType(&m_library);
             if (error != 0) {
-                m_library = NULL;
+                m_library = nullptr;
                 
                 RenderException e;
                 e << "Error initializing FreeType: " << error;
@@ -43,9 +43,9 @@ namespace TrenchBroom {
         }
         
         FreeTypeFontFactory::~FreeTypeFontFactory() {
-            if (m_library != NULL) {
+            if (m_library != nullptr) {
                 FT_Done_FreeType(m_library);
-                m_library = NULL;
+                m_library = nullptr;
             }
         }
 

@@ -116,7 +116,7 @@ namespace TrenchBroom {
             }
 
             wxWindow* window = this;
-            while (window != NULL) {
+            while (window != nullptr) {
                 window->Layout();
                 window = window->GetParent();
             }

@@ -53,14 +53,14 @@ namespace TrenchBroom {
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
-            ensure(attributable != NULL, "attributable is null");
+            ensure(attributable != nullptr, "attributable is null");
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
         
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
             Cache::const_iterator it = m_cache.find(classname);
             if (it == std::end(m_cache))
-                return NULL;
+                return nullptr;
             return it->second;
         }
 

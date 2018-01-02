@@ -68,7 +68,7 @@ namespace TrenchBroom {
         Md2Model::~Md2Model() {
             VectorUtils::clearAndDelete(m_frames);
             delete m_skins;
-            m_skins = NULL;
+            m_skins = nullptr;
         }
 
         Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {

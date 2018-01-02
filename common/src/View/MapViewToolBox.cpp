@@ -23,6 +23,8 @@
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/CreateSimpleBrushTool.h"
+#include "View/EdgeTool.h"
+#include "View/FaceTool.h"
 #include "View/MapDocument.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
@@ -33,62 +35,61 @@
 namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
-        m_document(document),
-        m_clipTool(NULL),
-        m_createComplexBrushTool(NULL),
-        m_createEntityTool(NULL),
-        m_createSimpleBrushTool(NULL),
-        m_moveObjectsTool(NULL),
-        m_resizeBrushesTool(NULL),
-        m_rotateObjectsTool(NULL),
-        m_vertexTool(NULL) {
+        m_document(document) {
             createTools(document, bookCtrl);
             bindObservers();
         }
         
         MapViewToolBox::~MapViewToolBox() {
             unbindObservers();
-            destroyTools();
         }
         
-        ClipTool* MapViewToolBox::clipTool() {
-            return m_clipTool;
+        ClipTool* MapViewToolBox::clipTool() const {
+            return m_clipTool.get();
         }
 
-        CreateComplexBrushTool* MapViewToolBox::createComplexBrushTool() {
-            return m_createComplexBrushTool;
+        CreateComplexBrushTool* MapViewToolBox::createComplexBrushTool() const {
+            return m_createComplexBrushTool.get();
         }
         
-        CreateEntityTool* MapViewToolBox::createEntityTool() {
-            return m_createEntityTool;
+        CreateEntityTool* MapViewToolBox::createEntityTool() const {
+            return m_createEntityTool.get();
         }
 
-        CreateSimpleBrushTool* MapViewToolBox::createSimpleBrushTool() {
-            return m_createSimpleBrushTool;
+        CreateSimpleBrushTool* MapViewToolBox::createSimpleBrushTool() const {
+            return m_createSimpleBrushTool.get();
         }
 
-        MoveObjectsTool* MapViewToolBox::moveObjectsTool() {
-            return m_moveObjectsTool;
+        MoveObjectsTool* MapViewToolBox::moveObjectsTool() const {
+            return m_moveObjectsTool.get();
         }
         
-        ResizeBrushesTool* MapViewToolBox::resizeBrushesTool() {
-            return m_resizeBrushesTool;
+        ResizeBrushesTool* MapViewToolBox::resizeBrushesTool() const {
+            return m_resizeBrushesTool.get();
         }
         
-        RotateObjectsTool* MapViewToolBox::rotateObjectsTool() {
-            return m_rotateObjectsTool;
+        RotateObjectsTool* MapViewToolBox::rotateObjectsTool() const {
+            return m_rotateObjectsTool.get();
         }
         
-        VertexTool* MapViewToolBox::vertexTool() {
-            return m_vertexTool;
+        VertexTool* MapViewToolBox::vertexTool() const {
+            return m_vertexTool.get();
+        }
+        
+        EdgeTool* MapViewToolBox::edgeTool() const {
+            return m_edgeTool.get();
+        }
+        
+        FaceTool* MapViewToolBox::faceTool() const {
+            return m_faceTool.get();
         }
 
         void MapViewToolBox::toggleCreateComplexBrushTool() {
-            toggleTool(m_createComplexBrushTool);
+            toggleTool(createComplexBrushTool());
         }
         
         bool MapViewToolBox::createComplexBrushToolActive() const {
-            return toolActive(m_createComplexBrushTool);
+            return toolActive(createComplexBrushTool());
         }
 
         void MapViewToolBox::performCreateComplexBrush() {
@@ -96,11 +97,11 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::toggleClipTool() {
-            toggleTool(m_clipTool);
+            toggleTool(clipTool());
         }
         
         bool MapViewToolBox::clipToolActive() const {
-            return toolActive(m_clipTool);
+            return toolActive(clipTool());
         }
         
         void MapViewToolBox::toggleClipSide() {
@@ -119,11 +120,11 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::toggleRotateObjectsTool() {
-            toggleTool(m_rotateObjectsTool);
+            toggleTool(rotateObjectsTool());
         }
         
         bool MapViewToolBox::rotateObjectsToolActive() const {
-            return toolActive(m_rotateObjectsTool);
+            return toolActive(rotateObjectsTool());
         }
 
         double MapViewToolBox::rotateToolAngle() const {
@@ -142,61 +143,85 @@ namespace TrenchBroom {
             m_rotateObjectsTool->setRotationCenter(center + delta);
         }
 
+        bool MapViewToolBox::anyVertexToolActive() const {
+            return vertexToolActive() || edgeToolActive() || faceToolActive();
+        }
+
         void MapViewToolBox::toggleVertexTool() {
-            toggleTool(m_vertexTool);
+            toggleTool(vertexTool());
         }
         
         bool MapViewToolBox::vertexToolActive() const {
-            return toolActive(m_vertexTool);
+            return toolActive(vertexTool());
+        }
+        
+        void MapViewToolBox::toggleEdgeTool() {
+            toggleTool(edgeTool());
+        }
+        
+        bool MapViewToolBox::edgeToolActive() const {
+            return toolActive(edgeTool());
+        }
+        
+        void MapViewToolBox::toggleFaceTool() {
+            toggleTool(faceTool());
+        }
+        
+        bool MapViewToolBox::faceToolActive() const {
+            return toolActive(faceTool());
         }
 
         void MapViewToolBox::moveVertices(const Vec3& delta) {
-            assert(vertexToolActive());
-            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+            assert(anyVertexToolActive());
+            if (vertexToolActive())
+                vertexTool()->moveSelection(delta);
+            else if (edgeToolActive())
+                edgeTool()->moveSelection(delta);
+            else if (faceToolActive())
+                faceTool()->moveSelection(delta);
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
-            m_clipTool = new ClipTool(document);
-            m_createComplexBrushTool = new CreateComplexBrushTool(document);
-            m_createEntityTool = new CreateEntityTool(document);
-            m_createSimpleBrushTool = new CreateSimpleBrushTool(document);
-            m_moveObjectsTool = new MoveObjectsTool(document);
-            m_resizeBrushesTool = new ResizeBrushesTool(document);
-            m_rotateObjectsTool = new RotateObjectsTool(document);
-            m_vertexTool = new VertexTool(document);
+            m_clipTool.reset(new ClipTool(document));
+            m_createComplexBrushTool.reset(new CreateComplexBrushTool(document));
+            m_createEntityTool.reset(new CreateEntityTool(document));
+            m_createSimpleBrushTool.reset(new CreateSimpleBrushTool(document));
+            m_moveObjectsTool.reset(new MoveObjectsTool(document));
+            m_resizeBrushesTool.reset(new ResizeBrushesTool(document));
+            m_rotateObjectsTool.reset(new RotateObjectsTool(document));
+            m_vertexTool.reset(new VertexTool(document));
+            m_edgeTool.reset(new EdgeTool(document));
+            m_faceTool.reset(new FaceTool(document));
             
-            deactivateWhen(m_createComplexBrushTool, m_moveObjectsTool);
-            deactivateWhen(m_createComplexBrushTool, m_resizeBrushesTool);
-            deactivateWhen(m_createComplexBrushTool, m_createSimpleBrushTool);
-            deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
-            deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
-            deactivateWhen(m_rotateObjectsTool, m_createSimpleBrushTool);
-            deactivateWhen(m_vertexTool, m_moveObjectsTool);
-            deactivateWhen(m_vertexTool, m_resizeBrushesTool);
-            deactivateWhen(m_vertexTool, m_createSimpleBrushTool);
-            deactivateWhen(m_clipTool, m_moveObjectsTool);
-            deactivateWhen(m_clipTool, m_resizeBrushesTool);
-            deactivateWhen(m_clipTool, m_createSimpleBrushTool);
+            deactivateWhen(createComplexBrushTool(), moveObjectsTool());
+            deactivateWhen(createComplexBrushTool(), resizeBrushesTool());
+            deactivateWhen(createComplexBrushTool(), createSimpleBrushTool());
+            deactivateWhen(rotateObjectsTool(), moveObjectsTool());
+            deactivateWhen(rotateObjectsTool(), resizeBrushesTool());
+            deactivateWhen(rotateObjectsTool(), createSimpleBrushTool());
+            deactivateWhen(vertexTool(), moveObjectsTool());
+            deactivateWhen(vertexTool(), resizeBrushesTool());
+            deactivateWhen(vertexTool(), createSimpleBrushTool());
+            deactivateWhen(edgeTool(), moveObjectsTool());
+            deactivateWhen(edgeTool(), resizeBrushesTool());
+            deactivateWhen(edgeTool(), createSimpleBrushTool());
+            deactivateWhen(faceTool(), moveObjectsTool());
+            deactivateWhen(faceTool(), resizeBrushesTool());
+            deactivateWhen(faceTool(), createSimpleBrushTool());
+            deactivateWhen(clipTool(), moveObjectsTool());
+            deactivateWhen(clipTool(), resizeBrushesTool());
+            deactivateWhen(clipTool(), createSimpleBrushTool());
             
-            registerTool(m_moveObjectsTool, bookCtrl);
-            registerTool(m_rotateObjectsTool, bookCtrl);
-            registerTool(m_resizeBrushesTool, bookCtrl);
-            registerTool(m_createComplexBrushTool, bookCtrl);
-            registerTool(m_clipTool, bookCtrl);
-            registerTool(m_vertexTool, bookCtrl);
-            registerTool(m_createEntityTool, bookCtrl);
-            registerTool(m_createSimpleBrushTool, bookCtrl);
-        }
-        
-        void MapViewToolBox::destroyTools() {
-            delete m_vertexTool;
-            delete m_rotateObjectsTool;
-            delete m_resizeBrushesTool;
-            delete m_moveObjectsTool;
-            delete m_createSimpleBrushTool;
-            delete m_createEntityTool;
-            delete m_createComplexBrushTool;
-            delete m_clipTool;
+            registerTool(moveObjectsTool(), bookCtrl);
+            registerTool(rotateObjectsTool(), bookCtrl);
+            registerTool(resizeBrushesTool(), bookCtrl);
+            registerTool(createComplexBrushTool(), bookCtrl);
+            registerTool(clipTool(), bookCtrl);
+            registerTool(vertexTool(), bookCtrl);
+            registerTool(edgeTool(), bookCtrl);
+            registerTool(faceTool(), bookCtrl);
+            registerTool(createEntityTool(), bookCtrl);
+            registerTool(createSimpleBrushTool(), bookCtrl);
         }
         
         void MapViewToolBox::registerTool(Tool* tool, wxBookCtrlBase* bookCtrl) {

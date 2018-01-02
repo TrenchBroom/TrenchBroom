@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace View {
         Tool::Tool(const bool initiallyActive) :
         m_active(initiallyActive),
-        m_book(NULL),
+        m_book(nullptr),
         m_pageIndex(0) {}
 
         Tool::~Tool() {}
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         }
 
         void Tool::createPage(wxBookCtrlBase* book) {
-            assert(m_book == NULL);
+            assert(m_book == nullptr);
             
             m_book = book;
             m_pageIndex = m_book->GetPageCount();
@@ -71,10 +71,6 @@ namespace TrenchBroom {
         
         void Tool::showPage() {
             m_book->SetSelection(m_pageIndex);
-        }
-
-        wxBitmap Tool::icon() const {
-            return IO::loadImageResource(doGetIconName());
         }
 
         bool Tool::doActivate() {
@@ -87,10 +83,6 @@ namespace TrenchBroom {
 
         wxWindow* Tool::doCreatePage(wxWindow* parent) {
             return new wxPanel(parent);
-        }
-
-        String Tool::doGetIconName() const {
-            return "NoTool.png";
         }
     }
 }

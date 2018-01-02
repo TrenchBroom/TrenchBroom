@@ -43,6 +43,8 @@
 #include "View/CommandWindowUpdateLocker.h"
 #include "View/CompilationDialog.h"
 #include "View/Console.h"
+#include "View/EdgeTool.h"
+#include "View/FaceTool.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InfoPanel.h"
@@ -79,38 +81,38 @@
 namespace TrenchBroom {
     namespace View {
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
-        m_frameManager(NULL),
-        m_autosaver(NULL),
-        m_autosaveTimer(NULL),
-        m_contextManager(NULL),
-        m_mapView(NULL),
-        m_console(NULL),
-        m_inspector(NULL),
-        m_lastFocus(NULL),
-        m_gridChoice(NULL),
-        m_compilationDialog(NULL),
-        m_updateLocker(NULL) {}
+        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        m_frameManager(nullptr),
+        m_autosaver(nullptr),
+        m_autosaveTimer(nullptr),
+        m_contextManager(nullptr),
+        m_mapView(nullptr),
+        m_console(nullptr),
+        m_inspector(nullptr),
+        m_lastFocus(nullptr),
+        m_gridChoice(nullptr),
+        m_compilationDialog(nullptr),
+        m_updateLocker(nullptr) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(NULL, wxID_ANY, "TrenchBroom"),
-        m_frameManager(NULL),
-        m_autosaver(NULL),
-        m_autosaveTimer(NULL),
-        m_contextManager(NULL),
-        m_mapView(NULL),
-        m_console(NULL),
-        m_inspector(NULL),
-        m_lastFocus(NULL),
-        m_gridChoice(NULL),
-        m_compilationDialog(NULL),
-        m_updateLocker(NULL) {
+        wxFrame(nullptr, wxID_ANY, "TrenchBroom"),
+        m_frameManager(nullptr),
+        m_autosaver(nullptr),
+        m_autosaveTimer(nullptr),
+        m_contextManager(nullptr),
+        m_mapView(nullptr),
+        m_console(nullptr),
+        m_inspector(nullptr),
+        m_lastFocus(nullptr),
+        m_gridChoice(nullptr),
+        m_compilationDialog(nullptr),
+        m_updateLocker(nullptr) {
             Create(frameManager, document);
         }
 
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
-            ensure(frameManager != NULL, "frameManager is null");
-            ensure(document.get() != NULL, "document is null");
+            ensure(frameManager != nullptr, "frameManager is null");
+            ensure(document.get() != nullptr, "document is null");
 
             m_frameManager = frameManager;
             m_document = document;
@@ -171,30 +173,30 @@ namespace TrenchBroom {
             removeRecentDocumentsMenu(GetMenuBar());
 
             delete m_updateLocker;
-            m_updateLocker = NULL;
+            m_updateLocker = nullptr;
             
             delete m_autosaveTimer;
-            m_autosaveTimer = NULL;
+            m_autosaveTimer = nullptr;
 
             delete m_autosaver;
-            m_autosaver = NULL;
+            m_autosaver = nullptr;
 
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
             DestroyChildren(); // Destroy the children first because they might still access document resources.
             
-            m_document->setViewEffectsService(NULL);
+            m_document->setViewEffectsService(nullptr);
             m_document.reset();
 
             delete m_contextManager;
-            m_contextManager = NULL;
+            m_contextManager = nullptr;
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
             const wxDisplay display;
             const wxRect displaySize = display.GetClientArea();
-            if (reference == NULL) {
+            if (reference == nullptr) {
                 SetSize(std::min(displaySize.width, 1024), std::min(displaySize.height, 768));
                 CenterOnScreen();
             } else {
@@ -220,7 +222,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::setToolBoxDropTarget() {
-            SetDropTarget(NULL);
+            SetDropTarget(nullptr);
             m_mapView->setToolBoxDropTarget();
         }
 
@@ -333,16 +335,42 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
-        void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
+#if defined(_WIN32)
+		/*
+		This and the following method were added to reset the menu bar correctly when the map frame
+		regains focus after the preference dialog is closed. Since the map view reports not having focus
+		when the activation event is processed, we set up a delayed processing in the next idle event.
+
+		See also issue #1762, which only affects Windows.
+		*/
+		void MapFrame::OnActivate(wxActivateEvent& event) {
+            if (IsBeingDeleted()) return;
+
+			Bind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
+			event.Skip();
+        }
+
+		void MapFrame::OnDelayedActivate(wxIdleEvent& event) {
+			if (IsBeingDeleted()) return;
+
+			Unbind(wxEVT_IDLE, &MapFrame::OnDelayedActivate, this);
+			rebuildMenuBar();
+			event.Skip();
+		}
+#endif
+
+		void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
             wxWindow* focus = FindFocus();
-            if (focus == NULL)
+            if (focus == nullptr)
                 focus = event.GetWindow();
             if (focus != m_lastFocus && focus != this) {
                 rebuildMenuBar();
                 m_lastFocus = focus;
             }
+
+			event.Skip();
         }
 
         void MapFrame::rebuildMenuBar() {
@@ -353,7 +381,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createMenuBar() {
-            const ActionManager& actionManager = ActionManager::instance();
+			const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
             SetMenuBar(menuBar);
             addRecentDocumentsMenu(menuBar);
@@ -362,7 +390,7 @@ namespace TrenchBroom {
         void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
+            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.addRecentDocumentMenu(recentDocumentsMenu);
@@ -371,7 +399,7 @@ namespace TrenchBroom {
         void MapFrame::removeRecentDocumentsMenu(wxMenuBar* menuBar) {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            ensure(recentDocumentsMenu != NULL, "recentDocumentsMenu is null");
+            ensure(recentDocumentsMenu != nullptr, "recentDocumentsMenu is null");
 
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(recentDocumentsMenu);
@@ -422,6 +450,8 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", IO::loadImageResource("EdgeTool.png"), wxNullBitmap, "Edge Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleFaceTool, "Face Tool", IO::loadImageResource("FaceTool.png"), wxNullBitmap, "Face Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
             toolBar->AddSeparator();
             toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
@@ -675,6 +705,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
@@ -737,7 +769,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
-            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+			Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
+
+#if defined(_WIN32)
+            Bind(wxEVT_ACTIVATE, &MapFrame::OnActivate, this);
+#endif
 
             m_gridChoice->Bind(wxEVT_CHOICE, &MapFrame::OnToolBarSetGridSize, this);
         }
@@ -787,8 +823,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUndo())
+            if (canUndo() && !m_mapView->cancelMouseDrag()) {
                 m_document->undoLastCommand();
+            }
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
@@ -885,6 +922,10 @@ namespace TrenchBroom {
                     m_mapView->clipTool()->removeLastPoint();
                 else if (m_mapView->vertexToolActive())
                     m_mapView->vertexTool()->removeSelection();
+                else if (m_mapView->edgeToolActive())
+                    m_mapView->edgeTool()->removeSelection();
+                else if (m_mapView->faceToolActive())
+                    m_mapView->faceTool()->removeSelection();
                 else if (!m_mapView->anyToolActive())
                     m_document->deleteObjects();
             }
@@ -1012,8 +1053,20 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
+            
             m_mapView->toggleVertexTool();
+        }
+        
+        void MapFrame::OnEditToggleEdgeTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleEdgeTool();
+        }
+        
+        void MapFrame::OnEditToggleFaceTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_mapView->toggleFaceTool();
         }
 
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
@@ -1096,7 +1149,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
-            assert(size < Grid::MaxSize);
+            assert(size <= Grid::MaxSize);
             m_document->grid().setSize(size);
         }
 
@@ -1207,7 +1260,7 @@ namespace TrenchBroom {
         void MapFrame::OnRunCompile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (m_compilationDialog == NULL) {
+            if (m_compilationDialog == nullptr) {
                 m_compilationDialog = new CompilationDialog(this);
                 m_compilationDialog->Show();
             } else {
@@ -1216,7 +1269,7 @@ namespace TrenchBroom {
         }
 
         void MapFrame::compilationDialogWillClose() {
-            m_compilationDialog = NULL;
+            m_compilationDialog = nullptr;
         }
 
         void MapFrame::OnRunLaunch(wxCommandEvent& event) {
@@ -1284,7 +1337,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
         static void debugSegfault() {
-            volatile void *test = 0;
+            volatile void *test = nullptr;
             printf("%p\n", *((void **)test));
         }
 #ifdef __clang__
@@ -1301,7 +1354,7 @@ namespace TrenchBroom {
             
             wxString crashTypes[2] = { "Null pointer dereference", "Unhandled exception" };
 
-            wxSingleChoiceDialog d(NULL, "Choose a crash type", "Crash", 2, crashTypes);
+            wxSingleChoiceDialog d(nullptr, "Choose a crash type", "Crash", 2, crashTypes);
             if (d.ShowModal() == wxID_OK) {
                 const int idx = d.GetSelection();
                 if (idx == 0) {
@@ -1344,7 +1397,7 @@ namespace TrenchBroom {
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
-                    ensure(item != NULL, "item is null");
+                    ensure(item != nullptr, "item is null");
                     if (canUndo()) {
                         event.Enable(true);
                         event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
@@ -1428,7 +1481,15 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Check(m_mapView->vertexToolActive());
-                    event.Enable(m_mapView->canToggleVertexTool());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleEdgeTool:
+                    event.Check(m_mapView->edgeToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
+                    break;
+                case CommandIds::Menu::EditToggleFaceTool:
+                    event.Check(m_mapView->faceToolActive());
+                    event.Enable(m_mapView->canToggleVertexTools());
                     break;
                 case CommandIds::Menu::EditCsgConvexMerge:
                     event.Enable(canDoCsgConvexMerge());
@@ -1572,7 +1633,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const size_t size = static_cast<size_t>(event.GetSelection());
-            assert(size < Grid::MaxSize);
+            assert(size <= Grid::MaxSize);
             m_document->grid().setSize(size);
         }
 
@@ -1607,13 +1668,18 @@ namespace TrenchBroom {
         bool MapFrame::canDelete() const {
             if (m_mapView->clipToolActive())
                 return m_mapView->clipTool()->canRemoveLastPoint();
-            if (m_mapView->vertexToolActive())
+            else if (m_mapView->vertexToolActive())
                 return m_mapView->vertexTool()->canRemoveSelection();
-            return canCut();
+            else if (m_mapView->edgeToolActive())
+                return m_mapView->edgeTool()->canRemoveSelection();
+            else if (m_mapView->faceToolActive())
+                return m_mapView->faceTool()->canRemoveSelection();
+            else
+                return canCut();
         }
 
         bool MapFrame::canDuplicate() const {
-            return m_document->hasSelectedNodes() && !m_mapView->clipToolActive() && !m_mapView->vertexToolActive();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canSelectSiblings() const {
@@ -1641,11 +1707,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canGroup() const {
-            return m_document->hasSelectedNodes();
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canUngroup() const {
-            return m_document->selectedNodes().hasOnlyGroups();
+            return m_document->selectedNodes().hasOnlyGroups() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canHide() const {
@@ -1703,10 +1769,10 @@ namespace TrenchBroom {
 
         void MapFrame::OnClose(wxCloseEvent& event) {
             if (!IsBeingDeleted()) {
-                if (m_compilationDialog != NULL && !m_compilationDialog->Close()) {
+                if (m_compilationDialog != nullptr && !m_compilationDialog->Close()) {
                     event.Veto();
                 } else {
-                    ensure(m_frameManager != NULL, "frameManager is null");
+                    ensure(m_frameManager != nullptr, "frameManager is null");
                     if (event.CanVeto() && !confirmOrDiscardChanges())
                         event.Veto();
                     else

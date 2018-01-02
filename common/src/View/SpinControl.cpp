@@ -59,8 +59,8 @@ namespace TrenchBroom {
         
         SpinControl::SpinControl(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxPanel(parent, id, pos, size, (style & ~wxBORDER_MASK) | wxBORDER_NONE, name),
-        m_text(NULL),
-        m_spin(NULL),
+        m_text(nullptr),
+        m_spin(nullptr),
         m_minValue(std::numeric_limits<double>::min()),
         m_maxValue(std::numeric_limits<double>::max()),
         m_regularIncrement(0.0),

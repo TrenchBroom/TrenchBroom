@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class GroupNodesTest : public MapDocumentTest {};
 
         TEST_F(GroupNodesTest, createEmptyGroup) {
-            ASSERT_EQ(NULL, document->groupSelection("test"));
+            ASSERT_EQ(nullptr, document->groupSelection("test"));
         }
         
         TEST_F(GroupNodesTest, createGroupWithOneNode) {
@@ -42,14 +42,14 @@ namespace TrenchBroom {
             document->select(brush);
             
             Model::Group* group = document->groupSelection("test");
-            ASSERT_TRUE(group != NULL);
+            ASSERT_TRUE(group != nullptr);
             
             ASSERT_EQ(group, brush->parent());
             ASSERT_TRUE(group->selected());
             ASSERT_FALSE(brush->selected());
             
             document->undoLastCommand();
-            ASSERT_EQ(NULL, group->parent());
+            ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(document->currentParent(), brush->parent());
             ASSERT_TRUE(brush->selected());
         }
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             document->select(brush1);
             
             Model::Group* group = document->groupSelection("test");
-            ASSERT_TRUE(group != NULL);
+            ASSERT_TRUE(group != nullptr);
             
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush1->selected());
             
             document->undoLastCommand();
-            ASSERT_EQ(NULL, group->parent());
+            ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
             ASSERT_EQ(document->currentParent(), entity->parent());
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             document->select(VectorUtils::create<Model::Node*>(brush1, brush2));
             
             Model::Group* group = document->groupSelection("test");
-            ASSERT_TRUE(group != NULL);
+            ASSERT_TRUE(group != nullptr);
             
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush2->selected());
             
             document->undoLastCommand();
-            ASSERT_EQ(NULL, group->parent());
+            ASSERT_EQ(nullptr, group->parent());
             ASSERT_EQ(entity, brush1->parent());
             ASSERT_EQ(entity, brush2->parent());
             ASSERT_EQ(document->currentParent(), entity->parent());

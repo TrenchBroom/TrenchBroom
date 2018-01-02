@@ -35,9 +35,9 @@ namespace TrenchBroom {
     namespace View {
         InfoPanel::InfoPanel(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_tabBook(NULL),
-        m_console(NULL),
-        m_issueBrowser(NULL) {
+        m_tabBook(nullptr),
+        m_console(nullptr),
+        m_issueBrowser(nullptr) {
             m_tabBook = new TabBook(this);
             
             m_console = new Console(m_tabBook);

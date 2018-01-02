@@ -51,13 +51,13 @@ namespace TrenchBroom {
         }
         
         void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const String& entityPropertiesStr) {
-            const EL::MapType entityPropertiesMap = IO::ELParser::parse(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
+            const EL::MapType entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
             
             Model::EntityAttributes attributes;
             for (const auto& entry : entityPropertiesMap) {
                 const String& key = entry.first;
                 const EL::Value& value = entry.second;
-                attributes.addOrUpdateAttribute(key, value.convertTo(EL::Type_String).stringValue(), NULL);
+                attributes.addOrUpdateAttribute(key, value.convertTo(EL::Type_String).stringValue(), nullptr);
             }
             
             ASSERT_EQ(expected, actual.modelSpecification(attributes));

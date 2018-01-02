@@ -46,7 +46,7 @@ namespace TrenchBroom {
         
         template <typename E>
         void evaluateAndThrow(const String& expression, const EvaluationContext& context = EvaluationContext()) {
-            ASSERT_THROW(IO::ELParser(expression).parse().evaluate(context), E);
+            ASSERT_THROW(IO::ELParser::parseStrict(expression).evaluate(context), E);
         }
         
         template <typename T1>
@@ -326,15 +326,15 @@ namespace TrenchBroom {
         }
         
         void evaluateAndAssert(const String& expression, const Value& result, const EvaluationContext& context) {
-            ASSERT_EQ(result, IO::ELParser(expression).parse().evaluate(context));
+            ASSERT_EQ(result, IO::ELParser::parseStrict(expression).evaluate(context));
         }
         
         void assertOptimizable(const String& expression) {
-            ASSERT_TRUE(IO::ELParser(expression).parse().optimize());
+            ASSERT_TRUE(IO::ELParser::parseStrict(expression).optimize());
         }
         
         void assertNotOptimizable(const String& expression) {
-            ASSERT_FALSE(IO::ELParser(expression).parse().optimize());
+            ASSERT_FALSE(IO::ELParser::parseStrict(expression).optimize());
         }
     }
 }

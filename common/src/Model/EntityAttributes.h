@@ -85,7 +85,7 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* m_definition;
         public:
             EntityAttribute();
-            EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition = NULL);
+            EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition = nullptr);
             bool operator<(const EntityAttribute& rhs) const;
             int compare(const EntityAttribute& rhs) const;
             
@@ -127,11 +127,14 @@ namespace TrenchBroom {
             EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
             bool containsValue(const AttributeIndex::QueryResult& matches, const AttributeValue& value) const;
+            EntityAttribute::List listFromQueryResult(const AttributeIndex::QueryResult& matches) const;
         public:
             const AttributeNameSet names() const;
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
             
+            EntityAttribute::List attributeWithName(const AttributeName& name) const;
+            EntityAttribute::List attributesWithPrefix(const AttributeName& prefix) const;
             EntityAttribute::List numberedAttributes(const String& prefix) const;
         private:
             EntityAttribute::List::const_iterator findAttribute(const AttributeName& name) const;

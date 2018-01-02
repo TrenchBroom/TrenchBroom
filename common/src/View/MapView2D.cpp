@@ -20,6 +20,7 @@
 #include "MapView2D.h"
 #include "Algorithms.h"
 #include "Logger.h"
+#include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -45,6 +46,10 @@
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolController.h"
 #include "View/CreateSimpleBrushToolController2D.h"
+#include "View/EdgeTool.h"
+#include "View/EdgeToolController.h"
+#include "View/FaceTool.h"
+#include "View/FaceToolController.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
@@ -63,11 +68,23 @@ namespace TrenchBroom {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(){
-            bindEvents();
             bindObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
             setCompass(new Renderer::Compass2D());
+
+			switch (viewPlane) {
+			case ViewPlane_XY:
+				SetName("XY View");
+				break;
+			case ViewPlane_YZ:
+				SetName("YZ View");
+				break;
+			case ViewPlane_XZ:
+				SetName("XZ View");
+				break;
+			switchDefault()
+			}
         }
 
         MapView2D::~MapView2D() {
@@ -101,6 +118,8 @@ namespace TrenchBroom {
             addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
             addTool(new ClipToolController2D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));
+            addTool(new EdgeToolController(toolBox.edgeTool()));
+            addTool(new FaceToolController(toolBox.faceTool()));
             addTool(new CreateEntityToolController2D(toolBox.createEntityTool()));
             addTool(new SelectionTool(m_document));
             addTool(new CreateSimpleBrushToolController2D(toolBox.createSimpleBrushTool(), m_document));
@@ -116,25 +135,6 @@ namespace TrenchBroom {
         
         void MapView2D::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
-        }
-
-        void MapView2D::bindEvents() {
-            /*
-            Bind(wxEVT_KEY_DOWN, &MapView2D::OnKey, this);
-            Bind(wxEVT_KEY_UP, &MapView2D::OnKey, this);
-            */
-            
-            /*
-            Bind(wxEVT_MENU, &MapView2D::OnPopupReparentBrushes,         this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupMoveBrushesToWorld,      this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreatePointEntity,       this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreateBrushEntity,       this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            */
         }
 
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {

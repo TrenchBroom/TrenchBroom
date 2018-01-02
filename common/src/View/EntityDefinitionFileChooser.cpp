@@ -102,7 +102,7 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::createGui() {
             TitledPanel* builtinContainer = new TitledPanel(this, "Builtin", false);
             builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxBORDER_NONE);
+            m_builtin = new wxListBox(builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
             
             wxSizer* builtinSizer = new wxBoxSizer(wxVERTICAL);
             builtinSizer->Add(m_builtin, 1, wxEXPAND);

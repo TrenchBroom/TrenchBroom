@@ -120,7 +120,7 @@ namespace TrenchBroom {
                 if (!info.move)
                     return RestrictedDragPolicy::DragInfo();
                 
-                DragRestricter* restricter = NULL;
+                DragRestricter* restricter = nullptr;
                 if (isVerticalMove(inputState)) {
                     restricter = doCreateVerticalDragRestricter(inputState, info.initialPoint);
                     m_lastMoveType = MT_Vertical;

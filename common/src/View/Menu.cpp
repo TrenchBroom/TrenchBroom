@@ -67,7 +67,7 @@ namespace TrenchBroom {
         void MenuItem::doAppendToMenu(wxMenuBar* menu, const bool withShortcuts) const {}
 
         const ActionMenuItem* MenuItem::doFindActionMenuItem(const int id) const {
-            return NULL;
+            return nullptr;
         }
 
         void MenuItem::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {}
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             IO::Path path(label);
             
             const MenuItemParent* p = parent();
-            while (p != NULL) {
+            while (p != nullptr) {
                 if (!p->label().empty())
                     path = IO::Path(p->label()) + path;
                 p = p->parent();
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         const ActionMenuItem* ActionMenuItem::doFindActionMenuItem(int id) const {
             if (id == m_action.id())
                 return this;
-            return NULL;
+            return nullptr;
         }
         
         void ActionMenuItem::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {
@@ -243,10 +243,10 @@ namespace TrenchBroom {
         const ActionMenuItem* MenuItemParent::doFindActionMenuItem(int id) const {
             for (const MenuItem* item : m_items) {
                 const ActionMenuItem* foundItem = item->findActionMenuItem(id);
-                if (foundItem != NULL)
+                if (foundItem != nullptr)
                     return foundItem;
             }
-            return NULL;
+            return nullptr;
         }
         
         void MenuItemParent::doGetShortcutEntries(KeyboardShortcutEntry::List& entries) {
@@ -271,7 +271,7 @@ namespace TrenchBroom {
         MenuItemParent(Type_Menu, parent, id, label) {}
         
         Menu::Menu(const String& label) :
-        MenuItemParent(Type_Menu, NULL, wxID_ANY, label) {}
+        MenuItemParent(Type_Menu, nullptr, wxID_ANY, label) {}
 
         Menu::~Menu() {}
 
@@ -326,10 +326,10 @@ namespace TrenchBroom {
         const ActionMenuItem* MenuBar::findActionMenuItem(int id) const {
             for (const Menu* menu : m_menus) {
                 const ActionMenuItem* item = menu->findActionMenuItem(id);
-                if (item != NULL)
+                if (item != nullptr)
                     return item;
             }
-            return NULL;
+            return nullptr;
         }
 
         void MenuBar::resetShortcuts() {

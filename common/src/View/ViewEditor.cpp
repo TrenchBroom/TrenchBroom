@@ -256,7 +256,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::GameSPtr game = document->game();
 
-            if (game.get() != NULL) {
+            if (game.get() != nullptr) {
                 Model::BrushContentType::FlagType hiddenFlags = 0;
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
 
@@ -376,7 +376,7 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::createGui() {
-			SetSizer(NULL);
+			SetSizer(nullptr);
             DestroyChildren();
 
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
@@ -445,7 +445,7 @@ namespace TrenchBroom {
             m_showBrushesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brushes");
             m_showBrushesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushesChanged, this);
 
-            ensure(inner->GetSizer() != NULL, "inner sizer is null");
+            ensure(inner->GetSizer() != nullptr, "inner sizer is null");
             inner->GetSizer()->Prepend(m_showBrushesCheckBox);
 
             return panel;
@@ -456,7 +456,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             Model::GameSPtr game = document->game();
-            if (game.get() == NULL) {
+            if (game.get() == nullptr) {
                 createEmptyBrushContentTypeFilter(parent);
             } else {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
@@ -561,7 +561,7 @@ namespace TrenchBroom {
             const Model::BrushContentType::FlagType hiddenFlags = editorContext.hiddenBrushContentTypes();
 
             Model::GameSPtr game = document->game();
-            if (game.get() != NULL) {
+            if (game.get() != nullptr) {
                 const Model::BrushContentType::List& contentTypes = game->brushContentTypes();
                 for (size_t i = 0; i < contentTypes.size(); ++i) {
                     const Model::BrushContentType& contentType = contentTypes[i];
@@ -585,8 +585,8 @@ namespace TrenchBroom {
 
         ViewPopupEditor::ViewPopupEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_button(NULL),
-        m_editor(NULL) {
+        m_button(nullptr),
+        m_editor(nullptr) {
             m_button = new PopupButton(this, "View");
             m_button->SetToolTip("Click to edit view settings");
 

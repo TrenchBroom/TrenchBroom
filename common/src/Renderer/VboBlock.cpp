@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Renderer {
         MapVboBlock::MapVboBlock(VboBlock* block) :
         m_block(block) {
-            ensure(m_block != NULL, "block is null");
+            ensure(m_block != nullptr, "block is null");
             m_block->map();
         }
         
@@ -103,12 +103,12 @@ namespace TrenchBroom {
         }
 
         VboBlock* VboBlock::mergeWithSuccessor() {
-            ensure(m_next != NULL, "next is null");
+            ensure(m_next != nullptr, "next is null");
             
             VboBlock* next = m_next;
             VboBlock* nextNext = next->next();
             m_next = nextNext;
-            if (m_next != NULL)
+            if (m_next != nullptr)
                 m_next->setPrevious(this);
             m_capacity += next->capacity();
             return next;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
         
         VboBlock* VboBlock::createSuccessor(const size_t capacity) {
             VboBlock* successor = new VboBlock(m_vbo, m_offset + m_capacity, capacity, this, m_next);
-            if (m_next != NULL)
+            if (m_next != nullptr)
                 m_next->setPrevious(successor);
             m_next = successor;
             return m_next;

@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
 
         void ExecutableEvent::execute() {
-            if (m_executable.get() != NULL)
+            if (m_executable.get() != nullptr)
                 (*m_executable)();
         }
     }

@@ -59,6 +59,7 @@ namespace TrenchBroom {
             Vec3 xAxis() const;
             Vec3 yAxis() const;
 
+            void resetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
             void resetTextureAxes(const Vec3& normal);
             void resetTextureAxesToParaxial(const Vec3& normal, float angle);
             void resetTextureAxesToParallel(const Vec3& normal, float angle);
@@ -85,7 +86,8 @@ namespace TrenchBroom {
             virtual Vec3 getXAxis() const = 0;
             virtual Vec3 getYAxis() const = 0;
             virtual Vec3 getZAxis() const = 0;
-            
+
+            virtual void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) = 0;
             virtual void doResetTextureAxes(const Vec3& normal) = 0;
             virtual void doResetTextureAxesToParaxial(const Vec3& normal, float angle) = 0;
             virtual void doResetTextureAxesToParallel(const Vec3& normal, float angle) = 0;
@@ -95,7 +97,8 @@ namespace TrenchBroom {
             
             virtual void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) = 0;
             virtual void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) = 0;
-            virtual void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
+            virtual void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
+            virtual void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
             virtual void doShearTexture(const Vec3& normal, const Vec2f& factors) = 0;
             

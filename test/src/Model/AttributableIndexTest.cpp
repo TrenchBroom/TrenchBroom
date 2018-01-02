@@ -177,5 +177,37 @@ namespace TrenchBroom {
             
             delete entity1;
         }
+        
+        TEST(EntityAttributeIndexTest, allNames) {
+            AttributableNodeIndex index;
+            
+            Entity* entity1 = new Entity();
+            entity1->addOrUpdateAttribute("test", "somevalue");
+            
+            Entity* entity2 = new Entity();
+            entity2->addOrUpdateAttribute("test", "somevalue");
+            entity2->addOrUpdateAttribute("other", "someothervalue");
+            
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
+            
+            ASSERT_EQ((StringSet{"test", "other"}), SetUtils::makeSet(index.allNames()));
+        }
+        
+        TEST(EntityAttributeIndexTest, allValuesForNames) {
+            AttributableNodeIndex index;
+            
+            Entity* entity1 = new Entity();
+            entity1->addOrUpdateAttribute("test", "somevalue");
+            
+            Entity* entity2 = new Entity();
+            entity2->addOrUpdateAttribute("test", "somevalue2");
+            entity2->addOrUpdateAttribute("other", "someothervalue");
+            
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
+            
+            ASSERT_EQ((StringSet{"somevalue", "somevalue2"}), SetUtils::makeSet(index.allValuesForNames(AttributableNodeIndexQuery::exact("test"))));
+        }
     }
 }

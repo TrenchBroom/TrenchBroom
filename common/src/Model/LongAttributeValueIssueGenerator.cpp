@@ -66,7 +66,7 @@ namespace TrenchBroom {
             IssueQuickFix(LongAttributeValueIssue::Type, "Truncate property values"),
             m_maxLength(maxLength) {}
         private:
-            void doApply(MapFacade* facade, const Issue* issue) const {
+            void doApply(MapFacade* facade, const Issue* issue) const override {
                 const PushSelection push(facade);
                 
                 const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);

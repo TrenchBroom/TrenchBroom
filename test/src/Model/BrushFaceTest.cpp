@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
                 // test destructor
                 delete clone;
-                clone = NULL;
+                clone = nullptr;
                 EXPECT_EQ(2, texture.usageCount());
                 
                 // test setTexture
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             BrushFace::VertexList verts = face->vertices();
             for (it = std::begin(verts); it != std::end(verts); ++it) {
                 vertPositions->push_back(it->position());
-                if (vertTexCoords != NULL) {
+                if (vertTexCoords != nullptr) {
                     vertTexCoords->push_back(face->textureCoords(it->position()));
                 }
             }
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             // UVs of the verts of `face` and `resetFace` should be the same now
             
             std::vector<Vec3> verts;
-            getFaceVertsAndTexCoords(origFace, &verts, NULL);
+            getFaceVertsAndTexCoords(origFace, &verts, nullptr);
             
             // transform the verts
             std::vector<Vec3> transformedVerts;
@@ -351,10 +351,36 @@ namespace TrenchBroom {
             checkTextureLockOffWithTranslation(origFace);
         }
         
+        /**
+         * For the sides of a cube, a horizontal or vertical flip should have no effect on texturing
+         * when texture lock is off.
+         */
+        static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
+            const Mat4x4 transform = mirrorMatrix<double>(Math::Axis::AZ);
+            const BrushFace* origFace = cube->findFace(Vec3::PosX);
+            
+            // transform the face (texture lock off)
+            BrushFace* face = origFace->clone();
+            face->transform(transform, false);
+            
+            // UVs of the verts of `face` and `origFace` should be the same now
+
+            // get UV of each vert using `face` and `resetFace`
+            std::vector<Vec2> face_UVs, origFace_UVs;
+            for (const auto vert : origFace->vertices()) {
+                face_UVs.push_back(face->textureCoords(vert->position()));
+                origFace_UVs.push_back(origFace->textureCoords(vert->position()));
+            }
+            
+            checkUVListsEqual(face_UVs, origFace_UVs);
+            
+            delete face;
+        }
+        
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Standard, NULL, worldBounds);
+            World world(MapFormat::Standard, nullptr, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -365,6 +391,8 @@ namespace TrenchBroom {
                 face->setTexture(&texture);
                 checkTextureLockForFace(face, false);
             }
+            
+            checkTextureLockOffWithVerticalFlip(cube);
 
             delete cube;
         }
@@ -372,7 +400,7 @@ namespace TrenchBroom {
         TEST(BrushFaceTest, testTextureLock_Parallel) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            World world(MapFormat::Valve, NULL, worldBounds);
+            World world(MapFormat::Valve, nullptr, worldBounds);
             
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "");
@@ -383,6 +411,8 @@ namespace TrenchBroom {
                 face->setTexture(&texture);
                 checkTextureLockForFace(face, true);
             }
+            
+            checkTextureLockOffWithVerticalFlip(cube);
 
             delete cube;
         }

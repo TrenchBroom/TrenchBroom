@@ -102,6 +102,10 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
+#if defined(_WIN32)
+			void OnActivate(wxActivateEvent& event);
+			void OnDelayedActivate(wxIdleEvent& event);
+#endif
             void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
             void createMenuBar();
@@ -171,6 +175,8 @@ namespace TrenchBroom {
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
             void OnEditToggleVertexTool(wxCommandEvent& event);
+            void OnEditToggleEdgeTool(wxCommandEvent& event);
+            void OnEditToggleFaceTool(wxCommandEvent& event);
 
             void OnEditCsgConvexMerge(wxCommandEvent& event);
             void OnEditCsgSubtract(wxCommandEvent& event);

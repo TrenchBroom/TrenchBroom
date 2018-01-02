@@ -50,14 +50,14 @@ namespace TrenchBroom {
             EntityClassnameAnchor(const Model::Entity* entity) :
             m_entity(entity) {}
         private:
-            Vec3f basePosition() const {
+            Vec3f basePosition() const override {
                 Vec3f position = m_entity->bounds().center();
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
             }
             
-            TextAlignment::Type alignment() const {
+            TextAlignment::Type alignment() const override {
                 return TextAlignment::Bottom;
             }
         };
@@ -359,7 +359,7 @@ namespace TrenchBroom {
 
         const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition == NULL)
+            if (definition == nullptr)
                 return m_boundsColor;
             return definition->color();
         }

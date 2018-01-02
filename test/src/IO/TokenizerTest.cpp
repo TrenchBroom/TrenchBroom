@@ -41,7 +41,7 @@ namespace TrenchBroom {
         public:
             typedef Tokenizer<SimpleToken::Type>::Token Token;
         private:
-            Token emitToken() {
+            Token emitToken() override {
                 while (!eof()) {
                     size_t startLine = line();
                     size_t startColumn = column();
@@ -65,18 +65,18 @@ namespace TrenchBroom {
                                 break;
                             }
                             const char* e = readInteger("{};= \n\r\t");
-                            if (e != NULL)
+                            if (e != nullptr)
                                 return Token(SimpleToken::Integer, c, e, offset(c), startLine, startColumn);
                             e = readDecimal("{};= \n\r\t");
-                            if (e != NULL)
+                            if (e != nullptr)
                                 return Token(SimpleToken::Decimal, c, e, offset(c), startLine, startColumn);
                             e = readUntil("{};= \n\r\t");
-                            assert(e != NULL);
+                            assert(e != nullptr);
                             return Token(SimpleToken::String, c, e, offset(c), startLine, startColumn);
                         }
                     }
                 }
-                return Token(SimpleToken::Eof, NULL, NULL, length(), line(), column());
+                return Token(SimpleToken::Eof, nullptr, nullptr, length(), line(), column());
             }
         public:
             SimpleTokenizer(const String& str) :

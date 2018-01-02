@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::reload() {
-            if (m_view != NULL) {
+            if (m_view != nullptr) {
                 m_view->invalidate();
                 m_view->Refresh();
             }

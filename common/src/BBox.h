@@ -249,7 +249,15 @@ public:
         
     }
     
-    T intersectWithRay(const Ray<T,S>& ray, Vec<T,S>* sideNormal = NULL) const {
+    bool touches(const Vec<T,S>& start, const Vec<T,S>& end) const {
+        if (contains(start) || contains(end))
+            return true;
+
+        const Ray<T,S> ray(start, (end-start).normalized());
+        return !Math::isnan(intersectWithRay(ray));
+    }
+    
+    T intersectWithRay(const Ray<T,S>& ray, Vec<T,S>* sideNormal = nullptr) const {
         const bool inside = contains(ray.origin);
         
         for (size_t i = 0; i < S; ++i) {
@@ -273,7 +281,7 @@ public:
                 if (i != j && !Math::between(point[j], min[j], max[j]))
                     goto cont;
             
-            if (sideNormal != NULL)
+            if (sideNormal != nullptr)
                 *sideNormal = inside ? -normal : normal;
             return distance;
             

@@ -51,11 +51,11 @@ namespace TrenchBroom {
         }
 
         size_t VertexArray::sizeInBytes() const {
-            return m_holder.get() == NULL ? 0 : m_holder->sizeInBytes();
+            return m_holder.get() == nullptr ? 0 : m_holder->sizeInBytes();
         }
 
         size_t VertexArray::vertexCount() const {
-            return m_holder.get() == NULL ? 0 : m_holder->vertexCount();
+            return m_holder.get() == nullptr ? 0 : m_holder->vertexCount();
         }
 
         bool VertexArray::prepared() const {

@@ -24,7 +24,7 @@
 namespace TrenchBroom {
     namespace View {
         PickRequest::PickRequest() :
-        m_camera(NULL) {}
+        m_camera(nullptr) {}
         
         PickRequest::PickRequest(const Ray3& pickRay, const Renderer::Camera& camera) :
         m_pickRay(pickRay),
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
         
         const Renderer::Camera& PickRequest::camera() const {
-            ensure(m_camera != NULL, "camera is null");
+            ensure(m_camera != nullptr, "camera is null");
             return *m_camera;
         }
     }

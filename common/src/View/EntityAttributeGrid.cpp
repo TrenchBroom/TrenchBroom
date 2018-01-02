@@ -31,6 +31,7 @@
 #include <wx/checkbox.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -220,6 +221,29 @@ namespace TrenchBroom {
             return true;
         }
 
+        /**
+         * Subclass of wxGridCellTextEditor for setting up autocompletion
+         */
+        class EntityAttributeCellEditor : public wxGridCellTextEditor
+        {
+        private:
+            EntityAttributeGridTable* m_table;
+            
+        public:
+            EntityAttributeCellEditor(EntityAttributeGridTable* table)
+            : m_table(table) {}
+
+            void BeginEdit(int row, int col, wxGrid* grid) override {
+                wxGridCellTextEditor::BeginEdit(row, col, grid);
+                
+                wxTextCtrl *textCtrl = Text();
+                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
+
+                const wxArrayString completions = m_table->getCompletions(row, col);
+                textCtrl->AutoComplete(completions);
+            }
+        };
+        
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
@@ -232,6 +256,9 @@ namespace TrenchBroom {
             m_grid->SetColLabelSize(18);
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
+            
+            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(m_table);
+            m_grid->SetDefaultEditor(editor);
             
             m_grid->DisableColResize(0);
             m_grid->DisableColResize(1);
@@ -248,7 +275,7 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_KEY_UP, &EntityAttributeGrid::OnAttributeGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnAttributeGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAttributeView, this);
-
+            
             wxWindow* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
             wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
 

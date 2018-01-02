@@ -31,10 +31,10 @@ namespace TrenchBroom {
     namespace View {
         Inspector::Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
-        m_tabBook(NULL),
-        m_mapInspector(NULL),
-        m_entityInspector(NULL),
-        m_faceInspector(NULL) {
+        m_tabBook(nullptr),
+        m_mapInspector(nullptr),
+        m_entityInspector(nullptr),
+        m_faceInspector(nullptr) {
             
             m_tabBook = new TabBook(this);
 

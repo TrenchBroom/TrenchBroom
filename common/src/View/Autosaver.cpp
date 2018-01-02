@@ -30,11 +30,11 @@ namespace TrenchBroom {
     namespace View {
         Autosaver::Autosaver(View::MapDocumentWPtr document, const time_t saveInterval, const time_t idleInterval, const size_t maxBackups) :
         m_document(document),
-        m_logger(NULL),
+        m_logger(nullptr),
         m_saveInterval(saveInterval),
         m_idleInterval(idleInterval),
         m_maxBackups(maxBackups),
-        m_lastSaveTime(time(NULL)),
+        m_lastSaveTime(time(nullptr)),
         m_lastModificationTime(0),
         m_lastModificationCount(lock(m_document)->modificationCount()) {
             bindObservers();
@@ -42,11 +42,11 @@ namespace TrenchBroom {
         
         Autosaver::~Autosaver() {
             unbindObservers();
-            triggerAutosave(NULL);
+            triggerAutosave(nullptr);
         }
         
         void Autosaver::triggerAutosave(Logger* logger) {
-            const time_t currentTime = time(NULL);
+            const time_t currentTime = time(nullptr);
             
             MapDocumentSPtr document = lock(m_document);
             if (!document->modified())
@@ -87,15 +87,15 @@ namespace TrenchBroom {
                 
                 const IO::Path backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
-                m_lastSaveTime = time(NULL);
+                m_lastSaveTime = time(nullptr);
                 m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
                 
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->info("Created autosave backup at %s", backupFilePath.asString().c_str());
                 
             } catch (FileSystemException e) {
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->error("Aborting autosave");
             }
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 // ensures that the directory exists or is created if it doesn't
                 return IO::WritableDiskFileSystem(autosavePath, true);
             } catch (FileSystemException e) {
-                if (m_logger != NULL)
+                if (m_logger != nullptr)
                     m_logger->error("Cannot create autosave directory at %s", autosavePath.asString().c_str());
                 throw e;
             }
@@ -153,11 +153,11 @@ namespace TrenchBroom {
                 const IO::Path filename = backups.front();
                 try {
                     fs.deleteFile(filename);
-                    if (m_logger != NULL)
+                    if (m_logger != nullptr)
                         m_logger->debug("Deleted autosave backup %s", filename.asString().c_str());
                     backups.erase(std::begin(backups));
                 } catch (FileSystemException e) {
-                    if (m_logger != NULL)
+                    if (m_logger != nullptr)
                         m_logger->error("Cannot delete autosave backup %s", filename.asString().c_str());
                     throw e;
                 }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         }
         
         void Autosaver::documentModificationCountDidChangeNotifier() {
-            m_lastModificationTime = time(NULL);
+            m_lastModificationTime = time(nullptr);
         }
     }
 }

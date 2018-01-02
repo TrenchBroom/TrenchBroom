@@ -41,6 +41,7 @@ namespace TrenchBroom {
 #define GL_TRIANGLE_FAN 0x0006
 #define GL_QUADS 0x0007
 #define GL_QUAD_STRIP 0x0008
+#define GL_POLYGON_BIT 0x00000008
 #define GL_POLYGON 0x0009
 
 #define GL_DEPTH_BUFFER_BIT 0x00000100
@@ -269,6 +270,9 @@ namespace TrenchBroom {
     extern Func1<void, const GLfloat*> glLoadMatrixf;
     extern Func1<void, GLenum> glMatrixMode;
 
+    extern Func1<void, GLbitfield> glPushAttrib;
+    extern Func0<void> glPopAttrib;
+    
     extern Func2<void, GLenum, GLint*> glGetIntegerv;
     
     extern Func2<void, GLenum, GLfloat> glPixelStoref;

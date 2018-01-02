@@ -67,12 +67,12 @@ namespace TrenchBroom {
         Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :
         m_name(name),
         m_textureCollection(textureCollection) {
-            ensure(textureCollection != NULL, "textureCollection is null");
+            ensure(textureCollection != nullptr, "textureCollection is null");
         }
 
         Bsp29Model::~Bsp29Model() {
             delete m_textureCollection;
-            m_textureCollection = NULL;
+            m_textureCollection = nullptr;
         }
         
         void Bsp29Model::addModel(const FaceList& faces, const BBox3f& bounds) {

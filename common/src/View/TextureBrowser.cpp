@@ -248,7 +248,7 @@ namespace TrenchBroom {
         }
         
         void TextureBrowser::reload() {
-            if (m_view != NULL) {
+            if (m_view != nullptr) {
                 updateSelectedTexture();
                 m_view->invalidate();
                 m_view->Refresh();

@@ -88,7 +88,7 @@ namespace TrenchBroom {
         const EntityAttribute::List EntityAttribute::EmptyList(0);
         
         EntityAttribute::EntityAttribute() :
-        m_definition(NULL) {}
+        m_definition(nullptr) {}
         
         EntityAttribute::EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition) :
         m_name(name),
@@ -240,6 +240,17 @@ namespace TrenchBroom {
             
             return false;
         }
+        
+        EntityAttribute::List EntityAttributes::listFromQueryResult(const AttributeIndex::QueryResult& matches) const {
+            EntityAttribute::List result;
+            
+            for (auto attrIt : matches) {
+                const EntityAttribute& attribute = *attrIt;
+                result.push_back(attribute);
+            }
+            
+            return result;
+        }
 
         const AttributeNameSet EntityAttributes::names() const {
             AttributeNameSet result;
@@ -251,17 +262,25 @@ namespace TrenchBroom {
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
             EntityAttribute::List::const_iterator it = findAttribute(name);
             if (it == std::end(m_attributes))
-                return NULL;
+                return nullptr;
             return &it->value();
         }
 
         const AttributeValue& EntityAttributes::safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = attribute(name);
-            if (value == NULL)
+            if (value == nullptr)
                 return defaultValue;
             return *value;
         }
 
+        EntityAttribute::List EntityAttributes::attributeWithName(const AttributeName& name) const {
+            return listFromQueryResult(m_index.queryExactMatches(name));
+        }
+        
+        EntityAttribute::List EntityAttributes::attributesWithPrefix(const AttributeName& prefix) const{
+            return listFromQueryResult(m_index.queryPrefixMatches(prefix));
+        }
+        
         EntityAttribute::List EntityAttributes::numberedAttributes(const String& prefix) const {
             EntityAttribute::List result;
 

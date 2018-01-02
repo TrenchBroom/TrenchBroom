@@ -99,7 +99,7 @@ namespace TrenchBroom {
             if (collection->loaded() && !collection->prepared())
                 m_toPrepare.push_back(collection);
             
-            if (m_logger != NULL)
+            if (m_logger != nullptr)
                 m_logger->debug("Added texture collection %s", collection->path().asString().c_str());
         }
 
@@ -129,7 +129,7 @@ namespace TrenchBroom {
         Texture* TextureManager::texture(const String& name) const {
             TextureMap::const_iterator it = m_texturesByName.find(StringUtils::toLower(name));
             if (it == std::end(m_texturesByName))
-                return NULL;
+                return nullptr;
             return it->second;
         }
         
@@ -145,21 +145,21 @@ namespace TrenchBroom {
             StringList result;
             result.reserve(m_collections.size());
             std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
-                           [](const TextureCollection* collection) { return collection->name(); });
+                           [](auto collection) { return collection->name(); });
             return result;
         }
         
         void TextureManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 std::for_each(std::begin(m_collections), std::end(m_collections),
-                              [this](TextureCollection* collection) { collection->setTextureMode(m_minFilter, m_magFilter); });
+                              [this](auto collection) { collection->setTextureMode(m_minFilter, m_magFilter); });
                 m_resetTextureMode = false;
             }
         }
         
         void TextureManager::prepare() {
             std::for_each(std::begin(m_toPrepare), std::end(m_toPrepare),
-                          [this](TextureCollection* collection) { collection->prepare(m_minFilter, m_magFilter); });
+                          [this](auto collection) { collection->prepare(m_minFilter, m_magFilter); });
             m_toPrepare.clear();
         }
         

@@ -95,21 +95,21 @@ namespace TrenchBroom {
                         break;
                     default: { // whitespace, integer, decimal or word
                         const char* e = readInteger(NumberDelim());
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
                         
                         e = readDecimal(NumberDelim());
-                        if (e != NULL)
+                        if (e != nullptr)
                             return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
                         
                         e = readUntil(Whitespace());
-                        if (e == NULL)
+                        if (e == nullptr)
                             throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
                         return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
                     }
                 }
             }
-            return Token(QuakeMapToken::Eof, NULL, NULL, length(), line(), column());
+            return Token(QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
         StandardMapParser::StandardMapParser(const char* begin, const char* end) :
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             const String value = token.data();
             
             if (names.count(name) == 0) {
-                attributes.push_back(Model::EntityAttribute(name, value, NULL));
+                attributes.push_back(Model::EntityAttribute(name, value, nullptr));
                 names.insert(name);
             } else {
                 status.warn(line, column, "Ignoring duplicate entity property '" + name + "'");

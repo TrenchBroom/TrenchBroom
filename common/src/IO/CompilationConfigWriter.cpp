@@ -63,14 +63,14 @@ namespace TrenchBroom {
         public:
             EL::Value result() const { return EL::Value(m_array); }
         public:
-            void visit(const Model::CompilationExportMap* task) {
+            void visit(const Model::CompilationExportMap* task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("export");
                 map["target"] = EL::Value(task->targetSpec());
                 m_array.push_back(EL::Value(map));
             }
             
-            void visit(const Model::CompilationCopyFiles* task) {
+            void visit(const Model::CompilationCopyFiles* task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("copy");
                 map["source"] = EL::Value(task->sourceSpec());
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 m_array.push_back(EL::Value(map));
             }
             
-            void visit(const Model::CompilationRunTool* task) {
+            void visit(const Model::CompilationRunTool* task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("tool");
                 map["tool"] = EL::Value(task->toolSpec());

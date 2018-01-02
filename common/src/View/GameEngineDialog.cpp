@@ -40,7 +40,7 @@ namespace TrenchBroom {
         GameEngineDialog::GameEngineDialog(wxWindow* parent, const String& gameName) :
         wxDialog(parent, wxID_ANY, "Game Engines"),
         m_gameName(gameName),
-        m_profileManager(NULL) {
+        m_profileManager(nullptr) {
             createGui();
             SetSize(600, 400);
             CentreOnParent();
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
         void GameEngineDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != NULL)
+            if (GetParent() != nullptr)
                 GetParent()->Raise();
             event.Skip();
         }

@@ -39,8 +39,8 @@ namespace TrenchBroom {
         m_textureExtension(getTextureExtension(textureConfig)),
         m_textureReader(createTextureReader(textureConfig)),
         m_textureCollectionLoader(createTextureCollectionLoader(textureConfig)) {
-            ensure(m_textureReader != NULL, "textureReader is null");
-            ensure(m_textureCollectionLoader != NULL, "textureCollectionLoader is null");
+            ensure(m_textureReader != nullptr, "textureReader is null");
+            ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
         
         TextureLoader::~TextureLoader() {

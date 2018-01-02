@@ -178,7 +178,7 @@ namespace TrenchBroom {
         }
         
         Assets::EntityModel* TestGame::doLoadEntityModel(const IO::Path& path) const {
-            return NULL;
+            return nullptr;
         }
     }
 }
