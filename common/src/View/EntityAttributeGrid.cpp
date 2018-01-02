@@ -245,7 +245,7 @@ namespace TrenchBroom {
             void EntityAttributeCellEditor::OnCharHook(wxKeyEvent& event) {
                 if (event.GetKeyCode() == WXK_TAB) {
                     // HACK: Consume tab key and use it for cell navigation.
-                    // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completionss
+                    // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
                     m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
                     return;
                 }
