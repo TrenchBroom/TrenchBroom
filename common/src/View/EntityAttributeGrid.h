@@ -53,6 +53,9 @@ namespace TrenchBroom {
             void OnAttributeGridSize(wxSizeEvent& event);
             void OnAttributeGridSelectCell(wxGridEvent& event);
             void OnAttributeGridTab(wxGridEvent& event);
+        public:
+            void tabNavigate(int row, int col, bool forward);
+        private:
             void moveCursorTo(int row, int col);
             void fireSelectionEvent(int row, int col);
         private:
