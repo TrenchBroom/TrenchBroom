@@ -268,6 +268,15 @@ namespace TrenchBroom {
                 const wxArrayString completions = m_table->getCompletions(row, col);
                 textCtrl->AutoComplete(completions);
             }
+            
+            bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
+                wxTextCtrl *textCtrl = Text();
+                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
+                
+                textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
+                
+                return wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+            }
         };
         
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
