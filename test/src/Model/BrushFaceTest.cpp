@@ -177,6 +177,7 @@ namespace TrenchBroom {
             BrushFace *face = origFace->clone();
             resetFaceTextureAlignment(face);
             face->transform(transform, false);
+            face->resetTexCoordSystemCache();
             
             // reset alignment, transform the face (texture lock off), then reset the alignment again
             BrushFace *resetFace = origFace->clone();
@@ -225,6 +226,7 @@ namespace TrenchBroom {
             // transform the face
             BrushFace *face = origFace->clone();
             face->transform(transform, true);
+            face->resetTexCoordSystemCache();
             
             // transform the verts
             std::vector<Vec3> transformedVerts;
@@ -373,6 +375,7 @@ namespace TrenchBroom {
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
             face->transform(transform, false);
+            face->resetTexCoordSystemCache();
             
             // UVs of the verts of `face` and `origFace` should be the same now
 
