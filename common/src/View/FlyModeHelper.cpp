@@ -121,27 +121,27 @@ namespace TrenchBroom {
             wxCriticalSectionLocker lock(m_critical);
 
             bool anyMatch = false;
-            if (!m_forward && forward.matchesKeyDown(event)) {
+            if (forward.matchesKeyDown(event)) {
                 m_forward = true;
                 anyMatch = true;
             }
-            if (!m_backward && backward.matchesKeyDown(event)) {
+            if (backward.matchesKeyDown(event)) {
                 m_backward = true;
                 anyMatch = true;
             }
-            if (!m_left && left.matchesKeyDown(event)) {
+            if (left.matchesKeyDown(event)) {
                 m_left = true;
                 anyMatch = true;
             }
-            if (!m_right && right.matchesKeyDown(event)) {
+            if (right.matchesKeyDown(event)) {
                 m_right = true;
                 anyMatch = true;
             }
-            if (!m_up && up.matchesKeyDown(event)) {
+            if (up.matchesKeyDown(event)) {
                 m_up = true;
                 anyMatch = true;
             }
-            if (!m_down && down.matchesKeyDown(event)) {
+            if (down.matchesKeyDown(event)) {
                 m_down = true;
                 anyMatch = true;
             }
@@ -159,27 +159,27 @@ namespace TrenchBroom {
             wxCriticalSectionLocker lock(m_critical);
 
             bool anyMatch = false;
-            if (m_forward && forward.matchesKeyUp(event)) {
+            if (forward.matchesKeyUp(event)) {
                 m_forward = false;
                 anyMatch = true;
             }
-            if (m_backward && backward.matchesKeyUp(event)) {
+            if (backward.matchesKeyUp(event)) {
                 m_backward = false;
                 anyMatch = true;
             }
-            if (m_left && left.matchesKeyUp(event)) {
+            if (left.matchesKeyUp(event)) {
                 m_left = false;
                 anyMatch = true;
             }
-            if (m_right && right.matchesKeyUp(event)) {
+            if (right.matchesKeyUp(event)) {
                 m_right = false;
                 anyMatch = true;
             }
-            if (m_up && up.matchesKeyUp(event)) {
+            if (up.matchesKeyUp(event)) {
                 m_up = false;
                 anyMatch = true;
             }
-            if (m_down && down.matchesKeyUp(event)) {
+            if (down.matchesKeyUp(event)) {
                 m_down = false;
                 anyMatch = true;
             }
