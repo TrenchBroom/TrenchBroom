@@ -62,7 +62,7 @@ namespace TrenchBroom {
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
             
             void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
+            void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
             
             void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
             void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);

@@ -444,7 +444,7 @@ namespace TrenchBroom {
             using std::swap;
 
             const Vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
-            m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, invariant);
+            const Plane3 oldBoundary = m_boundary;
 
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
@@ -455,6 +455,8 @@ namespace TrenchBroom {
             }
 
             setPoints(m_points[0], m_points[1], m_points[2]);
+            
+            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attribs, lockTexture, invariant);
         }
 
         void BrushFace::invert() {

@@ -138,10 +138,19 @@ namespace TrenchBroom {
             face->setYScale(1.0);
         }
         
+        /**
+         * Assumes the UV's have been divided by the texture size.
+         */
         static void checkUVListsEqual(const std::vector<Vec2> &uvs,
-                                      const std::vector<Vec2> &transformedVertUVs) {
+                                      const std::vector<Vec2> &transformedVertUVs,
+                                      const BrushFace* face) {
             ASSERT_EQ(uvs.size(), transformedVertUVs.size());
             ASSERT_GE(uvs.size(), 3U);
+
+            // We require a texture, so that face->textureSize() returns a correct value and not 1x1,
+            // and so face->textureCoords() returns UV's that are divided by the texture size.
+            // Otherwise, the UV comparisons below could spuriously pass.
+            ASSERT_NE(nullptr, face->texture());
             
             EXPECT_TC_EQ(uvs[0], transformedVertUVs[0]);
             
@@ -149,7 +158,9 @@ namespace TrenchBroom {
                 // note, just checking:
                 //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
                 // would be too lenient.
-                EXPECT_VEC_EQ(uvs[i] - uvs[0], transformedVertUVs[i] - transformedVertUVs[0]);
+                const Vec2 expected = uvs[i] - uvs[0];
+                const Vec2 actual = transformedVertUVs[i] - transformedVertUVs[0];
+                EXPECT_VEC_EQ(expected, actual);
             }
         }
         
@@ -166,6 +177,7 @@ namespace TrenchBroom {
             BrushFace *face = origFace->clone();
             resetFaceTextureAlignment(face);
             face->transform(transform, false);
+            face->resetTexCoordSystemCache();
             
             // reset alignment, transform the face (texture lock off), then reset the alignment again
             BrushFace *resetFace = origFace->clone();
@@ -191,7 +203,7 @@ namespace TrenchBroom {
                 resetFace_UVs.push_back(resetFace->textureCoords(transformedVerts[i]));
             }
             
-            checkUVListsEqual(face_UVs, resetFace_UVs);
+            checkUVListsEqual(face_UVs, resetFace_UVs, face);
 
             delete face;
             delete resetFace;
@@ -214,6 +226,7 @@ namespace TrenchBroom {
             // transform the face
             BrushFace *face = origFace->clone();
             face->transform(transform, true);
+            face->resetTexCoordSystemCache();
             
             // transform the verts
             std::vector<Vec3> transformedVerts;
@@ -236,7 +249,7 @@ namespace TrenchBroom {
                    face->attribs().offset().y());
 #endif
             
-            checkUVListsEqual(uvs, transformedVertUVs);
+            checkUVListsEqual(uvs, transformedVertUVs, face);
 
             delete face;
         }
@@ -362,6 +375,7 @@ namespace TrenchBroom {
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
             face->transform(transform, false);
+            face->resetTexCoordSystemCache();
             
             // UVs of the verts of `face` and `origFace` should be the same now
 
@@ -372,7 +386,7 @@ namespace TrenchBroom {
                 origFace_UVs.push_back(origFace->textureCoords(vert->position()));
             }
             
-            checkUVListsEqual(face_UVs, origFace_UVs);
+            checkUVListsEqual(face_UVs, origFace_UVs, face);
             
             delete face;
         }
