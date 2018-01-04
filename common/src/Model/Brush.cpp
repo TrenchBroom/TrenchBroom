@@ -539,7 +539,7 @@ namespace TrenchBroom {
 
                     Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary());
+                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary(), WrapStyle::Projection);
                         delete snapshot;
                     }
                 }
@@ -560,7 +560,7 @@ namespace TrenchBroom {
 
                     Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), destination->boundary());
+                        destination->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
                         delete snapshot;
                     }
                 }

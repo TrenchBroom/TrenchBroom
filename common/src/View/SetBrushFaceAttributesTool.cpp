@@ -63,6 +63,8 @@ namespace TrenchBroom {
             Model::Brush* targetBrush = targetFace->brush();
             const Model::BrushFaceList targetList = applyToBrush ? targetBrush->faces() : Model::BrushFaceList(1, targetFace);
             
+            const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+            
             const Transaction transaction(document);
             document->deselectAll();
             document->select(targetList);
@@ -70,7 +72,7 @@ namespace TrenchBroom {
                 Model::TexCoordSystemSnapshot* snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary());
+                    document->copyTexCoordSystemFromFace(snapshot, source->attribs().takeSnapshot(), source->boundary(), wrapStyle);
                     delete snapshot;
                 }
             } else {
@@ -82,7 +84,7 @@ namespace TrenchBroom {
         }
         
         bool SetBrushFaceAttributesTool::applies(const InputState& inputState) const {
-            return inputState.checkModifierKeys(MK_DontCare, MK_Yes, MK_No);
+            return inputState.checkModifierKeys(MK_DontCare, MK_Yes, MK_DontCare);
         }
 
         bool SetBrushFaceAttributesTool::copyAttributes(const InputState& inputState) const {
