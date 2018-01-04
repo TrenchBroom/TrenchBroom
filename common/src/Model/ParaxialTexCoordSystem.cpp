@@ -120,10 +120,10 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
+        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
-                  Vec3 newNormal  = transformation * oldNormal - offset;
+                  Vec3 newNormal  = newBoundary.normal;
             assert(Math::eq(newNormal.length(), 1.0));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
