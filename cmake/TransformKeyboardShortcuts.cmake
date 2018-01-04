@@ -1,3 +1,5 @@
+MESSAGE(STATUS "Transforming keyboard shortcuts ${INPUT} -> ${OUTPUT}")
+
 SET(HELP_MENU_PATTERN       "#menu\\('([^']+)'\\)")
 SET(HELP_MENU_REPLACEMENT   "<script>print_menu_item(\"\\1\");</script>")
 SET(HELP_ACTION_PATTERN     "#action\\('([^']+)'\\)")
