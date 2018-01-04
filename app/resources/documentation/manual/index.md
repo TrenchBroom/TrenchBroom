@@ -201,7 +201,7 @@ Right        #action('Controls/Camera/Move right')
 
 ### Automatic Navigation
 
-You can center the camera on the current selection by choosing #menu('Menu/View/Camera/Center on Selection') from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
+You can center the camera on the current selection by choosing #menu('Menu/View/Camera/Focus on Selection') from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
 
 Finally, you can move the camera to a particular position. To do this, choose #menu('Menu/View/Camera/Move Camera to...') and enter the position into the dialog that pops up. This does not affect the 2D views.
 
@@ -429,10 +429,10 @@ Direction     Shortcut (2D)                                                     
 ---------     -------------                                                                                        -------------
 Left          #action('Controls/Map view/Duplicate and move objects left')                                         #action('Controls/Map view/Duplicate and move objects left')
 Right         #action('Controls/Map view/Duplicate and move objects right')                                        #action('Controls/Map view/Duplicate and move objects right')
-Up            #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')
-Down          #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')    #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')
-Forward       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')       #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')
-Backward      #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')    #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')
+Up            #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')       #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up')
+Down          #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')    #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down')
+Forward       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down')     #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')
+Backward      #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up')      #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')
 
 Essentially, these are the same keyboard shortcuts that you use to [move objects around](#moving_objects) in the 3D and 2D viewports, but while holding #key(308). In the same vein, you can hold #key(308) while left dragging a selected object to duplicate and move all selected objects.
 
@@ -464,12 +464,12 @@ Direction     Shortcut (2D)                                                     
 ---------     -------------                                                            -------------
 Left          #action('Controls/Map view/Move objects left')                           #action('Controls/Map view/Move objects left')
 Right         #action('Controls/Map view/Move objects right')                          #action('Controls/Map view/Move objects right')
-Up            #action('Controls/Map view/Move objects up; Move objects forward')       #action('Controls/Map view/Move objects forward; Move objects up')
-Down          #action('Controls/Map view/Move objects down; Move objects backward')    #action('Controls/Map view/Move objects backward; Move objects down')
-Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
-Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
+Up            #action('Controls/Map view/Move objects up; Move objects forward')       #action('Controls/Map view/Move objects backward; Move objects up')
+Down          #action('Controls/Map view/Move objects down; Move objects backward')    #action('Controls/Map view/Move objects forward; Move objects down')
+Forward       #action('Controls/Map view/Move objects forward; Move objects down')     #action('Controls/Map view/Move objects up; Move objects forward')
+Backward      #action('Controls/Map view/Move objects backward; Move objects up')      #action('Controls/Map view/Move objects down; Move objects backward')
 
-Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects up') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the Z axis if used in the 3D viewport.
+Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects down') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the negative Z axis if used in the 3D viewport.
 
 ![Additional controls for move tool](MoveObjectsToolPage.png)
 
@@ -629,12 +629,12 @@ The vertex tool also provides some keyboard shortcuts to move vertices. These ar
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
-Left          #action('Controls/Map view/Move vertices left')                           #action('Controls/Map view/Move vertices left')
-Right         #action('Controls/Map view/Move vertices right')                          #action('Controls/Map view/Move vertices right')
-Up            #action('Controls/Map view/Move vertices up; Move vertices forward')       #action('Controls/Map view/Move vertices forward; Move vertices up')
-Down          #action('Controls/Map view/Move vertices down; Move vertices backward')    #action('Controls/Map view/Move vertices backward; Move vertices down')
-Forward       #action('Controls/Map view/Move vertices forward; Move vertices up')       #action('Controls/Map view/Move vertices up; Move vertices forward')
-Backward      #action('Controls/Map view/Move vertices backward; Move vertices down')    #action('Controls/Map view/Move vertices down; Move vertices backward')
+Left          #action('Controls/Map view/Move vertices left')                          #action('Controls/Map view/Move vertices left')
+Right         #action('Controls/Map view/Move vertices right')                         #action('Controls/Map view/Move vertices right')
+Up            #action('Controls/Map view/Move vertices up; Move vertices forward')     #action('Controls/Map view/Move vertices backward; Move vertices up')
+Down          #action('Controls/Map view/Move vertices down; Move vertices backward')  #action('Controls/Map view/Move vertices forward; Move vertices down')
+Forward       #action('Controls/Map view/Move vertices forward; Move vertices down')   #action('Controls/Map view/Move vertices up; Move vertices forward')
+Backward      #action('Controls/Map view/Move vertices backward; Move vertices up')    #action('Controls/Map view/Move vertices down; Move vertices backward')
 
 This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
 
@@ -731,7 +731,7 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 ### Assigning Textures Manually
 
-There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu('Menu/Edit/Copy'), then selected the faces that you wish to copy to, and choose #menu('Edit/Copy/Paste').
+There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu('Menu/Edit/Copy'), then selected the faces that you wish to copy to, and choose #menu('Menu/Edit/Copy').
 
 ### Replacing Textures
 
@@ -879,7 +879,7 @@ In the left of the view dropdown, there is a list of checkboxes that allows you 
 
 ## Hiding and Isolation
 
-If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu('View/Hide'), and to isolate the selected objects, choose #menu('View/Isolate'). To show all hidden objects, choose #menu('View/Show All'). All of these actions can be undone.
+If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu('Menu/View/Hide'), and to isolate the selected objects, choose #menu('Menu/View/Isolate'). To show all hidden objects, choose #menu('Menu/View/Show All'). All of these actions can be undone.
 
 ## Locking
 
@@ -1069,7 +1069,7 @@ Once the compilation is done, you can launch a game engine and check out your ma
 
 Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration]({#game_configuration).
 
-There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu('Menu/Run/Run...'). This brings up the launch dialog shown in the following screenshot.
+There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu('Menu/Run/Launch...'). This brings up the launch dialog shown in the following screenshot.
 
 ![Launch Dialog (Mac OS X)](LaunchGameEngineDialog.png)
 
