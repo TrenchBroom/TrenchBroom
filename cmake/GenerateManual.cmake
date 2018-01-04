@@ -17,7 +17,7 @@ ADD_CUSTOM_COMMAND(OUTPUT "${DOC_MANUAL_TARGET_DIR}"
 )
 
 ADD_CUSTOM_COMMAND(OUTPUT "${INDEX_OUTPUT_PATH}"
-    COMMAND pandoc --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown-smart --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
+    COMMAND pandoc --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${INDEX_OUTPUT_PATH}" -P "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
     COMMAND ${CMAKE_COMMAND} -E remove "${PANDOC_OUTPUT_PATH}"
     DEPENDS "${DOC_MANUAL_TARGET_DIR}" "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
