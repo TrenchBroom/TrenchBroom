@@ -142,7 +142,7 @@ namespace TrenchBroom {
             // Get the texcoords at the refPoint using the source face's attribs and tex coord system
             const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
             
-            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs);
+            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
             
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!seam.direction.null()) {
@@ -483,7 +483,7 @@ namespace TrenchBroom {
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
                 const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 
-                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs);
+                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
                 
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
                 const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
