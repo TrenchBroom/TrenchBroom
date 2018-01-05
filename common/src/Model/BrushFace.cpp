@@ -132,7 +132,7 @@ namespace TrenchBroom {
             coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
             const Line3 seam = sourceFacePlane.intersectWithPlane(m_boundary);
             const Vec3 refPoint = seam.pointOnLineClosestToPoint(center());
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             // Get the texcoords at the refPoint using the source face's attribs and tex coord system
             const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
             
-            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs);
+            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
             
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!seam.direction.null()) {
@@ -485,7 +485,7 @@ namespace TrenchBroom {
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
                 const Vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 
-                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs);
+                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
                 
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
                 const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
