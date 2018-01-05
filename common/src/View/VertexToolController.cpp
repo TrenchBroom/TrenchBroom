@@ -29,8 +29,8 @@ namespace TrenchBroom {
          * it up the inheritance hierarchy either. Nor can I introduce a separate common base class for the two parts
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
-        const Model::Hit& VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const Model::Hit& vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
+        const Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
+            const Model::Hit vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
             if (vertexHit.isMatch())
                 return vertexHit;
             const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             SelectVertexPart(VertexTool* tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHit) {}
         private:
-            const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
+            const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) &&
                     m_tool->handleManager().selectedHandleCount() == 1) {
                     
-                    const Model::Hit& hit = VertexToolController::findHandleHit(inputState, *this);
+                    const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
                     if (hit.hasType(VertexHandleManager::HandleHit)) {
                         const Vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
                         const Vec3 targetPos = hit.target<Vec3>();
@@ -100,7 +100,7 @@ namespace TrenchBroom {
                 const MoveInfo info = MovePartBase::doStartMove(inputState);
                 if (info.move) {
                     m_lastSnapType = snapType(inputState);
-                    const Model::Hit& hit = findDraggableHandle(inputState);
+                    const Model::Hit hit = findDraggableHandle(inputState);
                     const Vec3& handlePos = hit.target<Vec3>();
                     m_handleOffset = handlePos - hit.hitPoint();
                 }
@@ -132,7 +132,7 @@ namespace TrenchBroom {
                 MovePartBase::doRender(inputState, renderContext, renderBatch);
                 
                 if (!thisToolDragging()) {
-                    const Model::Hit& hit = findDraggableHandle(inputState);
+                    const Model::Hit hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
                         const Vec3 handle = m_tool->getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
@@ -150,7 +150,7 @@ namespace TrenchBroom {
                 return ST_Relative;
             }
         private:
-            const Model::Hit& doFindDraggableHandle(const InputState& inputState) const override {
+            const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
             }
         };
