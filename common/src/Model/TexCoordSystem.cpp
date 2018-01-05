@@ -77,13 +77,21 @@ namespace TrenchBroom {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) {
-            doTransform(oldBoundary, transformation, attribs, lockTexture, invariant);
+        void TexCoordSystem::transform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) {
+            doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
         }
 
-        void TexCoordSystem::updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
-            if (oldNormal != newNormal)
-                doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+        void TexCoordSystem::updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style) {
+            if (oldNormal != newNormal) {
+                switch (style) {
+                    case WrapStyle::Rotation:
+                        doUpdateNormalWithRotation(oldNormal, newNormal, attribs);
+                        break;
+                    case WrapStyle::Projection:
+                        doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+                        break;
+                }
+            }
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const {
