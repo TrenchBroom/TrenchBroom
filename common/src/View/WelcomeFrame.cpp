@@ -60,8 +60,11 @@ namespace TrenchBroom {
             innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(350, 400));
             container->SetSizer(innerSizer);
             
-            wxBoxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(container, wxSizerFlags().Expand().Proportion(1));
+            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+#if !defined __APPLE__
+			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
+#endif
+			outerSizer->Add(container, wxSizerFlags().Expand());
             
             SetSizerAndFit(outerSizer);
         }
