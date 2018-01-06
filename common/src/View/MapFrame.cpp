@@ -444,7 +444,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createToolBar() {
-            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER | wxTB_FLAT);
+            wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | 
+#if !defined _WIN32
+				wxTB_NODIVIDER | 
+#endif
+				wxTB_FLAT);
             toolBar->SetMargins(2, 2);
             toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateComplexBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
