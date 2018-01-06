@@ -1683,7 +1683,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canDuplicate() const {
-            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+            return m_document->hasSelectedNodes();
         }
 
         bool MapFrame::canSelectSiblings() const {
