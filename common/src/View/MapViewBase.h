@@ -189,32 +189,31 @@ namespace TrenchBroom {
             void updateAcceleratorTable(bool hasFocus);
             ActionContext actionContext() const;
         private: // implement ViewEffectsService interface
-            void doFlashSelection();
+            void doFlashSelection() override;
         private: // implement MapView interface
-            bool doGetIsCurrent() const;
-            void doSetToolBoxDropTarget();
-            void doClearDropTarget();
-            bool doCanFlipObjects() const;
-            void doFlipObjects(Math::Direction direction);
-            bool doCancelMouseDrag();
+            bool doGetIsCurrent() const override;
+            void doSetToolBoxDropTarget() override;
+            void doClearDropTarget() override;
+            bool doCanFlipObjects() const override;
+            void doFlipObjects(Math::Direction direction) override;
+            bool doCancelMouseDrag() override;
         private: // implement RenderView interface
-            void doInitializeGL(bool firstInitialization);
-            bool doShouldRenderFocusIndicator() const;
-            void doRender();
+            void doInitializeGL(bool firstInitialization) override;
+            bool doShouldRenderFocusIndicator() const override;
+            void doRender() override;
 
             void setupGL(Renderer::RenderContext& renderContext);
             void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
-            void doShowPopupMenu();
+            void doShowPopupMenu() override;
             wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
             
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
             virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
