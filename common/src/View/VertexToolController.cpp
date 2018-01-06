@@ -107,17 +107,6 @@ namespace TrenchBroom {
                 return info;
             }
 
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
-                const auto result = MovePartBase::doMove(inputState, lastHandlePosition, nextHandlePosition);
-                if (result == DR_Continue && m_tool->handleManager().contains(nextHandlePosition + m_handleOffset)) {
-                    if ((snapType(inputState) == ST_Absolute && m_grid.snap(nextHandlePosition + m_handleOffset) != nextHandlePosition + m_handleOffset) ||
-                        (snapType(inputState) == ST_Relative && m_grid.offset(lastHandlePosition + m_handleOffset) != m_grid.offset(nextHandlePosition + m_handleOffset))) {
-                        restartDrag(inputState);
-                    }
-                }
-                return result;
-            }
-
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {
                 switch (snapType(inputState)) {
                     case ST_Absolute:

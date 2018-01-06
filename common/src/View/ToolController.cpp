@@ -46,11 +46,6 @@ namespace TrenchBroom {
 
         MouseDragPolicy::~MouseDragPolicy() {}
 
-        void MouseDragPolicy::restartDrag(const InputState& inputState) {
-            doEndMouseDrag(inputState);
-            doStartMouseDrag(inputState);
-        }
-
         NoMouseDragPolicy::~NoMouseDragPolicy() {}
 
         bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
