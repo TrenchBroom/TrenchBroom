@@ -119,17 +119,27 @@ namespace TrenchBroom {
         }
 
         bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            if (!doCanDoVertexOperation(document))
-                return false;
-            
-            takeSnapshot();
-            return doVertexOperation(document);
+            if (m_snapshot != nullptr) {
+                return doPerformUndo(document);
+            } else {
+                if (!doCanDoVertexOperation(document))
+                    return false;
+
+                takeSnapshot();
+                return doVertexOperation(document);
+            }
         }
         
         bool VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
-            deleteSnapshot();
+
+            Model::Snapshot* snapshot = nullptr;
+            using std::swap; swap(m_snapshot, snapshot);
+            takeSnapshot();
+
+            document->restoreSnapshot(snapshot);
+
+            delete snapshot;
             return true;
         }
 
