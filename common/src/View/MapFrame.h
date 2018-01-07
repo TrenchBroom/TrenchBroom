@@ -31,6 +31,7 @@
 #include <wx/frame.h>
 
 class wxChoice;
+class wxTextCtrl;
 class wxTimer;
 class wxTimerEvent;
 class wxStatusBar;
@@ -237,8 +238,13 @@ namespace TrenchBroom {
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
             bool canUnloadPointFile() const;
+
             bool canUndo() const;
+            void undo();
             bool canRedo() const;
+            void redo();
+            wxTextCtrl* findFocusedTextCtrl() const;
+
             bool canCut() const;
             bool canCopy() const;
             bool canPaste() const;
