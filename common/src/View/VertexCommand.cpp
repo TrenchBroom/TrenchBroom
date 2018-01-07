@@ -120,7 +120,8 @@ namespace TrenchBroom {
 
         bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_snapshot != nullptr) {
-                return doPerformUndo(document);
+                restoreAndTakeNewSnapshot(document);
+                return true;
             } else {
                 if (!doCanDoVertexOperation(document))
                     return false;
@@ -131,16 +132,25 @@ namespace TrenchBroom {
         }
         
         bool VertexCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            restoreAndTakeNewSnapshot(document);
+            return true;
+        }
+
+        void VertexCommand::restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document) {
             ensure(m_snapshot != nullptr, "snapshot is null");
 
-            Model::Snapshot* snapshot = nullptr;
-            using std::swap; swap(m_snapshot, snapshot);
-            takeSnapshot();
+            Model::Snapshot *snapshot = nullptr;
+            try {
+                using std::swap;
+                swap(m_snapshot, snapshot);
+                takeSnapshot();
 
-            document->restoreSnapshot(snapshot);
-
-            delete snapshot;
-            return true;
+                document->restoreSnapshot(snapshot);
+                delete snapshot;
+            } catch (...) {
+                delete snapshot;
+                throw;
+            }
         }
 
         bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
