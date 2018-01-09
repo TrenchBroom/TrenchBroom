@@ -727,6 +727,7 @@ namespace TrenchBroom {
             
             invalidateSelectionBounds();
 
+            VectorUtils::sortAndRemoveDuplicates(newVertexPositions);
             return newVertexPositions;
         }
 
@@ -744,7 +745,10 @@ namespace TrenchBroom {
                 const Edge3::List newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newEdgePositions, newPositions);
             }
-            
+
+            invalidateSelectionBounds();
+
+            VectorUtils::sortAndRemoveDuplicates(newEdgePositions);
             return newEdgePositions;
         }
 
@@ -765,6 +769,7 @@ namespace TrenchBroom {
             
             invalidateSelectionBounds();
 
+            VectorUtils::sortAndRemoveDuplicates(newFacePositions);
             return newFacePositions;
         }
 

@@ -70,6 +70,7 @@ namespace TrenchBroom {
         private:
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
+            void restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
         private:
             void takeSnapshot();
