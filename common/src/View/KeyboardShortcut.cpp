@@ -628,11 +628,6 @@ namespace TrenchBroom {
 
         bool KeyboardShortcut::matchesKeyUp(const wxKeyEvent& event) const {
             const int key = event.GetKeyCode();
-            const int modifier1 = event.ControlDown() ? WXK_CONTROL : WXK_NONE;
-            const int modifier2 = event.AltDown() ? WXK_ALT : WXK_NONE;
-            const int modifier3 = event.ShiftDown() ? WXK_SHIFT : WXK_NONE;
-
-            std::cout << key << ":" << modifier1 << ":" << modifier2 << ":" << modifier3 << std::endl;
 
             if (key == m_key)
                 return true;

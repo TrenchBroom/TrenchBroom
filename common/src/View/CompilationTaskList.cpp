@@ -190,7 +190,9 @@ namespace TrenchBroom {
             }
 
             void refresh() override {
-                m_targetEditor->ChangeValue(m_task->targetSpec());
+                if (m_targetEditor->GetValue().ToStdString() != m_task->targetSpec()) {
+                    m_targetEditor->ChangeValue(m_task->targetSpec());
+                }
             }
         };
 
@@ -242,8 +244,12 @@ namespace TrenchBroom {
 
             void refresh() override {
                 // call ChangeValue to avoid sending a change event
-                m_sourceEditor->ChangeValue(m_task->sourceSpec());
-                m_targetEditor->ChangeValue(m_task->targetSpec());
+                if (m_sourceEditor->GetValue().ToStdString() != m_task->sourceSpec()) {
+                    m_sourceEditor->ChangeValue(m_task->sourceSpec());
+                }
+                if (m_targetEditor->GetValue().ToStdString() != m_task->targetSpec()) {
+                    m_targetEditor->ChangeValue(m_task->targetSpec());
+                }
             }
         };
 
@@ -305,8 +311,12 @@ namespace TrenchBroom {
             }
 
             void refresh() override {
-                m_toolEditor->ChangeValue(m_task->toolSpec());
-                m_parametersEditor->ChangeValue(m_task->parameterSpec());
+                if (m_toolEditor->GetValue().ToStdString() != m_task->toolSpec()) {
+                    m_toolEditor->ChangeValue(m_task->toolSpec());
+                }
+                if (m_parametersEditor->GetValue().ToStdString() != m_task->parameterSpec()) {
+                    m_parametersEditor->ChangeValue(m_task->parameterSpec());
+                }
             }
         };
 
