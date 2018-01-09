@@ -48,16 +48,16 @@ namespace TrenchBroom {
             public:
                 virtual ~PartBase() {}
             protected:
-                const Model::Hit& findDraggableHandle(const InputState& inputState) const {
+                const Model::Hit findDraggableHandle(const InputState& inputState) const {
                     return doFindDraggableHandle(inputState);
                 }
             private:
-                virtual const Model::Hit& doFindDraggableHandle(const InputState& inputState) const {
+                virtual const Model::Hit doFindDraggableHandle(const InputState& inputState) const {
                     return findDraggableHandle(inputState, m_hitType);
                 }
             public:
-                const Model::Hit& findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
-                    const auto query = inputState.pickResult().query().type(m_hitType).occluded();
+                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                    const auto query = inputState.pickResult().query().type(hitType).occluded();
                     const auto hits = query.all();
                     const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return this->selected(hit); });
                     if (it != std::end(hits)) {
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                         m_lasso->render(renderContext, renderBatch);
                     } else {
                         if (!anyToolDragging(inputState)) {
-                            const Model::Hit& hit = findDraggableHandle(inputState);
+                            const Model::Hit hit = findDraggableHandle(inputState);
                             if (hit.hasType(m_hitType)) {
                                 const H& handle = m_tool->getHandlePosition(hit);
                                 m_tool->renderHighlight(renderContext, renderBatch, handle);
@@ -237,7 +237,7 @@ namespace TrenchBroom {
                            )))
                         return MoveInfo();
                     
-                    const Model::Hit& hit = findDraggableHandle(inputState);
+                    const Model::Hit hit = findDraggableHandle(inputState);
                     if (!hit.isMatch())
                         return MoveInfo();
                     

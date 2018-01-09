@@ -34,6 +34,8 @@
 #include <cassert>
 #include <numeric>
 
+#include <wx/log.h>
+
 namespace TrenchBroom {
     namespace View {
         VertexTool::VertexTool(MapDocumentWPtr document) :
@@ -89,15 +91,18 @@ namespace TrenchBroom {
                     const Edge3& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
                     m_edgeHandles.select(handle);
                     m_mode = Mode_Split_Edge;
-                } else {
+					wxLogDebug("Starting vertex drag, mode is SPLIT_EDGE");
+				} else {
                     const Polygon3& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
                     m_faceHandles.select(handle);
                     m_mode = Mode_Split_Face;
-                }
+					wxLogDebug("Starting vertex drag, mode is SPLIT_FACE");
+				}
                 refreshViews();
             } else {
                 m_mode = Mode_Move;
-            }
+				wxLogDebug("Starting vertex drag, mode is MOVE");
+			}
             
             return true;
         }
@@ -111,12 +116,15 @@ namespace TrenchBroom {
                 
                 const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
                 if (result.success) {
-                    if (!result.hasRemainingVertices)
-                        return MR_Cancel;
-                    m_dragHandlePosition += delta;
-                    return MR_Continue;
-                }
-                return MR_Deny;
+					if (!result.hasRemainingVertices) {
+						return MR_Cancel;
+					} else {
+						m_dragHandlePosition += delta;
+						return MR_Continue;
+					}
+				} else {
+					return MR_Deny;
+				}
             } else {
                 Model::BrushSet brushes;
                 if (m_mode == Mode_Split_Edge) {
@@ -144,11 +152,15 @@ namespace TrenchBroom {
         }
 
         void VertexTool::endMove() {
+			wxLogDebug("Ending vertex drag.");
+
             VertexToolBase::endMove();
             m_mode = Mode_Move;
         }
         void VertexTool::cancelMove() {
-            VertexToolBase::cancelMove();
+			wxLogDebug("Cancelling vertex drag.");
+			
+			VertexToolBase::cancelMove();
             m_mode = Mode_Move;
         }
 

@@ -256,8 +256,12 @@ namespace TrenchBroom {
         
         void CompilationProfileEditor::refresh() {
             if (m_profile != nullptr) {
-                m_nameTxt->ChangeValue(m_profile->name());
-                m_workDirTxt->ChangeValue(m_profile->workDirSpec());
+                if (m_nameTxt->GetValue().ToStdString() != m_profile->name()) {
+                    m_nameTxt->ChangeValue(m_profile->name());
+                }
+                if (m_workDirTxt->GetValue().ToStdString() != m_profile->workDirSpec()) {
+                    m_workDirTxt->ChangeValue(m_profile->workDirSpec());
+                }
             }
         }
     }

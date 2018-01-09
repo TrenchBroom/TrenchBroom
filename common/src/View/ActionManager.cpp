@@ -87,8 +87,15 @@ namespace TrenchBroom {
             ShortcutEntryList entries;
             m_menuBar->getShortcutEntries(entries);
             
-            for (const KeyboardShortcutEntry* entry : entries)
-                str << "menu[\"" << entry->preferencePath().asString() << "\"] = " << entry->asJsonString() << ";" << std::endl;;
+            for (const KeyboardShortcutEntry* entry : entries) {
+                String preferencePath = entry->preferencePath().asString();
+                if (StringUtils::caseSensitiveSuffix(preferencePath, "...")) {
+                    // Remove "..." suffix because pandoc will transform this into unicode ellipses.
+                    preferencePath = preferencePath.substr(0, preferencePath.length() - 3);
+                }
+                str << "menu[\"" << preferencePath << "\"] = " << entry->asJsonString() << ";"
+                    << std::endl;;
+            }
         }
 
         void printActionPreference(StringStream& str, const Preference<KeyboardShortcut>& pref);

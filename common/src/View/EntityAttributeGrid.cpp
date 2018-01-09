@@ -64,20 +64,24 @@ namespace TrenchBroom {
             fireSelectionEvent(event.GetRow(), event.GetCol());
         }
         
-        void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
+        void EntityAttributeGrid::tabNavigate(int row, int col, bool forward) {
             if (IsBeingDeleted()) return;
 
-            if (event.ShiftDown()) {
-                if (event.GetCol() > 0)
-                    moveCursorTo(event.GetRow(), event.GetCol() - 1);
-                else if (event.GetRow() > 0)
-                    moveCursorTo(event.GetRow() - 1, m_grid->GetNumberCols() - 1);
+            if (!forward) {
+                if (col > 0)
+                    moveCursorTo(row, col - 1);
+                else if (row > 0)
+                    moveCursorTo(row - 1, m_grid->GetNumberCols() - 1);
             } else {
-                if (event.GetCol() < m_grid->GetNumberCols() - 1)
-                    moveCursorTo(event.GetRow(), event.GetCol() + 1);
-                else if (event.GetRow() < m_grid->GetNumberRows() - 1)
-                    moveCursorTo(event.GetRow() + 1, 0);
+                if (col < m_grid->GetNumberCols() - 1)
+                    moveCursorTo(row, col + 1);
+                else if (row < m_grid->GetNumberRows() - 1)
+                    moveCursorTo(row + 1, 0);
             }
+        }
+
+        void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
+            tabNavigate(event.GetRow(), event.GetCol(), !event.ShiftDown());
         }
         
         void EntityAttributeGrid::moveCursorTo(const int row, const int col) {
@@ -227,20 +231,51 @@ namespace TrenchBroom {
         class EntityAttributeCellEditor : public wxGridCellTextEditor
         {
         private:
+            EntityAttributeGrid* m_grid;
             EntityAttributeGridTable* m_table;
+            int m_row, m_col;
             
         public:
-            EntityAttributeCellEditor(EntityAttributeGridTable* table)
-            : m_table(table) {}
+            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
+            : m_grid(grid),
+            m_table(table),
+            m_row(-1),
+            m_col(-1) {}
 
+        private:
+            void OnCharHook(wxKeyEvent& event) {
+                if (event.GetKeyCode() == WXK_TAB) {
+                    // HACK: Consume tab key and use it for cell navigation.
+                    // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
+                    m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
+                } else {
+                	event.Skip();
+                }
+            }
+
+        public:
             void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
+
+                m_row = row;
+                m_col = col;
                 
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
 
+                textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
+
                 const wxArrayString completions = m_table->getCompletions(row, col);
                 textCtrl->AutoComplete(completions);
+            }
+            
+            bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
+                wxTextCtrl *textCtrl = Text();
+                ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
+                
+                textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
+                
+                return wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
             }
         };
         
@@ -257,7 +292,7 @@ namespace TrenchBroom {
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
-            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(m_table);
+            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table);
             m_grid->SetDefaultEditor(editor);
             
             m_grid->DisableColResize(0);

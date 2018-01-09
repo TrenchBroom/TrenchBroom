@@ -90,8 +90,6 @@ namespace TrenchBroom {
             virtual bool doMouseDrag(const InputState& inputState) = 0;
             virtual void doEndMouseDrag(const InputState& inputState) = 0;
             virtual void doCancelMouseDrag() = 0;
-        protected:
-            void restartDrag(const InputState& inputState);
         };
         
         class NoMouseDragPolicy : public MouseDragPolicy {

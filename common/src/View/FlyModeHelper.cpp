@@ -30,6 +30,8 @@
 #include <wx/window.h>
 #include <wx/app.h>
 
+#include <array>
+
 namespace TrenchBroom {
     namespace View {
         class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {
@@ -109,79 +111,79 @@ namespace TrenchBroom {
         }
 
         bool FlyModeHelper::keyDown(wxKeyEvent& event) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = prefs.get(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = prefs.get(Preferences::CameraFlyDown);
+            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
+            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
+            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
             wxCriticalSectionLocker lock(m_critical);
-            
-            if (forward.matches(event)) {
+
+            bool anyMatch = false;
+            if (forward.matchesKeyDown(event)) {
                 m_forward = true;
-                return true;
+                anyMatch = true;
             }
-            if (backward.matches(event)) {
+            if (backward.matchesKeyDown(event)) {
                 m_backward = true;
-                return true;
+                anyMatch = true;
             }
-            if (left.matches(event)) {
+            if (left.matchesKeyDown(event)) {
                 m_left = true;
-                return true;
+                anyMatch = true;
             }
-            if (right.matches(event)) {
+            if (right.matchesKeyDown(event)) {
                 m_right = true;
-                return true;
+                anyMatch = true;
             }
-            if (up.matches(event)) {
+            if (up.matchesKeyDown(event)) {
                 m_up = true;
-                return true;
+                anyMatch = true;
             }
-            if (down.matches(event)) {
+            if (down.matchesKeyDown(event)) {
                 m_down = true;
-                return true;
+                anyMatch = true;
             }
-            return false;
+            return anyMatch;
         }
 
         bool FlyModeHelper::keyUp(wxKeyEvent& event) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = prefs.get(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = prefs.get(Preferences::CameraFlyDown);
+            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
+            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
+            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
 
             wxCriticalSectionLocker lock(m_critical);
-            
-            if (forward.matchesKey(event)) {
+
+            bool anyMatch = false;
+            if (forward.matchesKeyUp(event)) {
                 m_forward = false;
-                return true;
+                anyMatch = true;
             }
-            if (backward.matchesKey(event)) {
+            if (backward.matchesKeyUp(event)) {
                 m_backward = false;
-                return true;
+                anyMatch = true;
             }
-            if (left.matchesKey(event)) {
+            if (left.matchesKeyUp(event)) {
                 m_left = false;
-                return true;
+                anyMatch = true;
             }
-            if (right.matchesKey(event)) {
+            if (right.matchesKeyUp(event)) {
                 m_right = false;
-                return true;
+                anyMatch = true;
             }
-            if (up.matches(event)) {
+            if (up.matchesKeyUp(event)) {
                 m_up = false;
-                return true;
+                anyMatch = true;
             }
-            if (down.matches(event)) {
+            if (down.matchesKeyUp(event)) {
                 m_down = false;
-                return true;
+                anyMatch = true;
             }
-            return false;
+            return anyMatch;
         }
 
         void FlyModeHelper::resetKeys() {

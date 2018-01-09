@@ -1,6 +1,8 @@
-SET(HELP_MENU_PATTERN       "#menu\\('([^']+)'\\)")
+MESSAGE(STATUS "Transforming keyboard shortcuts ${INPUT} -> ${OUTPUT}")
+
+SET(HELP_MENU_PATTERN       "#menu\\(([^)]+)\\)")
 SET(HELP_MENU_REPLACEMENT   "<script>print_menu_item(\"\\1\");</script>")
-SET(HELP_ACTION_PATTERN     "#action\\('([^']+)'\\)")
+SET(HELP_ACTION_PATTERN     "#action\\(([^)]+)\\)")
 SET(HELP_ACTION_REPLACEMENT "<script>print_action(\"\\1\");</script>")
 SET(HELP_KEY_PATTERN 	    "#key\\(([0-9]+)\\)")
 SET(HELP_KEY_REPLACEMENT 	"<script>print_key(\\1);</script>")

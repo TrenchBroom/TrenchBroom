@@ -132,16 +132,19 @@ namespace TrenchBroom {
             wxWindow* selectionPanel = createSelectionPanel(this);
 
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->Add(infoPanel, 0, wxEXPAND);
-            innerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            innerSizer->Add(selectionPanel, 1, wxEXPAND);
+            innerSizer->Add(infoPanel, wxSizerFlags().Expand());
+            innerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
+            innerSizer->Add(selectionPanel, wxSizerFlags().Expand().Proportion(1));
             innerSizer->SetItemMinSize(selectionPanel, 300, wxDefaultSize.y);
             
             wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 1, wxEXPAND);
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+#if !defined __APPLE__
+			outerSizer->Add(new BorderLine(this), wxSizerFlags().Expand());
+#endif
+			outerSizer->Add(innerSizer, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
             SetSizerAndFit(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
@@ -166,13 +169,13 @@ namespace TrenchBroom {
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(20);
-            sizer->Add(header, 0, wxLEFT | wxRIGHT, 20);
+            sizer->Add(header, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
             sizer->AddSpacer(20);
-            sizer->Add(info, 0, wxLEFT | wxRIGHT, 20);
+            sizer->Add(info, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
             sizer->AddSpacer(10);
-            sizer->Add(setupMsg, 0, wxLEFT | wxRIGHT, 20);
+            sizer->Add(setupMsg, wxSizerFlags().Border(wxLEFT | wxRIGHT, 20));
             sizer->AddSpacer(10);
-            sizer->Add(m_openPreferencesButton, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 20);
+            sizer->Add(m_openPreferencesButton, wxSizerFlags().CenterHorizontal().Border(wxLEFT | wxRIGHT, 20));
             sizer->AddSpacer(20);
             infoPanel->SetSizerAndFit(sizer);
             
@@ -197,15 +200,15 @@ namespace TrenchBroom {
             
             wxBoxSizer* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->Add(header, 0, wxALIGN_CENTRE_VERTICAL);
+            mapFormatSizer->Add(header, wxSizerFlags().CenterVertical());
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             mapFormatSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            mapFormatSizer->Add(m_mapFormatChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
+            mapFormatSizer->Add(m_mapFormatChoice, wxSizerFlags().Border(wxTOP, LayoutConstants::ChoiceTopMargin));
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_gameListBox, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            outerSizer->Add(m_gameListBox, wxSizerFlags().Expand().Proportion(1));
+            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
             outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             outerSizer->Add(mapFormatSizer);
             outerSizer->AddSpacer(LayoutConstants::WideVMargin);

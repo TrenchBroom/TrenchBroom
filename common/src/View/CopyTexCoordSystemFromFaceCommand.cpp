@@ -27,15 +27,16 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CopyTexCoordSystemFromFaceCommand::Type = Command::freeType();
 
-        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) {
-            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, attribs, sourceFacePlane));
+        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
+            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, attribs, sourceFacePlane, wrapStyle));
         }
 
-        CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane) :
+        CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) :
         DocumentCommand(Type, "Copy Texture Alignment"),
         m_snapshot(nullptr),
         m_coordSystemSanpshot(coordSystemSnapshot->clone()),
         m_sourceFacePlane(sourceFacePlane),
+        m_wrapStyle(wrapStyle),
         m_attribs(attribs) {}
 
         CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() {
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             assert(m_snapshot == nullptr);
             m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
             
-            document->performCopyTexCoordSystemFromFace(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane);
+            document->performCopyTexCoordSystemFromFace(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
             return true;
         }
         
@@ -69,7 +70,7 @@ namespace TrenchBroom {
         }
         
         UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane));
+            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle));
         }
         
         bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr command) {

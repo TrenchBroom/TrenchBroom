@@ -63,9 +63,15 @@ namespace TrenchBroom {
         }
 
         bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            // Don't collate vertex moves. Collation changes the path along which the vertices are moved, and as a result
-            // changes the outcome of the entire operation.
-            return false;
+            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
+
+            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions))
+                return false;
+
+            m_newFacePositions = other->m_newFacePositions;
+            m_delta += other->m_delta;
+
+            return true;
         }
 
 

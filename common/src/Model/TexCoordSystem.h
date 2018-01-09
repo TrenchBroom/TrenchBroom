@@ -48,6 +48,11 @@ namespace TrenchBroom {
             friend class ParaxialTexCoordSystem;
         };
         
+        enum class WrapStyle {
+        	Projection,
+            Rotation
+        };
+        
         class TexCoordSystem {
         public:
             TexCoordSystem();
@@ -67,9 +72,9 @@ namespace TrenchBroom {
             Vec2f getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
             
             void setRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
-            void updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
-            
+            void transform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
+            void updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
+
             void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const;
             void rotateTexture(const Vec3& normal, float angle, BrushFaceAttributes& attribs) const;
             void shearTexture(const Vec3& normal, const Vec2f& factors);
@@ -96,7 +101,7 @@ namespace TrenchBroom {
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const = 0;
             
             virtual void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) = 0;
-            virtual void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) = 0;
+            virtual void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) = 0;
             virtual void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 

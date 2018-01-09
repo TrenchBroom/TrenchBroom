@@ -139,7 +139,7 @@ The editing area is divided in two sections: The context sensitive info bar at t
 
 ![The info bar with view dropdown (Windows 7)](ViewDropdown.png)
 
-There are two types of viewports: 3D viewports and 2D viewports. TrenchBroom gives you some control over the layout of the viewports: You can have one, two, three, or four viewports. See section [View Layout and Rendering](#view_layout_and_rendering) to find out how to change the layout of the viewports. If you have fewer than four viewports, then one of the viewports can be cycled by hitting #action('Controls/Map view/Cycle map view'). Which of the viewports can be cycled and the order of cycling the viewports is given in the following table:
+There are two types of viewports: 3D viewports and 2D viewports. TrenchBroom gives you some control over the layout of the viewports: You can have one, two, three, or four viewports. See section [View Layout and Rendering](#view_layout_and_rendering) to find out how to change the layout of the viewports. If you have fewer than four viewports, then one of the viewports can be cycled by hitting #action(Controls/Map view/Cycle map view). Which of the viewports can be cycled and the order of cycling the viewports is given in the following table:
 
 No. of Viewports    Cycling View         Cycling Order
 ----------------    ------------         -------------
@@ -160,11 +160,11 @@ The normal axis is the axis that would be protruding from the screen when lookin
 
 ![The compass](Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ).
 
-At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu('Menu/View/Maximize Current View') from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
+At most one of the viewports can have focus, that is, only one of them can receive mouse and keyboard events. Focus is indicated by a highlight rectangle at the border of the viewport. If no viewport is focused, you have to click on one of them to give it focus. Once a viewport has focus, the focus follows the mouse pointer, that is, to move focus from one viewport to another, simply move the mouse to the other viewport. The focused viewport can also be maximized by choosing #menu(Menu/View/Maximize Current View) from the menu. Hit the same keyboard shortcut again to restore the previous view layout.
 
 ### The Inspector
 
-The inspector is located at the right of the main window and contains various controls, distributed to several pages, to change certain properties of the currently selected objects. You can show or hide the inspector by choosing #menu('Menu/View/Toggle Inspector'). To switch directly to a particular inspector page, choose #menu('Menu/View/Switch to Map Inspector') for the map inspector, #menu('Menu/View/Switch to Entity Inspector') for the entity inspector, and #menu('Menu/View/Switch to Face Inspector') for the face inspector.
+The inspector is located at the right of the main window and contains various controls, distributed to several pages, to change certain properties of the currently selected objects. You can show or hide the inspector by choosing #menu(Menu/View/Toggle Inspector). To switch directly to a particular inspector page, choose #menu(Menu/View/Switch to Map Inspector) for the map inspector, #menu(Menu/View/Switch to Entity Inspector) for the entity inspector, and #menu(Menu/View/Switch to Face Inspector) for the face inspector.
 
 ![Map, Entity, and Face inspectors (Mac OS X)](Inspector.png)
 
@@ -172,7 +172,7 @@ The **Map Inspector** allows you to edit [layers](#layers) and to set up which g
 
 ### The Info Bar
 
-You can show or hide the info bar by choosing #menu('Menu/View/Toggle Info Panel'). It contains the console where TrenchBroom prints out messages, warnings and errors, and the live [issue browser](#issue_browser) where you can view, filter and resolve issues with your map.
+You can show or hide the info bar by choosing #menu(Menu/View/Toggle Info Panel). It contains the console where TrenchBroom prints out messages, warnings and errors, and the live [issue browser](#issue_browser) where you can view, filter and resolve issues with your map.
 
 ## Camera Navigation {#camera_navigation}
 
@@ -190,20 +190,20 @@ Camera orbit mode is very useful if you are editing a brush because it allows yo
 
 ### Fly Mode
 
-Fly mode allows you to move around freely in a map, much like "no clipping" modes in some games do. When fly mode is active, you cannot perform any editing and your mouse cursor is hidden until fly mode is deactivated again. Hit #action('Controls/Map view/Toggle fly mode') to toggle fly mode. The following table lists the keyboard shortcuts you can use to move the camera around when in fly mode.
+Fly mode allows you to move around freely in a map, much like "no clipping" modes in some games do. When fly mode is active, you cannot perform any editing and your mouse cursor is hidden until fly mode is deactivated again. Hit #action(Controls/Map view/Toggle fly mode) to toggle fly mode. The following table lists the keyboard shortcuts you can use to move the camera around when in fly mode.
 
 Direction    Key
 ---------    ---
-Forward      #action('Controls/Camera/Move forward')
-Backward     #action('Controls/Camera/Move backward')
-Left         #action('Controls/Camera/Move left')
-Right        #action('Controls/Camera/Move right')
+Forward      #action(Controls/Camera/Move forward)
+Backward     #action(Controls/Camera/Move backward)
+Left         #action(Controls/Camera/Move left)
+Right        #action(Controls/Camera/Move right)
 
 ### Automatic Navigation
 
-You can center the camera on the current selection by choosing #menu('Menu/View/Camera/Center on Selection') from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
+You can center the camera on the current selection by choosing #menu(Menu/View/Camera/Focus on Selection) from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
 
-Finally, you can move the camera to a particular position. To do this, choose #menu('Menu/View/Camera/Move Camera to...') and enter the position into the dialog that pops up. This does not affect the 2D views.
+Finally, you can move the camera to a particular position. To do this, choose #menu(Menu/View/Camera/Move Camera to) and enter the position into the dialog that pops up. This does not affect the 2D views.
 
 ## Navigating the 2D Viewports
 
@@ -231,21 +231,21 @@ In a 2D viewport, you can also left click an object to select it. But unlike in 
 
 You may also think of left click selection like this: In both the 3D viewport or a 2D viewport, TrenchBroom first compiles a set of candidate objects. These are all objects under the mouse. Then, it must choose an object to be selected from these candidates. In the 3D viewport, the frontmost object always wins (unless you're using the scroll wheel to drill the selection), and in a 2D view, the object with the smallest visible area wins. Other than that, selection behaves exactly the same in both viewports, that is, you can hold #key(308) to select multiple objects and so on.
 
-Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu('Menu/Edit/Select All') from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu('Menu/Edit/Select Touching') to select every object touched by the selection brushes, or choose #menu('Menu/Edit/Select Inside') to select every object enclosed inside them. 
+Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu(Menu/Edit/Select All) from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu(Menu/Edit/Select Touching) to select every object touched by the selection brushes, or choose #menu(Menu/Edit/Select Inside) to select every object enclosed inside them. 
 
 ![Using a selection brush](SelectTouching.gif)
 
-A similar operation can be found under #menu('Menu/Edit/Select Tall'), but this particular operation is only available when a 2D view has focus. It projects the selection brushes onto the view plane of the currently focused 2D viewport, which results in a 2D polygon, and then selects every object that is contained entirely within that polygon. You can think of this as a cheap lasso selection tool that works like #menu('Menu/Edit/Select Inside'), but without having to adjust the distance and thickness of the selection brushes.
+A similar operation can be found under #menu(Menu/Edit/Select Tall), but this particular operation is only available when a 2D view has focus. It projects the selection brushes onto the view plane of the currently focused 2D viewport, which results in a 2D polygon, and then selects every object that is contained entirely within that polygon. You can think of this as a cheap lasso selection tool that works like #menu(Menu/Edit/Select Inside), but without having to adjust the distance and thickness of the selection brushes.
 
-If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu('Menu/Edit/Select Siblings'). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu('Menu/Edit/Select by Line Number') is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
+If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu(Menu/Edit/Select Siblings). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu(Menu/Edit/Select by Line Number) is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
 
-Finally, you can deselect everything by left clicking in the void, or by choosing #menu('Menu/Edit/Select None').
+Finally, you can deselect everything by left clicking in the void, or by choosing #menu(Menu/Edit/Select None).
 
 ## Selecting Brush Faces
 
 ![Selected brush face](BrushFaceSelection.png)
 
-To select a brush face, you need to hold #key(306) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(308). To select all faces of a brush, you can left double click that brush while holding #key(306). If you additionally hold #key(308), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(308) and #key(306). To deselect all brush faces, simply click in the void or choose #menu('Menu/Edit/Select None').
+To select a brush face, you need to hold #key(306) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(308). To select all faces of a brush, you can left double click that brush while holding #key(306). If you additionally hold #key(308), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(308) and #key(306). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Select None).
 
 # Editing
 
@@ -321,10 +321,10 @@ Tools of the type Permanent* are deactivated whenever a modal tool is active. Fo
 
 Tool                  Menu
 ----                  -----------
-Complex Brush Tool    #menu('Menu/Edit/Tools/Brush Tool')
-Rotate Tool           #menu('Menu/Edit/Tools/Rotate Tool')
-Clip Tool             #menu('Menu/Edit/Tools/Clip Tool')
-Vertex Tool           #menu('Menu/Edit/Tools/Vertex Tool')
+Complex Brush Tool    #menu(Menu/Edit/Tools/Brush Tool)
+Rotate Tool           #menu(Menu/Edit/Tools/Rotate Tool)
+Clip Tool             #menu(Menu/Edit/Tools/Clip Tool)
+Vertex Tool           #menu(Menu/Edit/Tools/Vertex Tool)
 
 ![Tool buttons](ToolbarTools.png) Additionally, tools can be toggled by using the buttons on the left of the toolbar. In the image, the first button is active, however, this particular button does not represent any of the modal tools listed in the table above. Rather, it indicates that no modal tool is currently active, and therefore all permanent tools are available. The buttons icon indicates that objects can be moved, which is only possible if no modal tool is active. The second button represents the convex brush tool, the third button toggles the clip tool, the fourth button is used to toggle the vertex tool and the fifth button toggles the rotate tool.
 
@@ -332,7 +332,7 @@ You can learn more about these tools in later sections. But before you can learn
 
 ### Cancelling Operations and Tools {#cancelling}
 
-To cancel a mouse drag by hitting #action('Controls/Map view/Cancel'). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
+To cancel a mouse drag by hitting #action(Controls/Map view/Cancel). The operation will be undone immediately. The same keyboard shortcut can be used to cancel all kinds of things in the editor. The following table lists the effects of cancelling depending on the current state of the editor.
 
 State                 Effect
 -----                 ------
@@ -341,9 +341,9 @@ Clip Tool             Discard most recently placed clip point; deactivate tool
 Vertex Tool           Discard current vertex selection; deactivate tool
 Selection Tool        Discard current selection
 
-For those tools where a second effect is listed (separated by a semicolon), the second effect only takes place if the first effect couldn't be realized. For example, if the clip tool is active but no clip points have been placed, then hitting #action('Controls/Map view/Cancel') will deactivate the clip tool. Hitting #action('Controls/Map view/Cancel') yet again will deselect all selected objects or brush faces.
+For those tools where a second effect is listed (separated by a semicolon), the second effect only takes place if the first effect couldn't be realized. For example, if the clip tool is active but no clip points have been placed, then hitting #action(Controls/Map view/Cancel) will deactivate the clip tool. Hitting #action(Controls/Map view/Cancel) yet again will deselect all selected objects or brush faces.
 
-In addition, you can hit #action('Controls/Map view/Deactivate current tool') to directly deactivate the current tool regardless of what state the tool is in.
+In addition, you can hit #action(Controls/Map view/Deactivate current tool) to directly deactivate the current tool regardless of what state the tool is in.
 
 ### Mouse Input in 3D
 
@@ -389,9 +389,9 @@ This way of creating brushes only allows you to create cuboids. In the next sect
 
 ![Drawing a rectangle and duplicating it](CreateBrushByDuplicatingPolygon.gif) If you want to create a brush that is not a simple, axis-aligned cuboid, you can use the brush tool. The brush tool allows you to define a set of points and create the convex hull of these points. A convex hull is the smallest convex volume that contains all the points. The points become the vertices of the new brush, unless they are placed within the brush, in which case they are discarded. Accordingly, the brush tool gives you several ways to place points, but there are two limitations: First, you can only place points in the 3D viewport, and second, you can only place points by using other brushes as reference.
 
-To use the brush tool, you first have to activate it by choosing #menu('Menu/Edit/Tools/Brush Tool'). Then, you can place single points onto the grid by left clicking on the faces of other brushes. Additionally, you can left double click on a face to place points on all of its vertices. You can also draw a rectangular shape by left dragging on an existing brush face and thereby place four points at the corners of that rectangle. Finally, if the points you have placed so far form a polygon, you can duplicate and move that polygon along its normal by left dragging it while holding #key(306). Once you have placed all points, hit #action('Controls/Map view/Create brush') to actually create the brush.
+To use the brush tool, you first have to activate it by choosing #menu(Menu/Edit/Tools/Brush Tool). Then, you can place single points onto the grid by left clicking on the faces of other brushes. Additionally, you can left double click on a face to place points on all of its vertices. You can also draw a rectangular shape by left dragging on an existing brush face and thereby place four points at the corners of that rectangle. Finally, if the points you have placed so far form a polygon, you can duplicate and move that polygon along its normal by left dragging it while holding #key(306). Once you have placed all points, hit #action(Controls/Map view/Create brush) to actually create the brush.
 
-It is not possible to modify or remove points after they have been placed, except discarding all of them by hitting the #action('Controls/Map view/Cancel') key.
+It is not possible to modify or remove points after they have been placed, except discarding all of them by hitting the #action(Controls/Map view/Cancel) key.
 
 ### Creating Entities {#creating_entities}
 
@@ -419,7 +419,7 @@ Often, it is much quicker to create new objects by duplicating existing ones. Ob
 
 ### Duplicating Objects {#duplicating_objects}
 
-The currently selected objects can be duplicated by choosing #menu('Menu/Edit/Duplicate'). This will duplicate the objects in place, that is, the duplicates retain the exact position of the original objects. To give visual feedback, the duplicated objects are flashed in white really quickly. In the following short clip, you can see that the selected brush gets duplicated. After that, the duplicated brush is moved upwards.
+The currently selected objects can be duplicated by choosing #menu(Menu/Edit/Duplicate). This will duplicate the objects in place, that is, the duplicates retain the exact position of the original objects. To give visual feedback, the duplicated objects are flashed in white really quickly. In the following short clip, you can see that the selected brush gets duplicated. After that, the duplicated brush is moved upwards.
 
 ![Duplicating a brush in place](DuplicateInPlace.gif)
 
@@ -427,12 +427,12 @@ Very often, you will want to duplicate objects and move them to a different posi
 
 Direction     Shortcut (2D)                                                                                        Shortcut (3D)
 ---------     -------------                                                                                        -------------
-Left          #action('Controls/Map view/Duplicate and move objects left')                                         #action('Controls/Map view/Duplicate and move objects left')
-Right         #action('Controls/Map view/Duplicate and move objects right')                                        #action('Controls/Map view/Duplicate and move objects right')
-Up            #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')
-Down          #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')    #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')
-Forward       #action('Controls/Map view/Duplicate and move objects forward; Duplicate and move objects up')       #action('Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward')
-Backward      #action('Controls/Map view/Duplicate and move objects backward; Duplicate and move objects down')    #action('Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward')
+Left          #action(Controls/Map view/Duplicate and move objects left)                                           #action(Controls/Map view/Duplicate and move objects left)
+Right         #action(Controls/Map view/Duplicate and move objects right)                                          #action(Controls/Map view/Duplicate and move objects right)
+Up            #action(Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward)         #action(Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up)
+Down          #action(Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward)      #action(Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down)
+Forward       #action(Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down)       #action(Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward)
+Backward      #action(Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up)        #action(Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward)
 
 Essentially, these are the same keyboard shortcuts that you use to [move objects around](#moving_objects) in the 3D and 2D viewports, but while holding #key(308). In the same vein, you can hold #key(308) while left dragging a selected object to duplicate and move all selected objects.
 
@@ -442,9 +442,9 @@ Note that in the image above, the selected brush flashes while it is moved to th
 
 ### Copy and Paste
 
-You can copy objects by selecting them and choosing #menu('Menu/Edit/Copy'). TrenchBroom will create text representations of the selected objects as if they were saved to a map, and put that text representation on the clipboard. This allows you to paste them into map files, and also to directly copy objects from map files and paste them into TrenchBroom. Note that you can also copy brush faces, which will also put a text representation of that brush face on the clipboard. Having copied a brush face, you can paste the attributes of that face (texture, offset, scale, etc.) into other selected brush faces.
+You can copy objects by selecting them and choosing #menu(Menu/Edit/Copy). TrenchBroom will create text representations of the selected objects as if they were saved to a map, and put that text representation on the clipboard. This allows you to paste them into map files, and also to directly copy objects from map files and paste them into TrenchBroom. Note that you can also copy brush faces, which will also put a text representation of that brush face on the clipboard. Having copied a brush face, you can paste the attributes of that face (texture, offset, scale, etc.) into other selected brush faces.
 
-There are two menu commands to paste objects from the clipboard into the map. The simpler of the two is #menu('Menu/Edit/Paste at Original Position'), which will simply paste the objects from the clipboard without changing their position. The other command, available at #menu('Menu/Edit/Paste'), does not paste the objects from the clipboard at their original positions, but will try to position them using the current mouse position. If pasted into the 3D viewport, the pasted objects will be placed on top of the brush under the mouse. If no brush is under the mouse, the objects will be placed at a default distance. The bounding box of the pasted objects is snapped to the grid, and TrenchBroom will attempt to keep the center of the bounding box of the pasted objects near the mouse cursor. The following clip illustrates these concepts. The light fixture is copied, then pasted several times.
+There are two menu commands to paste objects from the clipboard into the map. The simpler of the two is #menu(Menu/Edit/Paste at Original Position), which will simply paste the objects from the clipboard without changing their position. The other command, available at #menu(Menu/Edit/Paste), does not paste the objects from the clipboard at their original positions, but will try to position them using the current mouse position. If pasted into the 3D viewport, the pasted objects will be placed on top of the brush under the mouse. If no brush is under the mouse, the objects will be placed at a default distance. The bounding box of the pasted objects is snapped to the grid, and TrenchBroom will attempt to keep the center of the bounding box of the pasted objects near the mouse cursor. The following clip illustrates these concepts. The light fixture is copied, then pasted several times.
 
 ![Pasting objects in the 3D viewport](PastePositioning3D.gif)
 
@@ -462,14 +462,14 @@ You can also use the keyboard to move objects. Every time you hit one of the sho
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
-Left          #action('Controls/Map view/Move objects left')                           #action('Controls/Map view/Move objects left')
-Right         #action('Controls/Map view/Move objects right')                          #action('Controls/Map view/Move objects right')
-Up            #action('Controls/Map view/Move objects up; Move objects forward')       #action('Controls/Map view/Move objects forward; Move objects up')
-Down          #action('Controls/Map view/Move objects down; Move objects backward')    #action('Controls/Map view/Move objects backward; Move objects down')
-Forward       #action('Controls/Map view/Move objects forward; Move objects up')       #action('Controls/Map view/Move objects up; Move objects forward')
-Backward      #action('Controls/Map view/Move objects backward; Move objects down')    #action('Controls/Map view/Move objects down; Move objects backward')
+Left          #action(Controls/Map view/Move objects left)                             #action(Controls/Map view/Move objects left)
+Right         #action(Controls/Map view/Move objects right)                            #action(Controls/Map view/Move objects right)
+Up            #action(Controls/Map view/Move objects up; Move objects forward)         #action(Controls/Map view/Move objects backward; Move objects up)
+Down          #action(Controls/Map view/Move objects down; Move objects backward)      #action(Controls/Map view/Move objects forward; Move objects down)
+Forward       #action(Controls/Map view/Move objects forward; Move objects down)       #action(Controls/Map view/Move objects up; Move objects forward)
+Backward      #action(Controls/Map view/Move objects backward; Move objects up)        #action(Controls/Map view/Move objects down; Move objects backward)
 
-Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action('Controls/Map view/Move objects up; Move objects forward') moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action('Controls/Map view/Move objects forward; Move objects up') moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the Z axis if used in the 3D viewport.
+Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action(Controls/Map view/Move objects up; Move objects forward) moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action(Controls/Map view/Move objects forward; Move objects down) moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the negative Z axis if used in the 3D viewport.
 
 ![Additional controls for move tool](MoveObjectsToolPage.png)
 
@@ -481,16 +481,16 @@ The easiest way to rotate objects in TrenchBroom is to use the following keyboar
 
 Shortcut                                                        Type     Rotation (3D)                         Rotation (2D)
 --------                                                        ----     -------------                         -------------
-#action('Controls/Map view/Roll objects clockwise')             Roll     Clockwise about view axis             Clockwise about normal axis
-#action('Controls/Map view/Roll objects counter-clockwise')     Roll     Counter-clockwise about view axis     Counter-clockwise about normal axis
-#action('Controls/Map view/Pitch objects clockwise')            Pitch    Clockwise about right axis            Clockwise about right axis
-#action('Controls/Map view/Pitch objects counter-clockwise')    Pitch    Counter-Clockwise about right axis    Counter-Clockwise about right axis
-#action('Controls/Map view/Yaw objects clockwise')              Yaw      Clockwise about Z axis                Clockwise about up axis
-#action('Controls/Map view/Yaw objects counter-clockwise')      Yaw      Counter-clockwise about Z axis        Counter-clockwise about up axis
+#action(Controls/Map view/Roll objects clockwise)               Roll     Clockwise about view axis             Clockwise about normal axis
+#action(Controls/Map view/Roll objects counter-clockwise)       Roll     Counter-clockwise about view axis     Counter-clockwise about normal axis
+#action(Controls/Map view/Pitch objects clockwise)              Pitch    Clockwise about right axis            Clockwise about right axis
+#action(Controls/Map view/Pitch objects counter-clockwise)      Pitch    Counter-Clockwise about right axis    Counter-Clockwise about right axis
+#action(Controls/Map view/Yaw objects clockwise)                Yaw      Clockwise about Z axis                Clockwise about up axis
+#action(Controls/Map view/Yaw objects counter-clockwise)        Yaw      Counter-clockwise about Z axis        Counter-clockwise about up axis
 
 If the rotate tool is active, these keyboard shortcuts rotate the selected objects using the center of rotation and the angle set using the tool's rotation handle and the input controls above the viewports. If the rotate tool is not active, the center of rotation is the center of the bounding box of the currently selected objects (snapped to the grid), and the rotation angle is fixed to 90°.
 
-![Rotation handle](RotateHandle.png) The rotate tool gives you more control over rotation than the keyboard shortcuts do. Hit #menu('Menu/Edit/Tools/Rotate Tool') to activate the rotate tool and a rotation handle will appear in the viewports. The rotation handle allows you to set the center of rotation and to perform the actual rotation of the selected objects about the X, Y, or Z axis. In the 3D viewport, you can rotate the objects about any of those axes by left dragging the appropriate part of the rotate handle, but in a 2D viewport, you can only rotate the objects about the normal axis of that viewport.
+![Rotation handle](RotateHandle.png) The rotate tool gives you more control over rotation than the keyboard shortcuts do. Hit #menu(Menu/Edit/Tools/Rotate Tool) to activate the rotate tool and a rotation handle will appear in the viewports. The rotation handle allows you to set the center of rotation and to perform the actual rotation of the selected objects about the X, Y, or Z axis. In the 3D viewport, you can rotate the objects about any of those axes by left dragging the appropriate part of the rotate handle, but in a 2D viewport, you can only rotate the objects about the normal axis of that viewport.
 
 In the 3D viewport, the rotation handle will appear as in the image on the left. It has three axes, color coded with the X axis in red, the Y axis in green, and the Z axis in blue as usual. In addition to the axes, it has three quarter circles, again color coded, and four small spherical handles. The center handle (the yellow sphere) changes the center of rotation if you drag it with the left mouse button. Moving the center of rotation works exactly as [moving objects with the move tool](#moving_objects) does. If you hover the mouse over the center handle, you will notice that the coordinates of the center of rotation are displayed above the center handle and that the handle is highlighted by a red outline. To perform a rotation, you have to use one of the three other spherical handles. Clicking and dragging the blue spherical handle with the left mouse button rotates the objects about the Z axis, and likewise for the red and green handles (see the clip below).
 
@@ -529,14 +529,14 @@ Flipping has the effect of mirroring the selected objects, the mirror being a pl
 
 Shortcut                                                  Direction     Normal (2D)   Normal (3D)
 --------                                                  ---------     -----------   -----------
-#action('Controls/Map view/Flip objects horizontally')    Horizontal    Right axis    Axis-aligned right axis
-#action('Controls/Map view/Flip objects vertically')      Vertical      Up axis       Z axis
+#action(Controls/Map view/Flip objects horizontally)      Horizontal    Right axis    Axis-aligned right axis
+#action(Controls/Map view/Flip objects vertically)        Vertical      Up axis       Z axis
 
 In the case of the 3D viewport, the normal of the mirror plane is the coordinate system axis that is closest to the right axis of the camera. This means that if the camera is pointing in the general direction of the Y axis, and therefore its right axis points in the general direction of the X axis, the normal of the mirror plane will be the X axis. Sometimes, you will not be able to determine which of the coordinate system axes is closest to the right axis of the camera because the right axis is close to two coordinate system axes. To avoid such confusion, it is best to perform flipping in the 2D viewports.
 
 ### Deleting Objects
 
-Deleting objects is as simple as selecting them and choosing #menu('Menu/Edit/Delete'). Note that if you delete all remaining brushes of a brush entity, that entity gets deleted automatically. Likewise, if you delete all remaining objects of a group, that group also gets deleted.
+Deleting objects is as simple as selecting them and choosing #menu(Menu/Edit/Delete). Note that if you delete all remaining brushes of a brush entity, that entity gets deleted automatically. Likewise, if you delete all remaining objects of a group, that group also gets deleted.
 
 ## Shaping Brushes
 
@@ -567,19 +567,19 @@ Both snap modes are used simultaneously. There may be situations when you have t
 
 ### Clipping
 
-Clipping is the most basic operation for Quake maps due to how brushes are [constructed from planes](#brush_geometry). In essence, all that clipping does is adding a new plane to a brush and, depending on the brush's shape, removing other planes from it if they become superfluous. In TrenchBroom, clipping is done using the clip tool, which you can activate by choosing #menu('Menu/Edit/Tools/Clip Tool'). The clip tool lets you define a clip plane in various ways, and the lets you apply that plane to the selected brushes.
+Clipping is the most basic operation for Quake maps due to how brushes are [constructed from planes](#brush_geometry). In essence, all that clipping does is adding a new plane to a brush and, depending on the brush's shape, removing other planes from it if they become superfluous. In TrenchBroom, clipping is done using the clip tool, which you can activate by choosing #menu(Menu/Edit/Tools/Clip Tool). The clip tool lets you define a clip plane in various ways, and the lets you apply that plane to the selected brushes.
 
 There are three different outcomes of applying a clip plane: Drop all parts of the selected brushes that are in front of the (oriented) clip plane, drop all parts of the selected brushes that are behind the clip plane, or slice the selected brushes into two pieces each. The following image illustrates these three modes:
 
 ![The three clip modes](ClipModes.png)
 
-In all three images, there is a clip plane defined by two points. This clip plane slices the single brush in the image into two parts whereby the left part is below the plane and the right part is above it. In the first image, the clip mode is set to retain the part of the brush that is below the clip plane and to discard the part that is above the clip plane. The resulting brush will be shaped like the red part of the brush in the image. In the second image, the clip mode is set to retain both parts of the brush, and the result of this clipping operation will be two brushes. In the third image, the clip mode is set to retain the part of the brush that is above the clip plane and to discard the other part. This is the opposite of the first case. In the clip tool, you can cycle through these three modes by hitting #action('Controls/Map view/Toggle clip side'). There are two ways of defining a clip plane: The more common way is to place at least two and and most three points (in this context, these points are called clip points) in either the 3D or a 2D viewport. The other way is to define the clip plane by using an existing brush face.
+In all three images, there is a clip plane defined by two points. This clip plane slices the single brush in the image into two parts whereby the left part is below the plane and the right part is above it. In the first image, the clip mode is set to retain the part of the brush that is below the clip plane and to discard the part that is above the clip plane. The resulting brush will be shaped like the red part of the brush in the image. In the second image, the clip mode is set to retain both parts of the brush, and the result of this clipping operation will be two brushes. In the third image, the clip mode is set to retain the part of the brush that is above the clip plane and to discard the other part. This is the opposite of the first case. In the clip tool, you can cycle through these three modes by hitting #action(Controls/Map view/Toggle clip side). There are two ways of defining a clip plane: The more common way is to place at least two and and most three points (in this context, these points are called clip points) in either the 3D or a 2D viewport. The other way is to define the clip plane by using an existing brush face.
 
 #### Clip Points
 
 To place clip points, you simply left click into a viewport when the clip tool is active. Alternatively, you can add two clip points at once by dragging with the left mouse. In that case, the first clip point is placed at the start point of the drag, and the second clip point is placed at the end point of the drag. In the 3D viewport, you can only place clip points on already existing brushes, whereas in the 2D viewports, you can place them anywhere. Clip points are snapped to the grid, however, in the 3D viewport, there is a caveat which we will explain below. When the clip tool is active, it gives you some feedback in the form of an orange sphere that appears close to your mouse pointer. This sphere indicates where a clip point would be placed after being snapped to the grid. This feedback sphere is only shown if a clip point can actually be placed at or close to the point under the mouse.
 
-Once two clip points have been placed, TrenchBroom will attempt to guess a clip plane even though it is underspecified: You cannot define a plane with only two points. If you are happy with the clip plane that TrenchBroom has determined, then you can apply the clipping operation by hitting #action('Controls/Map view/Perform clip'). Otherwise, you can place the third point to fully define the clip plane, or you can change the clip points you have already placed. To change a clip point, you can just left click and drag it with the mouse. To remove the most recently place clip point, you can choose #menu('Menu/Edit/Delete').
+Once two clip points have been placed, TrenchBroom will attempt to guess a clip plane even though it is underspecified: You cannot define a plane with only two points. If you are happy with the clip plane that TrenchBroom has determined, then you can apply the clipping operation by hitting #action(Controls/Map view/Perform clip). Otherwise, you can place the third point to fully define the clip plane, or you can change the clip points you have already placed. To change a clip point, you can just left click and drag it with the mouse. To remove the most recently place clip point, you can choose #menu(Menu/Edit/Delete).
 
 #### Clip Point Snapping
 
@@ -597,7 +597,7 @@ TrenchBroom includes three separate tools to edit a brush's vertices: the [verte
 
 #### Vertex Tool {#vertex_tool}
 
-Using the vertex tool, you can move individual vertices around in 3D space. Additionally, you can add vertices to a brush, and you can remove vertices from a brush. To activate the vertex tool, choose Choose #menu('Menu/Edit/Tools/Vertex Tool'). When the vertex tool is active, yellow handles appear at the vertices of the selected brushes to allow manipulation.
+Using the vertex tool, you can move individual vertices around in 3D space. Additionally, you can add vertices to a brush, and you can remove vertices from a brush. To activate the vertex tool, choose Choose #menu(Menu/Edit/Tools/Vertex Tool). When the vertex tool is active, yellow handles appear at the vertices of the selected brushes to allow manipulation.
 
 ![Vertex Handles](VertexToolHandles.png)
 
@@ -617,7 +617,7 @@ If you wish to snap a vertex onto another vertex quickly without performing a dr
 
 ![Splitting](VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. By double clicking on an edge or face handle, you can split the edge or face that the handle represented. After the double click, all other handles are hidden, and you have to move the single remaining handle away from the brush to actually create the new vertex. As a shortcut, you can also start your mouse drag with the second press of the left mouse button when you double click on the edge or face handle that you wish to use for splitting.
 
-Additionally, you can delete the selected vertices, edges, and faces from brushes by choosing #menu('Menu/Edit/Delete'). Note that this will only succeed if none of the currently selected brushes becomes invalid by the deletions, that is, you can only delete vertices, edges, or faces if all of the selected brushes remain threedimensional after the deletions. If that is not the case, TrenchBroom will refuse the entire operation.
+Additionally, you can delete the selected vertices, edges, and faces from brushes by choosing #menu(Menu/Edit/Delete). Note that this will only succeed if none of the currently selected brushes becomes invalid by the deletions, that is, you can only delete vertices, edges, or faces if all of the selected brushes remain threedimensional after the deletions. If that is not the case, TrenchBroom will refuse the entire operation.
 
 <br clear="all" />
 
@@ -629,19 +629,19 @@ The vertex tool also provides some keyboard shortcuts to move vertices. These ar
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
-Left          #action('Controls/Map view/Move vertices left')                           #action('Controls/Map view/Move vertices left')
-Right         #action('Controls/Map view/Move vertices right')                          #action('Controls/Map view/Move vertices right')
-Up            #action('Controls/Map view/Move vertices up; Move vertices forward')       #action('Controls/Map view/Move vertices forward; Move vertices up')
-Down          #action('Controls/Map view/Move vertices down; Move vertices backward')    #action('Controls/Map view/Move vertices backward; Move vertices down')
-Forward       #action('Controls/Map view/Move vertices forward; Move vertices up')       #action('Controls/Map view/Move vertices up; Move vertices forward')
-Backward      #action('Controls/Map view/Move vertices backward; Move vertices down')    #action('Controls/Map view/Move vertices down; Move vertices backward')
+Left          #action(Controls/Map view/Move vertices left)                            #action(Controls/Map view/Move vertices left)
+Right         #action(Controls/Map view/Move vertices right)                           #action(Controls/Map view/Move vertices right)
+Up            #action(Controls/Map view/Move vertices up; Move vertices forward)       #action(Controls/Map view/Move vertices backward; Move vertices up)
+Down          #action(Controls/Map view/Move vertices down; Move vertices backward)    #action(Controls/Map view/Move vertices forward; Move vertices down)
+Forward       #action(Controls/Map view/Move vertices forward; Move vertices down)     #action(Controls/Map view/Move vertices up; Move vertices forward)
+Backward      #action(Controls/Map view/Move vertices backward; Move vertices up)      #action(Controls/Map view/Move vertices down; Move vertices backward)
 
 This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
 
 
 #### Edge Tool {#edge_tool}
 
-Using the edge tool, you can move individual edge around in 3D space. To activate the edge tool, choose Choose #menu('Menu/Edit/Tools/Edge Tool'). When the edge tool is active, the edges of the selected brushes are rendered yellow to indicate that they allow manipulation.
+Using the edge tool, you can move individual edge around in 3D space. To activate the edge tool, choose Choose #menu(Menu/Edit/Tools/Edge Tool). When the edge tool is active, the edges of the selected brushes are rendered yellow to indicate that they allow manipulation.
 
 ![Edge Handles](EdgeTool.png)
 
@@ -653,7 +653,7 @@ Finally, the edge tool also supports the same keyboard commands as the vertex to
 
 #### Face Tool {#face_tool}
 
-Using the face tool, you can move individual face around in 3D space. To activate the face tool, choose Choose #menu('Menu/Edit/Tools/Face Tool'). When the face tool is active, the faces of the selected brushes are rendered yellow to indicate that they allow manipulation. Additionally, the tool shows point handles at the centers of the faces; these handles allow selection and manipulation of the faces. Note that the handles allow you to select and manipulate faces which face away from the camera, too.
+Using the face tool, you can move individual face around in 3D space. To activate the face tool, choose Choose #menu(Menu/Edit/Tools/Face Tool). When the face tool is active, the faces of the selected brushes are rendered yellow to indicate that they allow manipulation. Additionally, the tool shows point handles at the centers of the faces; these handles allow selection and manipulation of the faces. Note that the handles allow you to select and manipulate faces which face away from the camera, too.
 
 ![Face Handles](FaceTool.png)
 
@@ -681,7 +681,7 @@ Convex merge takes a set of brushes as its input, computes the _convex hull_ of 
 
 ![CSG convex merge](CSGConvexMerge.gif)
 
-As you can see, the newly created brush covers some areas which were not covered by the original brushes. This follows the restriction that the resulting brush must be convex. Whether the resulting brush covers such previously void areas depends on how the input brushes are aligned with each other. To perform a convex merge, select the brushes to be merged and choose #menu('Menu/Edit/CSG/Convex Merge').
+As you can see, the newly created brush covers some areas which were not covered by the original brushes. This follows the restriction that the resulting brush must be convex. Whether the resulting brush covers such previously void areas depends on how the input brushes are aligned with each other. To perform a convex merge, select the brushes to be merged and choose #menu(Menu/Edit/CSG/Convex Merge).
 
 #### CSG Subtraction
 
@@ -689,7 +689,7 @@ CSG subtraction takes one brush (the subtrahend) and subtracts it from a set of 
 
 ![CSG subtracting to create an arch](CSGSubtractArch.gif)
 
-The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu('Menu/Edit/CSG/Subtract'). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
+The image above shows an example where an arch is created by subtraction. The result contains eight brushes that perfectly represent the arch. To perform a CSG subtraction, first select the minuends (the brushes you wish to subtract from) and then add the subtrahend to the selection and choose #menu(Menu/Edit/CSG/Subtract). Assuming you have selected n brushes, TrenchBroom applies the subtraction to the selected brushes by subtracting the nth selected brush (the most recently selected one) from the n-1 previously selected brushes.
 
 #### CSG Intersection
 
@@ -697,7 +697,7 @@ CSG intersection takes a set of brushes and computes their intersection, that is
 
 ![CSG intersection of two cuboids](CSGIntersect.gif)
 
-You can perform a CSG intersection by selecting the brushes you wish to intersect, and then choosing #menu('Menu/Edit/CSG/Intersect').
+You can perform a CSG intersection by selecting the brushes you wish to intersect, and then choosing #menu(Menu/Edit/CSG/Intersect).
 
 #### Textures and CSG Operations {#textures_and_csg_operations}
 
@@ -731,11 +731,15 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 ### Assigning Textures Manually
 
-There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu('Menu/Edit/Copy'), then selected the faces that you wish to copy to, and choose #menu('Edit/Copy/Paste').
+There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). 
+
+Holding #key(307) and left clicking transfers the texture by projecting it onto the target face. Alternatively, you can hold #key(306) and #key(307) and left click to transfer the texture by rotating it. This will avoid stretching the texture, but is only available on Valve 220 format maps.
+
+If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307) (or #key(306) and #key(307) to avoiding stretching). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu(Menu/Edit/Copy), then selected the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste).
 
 ### Replacing Textures
 
-If you want to replace a particular texture with another one, you can choose #menu('Menu/Edit/Replace Texture...'). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
+If you want to replace a particular texture with another one, you can choose #menu(Menu/Edit/Replace Texture). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
 
 ![Texture Replace Window (Mac OS X)](ReplaceTexture.png)
 
@@ -830,9 +834,9 @@ TrenchBroom provides special editors for the following entity properties: spawnf
 
 Type             Editor                                                  Description
 ----             ------                                                  -----------
-Spawnflags       ![Smart Spawnflags Editor](SmartSpawnflagsEditor.png)    A table of checkboxes which allow you to toggle the individual spawnflag values.
-Color            ![Smart Spawnflags Editor](SmartColorEditor.png)         A color chooser control that allows you to convert between byte and float color values, and provides a list of all colors found in the map.
-Choice           ![Smart Spawnflags Editor](SmartChoiceEditor.png)        A dropdown list of values. You can also enter any text into the text box.
+Spawnflags       ![Smart Spawnflags Editor](SmartSpawnflagsEditor.png)   A table of checkboxes which allow you to toggle the individual spawnflag values.
+Color            ![Smart Spawnflags Editor](SmartColorEditor.png)        A color chooser control that allows you to convert between byte and float color values, and provides a list of all colors found in the map.
+Choice           ![Smart Spawnflags Editor](SmartChoiceEditor.png)       A dropdown list of values. You can also enter any text into the text box.
 
 ### Linking Entities
 
@@ -857,7 +861,7 @@ In the screenshot above, the link between the two info_null entities is rendered
 
 ## Undo and Redo {#undo_redo}
 
-Almost everything that you do in TrenchBroom can be undone by choosing #menu('Menu/Edit/Undo'). This applies to every action that somehow modifies the map file (such as moving objects), but it also applies to some actions that do not change the map file, such as selection, hiding, and locking. There is no limit to how many actions you can undo, and once an action is undone, you can redo it by choosing #menu('Menu/Edit/Redo').
+Almost everything that you do in TrenchBroom can be undone by choosing #menu(Menu/Edit/Undo). This applies to every action that somehow modifies the map file (such as moving objects), but it also applies to some actions that do not change the map file, such as selection, hiding, and locking. There is no limit to how many actions you can undo, and once an action is undone, you can redo it by choosing #menu(Menu/Edit/Redo).
 
 ### Undo Collation and Transactions
 
@@ -879,7 +883,7 @@ In the left of the view dropdown, there is a list of checkboxes that allows you 
 
 ## Hiding and Isolation
 
-If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu('View/Hide'), and to isolate the selected objects, choose #menu('View/Isolate'). To show all hidden objects, choose #menu('View/Show All'). All of these actions can be undone.
+If you are working on a crowded area, it can be useful to hide certain objects, or to hide everything but the objects of interest. To hide the selected objects, choose #menu(Menu/View/Hide), and to isolate the selected objects, choose #menu(Menu/View/Isolate). To show all hidden objects, choose #menu(Menu/View/Show All). All of these actions can be undone.
 
 ## Locking
 
@@ -893,7 +897,7 @@ Objects can be locked either if you are editing an open group or if you set a la
 
 Groups allow you to treat several objects as one and to give them a name. A group can contain the following types of objects: entities, brushes, and more groups. The fact that a group can contain groups induces a hierarchy - but in practice, you will rarely create such nested groups. In the viewports, groups have their bounding box rendered in blue, and their name is displayed above them.
 
-To create a group, make sure that no tool is currently active and select some objects and choose #menu('Menu/Edit/Group'). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only editor all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu('Menu/Edit/Ungroup'). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
+To create a group, make sure that no tool is currently active and select some objects and choose #menu(Menu/Edit/Group). The editor will ask you for a name. Group names need not be unique, so you can have several groups with the same name. To select a group, you can click on any of the objects contained in it. This will not select the individual object, but the entire group, which is why you can only editor all objects within a group as one. If you want to edit individual objects in a group, you have to open the group by double clicking on it with the left mouse button. This will lock every other object in the map (locked objects are not editable and rendered in blue). Once the group is opened, you can edit the individual objects in it, or you can create new objects within the group in the usual ways. Once you are done editing the group, you can close it again by left double clicking anywhere outside of the group. Finally, you can remove a group by selecting it and choosing #menu(Menu/Edit/Ungroup). Note that removing a group does not remove the objects in the group from the map, the objects are merely ungrouped.
 
 To add objects to an existing group, select the objects you wish to add to the group, then right click on an object already existing to that group and select "Add Objects to GROUPNAME", where GROUPNAME is the name of the group. Likewise, you can remove objects from a group by opening that group, selecting the objects you wish to remove from the group, and selecting "Remove Objects from GROUPNAME" from the right click context menu. The removed objects are added to the current layer. If you remove all objects from a group, the group is deleted automatically.
 
@@ -909,7 +913,7 @@ When you create new objects, TrenchBroom puts them into the current layer (unles
 
 # Preferences
 
-The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu('Menu/File/Preferences...'). The dialog is split into four panes, each of which we will review in the following sections. Note that on Windows and Linux, the changes are only applied if you click the "OK" or "Apply" button at the bottom of the dialog, whereas on Mac OS X, the changes are applied immediately.
+The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu(Menu/File/Preferences). The dialog is split into four panes, each of which we will review in the following sections. Note that on Windows and Linux, the changes are only applied if you click the "OK" or "Apply" button at the bottom of the dialog, whereas on Mac OS X, the changes are applied immediately.
 
 ## Game Configuration {#game_configuration}
 
@@ -936,7 +940,7 @@ Two Panes 	One 3D and one cycleable XY / XZ / XY viewport
 Three Panes One 3D, one XY viewport and one cycleable XZ / YZ 2D viewport
 Four Panes 	One 3D, one XY viewport, one XZ viewport, and one YZ viewport
 
-Cycleable 2D viewports can be cycled by pressing #action('Controls/Map view/Cycle map view').
+Cycleable 2D viewports can be cycled by pressing #action(Controls/Map view/Cycle map view).
 
 The remaining settings affect how the viewports are rendered.
 
@@ -976,9 +980,9 @@ Note that if you assign a keyboard shortcut to different actions in the same con
 
 Editing brushwork often consists of repeating the same steps over and over. As an example, consider building a spiral stair case. You start by cutting out a brush that represents one step of the stair case. Then you duplicate that brush, move it upward and rotate it about the center axis of the stair case. And the you repeat these actions for every step of the stairset. TrenchBroom has a feature called *command repetition* that is designed to automate some part of this process for you.
 
-Repeating commands is similar to having an automatic Macro recorder. Remember that TrenchBroom already records everything you do to provide [undo and redo](#undo_redo). In addition to undoing your actions, TrenchBroom also uses the recorded information to allow you to repeat some of your most recently performed actions. In the example of the stairwell, you would want to repeat the duplication, the translation, and the rotation actions over and over with a single key stroke. The only problem is that you need to determine which of the most recently performed actions should be repeated. This is done in two ways. First, TrenchBroom automatically forgets all repeatable actions when the selection changes. So if you select some objects and choose #menu('Menu/Edit/Repeat') directly after selecting some objects, nothing will happen because all repeatable actions have been discarded. Second, you can tell TrenchBroom to discard all repeatable actions by choosing #menu('Menu/Edit/Clear Repeatable Commands'). Think of this as telling TrenchBroom to start a new macro.
+Repeating commands is similar to having an automatic Macro recorder. Remember that TrenchBroom already records everything you do to provide [undo and redo](#undo_redo). In addition to undoing your actions, TrenchBroom also uses the recorded information to allow you to repeat some of your most recently performed actions. In the example of the stairwell, you would want to repeat the duplication, the translation, and the rotation actions over and over with a single key stroke. The only problem is that you need to determine which of the most recently performed actions should be repeated. This is done in two ways. First, TrenchBroom automatically forgets all repeatable actions when the selection changes. So if you select some objects and choose #menu(Menu/Edit/Repeat) directly after selecting some objects, nothing will happen because all repeatable actions have been discarded. Second, you can tell TrenchBroom to discard all repeatable actions by choosing #menu(Menu/Edit/Clear Repeatable Commands). Think of this as telling TrenchBroom to start a new macro.
 
-So in the case of the spiral stairwell, you would first create the brush that represents one stair. Since you don't want to repeat whatever actions you performed to create this brush, you'll have tell TrenchBroom to discard all repeatable commands, either by deselecting and then reselecting the brush, or by choosing the appropriate command from the menu. After that, you duplicate the brush, move it upwards, and rotate it. Then, you can repeat these steps by choosing #menu('Menu/Edit/Repeat') as often as you want.
+So in the case of the spiral stairwell, you would first create the brush that represents one stair. Since you don't want to repeat whatever actions you performed to create this brush, you'll have tell TrenchBroom to discard all repeatable commands, either by deselecting and then reselecting the brush, or by choosing the appropriate command from the menu. After that, you duplicate the brush, move it upwards, and rotate it. Then, you can repeat these steps by choosing #menu(Menu/Edit/Repeat) as often as you want.
 
 In summary, you can think of command repetition as a very simple macro system that allows you to have one macro that consists only of the most recently performed actions. Even though it is quite limited, it can make your life a lot easier if you get used to it.
 
@@ -988,7 +992,7 @@ The issue browser is located at the bottom of the window. It contains a live lis
 
 ![Issue Browser with Filter Dropdown](IssueBrowserFilter.png)
 
-Every entry in the issue list provides you with to pieces of information: the line number, if applicable, where the problematic object is located in the current map file, and a description. If you wish to find an object that caused an issue, you can select that issue in the browser to have the object(s) selected in the editor. Next you can choose #menu('Menu/View/Camera/Focus on Selection') to make them visible in the 3D and 2D viewports.
+Every entry in the issue list provides you with to pieces of information: the line number, if applicable, where the problematic object is located in the current map file, and a description. If you wish to find an object that caused an issue, you can select that issue in the browser to have the object(s) selected in the editor. Next you can choose #menu(Menu/View/Camera/Focus on Selection) to make them visible in the 3D and 2D viewports.
 
 ![Issue Browser with Context Menu](IssueBrowserContextMenu.png)
 
@@ -996,7 +1000,7 @@ In addition to making you aware of issues, TrenchBroom can also fix them for you
 
 ## Compiling Maps {#compiling_maps}
 
-TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu('Menu/Run/Compile...').
+TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu(Menu/Run/Compile).
 
 ![Compilation Dialog (Windows 7)](CompilationDialog.png)
 
@@ -1069,7 +1073,7 @@ Once the compilation is done, you can launch a game engine and check out your ma
 
 Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration]({#game_configuration).
 
-There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu('Menu/Run/Run...'). This brings up the launch dialog shown in the following screenshot.
+There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu(Menu/Run/Launch). This brings up the launch dialog shown in the following screenshot.
 
 ![Launch Dialog (Mac OS X)](LaunchGameEngineDialog.png)
 
@@ -1651,7 +1655,7 @@ TrenchBroom can show models for point entities in the 3D and 2D viewports. For t
 
 The syntax for adding display models is identical in both FGD and DEF files, only the place where the model definitions have to be inserted into the entity definitions varies. We will first explain the general syntax here. Every model definition takes the following form:
 
-    model(...)
+    model()
 
 Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
