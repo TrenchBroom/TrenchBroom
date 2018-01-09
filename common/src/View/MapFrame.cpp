@@ -826,17 +826,12 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
-            if (canUndo() && !m_mapView->cancelMouseDrag()) {
-                m_document->undoLastCommand();
-            }
+            undo();
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
-            if (canRedo())
-                m_document->redoNextCommand();
+            redo();
         }
 
         void MapFrame::OnEditRepeat(wxCommandEvent& event) {
@@ -1404,7 +1399,9 @@ namespace TrenchBroom {
                     ensure(item != nullptr, "item is null");
                     if (canUndo()) {
                         event.Enable(true);
-                        event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
+                        const auto textEdit = findFocusedTextCtrl() != nullptr;
+                        const auto name = textEdit ? "" : m_document->lastCommandName();
+                        event.SetText(item->menuString(name, m_mapView->viewportHasFocus()));
                     } else {
                         event.Enable(false);
                         event.SetText(item->menuString("", m_mapView->viewportHasFocus()));
@@ -1415,7 +1412,9 @@ namespace TrenchBroom {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_REDO);
                     if (canRedo()) {
                         event.Enable(true);
-                        event.SetText(item->menuString(m_document->nextCommandName(), m_mapView->viewportHasFocus()));
+                        const auto textEdit = findFocusedTextCtrl() != nullptr;
+                        const auto name = textEdit ? "" : m_document->nextCommandName();
+                        event.SetText(item->menuString(name, m_mapView->viewportHasFocus()));
                     } else {
                         event.Enable(false);
                         event.SetText(item->menuString("", m_mapView->viewportHasFocus()));
@@ -1646,11 +1645,49 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canUndo() const {
-            return m_document->canUndoLastCommand();
+            auto textCtrl = findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                return true; // textCtrl->CanUndo();
+            } else {
+                return m_document->canUndoLastCommand();
+            }
+        }
+
+        void MapFrame::undo() {
+            assert(canUndo());
+
+            auto textCtrl = findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                textCtrl->Undo();
+            } else {
+                if (!m_mapView->cancelMouseDrag()) {
+                    m_document->undoLastCommand();
+                }
+            }
         }
 
         bool MapFrame::canRedo() const {
-            return m_document->canRedoNextCommand();
+            auto textCtrl = findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                return true; // textCtrl->CanRedo();
+            } else {
+                return m_document->canRedoNextCommand();
+            }
+        }
+
+        void MapFrame::redo() {
+            assert(canRedo());
+
+            auto textCtrl = findFocusedTextCtrl();
+            if (textCtrl != nullptr) {
+                textCtrl->Redo();
+            } else {
+                m_document->redoNextCommand();
+            }
+        }
+
+        wxTextCtrl* MapFrame::findFocusedTextCtrl() const {
+            return dynamic_cast<wxTextCtrl*>(FindFocus());
         }
 
         bool MapFrame::canCut() const {
