@@ -19,7 +19,11 @@
 
 #include "KeyboardShortcut.h"
 
+#include <wx/event.h>
 #include <wx/sstream.h>
+#if !defined __APPLE__
+#include <wx/tokenzr.h>
+#endif
 #include <wx/txtstrm.h>
 
 #include <iostream>
