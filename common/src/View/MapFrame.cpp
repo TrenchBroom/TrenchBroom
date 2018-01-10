@@ -753,6 +753,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnDebugClipBrush, this, CommandIds::Menu::DebugClipWithFace);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCrash, this, CommandIds::Menu::DebugCrash);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugSetWindowSize, this, CommandIds::Menu::DebugSetWindowSize);
 
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
@@ -1364,6 +1365,15 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnDebugSetWindowSize(wxCommandEvent& event) {
+            wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                const Vec2i size = Vec2i::parse(str.ToStdString());
+                SetSize(size.x(), size.y());
+            }
+        }
+
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             m_mapView->flipObjects(Math::Direction_Left);
@@ -1613,6 +1623,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::DebugCreateCube:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
                 case CommandIds::Menu::DebugCrash:
+                case CommandIds::Menu::DebugSetWindowSize:
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::DebugClipWithFace:
@@ -1623,11 +1634,7 @@ namespace TrenchBroom {
                     event.Enable(m_mapView->canFlipObjects());
                     break;
                 default:
-                    if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
-                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
-                        event.Enable(true);
-                    else
-                        event.Enable(false);
+                    event.Enable(event.GetId() >= CommandIds::Menu::FileRecentDocuments && event.GetId() < CommandIds::Menu::FileRecentDocuments + 10);
                     break;
             }
         }

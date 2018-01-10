@@ -19,10 +19,8 @@
 
 #include "KeyboardShortcut.h"
 
-#include <wx/event.h>
 #include <wx/sstream.h>
 #include <wx/txtstrm.h>
-#include <wx/tokenzr.h>
 
 #include <iostream>
 

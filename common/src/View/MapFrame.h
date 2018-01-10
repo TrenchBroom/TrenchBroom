@@ -229,6 +229,7 @@ namespace TrenchBroom {
             void OnDebugClipBrush(wxCommandEvent& event);
             void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
             void OnDebugCrash(wxCommandEvent& event);
+            void OnDebugSetWindowSize(wxCommandEvent& event);
             
             void OnFlipObjectsHorizontally(wxCommandEvent& event);
             void OnFlipObjectsVertically(wxCommandEvent& event);
