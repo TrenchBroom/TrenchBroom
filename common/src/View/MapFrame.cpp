@@ -615,7 +615,7 @@ namespace TrenchBroom {
 
         void MapFrame::unbindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange);
+            assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange));
 
             m_document->documentWasClearedNotifier.removeObserver(this, &MapFrame::documentWasCleared);
             m_document->documentWasNewedNotifier.removeObserver(this, &MapFrame::documentDidChange);
@@ -827,12 +827,16 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            undo();
+            if (canUndo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                undo();
+            }
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            redo();
+            if (canRedo()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                redo();
+            }
         }
 
         void MapFrame::OnEditRepeat(wxCommandEvent& event) {
@@ -850,7 +854,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditCut(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canCut()) {
+            if (canCut()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 copyToClipboard();
                 Transaction transaction(m_document, "Cut");
                 m_document->deleteObjects();
@@ -860,8 +864,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canCopy())
+            if (canCopy()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 copyToClipboard();
+            }
         }
 
         void MapFrame::copyToClipboard() {
@@ -879,7 +884,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditPaste(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canPaste()) {
+            if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const BBox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
@@ -893,8 +898,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canPaste())
+            if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 paste();
+            }
         }
 
         PasteType MapFrame::paste() {
@@ -917,7 +923,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditDelete(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDelete()) {
+            if (canDelete()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 if (m_mapView->clipToolActive())
                     m_mapView->clipTool()->removeLastPoint();
                 else if (m_mapView->vertexToolActive())
@@ -934,49 +940,55 @@ namespace TrenchBroom {
         void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDuplicate())
+            if (canDuplicate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->duplicateObjects();
+            }
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSelect())
+            if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectAllNodes();
+            }
         }
 
         void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSelectSiblings())
+            if (canSelectSiblings()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectSiblings();
+            }
         }
 
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSelectByBrush())
+            if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectTouching(true);
+            }
         }
 
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSelectByBrush())
+            if (canSelectByBrush()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->selectInside(true);
+            }
         }
 
         void MapFrame::OnEditSelectTall(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canSelectTall())
+            if (canSelectTall()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->selectTall();
+            }
         }
 
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSelect()) {
+            if (canSelect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
                 if (string.empty())
                     return;
@@ -998,14 +1010,15 @@ namespace TrenchBroom {
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDeselect())
+            if (canDeselect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->deselectAll();
+            }
         }
 
         void MapFrame::OnEditGroupSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canGroup()) {
+            if (canGroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 const String name = queryGroupName(this);
                 if (!name.empty())
                     m_document->groupSelection(name);
@@ -1015,8 +1028,9 @@ namespace TrenchBroom {
         void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canUngroup())
+            if (canUngroup()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->ungroupSelection();
+            }
         }
 
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
@@ -1072,22 +1086,25 @@ namespace TrenchBroom {
         void MapFrame::OnEditCsgConvexMerge(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDoCsgConvexMerge())
+            if (canDoCsgConvexMerge()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgConvexMerge();
+            }
         }
 
         void MapFrame::OnEditCsgSubtract(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canDoCsgSubtract())
+            if (canDoCsgSubtract()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgSubtract();
+            }
         }
 
         void MapFrame::OnEditCsgIntersect(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canDoCsgIntersect())
+            if (canDoCsgIntersect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgIntersect();
+            }
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -1108,15 +1125,17 @@ namespace TrenchBroom {
         void MapFrame::OnEditSnapVerticesToInteger(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canSnapVertices())
+            if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(1u);
+            }
         }
         
         void MapFrame::OnEditSnapVerticesToGrid(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canSnapVertices())
+            if (canSnapVertices()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->snapVertices(m_document->grid().actualSize());
+            }
         }
 
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
@@ -1134,15 +1153,17 @@ namespace TrenchBroom {
         void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canIncGridSize())
+            if (canIncGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->grid().incSize();
+            }
         }
 
         void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canDecGridSize())
+            if (canDecGridSize()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->grid().decSize();
+            }
         }
 
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
@@ -1156,22 +1177,25 @@ namespace TrenchBroom {
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canMoveCameraToNextPoint())
+            if (canMoveCameraToNextPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->moveCameraToNextTracePoint();
+            }
         }
 
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canMoveCameraToPreviousPoint())
+            if (canMoveCameraToPreviousPoint()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->moveCameraToPreviousTracePoint();
+            }
         }
 
         void MapFrame::OnViewFocusCameraOnSelection(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            if (canFocusCamera())
+            if (canFocusCamera()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_mapView->focusCameraOnSelection(true);
+            }
         }
 
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
@@ -1188,15 +1212,17 @@ namespace TrenchBroom {
         void MapFrame::OnViewHideSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canHide())
+            if (canHide()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->hideSelection();
+            }
         }
         
         void MapFrame::OnViewIsolateSelectedObjects(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            if (canIsolate())
+            if (canIsolate()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->isolate(m_document->selectedNodes().nodes());
+            }
         }
         
         void MapFrame::OnViewShowHiddenObjects(wxCommandEvent& event) {
@@ -1376,12 +1402,18 @@ namespace TrenchBroom {
 
         void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            m_mapView->flipObjects(Math::Direction_Left);
+
+            if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->flipObjects(Math::Direction_Left);
+            }
         }
 
         void MapFrame::OnFlipObjectsVertically(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-            m_mapView->flipObjects(Math::Direction_Up);
+
+            if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_mapView->flipObjects(Math::Direction_Up);
+            }
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
