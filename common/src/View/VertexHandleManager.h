@@ -64,19 +64,21 @@ namespace TrenchBroom {
             
             virtual void removeHandles(const Model::Brush* brush) = 0;
         };
-        
+
+        template <typename H>
+        class HCmp {
+        public:
+            bool operator()(const H& lhs, const H& rhs) const {
+                return lhs.compare(rhs, 0.1) < 0;
+            }
+        };
+
         template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
             typedef H Handle;
             typedef std::vector<H> HandleList;
         private:
-            class HCmp {
-            public:
-                bool operator()(const H& lhs, const H& rhs) const {
-                    return lhs.compare(rhs, 0.1) < 0;
-                }
-            };
         protected:
             struct HandleInfo {
                 size_t count;
@@ -112,7 +114,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo, HCmp> HandleMap;
+            typedef std::map<H, HandleInfo, HCmp<H>> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
             HandleMap m_handles;
@@ -353,7 +355,7 @@ namespace TrenchBroom {
                 return brush->hasEdge(handle);
             }
         };
-        
+
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;

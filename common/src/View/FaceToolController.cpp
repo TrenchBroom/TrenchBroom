@@ -31,21 +31,7 @@ namespace TrenchBroom {
             SelectPartBase(tool, FaceHandleManager::HandleHit) {}
         private:
             bool equalHandles(const Polygon3& lhs, const Polygon3& rhs) const override {
-                if (lhs.vertexCount() != rhs.vertexCount())
-                    return false;
-
-                auto lc = std::begin(lhs);
-                auto rc = std::begin(rhs);
-                const auto le = std::end(lhs);
-                while (lc != le) {
-                    assert(rc != std::end(rhs));
-                    if (lc->squaredDistanceTo(*rc) >= MaxHandleDistance * MaxHandleDistance)
-                        return false;
-                    ++lc; ++rc;
-                }
-                assert(rc == std::end(rhs));
-
-                return true;
+                return lhs.compareUnoriented(rhs, MaxHandleDistance) == 0;
             }
         };
         
