@@ -80,17 +80,68 @@ namespace TrenchBroom {
             if (m_vertices.size() > other.m_vertices.size())
                 return 1;
 
-            const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
-            for (size_t i = 0; i < count; ++i) {
-                const int cmp = m_vertices[i].compare(other.m_vertices[i], epsilon);
-                if (cmp < 0)
-                    return -1;
-                if (cmp > 0)
-                    return 1;
+            const auto count = m_vertices.size();
+            return doCompare(other, 0, count, epsilon);
+        }
+
+        int compareUnoriented(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
+            if (m_vertices.size() < other.m_vertices.size())
+                return -1;
+            if (m_vertices.size() > other.m_vertices.size())
+                return 1;
+
+            const auto count = m_vertices.size();
+            if (count == 0) {
+                return 0;
             }
+
+            // Compare first:
+            const auto cmp0 = m_vertices[0].compare(other.m_vertices[0]);
+            if (cmp0 < 0) {
+                return -1;
+            } else if (cmp0 > 0) {
+                return +1;
+            }
+
+            if (count == 1) {
+                return 0;
+            }
+
+            // First vertices are identical. Now compare my second with other's second.
+            auto cmp1 = m_vertices[1].compare(other.m_vertices[1]);
+            if (cmp1 == 0) {
+                // The second vertices are also identical, so we just do a forward compare.
+                return doCompare(other, 2, count, epsilon);
+            } else {
+                // The second vertices are not identical, so we attemp a backward compare.
+                size_t i = 1;
+                while (i < count) {
+                    const auto j = count - i;
+                    const auto cmp = m_vertices[i].compare(other.m_vertices[j]);
+                    if (cmp != 0) {
+                        // Backward compare failed, so make a forward compare
+                        return doCompare(other, 2, count, epsilon);
+                    }
+                    ++i;
+                }
+                return 0;
+            }
+        }
+    private:
+        int doCompare(const Polygon<T,S>& other, size_t i, const size_t count, const T epsilon) const {
+            while (i < count) {
+                const auto cmp = m_vertices[i].compare(other.m_vertices[i]);
+                if (cmp < 0) {
+                    return -1;
+                } else if (cmp > 0) {
+                    return +1;
+                }
+                ++i;
+            }
+
             return 0;
         }
-        
+    public:
         bool hasVertex(const Vec<T,S>& vertex) const {
             return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
         }
@@ -128,6 +179,18 @@ namespace TrenchBroom {
             for (size_t i = 0; i < polygons.size(); ++i)
                 result.insert(std::end(result), std::begin(polygons[i].m_vertices), std::end(polygons[i].m_vertices));
             return result;
+        }
+
+        Polygon<T,S> inverted() const {
+            Polygon<T,S> result(*this);
+            return result.invert();
+        }
+
+        Polygon<T,S>& invert() {
+            if (m_vertices.size() > 1) {
+                std::reverse(std::next(std::begin(m_vertices)), std::end(m_vertices));
+            }
+            return *this;
         }
     public:
         friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
