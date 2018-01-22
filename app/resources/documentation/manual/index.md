@@ -615,7 +615,7 @@ If you wish to snap a vertex onto another vertex quickly without performing a dr
 
 <br clear="all" />
 
-![Splitting](VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. By double clicking on an edge or face handle, you can split the edge or face that the handle represented. After the double click, all other handles are hidden, and you have to move the single remaining handle away from the brush to actually create the new vertex. As a shortcut, you can also start your mouse drag with the second press of the left mouse button when you double click on the edge or face handle that you wish to use for splitting.
+![Splitting](VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. Hold #key(306) and move your mouse over the position on the grid where you wish to add a vertex. Notice that a new vertex handle is shown when your mouse pointer is close to that point. Click and drag the handle to add a new vertex.
 
 Additionally, you can delete the selected vertices, edges, and faces from brushes by choosing #menu(Menu/Edit/Delete). Note that this will only succeed if none of the currently selected brushes becomes invalid by the deletions, that is, you can only delete vertices, edges, or faces if all of the selected brushes remain threedimensional after the deletions. If that is not the case, TrenchBroom will refuse the entire operation.
 
