@@ -32,7 +32,6 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace View {
@@ -389,8 +388,15 @@ namespace TrenchBroom {
                 row = 0;
             
             if (row != -1) {
-                m_grid->SelectRow(row);
-                m_grid->GoToCell(row, m_lastSelectedCol);
+                if (!m_grid->IsVisible(row, m_lastSelectedCol, false)) {
+                    m_grid->MakeCellVisible(row, m_lastSelectedCol);
+                }
+                if (m_grid->GetGridCursorRow() != row || m_grid->GetGridCursorCol() != m_lastSelectedCol) {
+                    m_grid->SetGridCursor(row, m_lastSelectedCol);
+                }
+                if (!m_grid->IsInSelection(row, m_lastSelectedCol)) {
+                    m_grid->SelectRow(row);
+                }
             } else {
                 fireSelectionEvent(row, m_lastSelectedCol);
             }
