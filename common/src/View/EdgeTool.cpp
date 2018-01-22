@@ -29,7 +29,7 @@ namespace TrenchBroom {
         }
 
         void EdgeTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            m_edgeHandles.pick(pickRay, camera, pickResult);
+            m_edgeHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         
         EdgeHandleManager& EdgeTool::handleManager() {

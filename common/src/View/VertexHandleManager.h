@@ -324,13 +324,9 @@ namespace TrenchBroom {
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
-            Model::Hit::HitType hitType() const override {
-                return HandleHit;
-            }
+            Model::Hit::HitType hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
-                return brush->hasVertex(handle);
-            }
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
         
         class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
@@ -341,19 +337,15 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
-            Model::Hit::HitType hitType() const override {
-                return HandleHit;
-            }
+            Model::Hit::HitType hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
-                return brush->hasEdge(handle);
-            }
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
 
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
@@ -364,20 +356,15 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
             void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
             
-            Model::Hit::HitType hitType() const override {
-                return HandleHit;
-            }
+            Model::Hit::HitType hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override {
-                return brush->hasFace(handle);
-            }
+            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
     }
 }

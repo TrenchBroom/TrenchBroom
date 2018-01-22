@@ -39,10 +39,6 @@ namespace TrenchBroom {
         public:
             MoveFacePart(FaceTool* tool) :
             MovePartBase(tool, FaceHandleManager::HandleHit) {}
-        private:
-            const Model::Hit& findDragHandle(const InputState& inputState) const {
-                return inputState.pickResult().query().type(FaceHandleManager::HandleHit).occluded().first();
-            }
         };
         
         FaceToolController::FaceToolController(FaceTool* tool) :

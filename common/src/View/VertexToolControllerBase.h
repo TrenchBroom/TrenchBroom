@@ -58,13 +58,16 @@ namespace TrenchBroom {
             public:
                 const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
-                    const auto hits = query.all();
-                    const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return this->selected(hit); });
-                    if (it != std::end(hits)) {
-                        return *it;
-                    } else {
-                        return query.first();
+                    if (!query.empty()) {
+                        const auto hits = query.all();
+                        const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return this->selected(hit); });
+                        if (it != std::end(hits)) {
+                            return *it;
+                        } else {
+                            return query.first();
+                        }
                     }
+                    return Model::Hit::NoHit;
                 }
             private:
                 bool selected(const Model::Hit& hit) const {
@@ -175,22 +178,22 @@ namespace TrenchBroom {
                 Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
                     Model::Hit::List result;
                     Model::BrushSet visitedBrushes;
-                    
+
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
                         const H& firstHandle = first.target<H>();
-                        
+
                         const Model::Hit::List matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
                             const H& handle = match.target<H>();
-                            
+
                             if (equalHandles(handle, firstHandle)) {
                                 if (allIncidentBrushesVisited(handle, visitedBrushes))
                                     result.push_back(match);
                             }
                         }
                     }
-                    
+
                     return result;
                 }
 
@@ -215,7 +218,6 @@ namespace TrenchBroom {
                 virtual ~MovePartBase() {}
             protected:
                 using PartBase::m_tool;
-                using PartBase::m_hitType;
                 using PartBase::findDraggableHandle;
             protected:
                 Tool* doGetTool() override {
