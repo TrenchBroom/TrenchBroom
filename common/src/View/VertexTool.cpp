@@ -60,8 +60,8 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
 
             m_vertexHandles.pick(pickRay, camera, pickResult);
-            m_edgeHandles.pick(pickRay, camera, grid, pickResult);
-            m_faceHandles.pick(pickRay, camera, grid, pickResult);
+            m_edgeHandles.pickGridHandle(pickRay, camera, grid, pickResult);
+            m_faceHandles.pickGridHandle(pickRay, camera, grid, pickResult);
         }
 
         bool VertexTool::deselectAll() {

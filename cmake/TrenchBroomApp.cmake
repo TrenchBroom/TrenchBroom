@@ -137,8 +137,9 @@ ENDIF()
 IF(WIN32)
     # Copy Windows icons to target dir
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico"    "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/DocIcon.ico"    "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/WindowIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}"
     )
 
     # Copy DLLs to app directory
@@ -146,9 +147,10 @@ IF(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
     )
 
-    # Copy application icon to resources directory
+    # Copy application and window icons to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/AppIcon.ico"    "$<TARGET_FILE_DIR:TrenchBroom>/Resources/AppIcon.ico"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/win32/icons/WindowIcon.ico" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/WindowIcon.ico"
     )
 ENDIF()
 

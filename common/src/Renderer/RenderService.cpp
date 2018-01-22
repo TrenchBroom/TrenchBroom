@@ -138,10 +138,12 @@ namespace TrenchBroom {
         
         void RenderService::renderHandle(const Edge3f& position) {
             m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+            renderHandle(position.center());
         }
         
         void RenderService::renderHandleHighlight(const Edge3f& position) {
             m_primitiveRenderer->renderLine(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.start(), position.end());
+            renderHandleHighlight(position.center());
         }
         
         void RenderService::renderHandles(const Polygon3f::List& positions) {

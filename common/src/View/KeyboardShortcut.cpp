@@ -21,8 +21,10 @@
 
 #include <wx/event.h>
 #include <wx/sstream.h>
-#include <wx/txtstrm.h>
+#if !defined __APPLE__
 #include <wx/tokenzr.h>
+#endif
+#include <wx/txtstrm.h>
 
 #include <iostream>
 

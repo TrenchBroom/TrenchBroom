@@ -47,7 +47,8 @@ namespace TrenchBroom {
             HitQuery& occluded(Hit::HitType type = Hit::AnyType);
             HitQuery& selected();
             HitQuery& minDistance(FloatType minDistance);
-            
+
+            bool empty() const;
             const Hit& first() const;
             Hit::List all() const;
         private:

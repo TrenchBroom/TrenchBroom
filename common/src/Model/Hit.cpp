@@ -29,10 +29,11 @@ namespace TrenchBroom {
         const Hit::HitType Hit::AnyType = 0xFFFFFFFF;
         
         Hit::HitType Hit::freeHitType() {
-            static HitType currentType = 1;
-            const HitType result = currentType;
-            currentType = currentType << 1;
-            return result;
+            static const size_t Bits = (sizeof(HitType) * 8);
+            static size_t currentShift = 0;
+
+            ensure(currentShift <= Bits, "No more hit types");
+            return 1 << currentShift++;
         }
         
         const Hit Hit::NoHit = Hit(NoType, 0.0, Vec3::Null, false);
@@ -48,7 +49,7 @@ namespace TrenchBroom {
         bool Hit::hasType(const HitType typeMask) const {
             return (m_type & typeMask) != 0;
         }
-        
+
         FloatType Hit::distance() const {
             return m_distance;
         }

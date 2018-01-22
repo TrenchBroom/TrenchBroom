@@ -52,21 +52,18 @@ namespace TrenchBroom {
                 remove(vertex->position());
             }
         }
-        
-        const Model::Hit::HitType EdgeHandleManager::HandleHit = Model::Hit::freeHitType();
-        
-        void EdgeHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const Edge3& position = entry.first;
-                const FloatType distance = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position));
-                }
-            }
+
+        Model::Hit::HitType VertexHandleManager::hitType() const {
+            return HandleHit;
         }
-        
-        void EdgeHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+
+        bool VertexHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+            return brush->hasVertex(handle);
+        }
+
+        const Model::Hit::HitType EdgeHandleManager::HandleHit = Model::Hit::freeHitType();
+
+        void EdgeHandleManager::pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const Edge3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
@@ -77,6 +74,19 @@ namespace TrenchBroom {
                         const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
                     }
+                }
+            }
+        }
+
+        void EdgeHandleManager::pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            for (const HandleEntry& entry : m_handles) {
+                const Edge3& position = entry.first;
+                const Vec3 pointHandle = position.center();
+
+                const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                if (!Math::isnan(pointDist)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                    pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }
             }
         }
@@ -92,21 +102,18 @@ namespace TrenchBroom {
                 remove(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
             }
         }
-        
-        const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
-        
-        void FaceHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const Polygon3& position = entry.first;
-                const FloatType distance = intersectPolygonWithRay(pickRay, std::begin(position), std::end(position));
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                    pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position));
-                }
-            }
+
+        Model::Hit::HitType EdgeHandleManager::hitType() const {
+            return HandleHit;
         }
-        
-        void FaceHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+
+        bool EdgeHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+            return brush->hasEdge(handle);
+        }
+
+        const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
+
+        void FaceHandleManager::pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const Polygon3& position = entry.first;
                 
@@ -150,6 +157,14 @@ namespace TrenchBroom {
             for (const Model::BrushFace* face : brush->faces()) {
                 remove(face->polygon());
             }
+        }
+
+        Model::Hit::HitType FaceHandleManager::hitType() const {
+            return HandleHit;
+        }
+
+        bool FaceHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+            return brush->hasFace(handle);
         }
     }
 }

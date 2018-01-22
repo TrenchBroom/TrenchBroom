@@ -20,17 +20,11 @@
 #include "ActionManager.h"
 
 #include "Preferences.h"
-#include "IO/Path.h"
-#include "View/Action.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
-#include "View/Action.h"
-#include "View/ViewShortcut.h"
 #include "View/wxKeyStrings.h"
 
-#include <wx/accel.h>
 #include <wx/menu.h>
-#include <wx/menuitem.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -290,6 +284,7 @@ namespace TrenchBroom {
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCopyJSShortcuts, "Copy Javascript Shortcut Map");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrash, "Crash...");
             debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugCrashReportDialog, "Show Crash Report Dialog");
+            debugMenu->addUnmodifiableActionItem(CommandIds::Menu::DebugSetWindowSize, "Set Window Size...");
 #endif
             
             Menu* helpMenu = m_menuBar->addMenu("Help");
