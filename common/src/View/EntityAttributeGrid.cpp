@@ -388,6 +388,9 @@ namespace TrenchBroom {
                 row = 0;
             
             if (row != -1) {
+                // 1981: Ensure that we make a cell visible only if it is completely invisible.
+                // The goal is to block the grid from redrawing itself every time this function
+                // is called.
                 if (!m_grid->IsVisible(row, m_lastSelectedCol, false)) {
                     m_grid->MakeCellVisible(row, m_lastSelectedCol);
                 }
