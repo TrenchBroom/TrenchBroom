@@ -126,7 +126,16 @@ public:
     const Vec<T,S> size() const {
         return max - min;
     }
-    
+
+    T volume() const {
+        const auto size = this->size();
+        T result = 1.0;
+        for (size_t i = 0; i < S; ++i) {
+            result *= size[i];
+        }
+        return result;
+    }
+
     const Vec<T,S> vertex(const Corner c[S]) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
