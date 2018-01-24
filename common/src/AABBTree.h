@@ -33,18 +33,18 @@ private:
 
     class Node {
     private:
-        Box m_box;
+        Box m_bounds;
     protected:
-        Node(const Box& box) : m_box(box) {}
+        Node(const Box& bounds) : m_bounds(bounds) {}
     public:
         virtual ~Node() {}
 
-        const Box& box() const {
-            return m_box;
+        const Box& bounds() const {
+            return m_bounds;
         }
 
         virtual size_t height() const = 0;
-        virtual Node* insert(const Box& box, U& data) = 0;
+        virtual Node* insert(const Box& bounds, U& data) = 0;
     };
 
     class InnerNode : public Node {
@@ -53,7 +53,7 @@ private:
         Node* m_right;
         size_t m_height;
     public:
-        InnerNode(const Box& box, Node* left, Node* right) : Node(box), m_left(left), m_right(right), m_height(0) {
+        InnerNode(const Box& bounds, Node* left, Node* right) : Node(bounds), m_left(left), m_right(right), m_height(0) {
             assert(m_left != nullptr);
             assert(m_right != nullptr);
             updateHeight();
@@ -68,16 +68,16 @@ private:
             return m_height;
         }
 
-        Node* insert(const Box& box, U& data) override {
-            const auto newLeft = m_left->box().mergedWith(box);
-            const auto newRight = m_right->box().mergedWith(box);
-            const auto leftDiff = newLeft.volume() - m_left->box().volume();
-            const auto rightDiff = newRight.volume() - m_right->box().volume();
+        Node* insert(const Box& bounds, U& data) override {
+            const auto newLeft = m_left->bounds().mergedWith(bounds);
+            const auto newRight = m_right->bounds().mergedWith(bounds);
+            const auto leftDiff = newLeft.volume() - m_left->bounds().volume();
+            const auto rightDiff = newRight.volume() - m_right->bounds().volume();
 
             if (leftDiff <= rightDiff) {
-                m_left = m_left->insert(data, box);
+                m_left = m_left->insert(bounds, data);
             } else {
-                m_right = m_right->insert(data, box);
+                m_right = m_right->insert(bounds, data);
             }
 
             updateHeight();
@@ -95,19 +95,18 @@ private:
     private:
         U m_data;
     public:
-        Leaf(const Box& box, U& data) : Node(box), m_data(data) {}
+        Leaf(const Box& bounds, U& data) : Node(bounds), m_data(data) {}
 
         size_t height() const override {
             return 1;
         }
 
-        Node* insert(const Box& box, U& data) override {
-            return new InnerNode(box.mergedWith(box), this, new Leaf(box, data));
+        Node* insert(const Box& bounds, U& data) override {
+            return new InnerNode(bounds.mergedWith(bounds), this, new Leaf(bounds, data));
         }
     };
 private:
     Node* m_root;
-
 public:
     AABBTree() : m_root(nullptr) {}
 
@@ -115,19 +114,34 @@ public:
         delete m_root;
     }
 
-    void insert(const Box& box, U& data) {
-        if (m_root == nullptr) {
-            m_root = new Leaf(box, data);
+    void insert(const Box& bounds, U& data) {
+        if (empty()) {
+            m_root = new Leaf(bounds, data);
         } else {
-            m_root = m_root->insert(box, data);
+            m_root = m_root->insert(bounds, data);
         }
     }
 
+    bool empty() const {
+        return m_root == nullptr;
+    }
+
     size_t height() const {
-        if (m_root == nullptr) {
+        if (empty()) {
             return 0;
         } else {
             return m_root->height();
+        }
+    }
+
+    const Box& bounds() const {
+        static const Box EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
+
+        assert(!empty());
+        if (empty()) {
+            return EmptyBox;
+        } else {
+            return m_root->bounds();
         }
     }
 };

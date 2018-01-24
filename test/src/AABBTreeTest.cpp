@@ -20,10 +20,24 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
+#include "BBox.h"
+#include "Vec.h"
 
-using AABB = AABBTree<double, 3, size_t>;
+using AABB = AABBTree<double, 3, const size_t>;
 
 TEST(AABBTreeTest, createEmptyTree) {
     AABB tree;
+
+    ASSERT_TRUE(tree.empty());
     ASSERT_EQ(0u, tree.height());
+}
+
+TEST(AABBTreeTest, insertSingleNode) {
+    AABB tree;
+    const BBox3d bounds(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    tree.insert(bounds, 1u);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(1u, tree.height());
+    ASSERT_EQ(bounds, tree.bounds());
 }
