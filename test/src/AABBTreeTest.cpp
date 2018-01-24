@@ -33,11 +33,57 @@ TEST(AABBTreeTest, createEmptyTree) {
 }
 
 TEST(AABBTreeTest, insertSingleNode) {
-    AABB tree;
     const BBox3d bounds(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+
+    AABB tree;
     tree.insert(bounds, 1u);
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(1u, tree.height());
     ASSERT_EQ(bounds, tree.bounds());
+}
+
+TEST(AABBTreeTest, insertTwoNodes) {
+    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(2u, tree.height());
+    ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
+}
+
+TEST(AABBTreeTest, insertThreeNodes) {
+    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+    tree.insert(bounds3, 3u);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(3u, tree.height());
+    ASSERT_EQ(bounds1.mergedWith(bounds2).mergedWith(bounds3), tree.bounds());
+}
+
+TEST(AABBTreeTest, removeLeaf) {
+    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+    tree.insert(bounds3, 3u);
+
+    ASSERT_TRUE(tree.remove(bounds3, 3u));
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(2u, tree.height());
+    ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
 }

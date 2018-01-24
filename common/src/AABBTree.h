@@ -24,9 +24,10 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <memory>
 
-template <typename T, size_t S, typename U>
+template <typename T, size_t S, typename U, typename EQ = std::equal_to<U>>
 class AABBTree {
 private:
     using Box = BBox<T,S>;
@@ -45,6 +46,11 @@ private:
 
         virtual size_t height() const = 0;
         virtual Node* insert(const Box& bounds, U& data) = 0;
+        virtual Node* remove(const Box& bounds, U& data) = 0;
+    protected:
+        void setBounds(const Box& bounds) {
+            m_bounds = bounds;
+        }
     };
 
     class InnerNode : public Node {
@@ -53,7 +59,7 @@ private:
         Node* m_right;
         size_t m_height;
     public:
-        InnerNode(const Box& bounds, Node* left, Node* right) : Node(bounds), m_left(left), m_right(right), m_height(0) {
+        InnerNode(Node* left, Node* right) : Node(left->bounds().mergedWith(right->bounds())), m_left(left), m_right(right), m_height(0) {
             assert(m_left != nullptr);
             assert(m_right != nullptr);
             updateHeight();
@@ -74,17 +80,52 @@ private:
             const auto leftDiff = newLeft.volume() - m_left->bounds().volume();
             const auto rightDiff = newRight.volume() - m_right->bounds().volume();
 
+            // Insert into the child whose bounds increase the least.
             if (leftDiff <= rightDiff) {
                 m_left = m_left->insert(bounds, data);
             } else {
                 m_right = m_right->insert(bounds, data);
             }
 
+            updateBounds();
             updateHeight();
 
             return this;
         }
+
+        Node* remove(const Box& bounds, U& data) override {
+            auto* result = doRemove(bounds, data, m_left, m_right);
+            if (result != nullptr) {
+                return result;
+            } else {
+                return doRemove(bounds, data, m_right, m_left);
+            }
+        }
     private:
+        Node* doRemove(const Box& bounds, U& data, Node*& child1, Node*& child2) {
+            if (child1->bounds().contains(bounds)) {
+                auto* newChild = child1->remove(bounds, data);
+                if (newChild == nullptr) {
+                    delete child1;
+                    return child2;
+                } else if (newChild != child1) {
+                    delete child1;
+                    child1 = newChild;
+
+                    updateBounds();
+                    updateHeight();
+
+                    return this;
+                }
+            }
+
+            return nullptr;
+        }
+    private:
+        void updateBounds() {
+            this->setBounds(m_left->bounds().mergedWith(m_right->bounds()));
+        }
+
         void updateHeight() {
             m_height = std::max(m_left->height(), m_right->height()) + 1;
             assert(m_height > 0);
@@ -102,7 +143,16 @@ private:
         }
 
         Node* insert(const Box& bounds, U& data) override {
-            return new InnerNode(bounds.mergedWith(bounds), this, new Leaf(bounds, data));
+            return new InnerNode(this, new Leaf(bounds, data));
+        }
+
+        Node* remove(const Box& bounds, U& data) override {
+            static const EQ eq;
+            if (eq(data, m_data)) {
+                return nullptr;
+            } else {
+                return this;
+            }
         }
     };
 private:
@@ -119,6 +169,23 @@ public:
             m_root = new Leaf(bounds, data);
         } else {
             m_root = m_root->insert(bounds, data);
+        }
+    }
+
+    bool remove(const Box& bounds, U& data) {
+        if (empty()) {
+            return false;
+        } else if (m_root->bounds().contains(bounds)) {
+            auto* newRoot = m_root->remove(bounds, data);
+            if (newRoot != m_root) {
+                delete m_root;
+                m_root = newRoot;
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 
