@@ -25,11 +25,17 @@
 
 using AABB = AABBTree<double, 3, const size_t>;
 
+void assertTree(const std::string& exp, const AABB& actual);
+
 TEST(AABBTreeTest, createEmptyTree) {
     AABB tree;
 
     ASSERT_TRUE(tree.empty());
     ASSERT_EQ(0u, tree.height());
+
+
+    assertTree(R"(
+)" , tree);
 }
 
 TEST(AABBTreeTest, insertSingleNode) {
@@ -37,6 +43,11 @@ TEST(AABBTreeTest, insertSingleNode) {
 
     AABB tree;
     tree.insert(bounds, 1u);
+
+
+    assertTree(R"(
+L [ (0 0 0) (2 1 1) ]: 1
+)" , tree);
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(1u, tree.height());
@@ -50,6 +61,12 @@ TEST(AABBTreeTest, insertTwoNodes) {
     AABB tree;
     tree.insert(bounds1, 1u);
     tree.insert(bounds2, 2u);
+
+    assertTree(R"(
+O [ (-1 -1 -1) (2 1 1) ]
+  L [ (0 0 0) (2 1 1) ]: 1
+  L [ (-1 -1 -1) (1 1 1) ]: 2
+)" , tree);
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(2u, tree.height());
@@ -66,12 +83,20 @@ TEST(AABBTreeTest, insertThreeNodes) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
+    assertTree(R"(
+O [ (-2 -2 -1) (2 1 1) ]
+  L [ (0 0 0) (2 1 1) ]: 1
+  O [ (-2 -2 -1) (1 1 1) ]
+    L [ (-1 -1 -1) (1 1 1) ]: 2
+    L [ (-2 -2 -1) (0 0 1) ]: 3
+)" , tree);
+
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(3u, tree.height());
     ASSERT_EQ(bounds1.mergedWith(bounds2).mergedWith(bounds3), tree.bounds());
 }
 
-TEST(AABBTreeTest, removeLeaf) {
+TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
     const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
     const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
     const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
@@ -81,9 +106,174 @@ TEST(AABBTreeTest, removeLeaf) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
+    assertTree(R"(
+O [ (-2 -2 -1) (2 1 1) ]
+  L [ (0 0 0) (2 1 1) ]: 1
+  O [ (-2 -2 -1) (1 1 1) ]
+    L [ (-1 -1 -1) (1 1 1) ]: 2
+    L [ (-2 -2 -1) (0 0 1) ]: 3
+)" , tree);
+
     ASSERT_TRUE(tree.remove(bounds3, 3u));
+
+    assertTree(R"(
+O [ (-1 -1 -1) (2 1 1) ]
+  L [ (0 0 0) (2 1 1) ]: 1
+  L [ (-1 -1 -1) (1 1 1) ]: 2
+)" , tree);
 
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(2u, tree.height());
     ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
+
+    ASSERT_FALSE(tree.remove(bounds3, 3u));
+    ASSERT_TRUE(tree.remove(bounds2, 2u));
+
+    assertTree(R"(
+L [ (0 0 0) (2 1 1) ]: 1
+)" , tree);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(1u, tree.height());
+    ASSERT_EQ(bounds1, tree.bounds());
+
+    ASSERT_FALSE(tree.remove(bounds3, 3u));
+    ASSERT_FALSE(tree.remove(bounds2, 2u));
+    ASSERT_TRUE(tree.remove(bounds1, 1u));
+
+    assertTree(R"(
+)" , tree);
+
+    ASSERT_TRUE(tree.empty());
+    ASSERT_EQ(0u, tree.height());
+
+    ASSERT_FALSE(tree.remove(bounds3, 3u));
+    ASSERT_FALSE(tree.remove(bounds2, 2u));
+    ASSERT_FALSE(tree.remove(bounds1, 1u));
+}
+
+TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
+    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+    tree.insert(bounds3, 3u);
+
+    assertTree(R"(
+O [ (-2 -2 -1) (2 1 1) ]
+  L [ (0 0 0) (2 1 1) ]: 1
+  O [ (-2 -2 -1) (1 1 1) ]
+    L [ (-1 -1 -1) (1 1 1) ]: 2
+    L [ (-2 -2 -1) (0 0 1) ]: 3
+)" , tree);
+
+    ASSERT_TRUE(tree.remove(bounds1, 1u));
+
+    assertTree(R"(
+O [ (-2 -2 -1) (1 1 1) ]
+  L [ (-1 -1 -1) (1 1 1) ]: 2
+  L [ (-2 -2 -1) (0 0 1) ]: 3
+)" , tree);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(2u, tree.height());
+    ASSERT_EQ(bounds2.mergedWith(bounds3), tree.bounds());
+
+    ASSERT_FALSE(tree.remove(bounds1, 1u));
+    ASSERT_TRUE(tree.remove(bounds2, 2u));
+
+    assertTree(R"(
+L [ (-2 -2 -1) (0 0 1) ]: 3
+)" , tree);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(1u, tree.height());
+    ASSERT_EQ(bounds3, tree.bounds());
+
+    ASSERT_FALSE(tree.remove(bounds1, 1u));
+    ASSERT_FALSE(tree.remove(bounds2, 2u));
+    ASSERT_TRUE(tree.remove(bounds3, 3u));
+
+    assertTree(R"(
+)" , tree);
+
+    ASSERT_TRUE(tree.empty());
+    ASSERT_EQ(0u, tree.height());
+
+    ASSERT_FALSE(tree.remove(bounds3, 3u));
+    ASSERT_FALSE(tree.remove(bounds2, 2u));
+    ASSERT_FALSE(tree.remove(bounds1, 1u));
+}
+
+TEST(AABBTreeTest, insertThreeContainedNodes) {
+    const BBox3d bounds1(Vec3d(-3.0, -3, -3.0), Vec3d(3.0, 3.0, 3.0));
+    const BBox3d bounds2(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
+    const BBox3d bounds3(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+
+    assertTree(R"(
+O [ (-3 -3 -3) (3 3 3) ]
+  L [ (-3 -3 -3) (3 3 3) ]: 1
+  L [ (-2 -2 -2) (2 2 2) ]: 2
+)" , tree);
+
+    ASSERT_EQ(bounds1, tree.bounds());
+
+    tree.insert(bounds3, 3u);
+
+    assertTree(R"(
+O [ (-3 -3 -3) (3 3 3) ]
+  O [ (-3 -3 -3) (3 3 3) ]
+    L [ (-3 -3 -3) (3 3 3) ]: 1
+    L [ (-1 -1 -1) (1 1 1) ]: 3
+  L [ (-2 -2 -2) (2 2 2) ]: 2
+)" , tree);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(3u, tree.height());
+    ASSERT_EQ(bounds1, tree.bounds());
+}
+
+TEST(AABBTreeTest, insertThreeContainedNodesInverse) {
+    const BBox3d bounds1(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BBox3d bounds2(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
+    const BBox3d bounds3(Vec3d(-3.0, -3.0, -3.0), Vec3d(3.0, 3.0, 3.0));
+
+    AABB tree;
+    tree.insert(bounds1, 1u);
+    tree.insert(bounds2, 2u);
+
+    assertTree(R"(
+O [ (-2 -2 -2) (2 2 2) ]
+  L [ (-1 -1 -1) (1 1 1) ]: 1
+  L [ (-2 -2 -2) (2 2 2) ]: 2
+)" , tree);
+
+    ASSERT_EQ(bounds2, tree.bounds());
+
+    tree.insert(bounds3, 3u);
+
+    assertTree(R"(
+O [ (-3 -3 -3) (3 3 3) ]
+  L [ (-1 -1 -1) (1 1 1) ]: 1
+  O [ (-3 -3 -3) (3 3 3) ]
+    L [ (-2 -2 -2) (2 2 2) ]: 2
+    L [ (-3 -3 -3) (3 3 3) ]: 3
+)" , tree);
+
+    ASSERT_FALSE(tree.empty());
+    ASSERT_EQ(3u, tree.height());
+    ASSERT_EQ(bounds3, tree.bounds());
+}
+
+void assertTree(const std::string& exp, const AABB& actual) {
+    std::stringstream str;
+    actual.print(str);
+    ASSERT_EQ(exp, "\n" + str.str());
 }

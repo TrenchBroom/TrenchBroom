@@ -47,9 +47,20 @@ private:
         virtual size_t height() const = 0;
         virtual Node* insert(const Box& bounds, U& data) = 0;
         virtual Node* remove(const Box& bounds, U& data) = 0;
+
+        virtual void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const = 0;
+        virtual void appendTo(std::ostream& str, const std::string& indent) const = 0;
     protected:
         void setBounds(const Box& bounds) {
             m_bounds = bounds;
+        }
+
+        void appendBounds(std::ostream& str) const {
+            str << "[ (";
+            m_bounds.min.write(str);
+            str << ") (";
+            m_bounds.max.write(str);
+            str << ") ]";
         }
     };
 
@@ -103,11 +114,12 @@ private:
         }
     private:
         Node* doRemove(const Box& bounds, U& data, Node*& child1, Node*& child2) {
+            Node* result = nullptr;
             if (child1->bounds().contains(bounds)) {
                 auto* newChild = child1->remove(bounds, data);
                 if (newChild == nullptr) {
-                    delete child1;
-                    return child2;
+                    result = child2;
+                    child2 = nullptr; // To prevent the remaining child to get deleted when this node gets deleted by the parent.
                 } else if (newChild != child1) {
                     delete child1;
                     child1 = newChild;
@@ -115,11 +127,11 @@ private:
                     updateBounds();
                     updateHeight();
 
-                    return this;
+                    result = this;
                 }
             }
 
-            return nullptr;
+            return result;
         }
     private:
         void updateBounds() {
@@ -129,6 +141,25 @@ private:
         void updateHeight() {
             m_height = std::max(m_left->height(), m_right->height()) + 1;
             assert(m_height > 0);
+        }
+    public:
+        void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const override {
+            appendTo(str);
+            m_left->appendTo(str, indent);
+            m_right->appendTo(str, indent);
+        }
+
+        void appendTo(std::ostream& str, const std::string& indent) const override {
+            str << indent;
+            appendTo(str);
+            m_left->appendTo(str, indent + indent);
+            m_right->appendTo(str, indent + indent);
+        }
+    private:
+        void appendTo(std::ostream& str) const {
+            str << "O ";
+            this->appendBounds(str);
+            str << std::endl;
         }
     };
 
@@ -153,6 +184,21 @@ private:
             } else {
                 return this;
             }
+        }
+
+        void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const override {
+            appendTo(str);
+        }
+
+        void appendTo(std::ostream& str, const std::string& indent) const override {
+            str << indent;
+            appendTo(str);
+        }
+    private:
+        void appendTo(std::ostream& str) const {
+            str << "L ";
+            this->appendBounds(str);
+            str << ": " << m_data << std::endl;
         }
     };
 private:
@@ -180,10 +226,8 @@ public:
             if (newRoot != m_root) {
                 delete m_root;
                 m_root = newRoot;
-                return true;
-            } else {
-                return false;
             }
+            return true;
         } else {
             return false;
         }
@@ -209,6 +253,12 @@ public:
             return EmptyBox;
         } else {
             return m_root->bounds();
+        }
+    }
+
+    void print(std::ostream& str = std::cout) const {
+        if (!empty()) {
+            m_root->appendToAndIndentChildren(str, "  ");
         }
     }
 };
