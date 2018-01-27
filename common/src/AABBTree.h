@@ -48,8 +48,11 @@ private:
         virtual Node* insert(const Box& bounds, U& data) = 0;
         virtual Node* remove(const Box& bounds, U& data) = 0;
 
-        virtual void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const = 0;
-        virtual void appendTo(std::ostream& str, const std::string& indent) const = 0;
+        void appendTo(std::ostream& str) const {
+            appendTo(str, "  ", 0);
+        }
+
+        virtual void appendTo(std::ostream& str, const std::string& indent, size_t level) const = 0;
     protected:
         void setBounds(const Box& bounds) {
             m_bounds = bounds;
@@ -143,23 +146,16 @@ private:
             assert(m_height > 0);
         }
     public:
-        void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const override {
-            appendTo(str);
-            m_left->appendTo(str, indent);
-            m_right->appendTo(str, indent);
-        }
+        void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
+            for (size_t i = 0; i < level; ++i)
+                str << indent;
 
-        void appendTo(std::ostream& str, const std::string& indent) const override {
-            str << indent;
-            appendTo(str);
-            m_left->appendTo(str, indent + indent);
-            m_right->appendTo(str, indent + indent);
-        }
-    private:
-        void appendTo(std::ostream& str) const {
             str << "O ";
             this->appendBounds(str);
             str << std::endl;
+
+            m_left->appendTo(str, indent, level + 1);
+            m_right->appendTo(str, indent, level + 1);
         }
     };
 
@@ -186,16 +182,10 @@ private:
             }
         }
 
-        void appendToAndIndentChildren(std::ostream& str, const std::string& indent) const override {
-            appendTo(str);
-        }
+        void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
+            for (size_t i = 0; i < level; ++i)
+                str << indent;
 
-        void appendTo(std::ostream& str, const std::string& indent) const override {
-            str << indent;
-            appendTo(str);
-        }
-    private:
-        void appendTo(std::ostream& str) const {
             str << "L ";
             this->appendBounds(str);
             str << ": " << m_data << std::endl;
@@ -258,7 +248,7 @@ public:
 
     void print(std::ostream& str = std::cout) const {
         if (!empty()) {
-            m_root->appendToAndIndentChildren(str, "  ");
+            m_root->appendTo(str);
         }
     }
 };

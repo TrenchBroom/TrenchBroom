@@ -208,19 +208,20 @@ L [ (-2 -2 -1) (0 0 1) ]: 3
     ASSERT_FALSE(tree.remove(bounds1, 1u));
 }
 
-TEST(AABBTreeTest, insertThreeContainedNodes) {
-    const BBox3d bounds1(Vec3d(-3.0, -3, -3.0), Vec3d(3.0, 3.0, 3.0));
-    const BBox3d bounds2(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
-    const BBox3d bounds3(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+TEST(AABBTreeTest, insertFourContainedNodes) {
+    const BBox3d bounds1(Vec3d(-4.0, -4.0, -4.0), Vec3d(4.0, 4.0, 4.0));
+    const BBox3d bounds2(Vec3d(-3.0, -3.0, -3.0), Vec3d(3.0, 3.0, 3.0));
+    const BBox3d bounds3(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
+    const BBox3d bounds4(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
     tree.insert(bounds2, 2u);
 
     assertTree(R"(
-O [ (-3 -3 -3) (3 3 3) ]
-  L [ (-3 -3 -3) (3 3 3) ]: 1
-  L [ (-2 -2 -2) (2 2 2) ]: 2
+O [ (-4 -4 -4) (4 4 4) ]
+  L [ (-4 -4 -4) (4 4 4) ]: 1
+  L [ (-3 -3 -3) (3 3 3) ]: 2
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
@@ -228,15 +229,29 @@ O [ (-3 -3 -3) (3 3 3) ]
     tree.insert(bounds3, 3u);
 
     assertTree(R"(
-O [ (-3 -3 -3) (3 3 3) ]
-  O [ (-3 -3 -3) (3 3 3) ]
-    L [ (-3 -3 -3) (3 3 3) ]: 1
-    L [ (-1 -1 -1) (1 1 1) ]: 3
-  L [ (-2 -2 -2) (2 2 2) ]: 2
+O [ (-4 -4 -4) (4 4 4) ]
+  O [ (-4 -4 -4) (4 4 4) ]
+    L [ (-4 -4 -4) (4 4 4) ]: 1
+    L [ (-2 -2 -2) (2 2 2) ]: 3
+  L [ (-3 -3 -3) (3 3 3) ]: 2
 )" , tree);
 
-    ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(3u, tree.height());
+    ASSERT_EQ(bounds1, tree.bounds());
+
+    tree.insert(bounds4, 4u);
+
+    assertTree(R"(
+O [ (-4 -4 -4) (4 4 4) ]
+  O [ (-4 -4 -4) (4 4 4) ]
+    O [ (-4 -4 -4) (4 4 4) ]
+      L [ (-4 -4 -4) (4 4 4) ]: 1
+      L [ (-1 -1 -1) (1 1 1) ]: 4
+    L [ (-2 -2 -2) (2 2 2) ]: 3
+  L [ (-3 -3 -3) (3 3 3) ]: 2
+)" , tree);
+
+
+    ASSERT_EQ(4u, tree.height());
     ASSERT_EQ(bounds1, tree.bounds());
 }
 
