@@ -213,10 +213,10 @@ namespace TrenchBroom {
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
             const std::vector<Quat3> rotations {
-                Quat3(m_xAxis, Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                Quat3(m_xAxis, Math::radians(-90.0)), // possibleTexAxes[3] = top
-                Quat3(m_yAxis, Math::radians(90.0)),  // possibleTexAxes[4] = left
-                Quat3(m_yAxis, Math::radians(-90.0)), // possibleTexAxes[5] = right
+                Quat3(m_xAxis.normalized(), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                Quat3(m_xAxis.normalized(), Math::radians(-90.0)), // possibleTexAxes[3] = top
+                Quat3(m_yAxis.normalized(), Math::radians(90.0)),  // possibleTexAxes[4] = left
+                Quat3(m_yAxis.normalized(), Math::radians(-90.0)), // possibleTexAxes[5] = right
             };
             for (const Quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
