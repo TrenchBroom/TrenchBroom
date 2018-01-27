@@ -22,6 +22,8 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"
 
+#include <cstddef>
+
 namespace TrenchBroom {
     namespace Model {
         ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(const Vec3& xAxis, const Vec3& yAxis) :
@@ -196,30 +198,56 @@ namespace TrenchBroom {
             return rotationMatrix(axis, angle);
         }
 
-        static Vec3 chooseRotationAxis(const Vec3& startNormal, const Vec3& endNormal) {
-            Vec3 axis = crossed(startNormal, endNormal).normalized();
-            if (axis.nan()) {
-                // oldNormal and newNormal are either the same or opposite
-                return startNormal.makePerpendicular();
-            }
-            return axis;
-        }
-        
         void ParallelTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
-            // this attempts to emulate ParaxialTexCoordSystem.
-            // when the angle between the texture axis normal and the face normal
-            // is greater than 45 degrees (meaning the texture projection is heavily distorted),
-            // rotate the texture axes by 90 degrees.
-            const Vec3 texNormal = crossed(m_yAxis, m_xAxis).normalized();
-            const Vec3 rotationAxis = chooseRotationAxis(texNormal, newNormal);
-            const FloatType angle = angleBetween(newNormal, texNormal, rotationAxis);
+            // Goal: (m_xAxis, m_yAxis) define the texture projection that was used for a face with oldNormal.
+            // We want to update (m_xAxis, m_yAxis) to be usable on a face with newNormal.
+            // Since this is the "projection" method (attempts to emulate ParaxialTexCoordSystem),
+            // we want to modify (m_xAxis, m_yAxis) as little as possible
+            // and only make 90 degree rotations if necessary.
             
-            if (angle > Math::radians(45.0) && angle < Math::radians(135.0)) {
-                const FloatType rotationAngle = Math::radians(90.0);
-                const Quat3 rotation = Quat3(rotationAxis, rotationAngle);
-                
-                m_xAxis = rotation * m_xAxis;
-                m_yAxis = rotation * m_yAxis;
+            // Method: build a cube where the front face is the old texture projection (m_xAxis, m_yAxis)
+            // and the other 5 faces are 90 degree rotations from that.
+            // Use the "face" whose texture normal (cross product of the x and y axis) is closest to newNormal (the new face normal).
+            
+            std::vector<std::pair<Vec3, Vec3>> possibleTexAxes;
+            possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
+            possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
+            const std::vector<Quat3> rotations {
+                Quat3(m_xAxis, Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                Quat3(m_xAxis, Math::radians(-90.0)), // possibleTexAxes[3] = top
+                Quat3(m_yAxis, Math::radians(90.0)),  // possibleTexAxes[4] = left
+                Quat3(m_yAxis, Math::radians(-90.0)), // possibleTexAxes[5] = right
+            };
+            for (const Quat3& rotation : rotations) {
+                possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
+            }
+            assert(possibleTexAxes.size() == 6);
+            
+            std::vector<Vec3> possibleTexAxesNormals;
+            for (const auto& axes : possibleTexAxes) {
+                const Vec3 texNormal = crossed(axes.first, axes.second).normalized();
+                possibleTexAxesNormals.push_back(texNormal);
+            }
+            assert(possibleTexAxesNormals.size() == 6);
+            
+            // Find the index in possibleTexAxesNormals of the normal closest to the newNormal (face normal)
+            std::vector<FloatType> cosAngles;
+			for (const auto& texNormal : possibleTexAxesNormals) {
+                const FloatType cosAngle = texNormal.dot(newNormal);
+                cosAngles.push_back(cosAngle);
+            }
+            assert(cosAngles.size() == 6);
+            
+            const ptrdiff_t index = std::distance(cosAngles.begin(), std::max_element(cosAngles.begin(), cosAngles.end()));
+            assert(index >= 0);
+            assert(index < 6);
+            
+            // Skip 0 because it is "no change".
+            // Skip 1 becaues it's a 180 degree flip, we prefer to just project the "front" texture axes.
+            if (index >= 2) {
+                const auto& axes = possibleTexAxes[static_cast<size_t>(index)];
+                m_xAxis = axes.first;
+                m_yAxis = axes.second;
             }
         }
         
