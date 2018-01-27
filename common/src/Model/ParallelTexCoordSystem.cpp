@@ -232,7 +232,7 @@ namespace TrenchBroom {
             
             // Find the index in possibleTexAxesNormals of the normal closest to the newNormal (face normal)
             std::vector<FloatType> cosAngles;
-			for (const auto& texNormal : possibleTexAxesNormals) {
+            for (const auto& texNormal : possibleTexAxesNormals) {
                 const FloatType cosAngle = texNormal.dot(newNormal);
                 cosAngles.push_back(cosAngle);
             }
