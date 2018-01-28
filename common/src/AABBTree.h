@@ -32,6 +32,8 @@ class AABBTree {
 private:
     using Box = BBox<T,S>;
 
+    class Leaf;
+
     class Node {
     private:
         Box m_bounds;
@@ -45,8 +47,11 @@ private:
         }
 
         virtual size_t height() const = 0;
+        virtual int balance() const = 0;
         virtual Node* insert(const Box& bounds, U& data) = 0;
         virtual Node* remove(const Box& bounds, U& data) = 0;
+
+        virtual Leaf* findRebalanceCandidate(const Box& bounds) = 0;
 
         void appendTo(std::ostream& str) const {
             appendTo(str, "  ", 0);
@@ -88,21 +93,19 @@ private:
             return m_height;
         }
 
-        Node* insert(const Box& bounds, U& data) override {
-            const auto newLeft = m_left->bounds().mergedWith(bounds);
-            const auto newRight = m_right->bounds().mergedWith(bounds);
-            const auto leftDiff = newLeft.volume() - m_left->bounds().volume();
-            const auto rightDiff = newRight.volume() - m_right->bounds().volume();
+        int balance() const override {
+            int l = static_cast<int>(m_left->height());
+            int r = static_cast<int>(m_right->height());
+            return r - l;
+        }
 
-            // Insert into the child whose bounds increase the least.
-            if (leftDiff <= rightDiff) {
-                m_left = m_left->insert(bounds, data);
-            } else {
-                m_right = m_right->insert(bounds, data);
-            }
+        Node* insert(const Box& bounds, U& data) override {
+            Node*& newChild = selectLeastIncreaser(m_left, m_right, bounds);
+            newChild = newChild->insert(bounds, data);
 
             updateBounds();
             updateHeight();
+            rebalance();
 
             return this;
         }
@@ -129,6 +132,7 @@ private:
 
                     updateBounds();
                     updateHeight();
+                    rebalance();
 
                     result = this;
                 }
@@ -136,7 +140,47 @@ private:
 
             return result;
         }
+
+        void rebalance() {
+            if (m_left->height() > m_right->height() && m_left->height() - m_right->height() > 1) {
+                rebalance(m_left, m_right);
+            } else if (m_right->height() > m_left->height() && m_right->height() - m_left->height() > 1) {
+                rebalance(m_right, m_left);
+            }
+        }
+
+        void rebalance(Node*& higher, Node*& lower) {
+            Leaf* toRemove = higher->findRebalanceCandidate(lower->bounds());
+            const Box bounds = toRemove->bounds();
+            const U data = toRemove->data();
+
+            higher = higher->remove(bounds, data);
+            lower = lower->insert(bounds, data);
+        }
+
+    public:
+        Leaf* findRebalanceCandidate(const Box& bounds) override {
+            Leaf* leftCandidate = m_left->findRebalanceCandidate(bounds);
+            Leaf* rightCandidate = m_right->findRebalanceCandidate(bounds);
+            return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
+        }
     private:
+        template <typename TT>
+        static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
+            const auto new1 = node1->bounds().mergedWith(bounds);
+            const auto new2 = node2->bounds().mergedWith(bounds);
+            const auto vol1 = node1->bounds().volume();
+            const auto vol2 = node2->bounds().volume();
+            const auto diff1 = new1.volume() - vol1;
+            const auto diff2 = new2.volume() - vol2;
+
+            if (diff1 <= diff2) {
+                return node1;
+            } else {
+                return node2;
+            }
+        }
+
         void updateBounds() {
             this->setBounds(m_left->bounds().mergedWith(m_right->bounds()));
         }
@@ -165,8 +209,20 @@ private:
     public:
         Leaf(const Box& bounds, U& data) : Node(bounds), m_data(data) {}
 
+        U& data() {
+            return m_data;
+        }
+
+        const U& data() const {
+            return m_data;
+        }
+
         size_t height() const override {
             return 1;
+        }
+
+        int balance() const override {
+            return 0;
         }
 
         Node* insert(const Box& bounds, U& data) override {
@@ -180,6 +236,10 @@ private:
             } else {
                 return this;
             }
+        }
+
+        Leaf* findRebalanceCandidate(const Box& bounds) override {
+            return this;
         }
 
         void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
@@ -206,6 +266,7 @@ public:
         } else {
             m_root = m_root->insert(bounds, data);
         }
+        assert(std::abs(m_root->balance()) < 2);
     }
 
     bool remove(const Box& bounds, U& data) {
@@ -217,6 +278,7 @@ public:
                 delete m_root;
                 m_root = newRoot;
             }
+            assert(empty() || std::abs(m_root->balance()) < 2);
             return true;
         } else {
             return false;
