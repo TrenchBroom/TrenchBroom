@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cassert>
 #include <functional>
+#include <iostream>
 #include <memory>
 
 template <typename T, size_t S, typename U, typename EQ = std::equal_to<U>>
@@ -38,31 +39,96 @@ private:
     private:
         Box m_bounds;
     protected:
-        Node(const Box& bounds) : m_bounds(bounds) {}
+        explicit Node(const Box& bounds) : m_bounds(bounds) {}
     public:
-        virtual ~Node() {}
+        virtual ~Node() = default;
 
+        /**
+         * Return the bounds of this node.
+         *
+         * @return the bounds
+         */
         const Box& bounds() const {
             return m_bounds;
         }
 
+        /**
+         * Return the height of this node. A leaf always has a height of 1, and an inner node has a height equal to the
+         * maximum of the heights of its children plus one.
+         *
+         * @return the height
+         */
         virtual size_t height() const = 0;
+
+        /**
+         * Return the balance of this node. A leaf always has a balance of 0, and for an inner node, the balance is the
+         * difference between the heights of its left and its right subtrees.
+         *
+         * @return the balance
+         */
         virtual int balance() const = 0;
+
+        /**
+         * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
+         * root of the subtree after insertion.
+         *
+         * @param bounds the bounds of the data to be inserted
+         * @param data the data to be inserted
+         * @return the new root
+         */
         virtual Node* insert(const Box& bounds, U& data) = 0;
+
+        /**
+         * Removes the node with the given parameters from the subtree of which this node is the root. Returns the new
+         * root of the subtree after removal.
+         *
+         * @param bounds the bounds of the node to be removed
+         * @param data the data associated with the node to be removed
+         * @return the new root
+         */
         virtual Node* remove(const Box& bounds, U& data) = 0;
 
+        /**
+         * Finds the leaf of this node's subtree such that it increases the given bounds the least.
+         *
+         * @param bounds the bounds to test
+         * @return the leaf of this node's subtree that increases the given bounds the least
+         */
         virtual Leaf* findRebalanceCandidate(const Box& bounds) = 0;
 
+        /**
+         * Appends a textual representation of this node to the given output stream.
+         *
+         * @param str the stream to append to
+         */
         void appendTo(std::ostream& str) const {
             appendTo(str, "  ", 0);
         }
 
+        /**
+         * Appends a textual representation of this node to the given output stream using the given indent string and
+         * the given level of indentation.
+         *
+         * @param str the stream to append to
+         * @param indent the indent string
+         * @param level the level of indentation
+         */
         virtual void appendTo(std::ostream& str, const std::string& indent, size_t level) const = 0;
     protected:
+        /**
+         * Updates the bounds of this node.
+         *
+         * @param bounds the new bounds
+         */
         void setBounds(const Box& bounds) {
             m_bounds = bounds;
         }
 
+        /**
+         * Appends a textual representation of this node's bounds to the given output stream.
+         *
+         * @param str the stream to append to
+         */
         void appendBounds(std::ostream& str) const {
             str << "[ (";
             m_bounds.min.write(str);
@@ -94,15 +160,18 @@ private:
         }
 
         int balance() const override {
-            int l = static_cast<int>(m_left->height());
-            int r = static_cast<int>(m_right->height());
+            const auto l = static_cast<int>(m_left->height());
+            const auto r = static_cast<int>(m_right->height());
             return r - l;
         }
 
         Node* insert(const Box& bounds, U& data) override {
-            Node*& newChild = selectLeastIncreaser(m_left, m_right, bounds);
-            newChild = newChild->insert(bounds, data);
+            // Select the subtree which is increased the least by inserting a node with the given bounds.
+            // Then insert the node into that subtree and update our reference to it.
+            auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
+            subtree = subtree->insert(bounds, data);
 
+            // Update our data and rebalance if necessary.
             updateBounds();
             updateHeight();
             rebalance();
@@ -124,12 +193,18 @@ private:
             if (child1->bounds().contains(bounds)) {
                 auto* newChild = child1->remove(bounds, data);
                 if (newChild == nullptr) {
+                    // child1 is a leaf, and it represents the node to remove. Return child2 to the caller.
                     result = child2;
-                    child2 = nullptr; // To prevent the remaining child to get deleted when this node gets deleted by the parent.
+                    // To prevent the remaining child to get deleted when this node gets deleted by the parent.
+                    child2 = nullptr;
+                    // child1 will be deleted when this node gets deleted by the caller.
                 } else if (newChild != child1) {
+                    // the node to be removed was deleted from child1's subtree, and we need to update our pointer
+                    // with the new root of that subtree
                     delete child1;
                     child1 = newChild;
 
+                    // Update our data and rebalance if necessary.
                     updateBounds();
                     updateHeight();
                     rebalance();
@@ -164,9 +239,9 @@ private:
          * @param lower the lower subtree of this node
          */
         void rebalance(Node*& higher, Node*& lower) {
-            Leaf* toRemove = higher->findRebalanceCandidate(lower->bounds());
-            const Box bounds = toRemove->bounds();
-            const U data = toRemove->data();
+            auto* toRemove = higher->findRebalanceCandidate(lower->bounds());
+            const auto bounds = toRemove->bounds();
+            const auto data = toRemove->data();
 
             higher = higher->remove(bounds, data);
             lower = lower->insert(bounds, data);
@@ -179,6 +254,16 @@ private:
             return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
         }
     private:
+        /**
+         * Selects one of the two given nodes such that it increases the given bounds the least.
+         *
+         * @tparam TT the type of the nodes
+         * @param node1 the first node to test
+         * @param node2 the second node to test
+         * @param bounds the bounds to test against
+         * @return node1 if it increases the given bounds volume by a smaller or equal amount than node2 would, and
+         *     node2 otherwise
+         */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
             const auto new1 = node1->bounds().mergedWith(bounds);
@@ -312,7 +397,7 @@ public:
     }
 
     const Box& bounds() const {
-        static const Box EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
+        static const auto EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
 
         assert(!empty());
         if (empty()) {
