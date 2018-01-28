@@ -141,6 +141,10 @@ private:
             return result;
         }
 
+        /**
+         * If this node is out of balance, we rebalance it. A node is out of balance if and only if the height of its
+         * left and the height of its right subtrees differ by more than 1.
+         */
         void rebalance() {
             if (m_left->height() > m_right->height() && m_left->height() - m_right->height() > 1) {
                 rebalance(m_left, m_right);
@@ -149,6 +153,16 @@ private:
             }
         }
 
+        /**
+         * Rebalance this subtree by removing a leaf from the higher subtree and inserting that leaf (or rather, the
+         * data associated with it) into the lower subtree. Thereby, we select the leaf which would increase the bounds
+         * of the lower subtree the least.
+         *
+         * Note that we pass the pointers to the higher and lower nodes by reference so that we can update them.
+         *
+         * @param higher the higher subtree of this node
+         * @param lower the lower subtree of this node
+         */
         void rebalance(Node*& higher, Node*& lower) {
             Leaf* toRemove = higher->findRebalanceCandidate(lower->bounds());
             const Box bounds = toRemove->bounds();
