@@ -231,5 +231,19 @@ namespace TrenchBroom {
             
             delete texAlignmentSnapshot;
         }
+        
+        TEST_F(MapDocumentTest, newWithGroupOpen) {
+            Model::Entity* entity = new Model::Entity();
+            document->addNode(entity, document->currentParent());
+            document->select(entity);
+            Model::Group* group = document->groupSelection("my group");
+            document->openGroup(group);
+            
+            ASSERT_EQ(group, document->currentGroup());
+            
+            document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
+         	
+            ASSERT_EQ(nullptr, document->currentGroup());
+        }
     }
 }
