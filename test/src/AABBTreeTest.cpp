@@ -355,6 +355,49 @@ L [ (-1 -1 -1) (1 1 1) ]: 1
 
 }
 
+
+template <typename K>
+BBox3d makeBounds(const K min, const K max) {
+    return BBox3d(Vec3d(static_cast<double>(min), -1.0, -1.0), Vec3d(static_cast<double>(max), 1.0, 1.0));
+}
+
+TEST(AABBTreeTest, rebalanceAfterRemoval) {
+    AABB tree;
+    tree.insert(makeBounds(1, 3), 1u);
+    tree.insert(makeBounds(5, 7), 3u);
+    tree.insert(makeBounds(2, 4), 2u);
+    tree.insert(makeBounds(6, 8), 4u);
+    tree.insert(makeBounds(7, 9), 5u);
+
+    assertTree(R"(
+O [ (1 -1 -1) (9 1 1) ]
+  O [ (1 -1 -1) (4 1 1) ]
+    L [ (1 -1 -1) (3 1 1) ]: 1
+    L [ (2 -1 -1) (4 1 1) ]: 2
+  O [ (5 -1 -1) (9 1 1) ]
+    L [ (5 -1 -1) (7 1 1) ]: 3
+    O [ (6 -1 -1) (9 1 1) ]
+      L [ (6 -1 -1) (8 1 1) ]: 4
+      L [ (7 -1 -1) (9 1 1) ]: 5
+)" , tree);
+
+    // Removing node 1 leads to the collapse of the first child of the root, makeing the root unbalanced.
+    tree.remove(makeBounds(1, 3), 1u);
+
+    // Rebalancig the tree should remove node 3 from the right subtree and insert it into the left, yielding the
+    // following structure.
+    assertTree(R"(
+O [ (2 -1 -1) (9 1 1) ]
+  O [ (2 -1 -1) (7 1 1) ]
+    L [ (2 -1 -1) (4 1 1) ]: 2
+    L [ (5 -1 -1) (7 1 1) ]: 3
+  O [ (6 -1 -1) (9 1 1) ]
+    L [ (6 -1 -1) (8 1 1) ]: 4
+    L [ (7 -1 -1) (9 1 1) ]: 5
+)" , tree);
+}
+
+
 void assertTree(const std::string& exp, const AABB& actual) {
     std::stringstream str;
     actual.print(str);
