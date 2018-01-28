@@ -280,6 +280,7 @@ namespace TrenchBroom {
             if (m_world != nullptr) {
                 documentWillBeClearedNotifier(this);
                 
+                m_editorContext->resetCurrentGroup();
                 clearSelection();
                 unloadAssets();
                 clearWorld();

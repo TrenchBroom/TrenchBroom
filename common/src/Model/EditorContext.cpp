@@ -134,6 +134,10 @@ namespace TrenchBroom {
                 m_currentGroup->open();
         }
         
+        void EditorContext::resetCurrentGroup() {
+            m_currentGroup = nullptr;
+        }
+        
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             const EditorContext& m_this;
