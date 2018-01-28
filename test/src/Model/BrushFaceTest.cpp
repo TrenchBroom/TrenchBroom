@@ -23,6 +23,8 @@
 #include "Exceptions.h"
 #include "VecMath.h"
 #include "TestUtils.h"
+#include "IO/NodeReader.h"
+#include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -467,6 +469,64 @@ namespace TrenchBroom {
             
             delete snapshot;
             delete cube;
+        }
+        
+        // https://github.com/kduske/TrenchBroom/issues/1995
+        TEST(BrushFaceTest, testCopyTexCoordSystem) {
+            const String data("{\n"
+                              "    \"classname\" \"worldspawn\"\n"
+                              "    {\n"
+                              "        ( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
+                              "        ( 8 -8 48 ) ( -0 -16 -16 ) ( 8 8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
+                              "        ( 8 8 48 ) ( -0 16 -16 ) ( 24 8 48 ) tlight11 [ 1 0 0 -0 ] [ 0 0 -1 56 ] -0 1 1\n"
+                              "        ( 24 -8 48 ) ( 32 -16 -16 ) ( 8 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
+                              "        ( 8 -8 48 ) ( 8 8 48 ) ( 24 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 -1 0 48 ] -0 1 1\n"
+                              "        ( -0 16 -16 ) ( -0 -16 -16 ) ( 32 16 -16 ) tlight11 [ -1 0 0 -0 ] [ 0 -1 0 48 ] -0 1 1\n"
+                              "    }\n"
+                              "}\n");
+            
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Valve, nullptr, worldBounds);
+            
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+            
+            NodeList nodes = reader.read(worldBounds, status);
+            Brush* pyramidLight = static_cast<Brush*>(nodes.at(0)->children().at(0));
+            ASSERT_NE(nullptr, pyramidLight);
+            
+            // find the faces
+            BrushFace* negYFace = nullptr;
+            BrushFace* posXFace = nullptr;
+            for (BrushFace* face : pyramidLight->faces()) {
+                if (face->boundary().normal.firstAxis() == Vec3::NegY) {
+                    ASSERT_EQ(negYFace, nullptr);
+                    negYFace = face;
+                } else if (face->boundary().normal.firstAxis() == Vec3::PosX) {
+                    ASSERT_EQ(posXFace, nullptr);
+                    posXFace = face;
+                }
+            }
+            ASSERT_NE(nullptr, negYFace);
+            ASSERT_NE(nullptr, posXFace);
+            
+            ASSERT_EQ(Vec3::PosX, negYFace->textureXAxis());
+            ASSERT_EQ(Vec3::NegZ, negYFace->textureYAxis());
+            
+            TexCoordSystemSnapshot* snapshot = negYFace->takeTexCoordSystemSnapshot();
+            
+            // copy texturing from the negYFace to posXFace using the rotation method
+            posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Rotation);
+            ASSERT_VEC_EQ(Vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243), posXFace->textureXAxis());
+            ASSERT_VEC_EQ(Vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011), posXFace->textureYAxis());
+            
+            // copy texturing from the negYFace to posXFace using the projection method
+            posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Projection);
+            ASSERT_VEC_EQ(Vec3::NegY, posXFace->textureXAxis());
+            ASSERT_VEC_EQ(Vec3::NegZ, posXFace->textureYAxis());
+            
+            delete snapshot;
+            VectorUtils::clearAndDelete(nodes);
         }
     }
 }
