@@ -443,6 +443,10 @@ namespace TrenchBroom {
                 return WXK_RIGHT;
             if (string == L"Down")
                 return WXK_DOWN;
+			if (string == L"PgUp")
+				return WXK_PAGEUP;
+			if (string == L"PgDn")
+				return WXK_PAGEDOWN;
 #endif
             
             if (string == L"Ins")

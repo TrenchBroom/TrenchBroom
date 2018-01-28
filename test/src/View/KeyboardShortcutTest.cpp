@@ -157,6 +157,18 @@ namespace TrenchBroom {
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
             
+			ASSERT_TRUE(KeyboardShortcut::parseShortcut("Shift+PgUp", k, m1, m2, m3));
+			ASSERT_EQ(WXK_SHIFT, m1);
+			ASSERT_EQ(WXK_NONE, m2);
+			ASSERT_EQ(WXK_NONE, m3);
+			ASSERT_EQ(WXK_PAGEUP, k);
+
+			ASSERT_TRUE(KeyboardShortcut::parseShortcut("Shift+PgDn", k, m1, m2, m3));
+			ASSERT_EQ(WXK_SHIFT, m1);
+			ASSERT_EQ(WXK_NONE, m2);
+			ASSERT_EQ(WXK_NONE, m3);
+			ASSERT_EQ(WXK_PAGEDOWN, k);
+
 #ifdef __APPLE__
             ASSERT_FALSE(KeyboardShortcut::parseShortcut("\u2318+D", k, m1, m2, m3));
 
