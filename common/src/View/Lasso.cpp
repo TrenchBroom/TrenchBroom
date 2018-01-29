@@ -48,31 +48,11 @@ namespace TrenchBroom {
         }
         
         bool Lasso::selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const {
-            const Vec3 prStart = project(edge.start(), plane);
-            const Vec3 prEnd = project(edge.end(), plane);
-            if (prStart.nan() || prEnd.nan())
-                return false;
-            
-            return box.touches(prStart, prEnd);
+            return selects(edge.center(), plane, box);
         }
         
         bool Lasso::selects(const Polygon3& polygon, const Plane3& plane, const BBox2& box) const {
-            if (polygon.vertexCount() == 0)
-                return false;
-            if (polygon.vertexCount() == 1)
-                return selects(polygon.vertices().front());
-            
-            Vec3 prStart = project(polygon.vertices().back(), plane);
-            for (const Vec3& cur : polygon) {
-                Vec3 prEnd = project(cur, plane);
-                if (!prStart.nan() && !prEnd.nan() && box.touches(prStart, prEnd)) {
-                    return true;
-                }
-                
-                prStart = prEnd;
-            }
-            
-            return false;
+            return selects(polygon.center(), plane, box);
         }
         
         Vec3 Lasso::project(const Vec3& point, const Plane3& plane) const {

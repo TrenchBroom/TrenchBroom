@@ -32,14 +32,20 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EditorContext::EditorContext() :
-        m_showPointEntities(true),
-        m_showBrushes(true),
-        m_hiddenBrushContentTypes(0),
-        m_entityLinkMode(EntityLinkMode_Direct),
-        m_blockSelection(false),
-        m_currentGroup(nullptr) {}
-        
+        EditorContext::EditorContext() {
+            reset();
+        }
+
+        void EditorContext::reset() {
+            m_showPointEntities = true;
+            m_showBrushes = true;
+            m_hiddenBrushContentTypes = 0;
+            m_hiddenEntityDefinitions.reset();
+            m_entityLinkMode = EntityLinkMode_Direct;
+            m_blockSelection = false;
+            m_currentGroup = nullptr;
+        }
+
         bool EditorContext::showPointEntities() const {
             return m_showPointEntities;
         }
@@ -133,7 +139,7 @@ namespace TrenchBroom {
             if (m_currentGroup != nullptr)
                 m_currentGroup->open();
         }
-        
+
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             const EditorContext& m_this;

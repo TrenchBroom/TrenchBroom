@@ -279,7 +279,8 @@ namespace TrenchBroom {
         void MapDocument::clearDocument() {
             if (m_world != nullptr) {
                 documentWillBeClearedNotifier(this);
-                
+
+                m_editorContext->reset();
                 clearSelection();
                 unloadAssets();
                 clearWorld();
