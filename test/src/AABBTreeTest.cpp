@@ -20,8 +20,6 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
-#include "BBox.h"
-#include "Vec.h"
 
 using AABB = AABBTree<double, 3, const size_t>;
 

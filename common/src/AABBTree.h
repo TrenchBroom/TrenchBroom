@@ -138,6 +138,10 @@ private:
         }
     };
 
+    /**
+     * An inner node of an AABB tree does not carry data. It's only purpose is to structure the tree. Its bounds is
+     * the smallest bounding box that contains the bounds of its children.
+     */
     class InnerNode : public Node {
     private:
         Node* m_left;
@@ -188,21 +192,31 @@ private:
             }
         }
     private:
-        Node* doRemove(const Box& bounds, U& data, Node*& child1, Node*& child2) {
+        /**
+         * Attempt to remove the node with the given bounds and data from the given child.
+         *
+         * @param bounds the bounds of the node to remove
+         * @param data the data of the node to remove
+         * @param child the child to remove the node from
+         * @param sibling the sibling of the given child in this inner node
+         * @return the node that should replace the given child in this inner node, or nullptr if the node to remove is
+         * not a descendant of the given child
+         */
+        Node* doRemove(const Box& bounds, U& data, Node*& child, Node*& sibling) {
             Node* result = nullptr;
-            if (child1->bounds().contains(bounds)) {
-                auto* newChild = child1->remove(bounds, data);
+            if (child->bounds().contains(bounds)) {
+                auto* newChild = child->remove(bounds, data);
                 if (newChild == nullptr) {
-                    // child1 is a leaf, and it represents the node to remove. Return child2 to the caller.
-                    result = child2;
-                    // To prevent the remaining child to get deleted when this node gets deleted by the parent.
-                    child2 = nullptr;
-                    // child1 will be deleted when this node gets deleted by the caller.
-                } else if (newChild != child1) {
-                    // the node to be removed was deleted from child1's subtree, and we need to update our pointer
+                    // child is a leaf, and it represents the node to remove; return sibling to the caller
+                    result = sibling;
+                    // prevent the sibling to get deleted when this node gets deleted by the parent
+                    sibling = nullptr;
+                    // child will be deleted when this node gets deleted by the caller
+                } else if (newChild != child) {
+                    // the node to be removed was deleted from child's subtree, and we need to update our pointer
                     // with the new root of that subtree
-                    delete child1;
-                    child1 = newChild;
+                    delete child;
+                    child = newChild;
 
                     // Update our data and rebalance if necessary.
                     updateBounds();
@@ -302,32 +316,71 @@ private:
         }
     };
 
+    /**
+     * A leaf node represents actual data. It does not have any children. Its bounds equals the bounds supplied when
+     * the node was inserted into the tree. A leaf has a height of 1 and a balance of 0.
+     */
     class Leaf : public Node {
     private:
         U m_data;
     public:
         Leaf(const Box& bounds, U& data) : Node(bounds), m_data(data) {}
 
+        /**
+         * Returns the data associated with this node.
+         *
+         * @return the data associated with this node
+         */
         U& data() {
             return m_data;
         }
 
+        /**
+         * Returns the data associated with this node.
+         *
+         * @return the data associated with this node
+         */
         const U& data() const {
             return m_data;
         }
 
+        /**
+         * Returns the height of this node, which is always 1.
+         *
+         * @return the height of this node
+         */
         size_t height() const override {
             return 1;
         }
 
+        /**
+         * Returns the balance of this node, which is always 0.
+         *
+         * @return the balance of this node
+         */
         int balance() const override {
             return 0;
         }
 
+        /**
+         * Returns a new inner node that has this leaf as its left child and a new leaf representing the given bounds
+         * and data as its right child.
+         *
+         * @param bounds the bounds to insert
+         * @param data the data to insert
+         * @return the newly created inner node which should replace this leaf in the parent
+         */
         Node* insert(const Box& bounds, U& data) override {
             return new InnerNode(this, new Leaf(bounds, data));
         }
 
+        /**
+         * Tests whether this node equals the given data.
+         *
+         * @param bounds the bounds to remove
+         * @param data the data to remove
+         * @return nullptr if this node matches the given data and a pointer to this node otherwise
+         */
         Node* remove(const Box& bounds, U& data) override {
             static const EQ eq;
             if (eq(data, m_data)) {
@@ -337,6 +390,12 @@ private:
             }
         }
 
+        /**
+         * Always returns this node.
+         *
+         * @param bounds ignored
+         * @return a pointer to this node
+         */
         Leaf* findRebalanceCandidate(const Box& bounds) override {
             return this;
         }
@@ -359,6 +418,12 @@ public:
         delete m_root;
     }
 
+    /**
+     * Insert a node with the given bounds and data into this tree.
+     *
+     * @param bounds the bounds to insert
+     * @param data the data to insert
+     */
     void insert(const Box& bounds, U& data) {
         if (empty()) {
             m_root = new Leaf(bounds, data);
@@ -368,6 +433,13 @@ public:
         assert(std::abs(m_root->balance()) < 2);
     }
 
+    /**
+     * Removes the node with the given bounds and data into this tree.
+     *
+     * @param bounds the bounds to remove
+     * @param data the data to remove
+     * @return true if a node with the given bounds and data was removed, and false otherwise
+     */
     bool remove(const Box& bounds, U& data) {
         if (empty()) {
             return false;
@@ -384,10 +456,22 @@ public:
         }
     }
 
+    /**
+     * Indicates whether this tree is empty.
+     *
+     * @return true if this tree is empty and false otherwise
+     */
     bool empty() const {
         return m_root == nullptr;
     }
 
+    /**
+     * Returns the height of this tree.
+     *
+     * The height of an AABB tree is the length of the longest path from the root to a leaf.
+     *
+     * @return the height of this tree
+     */
     size_t height() const {
         if (empty()) {
             return 0;
@@ -396,6 +480,11 @@ public:
         }
     }
 
+    /**
+     * Returns the bounds of all nodes in this tree.
+     *
+     * @return the bounds of all nodes in this tree, or a bounding box made up of NaN values if this tree is empty
+     */
     const Box& bounds() const {
         static const auto EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
 
@@ -407,6 +496,11 @@ public:
         }
     }
 
+    /**
+     * Prints a textual representation of this tree to the given output stream.
+     *
+     * @param str the output stream to print to
+     */
     void print(std::ostream& str = std::cout) const {
         if (!empty()) {
             m_root->appendTo(str);
