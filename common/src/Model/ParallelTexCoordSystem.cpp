@@ -108,15 +108,22 @@ namespace TrenchBroom {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
+        /**
+         * Rotates from `oldAngle` to `newAngle`. Both of these are in CCW degrees about
+         * the texture normal (`getZAxis()`). The provided `normal` is ignored.
+         */
         void ParallelTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
             const float angleDelta = newAngle - oldAngle;
             if (angleDelta == 0.0f)
                 return;
             
-            const FloatType angle = static_cast<FloatType>(Math::radians(-angleDelta));
-            applyRotation(normal, angle);
+            const FloatType angle = static_cast<FloatType>(Math::radians(angleDelta));
+            applyRotation(getZAxis(), angle);
         }
         
+        /**
+         * Rotate CCW by `angle` radians about `normal`.
+         */
         void ParallelTexCoordSystem::applyRotation(const Vec3& normal, const FloatType angle) {
             const Quat3 rot(normal, angle);
             m_xAxis = rot * m_xAxis;
@@ -284,6 +291,11 @@ namespace TrenchBroom {
             m_yAxis = transform * m_yAxis;
         }
 
+        /**
+         * Measures the angle between the line from `center` to `point` and the texture space X axis,
+         * in CCW degrees about the texture normal.
+         * Returns this, added to `currentAngle` (also in CCW degrees).
+         */
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Vec3 vec(point - center);
             const FloatType angleInRadians = angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
