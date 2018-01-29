@@ -33,6 +33,8 @@ namespace TrenchBroom {
             const Model::Hit vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
             if (vertexHit.isMatch())
                 return vertexHit;
+            if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
+                return Model::Hit::NoHit;
             const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
             if (edgeHit.isMatch())
                 return edgeHit;
