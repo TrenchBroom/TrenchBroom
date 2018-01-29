@@ -52,7 +52,9 @@ namespace TrenchBroom {
             Notifier0 editorContextDidChangeNotifier;
         public:
             EditorContext();
-            
+
+            void reset();
+
             bool showPointEntities() const;
             void setShowPointEntities(bool showPointEntities);
             
@@ -75,7 +77,6 @@ namespace TrenchBroom {
             Model::Group* currentGroup() const;
             void pushGroup(Model::Group* group);
             void popGroup();
-            void resetCurrentGroup();
         public:
             bool visible(const Model::Node* node) const;
             bool visible(const Model::World* world) const;
