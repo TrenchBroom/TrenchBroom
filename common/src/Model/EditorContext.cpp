@@ -40,6 +40,7 @@ namespace TrenchBroom {
             m_showPointEntities = true;
             m_showBrushes = true;
             m_hiddenBrushContentTypes = 0;
+            m_hiddenEntityDefinitions.reset();
             m_entityLinkMode = EntityLinkMode_Direct;
             m_blockSelection = false;
             m_currentGroup = nullptr;
