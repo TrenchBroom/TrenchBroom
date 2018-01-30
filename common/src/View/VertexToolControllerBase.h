@@ -51,9 +51,17 @@ namespace TrenchBroom {
                 const Model::Hit findDraggableHandle(const InputState& inputState) const {
                     return doFindDraggableHandle(inputState);
                 }
+
+                const Model::Hit::List findDraggableHandles(const InputState& inputState) const {
+                    return doFindDraggableHandles(inputState);
+                }
             private:
                 virtual const Model::Hit doFindDraggableHandle(const InputState& inputState) const {
                     return findDraggableHandle(inputState, m_hitType);
+                }
+
+                virtual const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const {
+                    return findDraggableHandles(inputState, m_hitType);
                 }
             public:
                 const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
@@ -68,6 +76,10 @@ namespace TrenchBroom {
                         }
                     }
                     return Model::Hit::NoHit;
+                }
+
+                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                    return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
                 bool selected(const Model::Hit& hit) const {
@@ -219,6 +231,7 @@ namespace TrenchBroom {
             protected:
                 using PartBase::m_tool;
                 using PartBase::findDraggableHandle;
+                using PartBase::findDraggableHandles;
             protected:
                 Tool* doGetTool() override {
                     return m_tool;
@@ -239,14 +252,14 @@ namespace TrenchBroom {
                            )))
                         return MoveInfo();
                     
-                    const Model::Hit hit = findDraggableHandle(inputState);
-                    if (!hit.isMatch())
+                    const Model::Hit::List hits = findDraggableHandles(inputState);
+                    if (hits.empty())
+                        return MoveInfo();
+
+                    if (!m_tool->startMove(hits))
                         return MoveInfo();
                     
-                    if (!m_tool->startMove(hit))
-                        return MoveInfo();
-                    
-                    return MoveInfo(hit.hitPoint());
+                    return MoveInfo(hits.front().hitPoint());
                 }
 
                 DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {

@@ -73,6 +73,16 @@ namespace TrenchBroom {
             }
         };
 
+        /*
+        template <>
+        class HCmp<Polygon3> {
+        public:
+            bool operator()(const Polygon3& lhs, const Polygon3& rhs) const {
+                return lhs.compareUnoriented(rhs, 0.1) < 0;
+            }
+        };
+        */
+
         template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
