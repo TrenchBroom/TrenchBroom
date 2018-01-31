@@ -28,6 +28,8 @@
 #include "View/MoveToolController.h"
 #include "View/ToolController.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace View {
         class Tool;

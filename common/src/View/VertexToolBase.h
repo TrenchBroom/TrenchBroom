@@ -42,6 +42,7 @@
 #include "View/VertexHandleManager.h"
 #include "View/ViewTypes.h"
 
+#include <algorithm>
 #include <cassert>
 #include <numeric>
 
@@ -189,7 +190,7 @@ namespace TrenchBroom {
                 // Delesect all handles if any of the hit handles is not already selected.
                 if (std::any_of(std::begin(hits), std::end(hits), [this](const auto& hit) {
                     const H& handle = getHandlePosition(hit);
-                    return !handleManager().selected(handle);
+                    return !this->handleManager().selected(handle);
                 })) {
                     handleManager().deselectAll();
                 }
