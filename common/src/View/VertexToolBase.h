@@ -189,8 +189,8 @@ namespace TrenchBroom {
 
                 // Delesect all handles if any of the hit handles is not already selected.
                 if (std::any_of(std::begin(hits), std::end(hits), [&](const auto& hit) {
-                    const H& handle = getHandlePosition(hit);
-                    return !handleManager().selected(handle);
+                    const H& handle = this->getHandlePosition(hit);
+                    return !this->handleManager().selected(handle);
                 })) {
                     handleManager().deselectAll();
                 }
