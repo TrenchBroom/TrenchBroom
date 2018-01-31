@@ -29,7 +29,7 @@ namespace TrenchBroom {
          * it up the inheritance hierarchy either. Nor can I introduce a separate common base class for the two parts
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
-        const Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
+        Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
             const Model::Hit vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
             if (vertexHit.isMatch())
                 return vertexHit;
@@ -41,6 +41,19 @@ namespace TrenchBroom {
             return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
         }
 
+
+        Model::Hit::List VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
+            const Model::Hit::List vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHit);
+            if (!vertexHits.empty())
+                return vertexHits;
+            if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
+                return Model::Hit::List();
+            const Model::Hit::List edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
+            if (!edgeHits.empty())
+                return edgeHits;
+            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
+        }
+
         class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
         public:
             SelectVertexPart(VertexTool* tool) :
@@ -48,6 +61,10 @@ namespace TrenchBroom {
         private:
             const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
+            }
+
+            const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const override {
+                return VertexToolController::findHandleHits(inputState, *this);
             }
 
             bool equalHandles(const Vec3& lhs, const Vec3& rhs) const override {
@@ -143,6 +160,10 @@ namespace TrenchBroom {
         private:
             const Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
+            }
+
+            const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const override {
+                return VertexToolController::findHandleHits(inputState, *this);
             }
         };
         

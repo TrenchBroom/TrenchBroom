@@ -42,6 +42,7 @@
 #include "View/VertexHandleManager.h"
 #include "View/ViewTypes.h"
 
+#include <algorithm>
 #include <cassert>
 #include <numeric>
 
@@ -183,22 +184,30 @@ namespace TrenchBroom {
             virtual HandleManager& handleManager() = 0;
             virtual const HandleManager& handleManager() const = 0;
         public: // performing moves
-            virtual bool startMove(const Model::Hit& hit) {
-                assert(hit.isMatch());
+            virtual bool startMove(const Model::Hit::List& hits) {
+                assert(!hits.empty());
 
-                const H& handle = getHandlePosition(hit);
-                if (hit.hasType(handleManager().hitType())) {
-                    if (!handleManager().selected(handle)) {
-                        handleManager().deselectAll();
+                // Delesect all handles if any of the hit handles is not already selected.
+                if (std::any_of(std::begin(hits), std::end(hits), [&](const auto& hit) {
+                    const H& handle = this->getHandlePosition(hit);
+                    return !this->handleManager().selected(handle);
+                })) {
+                    handleManager().deselectAll();
+                }
+
+                // Now select all of the hit handles.
+                for (const auto& hit : hits) {
+                    const H& handle = getHandlePosition(hit);
+                    if (hit.hasType(handleManager().hitType())) {
                         handleManager().select(handle);
-                        refreshViews();
                     }
                 }
-                
+                refreshViews();
+
                 MapDocumentSPtr document = lock(m_document);
                 document->beginTransaction(actionName());
-                
-                m_dragHandlePosition = handle;
+
+                m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
                 return true;
             }
