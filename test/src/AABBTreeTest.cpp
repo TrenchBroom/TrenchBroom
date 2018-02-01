@@ -23,7 +23,7 @@
 #include "Ray.h"
 #include "AABBTree.h"
 
-using AABB = AABBTree<double, 3, const size_t>;
+using AABB = AABBTree<double, 3, size_t>;
 using BOX = AABB::Box;
 using RAY = Ray<AABB::FloatType, AABB::Components>;
 using VEC = Vec<AABB::FloatType, AABB::Components>;

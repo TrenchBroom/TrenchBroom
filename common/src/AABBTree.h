@@ -81,7 +81,7 @@ private:
          * @param data the data to be inserted
          * @return the new root
          */
-        virtual Node* insert(const Box& bounds, U& data) = 0;
+        virtual Node* insert(const Box& bounds, const U& data) = 0;
 
         /**
          * Removes the node with the given parameters from the subtree of which this node is the root. Returns the new
@@ -91,7 +91,7 @@ private:
          * @param data the data associated with the node to be removed
          * @return the new root
          */
-        virtual Node* remove(const Box& bounds, U& data) = 0;
+        virtual Node* remove(const Box& bounds, const U& data) = 0;
 
         /**
          * Finds the leaf of this node's subtree such that it increases the given bounds the least.
@@ -107,14 +107,14 @@ private:
          * @param ray the ray to test
          * @param func the functor to apply
          */
-        void findIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const {
+        void findIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const {
             if (!Math::isnan(m_bounds.intersectWithRay(ray))) {
                 doFindIntersectors(ray, func);
             }
         }
 
     private:
-        virtual void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const = 0;
+        virtual void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const = 0;
 
     public:
         /**
@@ -190,7 +190,7 @@ private:
             return r - l;
         }
 
-        Node* insert(const Box& bounds, U& data) override {
+        Node* insert(const Box& bounds, const U& data) override {
             // Select the subtree which is increased the least by inserting a node with the given bounds.
             // Then insert the node into that subtree and update our reference to it.
             auto*& subtree = selectLeastIncreaser(m_left, m_right, bounds);
@@ -204,7 +204,7 @@ private:
             return this;
         }
 
-        Node* remove(const Box& bounds, U& data) override {
+        Node* remove(const Box& bounds, const U& data) override {
             auto* result = doRemove(bounds, data, m_left, m_right);
             if (result != nullptr) {
                 return result;
@@ -223,7 +223,7 @@ private:
          * @return the node that should replace the given child in this inner node, or nullptr if the node to remove is
          * not a descendant of the given child
          */
-        Node* doRemove(const Box& bounds, U& data, Node*& child, Node*& sibling) {
+        Node* doRemove(const Box& bounds, const U& data, Node*& child, Node*& sibling) {
             Node* result = nullptr;
             if (child->bounds().contains(bounds)) {
                 auto* newChild = child->remove(bounds, data);
@@ -324,7 +324,7 @@ private:
             assert(m_height > 0);
         }
 
-        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const override {
+        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const override {
             m_left->findIntersectors(ray, func);
             m_right->findIntersectors(ray, func);
         }
@@ -350,7 +350,7 @@ private:
     private:
         U m_data;
     public:
-        Leaf(const Box& bounds, U& data) : Node(bounds), m_data(data) {}
+        Leaf(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
 
         /**
          * Returns the data associated with this node.
@@ -396,7 +396,7 @@ private:
          * @param data the data to insert
          * @return the newly created inner node which should replace this leaf in the parent
          */
-        Node* insert(const Box& bounds, U& data) override {
+        Node* insert(const Box& bounds, const U& data) override {
             return new InnerNode(this, new Leaf(bounds, data));
         }
 
@@ -407,7 +407,7 @@ private:
          * @param data the data to remove
          * @return nullptr if this node matches the given data and a pointer to this node otherwise
          */
-        Node* remove(const Box& bounds, U& data) override {
+        Node* remove(const Box& bounds, const U& data) override {
             static const EQ eq;
             if (eq(data, m_data)) {
                 return nullptr;
@@ -426,7 +426,7 @@ private:
             return this;
         }
 
-        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const override {
+        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const override {
             func(m_data);
         }
 
@@ -454,7 +454,7 @@ public:
      * @param bounds the bounds to insert
      * @param data the data to insert
      */
-    void insert(const Box& bounds, U& data) {
+    void insert(const Box& bounds, const U& data) {
         if (empty()) {
             m_root = new Leaf(bounds, data);
         } else {
@@ -470,7 +470,7 @@ public:
      * @param data the data to remove
      * @return true if a node with the given bounds and data was removed, and false otherwise
      */
-    bool remove(const Box& bounds, U& data) {
+    bool remove(const Box& bounds, const U& data) {
         if (empty()) {
             return false;
         } else if (m_root->bounds().contains(bounds)) {
@@ -537,7 +537,7 @@ public:
     template <typename O>
     void findIntersectors(const Ray<T,S>& ray, O out) const {
         if (!empty()) {
-            m_root->findIntersectors(ray, [&out](U& data) { out = data; });
+            m_root->findIntersectors(ray, [&out](const U& data) { out = data; });
         }
     }
 
