@@ -19,11 +19,17 @@
 
 #include <gtest/gtest.h>
 
+#include "Vec.h"
+#include "Ray.h"
 #include "AABBTree.h"
 
 using AABB = AABBTree<double, 3, const size_t>;
+using BOX = AABB::Box;
+using RAY = Ray<AABB::FloatType, AABB::Components>;
+using VEC = Vec<AABB::FloatType, AABB::Components>;
 
 void assertTree(const std::string& exp, const AABB& actual);
+void assertIntersectors(const AABB& tree, const Ray<AABB::FloatType, AABB::Components>& ray, std::initializer_list<AABB::DataType> items);
 
 TEST(AABBTreeTest, createEmptyTree) {
     AABB tree;
@@ -37,7 +43,7 @@ TEST(AABBTreeTest, createEmptyTree) {
 }
 
 TEST(AABBTreeTest, insertSingleNode) {
-    const BBox3d bounds(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
+    const BOX bounds(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
 
     AABB tree;
     tree.insert(bounds, 1u);
@@ -53,8 +59,8 @@ L [ (0 0 0) (2 1 1) ]: 1
 }
 
 TEST(AABBTreeTest, insertTwoNodes) {
-    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -72,9 +78,9 @@ O [ (-1 -1 -1) (2 1 1) ]
 }
 
 TEST(AABBTreeTest, insertThreeNodes) {
-    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
-    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+    const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+    const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -95,9 +101,9 @@ O [ (-2 -2 -1) (2 1 1) ]
 }
 
 TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
-    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
-    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+    const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+    const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -151,9 +157,9 @@ L [ (0 0 0) (2 1 1) ]: 1
 }
 
 TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
-    const BBox3d bounds1(Vec3d(0.0, 0.0, 0.0), Vec3d(2.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
-    const BBox3d bounds3(Vec3d(-2.0, -2.0, -1.0), Vec3d(0.0, 0.0, 1.0));
+    const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+    const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -207,10 +213,10 @@ L [ (-2 -2 -1) (0 0 1) ]: 3
 }
 
 TEST(AABBTreeTest, insertFourContainedNodes) {
-    const BBox3d bounds1(Vec3d(-4.0, -4.0, -4.0), Vec3d(4.0, 4.0, 4.0));
-    const BBox3d bounds2(Vec3d(-3.0, -3.0, -3.0), Vec3d(3.0, 3.0, 3.0));
-    const BBox3d bounds3(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
-    const BBox3d bounds4(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
+    const BOX bounds1(VEC(-4.0, -4.0, -4.0), VEC(4.0, 4.0, 4.0));
+    const BOX bounds2(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
+    const BOX bounds3(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
+    const BOX bounds4(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -253,10 +259,10 @@ O [ (-4 -4 -4) (4 4 4) ]
 }
 
 TEST(AABBTreeTest, insertFourContainedNodesInverse) {
-    const BBox3d bounds1(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
-    const BBox3d bounds3(Vec3d(-3.0, -3.0, -3.0), Vec3d(3.0, 3.0, 3.0));
-    const BBox3d bounds4(Vec3d(-4.0, -4.0, -4.0), Vec3d(4.0, 4.0, 4.0));
+    const BOX bounds1(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
+    const BOX bounds3(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
+    const BOX bounds4(VEC(-4.0, -4.0, -4.0), VEC(4.0, 4.0, 4.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -301,10 +307,10 @@ O [ (-4 -4 -4) (4 4 4) ]
 
 
 TEST(AABBTreeTest, removeFourContainedNodes) {
-    const BBox3d bounds1(Vec3d(-1.0, -1.0, -1.0), Vec3d(1.0, 1.0, 1.0));
-    const BBox3d bounds2(Vec3d(-2.0, -2.0, -2.0), Vec3d(2.0, 2.0, 2.0));
-    const BBox3d bounds3(Vec3d(-3.0, -3.0, -3.0), Vec3d(3.0, 3.0, 3.0));
-    const BBox3d bounds4(Vec3d(-4.0, -4.0, -4.0), Vec3d(4.0, 4.0, 4.0));
+    const BOX bounds1(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
+    const BOX bounds2(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
+    const BOX bounds3(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
+    const BOX bounds4(VEC(-4.0, -4.0, -4.0), VEC(4.0, 4.0, 4.0));
 
     AABB tree;
     tree.insert(bounds1, 1u);
@@ -355,8 +361,8 @@ L [ (-1 -1 -1) (1 1 1) ]: 1
 
 
 template <typename K>
-BBox3d makeBounds(const K min, const K max) {
-    return BBox3d(Vec3d(static_cast<double>(min), -1.0, -1.0), Vec3d(static_cast<double>(max), 1.0, 1.0));
+BOX makeBounds(const K min, const K max) {
+    return BOX(VEC(static_cast<double>(min), -1.0, -1.0), VEC(static_cast<double>(max), 1.0, 1.0));
 }
 
 TEST(AABBTreeTest, rebalanceAfterRemoval) {
@@ -395,9 +401,46 @@ O [ (2 -1 -1) (9 1 1) ]
 )" , tree);
 }
 
+TEST(AABBTreeTest, findIntersectorsOfEmptyTree) {
+    AABB tree;
+    assertIntersectors(tree, RAY(VEC::Null, VEC::PosX), {});
+}
+
+TEST(AABBTreeTest, findIntersectorsOfTreeWithOneNode) {
+    AABB tree;
+    tree.insert(BOX(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0)), 1u);
+
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::NegX), {});
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::PosX), { 1u });
+}
+
+TEST(AABBTreeTest, findIntersectorsOfTreeWithTwoNodes) {
+    AABB tree;
+    tree.insert(BOX(VEC(-2.0, -1.0, -1.0), VEC(-1.0, +1.0, +1.0)), 1u);
+    tree.insert(BOX(VEC(+1.0, -1.0, -1.0), VEC(+2.0, +1.0, +1.0)), 2u);
+
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::PosX), {});
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::NegX), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosZ), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosX), { 2u });
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::NegX), { 1u });
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::PosX), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::NegX), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(-1.5, -2.0,  0.0), VEC::PosY), { 1u });
+    assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::PosY), { 2u });
+}
 
 void assertTree(const std::string& exp, const AABB& actual) {
     std::stringstream str;
     actual.print(str);
     ASSERT_EQ(exp, "\n" + str.str());
+}
+
+void assertIntersectors(const AABB& tree, const Ray<AABB::FloatType, AABB::Components>& ray, std::initializer_list<AABB::DataType> items) {
+    const std::set<AABB::DataType> expected(items);
+    std::set<AABB::DataType> actual;
+
+    tree.findIntersectors(ray, std::inserter(actual, std::end(actual)));
+
+    ASSERT_EQ(expected, actual);
 }

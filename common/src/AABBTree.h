@@ -20,7 +20,9 @@
 #ifndef TRENCHBROOM_AABBTREE_H
 #define TRENCHBROOM_AABBTREE_H
 
-#include <BBox.h>
+#include "BBox.h"
+#include "Ray.h"
+#include "MathUtils.h"
 
 #include <algorithm>
 #include <cassert>
@@ -30,9 +32,12 @@
 
 template <typename T, size_t S, typename U, typename EQ = std::equal_to<U>>
 class AABBTree {
-private:
+public:
     using Box = BBox<T,S>;
-
+    using DataType = U;
+    using FloatType = T;
+    static const size_t Components = S;
+private:
     class Leaf;
 
     class Node {
@@ -96,6 +101,22 @@ private:
          */
         virtual Leaf* findRebalanceCandidate(const Box& bounds) = 0;
 
+        /**
+         * Applies the given functor to every data object in this node which intersects with the given ray.
+         *
+         * @param ray the ray to test
+         * @param func the functor to apply
+         */
+        void findIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const {
+            if (!Math::isnan(m_bounds.intersectWithRay(ray))) {
+                doFindIntersectors(ray, func);
+            }
+        }
+
+    private:
+        virtual void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const = 0;
+
+    public:
         /**
          * Appends a textual representation of this node to the given output stream.
          *
@@ -302,6 +323,11 @@ private:
             m_height = std::max(m_left->height(), m_right->height()) + 1;
             assert(m_height > 0);
         }
+
+        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const override {
+            m_left->findIntersectors(ray, func);
+            m_right->findIntersectors(ray, func);
+        }
     public:
         void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
             for (size_t i = 0; i < level; ++i)
@@ -400,6 +426,10 @@ private:
             return this;
         }
 
+        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(U&)>& func) const override {
+            func(m_data);
+        }
+
         void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
             for (size_t i = 0; i < level; ++i)
                 str << indent;
@@ -493,6 +523,21 @@ public:
             return EmptyBox;
         } else {
             return m_root->bounds();
+        }
+    }
+
+    /**
+     * Finds every data item in this tree whose bounding box intersects with the given ray and appends it to the given
+     * output iterator.
+     *
+     * @tparam O the output iterator type
+     * @param ray the ray to test
+     * @param out the output iterator to append to
+     */
+    template <typename O>
+    void findIntersectors(const Ray<T,S>& ray, O out) const {
+        if (!empty()) {
+            m_root->findIntersectors(ray, [&out](U& data) { out = data; });
         }
     }
 
