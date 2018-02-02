@@ -308,10 +308,21 @@ private:
             const auto diff1 = new1.volume() - vol1;
             const auto diff2 = new2.volume() - vol2;
 
-            if (diff1 <= diff2) {
+            if (diff1 < diff2) {
                 return node1;
-            } else {
+            } else if (diff2 < diff1) {
                 return node2;
+            } else if (vol1 < vol2) {
+                return node1;
+            } else if (vol2 < vol1) {
+                return node2;
+            } else if (node1->height() < node2->height()) {
+                return node1;
+            } else if (node2->height() < node1->height()) {
+                return node2;
+            } else {
+                // I give up!
+                return node1;
             }
         }
 
