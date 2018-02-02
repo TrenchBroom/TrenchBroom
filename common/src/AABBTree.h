@@ -490,7 +490,7 @@ public:
         } else {
             m_root = m_root->insert(bounds, data);
         }
-        assert(std::abs(m_root->balance()) < 2);
+        assert(balanced());
     }
 
     /**
@@ -509,7 +509,7 @@ public:
                 delete m_root;
                 m_root = newRoot;
             }
-            assert(empty() || std::abs(m_root->balance()) < 2);
+            assert(balanced());
             return true;
         } else {
             return false;
@@ -557,6 +557,15 @@ public:
         } else {
             return m_root->height();
         }
+    }
+
+    /**
+     * Checks whether this tree is balanced.
+     *
+     * @return true if this tree is balanced and false otherwise
+     */
+    bool balanced() const {
+        return empty() || std::abs(m_root->balance() <= 1);
     }
 
     /**
