@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_AABBTREE_H
 #define TRENCHBROOM_AABBTREE_H
 
+#include "Exceptions.h"
 #include "BBox.h"
 #include "Ray.h"
 #include "MathUtils.h"
@@ -38,7 +39,32 @@ public:
     using FloatType = T;
     static const size_t Components = S;
 private:
+    class InnerNode;
     class Leaf;
+
+    class Visitor {
+    public:
+        virtual ~Visitor() = default;
+
+        virtual bool visit(const InnerNode* innerNode) = 0;
+        virtual void visit(const Leaf* leaf) = 0;
+    };
+
+    class LambdaVisitor : public Visitor {
+    public:
+        using InnerNodeVisitor = std::function<bool(const InnerNode*)>;
+        using LeafVisitor = std::function<void(const Leaf*)>;
+    private:
+        const InnerNodeVisitor m_innerNodeVisitor;
+        const LeafVisitor m_leafVisitor;
+    public:
+        LambdaVisitor(const InnerNodeVisitor& innerNodeVisitor, const LeafVisitor& leafVisitor) :
+                m_innerNodeVisitor(innerNodeVisitor),
+                m_leafVisitor(leafVisitor) {}
+
+        bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
+        void visit(const Leaf* leaf)           override { m_leafVisitor(leaf); }
+    };
 
     class Node {
     private:
@@ -102,20 +128,11 @@ private:
         virtual Leaf* findRebalanceCandidate(const Box& bounds) = 0;
 
         /**
-         * Applies the given functor to every data object in this node which intersects with the given ray.
+         * Accepts the given visitor.
          *
-         * @param ray the ray to test
-         * @param func the functor to apply
+         * @param visitor the visitor to accept
          */
-        void findIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const {
-            if (!Math::isnan(m_bounds.intersectWithRay(ray))) {
-                doFindIntersectors(ray, func);
-            }
-        }
-
-    private:
-        virtual void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const = 0;
-
+        virtual void accept(Visitor& visitor) const = 0;
     public:
         /**
          * Appends a textual representation of this node to the given output stream.
@@ -335,9 +352,11 @@ private:
             assert(m_height > 0);
         }
 
-        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const override {
-            m_left->findIntersectors(ray, func);
-            m_right->findIntersectors(ray, func);
+        void accept(Visitor& visitor) const override {
+            if (visitor.visit(this)) {
+                m_left->accept(visitor);
+                m_right->accept(visitor);
+            }
         }
     public:
         void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
@@ -437,8 +456,8 @@ private:
             return this;
         }
 
-        void doFindIntersectors(const Ray<T,S>& ray, const std::function<void(const U&)>& func) const override {
-            func(m_data);
+        void accept(Visitor& visitor) const override {
+            visitor.visit(this);
         }
 
         void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
@@ -498,6 +517,25 @@ public:
     }
 
     /**
+     * Updates the node with the given bounds and data with the given new bounds.
+     *
+     * @param bounds the current bounds of the node to update
+     * @param newBounds the new bounds of the node
+     * @param data the node data
+     *
+     * @throws AABBException if no node with the given bounds and data can be found in this tree
+     */
+    void update(const Box& bounds, const Box& newBounds, const U& data) {
+        if (!remove(bounds, data)) {
+            AABBException ex;
+            ex << "AABB node not found with bounds [ (" << bounds.min.asString(S) << ") (" << bounds.max.asString(S) << ") ]: " << data;
+            throw ex;
+        } else {
+            insert(newBounds, data);
+        }
+    }
+
+    /**
      * Indicates whether this tree is empty.
      *
      * @return true if this tree is empty and false otherwise
@@ -548,7 +586,42 @@ public:
     template <typename O>
     void findIntersectors(const Ray<T,S>& ray, O out) const {
         if (!empty()) {
-            m_root->findIntersectors(ray, [&out](const U& data) { out = data; });
+            LambdaVisitor visitor(
+                    [&](const InnerNode* innerNode) {
+                        return !Math::isnan(innerNode->bounds().intersectWithRay(ray));
+                    },
+                    [&](const Leaf* leaf) {
+                        if (!Math::isnan(leaf->bounds().intersectWithRay(ray))) {
+                            out = leaf->data();
+                        }
+                    }
+            );
+            m_root->accept(visitor);
+        }
+    }
+
+    /**
+     * Finds every data item in this tree whose bounding box contains the given point and appends it to the given
+     * output iterator.
+     *
+     * @tparam O the output iterator type
+     * @param point the point to test
+     * @param out the output iterator to append to
+     */
+    template <typename O>
+    void findContainers(const Vec<T,S>& point, O out) const {
+        if (!empty()) {
+            LambdaVisitor visitor(
+                    [&](const InnerNode* innerNode) {
+                        return innerNode->bounds().contains(point);
+                    },
+                    [&](const Leaf* leaf) {
+                        if (leaf->bounds().contains(point)) {
+                            out = leaf->data();
+                        }
+                    }
+            );
+            m_root->accept(visitor);
         }
     }
 

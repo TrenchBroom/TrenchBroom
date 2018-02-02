@@ -117,6 +117,11 @@ public:
     using ExceptionStream::ExceptionStream;
 };
 
+class AABBException : public ExceptionStream<OctreeException> {
+public:
+    using ExceptionStream::ExceptionStream;
+};
+
 class GameException : public ExceptionStream<GameException> {
 public:
     using ExceptionStream::ExceptionStream;
