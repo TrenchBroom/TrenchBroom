@@ -20,16 +20,21 @@ cd ..
 
 # Build TB
 
-ASAN_FLAG=""
-if [[ -z $TRAVIS_TAG ]] ; then
-    echo "Not building a tag; enabling ASan"
-    ASAN_FLAG="-fsanitize=address"
+BUILD_TYPE_VALUE="Release"
+CXX_FLAGS_VALUE="-Werror"
+
+if [[ $TB_DEBUG_BUILD == "true" ]] ; then
+    BUILD_TYPE_VALUE="Debug"
+    CXX_FLAGS_VALUE="$CXX_FLAGS_VALUE -fsanitize=address"
 fi
+
+echo "Build type: $BUILD_TYPE_VALUE"
+echo "CMAKE_CXX_FLAGS: $CXX_FLAGS_VALUE"
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror $ASAN_FLAG" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
-cmake --build . --config Release || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="$CXX_FLAGS_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
+cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack || exit 1
 
 ./generate_checksum.sh
