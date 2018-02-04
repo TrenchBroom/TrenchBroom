@@ -46,6 +46,8 @@ namespace TrenchBroom {
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
             }
         }
 

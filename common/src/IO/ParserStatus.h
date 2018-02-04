@@ -54,6 +54,7 @@ namespace TrenchBroom {
             String buildMessage(size_t line, const String& str) const;
         private:
             virtual void doProgress(double progress) = 0;
+            virtual void doLog(Logger::LogLevel level, const String& str);
         };
     }
 }
