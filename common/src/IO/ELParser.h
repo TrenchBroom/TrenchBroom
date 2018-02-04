@@ -117,7 +117,8 @@ namespace TrenchBroom {
 
             template <typename OtherToken>
             ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
-            m_tokenizer(nestedTokenizer) {}
+                    m_mode(Mode::Lenient),
+                    m_tokenizer(nestedTokenizer) {}
 
             EL::Expression parse();
         private:

@@ -95,10 +95,16 @@ namespace TrenchBroom {
     }
 
     void Logger::log(const LogLevel level, const String& message) {
+#ifdef NDEBUG
+        if (level != LogLevel_Debug)
+#endif
         doLog(level, message);
     }
     
     void Logger::log(const LogLevel level, const wxString& message) {
+#ifdef NDEBUG
+        if (level != LogLevel_Debug)
+#endif
         doLog(level, message);
     }
 }
