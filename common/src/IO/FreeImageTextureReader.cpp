@@ -36,40 +36,31 @@ namespace TrenchBroom {
             TextureReader(nameStrategy) {}
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
-            BYTE*                   imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-            size_t                  imageSize       = static_cast<size_t>(end - begin);
-            FIMEMORY*               imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
-            FREE_IMAGE_FORMAT       imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
-            FIBITMAP*               image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
+            auto* imageBegin      = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
+            auto  imageSize       = static_cast<size_t>(end - begin);
+            auto* imageMemory     = FreeImage_OpenMemory(imageBegin, static_cast<DWORD>(imageSize));
+            auto  imageFormat     = FreeImage_GetFileTypeFromMemory(imageMemory);
+            auto* image           = FreeImage_LoadFromMemory(imageFormat, imageMemory);
 
-            String                  imageName       = path.filename();
-            size_t                  imageWidth      = FreeImage_GetWidth(image);
-            size_t                  imageHeight     = FreeImage_GetHeight(image);
-            FREE_IMAGE_COLOR_TYPE   imageColourType = FreeImage_GetColorType(image);
+            auto  imageName       = path.filename();
+            auto  imageWidth      = FreeImage_GetWidth(image);
+            auto  imageHeight     = FreeImage_GetHeight(image);
+            auto  imageColourType = FreeImage_GetColorType(image);
 
             Assets::TextureBuffer::List buffers(4);
             Assets::setMipBufferSize(buffers, imageWidth, imageHeight);
 
             // TODO: Alpha channel seems to be unsupported by the Texture class
             if (imageColourType != FIC_RGB) {
-                FIBITMAP* tempImage = FreeImage_ConvertTo24Bits(image);
+                auto* tempImage = FreeImage_ConvertTo24Bits(image);
                 FreeImage_Unload(image);
                 image = tempImage;
             }
 
-            ::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
+            std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
             for (size_t mip = 1; mip < buffers.size(); ++mip) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
+                auto* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
                 std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
-=======
-                FIBITMAP* mipImage = FreeImage_Rescale(image, imageWidth >> mip, imageHeight >> mip, FILTER_BICUBIC);
-=======
-                FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
->>>>>>> 25790890b... 64bit casts fix.
-                ::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
->>>>>>> 27ec3063e... Replace std::memcpy with ::memcpy to make GCC happy.
                 FreeImage_Unload(mipImage);
             }
 
