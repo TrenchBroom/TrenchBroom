@@ -57,7 +57,7 @@
 //
 
 @baseclass base(Appearflags) size(-16 -16 -24, 16 16 32) 
-	color(0 255 0) model(":progs/player.mdl") = PlayerClass []
+	color(0 255 0) model({ "path": ":progs/player.mdl" }) = PlayerClass []
 
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
 @PointClass base(PlayerClass) = info_player_coop : "Player cooperative start" []
@@ -157,26 +157,26 @@
 	]
 ]
 
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/suit.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/suit.mdl" }) =
 	item_artifact_envirosuit : "Environmental protection suit" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/quaddama.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/quaddama.mdl" }) =
 	item_artifact_super_damage : "Quad damage" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/invulner.mdl") =
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/invulner.mdl" }) =
 	item_artifact_invulnerability : "Pentagram of Protection" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/invisibl.mdl") = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/invisibl.mdl" }) = 
 	item_artifact_invisibility : "Ring of Shadows" []
 
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl", "skin": 2 }) =
 	item_armorInv : "Red armor (200%)" []
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl", "skin": 1 }) =
 	item_armor2 : "Yellow armor (150%)" []
-@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl") =
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model({ "path": ":progs/armor.mdl" }) =
 	item_armor1 : "Green armor (100%)" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_s_key.mdl") = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/w_s_key.mdl" }) = 
 	item_key1 : "Silver key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/w_g_key.mdl") = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/w_g_key.mdl" }) = 
 	item_key2 : "Gold key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model(":progs/end1.mdl") = 
+@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/end1.mdl" }) = 
 	item_sigil : "Sigil"
 [
 	spawnflags(Flags) =
@@ -194,12 +194,12 @@
 
 @baseclass size(-16 -16 0, 16 16 56) color(0 0 200) base(Item, Appearflags) = Weapon []
 
-@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Double-barrelled shotgun" []
-@PointClass base(Weapon) model(":progs/g_nail.mdl") = weapon_nailgun : "Nailgun" []
-@PointClass base(Weapon) model(":progs/g_nail2.mdl") = weapon_supernailgun : "Super nailgun" []
-@PointClass base(Weapon) model(":progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade launcher" []
-@PointClass base(Weapon) model(":progs/g_rock2.mdl") = weapon_rocketlauncher : "Rocket launcher" []
-@PointClass base(Weapon) model(":progs/g_light.mdl") = weapon_lightning : "Thunderbolt" []
+@PointClass base(Weapon) model({ "path": ":progs/g_shot.mdl" }) = weapon_supershotgun : "Double-barrelled shotgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_nail.mdl" }) = weapon_nailgun : "Nailgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_nail2.mdl" }) = weapon_supernailgun : "Super nailgun" []
+@PointClass base(Weapon) model({ "path": ":progs/g_rock.mdl" }) = weapon_grenadelauncher : "Grenade launcher" []
+@PointClass base(Weapon) model({ "path": ":progs/g_rock2.mdl" }) = weapon_rocketlauncher : "Rocket launcher" []
+@PointClass base(Weapon) model({ "path": ":progs/g_light.mdl" }) = weapon_lightning : "Thunderbolt" []
 
 //
 // monsters
@@ -213,22 +213,22 @@
 	]
 ]
 
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/soldier.mdl") = monster_army : "Grunt" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model(":progs/dog.mdl") = monster_dog : "Nasty Doggie" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre : "Ogre" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/ogre.mdl") = monster_ogre_marksman : "Ogre marksman" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/knight.mdl") = monster_knight : "Knight" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/hknight.mdl") = monster_hell_knight : "Hell knight" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/wizard.mdl") = monster_wizard : "Scrag" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/demon.mdl") = monster_demon1 : "Fiend" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shambler.mdl") = monster_shambler : "Shambler" []
-@PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl") = monster_boss : "Chthon" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl") = monster_enforcer : "Enforcer" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shalrath.mdl") = monster_shalrath : "Vore" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model(":progs/tarbaby.mdl") = monster_tarbaby : "Spawn" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl") = monster_oldone : "Shub-Niggurath" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/zombie.mdl") = monster_zombie : "Zombie" 
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/soldier.mdl" }) = monster_army : "Grunt" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 40) model({ "path": ":progs/dog.mdl" }) = monster_dog : "Nasty Doggie" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_ogre : "Ogre" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/ogre.mdl" }) = monster_ogre_marksman : "Ogre marksman" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/knight.mdl" }) = monster_knight : "Knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/hknight.mdl" }) = monster_hell_knight : "Hell knight" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/wizard.mdl" }) = monster_wizard : "Scrag" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/demon.mdl" }) = monster_demon1 : "Fiend" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/shambler.mdl" }) = monster_shambler : "Shambler" []
+@PointClass base(Monster) size(-128 -128 -24, 128 128 256) model({ "path": ":progs/boss.mdl" }) = monster_boss : "Chthon" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model({ "path": ":progs/enforcer.mdl" }) = monster_enforcer : "Enforcer" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model({ "path": ":progs/shalrath.mdl" }) = monster_shalrath : "Vore" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/tarbaby.mdl" }) = monster_tarbaby : "Spawn" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/fish.mdl" }) = monster_fish : "Rotfish" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/oldone.mdl" }) = monster_oldone : "Shub-Niggurath" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/zombie.mdl" }) = monster_zombie : "Zombie" 
 [
 	spawnflags(Flags) = 
 	[
@@ -291,22 +291,22 @@
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model(":progs/flame2.mdl") = 
+@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_large_yellow : "Large yellow flame"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model(":progs/flame2.mdl") = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_small_yellow : "Small yellow flame" 
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model(":progs/flame2.mdl") = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame2.mdl" }) = 
 	light_flame_small_white : "Small white flame"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model(":progs/flame.mdl") = 
+@PointClass size(-4 -4 -12, 4 4 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame.mdl" }) = 
 	light_torch_small_walltorch : "Small walltorch" []
 
 //
@@ -318,11 +318,11 @@
 @PointClass base(Appearflags) color(0 150 220) = air_bubbles : "Air bubbles" []
 @PointClass base(Appearflags, Targetname) =
 	event_lightning : "Chthon's lightning" []
-@PointClass base(Appearflags) model(":progs/lavaball.mdl") = misc_fireball : "Small fireball"
+@PointClass base(Appearflags) model({ "path": ":progs/lavaball.mdl" }) = misc_fireball : "Small fireball"
 	[ speed(integer) : "Speed" : 40 ]
-@PointClass base(Appearflags) size(0 0 0, 32 32 64) model(":maps/b_explob.bsp") = misc_explobox : "Large exploding container" []
-@PointClass base(Appearflags) size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp") = misc_explobox2 : "Small exploding container" []
-@PointClass base(Appearflags) size(-8 -8 -8, 8 8 8) model(":progs/teleport.mdl") = misc_teleporttrain : "Flying teleporter destination"
+@PointClass base(Appearflags) size(0 0 0, 32 32 64) model({ "path": ":maps/b_explob.bsp" }) = misc_explobox : "Large exploding container" []
+@PointClass base(Appearflags) size(0 0 0, 32 32 32) model({ "path": ":maps/b_exbox2.bsp" }) = misc_explobox2 : "Small exploding container" []
+@PointClass base(Appearflags) size(-8 -8 -8, 8 8 8) model({ "path": ":progs/teleport.mdl" }) = misc_teleporttrain : "Flying teleporter destination"
 [
 	target(string) : "First stop target"
 	targetname(target_source) : "Name" 
