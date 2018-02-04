@@ -20,9 +20,15 @@ cd ..
 
 # Build TB
 
+ASAN_FLAG=""
+if [[ -z $TRAVIS_TAG ]] ; then
+    echo "Not building a tag; enabling ASan"
+    ASAN_FLAG="-fsanitize=address"
+fi
+
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror $ASAN_FLAG" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
 cmake --build . --config Release || exit 1
 cpack || exit 1
 
