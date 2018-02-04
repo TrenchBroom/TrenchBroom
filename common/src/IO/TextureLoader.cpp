@@ -24,6 +24,7 @@
 #include "EL/Interpolator.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdWalTextureReader.h"
+#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/TextureCollectionLoader.h"
 #include "Model/GameConfig.h"
@@ -58,6 +59,9 @@ namespace TrenchBroom {
             } else if (textureConfig.format.format == "idwal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
+            } else if (textureConfig.format.format == "image") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+                return new FreeImageTextureReader(nameStrategy);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }
