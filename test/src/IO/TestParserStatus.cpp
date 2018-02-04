@@ -19,10 +19,23 @@
 
 #include "TestParserStatus.h"
 
+#include "CollectionUtils.h"
+
 namespace TrenchBroom {
     namespace IO {
         TestParserStatus::TestParserStatus() : ParserStatus(nullptr) {}
-        
-        void TestParserStatus::doProgress(const double progress) {}
+
+        size_t TestParserStatus::countStatus(Logger::LogLevel level) const {
+            const auto it = m_statusCounts.find(level);
+            if (it == std::end(m_statusCounts))
+                return 0;
+            return it->second;
+        }
+
+        void TestParserStatus::doProgress(const double) {}
+
+        void TestParserStatus::doLog(const Logger::LogLevel level, const String& str) {
+            MapUtils::findOrInsert(m_statusCounts, level, 0u)->second++;
+        }
     }
 }

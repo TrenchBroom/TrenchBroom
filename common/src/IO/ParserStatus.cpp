@@ -75,8 +75,7 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::log(const Logger::LogLevel level, const size_t line, const size_t column, const String& str) {
-            if (m_logger != nullptr)
-                m_logger->log(level, buildMessage(line, column, str));
+            doLog(level, buildMessage(line, column, str));
         }
 
         String ParserStatus::buildMessage(const size_t line, const size_t column, const String& str) const {
@@ -86,14 +85,18 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::log(const Logger::LogLevel level, const size_t line, const String& str) {
-            if (m_logger != nullptr)
-                m_logger->log(level, buildMessage(line, str));
+            doLog(level, buildMessage(line, str));
         }
         
         String ParserStatus::buildMessage(const size_t line, const String& str) const {
             StringStream msg;
             msg << str << " (line " << line << ")";
             return msg.str();
+        }
+
+        void ParserStatus::doLog(const Logger::LogLevel level, const String& str) {
+            if (m_logger != nullptr)
+                m_logger->log(level, str);
         }
     }
 }

@@ -20,15 +20,25 @@
 #ifndef TrenchBroom_TestParserStatus
 #define TrenchBroom_TestParserStatus
 
+#include "Logger.h"
+#include "StringUtils.h"
 #include "IO/ParserStatus.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace IO {
         class TestParserStatus : public ParserStatus {
+        private:
+            using StatusCounts = std::map<Logger::LogLevel, size_t>;
+            StatusCounts m_statusCounts;
         public:
             TestParserStatus();
+        public:
+            size_t countStatus(Logger::LogLevel level) const;
         private:
-            void doProgress(double progress);
+            void doProgress(double progress) override;
+            void doLog(Logger::LogLevel level, const String& str) override;
         };
     }
 }

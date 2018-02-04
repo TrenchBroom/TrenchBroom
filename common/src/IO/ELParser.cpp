@@ -239,13 +239,11 @@ namespace TrenchBroom {
         }
 
         EL::Expression ELParser::parse() {
+            const auto result = EL::Expression(parseExpression());
             if (m_mode == Mode::Strict) {
-                const auto result = EL::Expression(parseExpression());
                 expect(ELToken::Eof, m_tokenizer.peekToken()); // avoid trailing garbage
-                return result;
-            } else {
-                return EL::Expression(parseExpression());
             }
+            return result;
         }
 
         EL::ExpressionBase* ELParser::parseExpression() {
