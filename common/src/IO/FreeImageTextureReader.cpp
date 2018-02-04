@@ -26,7 +26,8 @@
 #include "IO/Path.h"
 
 #include "FreeImage.h"
-#include <string.h>
+
+#include <cstring>
 
 namespace TrenchBroom {
 
