@@ -76,6 +76,11 @@ IF(TB_ENABLE_ASAN)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+
+    # Workaround for false positives on macOS
+    IF(COMPILER_IS_CLANG)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_HAS_NO_ASAN")
+    ENDIF()
 ENDIF()
 
 IF(CMAKE_GENERATOR STREQUAL "Xcode")
