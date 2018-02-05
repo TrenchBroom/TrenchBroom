@@ -71,6 +71,18 @@ ELSE()
     MESSAGE(FATAL_ERROR "Unsupported compiler detected.")
 ENDIF()
 
+IF(TB_ENABLE_ASAN)
+    MESSAGE(STATUS "AddressSanitizer requested via TB_ENABLE_ASAN cmake variable")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+
+    # Workaround for false positives on macOS
+    IF(COMPILER_IS_CLANG)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_HAS_NO_ASAN")
+    ENDIF()
+ENDIF()
+
 IF(CMAKE_GENERATOR STREQUAL "Xcode")
     # Xcode requires these flags to allow debugging
     SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -fno-inline")
