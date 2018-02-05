@@ -21,19 +21,19 @@ cd ..
 # Build TB
 
 BUILD_TYPE_VALUE="Release"
-CXX_FLAGS_VALUE="-Werror"
+TB_ENABLE_ASAN_VALUE="NO"
 
 if [[ $TB_DEBUG_BUILD == "true" ]] ; then
     BUILD_TYPE_VALUE="Debug"
-    CXX_FLAGS_VALUE="$CXX_FLAGS_VALUE -fsanitize=address"
+    TB_ENABLE_ASAN_VALUE="YES"
 fi
 
 echo "Build type: $BUILD_TYPE_VALUE"
-echo "CMAKE_CXX_FLAGS: $CXX_FLAGS_VALUE"
+echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="$CXX_FLAGS_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack || exit 1
 
