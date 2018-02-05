@@ -284,10 +284,12 @@ private:
          * left and the height of its right subtrees differ by more than 1.
          */
         void rebalance() {
-            if (balance() < -1) {
-                rebalance(m_left, m_right);
-            } else if (balance() > 1) {
-                rebalance(m_right, m_left);
+            while (!this->balanced()) {
+                if (balance() < 0) {
+                    rebalance(m_left, m_right);
+                } else if (balance() > 0) {
+                    rebalance(m_right, m_left);
+                }
             }
         }
 
