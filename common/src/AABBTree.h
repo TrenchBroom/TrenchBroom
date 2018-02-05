@@ -100,6 +100,15 @@ private:
         virtual int balance() const = 0;
 
         /**
+         * Indicates whether this node is balanced.
+         *
+         * @return true if this node is balanced and false otherwise
+         */
+        bool balanced() const {
+            return std::abs(balance()) <= 1;
+        }
+
+        /**
          * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
          * root of the subtree after insertion.
          *
@@ -250,11 +259,13 @@ private:
                     // prevent the sibling to get deleted when this node gets deleted by the parent
                     sibling = nullptr;
                     // child will be deleted when this node gets deleted by the caller
-                } else if (newChild != child) {
-                    // the node to be removed was deleted from child's subtree, and we need to update our pointer
-                    // with the new root of that subtree
-                    delete child;
-                    child = newChild;
+                } else {
+                    if (newChild != child) {
+                        // the node to be removed was deleted from child's subtree, and we need to update our pointer
+                        // with the new root of that subtree
+                        delete child;
+                        child = newChild;
+                    }
 
                     // Update our data and rebalance if necessary.
                     updateBounds();
@@ -273,9 +284,9 @@ private:
          * left and the height of its right subtrees differ by more than 1.
          */
         void rebalance() {
-            if (m_left->height() > m_right->height() && m_left->height() - m_right->height() > 1) {
+            if (balance() < -1) {
                 rebalance(m_left, m_right);
-            } else if (m_right->height() > m_left->height() && m_right->height() - m_left->height() > 1) {
+            } else if (balance() > 1) {
                 rebalance(m_right, m_left);
             }
         }
@@ -565,7 +576,7 @@ public:
      * @return true if this tree is balanced and false otherwise
      */
     bool balanced() const {
-        return empty() || std::abs(m_root->balance() <= 1);
+        return empty() || m_root->balanced();
     }
 
     /**
