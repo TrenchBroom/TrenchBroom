@@ -5,6 +5,8 @@ matrix:
       dist: trusty
       sudo: required
     - os: osx
+    - os: osx
+      env: TB_DEBUG_BUILD=true
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis-linux.sh; fi
@@ -22,3 +24,4 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
+    env: "$TB_DEBUG_BUILD != 'true'"
