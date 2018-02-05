@@ -52,7 +52,9 @@ namespace TrenchBroom {
             Notifier0 editorContextDidChangeNotifier;
         public:
             EditorContext();
-            
+
+            void reset();
+
             bool showPointEntities() const;
             void setShowPointEntities(bool showPointEntities);
             
