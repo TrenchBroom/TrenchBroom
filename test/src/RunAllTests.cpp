@@ -39,6 +39,10 @@ int main(int argc, char **argv) {
 
     ::testing::InitGoogleTest(&argc, argv);
     
+    int *z = new int[99];
+    printf("z: %d\n", z[99]);
+    delete[] z;
+
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
     const int result = RUN_ALL_TESTS();
