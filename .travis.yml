@@ -24,4 +24,4 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
-    env: "$TB_DEBUG_BUILD != 'true'"
+    condition: $TB_DEBUG_BUILD != true
