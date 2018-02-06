@@ -24,4 +24,5 @@ deploy:
   on:
     repo: kduske/TrenchBroom
     tags: true
+    draft: true
     condition: $TB_DEBUG_BUILD != true
