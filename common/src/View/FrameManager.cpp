@@ -25,6 +25,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
+#include "TrenchBroomApp.h"
 
 #include <cassert>
 
@@ -130,6 +131,10 @@ namespace TrenchBroom {
 
             frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Destroy();
+
+            if (!wxTheApp->GetExitOnFrameDelete() && m_frames.empty()) {
+                TrenchBroomApp::instance().showWelcomeFrame();
+            }
         }
     }
 }
