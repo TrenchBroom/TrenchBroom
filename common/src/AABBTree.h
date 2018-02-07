@@ -282,6 +282,10 @@ private:
         /**
          * If this node is out of balance, we rebalance it. A node is out of balance if and only if the height of its
          * left and the height of its right subtrees differ by more than 1.
+         *
+         * Sometimes, multiple rebalancing operations are necessary because the node being removed from the higher
+         * subtree neither reduces that tree's height, nor does it increase the height of the lower subtree, therefore
+         * not rebalancing the tree. Repeating the rebalancing operation will yield a balanced tree, however.
          */
         void rebalance() {
             while (!this->balanced()) {
