@@ -101,6 +101,7 @@ namespace TrenchBroom {
 #endif
         private:
             static bool useSDI();
+        public:
             void showWelcomeFrame();
         };
 
