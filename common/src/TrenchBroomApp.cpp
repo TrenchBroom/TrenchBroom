@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
-            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
+            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, MaxRecentDocuments);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
 
 #ifdef __APPLE__
@@ -571,7 +571,7 @@ namespace TrenchBroom {
                     break;
                 default:
                     if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
-                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
+                        event.GetId() < CommandIds::Menu::FileRecentDocuments + m_recentDocuments->maxSize())
                         event.Enable(true);
                     else if (m_frameManager->allFramesClosed())
                         event.Enable(false);

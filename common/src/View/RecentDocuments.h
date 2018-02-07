@@ -55,7 +55,11 @@ namespace TrenchBroom {
                 assert(m_maxSize > 0);
                 loadFromConfig();
             }
-            
+
+            size_t maxSize() const {
+                return m_maxSize;
+            }
+
             const IO::Path::List& recentDocuments() const {
                 return m_recentDocuments;
             }

@@ -39,6 +39,8 @@ namespace TrenchBroom {
         
         class TrenchBroomApp : public wxApp {
         private:
+            static const size_t MaxRecentDocuments = 15;
+
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
             wxLongLong m_lastActivation;

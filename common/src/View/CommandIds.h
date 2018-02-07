@@ -106,9 +106,9 @@ namespace TrenchBroom {
                 const int RunCompile                         = Lowest + 150;
                 const int RunLaunch                          = Lowest + 151;
                 
-                const int FileRecentDocuments                = Lowest + 190;
+                const int FileRecentDocuments                = Lowest + 170;
 
-                const int Highest                            = Lowest + 200;
+                const int Highest                            = Lowest + 300;
             }
             
             namespace Actions {
