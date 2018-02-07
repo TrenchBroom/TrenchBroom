@@ -26,5 +26,6 @@ deploy:
     secure: 'xTcTfr+JiHlF5y4sSlB6so7fIGM1d+39JtNoaeeqtdEmucEqASb/xhs60ayi4mUm'
   draft: true
   prerelease: false
+  force_update: true
   on:
     appveyor_repo_tag: true
