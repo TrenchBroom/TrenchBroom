@@ -571,7 +571,7 @@ namespace TrenchBroom {
                     break;
                 default:
                     if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
-                        event.GetId() < CommandIds::Menu::FileRecentDocuments + m_recentDocuments->maxSize())
+                        event.GetId() < CommandIds::Menu::FileRecentDocuments + static_cast<decltype(CommandIds::Menu::FileRecentDocuments)>(m_recentDocuments->maxSize()))
                         event.Enable(true);
                     else if (m_frameManager->allFramesClosed())
                         event.Enable(false);
