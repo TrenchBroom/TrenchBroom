@@ -230,18 +230,22 @@ namespace TrenchBroom {
         class EntityAttributeCellEditor : public wxGridCellTextEditor
         {
         private:
+            wxGrid* m_wxGrid;
             EntityAttributeGrid* m_grid;
             EntityAttributeGridTable* m_table;
             int m_row, m_col;
-            bool m_returnWasPressed;
+            bool m_forceChange;
+            String m_forceChangeAttribute;
             
         public:
-            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
-            : m_grid(grid),
+            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table, wxGrid* wxGrid)
+            : m_wxGrid(wxGrid),
+            m_grid(grid),
             m_table(table),
             m_row(-1),
             m_col(-1),
-            m_returnWasPressed(false) {}
+            m_forceChange(false),
+            m_forceChangeAttribute("") {}
 
         private:
             void OnCharHook(wxKeyEvent& event) {
@@ -249,12 +253,16 @@ namespace TrenchBroom {
                     // HACK: Consume tab key and use it for cell navigation.
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
                     m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
-                } else if (event.GetKeyCode() == WXK_RETURN) {
+                } else if (event.GetKeyCode() == WXK_RETURN && m_col == 1) {
                     // HACK: (#1976) Make the next call to EndEdit return true unconditionally
                     // so it's possible to press enter to apply a value to all entites in a selection
                     // even though the grid editor hasn't changed.
-                    m_returnWasPressed = true;
-                    event.Skip();
+
+                    const SetBool forceChange{m_forceChange};
+                    const SetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
+                        
+                    m_wxGrid->SaveEditControlValue();
+                    m_wxGrid->HideCellEditControl();
                 } else {
                     event.Skip();
                 }
@@ -263,6 +271,7 @@ namespace TrenchBroom {
         public:
             void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
+                assert(grid == m_wxGrid);
 
                 m_row = row;
                 m_col = col;
@@ -277,15 +286,20 @@ namespace TrenchBroom {
             }
             
             bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
+                assert(grid == m_wxGrid);
+                
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
                 
                 textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
                 
                 const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+
+                const String changedAttribute = m_table->attributeName(row);
                 
-                if (m_returnWasPressed) {
-                    m_returnWasPressed = false;
+                if (m_forceChange
+                    && col == 1
+                    && m_forceChangeAttribute == changedAttribute) {
                     return true;
                 } else {
                     return superclassDidChange;
@@ -306,7 +320,7 @@ namespace TrenchBroom {
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
-            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table);
+            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table, m_grid);
             m_grid->SetDefaultEditor(editor);
             
             m_grid->DisableColResize(0);
