@@ -590,6 +590,10 @@ namespace TrenchBroom {
             ensure(rowIndex < m_rows.attributeRowCount(), "row index out of bounds");
             
             const String& oldName = m_rows.name(rowIndex);
+            
+            if (oldName == newName)
+                return;
+            
             if (!m_rows.nameMutable(rowIndex)) {
                 wxString msg;
                 msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
@@ -615,6 +619,7 @@ namespace TrenchBroom {
         void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.totalRowCount(), "row index out of bounds");
 
+            bool hasChange = false;
             const String& name = m_rows.name(rowIndex);
             for (const Model::AttributableNode* attributable : attributables) {
                 if (attributable->hasAttribute(name)) {
@@ -625,8 +630,15 @@ namespace TrenchBroom {
                         wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                         return;
                     }
+                    if (attributable->attribute(name) != newValue)
+                        hasChange = true;
+                } else {
+                    hasChange = true;
                 }
             }
+            
+            if (!hasChange)
+                return;
 
             MapDocumentSPtr document = lock(m_document);
             if (document->setAttribute(name, newValue)) {
