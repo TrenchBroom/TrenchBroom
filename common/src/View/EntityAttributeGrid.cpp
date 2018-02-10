@@ -256,7 +256,7 @@ namespace TrenchBroom {
                     m_returnWasPressed = true;
                     event.Skip();
                 } else {
-                	event.Skip();
+                    event.Skip();
                 }
             }
 
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                     m_returnWasPressed = false;
                     return true;
                 } else {
-                	return superclassDidChange;
+                    return superclassDidChange;
                 }
             }
         };
