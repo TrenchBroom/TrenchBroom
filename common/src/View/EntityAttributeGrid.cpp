@@ -233,13 +233,15 @@ namespace TrenchBroom {
             EntityAttributeGrid* m_grid;
             EntityAttributeGridTable* m_table;
             int m_row, m_col;
+            bool m_returnWasPressed;
             
         public:
             EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
             : m_grid(grid),
             m_table(table),
             m_row(-1),
-            m_col(-1) {}
+            m_col(-1),
+            m_returnWasPressed(false) {}
 
         private:
             void OnCharHook(wxKeyEvent& event) {
@@ -247,6 +249,12 @@ namespace TrenchBroom {
                     // HACK: Consume tab key and use it for cell navigation.
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
                     m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
+                } else if (event.GetKeyCode() == WXK_RETURN) {
+                    // HACK: (#1976) Make the next call to EndEdit return true unconditionally
+                    // so it's possible to press enter to apply a value to all entites in a selection
+                    // even though the grid editor hasn't changed.
+                    m_returnWasPressed = true;
+                    event.Skip();
                 } else {
                 	event.Skip();
                 }
@@ -274,7 +282,14 @@ namespace TrenchBroom {
                 
                 textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
                 
-                return wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+                const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+                
+                if (m_returnWasPressed) {
+                    m_returnWasPressed = false;
+                    return true;
+                } else {
+                	return superclassDidChange;
+                }
             }
         };
         
