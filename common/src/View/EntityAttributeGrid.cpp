@@ -230,7 +230,6 @@ namespace TrenchBroom {
         class EntityAttributeCellEditor : public wxGridCellTextEditor
         {
         private:
-            wxGrid* m_wxGrid;
             EntityAttributeGrid* m_grid;
             EntityAttributeGridTable* m_table;
             int m_row, m_col;
@@ -238,9 +237,8 @@ namespace TrenchBroom {
             String m_forceChangeAttribute;
             
         public:
-            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table, wxGrid* wxGrid)
-            : m_wxGrid(wxGrid),
-            m_grid(grid),
+            EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
+            : m_grid(grid),
             m_table(table),
             m_row(-1),
             m_col(-1),
@@ -261,8 +259,8 @@ namespace TrenchBroom {
                     const SetBool forceChange{m_forceChange};
                     const SetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
                         
-                    m_wxGrid->SaveEditControlValue();
-                    m_wxGrid->HideCellEditControl();
+                    m_grid->gridWindow()->SaveEditControlValue();
+                    m_grid->gridWindow()->HideCellEditControl();
                 } else {
                     event.Skip();
                 }
@@ -271,7 +269,7 @@ namespace TrenchBroom {
         public:
             void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
-                assert(grid == m_wxGrid);
+                assert(grid == m_grid->gridWindow());
 
                 m_row = row;
                 m_col = col;
@@ -286,7 +284,7 @@ namespace TrenchBroom {
             }
             
             bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
-                assert(grid == m_wxGrid);
+                assert(grid == m_grid->gridWindow());
                 
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
@@ -320,7 +318,7 @@ namespace TrenchBroom {
             m_grid->SetDefaultCellBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_grid->HideRowLabels();
             
-            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table, m_grid);
+            wxGridCellTextEditor* editor = new EntityAttributeCellEditor(this, m_table);
             m_grid->SetDefaultEditor(editor);
             
             m_grid->DisableColResize(0);
@@ -432,6 +430,10 @@ namespace TrenchBroom {
             } else {
                 fireSelectionEvent(row, m_lastSelectedCol);
             }
+        }
+        
+        wxGrid* EntityAttributeGrid::gridWindow() const {
+            return m_grid;
         }
         
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {

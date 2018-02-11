@@ -94,6 +94,8 @@ namespace TrenchBroom {
         private:
             void updateControls();
         public:
+            wxGrid* gridWindow() const;
+        public:
             Model::AttributeName selectedRowName() const;
         };
     }
