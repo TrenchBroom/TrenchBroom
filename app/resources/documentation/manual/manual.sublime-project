@@ -1,0 +1,8 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"file_include_patterns": ["*.md", "*.css", "*.js", "*.html"]
+		}
+	]
+}
