@@ -129,6 +129,6 @@ pre {
 	border-radius: 5px;
 	border: 1px solid gray;
     font-size: small;
-
+	overflow: auto;
+	max-width: 100%;
 }
-
