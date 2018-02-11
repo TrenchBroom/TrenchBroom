@@ -1,6 +1,7 @@
 Version.h
 .DS_STORE
 Thumbs.db
+*.sublime-workspace
 
 /cmake-build-debug
 /cmake-build-release

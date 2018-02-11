@@ -1710,7 +1710,7 @@ Sometimes, the actual model that is displayed in game depends on the value of an
 
 The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
 
-	dangle == "1"                                             // If the value of the entity property 'dangle' equals "1"
+	dangle == "1"                                             // If the value of property 'dangle' equals "1"
 	->            											  // then
 	{ "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
 	,                                                         // Otherwise,
