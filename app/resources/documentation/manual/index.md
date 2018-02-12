@@ -1839,7 +1839,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 ## Contact
 
-- IRC: \#trenchbroom on quakenet.org
+- [Discord]
 
 # References and Links {#references_and_links}
 
@@ -1852,3 +1852,4 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [func_msgboard]: http://celephais.net/board/
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
+[Discord]: https://discord.gg/n7K8Cps
