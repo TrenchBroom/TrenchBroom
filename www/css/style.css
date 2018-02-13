@@ -45,6 +45,16 @@ div.screenshot img {
 	background-color: #dddddd;
 }
 
+div.video {
+	text-align: center;
+}
+
+div.video iframe {
+	padding: 20px;
+	border-radius: 10px;
+	background-color: #dddddd;
+}
+
 a {
 	text-decoration: none;
 }
