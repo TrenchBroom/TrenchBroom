@@ -1845,6 +1845,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 - [TrenchBroom on github] - TrenchBroom's github page
 - [func_msgboard] - Quake Mapping Forum
+- [Tutorials by dumptruck_ds] - Video Tutorial Series
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
 [TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
@@ -1853,3 +1854,4 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
 [Discord]: https://discord.gg/n7K8Cps
+[Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
