@@ -51,6 +51,16 @@ namespace TrenchBroom {
             }
         }
 
+        bool CreateComplexBrushTool::doActivate() {
+            update(Polyhedron3());
+            return true;
+        }
+
+        bool CreateComplexBrushTool::doDeactivate() {
+            update(Polyhedron3());
+            return true;
+        }
+
         void CreateComplexBrushTool::doBrushWasCreated() {
             update(Polyhedron3());
         }

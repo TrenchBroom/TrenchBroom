@@ -1710,7 +1710,7 @@ Sometimes, the actual model that is displayed in game depends on the value of an
 
 The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
 
-	dangle == "1"                                             // If the value of the entity property 'dangle' equals "1"
+	dangle == "1"                                             // If the value of property 'dangle' equals "1"
 	->            											  // then
 	{ "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
 	,                                                         // Otherwise,
@@ -1839,12 +1839,13 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 ## Contact
 
-- IRC: \#trenchbroom on quakenet.org
+- [Discord]
 
 # References and Links {#references_and_links}
 
 - [TrenchBroom on github] - TrenchBroom's github page
 - [func_msgboard] - Quake Mapping Forum
+- [Tutorials by dumptruck_ds] - Video Tutorial Series
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
 [TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
@@ -1852,3 +1853,5 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [func_msgboard]: http://celephais.net/board/
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
+[Discord]: https://discord.gg/n7K8Cps
+[Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA

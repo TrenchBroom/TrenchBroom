@@ -44,7 +44,9 @@ namespace TrenchBroom {
             const Polyhedron3& polyhedron() const;
             void update(const Polyhedron3& polyhedron);
         private:
-            void doBrushWasCreated();
+            bool doActivate() override;
+            bool doDeactivate() override;
+            void doBrushWasCreated() override;
         };
     }
 }
