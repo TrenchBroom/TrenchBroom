@@ -114,6 +114,9 @@ namespace TrenchBroom {
             } else if (isRemoveRowShortcut(event)) {
                 if (canRemoveSelectedAttributes())
                     removeSelectedAttributes();
+            } else if (isOpenCellEditorShortcut(event)) {
+                if (m_grid->CanEnableCellControl())
+                    m_grid->EnableCellEditControl();
             } else {
                 event.Skip();
             }
@@ -132,6 +135,10 @@ namespace TrenchBroom {
         
         bool EntityAttributeGrid::isRemoveRowShortcut(const wxKeyEvent& event) const {
             return (event.GetKeyCode() == WXK_DELETE || event.GetKeyCode() == WXK_BACK) && !m_grid->IsCellEditControlShown();
+        }
+        
+        bool EntityAttributeGrid::isOpenCellEditorShortcut(const wxKeyEvent& event) const {
+            return event.GetKeyCode() == WXK_RETURN && !event.HasAnyModifiers() && !m_grid->IsCellEditControlShown();
         }
 
         void EntityAttributeGrid::OnAttributeGridMouseMove(wxMouseEvent& event) {

@@ -63,6 +63,7 @@ namespace TrenchBroom {
             void OnAttributeGridKeyUp(wxKeyEvent& event);
             bool isInsertRowShortcut(const wxKeyEvent& event) const;
             bool isRemoveRowShortcut(const wxKeyEvent& event) const;
+            bool isOpenCellEditorShortcut(const wxKeyEvent& event) const;
         private:
             void OnAttributeGridMouseMove(wxMouseEvent& event);
 
