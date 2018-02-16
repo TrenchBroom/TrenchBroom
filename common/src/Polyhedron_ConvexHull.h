@@ -397,6 +397,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         case Math::PointStatus::PSAbove:
             face->flip();
             callback.faceWasFlipped(face);
+            switchFallthrough();
         case Math::PointStatus::PSBelow:
             return makePolyhedron(position, callback);
     }
@@ -1045,6 +1046,7 @@ public:
             switch (result) {
                 case MatchResult_Second:
                     edge->flip();
+                    switchFallthrough();
                 case MatchResult_First:
                     return edge;
                 case MatchResult_Both:

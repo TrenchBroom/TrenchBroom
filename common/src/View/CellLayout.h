@@ -531,7 +531,7 @@ namespace TrenchBroom {
                 ensure(index >= 0 && index < m_groups.size(), "index out of range");
                 if (!m_valid)
                     validate();
-                    return m_groups[index];
+                return m_groups[index];
             }
 
             CellLayout(const size_t maxCellsPerRow = 0) :

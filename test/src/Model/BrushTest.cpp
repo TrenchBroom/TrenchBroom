@@ -3204,8 +3204,9 @@ namespace TrenchBroom {
                         brush->removeVertices(worldBounds, toRemove);
                         
                         for (size_t l = 0; l < 8; ++l) {
-                            if (l != i && l != j && l != k)
+                            if (l != i && l != j && l != k) {
                                 ASSERT_TRUE(brush->hasVertex(vertices[l]));
+                            }
                         }
                         
                         delete brush;
