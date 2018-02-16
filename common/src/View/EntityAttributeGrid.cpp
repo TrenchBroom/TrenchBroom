@@ -188,7 +188,7 @@ namespace TrenchBroom {
             assert(canRemoveSelectedAttributes());
             
             int firstRowIndex = m_grid->GetNumberRows();
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
+            const auto selectedRows = selectedRowsAndCursorRow();
             for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
                 m_grid->DeleteRows(*it, 1);
                 firstRowIndex = std::min(*it, firstRowIndex);
@@ -214,7 +214,7 @@ namespace TrenchBroom {
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            event.Enable(!m_grid->GetSelectedRows().IsEmpty() && canRemoveSelectedAttributes());
+            event.Enable(canRemoveSelectedAttributes());
         }
 
         void EntityAttributeGrid::OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event) {
@@ -224,11 +224,29 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            for (const int rowIndex : m_grid->GetSelectedRows()) {
-                if (!m_table->canRemove(rowIndex))
+            const auto rows = selectedRowsAndCursorRow();
+            if (rows.empty())
+                return false;
+            
+            for (const int row : rows) {
+                if (!m_table->canRemove(row))
                     return false;
             }
             return true;
+        }
+
+        std::set<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
+            std::set<int> result;
+            
+            if (m_grid->GetGridCursorCol() != -1
+                && m_grid->GetGridCursorRow() != -1) {
+                result.insert(m_grid->GetGridCursorRow());
+            }
+            
+            for (const int row : m_grid->GetSelectedRows()) {
+                result.insert(row);
+            }
+            return result;
         }
 
         /**
