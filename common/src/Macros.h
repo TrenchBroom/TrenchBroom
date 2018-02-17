@@ -41,7 +41,7 @@
 #ifdef __clang__
 #define switchFallthrough() [[clang::fallthrough]]
 #elif __GNUC__
-#define switchFallthrough() [[gnu::fallthrough]]
+#define switchFallthrough() __attribute__((fallthrough))
 #else
 #define switchFallthrough()
 #endif
