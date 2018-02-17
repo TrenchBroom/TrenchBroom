@@ -56,22 +56,22 @@ namespace TrenchBroom {
         public:
             UVOriginTool(UVViewHelper& helper);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
             void computeOriginHandles(Line3& xHandle, Line3& yHandle) const;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
             
             Vec2f computeHitPoint(const Ray3& ray) const;
             Vec2f snapDelta(const Vec2f& delta) const;
             
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             
             void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             EdgeVertex::List getHandleVertices(const InputState& inputState) const;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

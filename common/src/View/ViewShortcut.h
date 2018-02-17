@@ -45,14 +45,14 @@ namespace TrenchBroom {
             
             void resetShortcut();
         private: // implement KeyboardShortcutEntry interface
-            int doGetActionContext() const;
-            bool doGetModifiable() const;
-            wxString doGetActionDescription() const;
-            wxString doGetJsonString() const;
-            const Preference<KeyboardShortcut>& doGetPreference() const;
-            const KeyboardShortcut& doGetShortcut() const;
-            void doUpdateShortcut(const KeyboardShortcut& shortcut);
-            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
+            int doGetActionContext() const override;
+            bool doGetModifiable() const override;
+            wxString doGetActionDescription() const override;
+            wxString doGetJsonString() const override;
+            const Preference<KeyboardShortcut>& doGetPreference() const override;
+            const KeyboardShortcut& doGetShortcut() const override;
+            void doUpdateShortcut(const KeyboardShortcut& shortcut) override;
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override;
         private:
             IO::Path path(const Action& action2D, const Action& action3D) const;
             String buildDescription(const Action& action2D, const Action& action3D) const;

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             IdWalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
         private:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
         };
     }
 }

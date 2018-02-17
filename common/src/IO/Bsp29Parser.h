@@ -71,7 +71,7 @@ namespace TrenchBroom {
         public:
             Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
-            Assets::EntityModel* doParseModel();
+            Assets::EntityModel* doParseModel() override;
             Assets::TextureCollection* parseTextures();
             TextureInfoList parseTextureInfos();
             Vec3f::List parseVertices();

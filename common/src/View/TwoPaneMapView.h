@@ -56,8 +56,8 @@ namespace TrenchBroom {
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private: // implement MultiMapView subclassing interface
-            void doMaximizeView(MapView* view);
-            void doRestoreViews();
+            void doMaximizeView(MapView* view) override;
+            void doRestoreViews() override;
         };
     }
 }

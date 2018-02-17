@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, wxLongLong duration);
         private:
-            void doUpdate(double progress);
+            void doUpdate(double progress) override;
         };
     }
 }

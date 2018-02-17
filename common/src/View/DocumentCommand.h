@@ -31,11 +31,11 @@ namespace TrenchBroom {
             DocumentCommand(CommandType type, const String& name);
             virtual ~DocumentCommand();
         public:
-            bool performDo(MapDocumentCommandFacade* document);
-            bool performUndo(MapDocumentCommandFacade* document);
-            bool collateWith(UndoableCommand::Ptr command);
+            bool performDo(MapDocumentCommandFacade* document) override;
+            bool performUndo(MapDocumentCommandFacade* document) override;
+            bool collateWith(UndoableCommand::Ptr command) override;
         private:
-            size_t documentModificationCount() const;
+            size_t documentModificationCount() const override;
         private:
             DocumentCommand(const DocumentCommand& other);
             DocumentCommand& operator=(const DocumentCommand& other);

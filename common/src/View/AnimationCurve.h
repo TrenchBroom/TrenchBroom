@@ -34,7 +34,7 @@ namespace TrenchBroom {
         
         class FlatAnimationCurve : public AnimationCurve {
         private:
-            double doApply(double progress) const;
+            double doApply(double progress) const override;
         };
         
         class EaseInEaseOutAnimationCurve : public AnimationCurve {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             double m_threshold;
         public:
             EaseInEaseOutAnimationCurve(wxLongLong duration);
-            double doApply(double progress) const;
+            double doApply(double progress) const override;
         };
     }
 }

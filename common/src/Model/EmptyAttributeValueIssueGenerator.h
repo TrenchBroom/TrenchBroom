@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             EmptyAttributeValueIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const override;
         };
     }
 }

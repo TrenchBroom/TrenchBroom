@@ -32,7 +32,7 @@ namespace TrenchBroom {
             ImageListBox(wxWindow* parent, const wxString& emptyText);
         private:
             class ImageListBoxItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
         private:
             virtual bool image(size_t index, wxBitmap& result) const;
             virtual wxString title(size_t index) const = 0;

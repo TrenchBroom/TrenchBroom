@@ -67,16 +67,16 @@ namespace TrenchBroom {
         public:
             CompilationExportMap(const String& targetSpec);
             
-            void accept(CompilationTaskVisitor& visitor);
-            void accept(ConstCompilationTaskVisitor& visitor) const;
-            void accept(const CompilationTaskConstVisitor& visitor);
-            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+            void accept(CompilationTaskVisitor& visitor) override;
+            void accept(ConstCompilationTaskVisitor& visitor) const override;
+            void accept(const CompilationTaskConstVisitor& visitor) override;
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
             
             const String& targetSpec() const;
             
             void setTargetSpec(const String& targetSpec);
         private:
-            CompilationTask* doClone() const;
+            CompilationTask* doClone() const override;
         private:
             CompilationExportMap(const CompilationExportMap& other);
             CompilationExportMap& operator=(const CompilationExportMap& other);
@@ -89,10 +89,10 @@ namespace TrenchBroom {
         public:
             CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
             
-            void accept(CompilationTaskVisitor& visitor);
-            void accept(ConstCompilationTaskVisitor& visitor) const;
-            void accept(const CompilationTaskConstVisitor& visitor);
-            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+            void accept(CompilationTaskVisitor& visitor) override;
+            void accept(ConstCompilationTaskVisitor& visitor) const override;
+            void accept(const CompilationTaskConstVisitor& visitor) override;
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
             const String& sourceSpec() const;
             const String& targetSpec() const;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             void setSourceSpec(const String& sourceSpec);
             void setTargetSpec(const String& targetSpec);
         private:
-            CompilationTask* doClone() const;
+            CompilationTask* doClone() const override;
         private:
             CompilationCopyFiles(const CompilationCopyFiles& other);
             CompilationCopyFiles& operator=(const CompilationCopyFiles& other);
@@ -113,10 +113,10 @@ namespace TrenchBroom {
         public:
             CompilationRunTool(const String& toolSpec, const String& parameterSpec);
             
-            void accept(CompilationTaskVisitor& visitor);
-            void accept(ConstCompilationTaskVisitor& visitor) const;
-            void accept(const CompilationTaskConstVisitor& visitor);
-            void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+            void accept(CompilationTaskVisitor& visitor) override;
+            void accept(ConstCompilationTaskVisitor& visitor) const override;
+            void accept(const CompilationTaskConstVisitor& visitor) override;
+            void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
             const String& toolSpec() const;
             const String& parameterSpec() const;
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             void setToolSpec(const String& toolSpec);
             void setParameterSpec(const String& parameterSpec);
         private:
-            CompilationTask* doClone() const;
+            CompilationTask* doClone() const override;
         private:
             CompilationRunTool(const CompilationRunTool& other);
             CompilationRunTool& operator=(const CompilationRunTool& other);

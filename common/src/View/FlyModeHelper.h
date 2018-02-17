@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void resetMouse();
             wxPoint windowCenter() const;
         private:
-            ExitCode Entry();
+            ExitCode Entry() override;
             Vec3f moveDelta();
             Vec2f lookDelta();
             Vec2f lookSpeed() const;

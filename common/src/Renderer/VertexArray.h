@@ -53,15 +53,15 @@ namespace TrenchBroom {
                 VboBlock* m_block;
                 size_t m_vertexCount;
             public:
-                size_t vertexCount() const {
+                size_t vertexCount() const override {
                     return m_vertexCount;
                 }
                 
-                size_t sizeInBytes() const {
+                size_t sizeInBytes() const override {
                     return VertexSpec::Size * m_vertexCount;
                 }
                 
-                virtual void prepare(Vbo& vbo) {
+                virtual void prepare(Vbo& vbo) override {
                     if (m_vertexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
@@ -71,12 +71,12 @@ namespace TrenchBroom {
                     }
                 }
                 
-                virtual void setup() {
+                virtual void setup() override {
                     ensure(m_block != nullptr, "block is null");
                     VertexSpec::setup(m_block->offset());
                 }
                 
-                virtual void cleanup() {
+                virtual void cleanup() override {
                     VertexSpec::cleanup();
                 }
             protected:
@@ -105,12 +105,12 @@ namespace TrenchBroom {
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
                 
-                void prepare(Vbo& vbo) {
+                void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
                     VectorUtils::clearToZero(m_vertices);
                 }
             private:
-                const VertexList& doGetVertices() const {
+                const VertexList& doGetVertices() const override {
                     return m_vertices;
                 }
             };
@@ -129,12 +129,12 @@ namespace TrenchBroom {
                     swap(m_vertices, vertices);
                 }
                 
-                void prepare(Vbo& vbo) {
+                void prepare(Vbo& vbo) override {
                     Holder<VertexSpec>::prepare(vbo);
                     VectorUtils::clearToZero(m_vertices);
                 }
             private:
-                const VertexList& doGetVertices() const {
+                const VertexList& doGetVertices() const override {
                     return m_vertices;
                 }
             };
@@ -150,7 +150,7 @@ namespace TrenchBroom {
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
             private:
-                const VertexList& doGetVertices() const {
+                const VertexList& doGetVertices() const override {
                     return m_vertices;
                 }
             };

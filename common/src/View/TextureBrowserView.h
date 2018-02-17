@@ -85,8 +85,8 @@ namespace TrenchBroom {
         private:
             void usageCountDidChange();
 
-            void doInitLayout(Layout& layout);
-            void doReloadLayout(Layout& layout);
+            void doInitLayout(Layout& layout) override;
+            void doReloadLayout(Layout& layout) override;
             void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
             
             struct CompareByUsageCount;
@@ -101,9 +101,9 @@ namespace TrenchBroom {
             void filterTextures(Assets::TextureList& textures) const;
             void sortTextures(Assets::TextureList& textures) const;
             
-            void doClear();
-            void doRender(Layout& layout, float y, float height);
-            bool doShouldRenderFocusIndicator() const;
+            void doClear() override;
+            void doRender(Layout& layout, float y, float height) override;
+            bool doShouldRenderFocusIndicator() const override;
             
             void renderBounds(Layout& layout, float y, float height);
             const Color& textureColor(const Assets::Texture& texture) const;
@@ -113,8 +113,8 @@ namespace TrenchBroom {
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            void doLeftClick(Layout& layout, float x, float y);
-            wxString tooltip(const Layout::Group::Row::Cell& cell);
+            void doLeftClick(Layout& layout, float x, float y) override;
+            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };
     }
 }

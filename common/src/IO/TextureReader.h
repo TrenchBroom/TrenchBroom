@@ -50,8 +50,8 @@ namespace TrenchBroom {
             public:
                 TextureNameStrategy();
             private:
-                NameStrategy* doClone() const;
-                String doGetTextureName(const String& textureName, const Path& path) const;
+                NameStrategy* doClone() const override;
+                String doGetTextureName(const String& textureName, const Path& path) const override;
                 
                 deleteCopyAndAssignment(TextureNameStrategy)
             };
@@ -63,8 +63,8 @@ namespace TrenchBroom {
             public:
                 PathSuffixNameStrategy(size_t suffixLength, bool deleteExtension);
             private:
-                NameStrategy* doClone() const;
-                String doGetTextureName(const String& textureName, const Path& path) const;
+                NameStrategy* doClone() const override;
+                String doGetTextureName(const String& textureName, const Path& path) const override;
                 
                 deleteCopyAndAssignment(PathSuffixNameStrategy)
             };

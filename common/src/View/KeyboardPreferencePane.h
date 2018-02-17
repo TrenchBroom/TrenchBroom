@@ -40,10 +40,10 @@ namespace TrenchBroom {
             
             wxWindow* createMenuShortcutGrid();
             
-            bool doCanResetToDefaults();
-            void doResetToDefaults();
-            void doUpdateControls();
-            bool doValidate();
+            bool doCanResetToDefaults() override;
+            void doResetToDefaults() override;
+            void doUpdateControls() override;
+            bool doValidate() override;
         };
     }
 }

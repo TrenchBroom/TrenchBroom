@@ -354,7 +354,7 @@ namespace TrenchBroom {
             m_value = value;
         }
         
-        void setValue(const ValueHolderBase* valueHolder) {
+        void setValue(const ValueHolderBase* valueHolder) override {
             const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
             setValue(actualValueHolder->value());
         }
@@ -363,7 +363,7 @@ namespace TrenchBroom {
             return m_initialized;
         }
         
-        void load(wxConfigBase* config) const {
+        void load(wxConfigBase* config) const override {
             using std::swap;
             T temp;
             if (m_serializer.read(config, m_path, temp))
@@ -371,7 +371,7 @@ namespace TrenchBroom {
             m_initialized = true;
         }
         
-        void save(wxConfigBase* config) {
+        void save(wxConfigBase* config) override {
             if (m_modified) {
                 assertResult(m_serializer.write(config, m_path, m_value));
                 m_modified = false;
@@ -410,7 +410,7 @@ namespace TrenchBroom {
             swap(lhs.m_modified, rhs.m_modified);
         }
         
-        const IO::Path& path() const {
+        const IO::Path& path() const override {
             return m_path;
         }
         

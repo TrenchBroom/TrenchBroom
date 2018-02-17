@@ -34,7 +34,7 @@ namespace TrenchBroom {
         public:
             IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
         protected:
-            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
+            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const override;
         };
     }
 }
