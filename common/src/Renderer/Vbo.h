@@ -63,7 +63,6 @@ namespace TrenchBroom {
             size_t m_totalCapacity;
             size_t m_freeCapacity;
             VboBlockList m_freeBlocks;
-            VboBlockList m_usedBlocks;
             VboBlock* m_firstBlock;
             VboBlock* m_lastBlock;
             State m_state;
@@ -72,10 +71,10 @@ namespace TrenchBroom {
             GLenum m_usage;
             GLuint m_vboId;
         public:
-            Vbo(const size_t initialCapacity, const GLenum type = GL_ARRAY_BUFFER, const GLenum usage = GL_DYNAMIC_DRAW);
+            Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
             ~Vbo();
             
-            VboBlock* allocateBlock(const size_t capacity);
+            VboBlock* allocateBlock(size_t capacity);
 
             bool active() const;
             void activate();
@@ -83,13 +82,13 @@ namespace TrenchBroom {
         private:
             friend class ActivateVbo;
             friend class VboBlock;
-            
+
             GLenum type() const;
             
             void free();
             void freeBlock(VboBlock* block);
 
-            void increaseCapacityToAccomodate(const size_t capacity);
+            void increaseCapacityToAccomodate(size_t capacity);
             void increaseCapacity(size_t delta);
             VboBlockList::iterator findFreeBlock(size_t minCapacity);
             void insertFreeBlock(VboBlock* block);
