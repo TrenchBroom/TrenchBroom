@@ -88,6 +88,7 @@ namespace TrenchBroom {
                             advance();
                             return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
                         }
+                        switchFallthrough();
                     case '\r':
                     case ' ':
                     case '\t':
