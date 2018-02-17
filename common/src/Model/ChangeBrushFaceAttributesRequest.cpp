@@ -127,7 +127,7 @@ namespace TrenchBroom {
                         case ChangeBrushFaceAttributesRequest::ValueOp_Set:
                             myOp = theirOp;
                             myValue = theirValue;
-                            switchFallthrough();
+                            return true;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Add:
                             return false;
                         case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     myOp = theirOp;
                     myValue = theirValue;
-                    switchFallthrough();
+                    return true;
                 case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
                     switch (theirOp) {
                         case ChangeBrushFaceAttributesRequest::FlagOp_None:
