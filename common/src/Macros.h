@@ -40,8 +40,8 @@
 // Annotate an intended switch fallthrough
 #ifdef __clang__
 #define switchFallthrough() [[clang::fallthrough]]
-#elif __GNUC__
-#define switchFallthrough() __attribute__((fallthrough))
+#elif __GNUC__ >= 7
+#define switchFallthrough() [[gnu::fallthrough]]
 #else
 #define switchFallthrough()
 #endif
