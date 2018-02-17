@@ -187,15 +187,35 @@ namespace TrenchBroom {
         void EntityAttributeGrid::removeSelectedAttributes() {
             assert(canRemoveSelectedAttributes());
             
-            int firstRowIndex = m_grid->GetNumberRows();
             const auto selectedRows = selectedRowsAndCursorRow();
-            for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
-                m_grid->DeleteRows(*it, 1);
-                firstRowIndex = std::min(*it, firstRowIndex);
+            
+            StringList attributes;
+            for (const int row : selectedRows) {
+                attributes.push_back(m_table->attributeName(row));
             }
             
-            if (firstRowIndex < m_grid->GetNumberRows())
-                m_grid->SelectRow(firstRowIndex);
+            m_grid->ClearSelection();
+            
+            for (const String& key : attributes) {
+                removeAttribute(key);
+            }
+        }
+        
+        /**
+         * Removes an attribute. If this attribute is still in the table
+         * after removing, sets the grid cursor on the new row
+         */
+        void EntityAttributeGrid::removeAttribute(const String& key) {
+            const int row = m_table->rowForName(key);
+            if (row == -1)
+                return;
+            
+            m_grid->DeleteRows(row, 1);
+            
+            const int newRow = m_table->rowForName(key);
+            if (newRow != -1) {
+                m_grid->SetGridCursor(newRow, m_grid->GetGridCursorCol());
+            }
         }
 
         void EntityAttributeGrid::OnShowDefaultPropertiesCheckBox(wxCommandEvent& event) {

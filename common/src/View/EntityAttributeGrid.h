@@ -74,6 +74,7 @@ namespace TrenchBroom {
             
             void addAttribute();
             void removeSelectedAttributes();
+            void removeAttribute(const String& key);
             
             void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
             void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
