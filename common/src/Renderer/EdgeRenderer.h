@@ -83,9 +83,9 @@ namespace TrenchBroom {
             public:
                 Render(const Params& params, VertexArray& vertexArray, IndexRangeMap& indexRanges);
             private:
-                void doPrepareVertices(Vbo& vertexVbo);
-                void doRender(RenderContext& renderContext);
-                void doRenderVertices(RenderContext& renderContext);
+                void doPrepareVertices(Vbo& vertexVbo) override;
+                void doRender(RenderContext& renderContext) override;
+                void doRenderVertices(RenderContext& renderContext) override;
             };
         private:
             VertexArray m_vertexArray;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             
             friend void swap(DirectEdgeRenderer& left, DirectEdgeRenderer& right);
         private:
-            void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params);
+            void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
         };
         
         class IndexedEdgeRenderer : public EdgeRenderer {
@@ -113,10 +113,10 @@ namespace TrenchBroom {
             public:
                 Render(const Params& params, VertexArray& vertexArray, IndexArray& indexArray, IndexArrayMap& indexRanges);
             private:
-                void doPrepareVertices(Vbo& vertexVbo);
-                void doPrepareIndices(Vbo& indexVbo);
-                void doRender(RenderContext& renderContext);
-                void doRenderVertices(RenderContext& renderContext);
+                void doPrepareVertices(Vbo& vertexVbo) override;
+                void doPrepareIndices(Vbo& indexVbo) override;
+                void doRender(RenderContext& renderContext) override;
+                void doRenderVertices(RenderContext& renderContext) override;
             };
         private:
             VertexArray m_vertexArray;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             
             friend void swap(IndexedEdgeRenderer& left, IndexedEdgeRenderer& right);
         private:
-            void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params);
+            void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
         };
     }
 }

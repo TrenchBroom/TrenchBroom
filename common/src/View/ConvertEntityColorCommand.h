@@ -47,12 +47,12 @@ namespace TrenchBroom {
         private:
             ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
             
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

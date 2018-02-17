@@ -58,7 +58,7 @@ namespace TrenchBroom {
             DefTokenizer(const String& str);
         private:
             static const String WordDelims;
-            Token emitToken();
+            Token emitToken() override;
         };
         
         class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
@@ -72,8 +72,8 @@ namespace TrenchBroom {
             DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
             DefParser(const String& str, const Color& defaultEntityColor);
         private:
-            TokenNameMap tokenNames() const;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status);
+            TokenNameMap tokenNames() const override;
+            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
             
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);

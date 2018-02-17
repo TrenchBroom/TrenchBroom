@@ -35,7 +35,7 @@ namespace TrenchBroom {
             const IO::Path& documentPath() const;
             void setDocumentPath(const IO::Path& documentPath);
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(RecentDocumentSelectedCommand);
         };

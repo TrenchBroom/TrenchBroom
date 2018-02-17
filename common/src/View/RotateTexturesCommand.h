@@ -36,15 +36,15 @@ namespace TrenchBroom {
         private:
             RotateTexturesCommand(float angle);
             
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
             bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         private:
             RotateTexturesCommand(const RotateTexturesCommand& other);
             RotateTexturesCommand& operator=(const RotateTexturesCommand& other);

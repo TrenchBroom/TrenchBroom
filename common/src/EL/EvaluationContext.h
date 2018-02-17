@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             EvaluationStack(const EvaluationContext& next);
             
-            Value variableValue(const String& name) const;
+            Value variableValue(const String& name) const override;
         };
     }
 }

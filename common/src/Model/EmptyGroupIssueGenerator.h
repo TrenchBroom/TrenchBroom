@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             EmptyGroupIssueGenerator();
         private:
-            void doGenerate(Group* group, IssueList& issues) const;
+            void doGenerate(Group* group, IssueList& issues) const override;
         };
     }
 }

@@ -44,11 +44,11 @@ namespace TrenchBroom {
         public:
             ~SnapBrushVerticesCommand();
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

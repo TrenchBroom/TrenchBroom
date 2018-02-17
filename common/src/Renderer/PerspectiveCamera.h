@@ -36,19 +36,19 @@ namespace TrenchBroom {
             float fov() const;
             void setFov(float fov);
         private:
-            ProjectionType doGetProjectionType() const;
+            ProjectionType doGetProjectionType() const override;
 
-            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
-            Ray3f doGetPickRay(const Vec3f& point) const;
-            void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
+            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const override;
+            Ray3f doGetPickRay(const Vec3f& point) const override;
+            void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const override;
             
-            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
-            float doPickFrustum(float size, const Ray3f& ray) const;
+            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const override;
+            float doPickFrustum(float size, const Ray3f& ray) const override;
             
             void getFrustumVertices(float size, Vec3f (&verts)[4]) const;
             Vec2f getFrustum() const;
 
-            float doGetPerspectiveScalingFactor(const Vec3f& position) const;
+            float doGetPerspectiveScalingFactor(const Vec3f& position) const override;
             float viewportFrustumDistance() const;
         };
     }

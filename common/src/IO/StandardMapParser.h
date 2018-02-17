@@ -58,7 +58,7 @@ namespace TrenchBroom {
             
             void setSkipEol(bool skipEol);
         private:
-            Token emitToken();
+            Token emitToken() override;
         };
 
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             Vec3 parseVector();
             void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
-            TokenNameMap tokenNames() const;
+            TokenNameMap tokenNames() const override;
         };
     }
 }

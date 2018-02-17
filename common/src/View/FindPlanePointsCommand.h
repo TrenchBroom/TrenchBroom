@@ -40,14 +40,14 @@ namespace TrenchBroom {
         private:
             FindPlanePointsCommand();
 
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
             void deleteSnapshot();
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

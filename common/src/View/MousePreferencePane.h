@@ -96,10 +96,10 @@ namespace TrenchBroom {
 
             void bindEvents();
             
-            bool doCanResetToDefaults();
-            void doResetToDefaults();
-            void doUpdateControls();
-            bool doValidate();
+            bool doCanResetToDefaults() override;
+            void doResetToDefaults() override;
+            void doUpdateControls() override;
+            bool doValidate() override;
         };
     }
 }

@@ -33,11 +33,11 @@ namespace TrenchBroom {
         public:
             AttributableNodeVariableStore(AttributableNode* node);
         private:
-            VariableStore* doClone() const;
-            EL::Value doGetValue(const String& name) const;
-            StringSet doGetNames() const;
-            void doDeclare(const String& name, const EL::Value& value);
-            void doAssign(const String& name, const EL::Value& value);
+            VariableStore* doClone() const override;
+            EL::Value doGetValue(const String& name) const override;
+            StringSet doGetNames() const override;
+            void doDeclare(const String& name, const EL::Value& value) override;
+            void doAssign(const String& name, const EL::Value& value) override;
 
             deleteCopyAndAssignment(AttributableNodeVariableStore)
         };

@@ -32,12 +32,12 @@ namespace TrenchBroom {
         public:
             DiskFileSystem(const Path& root, bool ensureExists = true);
         private:
-            Path doMakeAbsolute(const Path& relPath) const;
-            bool doDirectoryExists(const Path& path) const;
-            bool doFileExists(const Path& path) const;
+            Path doMakeAbsolute(const Path& relPath) const override;
+            bool doDirectoryExists(const Path& path) const override;
+            bool doFileExists(const Path& path) const override;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
-            const MappedFile::Ptr doOpenFile(const Path& path) const;
+            Path::List doGetDirectoryContents(const Path& path) const override;
+            const MappedFile::Ptr doOpenFile(const Path& path) const override;
         };
         
 #ifdef _MSC_VER
@@ -49,11 +49,11 @@ namespace TrenchBroom {
         public:
             WritableDiskFileSystem(const Path& root, bool create);
         private:
-            void doCreateFile(const Path& path, const String& contents);
-            void doCreateDirectory(const Path& path);
-            void doDeleteFile(const Path& path);
-            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doCreateFile(const Path& path, const String& contents) override;
+            void doCreateDirectory(const Path& path) override;
+            void doDeleteFile(const Path& path) override;
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
         };
 #ifdef _MSC_VER
 #pragma warning(pop)

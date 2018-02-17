@@ -41,12 +41,12 @@ namespace TrenchBroom {
             SmartAttributeEditorKeyMatcher(const String& pattern);
             SmartAttributeEditorKeyMatcher(std::initializer_list<String> patterns);
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const override;
         };
         
         class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            bool doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const override;
         };
     }
 }

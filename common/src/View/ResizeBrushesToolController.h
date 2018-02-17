@@ -46,24 +46,24 @@ namespace TrenchBroom {
         public:
             virtual ~ResizeBrushesToolController();
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doModifierKeyChange(const InputState& inputState);
+            void doModifierKeyChange(const InputState& inputState) override;
             
-            void doMouseMove(const InputState& inputState);
+            void doMouseMove(const InputState& inputState) override;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             Renderer::DirectEdgeRenderer buildEdgeRenderer();
             
-            bool doCancel();
+            bool doCancel() override;
 
             bool handleInput(const InputState& inputState) const;
         private:
@@ -74,14 +74,14 @@ namespace TrenchBroom {
         public:
             ResizeBrushesToolController2D(ResizeBrushesTool* tool);
         private:
-            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) override;
         };
         
         class ResizeBrushesToolController3D : public ResizeBrushesToolController {
         public:
             ResizeBrushesToolController3D(ResizeBrushesTool* tool);
         private:
-            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) override;
         };
     }
 }

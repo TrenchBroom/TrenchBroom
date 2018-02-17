@@ -38,13 +38,13 @@ namespace TrenchBroom {
         public:
             CameraTool2D(Renderer::OrthographicCamera& camera);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doMouseScroll(const InputState& inputState);
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            void doMouseScroll(const InputState& inputState) override;
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
             bool zoom(const InputState& inputState) const;
             bool look(const InputState& inputState) const;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             void zoom(const InputState& inputState, const Vec2f& mousePos, float factor);
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

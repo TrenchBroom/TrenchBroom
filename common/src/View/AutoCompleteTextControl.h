@@ -70,9 +70,9 @@ namespace TrenchBroom {
         private:
             class DefaultHelper : public Helper {
             private:
-                size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const;
-                size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const;
-                CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const;
+                size_t DoShouldStartCompletionAfterInput(const wxString& str, wxUniChar c, size_t insertPos) const override;
+                size_t DoShouldStartCompletionAfterRequest(const wxString& str, size_t insertPos) const override;
+                CompletionResult DoGetCompletions(const wxString& str, size_t startIndex, size_t count) const override;
             };
         private:
             class AutoCompletionList : public ControlListBox {
@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 const wxString CurrentSelection() const;
             private:
                 class AutoCompletionListItem;
-                Item* createItem(wxWindow* parent, const wxSize& margin, size_t index);
+                Item* createItem(wxWindow* parent, const wxSize& margin, size_t index) override;
             };
             
             class AutoCompletionPopup : public wxPopupWindow {

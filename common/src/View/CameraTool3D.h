@@ -41,13 +41,13 @@ namespace TrenchBroom {
             CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doMouseScroll(const InputState& inputState);
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            void doMouseScroll(const InputState& inputState) override;
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
             bool move(const InputState& inputState) const;
             bool look(const InputState& inputState) const;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             float panSpeedV() const;
             float moveSpeed(bool altMode) const;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

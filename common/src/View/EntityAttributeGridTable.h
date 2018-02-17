@@ -111,20 +111,20 @@ namespace TrenchBroom {
         public:
             EntityAttributeGridTable(MapDocumentWPtr document);
             
-            int GetNumberRows();
+            int GetNumberRows() override;
             int GetNumberAttributeRows() const;
-            int GetNumberCols();
+            int GetNumberCols() override;
             
-            wxString GetValue(int row, int col);
-            void SetValue(int row, int col, const wxString& value);
+            wxString GetValue(int row, int col) override;
+            void SetValue(int row, int col, const wxString& value) override;
             
-            void Clear();
-            bool InsertRows(size_t pos = 0, size_t numRows = 1);
-            bool AppendRows(size_t numRows = 1);
-            bool DeleteRows(size_t pos = 0, size_t numRows = 1);
+            void Clear() override;
+            bool InsertRows(size_t pos = 0, size_t numRows = 1) override;
+            bool AppendRows(size_t numRows = 1) override;
+            bool DeleteRows(size_t pos = 0, size_t numRows = 1) override;
             
-            wxString GetColLabelValue(int col);
-            wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind);
+            wxString GetColLabelValue(int col) override;
+            wxGridCellAttr* GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) override;
             
             void update();
             String tooltip(wxGridCellCoords cellCoords) const;

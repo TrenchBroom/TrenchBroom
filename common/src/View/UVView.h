@@ -88,9 +88,9 @@ namespace TrenchBroom {
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);
             
-            void doUpdateViewport(int x, int y, int width, int height);
-            void doRender();
-            bool doShouldRenderFocusIndicator() const;
+            void doUpdateViewport(int x, int y, int width, int height) override;
+            void doRender() override;
+            bool doShouldRenderFocusIndicator() const override;
 
             void setupGL(Renderer::RenderContext& renderContext);
 
@@ -101,8 +101,8 @@ namespace TrenchBroom {
             void renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            PickRequest doGetPickRequest(int x, int y) const;
-            Model::PickResult doPick(const Ray3& pickRay) const;
+            PickRequest doGetPickRequest(int x, int y) const override;
+            Model::PickResult doPick(const Ray3& pickRay) const override;
         };
     }
 }

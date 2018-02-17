@@ -55,7 +55,7 @@ namespace TrenchBroom {
             FgdTokenizer(const String& str);
         private:
             static const String WordDelims;
-            Token emitToken();
+            Token emitToken() override;
         };
 
         class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
@@ -78,8 +78,8 @@ namespace TrenchBroom {
             FgdParser(const char* begin, const char* end, const Color& defaultEntityColor);
             FgdParser(const String& str, const Color& defaultEntityColor);
         private:
-            TokenNameMap tokenNames() const;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status);
+            TokenNameMap tokenNames() const override;
+            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
             
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::EntityDefinition* parseSolidClass(ParserStatus& status);

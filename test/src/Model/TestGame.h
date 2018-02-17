@@ -34,48 +34,48 @@ namespace TrenchBroom {
         public:
             TestGame();
         private:
-            const String& doGameName() const;
-            IO::Path doGamePath() const;
-            void doSetGamePath(const IO::Path& gamePath, Logger* logger);
-            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger);
-            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const;
+            const String& doGameName() const override;
+            IO::Path doGamePath() const override;
+            void doSetGamePath(const IO::Path& gamePath, Logger* logger) override;
+            void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger* logger) override;
+            PathErrors doCheckAdditionalSearchPaths(const IO::Path::List& searchPaths) const override;
 
-            CompilationConfig& doCompilationConfig();
-            size_t doMaxPropertyLength() const;
+            CompilationConfig& doCompilationConfig() override;
+            size_t doMaxPropertyLength() const override;
             
-            World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
-            World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
-            void doWriteMap(World* world, const IO::Path& path) const;
-            void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const;
+            World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const override;
+            World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const override;
+            void doWriteMap(World* world, const IO::Path& path) const override;
+            void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const override;
             
-            NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
-            BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
-            void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
-            void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
+            NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const override;
+            BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const override;
+            void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const override;
+            void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const override;
             
-            TexturePackageType doTexturePackageType() const;
-            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
-            bool doIsTextureCollection(const IO::Path& path) const;
-            IO::Path::List doFindTextureCollections() const;
-            IO::Path::List doExtractTextureCollections(const AttributableNode* node) const;
-            void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const;
+            TexturePackageType doTexturePackageType() const override;
+            void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const override;
+            bool doIsTextureCollection(const IO::Path& path) const override;
+            IO::Path::List doFindTextureCollections() const override;
+            IO::Path::List doExtractTextureCollections(const AttributableNode* node) const override;
+            void doUpdateTextureCollections(AttributableNode* node, const IO::Path::List& paths) const override;
             
-            bool doIsEntityDefinitionFile(const IO::Path& path) const;
-            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
-            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const;
-            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
+            bool doIsEntityDefinitionFile(const IO::Path& path) const override;
+            Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const override;
+            Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const AttributableNode* node) const override;
+            IO::Path doFindEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const override;
             
-            const BrushContentType::List& doBrushContentTypes() const;
+            const BrushContentType::List& doBrushContentTypes() const override;
             
-            StringList doAvailableMods() const;
-            StringList doExtractEnabledMods(const AttributableNode* node) const;
-            String doDefaultMod() const;
+            StringList doAvailableMods() const override;
+            StringList doExtractEnabledMods(const AttributableNode* node) const override;
+            String doDefaultMod() const override;
             
-            const GameConfig::FlagsConfig& doSurfaceFlags() const;
-            const GameConfig::FlagsConfig& doContentFlags() const;
+            const GameConfig::FlagsConfig& doSurfaceFlags() const override;
+            const GameConfig::FlagsConfig& doContentFlags() const override;
 
-            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
-            Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const;
+            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
+            Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const override;
         };
     }
 }

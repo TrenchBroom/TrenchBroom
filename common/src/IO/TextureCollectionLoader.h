@@ -59,7 +59,7 @@ namespace TrenchBroom {
         public:
             FileTextureCollectionLoader(const Path::List& searchPaths);
         private:
-            MappedFile::List doFindTextures(const Path& path, const String& extension);
+            MappedFile::List doFindTextures(const Path& path, const String& extension) override;
         };
         
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(const FileSystem& gameFS);
         private:
-            MappedFile::List doFindTextures(const Path& path, const String& extension);
+            MappedFile::List doFindTextures(const Path& path, const String& extension) override;
         };
     }
 }

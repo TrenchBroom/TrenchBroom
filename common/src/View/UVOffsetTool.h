@@ -37,17 +37,17 @@ namespace TrenchBroom {
         public:
             UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
             Vec2f computeHitPoint(const Ray3& ray) const;
             Vec2f snapDelta(const Vec2f& delta) const;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

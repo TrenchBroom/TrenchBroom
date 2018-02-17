@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
             void OnButtonToggled(wxCommandEvent& event);
             void OnPopupShow(wxShowEvent& event);
-            bool Enable(bool enable = true);
+            bool Enable(bool enable = true) override;
         };
     }
 }

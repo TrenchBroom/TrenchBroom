@@ -44,7 +44,7 @@ namespace TrenchBroom {
             void setFlagValue(int set, int mixed = 0);
             
             void OnFlagChanged(FlagChangedCommand& event);
-            bool Enable(bool enable = true);
+            bool Enable(bool enable = true) override;
         private:
             void updateFlagsText();
         };

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             const Model::AttributeName& name() const;
             void setName(const Model::AttributeName& name);
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(EntityAttributeSelectedCommand);
         };

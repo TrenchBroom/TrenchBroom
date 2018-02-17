@@ -34,7 +34,7 @@ namespace TrenchBroom {
             
             void OnPaint(wxPaintEvent& event);
             void OnMouseDown(wxMouseEvent& event);
-            void DoUpdateWindowUI(wxUpdateUIEvent& event);
+            void DoUpdateWindowUI(wxUpdateUIEvent& event) override;
         private:
             wxSize bitmapSize() const;
             wxBitmap currentBitmap() const;

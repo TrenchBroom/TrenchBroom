@@ -44,8 +44,8 @@ namespace TrenchBroom {
             void setColor(const Color& color);
             void setBounds(const BBox3& bounds);
         private:
-            void doPrepareVertices(Vbo& vertexVbo);
-            void doRender(RenderContext& renderContext);
+            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doRender(RenderContext& renderContext) override;
         };
     }
 }

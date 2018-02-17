@@ -37,7 +37,7 @@ namespace TrenchBroom {
             ~GroupSnapshot();
         private:
             void takeSnapshot(Group* group);
-            void doRestore(const BBox3& worldBounds);
+            void doRestore(const BBox3& worldBounds) override;
         };
     }
 }

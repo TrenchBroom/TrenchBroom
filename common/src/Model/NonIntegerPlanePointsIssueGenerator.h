@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             NonIntegerPlanePointsIssueGenerator();
         private:
-            void doGenerate(Brush* brush, IssueList& issues) const;
+            void doGenerate(Brush* brush, IssueList& issues) const override;
         };
     }
 }

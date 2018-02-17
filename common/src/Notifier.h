@@ -243,11 +243,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()() {
+            void operator()() override {
                 (m_receiver->*m_function)();
             }
 
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                 return m_function;
             }
 
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
@@ -352,11 +352,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()(A1 a1) {
+            void operator()(A1 a1) override {
                 (m_receiver->*m_function)(a1);
             }
             
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -364,7 +364,7 @@ namespace TrenchBroom {
                 return m_function;
             }
             
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
@@ -480,11 +480,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()(A1 a1, A2 a2) {
+            void operator()(A1 a1, A2 a2) override {
                 (m_receiver->*m_function)(a1, a2);
             }
             
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -492,7 +492,7 @@ namespace TrenchBroom {
                 return m_function;
             }
             
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
