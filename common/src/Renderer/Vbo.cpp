@@ -66,9 +66,9 @@ namespace TrenchBroom {
                 deactivate();
             free();
             
-            VboBlock* block = m_firstBlock;
+            auto* block = m_firstBlock;
             while (block != nullptr) {
-                VboBlock* next = block->next();
+                auto* next = block->next();
                 delete block;
                 block = next;
             }
@@ -85,19 +85,19 @@ namespace TrenchBroom {
                 throw e;
             }
 
-            VboBlockList::iterator it = findFreeBlock(capacity);
+            auto it = findFreeBlock(capacity);
             if (it == std::end(m_freeBlocks)) {
                 increaseCapacityToAccomodate(capacity);
                 it = findFreeBlock(capacity);
             }
             
             assert(it != std::end(m_freeBlocks));
-            VboBlock* block = *it;
+            auto* block = *it;
             ensure(block != nullptr, "block is null");
             removeFreeBlock(it);
             
             if (block->capacity() > capacity) {
-                VboBlock* remainder = block->split(capacity);
+                auto* remainder = block->split(capacity);
                 if (m_lastBlock == block)
                     m_lastBlock = remainder;
                 insertFreeBlock(remainder);
@@ -148,8 +148,8 @@ namespace TrenchBroom {
             assert(!block->isFree());
             assert(checkBlockChain());
             
-            VboBlock* previous = block->previous();
-            VboBlock* next = block->next();
+            auto* previous = block->previous();
+            auto* next = block->next();
             
             if (previous != nullptr && previous->isFree() &&
                 next != nullptr && next->isFree()) {
@@ -183,11 +183,11 @@ namespace TrenchBroom {
         }
 
         void Vbo::increaseCapacityToAccomodate(const size_t capacity) {
-            size_t newMinCapacity = m_totalCapacity + capacity;
+            auto newMinCapacity = m_totalCapacity + capacity;
             if (m_lastBlock->isFree())
                 newMinCapacity -= m_lastBlock->capacity();
             
-            size_t newCapacity = m_totalCapacity;
+            auto newCapacity = m_totalCapacity;
             while (newCapacity < newMinCapacity)
                 newCapacity = static_cast<size_t>(static_cast<float>(newCapacity) * GrowthFactor);
             
@@ -201,15 +201,15 @@ namespace TrenchBroom {
             assert(delta > 0);
             assert(checkBlockChain());
 
-            const size_t begin = (m_firstBlock->isFree() ?  m_firstBlock->capacity() : 0);
-            const size_t end = m_totalCapacity - (m_lastBlock->isFree() ? m_lastBlock->capacity() : 0);
+            const auto begin = (m_firstBlock->isFree() ?  m_firstBlock->capacity() : 0);
+            const auto end = m_totalCapacity - (m_lastBlock->isFree() ? m_lastBlock->capacity() : 0);
             
             if (m_lastBlock->isFree()) {
                 removeFreeBlock(m_lastBlock);
                 m_lastBlock->setCapacity(m_lastBlock->capacity() + delta);
                 insertFreeBlock(m_lastBlock);
             } else {
-                VboBlock* block = m_lastBlock->createSuccessor(delta);
+                auto* block = m_lastBlock->createSuccessor(delta);
                 m_lastBlock = block;
                 insertFreeBlock(m_lastBlock);
             }
@@ -219,9 +219,9 @@ namespace TrenchBroom {
             assert(checkBlockChain());
             
             if (begin < end) {
-                unsigned char* buffer = map();
+                auto* buffer = map();
                 
-                unsigned char* temp = new unsigned char[end - begin];
+                auto* temp = new unsigned char[end - begin];
                 memcpy(temp, buffer + begin, end - begin);
                 
                 unmap();
@@ -242,12 +242,12 @@ namespace TrenchBroom {
         }
 
         Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {
-            VboBlock query(*this, 0, minCapacity, nullptr, nullptr);
+            const VboBlock query(*this, 0, minCapacity, nullptr, nullptr);
             return std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), &query, CompareVboBlocksByCapacity());
         }
 
         void Vbo::insertFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            auto it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
             if (it == std::end(m_freeBlocks))
                 m_freeBlocks.push_back(block);
             else
@@ -257,10 +257,10 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(VboBlock* block) {
-            VboBlockList::iterator it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+            auto it = std::lower_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
             assert(it != std::end(m_freeBlocks));
             if (*it != block) {
-                const VboBlockList::iterator end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
+                const auto end = std::upper_bound(std::begin(m_freeBlocks), std::end(m_freeBlocks), block, CompareVboBlocksByCapacity());
                 while (it != end && *it != block)
                     ++it;
                 assert(it != end);
@@ -270,7 +270,7 @@ namespace TrenchBroom {
         }
 
         void Vbo::removeFreeBlock(const VboBlockList::iterator it) {
-            VboBlock* block = *it;
+            auto* block = *it;
             m_freeBlocks.erase(it);
             block->setFree(false);
             m_freeCapacity -= block->capacity();
@@ -306,7 +306,7 @@ namespace TrenchBroom {
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
             glAssert(glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId)));
 #endif
-            unsigned char* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
+            auto* buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             ensure(buffer != nullptr, "buffer is null");
             m_state = State_FullyMapped;
             
@@ -320,11 +320,11 @@ namespace TrenchBroom {
         }
 
         bool Vbo::checkBlockChain() const {
-            VboBlock* block = m_firstBlock;
+            auto* block = m_firstBlock;
             ensure(block != nullptr, "block is null");
             
-            size_t count = 0;
-            VboBlock* next = block->next();
+            auto count = 0u;
+            auto* next = block->next();
             while (next != nullptr) {
                 assert(next->previous() == block);
                 assert(!block->isFree() || !next->isFree());
@@ -335,7 +335,7 @@ namespace TrenchBroom {
             
             assert(block == m_lastBlock);
             
-            VboBlock* previous = block->previous();
+            auto* previous = block->previous();
             while (previous != nullptr) {
                 assert(previous->next() == block);
                 block = previous;
