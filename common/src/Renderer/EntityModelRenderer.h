@@ -97,8 +97,8 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepareVertices(Vbo& vertexVbo);
-            void doRender(RenderContext& renderContext);
+            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doRender(RenderContext& renderContext) override;
         };
     }
 }

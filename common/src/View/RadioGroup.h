@@ -41,14 +41,14 @@ namespace TrenchBroom {
             
             bool Create(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, size_t n, const wxString choices[]);
         public:
-            unsigned int GetCount() const;
-            wxString GetString(unsigned int index) const;
-            void SetString(unsigned int index, const wxString& str);
-            int FindString(const wxString& str, bool caseSensitive = false) const;
+            unsigned int GetCount() const override;
+            wxString GetString(unsigned int index) const override;
+            void SetString(unsigned int index, const wxString& str) override;
+            int FindString(const wxString& str, bool caseSensitive = false) const override;
             
-            void SetSelection(int index);
-            int GetSelection() const;
-            wxString GetStringSelection() const;
+            void SetSelection(int index) override;
+            int GetSelection() const override;
+            wxString GetStringSelection() const override;
         private:
             void OnRadioButton(wxCommandEvent& event);
         private:

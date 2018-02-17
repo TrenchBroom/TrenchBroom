@@ -28,7 +28,7 @@ namespace TrenchBroom {
         public:
             SimpleParserStatus(Logger* logger);
         private:
-            void doProgress(double progress);
+            void doProgress(double progress) override;
         };
     }
 }

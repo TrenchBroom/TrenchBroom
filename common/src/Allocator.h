@@ -138,11 +138,12 @@ public:
         assert(!chunk->full());
         T* block = chunk->allocate();
         
-        if (chunk->full())
+        if (chunk->full()) {
             fullChunks().push_back(chunk);
-            else
-                mixedChunks().push_back(chunk);
-                return block;
+        } else {
+            mixedChunks().push_back(chunk);
+        }
+        return block;
     }
     
     void operator delete(void* block) {

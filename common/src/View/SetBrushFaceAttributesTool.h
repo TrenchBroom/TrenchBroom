@@ -32,16 +32,16 @@ namespace TrenchBroom {
         public:
             SetBrushFaceAttributesTool(MapDocumentWPtr document);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
+            bool doMouseClick(const InputState& inputState) override;
+            bool doMouseDoubleClick(const InputState& inputState) override;
             
             bool performCopy(const InputState& inputState, bool applyToBrush);
             bool applies(const InputState& inputState) const;
             bool copyAttributes(const InputState& inputState) const;
 
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

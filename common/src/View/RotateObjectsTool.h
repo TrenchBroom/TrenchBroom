@@ -46,7 +46,7 @@ namespace TrenchBroom {
         public:
             RotateObjectsTool(MapDocumentWPtr document);
 
-            bool doActivate();
+            bool doActivate() override;
 
             const Grid& grid() const;
             
@@ -80,7 +80,7 @@ namespace TrenchBroom {
         private:
             void updateRecentlyUsedCenters(const Vec3& center);
         private:
-            wxWindow* doCreatePage(wxWindow* parent);
+            wxWindow* doCreatePage(wxWindow* parent) override;
         };
     }
 }

@@ -40,10 +40,10 @@ namespace TrenchBroom {
         public:
             SelectionTool(MapDocumentWPtr document);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            bool doMouseClick(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
+            bool doMouseClick(const InputState& inputState) override;
+            bool doMouseDoubleClick(const InputState& inputState) override;
             
             bool handleClick(const InputState& inputState) const;
             bool isFaceClick(const InputState& inputState) const;
@@ -53,18 +53,18 @@ namespace TrenchBroom {
 
             Model::NodeList collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
             
-            void doMouseScroll(const InputState& inputState);
+            void doMouseScroll(const InputState& inputState) override;
             void adjustGrid(const InputState& inputState);
             void drillSelection(const InputState& inputState);
 
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

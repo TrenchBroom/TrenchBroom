@@ -45,11 +45,11 @@ namespace TrenchBroom {
                 return m_issues;
             }
         private:
-            void doVisit(World* world)   { collectIssues(world);  }
-            void doVisit(Layer* layer)   { collectIssues(layer);  }
-            void doVisit(Group* group)   { collectIssues(group);  }
-            void doVisit(Entity* entity) { collectIssues(entity); }
-            void doVisit(Brush* brush)   { collectIssues(brush);  }
+            void doVisit(World* world)   override { collectIssues(world);  }
+            void doVisit(Layer* layer)   override { collectIssues(layer);  }
+            void doVisit(Group* group)   override { collectIssues(group);  }
+            void doVisit(Entity* entity) override { collectIssues(entity); }
+            void doVisit(Brush* brush)   override { collectIssues(brush);  }
             
             void collectIssues(Node* node) {
                 for (Issue* issue : node->issues(m_issueGenerators)) {

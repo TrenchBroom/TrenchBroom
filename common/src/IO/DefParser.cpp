@@ -54,6 +54,7 @@ namespace TrenchBroom {
                             break;
                         }
                         // fall through and try to read as word
+                        switchFallthrough();
                     }
                     case '*': {
                         if (lookAhead() == '/') {
@@ -61,6 +62,7 @@ namespace TrenchBroom {
                             return Token(DefToken::CDefinition, c, curPos(), offset(c), startLine, startColumn);
                         }
                         // fall through and try to read as word
+                        switchFallthrough();
                     }
                     case '(':
                         advance();
@@ -82,6 +84,7 @@ namespace TrenchBroom {
                         return Token(DefToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
                     case '\r':
                         advance();
+                        switchFallthrough();
                     case '\n':
                         advance();
                         return Token(DefToken::Newline, c, c + 1, offset(c), startLine, startColumn);

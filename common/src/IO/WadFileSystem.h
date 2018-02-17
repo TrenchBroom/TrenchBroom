@@ -32,7 +32,7 @@ namespace TrenchBroom {
             WadFileSystem(const Path& path);
             WadFileSystem(const Path& path, MappedFile::Ptr file);
         private:
-            void doReadDirectory();
+            void doReadDirectory() override;
         };
     }
 }

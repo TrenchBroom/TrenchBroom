@@ -85,8 +85,8 @@ namespace TrenchBroom {
         public:
             ObjFileSerializer(FILE* stream);
         private:
-            void doBeginFile();
-            void doEndFile();
+            void doBeginFile() override;
+            void doEndFile() override;
             
             void writeVertices();
             void writeTexCoords();
@@ -94,13 +94,13 @@ namespace TrenchBroom {
             void writeObjects();
             void writeFaces(const FaceList& faces);
             
-            void doBeginEntity(const Model::Node* node);
-            void doEndEntity(Model::Node* node);
-            void doEntityAttribute(const Model::EntityAttribute& attribute);
+            void doBeginEntity(const Model::Node* node) override;
+            void doEndEntity(Model::Node* node) override;
+            void doEntityAttribute(const Model::EntityAttribute& attribute) override;
             
-            void doBeginBrush(const Model::Brush* brush);
-            void doEndBrush(Model::Brush* brush);
-            void doBrushFace(Model::BrushFace* face);
+            void doBeginBrush(const Model::Brush* brush) override;
+            void doEndBrush(Model::Brush* brush) override;
+            void doBrushFace(Model::BrushFace* face) override;
         };
     }
 }

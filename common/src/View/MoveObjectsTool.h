@@ -56,7 +56,7 @@ namespace TrenchBroom {
         private:
             bool duplicateObjects(const InputState& inputState) const;
             
-            wxWindow* doCreatePage(wxWindow* parent);
+            wxWindow* doCreatePage(wxWindow* parent) override;
         };
     }
 }

@@ -39,11 +39,11 @@ namespace TrenchBroom {
         private:
             SetTextureCollectionsCommand(const IO::Path::List& paths);
 
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

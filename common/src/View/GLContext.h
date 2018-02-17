@@ -49,7 +49,7 @@ namespace TrenchBroom {
             
             bool initialize();
             bool SetCurrent(const wxGLCanvas* canvas) const;
-            bool SetCurrent(const wxGLCanvas& canvas) const;
+            bool SetCurrent(const wxGLCanvas& canvas) const override;
         };
     }
 }

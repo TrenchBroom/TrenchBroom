@@ -32,11 +32,11 @@ namespace TrenchBroom {
         public:
             const AttributableNodeList& nodes() const;
         private:
-            void doVisit(World* world);
-            void doVisit(Layer* layer);
-            void doVisit(Group* group);
-            void doVisit(Entity* entity);
-            void doVisit(Brush* brush);
+            void doVisit(World* world) override;
+            void doVisit(Layer* layer) override;
+            void doVisit(Group* group) override;
+            void doVisit(Entity* entity) override;
+            void doVisit(Brush* brush) override;
             
             void addNode(AttributableNode* node);
         };

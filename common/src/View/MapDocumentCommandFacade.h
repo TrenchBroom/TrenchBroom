@@ -101,7 +101,7 @@ namespace TrenchBroom {
             void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations
-            void performRebuildBrushGeometry(const Model::BrushList& brushes);
+            void performRebuildBrushGeometry(const Model::BrushList& brushes) override;
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         public: // entity definition file management
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         public: // mods management
             void performSetMods(const StringList& mods);
         private:
-            void doSetIssueHidden(Model::Issue* issue, bool hidden);
+            void doSetIssueHidden(Model::Issue* issue, bool hidden) override;
         public: // modification count
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);
@@ -120,21 +120,21 @@ namespace TrenchBroom {
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
         private: // implement MapDocument interface
-            bool doCanUndoLastCommand() const;
-            bool doCanRedoNextCommand() const;
-            const String& doGetLastCommandName() const;
-            const String& doGetNextCommandName() const;
-            void doUndoLastCommand();
-            void doRedoNextCommand();
-            bool doRepeatLastCommands();
-            void doClearRepeatableCommands();
+            bool doCanUndoLastCommand() const override;
+            bool doCanRedoNextCommand() const override;
+            const String& doGetLastCommandName() const override;
+            const String& doGetNextCommandName() const override;
+            void doUndoLastCommand() override;
+            void doRedoNextCommand() override;
+            bool doRepeatLastCommands() override;
+            void doClearRepeatableCommands() override;
             
-            void doBeginTransaction(const String& name);
-            void doEndTransaction();
-            void doRollbackTransaction();
+            void doBeginTransaction(const String& name) override;
+            void doEndTransaction() override;
+            void doRollbackTransaction() override;
 
-            bool doSubmit(Command::Ptr command);
-            bool doSubmitAndStore(UndoableCommand::Ptr command);
+            bool doSubmit(Command::Ptr command) override;
+            bool doSubmitAndStore(UndoableCommand::Ptr command) override;
         };
     }
 }

@@ -38,31 +38,31 @@ namespace TrenchBroom {
             
             void setName(const String& name);
         private: // implement Node interface
-            const String& doGetName() const;
-            const BBox3& doGetBounds() const;
+            const String& doGetName() const override;
+            const BBox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const;
-            bool doCanAddChild(const Node* child) const;
-            bool doCanRemoveChild(const Node* child) const;
-            bool doRemoveIfEmpty() const;
+            Node* doClone(const BBox3& worldBounds) const override;
+            bool doCanAddChild(const Node* child) const override;
+            bool doCanRemoveChild(const Node* child) const override;
+            bool doRemoveIfEmpty() const override;
             
             class AddNodeToOctree;
             class RemoveNodeFromOctree;
             class UpdateNodeInOctree;
             
-            void doChildWasAdded(Node* node);
-            void doChildWillBeRemoved(Node* node);
-            void doChildBoundsDidChange(Node* node);
+            void doChildWasAdded(Node* node) override;
+            void doChildWillBeRemoved(Node* node) override;
+            void doChildBoundsDidChange(Node* node) override;
             
-            bool doSelectable() const;
+            bool doSelectable() const override;
             
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doAccept(NodeVisitor& visitor) override;
+            void doAccept(ConstNodeVisitor& visitor) const override;
 
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
-            FloatType doIntersectWithRay(const Ray3& ray) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const Ray3& ray) const override;
         private:
             Layer(const Layer&);
             Layer& operator=(const Layer&);

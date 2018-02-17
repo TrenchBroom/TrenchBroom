@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class Compass2D : public Compass {
         private:
-            void doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform);
+            void doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform) override;
         };
     }
 }

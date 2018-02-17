@@ -38,15 +38,15 @@ namespace TrenchBroom {
         private:
             ShearTexturesCommand(const Vec2f& factors);
             
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
             bool shearTextures(MapDocumentCommandFacade* document, const Vec2f& factors);
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         private:
             ShearTexturesCommand(const ShearTexturesCommand& other);
             ShearTexturesCommand& operator=(const ShearTexturesCommand& other);

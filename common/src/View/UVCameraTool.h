@@ -36,15 +36,15 @@ namespace TrenchBroom {
         public:
             UVCameraTool(Renderer::OrthographicCamera& camera);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doMouseScroll(const InputState& inputState);
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            void doMouseScroll(const InputState& inputState) override;
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

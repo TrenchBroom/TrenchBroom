@@ -57,15 +57,15 @@ namespace TrenchBroom {
                 VboBlock* m_block;
                 size_t m_indexCount;
             public:
-                size_t indexCount() const {
+                size_t indexCount() const override {
                     return m_indexCount;
                 }
                 
-                size_t sizeInBytes() const {
+                size_t sizeInBytes() const override {
                     return sizeof(Index) * m_indexCount;
                 }
                 
-                virtual void prepare(Vbo& vbo) {
+                virtual void prepare(Vbo& vbo) override {
                     if (m_indexCount > 0 && m_block == nullptr) {
                         ActivateVbo activate(vbo);
                         m_block = vbo.allocateBlock(sizeInBytes());
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                     }
                 }
             private:
-                size_t indexOffset() const {
+                size_t indexOffset() const override {
                     if (m_indexCount == 0)
                         return 0;
                     ensure(m_block != nullptr, "block is null");
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     
                 }
 
-                void doRender(PrimType primType, size_t offset, size_t count) const {
+                void doRender(PrimType primType, size_t offset, size_t count) const override {
                     const GLsizei renderCount  = static_cast<GLsizei>(count);
                     const GLenum indexType     = glType<Index>();
                     const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + sizeof(Index) * offset);
@@ -140,12 +140,12 @@ namespace TrenchBroom {
                     swap(m_indices, indices);
                 }
                 
-                void prepare(Vbo& vbo) {
+                void prepare(Vbo& vbo) override {
                     Holder<Index>::prepare(vbo);
                     VectorUtils::clearToZero(m_indices);
                 }
             private:
-                const IndexList& doGetIndices() const {
+                const IndexList& doGetIndices() const override {
                     return m_indices;
                 }
             };

@@ -52,11 +52,11 @@ namespace TrenchBroom {
             SetVisibilityCommand(const Model::NodeList& nodes, Action action);
             static String makeName(Action action);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
         };
     }
 }

@@ -215,27 +215,27 @@ namespace TrenchBroom {
             void invalidateContentType();
             void validateContentType() const;
         private: // implement Node interface
-            const String& doGetName() const;
-            const BBox3& doGetBounds() const;
+            const String& doGetName() const override;
+            const BBox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const;
-            NodeSnapshot* doTakeSnapshot();
+            Node* doClone(const BBox3& worldBounds) const override;
+            NodeSnapshot* doTakeSnapshot() override;
             
-            bool doCanAddChild(const Node* child) const;
-            bool doCanRemoveChild(const Node* child) const;
-            bool doRemoveIfEmpty() const;
+            bool doCanAddChild(const Node* child) const override;
+            bool doCanRemoveChild(const Node* child) const override;
+            bool doRemoveIfEmpty() const override;
 
-            void doParentDidChange();
+            void doParentDidChange() override;
 
-            bool doSelectable() const;
+            bool doSelectable() const override;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doAccept(NodeVisitor& visitor) override;
+            void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
-            FloatType doIntersectWithRay(const Ray3& ray) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const Ray3& ray) const override;
 
             struct BrushFaceHit {
                 BrushFace* face;
@@ -246,17 +246,17 @@ namespace TrenchBroom {
 
             BrushFaceHit findFaceHit(const Ray3& ray) const;
             
-            Node* doGetContainer() const;
-            Layer* doGetLayer() const;
-            Group* doGetGroup() const;
+            Node* doGetContainer() const override;
+            Layer* doGetLayer() const override;
+            Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
+            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
 
             class Contains;
-            bool doContains(const Node* node) const;
+            bool doContains(const Node* node) const override;
             
             class Intersects;
-            bool doIntersects(const Node* node) const;
+            bool doIntersects(const Node* node) const override;
         private:
             Brush(const Brush&);
             Brush& operator=(const Brush&);
