@@ -72,7 +72,7 @@ namespace TrenchBroom {
             MoveToolController(const Grid& grid) : m_grid(grid) {}
             virtual ~MoveToolController() {}
         protected:
-            virtual void doModifierKeyChange(const InputState& inputState) {
+            virtual void doModifierKeyChange(const InputState& inputState) override {
                 if (Super::thisToolDragging()) {
                     const Vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
                     
@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift);
             }
         protected:
-            RestrictedDragPolicy::DragInfo doStartDrag(const InputState& inputState) {
+            RestrictedDragPolicy::DragInfo doStartDrag(const InputState& inputState) override {
                 const MoveInfo info = doStartMove(inputState);
                 if (!info.move)
                     return RestrictedDragPolicy::DragInfo();
@@ -136,22 +136,22 @@ namespace TrenchBroom {
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
-            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == RestrictedDragPolicy::DR_Continue)
                     m_moveTraceCurPoint += (nextHandlePosition - lastHandlePosition);
                 return result;
             }
             
-            void doEndDrag(const InputState& inputState) {
+            void doEndDrag(const InputState& inputState) override {
                 doEndMove(inputState);
             }
             
-            void doCancelDrag() {
+            void doCancelDrag() override {
                 doCancelMove();
             }
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 if (Super::thisToolDragging())
                     renderMoveTrace(renderContext, renderBatch);
             }

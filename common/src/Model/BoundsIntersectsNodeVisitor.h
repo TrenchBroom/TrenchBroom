@@ -33,11 +33,11 @@ namespace TrenchBroom {
         public:
             BoundsIntersectsNodeVisitor(const BBox3& bounds);
         private:
-            void doVisit(const World* world);
-            void doVisit(const Layer* layer);
-            void doVisit(const Group* group);
-            void doVisit(const Entity* entity);
-            void doVisit(const Brush* brush);
+            void doVisit(const World* world) override;
+            void doVisit(const Layer* layer) override;
+            void doVisit(const Group* group) override;
+            void doVisit(const Entity* entity) override;
+            void doVisit(const Brush* brush) override;
         };
     }
 }

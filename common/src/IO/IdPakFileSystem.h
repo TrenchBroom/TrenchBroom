@@ -29,7 +29,7 @@ namespace TrenchBroom {
         public:
             IdPakFileSystem(const Path& path, MappedFile::Ptr file);
         private:
-            void doReadDirectory();
+            void doReadDirectory() override;
         };
     }
 }

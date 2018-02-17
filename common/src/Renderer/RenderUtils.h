@@ -51,8 +51,8 @@ namespace TrenchBroom {
         
         class DefaultTextureRenderFunc : public TextureRenderFunc {
         public:
-            void before(const Assets::Texture* texture);
-            void after(const Assets::Texture* texture);
+            void before(const Assets::Texture* texture) override;
+            void after(const Assets::Texture* texture) override;
         };
 
         Vec2f::List circle2D(float radius, size_t segments);

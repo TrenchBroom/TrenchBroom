@@ -53,23 +53,23 @@ namespace TrenchBroom {
         public:
             UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
             
             float measureAngle(const Vec2f& point) const;
             float snapAngle(float angle) const;
             
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
 
             class Render;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

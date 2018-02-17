@@ -46,14 +46,14 @@ namespace TrenchBroom {
         public:
             virtual ~RotateObjectsToolController();
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel();
+            bool doCancel() override;
         private: // subclassing interface
             virtual Model::Hit doPick(const InputState& inputState) = 0;
             virtual void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
@@ -66,8 +66,8 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolController2D(RotateObjectsTool* tool);
         private:
-            Model::Hit doPick(const InputState& inputState);
-            void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            Model::Hit doPick(const InputState& inputState) override;
+            void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
         };
         
         class RotateObjectsToolController3D : public RotateObjectsToolController {
@@ -77,8 +77,8 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolController3D(RotateObjectsTool* tool);
         private:
-            Model::Hit doPick(const InputState& inputState);
-            void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            Model::Hit doPick(const InputState& inputState) override;
+            void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
         };
     }
 }

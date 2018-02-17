@@ -95,7 +95,7 @@ namespace TrenchBroom {
         public:
             void appendUntil(const String& pattern, StringStream& str);
         private:
-            Token emitToken();
+            Token emitToken() override;
         };
 
         class ELParser : public Parser<ELToken::Type> {
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseSwitch();
             EL::ExpressionBase* parseCompoundTerm(EL::ExpressionBase* lhs);
         private:
-            TokenNameMap tokenNames() const;
+            TokenNameMap tokenNames() const override;
         };
     }
 }

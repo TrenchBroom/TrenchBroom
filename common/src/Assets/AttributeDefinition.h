@@ -127,7 +127,7 @@ namespace TrenchBroom {
             ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options);
             const ChoiceAttributeOption::List& options() const;
         private:
-            bool doEquals(const AttributeDefinition* other) const;
+            bool doEquals(const AttributeDefinition* other) const override;
         };
         
         class FlagsAttributeOption {
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             const FlagsAttributeOption* option(const int value) const;
             void addOption(const int value, const String& shortDescription, const String& longDescription, const bool isDefault);
         private:
-            bool doEquals(const AttributeDefinition* other) const;
+            bool doEquals(const AttributeDefinition* other) const override;
         };
         
         class UnknownAttributeDefinition : public StringAttributeDefinition {

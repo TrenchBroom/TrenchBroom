@@ -91,7 +91,7 @@ namespace TrenchBroom {
         public:
             PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
             
-            Type type() const;
+            Type type() const override;
             const BBox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
         class BrushEntityDefinition : public EntityDefinition {
         public:
             BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
-            Type type() const;
+            Type type() const override;
         };
     }
 }

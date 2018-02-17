@@ -34,10 +34,10 @@ namespace TrenchBroom {
         public:
             ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector);
             
-            wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
-            wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);
-            void OnLeave();
-            bool OnDropText(wxCoord x, wxCoord y, const wxString& data);
+            wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def) override;
+            wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def) override;
+            void OnLeave() override;
+            bool OnDropText(wxCoord x, wxCoord y, const wxString& data) override;
         private:
             String getDragText() const;
         };

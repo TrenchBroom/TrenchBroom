@@ -1106,7 +1106,7 @@ public:
     SplitByConnectivityCriterion(const Vertex* vertex) :
     m_vertex(vertex) {}
 private:
-    bool doMatches(const Face* face) const {
+    bool doMatches(const Face* face) const override {
         return !m_vertex->incident(face);
     }
 };
@@ -1121,7 +1121,7 @@ public:
     SplitByVisibilityCriterion(const V& point) :
     m_point(point) {}
 private:
-    bool doMatches(const Face* face) const {
+    bool doMatches(const Face* face) const override {
         return face->pointStatus(m_point) == Math::PointStatus::PSBelow;
     }
 };

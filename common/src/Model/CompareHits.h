@@ -43,17 +43,17 @@ namespace TrenchBroom {
             CombineCompareHits(CompareHits* first, CompareHits* second);
             ~CombineCompareHits();
         private:
-            int doCompare(const Hit& lhs, const Hit& rhs) const;
+            int doCompare(const Hit& lhs, const Hit& rhs) const override;
         };
         
         class CompareHitsByType : public CompareHits {
         private:
-            int doCompare(const Hit& lhs, const Hit& rhs) const;
+            int doCompare(const Hit& lhs, const Hit& rhs) const override;
         };
         
         class CompareHitsByDistance : public CompareHits {
         private:
-            int doCompare(const Hit& lhs, const Hit& rhs) const;
+            int doCompare(const Hit& lhs, const Hit& rhs) const override;
         };
         
         class CompareHitsBySize : public CompareHits {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         public:
             CompareHitsBySize(Math::Axis::Type axis);
         private:
-            int doCompare(const Hit& lhs, const Hit& rhs) const;
+            int doCompare(const Hit& lhs, const Hit& rhs) const override;
             FloatType getSize(const Hit& hit) const;
         };
     }

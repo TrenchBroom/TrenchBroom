@@ -176,8 +176,8 @@ namespace TrenchBroom {
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
         private:
-            bool doActivate();
-            bool doDeactivate();
+            bool doActivate() override;
+            bool doDeactivate() override;
             
             bool doRemove();
             

@@ -89,19 +89,19 @@ namespace TrenchBroom {
         private:
             void usageCountDidChange();
             
-            void doInitLayout(Layout& layout);
-            void doReloadLayout(Layout& layout);
+            void doInitLayout(Layout& layout) override;
+            void doReloadLayout(Layout& layout) override;
 
-            bool dndEnabled();
-            void dndWillStart();
-            void dndDidEnd();
-            wxString dndData(const Layout::Group::Row::Cell& cell);
+            bool dndEnabled() override;
+            void dndWillStart() override;
+            void dndDidEnd() override;
+            wxString dndData(const Layout::Group::Row::Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
-            void doClear();
-            void doRender(Layout& layout, float y, float height);
-            bool doShouldRenderFocusIndicator() const;
+            void doClear() override;
+            void doRender(Layout& layout, float y, float height) override;
+            bool doShouldRenderFocusIndicator() const override;
 
             void renderBounds(Layout& layout, float y, float height);
             
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             
             Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
             
-            wxString tooltip(const Layout::Group::Row::Cell& cell);
+            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };
     }
 }

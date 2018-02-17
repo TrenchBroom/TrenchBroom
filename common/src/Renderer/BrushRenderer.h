@@ -97,9 +97,9 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
-                void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
-                bool doIsTransparent(const Model::Brush* brush) const;
+                void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const override;
+                void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const override;
+                bool doIsTransparent(const Model::Brush* brush) const override;
             private:
                 NoFilter(const NoFilter& other);
                 NoFilter& operator=(const NoFilter& other);

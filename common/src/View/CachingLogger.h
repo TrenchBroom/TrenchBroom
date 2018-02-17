@@ -48,8 +48,8 @@ namespace TrenchBroom {
             
             void setParentLogger(Logger* logger);
         private:
-            void doLog(LogLevel level, const String& message);
-            void doLog(LogLevel level, const wxString& message);
+            void doLog(LogLevel level, const String& message) override;
+            void doLog(LogLevel level, const wxString& message) override;
         };
     }
 }

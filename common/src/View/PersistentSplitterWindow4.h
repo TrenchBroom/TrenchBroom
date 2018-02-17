@@ -32,9 +32,9 @@ namespace TrenchBroom {
         public:
             PersistentSplitterWindow4(SplitterWindow4* obj);
             
-            wxString GetKind() const;
-            void Save() const;
-            bool Restore();
+            wxString GetKind() const override;
+            void Save() const override;
+            bool Restore() override;
         private:
             wxRealPoint getSplitRatios(const SplitterWindow4* window) const;
         };

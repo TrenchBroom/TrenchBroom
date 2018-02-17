@@ -32,7 +32,7 @@ namespace TrenchBroom {
             wxWindow* m_parent;
         public:
             MapFrameDropTarget(MapDocumentWPtr document, wxWindow* parent);
-            bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
+            bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) override;
         };
     }
 }

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             FreeTypeFontFactory();
             ~FreeTypeFontFactory();
         private:
-            TextureFont* doCreateFont(const FontDescriptor& fontDescriptor);
+            TextureFont* doCreateFont(const FontDescriptor& fontDescriptor) override;
             
             FT_Face loadFont(const FontDescriptor& fontDescriptor);
             TextureFont* buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);

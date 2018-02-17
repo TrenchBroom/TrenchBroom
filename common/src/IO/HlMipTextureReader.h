@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             HlMipTextureReader(const NameStrategy& nameStrategy);
         protected:
-            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const;
+            Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const override;
         };
     }
 }

@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void profilesDidChange();
         private:
             class ProfileItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

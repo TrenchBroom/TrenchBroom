@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             EmptyBrushEntityIssueGenerator();
         private:
-            void doGenerate(Entity* entity, IssueList& issues) const;
+            void doGenerate(Entity* entity, IssueList& issues) const override;
         };
     }
 }

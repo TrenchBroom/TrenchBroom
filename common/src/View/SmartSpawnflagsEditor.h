@@ -55,9 +55,9 @@ namespace TrenchBroom {
             
             void OnFlagChanged(FlagChangedCommand& event);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent);
-            void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables);
+            wxWindow* doCreateVisual(wxWindow* parent) override;
+            void doDestroyVisual() override;
+            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
             void resetScrollPos();
             
             void getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels, wxArrayString& tooltips) const;

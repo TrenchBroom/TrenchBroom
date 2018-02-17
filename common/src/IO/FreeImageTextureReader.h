@@ -31,7 +31,7 @@ namespace TrenchBroom {
         public:
             FreeImageTextureReader(const NameStrategy& nameStrategy);
         private:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
         };
     }
 }

@@ -54,7 +54,7 @@ namespace TrenchBroom {
             Tokenizer(nestedTokenizer) {}
         private:
             static const String WordDelims;
-            Token emitToken();
+            Token emitToken() override;
         };
         
         class LegacyModelDefinitionParser : public Parser<MdlToken::Type> {
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
             EL::ExpressionBase* parseNamedValue(ParserStatus& status, const String& name);
         private:
-            TokenNameMap tokenNames() const;
+            TokenNameMap tokenNames() const override;
         };
     }
 }

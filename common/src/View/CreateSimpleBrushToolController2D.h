@@ -37,17 +37,17 @@ namespace TrenchBroom {
         public:
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            DragInfo doStartDrag(const InputState& inputState);
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
-            void doEndDrag(const InputState& inputState);
-            void doCancelDrag();
+            DragInfo doStartDrag(const InputState& inputState) override;
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            void doEndDrag(const InputState& inputState) override;
+            void doCancelDrag() override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             
-            bool doCancel();
+            bool doCancel() override;
         private:
             bool updateBounds(const InputState& inputState, const Vec3& currentPoint);
             void snapBounds(const InputState& inputState, BBox3& bounds);

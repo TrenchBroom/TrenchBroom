@@ -102,7 +102,7 @@ namespace TrenchBroom {
         public:
             Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
-            Assets::EntityModel* doParseModel();
+            Assets::EntityModel* doParseModel() override;
             Md2SkinList parseSkins(const char* begin, const size_t skinCount);
             Md2FrameList parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount);
             Md2MeshList parseMeshes(const char* begin, const size_t commandCount);

@@ -188,9 +188,9 @@ namespace TrenchBroom {
         protected:
             AttributableNode();
         private: // implemenation of node interface
-            const String& doGetName() const;
-            virtual void doAncestorWillChange();
-            virtual void doAncestorDidChange();
+            const String& doGetName() const override;
+            virtual void doAncestorWillChange() override;
+            virtual void doAncestorDidChange() override;
         private: // subclassing interface
             virtual void doAttributesDidChange() = 0;
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;

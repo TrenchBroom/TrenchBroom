@@ -96,31 +96,31 @@ namespace TrenchBroom {
         public:
             virtual ~MatchingNodeVisitor() {}
             
-            void visit(World* world) {
+            void visit(World* world) override {
                 const bool match = m_p(world);
                 if (match) NodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();
             }
             
-            void visit(Layer* layer) {
+            void visit(Layer* layer) override {
                 const bool match = m_p(layer);
                 if (match) NodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();
             }
             
-            void visit(Group* group) {
+            void visit(Group* group) override {
                 const bool match = m_p(group);
                 if (match) NodeVisitor::visit(group);
                 if (m_s(group, match)) stopRecursion();
             }
             
-            void visit(Entity* entity) {
+            void visit(Entity* entity) override {
                 const bool match = m_p(entity);
                 if (match) NodeVisitor::visit(entity);
                 if (m_s(entity, match)) stopRecursion();
             }
             
-            void visit(Brush* brush) {
+            void visit(Brush* brush) override {
                 const bool match = m_p(brush);
                 if (match) NodeVisitor::visit(brush);
                 if (m_s(brush, match)) stopRecursion();

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             LinkTargetIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const;
+            void doGenerate(AttributableNode* node, IssueList& issues) const override;
             void processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const;
         };
     }

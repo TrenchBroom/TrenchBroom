@@ -44,7 +44,7 @@ namespace TrenchBroom {
         FuncPtr0(F function) :
         m_function(function) {}
         
-        R operator()() const {
+        R operator()() const override {
             return (*m_function)();
         }
     };
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()() const {
+        R operator()() const override {
             return (m_receiver->*m_function)();
         }
     };
@@ -160,7 +160,7 @@ namespace TrenchBroom {
         FuncPtr1(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1) const {
+        R operator()(A1 a1) const override {
             return (*m_function)(a1);
         }
     };
@@ -194,7 +194,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1) const {
+        R operator()(A1 a1) const override {
             return (m_receiver->*m_function)(a1);
         }
     };
@@ -276,7 +276,7 @@ namespace TrenchBroom {
         FuncPtr2(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2) const {
+        R operator()(A1 a1, A2 a2) const override {
             return (*m_function)(a1, a2);
         }
     };
@@ -310,7 +310,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2) const {
+        R operator()(A1 a1, A2 a2) const override {
             return (m_receiver->*m_function)(a1, a2);
         }
     };
@@ -392,7 +392,7 @@ namespace TrenchBroom {
         FuncPtr3(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3) const {
+        R operator()(A1 a1, A2 a2, A3 a3) const override {
             return (*m_function)(a1, a2, a3);
         }
     };
@@ -426,7 +426,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3) const {
+        R operator()(A1 a1, A2 a2, A3 a3) const override {
             return (m_receiver->*m_function)(a1, a2, a3);
         }
     };
@@ -508,7 +508,7 @@ namespace TrenchBroom {
         FuncPtr4(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const override {
             return (*m_function)(a1, a2, a3, a4);
         }
     };
@@ -542,7 +542,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const override {
             return (m_receiver->*m_function)(a1, a2, a3, a4);
         }
     };
@@ -624,7 +624,7 @@ namespace TrenchBroom {
         FuncPtr5(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const override {
             return (*m_function)(a1, a2, a3, a4, a5);
         }
     };
@@ -658,7 +658,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const override {
             return (m_receiver->*m_function)(a1, a2, a3, a4, a5);
         }
     };
@@ -740,7 +740,7 @@ namespace TrenchBroom {
         FuncPtr6(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const override {
             return (*m_function)(a1, a2, a3, a4, a5, a6);
         }
     };
@@ -774,7 +774,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const override {
             return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6);
         }
     };
@@ -1088,7 +1088,7 @@ namespace TrenchBroom {
         FuncPtr9(F function) :
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const override {
             return (*m_function)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     };
@@ -1122,7 +1122,7 @@ namespace TrenchBroom {
         m_receiver(receiver),
         m_function(function) {}
         
-        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const {
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const override {
             return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     };

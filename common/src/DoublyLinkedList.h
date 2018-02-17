@@ -124,22 +124,22 @@ private:
         m_item(item),
         m_index(index) {}
     private:
-        base* doClone() const {
+        base* doClone() const override {
             return new iterator_delegate_item(*base::m_list, m_item, m_index);
         }
         
-        void doIncrement() {
+        void doIncrement() override {
             ++m_index;
 
             LinkType& link = base::m_list->getLink(m_item);
             m_item = link.next();
         }
 
-        size_t doGetIndex() const {
+        size_t doGetIndex() const override {
             return m_index;
         }
         
-        ItemType& doGetItem() {
+        ItemType& doGetItem() override {
             assert(m_index < base::m_list->size());
             return m_item;
         }
@@ -153,17 +153,17 @@ private:
         iterator_delegate_end(ListType& list) :
         base(list) {}
     private:
-        base* doClone() const {
+        base* doClone() const override {
             return new iterator_delegate_end(*base::m_list);
         }
         
-        void doIncrement() {}
+        void doIncrement() override {}
         
-        size_t doGetIndex() const {
+        size_t doGetIndex() const override {
             return base::m_list->size();
         }
         
-        ItemType& doGetItem() {
+        ItemType& doGetItem() override {
             static ItemType null = nullptr;
             return null;
         }

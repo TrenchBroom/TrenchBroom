@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
             void execute();
 
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
         };
     }
 }
