@@ -33,6 +33,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace View {
@@ -79,30 +80,28 @@ namespace TrenchBroom {
         }
 
         bool VertexTool::startMove(const Model::Hit::List& hits) {
-            if (!VertexToolBase::startMove(hits)) {
-                return false;
-            }
-
-            if (hits.size() == 1) {
-                const auto& hit = hits.front();
-                if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
-                    m_vertexHandles.deselectAll();
-                    if (hit.hasType(EdgeHandleManager::HandleHit)) {
-                        const auto& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
-                        m_edgeHandles.select(handle);
-                        m_mode = Mode_Split_Edge;
-                    } else {
-                        const auto& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
-                        m_faceHandles.select(handle);
-                        m_mode = Mode_Split_Face;
-                    }
-                    refreshViews();
+            const auto& hit = hits.front();
+            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+                m_vertexHandles.deselectAll();
+                if (hit.hasType(EdgeHandleManager::HandleHit)) {
+                    const auto& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
+                    m_edgeHandles.select(handle);
+                    m_mode = Mode_Split_Edge;
                 } else {
-                    m_mode = Mode_Move;
+                    const auto& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
+                    m_faceHandles.select(handle);
+                    m_mode = Mode_Split_Face;
                 }
+                refreshViews();
             } else {
                 m_mode = Mode_Move;
             }
+
+            if (!VertexToolBase::startMove(hits)) {
+                m_mode = Mode_Move;
+                return false;
+            }
+
             return true;
         }
         
