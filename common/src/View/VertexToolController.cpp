@@ -30,15 +30,15 @@ namespace TrenchBroom {
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
         Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const Model::Hit vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
+            const auto vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
             if (vertexHit.isMatch())
                 return vertexHit;
             if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
                 return Model::Hit::NoHit;
-            const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
-            if (edgeHit.isMatch())
-                return edgeHit;
-            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
+            const auto& firstHit = inputState.pickResult().query().first();
+            if (firstHit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit))
+                return firstHit;
+            return Model::Hit::NoHit;
         }
 
 
