@@ -151,10 +151,14 @@ namespace TrenchBroom {
 
         void VertexTool::endMove() {
             VertexToolBase::endMove();
+            m_edgeHandles.deselectAll();
+            m_faceHandles.deselectAll();
             m_mode = Mode_Move;
         }
         void VertexTool::cancelMove() {
 			VertexToolBase::cancelMove();
+            m_edgeHandles.deselectAll();
+            m_faceHandles.deselectAll();
             m_mode = Mode_Move;
         }
 
