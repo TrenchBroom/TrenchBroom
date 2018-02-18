@@ -194,16 +194,15 @@ namespace TrenchBroom {
                 attributes.push_back(m_table->attributeName(row));
             }
             
-            m_grid->ClearSelection();
-            
             for (const String& key : attributes) {
                 removeAttribute(key);
             }
         }
         
         /**
-         * Removes an attribute. If this attribute is still in the table
-         * after removing, sets the grid cursor on the new row
+         * Removes an attribute, and clear the current selection.
+         *
+         * If this attribute is still in the table after removing, sets the grid cursor on the new row
          */
         void EntityAttributeGrid::removeAttribute(const String& key) {
             const int row = m_table->rowForName(key);
@@ -211,6 +210,7 @@ namespace TrenchBroom {
                 return;
             
             m_grid->DeleteRows(row, 1);
+            m_grid->ClearSelection();
             
             const int newRow = m_table->rowForName(key);
             if (newRow != -1) {
