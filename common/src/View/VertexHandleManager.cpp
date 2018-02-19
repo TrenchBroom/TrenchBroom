@@ -155,6 +155,10 @@ namespace TrenchBroom {
         
         void FaceHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
+                assert(contains(face->polygon()));
+            }
+
+            for (const Model::BrushFace* face : brush->faces()) {
                 assertResult(remove(face->polygon()));
             }
         }
