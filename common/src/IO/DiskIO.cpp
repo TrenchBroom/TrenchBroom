@@ -232,9 +232,13 @@ namespace TrenchBroom {
                         return path;
                 } else {
                     for (const Path& searchPath : searchPaths) {
-                        const Path fullPath = searchPath + path;
-                        if (fileExists(fullPath) || directoryExists(fullPath))
-                            return fullPath;
+                        if (searchPath.isAbsolute()) {
+                            try {
+                                const Path fullPath = searchPath + path;
+                                if (fileExists(fullPath) || directoryExists(fullPath))
+                                    return fullPath;
+                            } catch (const Exception&) {}
+                        }
                     }
                 }
                 return Path("");
