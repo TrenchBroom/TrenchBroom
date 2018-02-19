@@ -119,7 +119,12 @@ namespace TrenchBroom {
             performDeselectAll();
             
             Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
-            m_world->acceptAndRecurse(visitor);
+
+            Model::Node* target = currentGroup();
+            if (target == nullptr)
+                target = m_world;
+
+            target->recurse(visitor);
             performSelect(visitor.nodes());
         }
         

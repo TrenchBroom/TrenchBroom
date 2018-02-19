@@ -296,11 +296,11 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
-        bool EditorContext::selectable(const Model::World* world) const {
+        bool EditorContext::selectable(const Model::World*) const {
             return false;
         }
 
-        bool EditorContext::selectable(const Model::Layer* layer) const {
+        bool EditorContext::selectable(const Model::Layer*) const {
             return false;
         }
         
