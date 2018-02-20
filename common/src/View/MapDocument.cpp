@@ -756,9 +756,8 @@ namespace TrenchBroom {
             deselectAll();
             
             for (Model::Node* group : groups) {
-                Model::Layer* layer = Model::findLayer(group);
                 const Model::NodeList& children = group->children();
-                reparentNodes(layer, children);
+                reparentNodes(currentParent(), children);
                 VectorUtils::append(allChildren, children);
             }
             
