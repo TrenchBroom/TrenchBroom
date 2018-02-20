@@ -391,6 +391,7 @@ namespace TrenchBroom {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                     deselectHandles();
                     removeHandles(vertexCommand);
+                    m_ignoreChangeNotifications = true;
                 }
             }
             
@@ -402,6 +403,7 @@ namespace TrenchBroom {
 
                     if (!m_dragging)
                         rebuildBrushGeometry();
+                    m_ignoreChangeNotifications = false;
                 }
             }
             
@@ -413,6 +415,7 @@ namespace TrenchBroom {
 
                     if (!m_dragging)
                         rebuildBrushGeometry();
+                    m_ignoreChangeNotifications = false;
                 }
             }
             
