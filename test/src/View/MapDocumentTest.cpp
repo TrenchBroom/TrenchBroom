@@ -23,6 +23,8 @@
 #include "MathUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
 #include "Model/MapFormat.h"
@@ -244,6 +246,50 @@ namespace TrenchBroom {
             document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
          	
             ASSERT_EQ(nullptr, document->currentGroup());
+        }
+
+        TEST_F(MapDocumentTest, ungroupInnerGroup) {
+            // see https://github.com/kduske/TrenchBroom/issues/2050
+            Model::Entity* outerEnt1 = new Model::Entity();
+            Model::Entity* outerEnt2 = new Model::Entity();
+            Model::Entity* innerEnt1 = new Model::Entity();
+            Model::Entity* innerEnt2 = new Model::Entity();
+
+            document->addNode(innerEnt1, document->currentParent());
+            document->addNode(innerEnt2, document->currentParent());
+            document->select(Model::NodeList {innerEnt1, innerEnt2});
+
+            Model::Group* inner = document->groupSelection("Inner");
+
+            document->deselectAll();
+            document->addNode(outerEnt1, document->currentParent());
+            document->addNode(outerEnt2, document->currentParent());
+            document->select(Model::NodeList {inner, outerEnt1, outerEnt2});
+
+            Model::Group* outer = document->groupSelection("Outer");
+            document->deselectAll();
+
+            // check our assumptions
+            ASSERT_EQ(3u, outer->childCount());
+            ASSERT_EQ(2u, inner->childCount());
+
+            ASSERT_EQ(document->currentLayer(), outer->parent());
+
+            ASSERT_EQ(outer, outerEnt1->parent());
+            ASSERT_EQ(outer, outerEnt2->parent());
+            ASSERT_EQ(outer, inner->parent());
+
+            ASSERT_EQ(inner, innerEnt1->parent());
+            ASSERT_EQ(inner, innerEnt2->parent());
+
+            // open the outer group and ungroup the inner group
+            document->openGroup(outer);
+            document->select(inner);
+            document->ungroupSelection();
+            document->deselectAll();
+
+            ASSERT_EQ(outer, innerEnt1->parent());
+            ASSERT_EQ(outer, innerEnt2->parent());
         }
     }
 }
