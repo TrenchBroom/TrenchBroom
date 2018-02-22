@@ -153,7 +153,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 

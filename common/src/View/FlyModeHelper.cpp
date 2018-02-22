@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
@@ -204,7 +204,7 @@ namespace TrenchBroom {
         void FlyModeHelper::resetMouse() {
             wxCriticalSectionLocker lock(m_critical);
             if (m_enabled) {
-                const SetBool ignoreMotion(m_ignoreMotionEvents);
+                const TemporarilySetBool ignoreMotion(m_ignoreMotionEvents);
                 m_lastMousePos = windowCenter();
                 m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
             }

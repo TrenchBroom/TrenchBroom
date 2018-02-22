@@ -61,7 +61,7 @@ namespace TrenchBroom {
             void removeHandles(I begin, I end) {
                 std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
             }
-            
+
             virtual void removeHandles(const Model::Brush* brush) = 0;
         };
 
@@ -72,16 +72,6 @@ namespace TrenchBroom {
                 return lhs.compare(rhs, 0.1) < 0;
             }
         };
-
-        /*
-        template <>
-        class HCmp<Polygon3> {
-        public:
-            bool operator()(const Polygon3& lhs, const Polygon3& rhs) const {
-                return lhs.compareUnoriented(rhs, 0.1) < 0;
-            }
-        };
-        */
 
         template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
@@ -204,7 +194,7 @@ namespace TrenchBroom {
                 MapUtils::findOrInsert(m_handles, handle, HandleInfo())->second.inc();
             }
             
-            void remove(const Handle& handle) {
+            bool remove(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
                     HandleInfo& info = it->second;
@@ -214,7 +204,10 @@ namespace TrenchBroom {
                         deselect(info);
                         m_handles.erase(it);
                     }
+                    return true;
                 }
+
+                return false;
             }
 
             void clear() {

@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         void VertexHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
-                remove(vertex->position());
+                assertResult(remove(vertex->position()));
             }
         }
 
@@ -96,10 +96,10 @@ namespace TrenchBroom {
                 add(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
             }
         }
-        
+
         void EdgeHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
-                remove(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                assertResult(remove(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position())));
             }
         }
 
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         
         void FaceHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
-                remove(face->polygon());
+                assertResult(remove(face->polygon()));
             }
         }
 

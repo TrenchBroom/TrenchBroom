@@ -30,28 +30,35 @@ namespace TrenchBroom {
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
         Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const Model::Hit vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
+            const auto vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
             if (vertexHit.isMatch())
                 return vertexHit;
-            if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
-                return Model::Hit::NoHit;
-            const Model::Hit& edgeHit = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).first();
-            if (edgeHit.isMatch())
-                return edgeHit;
-            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).first();
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
+                const auto &firstHit = inputState.pickResult().query().first();
+                if (firstHit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit))
+                    return firstHit;
+            }
+            return Model::Hit::NoHit;
         }
 
 
         Model::Hit::List VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const Model::Hit::List vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHit);
+            const auto vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHit);
             if (!vertexHits.empty())
                 return vertexHits;
-            if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
-                return Model::Hit::List();
-            const Model::Hit::List edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
-            if (!edgeHits.empty())
-                return edgeHits;
-            return inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
+                const auto& firstHit = inputState.pickResult().query().first();
+                if (firstHit.hasType(EdgeHandleManager::HandleHit)) {
+                    const Model::Hit::List edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
+                    if (!edgeHits.empty())
+                        return edgeHits;
+                } else if (firstHit.hasType(FaceHandleManager::HandleHit)) {
+                    const Model::Hit::List faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
+                    if (!faceHits.empty())
+                        return faceHits;
+                }
+            }
+            return Model::Hit::List();
         }
 
         class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {

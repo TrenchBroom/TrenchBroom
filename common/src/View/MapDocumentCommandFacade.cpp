@@ -956,14 +956,17 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::doBeginTransaction(const String& name) {
+            debug("Starting transaction '" + name + "'");
             m_commandProcessor.beginGroup(name);
         }
         
         void MapDocumentCommandFacade::doEndTransaction() {
+            debug("Committing transaction");
             m_commandProcessor.endGroup();
         }
         
         void MapDocumentCommandFacade::doRollbackTransaction() {
+            debug("Rolling back transaction");
             m_commandProcessor.rollbackGroup();
         }
 

@@ -346,7 +346,7 @@ namespace TrenchBroom {
             
             // Ignoring the updates here fails if the user changes the entity classname because in that
             // case, we must really refresh everything from the entity.
-            // const SetBool ignoreUpdates(m_ignoreUpdates);
+            // const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
             if (col == 0)
                 renameAttribute(rowIndex, value.ToStdString(), attributables);
             else
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             
             const StringList newKeys = m_rows.insertRows(pos, numRows, attributables);
 
-            const SetBool ignoreUpdates(m_ignoreUpdates);
+            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
 
             const Transaction transaction(document);
             for (const String& name : newKeys)
@@ -398,7 +398,7 @@ namespace TrenchBroom {
             ensure(names.size() == numRows, "invalid number of row names");
             
             {
-                const SetBool ignoreUpdates(m_ignoreUpdates);
+                const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
                 
                 Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
                 
