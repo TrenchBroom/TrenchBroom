@@ -17,27 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SetAny
-#define TrenchBroom_SetAny
+#ifndef TrenchBroom_TemporarilySetAny
+#define TrenchBroom_TemporarilySetAny
 
 #include <cassert>
 #include <iostream>
 
 namespace TrenchBroom {
     template <typename T>
-    class SetAny {
+    class TemporarilySetAny {
     private:
         T& m_value;
         T m_oldValue;
         T m_newValue;
     public:
-        SetAny(T& value, T newValue) :
+        TemporarilySetAny(T& value, T newValue) :
         m_value(value),
         m_oldValue(m_value) {
             m_value = newValue;
         }
         
-        virtual ~SetAny() {
+        virtual ~TemporarilySetAny() {
             m_value = m_oldValue;
         }
     };
@@ -57,20 +57,20 @@ namespace TrenchBroom {
         }
     };
     
-    class SetBool : public SetAny<bool> {
+    class TemporarilySetBool : public TemporarilySetAny<bool> {
     public:
-        SetBool(bool& value, bool newValue = true);
+        TemporarilySetBool(bool& value, bool newValue = true);
     };
 
     template <typename R>
-    class SetBoolFun {
+    class TemporarilySetBoolFun {
     private:
         typedef void (R::*F)(bool b);
         R* m_receiver;
         F m_function;
         bool m_setTo;
     public:
-        SetBoolFun(R* receiver, F function, bool setTo = true) :
+        TemporarilySetBoolFun(R* receiver, F function, bool setTo = true) :
         m_receiver(receiver),
         m_function(function),
         m_setTo(setTo) {
@@ -78,10 +78,10 @@ namespace TrenchBroom {
             (m_receiver->*m_function)(m_setTo);
         }
         
-        ~SetBoolFun() {
+        ~TemporarilySetBoolFun() {
             (m_receiver->*m_function)(!m_setTo);
         }
     };
 }
 
-#endif /* defined(TrenchBroom_SetAny) */
+#endif /* defined(TrenchBroom_TemporarilySetAny) */

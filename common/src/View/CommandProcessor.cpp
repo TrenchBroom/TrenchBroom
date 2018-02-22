@@ -20,7 +20,7 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <wx/time.h>

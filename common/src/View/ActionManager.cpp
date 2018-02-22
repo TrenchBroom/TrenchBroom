@@ -368,17 +368,17 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::MoveObjectsForward, "Move objects forward", true),
                                Action(View::CommandIds::Actions::MoveObjectsDown, "Move objects down", true));
 
-            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::RollObjectsCW, "Roll objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::RollObjectsCCW, "Roll objects counter-clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::YawObjectsCW, "Yaw objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::YawObjectsCCW, "Yaw objects counter-clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::PitchObjectsCW, "Pitch objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::PitchObjectsCCW, "Pitch objects counter-clockwise", true));
 
             createViewShortcut(KeyboardShortcut('F', WXK_CONTROL), ActionContext_NodeSelection,
