@@ -33,6 +33,7 @@
 
 #include <cassert>
 #include <numeric>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace View {
@@ -79,30 +80,28 @@ namespace TrenchBroom {
         }
 
         bool VertexTool::startMove(const Model::Hit::List& hits) {
-            if (!VertexToolBase::startMove(hits)) {
-                return false;
-            }
-
-            if (hits.size() == 1) {
-                const auto& hit = hits.front();
-                if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
-                    m_vertexHandles.deselectAll();
-                    if (hit.hasType(EdgeHandleManager::HandleHit)) {
-                        const auto& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
-                        m_edgeHandles.select(handle);
-                        m_mode = Mode_Split_Edge;
-                    } else {
-                        const auto& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
-                        m_faceHandles.select(handle);
-                        m_mode = Mode_Split_Face;
-                    }
-                    refreshViews();
+            const auto& hit = hits.front();
+            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+                m_vertexHandles.deselectAll();
+                if (hit.hasType(EdgeHandleManager::HandleHit)) {
+                    const auto& handle = std::get<0>(hit.target<EdgeHandleManager::HitType>());
+                    m_edgeHandles.select(handle);
+                    m_mode = Mode_Split_Edge;
                 } else {
-                    m_mode = Mode_Move;
+                    const auto& handle = std::get<0>(hit.target<FaceHandleManager::HitType>());
+                    m_faceHandles.select(handle);
+                    m_mode = Mode_Split_Face;
                 }
+                refreshViews();
             } else {
                 m_mode = Mode_Move;
             }
+
+            if (!VertexToolBase::startMove(hits)) {
+                m_mode = Mode_Move;
+                return false;
+            }
+
             return true;
         }
         
@@ -127,35 +126,45 @@ namespace TrenchBroom {
             } else {
                 Model::BrushSet brushes;
                 if (m_mode == Mode_Split_Edge) {
-                    assert(m_edgeHandles.selectedHandleCount() == 1);
-                    const Edge3 handle = m_edgeHandles.selectedHandles().front();
-                    brushes = findIncidentBrushes(handle);
+                    if (m_edgeHandles.selectedHandleCount() == 1) {
+                        const Edge3 handle = m_edgeHandles.selectedHandles().front();
+                        brushes = findIncidentBrushes(handle);
+                    }
                 } else {
                     assert(m_mode == Mode_Split_Face);
-                    assert(m_faceHandles.selectedHandleCount() == 1);
-                    const Polygon3 handle = m_faceHandles.selectedHandles().front();
-                    brushes = findIncidentBrushes(handle);
+                    if (m_faceHandles.selectedHandleCount() == 1) {
+                        const Polygon3 handle = m_faceHandles.selectedHandles().front();
+                        brushes = findIncidentBrushes(handle);
+                    }
                 }
-                
-                const Model::VertexToBrushesMap vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
-                if (document->addVertices(vertices)) {
-                    m_mode = Mode_Move;
-                    m_edgeHandles.deselectAll();
-                    m_faceHandles.deselectAll();
-                    m_dragHandlePosition += delta;
-                    m_vertexHandles.select(m_dragHandlePosition);
+
+                if (!brushes.empty()) {
+                    const Model::VertexToBrushesMap vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                    if (document->addVertices(vertices)) {
+                        m_mode = Mode_Move;
+                        m_edgeHandles.deselectAll();
+                        m_faceHandles.deselectAll();
+                        m_dragHandlePosition += delta;
+                        m_vertexHandles.select(m_dragHandlePosition);
+                    }
+                    return MR_Continue;
                 }
-                
-                return MR_Continue;
+
+                // Catch all failure cases: no brushes were selected or vertices could not be added:
+                return MR_Deny;
             }
         }
 
         void VertexTool::endMove() {
             VertexToolBase::endMove();
+            m_edgeHandles.deselectAll();
+            m_faceHandles.deselectAll();
             m_mode = Mode_Move;
         }
         void VertexTool::cancelMove() {
 			VertexToolBase::cancelMove();
+            m_edgeHandles.deselectAll();
+            m_faceHandles.deselectAll();
             m_mode = Mode_Move;
         }
 

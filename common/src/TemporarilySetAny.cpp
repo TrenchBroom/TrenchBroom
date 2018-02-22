@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 
 namespace TrenchBroom {
-    SetBool::SetBool(bool& value, bool newValue) :
-    SetAny(value, newValue) {}
+    TemporarilySetBool::TemporarilySetBool(bool& value, bool newValue) :
+    TemporarilySetAny(value, newValue) {}
 }

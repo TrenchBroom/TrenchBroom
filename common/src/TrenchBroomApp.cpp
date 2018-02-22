@@ -274,7 +274,7 @@ namespace TrenchBroom {
                 StringStream message;
                 message << e.what() << "\n\n" << e.query();
                 if (::wxMessageBox(message.str(), "TrenchBroom", wxYES_NO, nullptr) == wxYES) {
-                    SetBool setRecovering(recovering);
+                    TemporarilySetBool setRecovering(recovering);
                     e.recover();
                     return op(); // Recursive call here.
                 } else {
