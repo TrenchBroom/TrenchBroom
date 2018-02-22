@@ -541,7 +541,7 @@ namespace TrenchBroom {
         void ClipTool::performClip() {
             assert(canClip());
             
-            const SetBool ignoreNotifications(m_ignoreNotifications);
+            const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
             MapDocumentSPtr document = lock(m_document);
             const Transaction transaction(document, "Clip Brushes");
             

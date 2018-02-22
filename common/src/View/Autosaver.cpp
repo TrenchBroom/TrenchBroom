@@ -20,7 +20,7 @@
 #include "Autosaver.h"
 
 #include "StringUtils.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 #include "IO/DiskFileSystem.h"
 #include "View/MapDocument.h"
 
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             if (!IO::Disk::fileExists(IO::Disk::fixPath(document->path())))
                 return;
             
-            SetAny<Logger*> setLogger(m_logger, logger);
+            TemporarilySetAny<Logger*> setLogger(m_logger, logger);
             autosave(document);
         }
         

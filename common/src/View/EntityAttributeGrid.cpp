@@ -85,7 +85,7 @@ namespace TrenchBroom {
         
         void EntityAttributeGrid::moveCursorTo(const int row, const int col) {
             {
-                const SetBool ignoreSelection(m_ignoreSelection);
+                const TemporarilySetBool ignoreSelection(m_ignoreSelection);
                 m_grid->GoToCell(row, col);
                 m_grid->SelectRow(row);
             }
@@ -445,7 +445,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
-            const SetBool ignoreSelection(m_ignoreSelection);
+            const TemporarilySetBool ignoreSelection(m_ignoreSelection);
             updateControls();
         }
 
