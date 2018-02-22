@@ -63,7 +63,7 @@ namespace TrenchBroom {
         void ModEditor::OnAddModClicked(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            SetBool ignoreNotifier(m_ignoreNotifier);
+            TemporarilySetBool ignoreNotifier(m_ignoreNotifier);
 
             wxArrayInt selections;
             m_availableModList->GetSelections(selections);

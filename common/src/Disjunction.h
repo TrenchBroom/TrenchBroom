@@ -37,16 +37,28 @@ namespace TrenchBroom {
         Disjunction();
 
         /**
-         * Assigns a new literal. If the given literal is true, it will be added to the disjunction. If it is false,
-         * one true literal will be removed from the disjunction.
+         * Adds a new true literal.
+         *
+         * @return this disjunction
+         */
+        Disjunction& pushLiteral();
+
+        /**
+         * Removes a true literal from the disjunction.
          *
          * If a literal is removed from an empty disjunction, this function does nothing, but an assert will fail in
          * debug mode.
-         *
-         * @param value the literal to add
+
          * @return this disjunction
          */
-        Disjunction& operator=(bool value);
+        Disjunction& popLiteral();
+
+        /**
+         * Removes all literals.
+         *
+         * @return this disjunction
+         */
+        Disjunction& clearLiterals();
 
         /**
          * Queries the truth value of this disjunction. If it contains at least one true literal, the result is also true.
@@ -57,10 +69,10 @@ namespace TrenchBroom {
         operator bool() const;
 
         /**
-         * Helper to temporarily add a true literal to the disjunction. The literal will be removed when the instance
+         * Helper to temporarily set a true literal to the disjunction. The literal will be removed when the instance
          * of this class is destroyed.
          */
-        class Set {
+        class TemporarilySetLiteral {
         private:
             Disjunction& m_disjunction;
         public:
@@ -69,12 +81,12 @@ namespace TrenchBroom {
              *
              * @param disjunction the disjunction
              */
-            Set(Disjunction& disjunction);
+            TemporarilySetLiteral(Disjunction& disjunction);
 
             /**
              * Removes a true literal from the disjunction.
              */
-            ~Set();
+            ~TemporarilySetLiteral();
         };
     };
 }

@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
         void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera) {
             if (!m_ignoreNotifications && pref(Preferences::Link2DCameras)) {
-                const SetBool ignoreNotifications(m_ignoreNotifications);
+                const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
                 
                 for (Renderer::Camera* other : m_cameras) {
                     if (camera != other) {

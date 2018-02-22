@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
                 m_dragHandlePosition = getHandlePosition(hits.front());
                 m_dragging = true;
-                m_ignoreChangeNotifications = true;
+                m_ignoreChangeNotifications.pushLiteral();
                 return true;
             }
             
@@ -221,14 +221,14 @@ namespace TrenchBroom {
                 rebuildBrushGeometry();
                 document->commitTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications = false;
+                m_ignoreChangeNotifications.popLiteral();
             }
             
             virtual void cancelMove() {
                 MapDocumentSPtr document = lock(m_document);
                 document->cancelTransaction();
                 m_dragging = false;
-                m_ignoreChangeNotifications = false;
+                m_ignoreChangeNotifications.popLiteral();
             }
             
             virtual const H& getHandlePosition(const Model::Hit& hit) const {
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             virtual String actionName() const = 0;
         public:
             void moveSelection(const Vec3& delta) {
-                const Disjunction::Set ignoreChangeNotifications(m_ignoreChangeNotifications);
+                const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
                 move(delta);
@@ -391,7 +391,7 @@ namespace TrenchBroom {
                     VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
                     deselectHandles();
                     removeHandles(vertexCommand);
-                    m_ignoreChangeNotifications = true;
+                    m_ignoreChangeNotifications.pushLiteral();
                 }
             }
             
@@ -403,7 +403,7 @@ namespace TrenchBroom {
 
                     if (!m_dragging)
                         rebuildBrushGeometry();
-                    m_ignoreChangeNotifications = false;
+                    m_ignoreChangeNotifications.popLiteral();
                 }
             }
             
@@ -415,7 +415,7 @@ namespace TrenchBroom {
 
                     if (!m_dragging)
                         rebuildBrushGeometry();
-                    m_ignoreChangeNotifications = false;
+                    m_ignoreChangeNotifications.popLiteral();
                 }
             }
             
@@ -449,7 +449,7 @@ namespace TrenchBroom {
             }
         protected:
             void rebuildBrushGeometry() {
-                const Disjunction::Set ignoreChangeNotifications(m_ignoreChangeNotifications);
+                const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
                 
                 const auto selectedHandles = handleManager().selectedHandles();
                 const Model::BrushSet brushes = findIncidentBrushes(handleManager(), std::begin(selectedHandles), std::end(selectedHandles));

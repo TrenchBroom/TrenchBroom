@@ -74,7 +74,7 @@ namespace TrenchBroom {
             const size_t index = event.index();
             const bool set = event.flagSet();
             
-            const SetBool ignoreUpdates(m_ignoreUpdates);
+            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
             
             const Transaction transaction(document(), "Set Spawnflags");
             UpdateSpawnflag visitor(document(), name(), index, set);

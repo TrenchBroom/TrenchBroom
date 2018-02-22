@@ -24,14 +24,20 @@
 namespace TrenchBroom {
     Disjunction::Disjunction() : m_count(0) {}
 
-    Disjunction& Disjunction::operator=(const bool value) {
-        if (value) {
-            ++m_count;
-        } else {
-            assert(m_count > 0);
-            if (m_count > 0)
-                --m_count;
-        }
+    Disjunction &Disjunction::pushLiteral() {
+        ++m_count;
+        return *this;
+    }
+
+    Disjunction &Disjunction::popLiteral() {
+        assert(m_count > 0);
+        if (m_count > 0)
+            --m_count;
+        return *this;
+    }
+
+    Disjunction &Disjunction::clearLiterals() {
+        m_count = 0;
         return *this;
     }
 
@@ -39,13 +45,13 @@ namespace TrenchBroom {
         return m_count > 0;
     }
 
-    Disjunction::Set::Set(Disjunction& disjunction) :
+    Disjunction::TemporarilySetLiteral::TemporarilySetLiteral(Disjunction& disjunction) :
     m_disjunction(disjunction) {
-        m_disjunction = true;
+        m_disjunction.pushLiteral();
     }
 
-    Disjunction::Set::~Set() {
-        m_disjunction = false;
+    Disjunction::TemporarilySetLiteral::~TemporarilySetLiteral() {
+        m_disjunction.popLiteral();
     }
 
 }
