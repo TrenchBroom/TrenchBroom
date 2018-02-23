@@ -122,6 +122,7 @@ namespace TrenchBroom {
             Renderer::BrushRenderer* m_clippedBrushRenderer;
             
             bool m_ignoreNotifications;
+            bool m_dragging;
         public:
             ClipTool(MapDocumentWPtr document);
             ~ClipTool();

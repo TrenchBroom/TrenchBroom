@@ -127,10 +127,23 @@ namespace TrenchBroom {
                 if (info.move) {
                     m_lastSnapType = snapType(inputState);
                     const Model::Hit hit = findDraggableHandle(inputState);
-                    const Vec3& handlePos = hit.target<Vec3>();
+                    const Vec3 handlePos = m_tool->getHandlePosition(hit);
                     m_handleOffset = handlePos - hit.hitPoint();
                 }
                 return info;
+            }
+
+            bool shouldStartMove(const InputState& inputState) const override {
+                return (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                        (inputState.modifierKeysPressed(ModifierKeys::MKNone)                            || // horizontal movement
+                         inputState.modifierKeysPressed(ModifierKeys::MKAlt)                             || // vertical movement
+                         inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)                         || // horizontal absolute snap
+                         inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt)   || // vertical absolute snap
+                         inputState.modifierKeysPressed(ModifierKeys::MKShift)                           || // add new vertex and horizontal movement
+                         inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKAlt)     || // add new vertex and vertical movement
+                         inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd) || // add new vertex and horizontal movement with absolute snap
+                         inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt)  // add new vertex and vertical movement with absolute snap
+                        ));
             }
 
             DragSnapper* doCreateDragSnapper(const InputState& inputState) const override {

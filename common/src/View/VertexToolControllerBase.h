@@ -244,14 +244,7 @@ namespace TrenchBroom {
                 }
 
                 MoveInfo doStartMove(const InputState& inputState) override {
-                    if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                          (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                           inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                           inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) ||
-                           inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd) ||
-                           inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                           inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
-                           )))
+                    if (!shouldStartMove(inputState))
                         return MoveInfo();
                     
                     const Model::Hit::List hits = findDraggableHandles(inputState);
@@ -262,6 +255,14 @@ namespace TrenchBroom {
                         return MoveInfo();
                     
                     return MoveInfo(hits.front().hitPoint());
+                }
+
+                // Overridden in vertex tool controller to handle special cases for vertex moving.
+                virtual bool shouldStartMove(const InputState& inputState) const {
+                    return (inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
+                            (inputState.modifierKeysPressed(ModifierKeys::MKNone) || // horizontal movement
+                             inputState.modifierKeysPressed(ModifierKeys::MKAlt)     // vertical movement
+                            ));
                 }
 
                 DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
