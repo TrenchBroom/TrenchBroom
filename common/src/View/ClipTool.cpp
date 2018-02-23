@@ -480,18 +480,20 @@ namespace TrenchBroom {
         }
 
         void ClipTool::toggleSide() {
-            switch (m_clipSide) {
-                case ClipSide_Front:
-                    m_clipSide = ClipSide_Both;
-                    break;
-                case ClipSide_Both:
-                    m_clipSide = ClipSide_Back;
-                    break;
-                case ClipSide_Back:
-                    m_clipSide = ClipSide_Front;
-                    break;
+            if (canClip()) {
+                switch (m_clipSide) {
+                    case ClipSide_Front:
+                        m_clipSide = ClipSide_Both;
+                        break;
+                    case ClipSide_Both:
+                        m_clipSide = ClipSide_Back;
+                        break;
+                    case ClipSide_Back:
+                        m_clipSide = ClipSide_Front;
+                        break;
+                }
+                update();
             }
-            update();
         }
         
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
@@ -540,9 +542,7 @@ namespace TrenchBroom {
         }
 
         void ClipTool::performClip() {
-            if (!m_dragging) {
-                assert(canClip());
-
+            if (!m_dragging && canClip()) {
                 const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
                 MapDocumentSPtr document = lock(m_document);
                 const Transaction transaction(document, "Clip Brushes");
