@@ -464,7 +464,8 @@ namespace TrenchBroom {
         m_strategy(nullptr),
         m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
         m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
-        m_ignoreNotifications(false) {}
+        m_ignoreNotifications(false),
+        m_dragging(false) {}
         
         ClipTool::~ClipTool() {
             delete m_strategy;
@@ -479,18 +480,20 @@ namespace TrenchBroom {
         }
 
         void ClipTool::toggleSide() {
-            switch (m_clipSide) {
-                case ClipSide_Front:
-                    m_clipSide = ClipSide_Both;
-                    break;
-                case ClipSide_Both:
-                    m_clipSide = ClipSide_Back;
-                    break;
-                case ClipSide_Back:
-                    m_clipSide = ClipSide_Front;
-                    break;
+            if (canClip()) {
+                switch (m_clipSide) {
+                    case ClipSide_Front:
+                        m_clipSide = ClipSide_Both;
+                        break;
+                    case ClipSide_Both:
+                        m_clipSide = ClipSide_Back;
+                        break;
+                    case ClipSide_Back:
+                        m_clipSide = ClipSide_Front;
+                        break;
+                }
+                update();
             }
-            update();
         }
         
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
@@ -537,24 +540,24 @@ namespace TrenchBroom {
         bool ClipTool::canClip() const {
             return m_strategy != nullptr && m_strategy->canClip();
         }
-        
+
         void ClipTool::performClip() {
-            assert(canClip());
-            
-            const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
-            MapDocumentSPtr document = lock(m_document);
-            const Transaction transaction(document, "Clip Brushes");
-            
-            // need to make a copies here so that we are not affected by the deselection
-            const Model::ParentChildrenMap toAdd = clipBrushes();
-            const Model::NodeList toRemove = document->selectedNodes().nodes();
-            const Model::NodeList addedNodes = document->addNodes(toAdd);
-            
-            document->deselectAll();
-            document->removeNodes(toRemove);
-            document->select(addedNodes);
-            
-            update();
+            if (!m_dragging && canClip()) {
+                const TemporarilySetBool ignoreNotifications(m_ignoreNotifications);
+                MapDocumentSPtr document = lock(m_document);
+                const Transaction transaction(document, "Clip Brushes");
+
+                // need to make a copies here so that we are not affected by the deselection
+                const Model::ParentChildrenMap toAdd = clipBrushes();
+                const Model::NodeList toRemove = document->selectedNodes().nodes();
+                const Model::NodeList addedNodes = document->addNodes(toAdd);
+
+                document->deselectAll();
+                document->removeNodes(toRemove);
+                document->select(addedNodes);
+
+                update();
+            }
         }
         
         Model::ParentChildrenMap ClipTool::clipBrushes() {
@@ -617,20 +620,25 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) {
+            assert(!m_dragging);
             if (m_strategy == nullptr)
                 return false;
             if (!m_strategy->canDragPoint(pickResult, initialPosition))
                 return false;
             m_strategy->beginDragPoint(pickResult);
+            m_dragging = true;
             return true;
         }
         
         void ClipTool::beginDragLastPoint() {
+            assert(!m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->beginDragLastPoint();
+            m_dragging = true;
         }
 
         bool ClipTool::dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) {
+            assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))
                 return false;
@@ -639,14 +647,18 @@ namespace TrenchBroom {
         }
         
         void ClipTool::endDragPoint() {
+            assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->endDragPoint();
+            m_dragging = false;
             refreshViews();
         }
 
         void ClipTool::cancelDragPoint() {
+            assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
             m_strategy->cancelDragPoint();
+            m_dragging = false;
             refreshViews();
         }
 
