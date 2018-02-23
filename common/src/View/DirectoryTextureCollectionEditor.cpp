@@ -42,22 +42,25 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_availableCollectionsList(nullptr),
-        m_enabledCollectionsList(nullptr),
-        m_ignoreNotifier(false) {
+        m_enabledCollectionsList(nullptr) {
             createGui();
             bindObservers();
             update();
         }
         
-        void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
-            const IO::Path::List availableCollections = availableTextureCollections();
-            IO::Path::List enabledCollections = enabledTextureCollections();
+		DirectoryTextureCollectionEditor::~DirectoryTextureCollectionEditor() {
+			unbindObservers();
+		}
+		
+		void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
+            const auto availableCollections = availableTextureCollections();
+            auto enabledCollections = enabledTextureCollections();
             
             wxArrayInt selections;
             m_availableCollectionsList->GetSelections(selections);
             
             for (size_t i = 0; i < selections.size(); ++i) {
-                const size_t index = static_cast<size_t>(selections[i]);
+                const auto index = static_cast<size_t>(selections[i]);
                 enabledCollections.push_back(availableCollections[index]);
             }
             
@@ -80,7 +83,7 @@ namespace TrenchBroom {
                 VectorUtils::erase(enabledCollections, index);
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);
         }
 
@@ -95,32 +98,32 @@ namespace TrenchBroom {
         }
 
         void DirectoryTextureCollectionEditor::createGui() {
-            TitledPanel* availableCollectionsContainer = new TitledPanel(this, "Available", false);
+            auto* availableCollectionsContainer = new TitledPanel(this, "Available", false);
             availableCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_availableCollectionsList = new wxListBox(availableCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
-            wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
             availableModContainerSizer->Add(m_availableCollectionsList, wxSizerFlags().Expand().Proportion(1));
             availableCollectionsContainer->getPanel()->SetSizer(availableModContainerSizer);
         
-            TitledPanel* enabledCollectionsContainer = new TitledPanel(this, "Enabled", false);
+            auto* enabledCollectionsContainer = new TitledPanel(this, "Enabled", false);
             enabledCollectionsContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledCollectionsList = new wxListBox(enabledCollectionsContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
             
-            wxSizer* enabledCollectionsContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* enabledCollectionsContainerSizer = new wxBoxSizer(wxVERTICAL);
             enabledCollectionsContainerSizer->Add(m_enabledCollectionsList, wxSizerFlags().Expand().Proportion(1));
             enabledCollectionsContainer->getPanel()->SetSizer(enabledCollectionsContainerSizer);
             
-            wxWindow* addCollectionsButton = createBitmapButton(this, "Add.png", "Enable the selected texture collections");
-            wxWindow* removeCollectionsButton = createBitmapButton(this, "Remove.png", "Disable the selected texture collections");
+            auto* addCollectionsButton = createBitmapButton(this, "Add.png", "Enable the selected texture collections");
+            auto* removeCollectionsButton = createBitmapButton(this, "Remove.png", "Disable the selected texture collections");
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->Add(removeCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddStretchSpacer();
             
-            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
+            auto* sizer = new wxGridBagSizer(0, 0);
             sizer->Add(availableCollectionsContainer,                           wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
             sizer->Add(enabledCollectionsContainer,                             wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
@@ -143,28 +146,27 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
 
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange);
         }
 
         void DirectoryTextureCollectionEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::modsDidChange);
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             assertResult(prefs.preferenceDidChangeNotifier.removeObserver(this, &DirectoryTextureCollectionEditor::preferenceDidChange));
         }
         
         void DirectoryTextureCollectionEditor::textureCollectionsDidChange() {
-            if (!m_ignoreNotifier)
-                update();
+            update();
         }
         
         void DirectoryTextureCollectionEditor::modsDidChange() {
@@ -172,7 +174,7 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->isGamePathPreference(path))
                 update();
         }
@@ -194,21 +196,21 @@ namespace TrenchBroom {
             wxArrayString values;
             values.reserve(paths.size());
             
-            for (const IO::Path& path : paths)
+            for (const auto& path : paths)
                 values.push_back(path.asString());
             
             box->Set(values);
         }
         
         IO::Path::List DirectoryTextureCollectionEditor::availableTextureCollections() const {
-            MapDocumentSPtr document = lock(m_document);
-            IO::Path::List availableCollections = document->availableTextureCollections();
+            auto document = lock(m_document);
+            auto availableCollections = document->availableTextureCollections();
             VectorUtils::eraseAll(availableCollections, document->enabledTextureCollections());
             return availableCollections;
         }
 
         IO::Path::List DirectoryTextureCollectionEditor::enabledTextureCollections() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->enabledTextureCollections();
         }
     }
