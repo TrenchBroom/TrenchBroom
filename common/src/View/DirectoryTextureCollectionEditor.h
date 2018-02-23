@@ -35,10 +35,9 @@ namespace TrenchBroom {
             
             wxListBox* m_availableCollectionsList;
             wxListBox* m_enabledCollectionsList;
-            
-            bool m_ignoreNotifier;
         public:
             DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
+			~DirectoryTextureCollectionEditor();
         private:
             void OnAddTextureCollections(wxCommandEvent& event);
             void OnRemoveTextureCollections(wxCommandEvent& event);
