@@ -301,8 +301,8 @@ namespace TrenchBroom {
                     // so it's possible to press enter to apply a value to all entites in a selection
                     // even though the grid editor hasn't changed.
 
-                    const SetBool forceChange{m_forceChange};
-                    const SetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
+                    const TemporarilySetBool forceChange{m_forceChange};
+                    const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
                         
                     m_grid->gridWindow()->SaveEditControlValue();
                     m_grid->gridWindow()->HideCellEditControl();
