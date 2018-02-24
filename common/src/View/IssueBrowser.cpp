@@ -86,7 +86,6 @@ namespace TrenchBroom {
 
         void IssueBrowser::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->documentWillBeClearedNotifier.addObserver(this, &IssueBrowser::documentWillBeCleared);
             document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
             document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -99,7 +98,6 @@ namespace TrenchBroom {
         void IssueBrowser::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->documentWillBeClearedNotifier.removeObserver(this, &IssueBrowser::documentWillBeCleared);
                 document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
                 document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
@@ -110,14 +108,13 @@ namespace TrenchBroom {
             }
         }
 
-        void IssueBrowser::documentWillBeCleared(MapDocument* document) {
-            // https://github.com/kduske/TrenchBroom/issues/2065
-            // workaround for wxWidgets bug http://trac.wxwidgets.org/ticket/16894
-            m_view->ScrollList(0, 0);
-        }
-
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
-            updateFilterFlags();
+			// workaround for wxWidgets bug http://trac.wxwidgets.org/ticket/16894
+			if (!m_view->GetItemCount() == 0) {
+				m_view->EnsureVisible(0);
+			}
+			
+			updateFilterFlags();
             m_view->reload();
         }
 

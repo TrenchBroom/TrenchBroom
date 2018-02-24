@@ -63,7 +63,6 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            void documentWillBeCleared(MapDocument* document);
             void documentWasNewedOrLoaded(MapDocument* document);
             void documentWasSaved(MapDocument* document);
             void nodesWereAdded(const Model::NodeList& nodes);
