@@ -140,11 +140,13 @@ namespace TrenchBroom {
         public:
             void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const;
         public:
+            bool hasBrushes() const;
             bool canClip() const;
             void performClip();
         private:
             Model::ParentChildrenMap clipBrushes();
         public:
+
             Vec3 defaultClipPointPos() const;
 
             bool canAddPoint(const Vec3& point) const;
