@@ -110,6 +110,8 @@ namespace TrenchBroom {
         
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
             updateFilterFlags();
+            m_view->deselectAll();
+            m_view->Scroll(0, 0);
             m_view->reload();
         }
 

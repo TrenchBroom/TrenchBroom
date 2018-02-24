@@ -49,6 +49,7 @@ namespace TrenchBroom {
         wxColor toWxColor(const Color& color);
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
+        void deselectAllListrCtrlItems(wxListCtrl* listCtrl);
 
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
         wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip);
