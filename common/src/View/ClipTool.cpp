@@ -537,6 +537,11 @@ namespace TrenchBroom {
             }
         }
 
+        bool ClipTool::hasBrushes() const {
+            const auto document = lock(m_document);
+            return document->selectedNodes().hasBrushes();
+        }
+
         bool ClipTool::canClip() const {
             return m_strategy != nullptr && m_strategy->canClip();
         }

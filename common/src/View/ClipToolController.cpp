@@ -214,8 +214,10 @@ namespace TrenchBroom {
         }
         
         void ClipToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            renderContext.setHideSelection();
-            renderContext.setForceHideSelectionGuide();
+            if (m_tool->hasBrushes()) {
+                renderContext.setHideSelection();
+                renderContext.setForceHideSelectionGuide();
+            }
         }
         
         void ClipToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
