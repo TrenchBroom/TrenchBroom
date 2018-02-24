@@ -812,12 +812,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::hide(const Model::NodeList nodes) {
-            Model::CollectSelectedNodesVisitor collect;
+            Model::CollectTransitivelySelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
             
             const Transaction transaction(this, "Hide Objects");
             deselect(collect.nodes());
-            submitAndStore(SetVisibilityCommand::hide(nodes));
+            submitAndStore(SetVisibilityCommand::hide(collect.nodes()));
         }
         
         void MapDocument::hideSelection() {
