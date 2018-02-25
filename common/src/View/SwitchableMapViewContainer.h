@@ -90,6 +90,10 @@ namespace TrenchBroom {
             bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
             
+            bool scaleObjectsToolActive() const;
+            bool canToggleScaleObjectsTool() const;
+            void toggleScaleObjectsTool();
+            
             bool canToggleVertexTools() const;
             bool anyVertexToolActive() const;
             bool vertexToolActive() const;

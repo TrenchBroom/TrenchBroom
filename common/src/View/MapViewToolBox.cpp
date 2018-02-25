@@ -29,6 +29,7 @@
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
+#include "View/ScaleObjectsTool.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 
@@ -70,6 +71,10 @@ namespace TrenchBroom {
         
         RotateObjectsTool* MapViewToolBox::rotateObjectsTool() const {
             return m_rotateObjectsTool.get();
+        }
+        
+        ScaleObjectsTool* MapViewToolBox::scaleObjectsTool() const {
+            return m_scaleObjectsTool.get();
         }
         
         VertexTool* MapViewToolBox::vertexTool() const {
@@ -143,6 +148,14 @@ namespace TrenchBroom {
             m_rotateObjectsTool->setRotationCenter(center + delta);
         }
 
+        void MapViewToolBox::toggleScaleObjectsTool() {
+            toggleTool(scaleObjectsTool());
+        }
+        
+        bool MapViewToolBox::scaleObjectsToolActive() const {
+            return toolActive(scaleObjectsTool());
+        }
+        
         bool MapViewToolBox::anyVertexToolActive() const {
             return vertexToolActive() || edgeToolActive() || faceToolActive();
         }
@@ -189,6 +202,7 @@ namespace TrenchBroom {
             m_moveObjectsTool.reset(new MoveObjectsTool(document));
             m_resizeBrushesTool.reset(new ResizeBrushesTool(document));
             m_rotateObjectsTool.reset(new RotateObjectsTool(document));
+            m_scaleObjectsTool.reset(new ScaleObjectsTool(document));
             m_vertexTool.reset(new VertexTool(document));
             m_edgeTool.reset(new EdgeTool(document));
             m_faceTool.reset(new FaceTool(document));
@@ -199,6 +213,9 @@ namespace TrenchBroom {
             deactivateWhen(rotateObjectsTool(), moveObjectsTool());
             deactivateWhen(rotateObjectsTool(), resizeBrushesTool());
             deactivateWhen(rotateObjectsTool(), createSimpleBrushTool());
+            deactivateWhen(scaleObjectsTool(), moveObjectsTool());
+            deactivateWhen(scaleObjectsTool(), resizeBrushesTool());
+            deactivateWhen(scaleObjectsTool(), createSimpleBrushTool());
             deactivateWhen(vertexTool(), moveObjectsTool());
             deactivateWhen(vertexTool(), resizeBrushesTool());
             deactivateWhen(vertexTool(), createSimpleBrushTool());
@@ -214,6 +231,7 @@ namespace TrenchBroom {
             
             registerTool(moveObjectsTool(), bookCtrl);
             registerTool(rotateObjectsTool(), bookCtrl);
+            registerTool(scaleObjectsTool(), bookCtrl);
             registerTool(resizeBrushesTool(), bookCtrl);
             registerTool(createComplexBrushTool(), bookCtrl);
             registerTool(clipTool(), bookCtrl);

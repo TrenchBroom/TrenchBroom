@@ -33,7 +33,8 @@ namespace TrenchBroom {
             ActionContext_FlyMode         = 1 << 6,
             ActionContext_NodeSelection   = 1 << 7,
             ActionContext_FaceSelection   = 1 << 8,
-            ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_CreateComplexBrushTool,
+            ActionContext_ScaleTool       = 1 << 9,
+            ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_ScaleTool | ActionContext_CreateComplexBrushTool,
             ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_FlyMode | ActionContext_NodeSelection | ActionContext_FaceSelection
         } ActionContext;
 

@@ -40,6 +40,7 @@ namespace TrenchBroom {
         class MoveObjectsTool;
         class ResizeBrushesTool;
         class RotateObjectsTool;
+        class ScaleObjectsTool;
         class VertexTool;
         class EdgeTool;
         class FaceTool;
@@ -57,6 +58,7 @@ namespace TrenchBroom {
             std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
             std::unique_ptr<ResizeBrushesTool> m_resizeBrushesTool;
             std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
+            std::unique_ptr<ScaleObjectsTool> m_scaleObjectsTool;
             std::unique_ptr<VertexTool> m_vertexTool;
             std::unique_ptr<EdgeTool> m_edgeTool;
             std::unique_ptr<FaceTool> m_faceTool;
@@ -71,6 +73,7 @@ namespace TrenchBroom {
             MoveObjectsTool* moveObjectsTool() const;
             ResizeBrushesTool* resizeBrushesTool() const;
             RotateObjectsTool* rotateObjectsTool() const;
+            ScaleObjectsTool* scaleObjectsTool() const;
             VertexTool* vertexTool() const;
             EdgeTool* edgeTool() const;
             FaceTool* faceTool() const;
@@ -90,6 +93,9 @@ namespace TrenchBroom {
             double rotateToolAngle() const;
             const Vec3 rotateToolCenter() const;
             void moveRotationCenter(const Vec3& delta);
+            
+            void toggleScaleObjectsTool();
+            bool scaleObjectsToolActive() const;
             
             bool anyVertexToolActive() const;
             

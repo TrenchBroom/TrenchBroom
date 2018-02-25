@@ -486,6 +486,12 @@ namespace TrenchBroom {
 
             m_toolBox.toggleRotateObjectsTool();
         }
+        
+        void MapViewBase::OnToggleScaleObjectsTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_toolBox.toggleScaleObjectsTool();
+        }
 
         void MapViewBase::OnMoveRotationCenterForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
@@ -777,6 +783,8 @@ namespace TrenchBroom {
                 return ActionContext_AnyVertexTool;
             if (m_toolBox.rotateObjectsToolActive())
                 return ActionContext_RotateTool;
+            if (m_toolBox.scaleObjectsToolActive())
+                return ActionContext_ScaleTool;
 
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes())
