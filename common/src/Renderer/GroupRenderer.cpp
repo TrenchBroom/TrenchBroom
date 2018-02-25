@@ -111,14 +111,12 @@ namespace TrenchBroom {
         }
         
         void GroupRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {
-            /*
             if (!m_boundsValid)
                 validateBounds();
             
             if (m_showOccludedBounds)
                 m_boundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
             m_boundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
-             */
         }
         
         void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -127,10 +125,8 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
 
-                const auto& currentGroup = m_editorContext.currentGroup();
                 for (const auto* group : m_groups) {
-                    const auto* parentGroup = group->group();
-                    if (parentGroup == currentGroup && m_editorContext.visible(group)) {
+                    if (shouldRenderGroup(group)) {
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays)
                             renderService.setShowOccludedObjects();
@@ -179,7 +175,7 @@ namespace TrenchBroom {
                 
                 BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::Group* group : m_groups) {
-                    if (m_editorContext.visible(group)) {
+                    if (shouldRenderGroup(group)) {
                         eachBBoxEdge(group->bounds(), boundsBuilder);
                     }
                 }
@@ -190,7 +186,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
                 
                 for (const Model::Group* group : m_groups) {
-                    if (m_editorContext.visible(group)) {
+                    if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
                         eachBBoxEdge(group->bounds(), boundsBuilder);
                     }
@@ -201,7 +197,13 @@ namespace TrenchBroom {
             
             m_boundsValid = true;
         }
-        
+
+        bool GroupRenderer::shouldRenderGroup(const Model::Group* group) const {
+            const auto& currentGroup = m_editorContext.currentGroup();
+            const auto* parentGroup = group->group();
+            return parentGroup == currentGroup && m_editorContext.visible(group);
+        }
+
         AttrString GroupRenderer::groupString(const Model::Group* group) const {
             return group->name();
         }
