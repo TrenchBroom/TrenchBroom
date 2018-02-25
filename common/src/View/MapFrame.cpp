@@ -457,7 +457,7 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleEdgeTool, "Edge Tool", IO::loadImageResource("EdgeTool.png"), wxNullBitmap, "Edge Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleFaceTool, "Face Tool", IO::loadImageResource("FaceTool.png"), wxNullBitmap, "Face Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Scale Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", IO::loadImageResource("ScaleTool.png"), wxNullBitmap, "Scale Tool");
             toolBar->AddSeparator();
             toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
