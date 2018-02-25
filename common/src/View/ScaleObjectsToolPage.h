@@ -38,12 +38,11 @@ namespace TrenchBroom {
         class ScaleObjectsToolPage : public wxPanel {
         private:
             MapDocumentWPtr m_document;
-            ScaleObjectsTool* m_tool;
 
             wxTextCtrl* m_scaleFactors;
             wxButton* m_button;
         public:
-            ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ScaleObjectsTool* tool);
+            ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document);
         private:
             void createGui();
             

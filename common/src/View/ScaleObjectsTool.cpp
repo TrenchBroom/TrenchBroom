@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
         wxWindow* ScaleObjectsTool::doCreatePage(wxWindow* parent) {
             assert(m_toolPage == nullptr);
-            m_toolPage = new ScaleObjectsToolPage(parent, m_document, this);
+            m_toolPage = new ScaleObjectsToolPage(parent, m_document);
             return m_toolPage;
         }
     }

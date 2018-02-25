@@ -34,16 +34,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolPage::ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ScaleObjectsTool* tool) :
+        ScaleObjectsToolPage::ScaleObjectsToolPage(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_document(document),
-        m_tool(tool) {
+        m_document(document) {
             createGui();
         }
         
         void ScaleObjectsToolPage::createGui() {
             wxStaticText* text = new wxStaticText(this, wxID_ANY, "Scale objects by");
-            m_scaleFactors = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0");
+            m_scaleFactors = new wxTextCtrl(this, wxID_ANY, "1.0 1.0 1.0");
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             
             m_button->Bind(wxEVT_UPDATE_UI, &ScaleObjectsToolPage::OnUpdateButton, this);
@@ -72,9 +71,7 @@ namespace TrenchBroom {
             const Vec3 scaleFactors = Vec3::parse(m_scaleFactors->GetValue().ToStdString());
             
             MapDocumentSPtr document = lock(m_document);
-            
-            // FIXME: Center?
-            document->scaleObjects(Vec3(0,0,0), scaleFactors);
+            document->scaleObjects(document->selectionBounds().min, scaleFactors);
         }
     }
 }
