@@ -52,11 +52,14 @@ namespace TrenchBroom {
             m_entityRenderer.setShowOverlays(showOverlays);
         }
 
-        void ObjectRenderer::setOverlayTextColor(const Color& overlayTextColor) {
-            m_groupRenderer.setOverlayTextColor(overlayTextColor);
+        void ObjectRenderer::setEntityOverlayTextColor(const Color &overlayTextColor) {
             m_entityRenderer.setOverlayTextColor(overlayTextColor);
         }
-    
+
+        void ObjectRenderer::setGroupOverlayTextColor(const Color &overlayTextColor) {
+            m_groupRenderer.setOverlayTextColor(overlayTextColor);
+        }
+
         void ObjectRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
             m_groupRenderer.setOverlayBackgroundColor(overlayBackgroundColor);
             m_entityRenderer.setOverlayBackgroundColor(overlayBackgroundColor);
