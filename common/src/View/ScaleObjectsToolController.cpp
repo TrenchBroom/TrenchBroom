@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 const Vec3 ref = (m_start - m_center).normalized();
                 const Vec3 vec = (nextHandlePosition - m_center).normalized();
                 m_angle = angleBetween(vec, ref, m_axis);
-                m_tool->applyRotation(m_center, m_axis, m_angle);
+                //m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
             }
             

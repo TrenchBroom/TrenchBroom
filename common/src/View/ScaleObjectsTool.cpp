@@ -80,15 +80,15 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
         
-        FloatType ScaleObjectsTool::snapRotationAngle(const FloatType angle) const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->grid().snapAngle(angle);
-        }
+//        FloatType ScaleObjectsTool::snapRotationAngle(const FloatType angle) const {
+//            MapDocumentSPtr document = lock(m_document);
+//            return document->grid().snapAngle(angle);
+//        }
         
-        void ScaleObjectsTool::applyRotation(const Vec3& center, const Vec3& axis, const FloatType angle) {
+        void ScaleObjectsTool::applyScale(const Vec3& center, const Vec3& scaleFactors) {
             MapDocumentSPtr document = lock(m_document);
             document->rollbackTransaction();
-            document->rotateObjects(center, axis, angle);
+            document->scaleObjects(center, scaleFactors);
         }
         
         Model::Hit ScaleObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) {

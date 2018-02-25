@@ -60,8 +60,8 @@ namespace TrenchBroom {
             void commitScale();
             void cancelScale();
 
-            FloatType snapRotationAngle(FloatType angle) const;
-            void applyRotation(const Vec3& center, const Vec3& axis, FloatType angle);
+            //FloatType snapRotationAngle(FloatType angle) const;
+            void applyScale(const Vec3& center, const Vec3& scaleFactors);
             
             Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
             Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
