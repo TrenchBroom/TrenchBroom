@@ -110,7 +110,7 @@ namespace TrenchBroom {
 
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
 			// workaround for wxWidgets bug http://trac.wxwidgets.org/ticket/16894
-			if (!m_view->GetItemCount() == 0) {
+			if (m_view->GetItemCount() > 0) {
 				m_view->EnsureVisible(0);
 			}
 			
