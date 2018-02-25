@@ -23,56 +23,76 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Hit.h"
+#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
+#include "View/ScaleObjectsToolPage.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class Camera;
     }
     
     namespace View {
-        class Grid;
-        class RotateObjectsHandle;
-        class ScaleObjectsToolPage;
+        class Selection;
 
         class ScaleObjectsTool : public Tool {
         private:
+            static const Model::Hit::HitType ScaleHit3D;
+            static const Model::Hit::HitType ScaleHit2D;
+            
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
-            Vec3 m_scaleCenter;
-            Vec3 m_scaleFactors;
+            
+            Vec3 m_dragAxis;
+            
+            Vec3 m_dragOrigin;
+            Vec3 m_totalDelta;
+            bool m_resizing;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
-
-            bool doActivate() override;
-
-            const Grid& grid() const;
+            ~ScaleObjectsTool();
             
-            Vec3 scaleCenter() const;
-            void setScaleCenter(const Vec3& scaleCenter);
-            void resetScaleCenter();
-                
-            Vec3 scaleFactors() const;
-            void setScaleFactors(const Vec3& scaleFactors);
+            bool applies() const;
             
-            void beginScale();
-            void commitScale();
-            void cancelScale();
-
-            //FloatType snapRotationAngle(FloatType angle) const;
-            void applyScale(const Vec3& center, const Vec3& scaleFactors);
+            Model::Hit pick2D(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick3D(const Ray3& pickRay, const Model::PickResult& pickResult);
+        private:
+            BBox3 bounds() const;
+            FloatType intersectWithRay(const Ray3& ray) const;
+        private:
+            class PickProximateFace;
+            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
+        public:
+            bool hasDragFaces() const;
+            const Model::BrushFaceList& dragFaces() const;
+            void updateDragFaces(const Model::PickResult& pickResult);
+        private:
+            Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
+            class MatchFaceBoundary;
+            Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
+            Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
+        public:
+            bool beginResize(const Model::PickResult& pickResult, bool split);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
+            Vec3 selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, FloatType mouseDistance) const;
             
-            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
-            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
+            void commitResize();
+            void cancelResize();
+        private:
+            bool splitBrushes(const Vec3& delta);
+            Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
+            Polygon3::List dragFaceDescriptors() const;
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void nodesDidChange(const Model::NodeList& nodes);
+            void selectionDidChange(const Selection& selection);
             
-            Vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
-            Vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const;
-
-            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
-            void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
         private:
             wxWindow* doCreatePage(wxWindow* parent) override;
         };
