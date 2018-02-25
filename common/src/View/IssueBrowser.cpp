@@ -107,9 +107,14 @@ namespace TrenchBroom {
                 document->brushFacesDidChangeNotifier.removeObserver(this, &IssueBrowser::brushFacesDidChange);
             }
         }
-        
+
         void IssueBrowser::documentWasNewedOrLoaded(MapDocument* document) {
-            updateFilterFlags();
+			// workaround for wxWidgets bug http://trac.wxwidgets.org/ticket/16894
+			if (m_view->GetItemCount() > 0) {
+				m_view->EnsureVisible(0);
+			}
+			
+			updateFilterFlags();
             m_view->reload();
         }
 
