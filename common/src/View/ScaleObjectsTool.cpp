@@ -63,6 +63,18 @@ namespace TrenchBroom {
             return Model::Hit::NoHit;
         }
         
+        std::vector<Polygon3> ScaleObjectsTool::bboxFaces() const {
+            const BBox3& myBounds = bounds();
+            
+            std::vector<Polygon3> polys;
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                const Polygon3 poly {p0, p1, p2, p3};
+                polys.push_back(poly);
+            };
+            eachBBoxFace(myBounds, visitor);
+            return polys;
+        }
+        
         Model::Hit ScaleObjectsTool::pick3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
            
             const BBox3& myBounds = bounds();
@@ -72,17 +84,20 @@ namespace TrenchBroom {
                 return Model::Hit::NoHit;
             
             // gather polygons
-            std::vector<Polygon3> polys;
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
-                const Polygon3 poly {p0, p1, p2, p3};
-                polys.push_back(poly);
-            };
-            eachBBoxFace(myBounds, visitor);
+            const std::vector<Polygon3> polys = bboxFaces();
+            
             
             printf("testing polys:\n");
-            for (const auto& poly : polys) {
+            for (size_t i=0; i<polys.size(); ++i) {
+                const auto& poly = polys[i];
+                
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
                 printf("    dist %f\n", dist);
+                
+                if (!isnan(dist)) {
+                    printf("    hit in %d\n", (int)i);
+                    return Model::Hit(ScaleHit3D, dist, pickRay.pointAtDistance(dist), i);
+                }
             }
             printf("\n");
             
@@ -118,19 +133,22 @@ namespace TrenchBroom {
             return plane.normal;
         }
         
-      void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
-          
-//            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
-//            Model::BrushFaceList newDragFaces = getDragFaces(hit);
-//            if (newDragFaces != m_dragFaces)
-//                refreshViews();
-//
-//            using std::swap;
-//            swap(m_dragFaces, newDragFaces);
+      void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {          
+            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
+            auto newDragFaces = getDragPolygon(hit);
+            if (newDragFaces != m_dragPolygon)
+                refreshViews();
+
+            m_dragPolygon = newDragFaces;
       }
         
-        Model::BrushFaceList ScaleObjectsTool::getDragFaces(const Model::Hit& hit) const {
-            return !hit.isMatch() ? Model::EmptyBrushFaceList : collectDragFaces(hit);
+        Polygon3 ScaleObjectsTool::getDragPolygon(const Model::Hit& hit) const {
+            if (!hit.isMatch()) return Polygon3();
+            
+            size_t index = hit.target<size_t>();
+            printf("hit out: %d\n", index);
+            
+            return bboxFaces().at(index);
         }
         
 //        class ScaleObjectsTool::MatchFaceBoundary {
@@ -149,10 +167,10 @@ namespace TrenchBroom {
         
         Model::BrushFaceList ScaleObjectsTool::collectDragFaces(const Model::Hit& hit) const {
             assert(hit.isMatch());
-//            assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
+//            assert(hit.type() == ScaleHit2D || hit.type() == ScaleHit3D);
 
             Model::BrushFaceList result;
-//            if (hit.type() == ResizeHit2D) {
+//            if (hit.type() == ScaleHit2D) {
 //                const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
 //                assert(!faces.empty());
 //                VectorUtils::append(result, faces);
@@ -179,8 +197,8 @@ namespace TrenchBroom {
         }
         
         bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult, const bool split) {
-//            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
-//            if (!hit.isMatch())
+            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
+            if (!hit.isMatch())
                 return false;
             
             m_dragOrigin = Vec3::Null;//hit.hitPoint();
@@ -195,6 +213,7 @@ namespace TrenchBroom {
         
         bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera) {
 //            assert(!m_dragFaces.empty());
+            assert(hasDragPolygon());
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
             const Vec3& faceNormal = dragPolygonNormal();
@@ -220,15 +239,6 @@ namespace TrenchBroom {
 //                }
             
             return false;
-        }
-        
-        Vec3 ScaleObjectsTool::selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, const FloatType mouseDistance) const {
-            // select the delta that is closest to the actual delta indicated by the mouse cursor
-            const FloatType mouseDistance2 = mouseDistance * mouseDistance;
-            return (std::abs(relativeDelta.squaredLength() - mouseDistance2) <
-                    std::abs(absoluteDelta.squaredLength() - mouseDistance2) ?
-                    relativeDelta :
-                    absoluteDelta);
         }
         
         void ScaleObjectsTool::commitResize() {

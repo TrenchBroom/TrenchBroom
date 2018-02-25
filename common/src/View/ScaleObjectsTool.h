@@ -71,6 +71,8 @@ namespace TrenchBroom {
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
         public:
         
+            std::vector<Polygon3> bboxFaces() const;
+            
             bool hasDragPolygon() const;
             Polygon3 dragPolygon() const;
             Vec3 dragPolygonNormal() const;
@@ -80,14 +82,13 @@ namespace TrenchBroom {
             void updateDragFaces(const Model::PickResult& pickResult);
             
         private:
-            Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
+            Polygon3 getDragPolygon(const Model::Hit& hit) const;
             class MatchFaceBoundary;
             Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
-            Vec3 selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, FloatType mouseDistance) const;
             
             void commitResize();
             void cancelResize();
