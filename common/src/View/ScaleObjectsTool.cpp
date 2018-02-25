@@ -102,15 +102,24 @@ namespace TrenchBroom {
             return 0;
         }
         
-        bool ScaleObjectsTool::hasDragFaces() const {
-            return false;
+        bool ScaleObjectsTool::hasDragPolygon() const {
+            return m_dragPolygon.vertexCount() != 0;
         }
         
-        const Model::BrushFaceList& ScaleObjectsTool::dragFaces() const {
-            return {};
+        Polygon3 ScaleObjectsTool::dragPolygon() const {
+            return m_dragPolygon;
         }
         
-        void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
+        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
+            Plane3 plane;
+            if (!getPlane(m_dragPolygon.begin(), m_dragPolygon.end(), plane))
+                return Vec3(0,0,0);
+            
+            return plane.normal;
+        }
+        
+      void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
+          
 //            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
 //            Model::BrushFaceList newDragFaces = getDragFaces(hit);
 //            if (newDragFaces != m_dragFaces)
@@ -118,30 +127,30 @@ namespace TrenchBroom {
 //
 //            using std::swap;
 //            swap(m_dragFaces, newDragFaces);
-        }
+      }
         
         Model::BrushFaceList ScaleObjectsTool::getDragFaces(const Model::Hit& hit) const {
             return !hit.isMatch() ? Model::EmptyBrushFaceList : collectDragFaces(hit);
         }
         
-        class ScaleObjectsTool::MatchFaceBoundary {
-        private:
-            const Model::BrushFace* m_reference;
-        public:
-            MatchFaceBoundary(const Model::BrushFace* reference) :
-            m_reference(reference) {
-                ensure(m_reference != nullptr, "reference is null");
-            }
-            
-            bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && face->boundary().equals(m_reference->boundary());
-            }
-        };
+//        class ScaleObjectsTool::MatchFaceBoundary {
+//        private:
+//            const Model::BrushFace* m_reference;
+//        public:
+//            MatchFaceBoundary(const Model::BrushFace* reference) :
+//            m_reference(reference) {
+//                ensure(m_reference != nullptr, "reference is null");
+//            }
+//
+//            bool operator()(Model::BrushFace* face) const {
+//                return face != m_reference && face->boundary().equals(m_reference->boundary());
+//            }
+//        };
         
         Model::BrushFaceList ScaleObjectsTool::collectDragFaces(const Model::Hit& hit) const {
             assert(hit.isMatch());
 //            assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
-            
+
             Model::BrushFaceList result;
 //            if (hit.type() == ResizeHit2D) {
 //                const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
@@ -155,17 +164,18 @@ namespace TrenchBroom {
 //                result.push_back(face);
 //                VectorUtils::append(result, collectDragFaces(face));
 //            }
-            
+
             return result;
         }
         
         Model::BrushFaceList ScaleObjectsTool::collectDragFaces(Model::BrushFace* face) const {
-            Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
-            return visitor.faces();
+            return {};
+//            Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
+//
+//            MapDocumentSPtr document = lock(m_document);
+//            const Model::NodeList& nodes = document->selectedNodes().nodes();
+//            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
+//            return visitor.faces();
         }
         
         bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult, const bool split) {
@@ -187,35 +197,27 @@ namespace TrenchBroom {
 //            assert(!m_dragFaces.empty());
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
-//            const Vec3& faceNormal = dragFace->boundary().normal;
+            const Vec3& faceNormal = dragPolygonNormal();
 //
-//            const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
-//            if (distance.parallel)
-//                return true;
-//
-//            const FloatType dragDist = distance.lineDistance;
-//
-//            MapDocumentSPtr document = lock(m_document);
-//            const View::Grid& grid = document->grid();
-//            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal;
-//            const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
-//
-//            const Vec3 faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-//            if (faceDelta.null())
-//                return true;
+            const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
+            if (distance.parallel)
+                return true;
+
+            const FloatType dragDist = distance.lineDistance;
+
+            MapDocumentSPtr document = lock(m_document);
+            const View::Grid& grid = document->grid();
+            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal;
+            //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
+
+            const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
+            if (faceDelta.null())
+                return true;
             
-//            if (m_splitBrushes) {
-//                if (splitBrushes(faceDelta)) {
-//                    m_totalDelta += faceDelta;
-//                    m_dragOrigin += faceDelta;
-//                    m_splitBrushes = false;
-//                }
-//            } else {
 //                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
 //                    m_totalDelta += faceDelta;
 //                    m_dragOrigin += faceDelta;
 //                }
-//            }
             
             return false;
         }
@@ -244,74 +246,6 @@ namespace TrenchBroom {
             document->cancelTransaction();
 //            m_dragFaces.clear();
             m_resizing = false;
-        }
-        
-        bool ScaleObjectsTool::splitBrushes(const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
-            const bool lockTextures = pref(Preferences::TextureLock);
-            
-            // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
-            // "up" along its normal.
-//            if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-//                             [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
-//                return false;
-            
-            Model::BrushList newBrushes;
-            Model::BrushFaceList newDragFaces;
-            Model::ParentChildrenMap newNodes;
-            
-//            for (Model::BrushFace* dragFace : m_dragFaces) {
-//                Model::Brush* brush = dragFace->brush();
-//
-//                Model::Brush* newBrush = brush->clone(worldBounds);
-//                Model::BrushFace* newDragFace = findMatchingFace(newBrush, dragFace);
-//
-//                newBrushes.push_back(newBrush);
-//                newDragFaces.push_back(newDragFace);
-//
-//                if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
-//                    // There is a brush for which the move is not applicable. Abort.
-//                    VectorUtils::deleteAll(newBrushes);
-//                    return false;
-//                } else {
-//                    Model::BrushFace* clipFace = newDragFace->clone();
-//                    clipFace->invert();
-//
-//                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
-//
-//                    // This should never happen, but let's be on the safe side.
-//                    if (!newBrush->clip(worldBounds, clipFace)) {
-//                        delete clipFace;
-//                        VectorUtils::deleteAll(newBrushes);
-//                        return false;
-//                    }
-//
-//                    newNodes[brush->parent()].push_back(newBrush);
-//                }
-//            }
-            
-            document->deselectAll();
-            const Model::NodeList addedNodes = document->addNodes(newNodes);
-            document->select(addedNodes);
-//            m_dragFaces = newDragFaces;
-            
-            return true;
-        }
-        
-        Model::BrushFace* ScaleObjectsTool::findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const {
-            Model::FindMatchingBrushFaceVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(reference)));
-            visitor.visit(brush);
-            if (!visitor.hasResult())
-                return nullptr;
-            return visitor.result();
-        }
-        
-        Polygon3::List ScaleObjectsTool::dragFaceDescriptors() const {
-            Polygon3::List result;
-//            result.reserve(m_dragFaces.size());
-//            std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
-            return result;
         }
         
         void ScaleObjectsTool::bindObservers() {

@@ -53,6 +53,8 @@ namespace TrenchBroom {
             Vec3 m_dragOrigin;
             Vec3 m_totalDelta;
             bool m_resizing;
+            
+            Polygon3 m_dragPolygon;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool();
@@ -68,9 +70,15 @@ namespace TrenchBroom {
             class PickProximateFace;
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
         public:
-            bool hasDragFaces() const;
-            const Model::BrushFaceList& dragFaces() const;
+        
+            bool hasDragPolygon() const;
+            Polygon3 dragPolygon() const;
+            Vec3 dragPolygonNormal() const;
+            
+//            bool hasDragFaces() const;
+//            const Model::BrushFaceList& dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
+            
         private:
             Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
             class MatchFaceBoundary;
@@ -83,10 +91,6 @@ namespace TrenchBroom {
             
             void commitResize();
             void cancelResize();
-        private:
-            bool splitBrushes(const Vec3& delta);
-            Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
-            Polygon3::List dragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();

@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->hasDragFaces()) {
+            if (m_tool->hasDragPolygon()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
             }
@@ -108,11 +108,10 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             
-            for (const Model::BrushFace* face : m_tool->dragFaces()) {
-                for (const Model::BrushEdge* edge : face->edges()) {
-                    vertices.push_back(Vertex(edge->firstVertex()->position()));
-                    vertices.push_back(Vertex(edge->secondVertex()->position()));
-                }
+            const Polygon3 poly = m_tool->dragPolygon();
+            for (size_t i = 0; i < poly.vertexCount(); ++i) {
+                vertices.push_back(Vertex(poly.vertices().at(i)));
+                vertices.push_back(Vertex(poly.vertices().at((i + 1) % poly.vertexCount())));
             }
             
             return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
