@@ -40,9 +40,8 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
-            RotateObjectsHandle m_handle;
-            double m_angle;
-            Vec3::List m_recentlyUsedCenters;
+            Vec3 m_scaleCenter;
+            Vec3 m_scaleFactors;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
 
@@ -50,19 +49,16 @@ namespace TrenchBroom {
 
             const Grid& grid() const;
             
-            void updateToolPageAxis(RotateObjectsHandle::HitArea area);
+            Vec3 scaleCenter() const;
+            void setScaleCenter(const Vec3& scaleCenter);
+            void resetScaleCenter();
+                
+            Vec3 scaleFactors() const;
+            void setScaleFactors(const Vec3& scaleFactors);
             
-            double angle() const;
-            void setAngle(double angle);
-            
-            Vec3 rotationCenter() const;
-            void setRotationCenter(const Vec3& position);
-            void resetRotationCenter();
-            FloatType handleRadius() const;
-            
-            void beginRotation();
-            void commitRotation();
-            void cancelRotation();
+            void beginScale();
+            void commitScale();
+            void cancelScale();
 
             FloatType snapRotationAngle(FloatType angle) const;
             void applyRotation(const Vec3& center, const Vec3& axis, FloatType angle);
@@ -77,8 +73,6 @@ namespace TrenchBroom {
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
-        private:
-            void updateRecentlyUsedCenters(const Vec3& center);
         private:
             wxWindow* doCreatePage(wxWindow* parent) override;
         };

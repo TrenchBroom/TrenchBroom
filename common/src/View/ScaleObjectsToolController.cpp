@@ -64,7 +64,7 @@ namespace TrenchBroom {
                 if (area == RotateObjectsHandle::HitArea_Center)
                     return false;
                 
-                m_tool->updateToolPageAxis(area);
+                //m_tool->updateToolPageAxis(area);
                 return true;
             }
 
@@ -81,14 +81,14 @@ namespace TrenchBroom {
                 if (area == RotateObjectsHandle::HitArea_Center)
                     return DragInfo();
 
-                m_tool->beginRotation();
+                m_tool->beginScale();
                 
                 m_area = hit.target<RotateObjectsHandle::HitArea>();
-                m_center = m_tool->rotationCenter();
+                m_center = m_tool->scaleCenter();
                 m_start = m_tool->rotationAxisHandle(m_area, inputState.camera().position());
                 m_axis = m_tool->rotationAxis(m_area);
                 m_angle = 0.0;
-                const FloatType radius = m_tool->handleRadius();
+                const FloatType radius = 1.0f;//m_tool->handleRadius();
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_start, m_center, m_axis, radius));
             }
             
@@ -101,11 +101,11 @@ namespace TrenchBroom {
             }
             
             void doEndDrag(const InputState& inputState) override {
-                m_tool->commitRotation();
+                m_tool->commitScale();
             }
             
             void doCancelDrag() override {
-                m_tool->cancelRotation();
+                m_tool->cancelScale();
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
@@ -211,18 +211,18 @@ namespace TrenchBroom {
                 if (hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center)
                     return MoveInfo();
                 
-                return MoveInfo(m_tool->rotationCenter());
+                return MoveInfo(m_tool->scaleCenter());
             }
             
             DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
-                m_tool->setRotationCenter(nextHandlePosition);
+                m_tool->setScaleCenter(nextHandlePosition);
                 return DR_Continue;
             }
             
             void doEndMove(const InputState& inputState) override {}
             
             void doCancelMove() override {
-                m_tool->setRotationCenter(initialHandlePosition());
+                m_tool->setScaleCenter(initialHandlePosition());
             }
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {

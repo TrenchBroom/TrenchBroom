@@ -274,6 +274,7 @@ namespace TrenchBroom {
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta) override;
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
+            bool scaleObjects(const Vec3& center, const Vec3& scaleFactors) override;
             bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
         public:
             bool createBrush(const Vec3::List& points);

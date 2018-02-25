@@ -30,68 +30,52 @@ namespace TrenchBroom {
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),
-        m_handle(),
-        m_angle(Math::radians(15.0)) {}
+        m_scaleCenter(Vec3(0.0, 0.0, 0.0)),
+        m_scaleFactors(Vec3(1.0, 1.0, 1.0)) {}
 
         bool ScaleObjectsTool::doActivate() {
-            resetRotationCenter();
+            resetScaleCenter();
             return true;
         }
 
         const Grid& ScaleObjectsTool::grid() const {
             return lock(m_document)->grid();
         }
-
-        void ScaleObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            if (area == RotateObjectsHandle::HitArea_XAxis)
-                m_toolPage->setAxis(Math::Axis::AX);
-            else if (area == RotateObjectsHandle::HitArea_YAxis)
-                m_toolPage->setAxis(Math::Axis::AY);
-            else if (area == RotateObjectsHandle::HitArea_ZAxis)
-                m_toolPage->setAxis(Math::Axis::AZ);
+        
+        Vec3 ScaleObjectsTool::scaleCenter() const {
+            return m_scaleCenter;
         }
         
-        double ScaleObjectsTool::angle() const {
-            return m_angle;
+        void ScaleObjectsTool::setScaleCenter(const Vec3& scaleCenter) {
+            m_scaleCenter = scaleCenter;
         }
         
-        void ScaleObjectsTool::setAngle(const double angle) {
-            m_angle = angle;
-        }
-        
-        Vec3 ScaleObjectsTool::rotationCenter() const {
-            return m_handle.position();
-        }
-        
-        void ScaleObjectsTool::setRotationCenter(const Vec3& position) {
-            m_handle.setPosition(position);
-            m_toolPage->setCurrentCenter(position);
-            refreshViews();
-        }
-        
-        void ScaleObjectsTool::resetRotationCenter() {
+        void ScaleObjectsTool::resetScaleCenter() {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& bounds = document->selectionBounds();
             const Vec3 position = document->grid().snap(bounds.center());
-            setRotationCenter(position);
+            setScaleCenter(position);
         }
         
-        FloatType ScaleObjectsTool::handleRadius() const {
-            return m_handle.handleRadius();
+        Vec3 ScaleObjectsTool::scaleFactors() const {
+            return m_scaleFactors;
+        }
+        
+        void ScaleObjectsTool::setScaleFactors(const Vec3& scaleFactors) {
+            m_scaleFactors = scaleFactors;
         }
 
-        void ScaleObjectsTool::beginRotation() {
+        void ScaleObjectsTool::beginScale() {
             MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Rotate Objects");
+            document->beginTransaction("Scale Objects");
         }
         
-        void ScaleObjectsTool::commitRotation() {
+        void ScaleObjectsTool::commitScale() {
             MapDocumentSPtr document = lock(m_document);
             document->commitTransaction();
-            updateRecentlyUsedCenters(rotationCenter());
         }
         
-        void ScaleObjectsTool::cancelRotation() {
+        void ScaleObjectsTool::cancelScale() {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
         }
@@ -108,40 +92,34 @@ namespace TrenchBroom {
         }
         
         Model::Hit ScaleObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) {
-            return m_handle.pick2D(pickRay, camera);
+            return Model::Hit::NoHit;
         }
         
         Model::Hit ScaleObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) {
-            return m_handle.pick3D(pickRay, camera);
+            return Model::Hit::NoHit;
         }
         
         Vec3 ScaleObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const {
-            return m_handle.rotationAxis(area);
+            return Vec3::Null;
         }
         
         Vec3 ScaleObjectsTool::rotationAxisHandle(const RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const {
-            return m_handle.pointHandlePosition(area, cameraPos);
+            return Vec3::Null;
         }
         
         void ScaleObjectsTool::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_handle.renderHandle2D(renderContext, renderBatch);
+
         }
         
         void ScaleObjectsTool::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_handle.renderHandle3D(renderContext, renderBatch);
+
         }
 
         void ScaleObjectsTool::renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
-            m_handle.renderHighlight2D(renderContext, renderBatch, area);
+            
         }
         void ScaleObjectsTool::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
-            m_handle.renderHighlight3D(renderContext, renderBatch, area);
-        }
-
-        void ScaleObjectsTool::updateRecentlyUsedCenters(const Vec3& center) {
-            VectorUtils::erase(m_recentlyUsedCenters, center);
-            m_recentlyUsedCenters.push_back(center);
-            m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
+            
         }
 
         wxWindow* ScaleObjectsTool::doCreatePage(wxWindow* parent) {
