@@ -45,11 +45,11 @@ namespace TrenchBroom {
         
         BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
 
-        void BrushRenderer::Filter:: provideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
+        void BrushRenderer::Filter::provideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
             doProvideFaces(brush, collectFace);
         }
         
-        void BrushRenderer::Filter:: provideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
+        void BrushRenderer::Filter::provideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
             doProvideEdges(brush, collectEdge);
         }
         

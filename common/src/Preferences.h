@@ -68,6 +68,7 @@ namespace TrenchBroom {
         extern Preference<Color> SelectionBoundsColor;
         
         extern Preference<Color> InfoOverlayTextColor;
+        extern Preference<Color> GroupInfoOverlayTextColor;
         extern Preference<Color> InfoOverlayBackgroundColor;
         extern Preference<Color> WeakInfoOverlayBackgroundColor;
         extern Preference<Color> SelectedInfoOverlayTextColor;
