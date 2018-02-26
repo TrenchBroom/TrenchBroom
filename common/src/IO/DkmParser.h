@@ -55,9 +55,19 @@ namespace TrenchBroom {
                 char name[DkmLayout::SkinNameLength];
             };
             typedef std::vector<DkmSkin> DkmSkinList;
-            
-            struct DkmVertex {
+
+            struct DkmVertex1 {
                 unsigned char x, y, z;
+                unsigned char normalIndex;
+            };
+
+            struct DkmVertex2 {
+                uint32_t xyz;
+                unsigned char normalIndex;
+            };
+
+            struct DkmVertex {
+                unsigned int x, y, z;
                 unsigned char normalIndex;
             };
             typedef std::vector<DkmVertex> DkmVertexList;
@@ -72,7 +82,7 @@ namespace TrenchBroom {
                 Vec3f vertex(size_t index) const;
                 const Vec3f& normal(size_t index) const;
             };
-            typedef std::vector<DkmFrame> Md2FrameList;
+            typedef std::vector<DkmFrame> DkmFrameList;
 
             struct DkmMeshVertex {
                 Vec2f texCoords;
@@ -105,12 +115,12 @@ namespace TrenchBroom {
         private:
             Assets::EntityModel* doParseModel() override;
             DkmSkinList parseSkins(const char* begin, size_t skinCount);
-            Md2FrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount, int version);
+            DkmFrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount, int version);
             DkmMeshList parseMeshes(const char* begin, size_t commandCount);
-            Assets::EntityModel* buildModel(const DkmSkinList& skins, const Md2FrameList& frames, const DkmMeshList& meshes);
+            Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
             Assets::TextureList loadTextures(const DkmSkinList& skins);
             Assets::Texture* readTexture(const DkmSkin& skin);
-            Assets::Md2Model::FrameList buildFrames(const Md2FrameList& frames, const DkmMeshList& meshes);
+            Assets::Md2Model::FrameList buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes);
             Assets::Md2Model::Frame* buildFrame(const DkmFrame& frame, const DkmMeshList& meshes);
             Assets::Md2Model::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };

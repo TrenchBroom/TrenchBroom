@@ -259,7 +259,7 @@ namespace TrenchBroom {
             /* const size_t surfaceOffset =*/ readSize<int32_t>(cursor);
 
             const DkmSkinList skins = parseSkins(m_begin + skinOffset, skinCount);
-            const Md2FrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount, version);
+            const DkmFrameList frames = parseFrames(m_begin + frameOffset, frameCount, frameVertexCount, version);
             const DkmMeshList meshes = parseMeshes(m_begin + commandOffset, commandCount);
             
             return buildModel(skins, frames, meshes);
@@ -271,8 +271,9 @@ namespace TrenchBroom {
             return skins;
         }
 
-        DkmParser::Md2FrameList DkmParser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount, const int version) {
-            Md2FrameList frames(frameCount, DkmFrame(frameVertexCount));
+        DkmParser::DkmFrameList DkmParser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount, const int version) {
+            assert(version == 1 || version == 2);
+            DkmFrameList frames(frameCount, DkmFrame(frameVertexCount));
 
             const char* cursor = begin;
             for (size_t i = 0; i < frameCount; ++i) {
@@ -280,8 +281,32 @@ namespace TrenchBroom {
                 frames[i].offset = readVec3f(cursor);
                 readBytes(cursor, frames[i].name, DkmLayout::FrameNameLength);
 
-                asdf /* Read according to version (version 1 is like md2, version 2 has vertices packed into  32bit integer with x,z having 11bits, and y having 10 */
-                readVector(cursor, frames[i].vertices);
+                if (version == 1) {
+                    std::vector<DkmVertex1> packedVertices(frameVertexCount);
+                    readVector(cursor, packedVertices);
+
+                    for (size_t j = 0; j < frameVertexCount; ++j) {
+                        frames[i].vertices[j].x = packedVertices[j].x;
+                        frames[i].vertices[j].y = packedVertices[j].y;
+                        frames[i].vertices[j].z = packedVertices[j].z;
+                        frames[i].vertices[j].normalIndex = packedVertices[j].normalIndex;
+                    }
+                } else {
+                    std::vector<DkmVertex2> packedVertices(frameVertexCount);
+                    readVector(cursor, packedVertices);
+
+                    /* Version 2 vertices are packed into a 32bit integer
+                     * X occupies the first 11 bits
+                     * Y occupies the following 11 bits
+                     * Z occupies the following 10 bits
+                     */
+                    for (size_t j = 0; j < frameVertexCount; ++j) {
+                        frames[i].vertices[j].x = (packedVertices[j].xyz & 0x7FF);
+                        frames[i].vertices[j].y = (packedVertices[j].xyz & 0x1FF800) >> 11;
+                        frames[i].vertices[j].z = (packedVertices[j].xyz & 0xFFE00000) >> 21;
+                        frames[i].vertices[j].normalIndex = packedVertices[j].normalIndex;
+                    }
+                }
             }
             
             return frames;
@@ -307,7 +332,7 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const Md2FrameList& frames, const DkmMeshList& meshes) {
+        Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes) {
             const Assets::TextureList modelTextures = loadTextures(skins);
             const Assets::Md2Model::FrameList modelFrames = buildFrames(frames, meshes);
             return new Assets::Md2Model(m_name, modelTextures, modelFrames);
@@ -341,7 +366,7 @@ namespace TrenchBroom {
             return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
         }
 
-        Assets::Md2Model::FrameList DkmParser::buildFrames(const Md2FrameList& frames, const DkmMeshList& meshes) {
+        Assets::Md2Model::FrameList DkmParser::buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes) {
             Assets::Md2Model::FrameList modelFrames;
             modelFrames.reserve(frames.size());
             
