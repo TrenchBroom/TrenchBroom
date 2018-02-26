@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void setHiddenGenerators(int hiddenGenerators);
             void setShowHiddenIssues(bool show);
             void reload();
+            void deselectAll();
             
             void OnSize(wxSizeEvent& event);
             

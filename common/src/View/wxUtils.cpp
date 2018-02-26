@@ -85,7 +85,6 @@ namespace TrenchBroom {
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
             ensure(listCtrl != nullptr, "listCtrl is null");
 
-
             std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
 
             size_t i = 0;
@@ -95,6 +94,12 @@ namespace TrenchBroom {
                 itemIndex = listCtrl->GetNextItem(itemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
             }
             return result;
+        }
+
+        void deselectAllListrCtrlItems(wxListCtrl* listCtrl) {
+            for (const auto index : getListCtrlSelection(listCtrl)) {
+                listCtrl->SetItemState(static_cast<long>(index), 0, wxLIST_STATE_SELECTED);
+            }
         }
 
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
