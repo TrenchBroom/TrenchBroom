@@ -43,6 +43,16 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
         }
         
+        TransformObjectsCommand::Ptr TransformObjectsCommand::scaleBBox(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures) {
+            
+            const Vec3 oldSize = oldBBox.size();
+            const Vec3 newSize = newBBox.size();
+            const Vec3 scaleFactors = newSize / oldSize;
+            
+            const Mat4x4 transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+            return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
+        }
+        
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));

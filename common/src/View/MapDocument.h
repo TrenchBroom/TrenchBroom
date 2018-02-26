@@ -275,6 +275,7 @@ namespace TrenchBroom {
             bool translateObjects(const Vec3& delta) override;
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
             bool scaleObjects(const Vec3& center, const Vec3& scaleFactors) override;
+            bool scaleObjectsBBox(const BBox3& oldBBox, const BBox3& newBBox) override;
             bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
         public:
             bool createBrush(const Vec3::List& points);

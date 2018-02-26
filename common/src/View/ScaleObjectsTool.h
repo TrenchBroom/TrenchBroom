@@ -40,6 +40,15 @@ namespace TrenchBroom {
     namespace View {
         class Selection;
 
+        enum class BBoxSide {
+            PosX,
+            NegX,
+            PosY,
+            NegY,
+            PosZ,
+            NegZ
+        };
+        
         class ScaleObjectsTool : public Tool {
         private:
             static const Model::Hit::HitType ScaleHit3D;
@@ -52,9 +61,10 @@ namespace TrenchBroom {
             
             Vec3 m_dragOrigin;
             Vec3 m_totalDelta;
+
             bool m_resizing;
-            
-            Polygon3 m_dragPolygon;
+            BBoxSide m_dragSide;
+            BBox3 m_bboxAtDragStart;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool();
@@ -65,7 +75,6 @@ namespace TrenchBroom {
             Model::Hit pick3D(const Ray3& pickRay, const Model::PickResult& pickResult);
         private:
             BBox3 bounds() const;
-            FloatType intersectWithRay(const Ray3& ray) const;
         private:
             class PickProximateFace;
             Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
@@ -75,14 +84,12 @@ namespace TrenchBroom {
             
             bool hasDragPolygon() const;
             Polygon3 dragPolygon() const;
-            Vec3 dragPolygonNormal() const;
+//            Vec3 dragPolygonNormal() const;
             
-//            bool hasDragFaces() const;
-//            const Model::BrushFaceList& dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
             
         private:
-            Polygon3 getDragPolygon(const Model::Hit& hit) const;
+//            Polygon3 getDragPolygon(const Model::Hit& hit) const;
             class MatchFaceBoundary;
             Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;

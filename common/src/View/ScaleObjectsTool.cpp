@@ -36,11 +36,60 @@
 
 #include <algorithm>
 #include <iterator>
+#include <array>
 
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ScaleObjectsTool::ScaleHit2D = Model::Hit::freeHitType();
         const Model::Hit::HitType ScaleObjectsTool::ScaleHit3D = Model::Hit::freeHitType();
+        
+        static const std::array<BBoxSide, 6> AllSides {
+            BBoxSide::PosX,
+            BBoxSide::NegX,
+            BBoxSide::PosY,
+            BBoxSide::NegY,
+            BBoxSide::PosZ,
+            BBoxSide::NegZ
+        };
+        
+        static Vec3 normalForBBoxSide(const BBoxSide side) {
+            switch (side) {
+                case BBoxSide::PosX: return Vec3::PosX;
+                case BBoxSide::NegX: return Vec3::NegX;
+                case BBoxSide::PosY: return Vec3::PosY;
+                case BBoxSide::NegY: return Vec3::NegY;
+                case BBoxSide::PosZ: return Vec3::PosZ;
+                case BBoxSide::NegZ: return Vec3::NegZ;
+            }
+        }
+
+        static Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide side) {
+            const Vec3 wantedNormal = normalForBBoxSide(side);
+            
+            Polygon3 res;
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                if (n == wantedNormal) {
+                    const Polygon3 poly {p0, p1, p2, p3};
+                    res = poly;
+                }
+            };
+            eachBBoxFace(box, visitor);
+            
+            assert(res.vertexCount() == 4);
+            return res;
+        }
+        
+        static BBox3 moveBBoxFace(const BBox3& in, const BBoxSide side, const Vec3& delta) {
+            switch (side) {
+                case BBoxSide::PosX: return BBox3(in.min                        , in.max + Vec3(delta.x(), 0, 0));
+                case BBoxSide::PosY: return BBox3(in.min                        , in.max + Vec3(0, delta.y(), 0));
+                case BBoxSide::PosZ: return BBox3(in.min                        , in.max + Vec3(0, 0, delta.z()));
+                    
+                case BBoxSide::NegX: return BBox3(in.min + Vec3(delta.x(), 0, 0), in.max                        );
+                case BBoxSide::NegY: return BBox3(in.min + Vec3(0, delta.y(), 0), in.max                        );
+                case BBoxSide::NegZ: return BBox3(in.min + Vec3(0, 0, delta.z()), in.max                        );
+            }
+        }
         
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
         Tool(false),
@@ -63,45 +112,36 @@ namespace TrenchBroom {
             return Model::Hit::NoHit;
         }
         
-        std::vector<Polygon3> ScaleObjectsTool::bboxFaces() const {
-            const BBox3& myBounds = bounds();
-            
-            std::vector<Polygon3> polys;
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
-                const Polygon3 poly {p0, p1, p2, p3};
-                polys.push_back(poly);
-            };
-            eachBBoxFace(myBounds, visitor);
-            return polys;
-        }
-        
         Model::Hit ScaleObjectsTool::pick3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
-           
             const BBox3& myBounds = bounds();
             
             // origin in bbox
             if (myBounds.contains(pickRay.origin))
                 return Model::Hit::NoHit;
+
+            FloatType bestDist = Math::nan<FloatType>();
+            BBoxSide bestIndex;
             
-            // gather polygons
-            const std::vector<Polygon3> polys = bboxFaces();
-            
-            
-            printf("testing polys:\n");
-            for (size_t i=0; i<polys.size(); ++i) {
-                const auto& poly = polys[i];
+            //printf("testing polys:\n");
+            for (const BBoxSide side : AllSides) {
+                const auto poly = polygonForBBoxSide(myBounds, side);
                 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
-                printf("    dist %f\n", dist);
+                //printf("    dist %f\n", dist);
                 
-                if (!isnan(dist)) {
-                    printf("    hit in %d\n", (int)i);
-                    return Model::Hit(ScaleHit3D, dist, pickRay.pointAtDistance(dist), i);
+                if (!isnan(dist)
+                    && (isnan(bestDist) || dist < bestDist)) {
+                    
+                    //printf("    hit in %d\n", static_cast<int>(side));
+                    bestIndex = side;
+                    bestDist = dist;
                 }
             }
             printf("\n");
             
-            //return Model::Hit(ScaleHit3D, distance, pickRay.pointAtDistance(distance), nullptr);
+            if (!isnan(bestDist)) {
+                return Model::Hit(ScaleHit3D, bestDist, pickRay.pointAtDistance(bestDist), bestIndex);
+            }
             
             return Model::Hit::NoHit;
         }
@@ -110,46 +150,44 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             return document->selectionBounds();
         }
-        
-        FloatType ScaleObjectsTool::intersectWithRay(const Ray3& ray) const {
 
-            
-            return 0;
-        }
-        
         bool ScaleObjectsTool::hasDragPolygon() const {
-            return m_dragPolygon.vertexCount() != 0;
+            return m_resizing;
         }
-        
+
         Polygon3 ScaleObjectsTool::dragPolygon() const {
-            return m_dragPolygon;
+            assert(m_resizing);
+            return polygonForBBoxSide(m_bboxAtDragStart, m_dragSide);
         }
-        
-        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
-            Plane3 plane;
-            if (!getPlane(m_dragPolygon.begin(), m_dragPolygon.end(), plane))
-                return Vec3(0,0,0);
-            
-            return plane.normal;
-        }
+
+//        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
+//            Plane3 plane;
+//            if (!getPlane(m_dragPolygon.begin(), m_dragPolygon.end(), plane))
+//                return Vec3(0,0,0);
+//
+//            return plane.normal;
+//        }
         
       void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {          
-            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
-            auto newDragFaces = getDragPolygon(hit);
-            if (newDragFaces != m_dragPolygon)
-                refreshViews();
-
-            m_dragPolygon = newDragFaces;
+//            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
+//
+//
+//            auto newDragFaces = getDragPolygon(hit);
+//            //if (newDragFaces != m_dragPolygon)
+//                refreshViews();
+//
+//            //m_dragPolygon = newDragFaces;
+          
       }
         
-        Polygon3 ScaleObjectsTool::getDragPolygon(const Model::Hit& hit) const {
-            if (!hit.isMatch()) return Polygon3();
-            
-            size_t index = hit.target<size_t>();
-            printf("hit out: %d\n", index);
-            
-            return bboxFaces().at(index);
-        }
+//        BBoxSide ScaleObjectsTool::getDragPolygon(const Model::Hit& hit) const {
+//            if (!hit.isMatch()) return Polygon3();
+//
+//            const BBoxSide index = hit.target<BBoxSide>();
+//            printf("hit out: %d\n", static_cast<int>(index));
+//
+//            return polygonForBBoxSide(bounds(), index);
+//        }
         
 //        class ScaleObjectsTool::MatchFaceBoundary {
 //        private:
@@ -201,7 +239,12 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 return false;
             
-            m_dragOrigin = Vec3::Null;//hit.hitPoint();
+            m_dragSide = hit.target<BBoxSide>();
+            std::cout << "initial hitpoint: " << hit.hitPoint() << " drag side: " << static_cast<int>(m_dragSide) << "\n";
+            
+            m_bboxAtDragStart = bounds();
+            
+            m_dragOrigin = hit.hitPoint();
             m_totalDelta = Vec3::Null;
          //   m_splitBrushes = split;
             
@@ -216,8 +259,13 @@ namespace TrenchBroom {
             assert(hasDragPolygon());
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
-            const Vec3& faceNormal = dragPolygonNormal();
+            const Vec3 faceNormal = normalForBBoxSide(m_dragSide);
 //
+            std::cout << "ScaleObjectsTool::resize with start bbox: "
+                        << m_bboxAtDragStart.min.asString() << "->"
+                        << m_bboxAtDragStart.max.asString()
+                        << " side: " << static_cast<int>(m_dragSide) << "\n";
+            
             const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
             if (distance.parallel)
                 return true;
@@ -233,12 +281,23 @@ namespace TrenchBroom {
             if (faceDelta.null())
                 return true;
             
+            const BBox3 newBbox = moveBBoxFace(m_bboxAtDragStart, m_dragSide, faceDelta);
+            
+            std::cout << "ScaleObjectsTool new bbox: "
+                << newBbox.min.asString() << "->"
+                << newBbox.max.asString() << "\n";
+            
+            std::cout << "make resize with delta: " << faceDelta << "\n";
+            if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                m_totalDelta += faceDelta;
+                //m_dragOrigin += faceDelta;
+            }
 //                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
 //                    m_totalDelta += faceDelta;
 //                    m_dragOrigin += faceDelta;
 //                }
             
-            return false;
+            return true;
         }
         
         void ScaleObjectsTool::commitResize() {

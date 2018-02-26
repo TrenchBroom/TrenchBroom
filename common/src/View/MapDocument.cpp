@@ -872,6 +872,10 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
         }
         
+        bool MapDocument::scaleObjectsBBox(const BBox3& oldBBox, const BBox3& newBBox) {
+            return submitAndStore(TransformObjectsCommand::scaleBBox(oldBBox, newBBox, pref(Preferences::TextureLock)));
+        }
+        
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
             return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
