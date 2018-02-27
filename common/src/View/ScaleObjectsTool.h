@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             Vec3 normal;
             
-            BBoxSide(const Vec3& n) : normal(n) {}
+            explicit BBoxSide(const Vec3& n) : normal(n) {}
         };
         
         /**
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         public:
             Vec3 corner;
             
-            BBoxCorner(const Vec3& c) : corner(c) {}
+            explicit BBoxCorner(const Vec3& c) : corner(c) {}
         };
         
         /**
@@ -65,25 +65,39 @@ namespace TrenchBroom {
             Vec3 point0;
             Vec3 point1;
             
-            BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {}
-        };        
-    
+            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {}
+        };
+        
+        // handle class hierarchy
+        
         class BBoxHandle {
         };
         class CornerHandle : public BBoxHandle {
-            BBoxCorner m_corner;
+        public:
+            BBoxCorner corner;
+            
+            explicit CornerHandle(const BBoxCorner& c) : corner(c) {}
         };
         class EdgeHandle : public BBoxHandle {
-            BBoxEdge m_edge;
+        public:
+            BBoxEdge edge;
+            
+            explicit EdgeHandle(const BBoxEdge& e) : edge(e) {}
         };
         class FaceHandle : public BBoxHandle {
-            BBoxSide m_side;
+        public:
+            BBoxSide side;
+            
+            explicit FaceHandle(const BBoxSide& s) : side(s) {}
         };
+        
+        
         
         class ScaleObjectsTool : public Tool {
         private:
-            static const Model::Hit::HitType ScaleHit3D;
-            static const Model::Hit::HitType ScaleHit2D;
+            static const Model::Hit::HitType ScaleToolFaceHit;
+            static const Model::Hit::HitType ScaleToolEdgeHit;
+            static const Model::Hit::HitType ScaleToolCornerHit;
             
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
@@ -93,8 +107,9 @@ namespace TrenchBroom {
             Vec3 m_dragOrigin;
             Vec3 m_totalDelta;
 
+            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
             bool m_resizing;
-            BBoxSide m_dragSide;
+            //BBoxSide m_dragSide;
             BBox3 m_bboxAtDragStart;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
