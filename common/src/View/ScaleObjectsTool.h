@@ -130,6 +130,13 @@ namespace TrenchBroom {
             
             bool hasDragPolygon() const;
             Polygon3 dragPolygon() const;
+            
+            bool hasDragEdge() const;
+            Edge3 dragEdge() const;
+            
+            bool hasDragCorner() const;
+            Vec3 dragCorner() const;
+            
 //            Vec3 dragPolygonNormal() const;
             
             void updateDragFaces(const Model::PickResult& pickResult);

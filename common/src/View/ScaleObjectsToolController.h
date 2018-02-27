@@ -61,7 +61,8 @@ namespace TrenchBroom {
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            Renderer::DirectEdgeRenderer buildEdgeRenderer();
+            Renderer::DirectEdgeRenderer buildEdgeRendererForSide();
+            Renderer::DirectEdgeRenderer buildEdgeRendererForEdge();
             
             bool doCancel() override;
             

@@ -27,6 +27,7 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
@@ -98,13 +99,35 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            
             if (m_tool->hasDragPolygon()) {
-                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
+                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRendererForSide();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+            }
+            
+            if (m_tool->hasDragEdge()) {
+                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRendererForEdge();
+                edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+            }
+            
+            if (m_tool->hasDragCorner()) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.renderHandle(m_tool->dragCorner());
             }
         }
         
-        Renderer::DirectEdgeRenderer ScaleObjectsToolController::buildEdgeRenderer() {
+        Renderer::DirectEdgeRenderer ScaleObjectsToolController::buildEdgeRendererForEdge() {
+            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            Vertex::List vertices;
+            
+            const Edge3 edge = m_tool->dragEdge();
+            vertices.push_back(Vertex(edge.start()));
+            vertices.push_back(Vertex(edge.end()));
+        
+            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
+        }
+        
+        Renderer::DirectEdgeRenderer ScaleObjectsToolController::buildEdgeRendererForSide() {
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
             Vertex::List vertices;
             

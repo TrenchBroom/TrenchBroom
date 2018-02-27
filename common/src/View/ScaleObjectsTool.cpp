@@ -230,6 +230,8 @@ namespace TrenchBroom {
             return document->selectionBounds();
         }
 
+        // used for rendering
+        
         bool ScaleObjectsTool::hasDragPolygon() const {
             return dragPolygon().vertexCount() > 0;
         }
@@ -241,6 +243,26 @@ namespace TrenchBroom {
             }
                                                             
             return Polygon3();
+        }
+        
+        bool ScaleObjectsTool::hasDragEdge() const {
+            return m_dragStartHit.type() == ScaleToolEdgeHit;
+        }
+        
+        Edge3 ScaleObjectsTool::dragEdge() const {
+            assert(hasDragEdge());
+            auto whichEdge = m_dragStartHit.target<BBoxEdge>();
+            return pointsForBBoxEdge(bounds(), whichEdge);
+        }
+        
+        bool ScaleObjectsTool::hasDragCorner() const {
+            return m_dragStartHit.type() == ScaleToolCornerHit;
+        }
+        
+        Vec3 ScaleObjectsTool::dragCorner() const {
+            assert(hasDragCorner());
+            auto whichCorner = m_dragStartHit.target<BBoxCorner>();
+            return pointForBBoxCorner(bounds(), whichCorner);
         }
 
 //        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
