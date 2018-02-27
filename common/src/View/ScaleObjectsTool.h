@@ -39,14 +39,45 @@ namespace TrenchBroom {
     
     namespace View {
         class Selection;
-
-        enum class BBoxSide {
-            PosX,
-            NegX,
-            PosY,
-            NegY,
-            PosZ,
-            NegZ
+        
+        class BBoxSide {
+        public:
+            Vec3 normal;
+            
+            BBoxSide(const Vec3& n) : normal(n) {}
+        };
+        
+        /**
+         * BBox corner, normalized to a +/- 1 unit box
+         */
+        class BBoxCorner {
+        public:
+            Vec3 corner;
+            
+            BBoxCorner(const Vec3& c) : corner(c) {}
+        };
+        
+        /**
+         * BBox edge, normalized to a +/- 1 unit box
+         */
+        class BBoxEdge {
+        public:
+            Vec3 point0;
+            Vec3 point1;
+            
+            BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {}
+        };        
+    
+        class BBoxHandle {
+        };
+        class CornerHandle : public BBoxHandle {
+            BBoxCorner m_corner;
+        };
+        class EdgeHandle : public BBoxHandle {
+            BBoxEdge m_edge;
+        };
+        class FaceHandle : public BBoxHandle {
+            BBoxSide m_side;
         };
         
         class ScaleObjectsTool : public Tool {
@@ -71,8 +102,8 @@ namespace TrenchBroom {
             
             bool applies() const;
             
-            Model::Hit pick2D(const Ray3& pickRay, const Model::PickResult& pickResult);
-            Model::Hit pick3D(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
+            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
         private:
             BBox3 bounds() const;
         private:

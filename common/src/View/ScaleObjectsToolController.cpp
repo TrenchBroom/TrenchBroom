@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
-                const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
+                const Model::Hit hit = doPick(inputState.pickRay(), inputState.camera(), pickResult);
                 if (hit.isMatch())
                     pickResult.addHit(hit);
             }
@@ -131,15 +131,15 @@ namespace TrenchBroom {
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        Model::Hit ScaleObjectsToolController2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
-            return m_tool->pick2D(pickRay, pickResult);
+        Model::Hit ScaleObjectsToolController2D::doPick(const Ray3& pickRay, const Renderer::Camera& camera,const Model::PickResult& pickResult) {
+            return m_tool->pick2D(pickRay, camera, pickResult);
         }
         
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        Model::Hit ScaleObjectsToolController3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
-            return m_tool->pick3D(pickRay, pickResult);
+        Model::Hit ScaleObjectsToolController3D::doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
+            return m_tool->pick3D(pickRay, camera, pickResult);
         }
     }
 }

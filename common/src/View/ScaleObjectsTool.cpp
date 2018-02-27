@@ -43,25 +43,51 @@ namespace TrenchBroom {
         const Model::Hit::HitType ScaleObjectsTool::ScaleHit2D = Model::Hit::freeHitType();
         const Model::Hit::HitType ScaleObjectsTool::ScaleHit3D = Model::Hit::freeHitType();
         
-        static const std::array<BBoxSide, 6> AllSides {
-            BBoxSide::PosX,
-            BBoxSide::NegX,
-            BBoxSide::PosY,
-            BBoxSide::NegY,
-            BBoxSide::PosZ,
-            BBoxSide::NegZ
+        static const std::vector<BBoxSide> AllSides() {
+            std::vector<BBoxSide> result;
+            result.reserve(6);
+            
+            const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
+            auto op = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& normal) {
+                result.push_back(BBoxSide(normal));
+            };
+            eachBBoxFace(box, op);
+            
+            assert(result.size() == 6);
+            return result;
         };
         
         static Vec3 normalForBBoxSide(const BBoxSide side) {
-            switch (side) {
-                case BBoxSide::PosX: return Vec3::PosX;
-                case BBoxSide::NegX: return Vec3::NegX;
-                case BBoxSide::PosY: return Vec3::PosY;
-                case BBoxSide::NegY: return Vec3::NegY;
-                case BBoxSide::PosZ: return Vec3::PosZ;
-                case BBoxSide::NegZ: return Vec3::NegZ;
-            }
+            return side.normal;
         }
+                
+        static const std::vector<BBoxEdge> AllEdges() {
+            std::vector<BBoxEdge> result;
+            result.reserve(12);
+            
+            const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
+            auto op = [&](const Vec3& p0, const Vec3& p1) {
+                result.push_back(BBoxEdge(p0, p1));
+            };
+            eachBBoxEdge(box, op);
+            
+            assert(result.size() == 12);
+            return result;
+        }
+        
+        static Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner corner) {
+            Vec3 res;
+            for (size_t i = 0; i < 3; ++i) {
+                res[i] = (corner.corner[i] == 1.0) ? box.max[i] : box.min[i];
+            }
+            return res;
+        }
+        
+        static std::pair<Vec3, Vec3> pointsForBBoxEdge(const BBox3& box, const BBoxEdge edge) {
+            return std::make_pair(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
+                                  pointForBBoxCorner(box, BBoxCorner(edge.point1)));
+        }
+        
 
         static Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide side) {
             const Vec3 wantedNormal = normalForBBoxSide(side);
@@ -80,22 +106,26 @@ namespace TrenchBroom {
         }
         
         static BBox3 moveBBoxFace(const BBox3& in, const BBoxSide side, const Vec3& delta) {
-            switch (side) {
-                case BBoxSide::PosX: return BBox3(in.min                        , in.max + Vec3(delta.x(), 0, 0));
-                case BBoxSide::PosY: return BBox3(in.min                        , in.max + Vec3(0, delta.y(), 0));
-                case BBoxSide::PosZ: return BBox3(in.min                        , in.max + Vec3(0, 0, delta.z()));
-                    
-                case BBoxSide::NegX: return BBox3(in.min + Vec3(delta.x(), 0, 0), in.max                        );
-                case BBoxSide::NegY: return BBox3(in.min + Vec3(0, delta.y(), 0), in.max                        );
-                case BBoxSide::NegZ: return BBox3(in.min + Vec3(0, 0, delta.z()), in.max                        );
-            }
+            const Vec3 n = side.normal;
+            
+            if (n == Vec3::PosX) return BBox3(in.min                        , in.max + Vec3(delta.x(), 0, 0));
+            if (n == Vec3::PosY) return BBox3(in.min                        , in.max + Vec3(0, delta.y(), 0));
+            if (n == Vec3::PosZ) return BBox3(in.min                        , in.max + Vec3(0, 0, delta.z()));
+                
+            if (n == Vec3::NegX) return BBox3(in.min + Vec3(delta.x(), 0, 0), in.max                        );
+            if (n == Vec3::NegY) return BBox3(in.min + Vec3(0, delta.y(), 0), in.max                        );
+            if (n == Vec3::NegZ) return BBox3(in.min + Vec3(0, 0, delta.z()), in.max                        );
+        
+            assert(0);
+            return {};
         }
         
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),
-        m_resizing(false) {
+        m_resizing(false),
+        m_dragSide(Vec3::Null) {
             bindObservers();
         }
         
@@ -108,22 +138,24 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
         
-        Model::Hit ScaleObjectsTool::pick2D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ScaleObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
             return Model::Hit::NoHit;
         }
         
-        Model::Hit ScaleObjectsTool::pick3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ScaleObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
             const BBox3& myBounds = bounds();
             
             // origin in bbox
             if (myBounds.contains(pickRay.origin))
                 return Model::Hit::NoHit;
 
+            // check corners
+            
             FloatType bestDist = Math::nan<FloatType>();
-            BBoxSide bestIndex;
+            BBoxSide bestIndex(Vec3::Null);
             
             //printf("testing polys:\n");
-            for (const BBoxSide side : AllSides) {
+            for (const BBoxSide side : AllSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
                 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
@@ -240,7 +272,7 @@ namespace TrenchBroom {
                 return false;
             
             m_dragSide = hit.target<BBoxSide>();
-            std::cout << "initial hitpoint: " << hit.hitPoint() << " drag side: " << static_cast<int>(m_dragSide) << "\n";
+            std::cout << "initial hitpoint: " << hit.hitPoint() << " drag side: " << m_dragSide.normal.asString() << "\n";
             
             m_bboxAtDragStart = bounds();
             
@@ -264,7 +296,7 @@ namespace TrenchBroom {
             std::cout << "ScaleObjectsTool::resize with start bbox: "
                         << m_bboxAtDragStart.min.asString() << "->"
                         << m_bboxAtDragStart.max.asString()
-                        << " side: " << static_cast<int>(m_dragSide) << "\n";
+                        << " side: " << m_dragSide.normal.asString() << "\n";
             
             const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
             if (distance.parallel)

@@ -67,21 +67,21 @@ namespace TrenchBroom {
             
             bool handleInput(const InputState& inputState) const;
         private:
-            virtual Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) = 0;
+            virtual Model::Hit doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) = 0;
         };
         
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
         public:
             ScaleObjectsToolController2D(ScaleObjectsTool* tool);
         private:
-            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) override;
+            Model::Hit doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) override;
         };
         
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
             ScaleObjectsToolController3D(ScaleObjectsTool* tool);
         private:
-            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) override;
+            Model::Hit doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) override;
         };
     }
 }
