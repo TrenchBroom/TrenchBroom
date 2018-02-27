@@ -53,7 +53,8 @@ namespace TrenchBroom {
             void reloadModels();
         public: // configuration
             void setShowOverlays(bool showOverlays);
-            void setOverlayTextColor(const Color& overlayTextColor);
+            void setEntityOverlayTextColor(const Color& overlayTextColor);
+            void setGroupOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             
             void setTint(bool tint);

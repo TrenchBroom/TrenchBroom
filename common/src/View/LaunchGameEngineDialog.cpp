@@ -184,20 +184,22 @@ namespace TrenchBroom {
                 const Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
                 
-                const IO::Path& path = profile->path();
+                const IO::Path& executablePath = profile->path();
+                const String escapedExecutablePath = "\"" + executablePath.asString() + "\"";
+
                 const String& parameterSpec = profile->parameterSpec();
                 const String parameters = EL::interpolate(parameterSpec, variables());
-                
+
                 wxString launchStr;
 #ifdef __APPLE__
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
-                launchStr << "/usr/bin/open " << path.asString() << " --args " << parameters;
+                launchStr << "/usr/bin/open" << " " << escapedExecutablePath << " --args " << parameters;
 #else
-                launchStr << path.asString() << " " << parameters;
+                launchStr << escapedExecutablePath << " " << parameters;
 #endif
                 
                 wxExecuteEnv env;
-                env.cwd = path.deleteLastComponent().asString();
+                env.cwd = executablePath.deleteLastComponent().asString();
                 
                 wxExecute(launchStr, wxEXEC_ASYNC, nullptr, &env);
                 EndModal(wxOK);

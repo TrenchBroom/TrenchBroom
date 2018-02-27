@@ -331,7 +331,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::setupDefaultRenderer(ObjectRenderer* renderer) {
-            renderer->setOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
+            renderer->setEntityOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
+            renderer->setGroupOverlayTextColor(pref(Preferences::GroupInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
             renderer->setTint(false);
             renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
@@ -344,7 +345,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
-            renderer->setOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderer->setEntityOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderer->setGroupOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
             renderer->setShowBrushEdges(true);
             renderer->setShowOccludedObjects(true);
@@ -365,7 +367,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::setupLockedRenderer(ObjectRenderer* renderer) {
-            renderer->setOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
+            renderer->setEntityOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
+            renderer->setGroupOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::LockedInfoOverlayBackgroundColor));
             renderer->setShowOccludedObjects(false);
             renderer->setTint(true);
