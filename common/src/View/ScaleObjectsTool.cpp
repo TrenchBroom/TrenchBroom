@@ -157,7 +157,7 @@ namespace TrenchBroom {
 
         Polygon3 ScaleObjectsTool::dragPolygon() const {
             assert(m_resizing);
-            return polygonForBBoxSide(m_bboxAtDragStart, m_dragSide);
+            return polygonForBBoxSide(bounds(), m_dragSide);
         }
 
 //        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
 //        }
         
       void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {          
-//            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ScaleHit2D | ScaleHit3D).occluded().first();
 //
 //
 //            auto newDragFaces = getDragPolygon(hit);
