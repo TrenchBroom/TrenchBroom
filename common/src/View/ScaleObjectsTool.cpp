@@ -277,10 +277,7 @@ namespace TrenchBroom {
             const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal;
             //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
 
-            const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (faceDelta.null())
-                return true;
-            
+            const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);            
             const BBox3 newBbox = moveBBoxFace(m_bboxAtDragStart, m_dragSide, faceDelta);
             
             std::cout << "ScaleObjectsTool new bbox: "

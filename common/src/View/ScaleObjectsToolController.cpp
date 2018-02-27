@@ -122,9 +122,10 @@ namespace TrenchBroom {
         }
         
         bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
-            return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
-                    m_tool->applies());
+            return m_tool->applies();
+//            return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
+//                     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
+//                    m_tool->applies());
         }
         
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
