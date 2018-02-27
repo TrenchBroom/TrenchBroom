@@ -407,6 +407,17 @@ namespace TrenchBroom {
             return true;
         }
         
+        Vec3 makeNormalOnGrid(Vec3 normal) {
+            Vec3 res = normal;
+            for (size_t i = 0; i < 3; ++i) {
+                if (res[i] < 0)
+                    res[i] = -1;
+                if (res[i] > 0)
+                    res[i] = 1;
+            }
+            return res;
+        }
+        
         bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
@@ -439,7 +450,9 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
-            const Vec3 relativeFaceDelta = grid.snap(dragDist) * dragObjNormal;
+            
+            // FIXME: Do makeNormalOnGrid in a cleaner way
+            const Vec3 relativeFaceDelta = grid.snap(dragDist) * makeNormalOnGrid(dragObjNormal);
             //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
 
             const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
