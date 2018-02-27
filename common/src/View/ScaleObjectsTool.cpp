@@ -105,6 +105,17 @@ namespace TrenchBroom {
             return corner.corner.normalized();
         }
         
+        static BBoxCorner oppositeCorner(const BBoxCorner corner) {
+            return BBoxCorner(Vec3(-corner.corner.x(),
+                                   -corner.corner.y(),
+                                   -corner.corner.z()));
+        }
+        
+        static BBoxEdge oppositeEdge(const BBoxEdge edge) {
+            return BBoxEdge(oppositeCorner(BBoxCorner(edge.point0)).corner,
+                            oppositeCorner(BBoxCorner(edge.point1)).corner);
+        }
+        
         static Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge edge) {
             return Edge3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
@@ -145,6 +156,33 @@ namespace TrenchBroom {
         
             assert(0);
             return {};
+        }
+        
+        static BBox3 moveBBoxCorner(const BBox3& in, const BBoxCorner corner, const Vec3& delta) {
+            const BBoxCorner opposite = oppositeCorner(corner);
+            
+            const Vec3::List newVerts {
+                pointForBBoxCorner(in, opposite),
+                pointForBBoxCorner(in, corner) + delta,
+            };
+            
+            return BBox3(newVerts);
+        }
+        
+        static BBox3 moveBBoxEdge(const BBox3& in, const BBoxEdge edge, const Vec3& delta) {
+            const BBoxEdge opposite = oppositeEdge(edge);
+            
+            const Edge3 oppositePoints = pointsForBBoxEdge(in, opposite);
+            const Edge3 edgePoints = pointsForBBoxEdge(in, edge);
+            
+            const Vec3::List newVerts {
+                oppositePoints.start(),
+                oppositePoints.end(),
+                edgePoints.start() + delta,
+                edgePoints.end() + delta,
+            };
+            
+            return BBox3(newVerts);
         }
         
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
@@ -406,31 +444,29 @@ namespace TrenchBroom {
 
             const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             
-            
+            BBox3 newBbox;
             if (m_dragStartHit.type() == ScaleToolFaceHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                const BBox3 newBbox = moveBBoxFace(m_bboxAtDragStart, side, faceDelta);
-                
-                std::cout << "ScaleObjectsTool new bbox: "
-                    << newBbox.min.asString() << "->"
-                    << newBbox.max.asString() << "\n";
-                
-                std::cout << "make resize with delta: " << faceDelta << "\n";
-                if (document->scaleObjectsBBox(bounds(), newBbox)) {
-                    m_totalDelta += faceDelta;
-                    //m_dragOrigin += faceDelta;
-                }
-    //                if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
-    //                    m_totalDelta += faceDelta;
-    //                    m_dragOrigin += faceDelta;
-    //                }
-                
-                return true;
-            } else {
-                printf("todo:implement\n");
-                
-                return true;
+                newBbox = moveBBoxFace(m_bboxAtDragStart, side, faceDelta);
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                const auto edge = m_dragStartHit.target<BBoxEdge>();
+                newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, faceDelta);
+            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                const auto corner = m_dragStartHit.target<BBoxCorner>();
+                newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, faceDelta);
+            } else
+                assert(0);
+
+            std::cout << "ScaleObjectsTool new bbox: "
+            << newBbox.min.asString() << "->"
+            << newBbox.max.asString() << "\n";
+            
+            std::cout << "make resize with delta: " << faceDelta << "\n";
+            if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                m_totalDelta += faceDelta;
+                //m_dragOrigin += faceDelta;
             }
+            return true;
         }
         
         void ScaleObjectsTool::commitResize() {
