@@ -63,10 +63,10 @@ public:
 public:
     template <typename Callback>
     void processRightFaces(const Callback& callback) const {
-        Face* firstRightFace = m_right.faces().front();
-        Face* currentRightFace = firstRightFace;
+        auto* firstRightFace = m_right.faces().front();
+        auto* currentRightFace = firstRightFace;
         do {
-            Face* matchingLeftFace = findBestMatchingLeftFace(currentRightFace);
+            auto* matchingLeftFace = findBestMatchingLeftFace(currentRightFace);
             callback(matchingLeftFace, currentRightFace);
             currentRightFace = currentRightFace->next();
         } while (currentRightFace != firstRightFace);
@@ -75,18 +75,18 @@ public:
     typedef std::list<Face*> MatchingFaces;
     
     Face* findBestMatchingLeftFace(Face* rightFace) const {
-        const MatchingFaces matchingFaces = findMatchingLeftFaces(rightFace);
+        const auto matchingFaces = findMatchingLeftFaces(rightFace);
         ensure(!matchingFaces.empty(), "No matching face found");
+
+        // Among all matching faces, select one such its normal is the most similar to the given face's normal.
+        auto it = std::begin(matchingFaces);
         
-        typename MatchingFaces::const_iterator it;
-        it = std::begin(matchingFaces);
+        auto* result = *it++;
+        auto bestDot = rightFace->normal().dot(result->normal());
         
-        Face* result = *it++;
-        FloatType bestDot = rightFace->normal().dot(result->normal());
-        
-        while (it != std::end(matchingFaces)) {
-            Face* currentFace = *it;
-            const FloatType dot = rightFace->normal().dot(currentFace->normal());
+        while (it != std::end(matchingFaces) && bestDot > 0.0) {
+            auto* currentFace = *it;
+            const auto dot = rightFace->normal().dot(currentFace->normal());
             if (dot < bestDot) {
                 result = currentFace;
                 bestDot = dot;
@@ -96,15 +96,18 @@ public:
         
         return result;
     }
-    
+
+    /*
+     * Returns all left faces which have a maximal matching score with the given right face.
+     */
     MatchingFaces findMatchingLeftFaces(Face* rightFace) const {
         MatchingFaces result;
         size_t bestMatchScore = 0;
         
-        Face* firstLeftFace = m_left.faces().front();
-        Face* currentLeftFace = firstLeftFace;
+        auto* firstLeftFace = m_left.faces().front();
+        auto* currentLeftFace = firstLeftFace;
         do {
-            const size_t matchScore = computeMatchScore(currentLeftFace, rightFace);
+            const auto matchScore = computeMatchScore(currentLeftFace, rightFace);
             if (matchScore > bestMatchScore) {
                 result.clear();
                 result.push_back(currentLeftFace);
@@ -118,24 +121,34 @@ public:
         return result;
     }
 private:
+    /*
+     * Computes the matching score between the given two faces using the data stored in the vertex relation.
+     *
+     * The matching score between the given faces is the number of all pairs of a vertex of the given left face
+     * and a vertex of the given right face which are also in the vertex relation.
+     */
     size_t computeMatchScore(Face* leftFace, Face* rightFace) const {
         size_t result = 0;
         
-        HalfEdge* firstEdge = leftFace->boundary().front();
-        HalfEdge* currentEdge = firstEdge;
+        auto* firstLeftEdge = leftFace->boundary().front();
+        auto* firstRightEdge = rightFace->boundary().front();
+
+        auto* currentLeftEdge = firstLeftEdge;
         do {
-            Vertex* leftVertex = currentEdge->origin();
-            typename VertexRelation::const_right_range right = m_vertexRelation.right_range(leftVertex);
-            
-            typename VertexRelation::const_right_iterator it = right.first;
-            while (it != right.second) {
-                Vertex* rightVertex = *it;
-                if (rightVertex->incident(rightFace))
+            auto* leftVertex = currentLeftEdge->origin();
+
+            auto* currentRightEdge = firstRightEdge;
+            do {
+                auto* rightVertex = currentRightEdge->origin();
+
+                if (m_vertexRelation.contains(leftVertex, rightVertex))
                     ++result;
-                ++it;
-            }
-            currentEdge = currentEdge->next();
-        } while (currentEdge != firstEdge);
+
+                currentRightEdge = currentRightEdge->next();
+            } while (currentRightEdge != firstRightEdge);
+
+            currentLeftEdge = currentLeftEdge->next();
+        } while (currentLeftEdge != firstLeftEdge);
         
         return result;
     }
@@ -143,11 +156,11 @@ private:
     static VertexRelation buildVertexRelation(const P& left, const P& right) {
         VertexRelation result;
         
-        Vertex* firstLeftVertex = left.vertices().front();
-        Vertex* currentLeftVertex = firstLeftVertex;
+        auto* firstLeftVertex = left.vertices().front();
+        auto* currentLeftVertex = firstLeftVertex;
         do {
-            const V& position = currentLeftVertex->position();
-            Vertex* currentRightVertex = right.findVertexByPosition(position);
+            const auto& position = currentLeftVertex->position();
+            auto* currentRightVertex = right.findVertexByPosition(position);
             if (currentRightVertex != nullptr)
                 result.insert(currentLeftVertex, currentRightVertex);
             
@@ -164,10 +177,10 @@ private:
     static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Set& vertices, const V& delta) {
         typename V::Map vertexMap;
         
-        Vertex* firstVertex = left.vertices().front();
-        Vertex* currentVertex = firstVertex;
+        auto* firstVertex = left.vertices().front();
+        auto* currentVertex = firstVertex;
         do {
-            const V& position = currentVertex->position();
+            const auto& position = currentVertex->position();
             if (vertices.count(position) == 0) {
                 if (right.hasVertex(position))
                     vertexMap.insert(std::make_pair(position, position));
@@ -185,11 +198,11 @@ private:
         VertexRelation result;
         
         for (const auto& entry : vertexMap) {
-            const V& leftPosition = entry.first;
-            const V& rightPosition = entry.second;
+            const auto& leftPosition = entry.first;
+            const auto& rightPosition = entry.second;
             
-            Vertex* leftVertex = left.findVertexByPosition(leftPosition);
-            Vertex* rightVertex = right.findVertexByPosition(rightPosition);
+            auto* leftVertex = left.findVertexByPosition(leftPosition);
+            auto* rightVertex = right.findVertexByPosition(rightPosition);
             
             assert(leftVertex != nullptr);
             assert(rightVertex != nullptr);
@@ -200,25 +213,25 @@ private:
     }
     
     static VertexRelation expandVertexRelation(const P& left, const P& right, const VertexRelation& initialRelation) {
-        VertexRelation result = initialRelation;
+        auto result = initialRelation;
         result.insert(addedVertexRelation(right, initialRelation));
         result.insert(removedVertexRelation(left, initialRelation));
         return result;
     }
     
     static VertexRelation addedVertexRelation(const P& right, const VertexRelation& initialRelation) {
-        const VertexSet addedVertices = findAddedVertices(right, initialRelation);
+        const auto addedVertices = findAddedVertices(right, initialRelation);
 
-        VertexRelation result = initialRelation;
+        auto result = initialRelation;
         size_t previousSize;
         do {
             previousSize = result.size();
-            for (Vertex* addedVertex : addedVertices) {
+            for (auto* addedVertex : addedVertices) {
                 // consider all adjacent vertices
-                HalfEdge* firstEdge = addedVertex->leaving();
-                HalfEdge* currentEdge = firstEdge;
+                auto* firstEdge = addedVertex->leaving();
+                auto* currentEdge = firstEdge;
                 do {
-                    Vertex* neighbour = currentEdge->destination();
+                    auto* neighbour = currentEdge->destination();
                     result.insert(result.left_range(neighbour), addedVertex);
                     currentEdge = currentEdge->nextIncident();
                 } while (currentEdge != firstEdge);
@@ -229,18 +242,18 @@ private:
     }
     
     static VertexRelation removedVertexRelation(const P& left, const VertexRelation& initialRelation) {
-        const VertexSet removedVertices = findRemovedVertices(left, initialRelation);
+        const auto removedVertices = findRemovedVertices(left, initialRelation);
 
-        VertexRelation result = initialRelation;
+        auto result = initialRelation;
         size_t previousSize;
         do {
             previousSize = result.size();
-            for (Vertex* removedVertex : removedVertices) {
+            for (auto* removedVertex : removedVertices) {
                 // consider all adjacent vertices
-                HalfEdge* firstEdge = removedVertex->leaving();
-                HalfEdge* currentEdge = firstEdge;
+                auto* firstEdge = removedVertex->leaving();
+                auto* currentEdge = firstEdge;
                 do {
-                    Vertex* neighbour = currentEdge->destination();
+                    auto* neighbour = currentEdge->destination();
                     result.insert(removedVertex, result.right_range(neighbour));
                     currentEdge = currentEdge->nextIncident();
                 } while (currentEdge != firstEdge);
@@ -253,9 +266,9 @@ private:
     static VertexSet findAddedVertices(const P& right, const VertexRelation& vertexRelation) {
         VertexSet result;
         
-        const VertexList& rightVertices = right.vertices();
-        Vertex* firstVertex = rightVertices.front();
-        Vertex* currentVertex = firstVertex;
+        const auto& rightVertices = right.vertices();
+        auto* firstVertex = rightVertices.front();
+        auto* currentVertex = firstVertex;
         do {
             if (vertexRelation.count_left(currentVertex) == 0)
                 result.insert(currentVertex);
@@ -268,9 +281,9 @@ private:
     static VertexSet findRemovedVertices(const P& left, const VertexRelation& vertexRelation) {
         VertexSet result;
         
-        const VertexList& leftVertices = left.vertices();
-        Vertex* firstVertex = leftVertices.front();
-        Vertex* currentVertex = firstVertex;
+        const auto& leftVertices = left.vertices();
+        auto* firstVertex = leftVertices.front();
+        auto* currentVertex = firstVertex;
         do {
             if (vertexRelation.count_right(currentVertex) == 0)
                 result.insert(currentVertex);
