@@ -23,6 +23,7 @@
 #include "Polyhedron.h"
 #include "Relation.h"
 
+#include <limits>
 #include <list>
 
 template <typename P>
@@ -125,9 +126,14 @@ private:
      * Computes the matching score between the given two faces using the data stored in the vertex relation.
      *
      * The matching score between the given faces is the number of all pairs of a vertex of the given left face
-     * and a vertex of the given right face which are also in the vertex relation.
+     * and a vertex of the given right face which are also in the vertex relation, unless the faces are identical.
+     * In that case, this function returns a perfect match score.
      */
     size_t computeMatchScore(Face* leftFace, Face* rightFace) const {
+        if (leftFace->vertexCount() == rightFace->vertexCount() && leftFace->hasVertexPositions(rightFace->vertexPositions())) {
+            return std::numeric_limits<size_t>::max();
+        }
+
         size_t result = 0;
         
         auto* firstLeftEdge = leftFace->boundary().front();
