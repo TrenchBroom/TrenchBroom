@@ -3430,7 +3430,6 @@ namespace TrenchBroom {
             assertTexture("*slime1",    brush,  Vec3d::List { p8,  p9, p11 }); // failure, becomes *slime0
             assertTexture("*teleport",  brush,  Vec3d::List { p9, p10, p11 });
 
-
             delete brush;
         }
     }
