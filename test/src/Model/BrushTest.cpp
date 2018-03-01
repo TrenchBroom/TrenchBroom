@@ -3425,8 +3425,8 @@ namespace TrenchBroom {
             assertTexture("*lava1",     brush,  Vec3d::List { p5,  p4,  p3,  p2,  p1 });
 
             // top faces
-            assertTexture("*04awater1", brush,  Vec3d::List { p6,  p2, p11 });
-            assertTexture("*04mwat1",   brush,  Vec3d::List { p2,  p8, p11 });
+            assertTexture("*slime", brush,  Vec3d::List { p6,  p2, p11 });
+            assertTexture("*slime0",   brush,  Vec3d::List { p2,  p8, p11 });
             assertTexture("*slime1",    brush,  Vec3d::List { p8,  p9, p11 }); // failure, becomes *slime0
             assertTexture("*teleport",  brush,  Vec3d::List { p9, p10, p11 });
 
