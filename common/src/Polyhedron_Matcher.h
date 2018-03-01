@@ -364,7 +364,7 @@ private:
      *
      * Note that the resulting relation does not include the given initial relation.
      *
-     * @param right the polyhedron with removed vertices
+     * @param left the polyhedron with removed vertices
      * @param initialRelation the initial vertex relation
      * @return a vertex relation containing only the newly discovered related vertices
      */
