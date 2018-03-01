@@ -57,8 +57,11 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
-            if (!anyToolDragging(inputState))
-                m_tool->updateDragFaces(inputState.pickResult());
+//            if (!anyToolDragging(inputState))
+//                m_tool->updateDragFaces(inputState.pickResult());
+            if (thisToolDragging()) {
+                updateResize(inputState);
+            }
         }
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
@@ -80,7 +83,15 @@ namespace TrenchBroom {
         }
         
         bool ScaleObjectsToolController::doMouseDrag(const InputState& inputState) {
-            return m_tool->resize(inputState.pickRay(), inputState.camera());
+            return updateResize(inputState);
+        }
+        
+        bool ScaleObjectsToolController::updateResize(const InputState& inputState) {
+            return m_tool->resize(inputState.pickRay(),
+                                  inputState.camera(),
+                                  inputState.modifierKeysDown(ModifierKeys::MKShift),
+                                  inputState.modifierKeysDown(ModifierKeys::MKAlt),
+                                  inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
         }
         
         void ScaleObjectsToolController::doEndMouseDrag(const InputState& inputState) {
@@ -100,6 +111,21 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            
+            // regular indicators
+            
+            
+            renderService.setForegroundColor(Color(0, 255, 0));
+            renderService.renderBounds(m_tool->bounds());
+            
+            for (const Vec3& corner : m_tool->cornerHandles()) {
+                renderService.renderHandle(corner);
+            }
+            
+            
+            // highlighted stuff
+            
             if (m_tool->hasDragPolygon()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRendererForSide();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
@@ -111,8 +137,7 @@ namespace TrenchBroom {
             }
             
             if (m_tool->hasDragCorner()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.renderHandle(m_tool->dragCorner());
+                renderService.renderHandleHighlight(m_tool->dragCorner());
             }
         }
         

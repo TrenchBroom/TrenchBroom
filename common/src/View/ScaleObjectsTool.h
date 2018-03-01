@@ -111,6 +111,8 @@ namespace TrenchBroom {
             bool m_resizing;
             //BBoxSide m_dragSide;
             BBox3 m_bboxAtDragStart;
+            
+            //bool m_proportional;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool();
@@ -119,7 +121,7 @@ namespace TrenchBroom {
             
             Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
             Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
-        private:
+        public:
             BBox3 bounds() const;
         private:
             class PickProximateFace;
@@ -128,6 +130,7 @@ namespace TrenchBroom {
         
             std::vector<Polygon3> bboxFaces() const;
             
+            // getting highlighted hanles
             bool hasDragPolygon() const;
             Polygon3 dragPolygon() const;
             
@@ -136,6 +139,9 @@ namespace TrenchBroom {
             
             bool hasDragCorner() const;
             Vec3 dragCorner() const;
+            
+            // regular handles
+            Vec3::List cornerHandles() const;
             
 //            Vec3 dragPolygonNormal() const;
             
@@ -148,7 +154,7 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical, const bool shear);
             
             void commitResize();
             void cancelResize();

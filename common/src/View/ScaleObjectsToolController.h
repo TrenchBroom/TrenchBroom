@@ -67,6 +67,8 @@ namespace TrenchBroom {
             bool doCancel() override;
             
             bool handleInput(const InputState& inputState) const;
+            
+            bool updateResize(const InputState& inputState);
         private:
             virtual Model::Hit doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) = 0;
         };

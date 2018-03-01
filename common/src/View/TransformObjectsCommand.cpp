@@ -53,6 +53,37 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
         }
         
+        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures) {
+            
+            const Vec3 oldSize = box.size();
+            const Vec3 relativeDelta = delta / oldSize;
+            
+            // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
+            Mat4x4 shearMat;
+            if (sideToShear == Vec3::PosX) {
+                shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
+            }
+            if (sideToShear == Vec3::NegX) {
+                shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
+            }
+            if (sideToShear == Vec3::PosY) {
+                shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
+            }
+            if (sideToShear == Vec3::NegY) {
+                shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
+            }
+            if (sideToShear == Vec3::PosZ) {
+                shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
+            }
+            if (sideToShear == Vec3::NegZ) {
+                shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
+            }
+            
+            const Mat4x4 transform = translationMatrix(box.min) * shearMat * translationMatrix(-box.min);
+            return Ptr(new TransformObjectsCommand(Action_Rotate, "Shear Objects", transform, lockTextures));
+        }
+        
+        
         TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             const Mat4x4 transform = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));

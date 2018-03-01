@@ -267,7 +267,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             return document->selectionBounds();
         }
-
+        
         // used for rendering
         
         bool ScaleObjectsTool::hasDragPolygon() const {
@@ -303,6 +303,16 @@ namespace TrenchBroom {
             return pointForBBoxCorner(bounds(), whichCorner);
         }
 
+        Vec3::List ScaleObjectsTool::cornerHandles() const {
+            Vec3::List result;
+            result.reserve(8);
+            auto op = [&](const Vec3& point) {
+                result.push_back(point);
+            };
+            eachBBoxVertex(bounds(), op);
+            return result;
+        }
+        
 //        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
 //            Plane3 plane;
 //            if (!getPlane(m_dragPolygon.begin(), m_dragPolygon.end(), plane))
@@ -418,11 +428,14 @@ namespace TrenchBroom {
             return res;
         }
         
-        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera) {
+        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical, const bool shear) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
+            
+            printf("proportional %d vertical %d shear %d\n",
+                   (int)proportional, (int)vertical, (int)shear);
             
             Vec3 dragObjNormal;
             if (m_dragStartHit.type() == ScaleToolFaceHit) {
@@ -457,28 +470,52 @@ namespace TrenchBroom {
 
             const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             
-            BBox3 newBbox;
-            if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                const auto side = m_dragStartHit.target<BBoxSide>();
-                newBbox = moveBBoxFace(m_bboxAtDragStart, side, faceDelta);
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-                const auto edge = m_dragStartHit.target<BBoxEdge>();
-                newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, faceDelta);
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-                const auto corner = m_dragStartHit.target<BBoxCorner>();
-                newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, faceDelta);
-            } else
-                assert(0);
+            if (!shear) {
+                BBox3 newBbox;
+                if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                    const auto side = m_dragStartHit.target<BBoxSide>();
+                    newBbox = moveBBoxFace(m_bboxAtDragStart, side, faceDelta);
+                } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                    const auto edge = m_dragStartHit.target<BBoxEdge>();
+                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, faceDelta);
+                } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                    const auto corner = m_dragStartHit.target<BBoxCorner>();
+                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, faceDelta);
+                } else
+                    assert(0);
 
-            std::cout << "ScaleObjectsTool new bbox: "
-            << newBbox.min.asString() << "->"
-            << newBbox.max.asString() << "\n";
-            
-            std::cout << "make resize with delta: " << faceDelta << "\n";
-            if (document->scaleObjectsBBox(bounds(), newBbox)) {
-                m_totalDelta += faceDelta;
-                //m_dragOrigin += faceDelta;
+                std::cout << "ScaleObjectsTool new bbox: "
+                << newBbox.min.asString() << "->"
+                << newBbox.max.asString() << "\n";
+                
+                std::cout << "make resize with delta: " << faceDelta << "\n";
+                if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                    m_totalDelta += faceDelta;
+                    //m_dragOrigin += faceDelta;
+                }
+                
+            } else {
+                // shear
+                if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                    const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+                    
+                    const auto poly = polygonForBBoxSide(bounds(), side);
+                    const Vec3 planeAnchor = poly.vertices().front();
+                    
+                    const FloatType distance = pickRay.intersectWithPlane(side.normal, planeAnchor);
+                    const Vec3 rayHit = pickRay.pointAtDistance(distance);
+                    const Vec3 delta = grid.snap(rayHit - m_dragOrigin);
+                    
+                    
+                    std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
+                    if (document->shearObjects(bounds(), side.normal, delta)) {
+                        m_totalDelta += faceDelta;
+                    }
+                }
+                
             }
+            
+            
             return true;
         }
         
