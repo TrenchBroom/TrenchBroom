@@ -1076,6 +1076,10 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
+        BrushList Brush::hollow(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName) const {
+            return BrushList();
+        }
+
         Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());

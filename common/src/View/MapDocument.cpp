@@ -995,6 +995,30 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MapDocument::csgHollow() {
+            const Model::BrushList brushes = selectedNodes().brushes();
+            if (brushes.size() <= 0)
+                return false;
+            
+            Model::ParentChildrenMap toAdd;      
+            Model::NodeList toRemove;
+
+            for (Model::Brush* brush : brushes) {
+
+                const Model::BrushList result = brush->hollow(*m_world, m_worldBounds, currentTextureName());
+                VectorUtils::append(toAdd[brush->parent()], result);
+                toRemove.push_back(brush);
+            }
+            
+            Transaction transaction(this, "CSG Hollow");
+            deselectAll();
+            const Model::NodeList added = addNodes(toAdd);
+            removeNodes(toRemove);
+            select(added);
+
+            return true;
+        }
+
         bool MapDocument::clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;

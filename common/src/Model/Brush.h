@@ -195,6 +195,7 @@ namespace TrenchBroom {
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
             void intersect(const BBox3& worldBounds, const Brush* brush);
+            BrushList hollow(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName) const;
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:

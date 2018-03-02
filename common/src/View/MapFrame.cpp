@@ -715,6 +715,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
+            Bind(wxEVT_MENU, &MapFrame::OnEditCsgHollow, this, CommandIds::Menu::EditCsgHollow);
             
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
@@ -1104,6 +1105,14 @@ namespace TrenchBroom {
             
             if (canDoCsgIntersect()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
                 m_document->csgIntersect();
+            }
+        }
+
+        void MapFrame::OnEditCsgHollow(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canDoCsgHollow()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_document->csgHollow();
             }
         }
 
@@ -1813,6 +1822,10 @@ namespace TrenchBroom {
 
         bool MapFrame::canDoCsgIntersect() const {
             return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
+        }
+
+        bool MapFrame::canDoCsgHollow() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
         }
 
         bool MapFrame::canSnapVertices() const {
