@@ -25,15 +25,18 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class CharArrayReader;
         class Path;
         
-        class IdWalTextureReader : public TextureReader {
+        class WalTextureReader : public TextureReader {
         private:
-            const Assets::Palette m_palette;
+            mutable Assets::Palette m_palette;
         public:
-            IdWalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
+            WalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette = Assets::Palette());
         private:
             Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
+            Assets::Texture* readQ2Wal(CharArrayReader& reader, const Path& path) const;
+            Assets::Texture* readDkWal(CharArrayReader& reader, const Path& path) const;
         };
     }
 }

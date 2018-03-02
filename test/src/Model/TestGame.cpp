@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return TP_File;
         }
         
-        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+        void TestGame::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
             const EL::NullVariableStore variables;
             const IO::Path::List paths = extractTextureCollections(node);
             
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                                                           IO::Path("data/palette.lmp"),
                                                           "wad");
             
-            IO::TextureLoader textureLoader(variables, fileSystem, fileSearchPaths, textureConfig);
+            IO::TextureLoader textureLoader(variables, fileSystem, fileSearchPaths, textureConfig, logger);
             textureLoader.loadTextures(paths, textureManager);
         }
         

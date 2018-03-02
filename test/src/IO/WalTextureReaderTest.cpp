@@ -24,7 +24,7 @@
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
-#include "IO/IdWalTextureReader.h"
+#include "IO/WalTextureReader.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,12 +39,12 @@ namespace TrenchBroom {
             ASSERT_EQ(height, texture->height());
         }
         
-        TEST(IdWalTextureReaderTest, testLoadWalDir) {
+        TEST(WalTextureReaderTest, testLoadQ2WalDir) {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("data/colormap.pcx"));
             
             TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-            IdWalTextureReader textureReader(nameStrategy, palette);
+            WalTextureReader textureReader(nameStrategy, palette);
             
             assertTexture(Path("rtz/b_pv_v1a1.wal"),  128, 256, fs, textureReader);
             assertTexture(Path("rtz/b_pv_v1a2.wal"),  128, 256, fs, textureReader);

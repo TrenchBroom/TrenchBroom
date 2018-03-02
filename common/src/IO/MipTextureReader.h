@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
         class CharArrayReader;
-        
+
         class MipTextureReader : public TextureReader {
         protected:
             MipTextureReader(const NameStrategy& nameStrategy);

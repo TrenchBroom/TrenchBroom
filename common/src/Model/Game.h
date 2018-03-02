@@ -83,7 +83,7 @@ namespace TrenchBroom {
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
-            void loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const;
+            void loadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const;
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findTextureCollections() const;
             IO::Path::List extractTextureCollections(const AttributableNode* node) const;
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual TexturePackageType doTexturePackageType() const = 0;
-            virtual void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const = 0;
+            virtual void doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindTextureCollections() const = 0;
             virtual IO::Path::List doExtractTextureCollections(const AttributableNode* node) const = 0;

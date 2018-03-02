@@ -30,24 +30,32 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        Palette::Data::Data(const size_t size, RawDataPtr&& data) :
+        m_size(size),
+        m_data(std::move(data)) {
+            ensure(m_size > 0, "size is 0");
+            ensure(m_data.get() != nullptr, "data is null");
+        }
+
         Palette::Data::Data(const size_t size, unsigned char* data) :
         m_size(size),
         m_data(data) {
             ensure(m_size > 0, "size is 0");
-            ensure(m_data != nullptr, "data is null");
-        }
-        
-        Palette::Data::~Data() {
-            delete [] m_data;
+            ensure(m_data.get() != nullptr, "data is null");
         }
 
+        Palette::Palette() {}
+
+        Palette::Palette(const size_t size, RawDataPtr&& data) :
+        m_data(std::make_shared<Data>(size, std::move(data))) {}
+
         Palette::Palette(const size_t size, unsigned char* data) :
-        m_data(new Data(size, data)) {}
+        m_data(std::make_shared<Data>(size, data)) {}
 
         Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
             try {
-                IO::MappedFile::Ptr file = fs.openFile(path);
-                const String extension = StringUtils::toLower(path.extension());
+                auto file = fs.openFile(path);
+                const auto extension = StringUtils::toLower(path.extension());
                 if (extension == "lmp")
                     return loadLmp(file);
                 else if (extension == "pcx")
@@ -60,24 +68,34 @@ namespace TrenchBroom {
         }
         
         Palette Palette::loadLmp(IO::MappedFile::Ptr file) {
-            const size_t size = file->size();
-            unsigned char* data = new unsigned char[size];
-            
+            const auto size = file->size();
+            auto data = std::make_unique<unsigned char[]>(size);
+
             IO::CharArrayReader reader(file->begin(), file->end());
-            reader.read(data, size);
+            reader.read(data.get(), size);
             
-            return Palette(size, data);
+            return Palette(size, std::move(data));
         }
         
         Palette Palette::loadPcx(IO::MappedFile::Ptr file) {
-            const size_t size = 768;
-            unsigned char* data = new unsigned char[size];
+            const auto size = 768;
+            auto data = std::make_unique<unsigned char[]>(size);
             
             IO::CharArrayReader reader(file->begin(), file->end());
             reader.seekFromEnd(size);
-            reader.read(data, size);
+            reader.read(data.get(), size);
             
-            return Palette(size, data);
+            return Palette(size, std::move(data));
+        }
+
+        Palette Palette::fromRaw(const size_t size, const unsigned char* data) {
+            auto copy = std::make_unique<unsigned char[]>(size);
+            std::memcpy(copy.get(), data, size);
+            return Palette(size, std::move(copy));
+        }
+
+        bool Palette::initialized() const {
+            return m_data.get() != nullptr;
         }
     }
 }

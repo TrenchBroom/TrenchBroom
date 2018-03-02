@@ -25,67 +25,66 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
-#include "IO/IdWalTextureReader.h"
+#include "IO/WalTextureReader.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
-#include "IO/TextureCollectionLoader.h"
 #include "Model/GameConfig.h"
 
 namespace TrenchBroom {
     namespace IO {
-        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) :
-        m_variables(variables.clone()),
-        m_gameFS(gameFS),
-        m_fileSearchPaths(fileSearchPaths),
+        TextureLoader::TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) :
         m_textureExtension(getTextureExtension(textureConfig)),
-        m_textureReader(createTextureReader(textureConfig)),
-        m_textureCollectionLoader(createTextureCollectionLoader(textureConfig)) {
+        m_textureReader(createTextureReader(variables, gameFS, textureConfig, logger)),
+        m_textureCollectionLoader(createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig)) {
             ensure(m_textureReader != nullptr, "textureReader is null");
             ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
         }
         
-        TextureLoader::~TextureLoader() {
-            delete m_textureCollectionLoader;
-            delete m_textureReader;
-            delete m_variables;
-        }
-        
-        String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const {
+        String TextureLoader::getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) {
             return textureConfig.format.extension;
         }
-        
-        TextureReader* TextureLoader::createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const {
+
+        TextureLoader::ReaderPtr TextureLoader::createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             if (textureConfig.format.format == "idmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
-                return new IdMipTextureReader(nameStrategy, loadPalette(textureConfig));
+                return std::make_unique<IdMipTextureReader>(nameStrategy, loadPalette(variables, gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "hlmip") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
-                return new HlMipTextureReader(nameStrategy);
-            } else if (textureConfig.format.format == "idwal") {
+                return std::make_unique<HlMipTextureReader>(nameStrategy);
+            } else if (textureConfig.format.format == "wal") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return new IdWalTextureReader(nameStrategy, loadPalette(textureConfig));
+                return std::make_unique<WalTextureReader>(nameStrategy, loadPalette(variables, gameFS, textureConfig, logger));
             } else if (textureConfig.format.format == "image") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
-                return new FreeImageTextureReader(nameStrategy);
+                return std::make_unique<FreeImageTextureReader>(nameStrategy);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }
         }
         
-        Assets::Palette TextureLoader::loadPalette(const Model::GameConfig::TextureConfig& textureConfig) const {
-            const String pathSpec = textureConfig.palette.asString();
-            const String pathStr = EL::interpolate(pathSpec, EL::EvaluationContext(*m_variables));
-            const Path path(pathStr);
-            return Assets::Palette::loadFile(m_gameFS, path);
+        Assets::Palette TextureLoader::loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+            try {
+                const String pathSpec = textureConfig.palette.asString();
+                const String pathStr = EL::interpolate(pathSpec, EL::EvaluationContext(variables));
+                const Path path(pathStr);
+                return Assets::Palette::loadFile(gameFS, path);
+            } catch (const Exception& e) {
+                if (logger != nullptr) {
+                    StringStream msg;
+                    msg << "Cannot load palette: " << e.what();
+                    logger->warn(msg.str());
+                }
+                return Assets::Palette();
+            }
         }
 
-        TextureCollectionLoader* TextureLoader::createTextureCollectionLoader(const Model::GameConfig::TextureConfig& textureConfig) const {
+        TextureLoader::LoaderPtr TextureLoader::createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig) {
             using Model::GameConfig;
             switch (textureConfig.package.type) {
                 case GameConfig::TexturePackageConfig::PT_File:
-                    return new FileTextureCollectionLoader(m_fileSearchPaths);
+                    return std::make_unique<FileTextureCollectionLoader>(fileSearchPaths);
                 case GameConfig::TexturePackageConfig::PT_Directory:
-                    return new DirectoryTextureCollectionLoader(m_gameFS);
+                    return std::make_unique<DirectoryTextureCollectionLoader>(gameFS);
                 case GameConfig::TexturePackageConfig::PT_Unset:
                     throw GameException("Texture package format is not set");
 				switchDefault()

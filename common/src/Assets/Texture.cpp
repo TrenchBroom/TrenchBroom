@@ -29,8 +29,9 @@ namespace TrenchBroom {
             for (size_t i = 0; i < buffers.size(); ++i) {
                 const size_t div = 1 << i;
                 const size_t size = 3 * (width * height) / (div * div);
-                assert(size > 0);
-                buffers[i] = Assets::TextureBuffer(size);
+                if (size > 0) {
+                    buffers[i] = Assets::TextureBuffer(size);
+                }
             }
         }
 

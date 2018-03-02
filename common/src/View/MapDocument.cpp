@@ -1349,7 +1349,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures() {
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-                m_game->loadTextureCollections(m_world, docDir, *m_textureManager);
+                m_game->loadTextureCollections(m_world, docDir, *m_textureManager, this);
             } catch (const Exception& e) {
                 error(e.what());
             }

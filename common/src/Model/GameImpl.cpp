@@ -24,13 +24,13 @@
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
+#include "IO/DkPakFileSystem.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
 #include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/IdPakFileSystem.h"
-#include "IO/IdWalTextureReader.h"
 #include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             try {
                 m_gameFS.addFileSystem(new IO::DiskFileSystem(m_gamePath + searchPath));
             } catch (const FileSystemException& e) {
-                logger->error("Unable to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
+                logger->error("Cannot to add file system search path '" + searchPath.asString() + "': " + String(e.what()));
             }
         }
         
@@ -95,8 +95,11 @@ namespace TrenchBroom {
                     IO::MappedFile::Ptr packageFile = diskFS.openFile(packagePath);
                     ensure(packageFile.get() != nullptr, "packageFile is null");
 
-                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak"))
+                    if (StringUtils::caseInsensitiveEqual(packageFormat, "idpak")) {
                         m_gameFS.addFileSystem(new IO::IdPakFileSystem(packagePath, packageFile));
+                    } else if (StringUtils::caseInsensitiveEqual(packageFormat, "dkpak")) {
+                        m_gameFS.addFileSystem(new IO::DkPakFileSystem(packagePath, packageFile));
+                    }
                 }
             }
         }
@@ -207,12 +210,12 @@ namespace TrenchBroom {
             }
         }
 
-        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager) const {
+        void GameImpl::doLoadTextureCollections(AttributableNode* node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger* logger) const {
             const AttributableNodeVariableStore variables(node);
             const IO::Path::List paths = extractTextureCollections(node);
 
             const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
-            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig());
+            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
             textureLoader.loadTextures(paths, textureManager);
         }
 

@@ -45,7 +45,7 @@ and z being the darkest.  Each value represents
 */
 
 /*QUAKED light_flare (0.9 0.9 0.9) (-8 -8 -8) (8 8 8) START_OFF
-"modelname" "models/global/e_flare2.sp2"
+{ model("models/global/e_flare2.sp2.dkm"); }
 "spritetype" "2"
 model - name of sprite model for flare effect
         for example, \"models/global/e_flare1.sp2\"
@@ -66,25 +66,25 @@ and z being the darkest.  Each value represents
 */
 
 /*QUAKED light_e1 (0 1 0) (-8 -8 -28) (8 8 8)
-"modelname" "models/global/e2_firea.sp2"
+{ model("models/global/e2_firea.sp2.dkm"); }
 "spritetype" "1"
 scale - amount to scale (%f %f %f)
 */
 
 /*QUAKED light_e2 (0 1 0) (-8 -8 -28) (8 8 8) D2_TORCH1 D2_TORCH1B D2_TORCH2 D2_TORCH3
-"modelname" "models/global/e2_firea.sp2"
+{ model("models/global/e2_firea.sp2.dkm"); }
 "spritetype" "1"
 scale - amount to scale (%f %f %f)
 */
 
 /*QUAKED light_e3 (0 1 0) (-8 -8 -28) (8 8 8) D3_FIRESHELF D3_CANDLE D3_FLAMHOLD
-"modelname" "models/global/e3_firea.sp2"
+{ model("models/global/e3_firea.sp2.dkm"); }
 "spritetype" "1"
 scale - amount to scale (%f %f %f)
 */
 
 /*QUAKED light_e4 (0 1 0) (-8 -8 -28) (8 8 8) D4_BARREL1
-"modelname" "models/global/e4_firea.sp2"
+{ model("models/global/e4_firea.sp2.dkm"); }
 "spritetype" "1"
 scale - amount to scale (%f %f %f)
 */
@@ -231,7 +231,7 @@ FLAGS:.......................................................................
 /*QUAKED func_door (0 0.5 0.8) ? START_OPEN REVERSE DOOR_DONT_LINK TOGGLE AUTO_OPEN USE_TO_CLOSE CONTINUOUS LOOP_DOOR_SOUNDS STRUGGLE FORCEMOVE
 "sndkeys" "sound_opening,sound_open_finish,sound_closing,sound_close_finish"
 Doors that touch are linked together to operate as one.
-  
+
 message - printed when the door is touched if it is a trigger door and it hasn't been fired yet
 angle - determines the opening direction
 targetname - if set, no touch field will be spawned and a remote button or trigger field activates the door.
@@ -247,11 +247,11 @@ sound_closing - name of the sound to play when closing starts, ie. doors/creek.w
 sound_close_finish - name of the sound to play when closing completes, ie. doors/slam.wav
 cinescript - name of the cinematic script to run
 aiscript - name of the AI script to run
-  
+
 Spawnflags:
 TOGGLE causes the door to wait in both the start and end states for a
 trigger event.
-  
+
 START_OPEN causes the door to move to its destination when spawned, and
 operate in reverse.  It is used to temporarily or permanently close off an
 area when triggered (not usefull for touch or takedamage doors).
@@ -272,7 +272,7 @@ STRUGGLE - plays struggle sound if object is not useable (locked, etc)
 */
 
 /*QUAKED misc_hosportal (1 0 0) (-16 -16 -24) (16 16 32) ALLOW_HEALTH
-"modelname" "models/e1/hosportal2"
+{ model("models/e1/hosportal2.dkm"); }
 "sndkeys" "sound_use,sound_healthup,sound_use_done,sound_use_out,sound_recharged"
 style - 0=large (with walls), 1=medium (no walls), 2=small (monitor)
 health - health of entity (0 if indestructable)
@@ -280,17 +280,17 @@ max_juice - max amount of health to restore before depleted (100)
 */
 
 /*QUAKED misc_fountain (1 0 0) (-16 -16 -24) (16 16 32)
-"modelname" "models/e2/a2_hlthfnt"
+{ model("models/e2/a2_hlthfnt.dkm"); }
 Greek health fountain.
 */
 
 /*QUAKED misc_drugbox (1 0 0) (-16 -16 -24) (16 16 32)
-"modelname" "models/e4/a4_dbox"
+{ model("models/e4/a4_dbox.dkm"); }
 Crate of drugs.  Restores health.
 */
 
 /*QUAKED misc_healthtree (1 0 0) (-16 -16 -24) (16 16 32)
-"modelname" "models/e1/healthtree"
+{ model("models/e1/healthtree.dkm"); }
 Healing fruit tree.
 max_fruit   - max # of fruits on tree (5)
 recharge_rate - recharge time (seconds) for tree
@@ -299,7 +299,7 @@ recharge_rate - recharge time (seconds) for tree
 /*QUAKED func_plat (0 0.5 0.8) ? PLAT_START_UP X X PLAT_TOGGLE
 "sndkeys" "sound_up,sound_top,sound_down,sound_bottom"
 Plats should be drawn in the up position to spawn correctly
- 
+
 message - printed when the door is touched if it is a trigger door and it hasn't been fired yet
 angle - determines the opening direction
 targetname - if set, no touch field will be spawned and a remote button or trigger field activates the door.
@@ -316,7 +316,7 @@ sound_bottom - name of the sound to play when plat hits bottom, ie. doors/slam.w
 volume - 0.0 to 1.0
 min - 0 to 2040 - minimum distance (volume full)
 max - 0 to 8160 - maximum distance (volume none)
- 
+
 Spawnflags:
 PLAT_START_UP starts the platform in the up (drawn) position
   (height added to drawn position)
@@ -327,27 +327,27 @@ TOGGLE causes the platform to wait in both the start and end states for a
 /*QUAKED func_door_rotate (0 0.5 0.8) ? START_OPEN REVERSE DOOR_DONT_LINK TOGGLE AUTO_OPEN USE_TO_CLOSE CONTINUOUS X_AXIS Y_AXIS SWING STRUGGLE ROTATE_LOOP_SOUNDS
 "sndkeys" "sound_opening,sound_open_finish,sound_closing,sound_close_finish"
 if two doors touch, they are assumed to be connected and operate as a unit.
-  
+
 TOGGLE causes the door to wait in both the start and end states for a
 trigger event.
-  
+
 START_OPEN causes the door to move to its destination when spawned, and
 operate in reverse.  It is used to temporarily or permanently close off an
 area when triggered (not usefull for touch or takedamage doors).
-  
+
 Key doors are allways wait -1.
-  
+
 You need to have an origin brush as part of this entity.  The center of
 that brush will be
 the point around which it is rotated. It will rotate around the Z axis by
 default.  You can
 check either the X_AXIS or Y_AXIS box to change that.
-  
+
 'distance'	is how many degrees the door will be rotated.
 'speed'	determines how fast the door moves; default value is 100.
-  
+
 REVERSE will cause the door to rotate in the opposite direction.
-  
+
 'message'	is printed when the door is touched if it is a trigger door and
 		it hasn't been fired yet.
 'targetname'	if set, no touch field will be spawned and a remote button or
@@ -367,7 +367,7 @@ its being used.
 DOOR_DONT_LINK will stop a door from being automatically linked to other doors
 that it touches.
 SWING - will allow a door to swing both ways
-boing      - 0 = ignore (default)  1 = simulate bouncing physics 
+boing      - 0 = ignore (default)  1 = simulate bouncing physics
 accelerate - 0 = ignore (default)  1 = accelerate rotation from 0 to speed
 mass       - 0 = ignore (default)  valid range is 1 = mass of player to 10
                  NOTE: dust and spawnquake are generated based on mass
@@ -385,10 +385,10 @@ The center of that brush will be
 the point around which it is rotated. It will rotate around the Z axis by
 default.  You can
 check either the X_AXIS or Y_AXIS box to change that.
-  
+
 'speed'	determines how fast it moves; default value is 100.
 'dmg'	damage to inflict when blocked (2 default)
-  
+
 REVERSE will cause the it to rotate in the opposite direction.
 */
 
@@ -493,9 +493,9 @@ pathtarget - target to trigger when this path_corner is
 Spawnflags:
 X_AXIS     - when checked train will rotate continually
              around x axis at x_speed degrees per second
-Y_AXIS     - when checked train will rotate continually around 
+Y_AXIS     - when checked train will rotate continually around
              around y axis at y_speed degrees per second
-Z_AXIS     - when checked train will rotate continually around 
+Z_AXIS     - when checked train will rotate continually around
              around z axis at z_speed degrees per second
 cinescript - name of the cinematic script to run
 aiscript   - name of the AI script to run
@@ -514,12 +514,12 @@ health - if set, door must be shot open
 speed - movement speed (100 default)
 wait - time to wait before returning (3 default, -1 = never return)
 dmg - damage to inflict when blocked (2 default)
-lip - 
+lip -
 sound_opening - name of the sound to play during opening, ie. doors/creek.wav
 sound_open_finish - name of the sound to play when opening completes, ie. doors/slam.wav
 sound_closing - name of the sound to play when closing starts, ie. doors/creek.wav
 sound_close_finish - name of the sound to play when closing completes, ie. doors/slam.wav
-  
+
 Spawnflags:
 SECRET_OPEN_ONCE - door stays open (imagine that...)
 SECRET_1ST_LEFT - first move is left of move direction
@@ -540,12 +540,12 @@ if model_1 is set then spawnflags ROCK_CHUNKS and WOOD_CHUNKS are overridden
 model_2 - the pathname of the second model
 model_3 - I wouldn't bet on it, but this is probably the name of the 3rd model
 group - you can add a name here and group func_wall_explodes.. use triggerindex
-  to specify priority of which one blows up first 
+  to specify priority of which one blows up first
 triggerindex - the lower the index, the higher it's priority (i.e. it blows up 1st
   func_wall_explodes with the same triggerindex blow up randomly
 mindamage - minimum damage it takes to destroy this wall.  Any damage less
   than mindamage will be healed instantly so wall cannot be warn down.
-  
+
 Spawnflags:
 ROCK_CHUNKS - makes rock chunk wall-gibs fly
 WOOD_CHUNKS - makes wood chunk wall-gibs fly
@@ -729,7 +729,7 @@ delay - delay after triggering before script runs ** doesn't work
 with touch triggers ** (default = 0.0 seconds)
 cinescript - name of the cinematic script to run
 aiscript - name of the AI script to run
-scriptname - 
+scriptname -
 Flags:
   MULTIPLE - allows you to trigger the cinematic multiple
   times if checked.. otherwise it deletes itself
@@ -740,7 +740,7 @@ Flags:
 /*QUAKED trigger_once (0.5 0.5 0.5) ? NOTOUCH ALLOW_MONSTERS ALLOW_SIDEKICKS
 "sndkeys" "sound"
 triggers once, then removes itself
- 
+
 health - if set the trigger must be killed to activate
 delay - time to wait after activation before firing target
 wait - time to wait between retriggering (default = 0.2 seconds)
@@ -791,7 +791,7 @@ FLAGS: USE_ONCE - delete after first use
 sound - name of sound to play upon firing, if not specified, then no
 sound will be played
 fog_value - sets fog_value to this when a teleporter is used
-sound - 
+sound -
 targetname -
 killtarget - the targetname of the entity to remove when triggered
 message - text message to display when triggered
@@ -807,7 +807,7 @@ TELEPORT - Enter in the target name of the entity you wish to spawn or just 'pla
 
 /*QUAKED trigger_changemusic (0.5 0.5 0.5) ?
 path - path to mp3 to play relative to data/music. ( include the extension )
-volume - the volume to play the mp3 at ( 0 - 1 ). 
+volume - the volume to play the mp3 at ( 0 - 1 ).
 */
 
 /*QUAKED trigger_superfly_spawn (0.5 0.5 0.5) ?
@@ -870,7 +870,7 @@ KEEP_SIDEKICKS    - Transition sidekicks to next level, even if they're not requ
 */
 
 /*QUAKED trigger_remove_inventory_item (0.5 0.5 0.5) ?
-item - the name of the item to remove 
+item - the name of the item to remove
   from the inventory of the entity that
   touches the trigger ( e.g. weapon_daikatana )
 */
@@ -878,7 +878,7 @@ item - the name of the item to remove
 /*QUAKED trigger_change_sfx (0.5 0.5 0.5) ? NORMAL PRESET1 PRESET2 PRESET3 PRESET4
 fxstyle - the effect style to be activated
 wait - the number of seconds to wait until triggering
-reverb - 
+reverb -
 volume - default 100
 */
 
@@ -919,7 +919,7 @@ MULTIUSE - can be used more than once
 */
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32) NO_OFFSET
-"modelname" "models/global/m_hiro"
+{ model("models/global/m_hiro.dkm"); }
 Location player starts in single play.
 If NO_OFFSET is checked, then do not take into
 account the offset from the changelevel
@@ -931,12 +931,12 @@ Intermission camera point.
 */
 
 /*QUAKED info_mikiko_start (1 0 0) (-16 -16 -24) (16 16 32)
-"modelname" "models/global/m_mikiko"
+{ model("models/global/m_mikiko.dkm"); }
 Location Mikiko starts in single play.
 */
 
 /*QUAKED info_superfly_start (1 0 0) (-16 -16 -24) (16 16 32) IDLE
-"modelname" "models/global/m_superfly"
+{ model("models/global/m_superfly.dkm"); }
 Location Superfly starts in single play.
 By default, Superfly will look for the first
 client that connects and start following them.
@@ -1006,7 +1006,7 @@ link - the number of the node linked to (can be up to four link fields)
 */
 
 /*QUAKED monster_froginator (1 0.5 0) (-8 -8 -16) (8 8 16) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_frog"
+{ model("models/e1/m_frog.dkm"); }
 "modelscale" "0.65 0.65 0.65"
 "episode" "1"
 spawnname - classname of entity to throw out upon death
@@ -1015,7 +1015,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_rockgat (1 0.5 0) (-16 -16 -16) (16 16 16)
-"modelname" "models/e1/a1_rockgun"
+{ model("models/e1/a1_rockgun.dkm"); }
 "episode" "1"
 height/frames - number of frames in the popup animation
 fire_rate - secs between firing default = 0.20
@@ -1026,7 +1026,7 @@ health - health value
 */
 
 /*QUAKED monster_slaughterskeet (1 0.5 0) (-16 -16 -8) (16 16 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_skeeter"
+{ model("models/e1/m_skeeter.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1034,7 +1034,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_thunderskeet (1 0.5 0) (-40 -40 0) (40 40 96)  WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_tskeet"
+{ model("models/e1/m_tskeet.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1042,7 +1042,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_venomvermin (1 0.5 0) (-16 -16 -8) (16 16 16) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_vermin"
+{ model("models/e1/m_vermin.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1050,7 +1050,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_sludgeminion (1 0.5 0) (-40 -40 -40) (40 40 56) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_sludgeminion"
+{ model("models/e1/m_sludgeminion.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1058,7 +1058,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_prisoner (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_priza"
+{ model("models/e1/m_priza.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1066,7 +1066,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_prisonerb (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_prizb"
+{ model("models/e1/m_prizb.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1074,7 +1074,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_inmater (1 0.5 0) (-32 -32 -40) (32 32 48) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_inmater"
+{ model("models/e1/m_inmater.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1082,7 +1082,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_lasergat (1 0.5 0) (-16 -16 -8) (16 16 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_trakatak"
+{ model("models/e1/m_trakatak.dkm"); }
 "modelscale" "1.5 1.5 1.5"
 "episode" "1"
 Track turrets need to have a target
@@ -1095,7 +1095,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_psyclaw (1 0.5 0) (-24 -24 -24) (24 24 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_psyclaw"
+{ model("models/e1/m_psyclaw.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1103,7 +1103,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_cryotech (1 0.5 0) (-16 -16 -24) (16 16 36) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_cryotech"
+{ model("models/e1/m_cryotech.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1111,7 +1111,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_battleboar (1 0.5 0) (-24 -24 -16) (24 24 24) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_bboar"
+{ model("models/e1/m_bboar.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1119,7 +1119,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_ragemaster (1 0.5 0) (-40 -40 -40) (40 40 48) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_ragemaster"
+{ model("models/e1/m_ragemaster.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1127,7 +1127,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_cambot (1 0.5 0) (-24 -24 -24) (24 24 24) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_cambot"
+{ model("models/e1/m_cambot.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1135,7 +1135,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_deathsphere (1 0.5 0) (-24 -24 -16) (24 24 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_dsphere"
+{ model("models/e1/m_dsphere.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1143,7 +1143,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_protopod (1 0.5 0) (-12 -12 0) (12 12 24) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_proto"
+{ model("models/e1/m_proto.dkm"); }
 "modelscale" "2.5 2.5 2.5"
 "episode" "1"
 spawnname - classname of entity to throw out upon death
@@ -1152,7 +1152,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_skinnyworker (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_MWSkny"
+{ model("models/e1/m_MWSkny.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1160,7 +1160,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_fatworker (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_MWFaty"
+{ model("models/e1/m_MWFaty.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1168,7 +1168,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_mishimaguard (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_mwguard"
+{ model("models/e1/m_mwguard.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1176,7 +1176,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_surgeon (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_mwsurgeon"
+{ model("models/e1/m_mwsurgeon.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1184,7 +1184,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_crox (1 0.5 0) (-16 -16 -24) (16 16 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e1/m_croco"
+{ model("models/e1/m_croco.dkm"); }
 "episode" "1"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1192,7 +1192,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_skeleton (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_skeleton"
+{ model("models/e2/m_skeleton.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1200,7 +1200,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_spider (1 0.5 0) (-32 -32 -8) (32 32 24) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_spider"
+{ model("models/e2/m_spider.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1208,7 +1208,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_smallspider (1 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_spider"
+{ model("models/e2/m_spider.dkm"); }
 "modelscale" "0.2 0.2 0.2"
 "episode" "2"
 spawnname - classname of entity to throw out upon death
@@ -1217,7 +1217,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_griffon (1 0.5 0) (-40 -40 -24) (40 40 64) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_griffon"
+{ model("models/e2/m_griffon.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1225,7 +1225,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_harpy (1 0.5 0) (-20 -20 -24) (20 20 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_harpy"
+{ model("models/e2/m_harpy.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1233,7 +1233,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_ferryman (1 0.5 0) (-20 -20 -24) (20 20 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_ferryman"
+{ model("models/e2/m_ferryman.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1241,7 +1241,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_satyr (1 0.5 0) (-20 -20 -24) (20 20 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_satyr"
+{ model("models/e2/m_satyr.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1249,7 +1249,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_column (1 0.5 0) (-24 -24 -24) (24 24 56) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_column"
+{ model("models/e2/m_column.dkm"); }
 "modelscale" "1.5 1.5 1.5"
 "episode" "2"
 spawnname - classname of entity to throw out upon death
@@ -1258,7 +1258,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_cerberus (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_cerberus"
+{ model("models/e2/m_cerberus.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1266,7 +1266,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_thief (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_thief"
+{ model("models/e2/m_thief.dkm"); }
 "modelscale" "1.5 1.5 1.5"
 "episode" "2"
 spawnname - classname of entity to throw out upon death
@@ -1275,7 +1275,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_centurion (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_centurion"
+{ model("models/e2/m_centurion.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1291,7 +1291,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_cyclops (1 0.5 0) (-32 -32 -24) (32 32 64) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e2/m_cyclops"
+{ model("models/e2/m_cyclops.dkm"); }
 "episode" "2"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1299,7 +1299,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_plague_rat (1 0.5 0) (-16 -16 -16) (16 16 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_prat"
+{ model("models/e3/m_prat.dkm"); }
 "episode" "3"
 I broke you!
 
@@ -1309,7 +1309,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_rotworm (1 0.5 0) (-12 -12 -8) (12 12 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_rotworm"
+{ model("models/e3/m_rotworm.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1317,7 +1317,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_buboid (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_buboid"
+{ model("models/e3/m_buboid.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1325,7 +1325,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_priest (1 0.5 0) (-16 -16 -24) (16 16 56) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_priest"
+{ model("models/e3/m_priest.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1333,7 +1333,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_doombat (1 0.5 0) (-12 -12 -8) (12 12 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_doombat"
+{ model("models/e3/m_doombat.dkm"); }
 "modelscale" "0.65 0.65 0.65"
 "episode" "3"
 spawnname - classname of entity to throw out upon death
@@ -1342,7 +1342,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_lycanthir (1 0.5 0) (-20 -20 -24) (20 20 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_lycanthir"
+{ model("models/e3/m_lycanthir.dkm"); }
 "modelscale" "1.2 1.2 1.2"
 "episode" "3"
 spawnname - classname of entity to throw out upon death
@@ -1351,7 +1351,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_fletcher (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_fletcher"
+{ model("models/e3/m_fletcher.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1359,7 +1359,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_dwarf (1 0.5 0) (-20 -20 -24) (20 20 16) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_dwarf"
+{ model("models/e3/m_dwarf.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1367,7 +1367,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_dragon" (1 0.5 0) (-40 -40 -24) (40 40 96) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_dragon"
+{ model("models/e3/m_dragon.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1375,7 +1375,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_garroth (1 0.5 0) (-20 -20 -24) (20 20 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_gharroth"
+{ model("models/e3/m_gharroth.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1383,7 +1383,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_knight1 (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_knight1"
+{ model("models/e3/m_knight1.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1391,7 +1391,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_knight2 (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_knight2"
+{ model("models/e3/m_knight2.dkm"); }
 "episode" "3"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1399,7 +1399,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_nharre (1 0.5 0) (-20 -20 -24) (20 20 36) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_nharre"
+{ model("models/e3/m_nharre.dkm"); }
 "modelscale" "1.2 1.2 1.2"
 "episode" "3"
 spawnname - classname of entity to throw out upon death
@@ -1408,7 +1408,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_stavros (1 0.5 0) (-20 -20 -24) (20 20 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e3/m_stavros"
+{ model("models/e3/m_stavros.dkm"); }
 "modelscale" "1.625 1.625 1.625"
 "episode" "3"
 spawnname - classname of entity to throw out upon death
@@ -1431,7 +1431,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_piperat (1 0.5 0) (-8 -8 -16) (8 8 8) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_piperat"
+{ model("models/e4/m_piperat.dkm"); }
 "modelscale" "0.8 0.8 0.8"
 "episode" "4"
 I broke you!
@@ -1442,7 +1442,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_blackprisoner (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_bpris"
+{ model("models/e4/m_bpris.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1450,7 +1450,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_whiteprisoner (1 0.5 0) (-16 -16 -24) (16 16 40) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_wpris"
+{ model("models/e4/m_wpris.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1458,7 +1458,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_femgang (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_femgang"
+{ model("models/e4/m_femgang.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1474,7 +1474,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_chaingang (1 0.5 0) (-20 -20 -24) (20 20 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_chgang"
+{ model("models/e4/m_chgang.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1482,7 +1482,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_uzigang (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_uzi"
+{ model("models/e4/m_uzi.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1490,7 +1490,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_labmonkey (1 0.5 0) (-24 -24 -24) (24 24 24) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_labmonkey"
+{ model("models/e4/m_labmonkey.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1498,7 +1498,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_sealcommando (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_scomndo"
+{ model("models/e4/m_scomndo.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1506,7 +1506,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_sealcaptain (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_sealcap"
+{ model("models/e4/m_sealcap.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1514,7 +1514,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_sealgirl (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_sgirl"
+{ model("models/e4/m_sgirl.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1522,7 +1522,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_rocketmp (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_rocketmp"
+{ model("models/e4/m_rocketmp.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1538,7 +1538,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_kage (1 0.5 0) (-16 -16 -24) (16 16 32) WANDER PATHFOLLOW NODE_WANDER RANDOM_WANDER IGNORE_PLAYER SNIPE DO_NOT_FLY DO_NOT_MOVE x TAKE_COVER ALWAYS_GIB
-"modelname" "models/e4/m_kage"
+{ model("models/e4/m_kage.dkm"); }
 "episode" "4"
 spawnname - classname of entity to throw out upon death
 sight - Range that the monster can see the player and will react.
@@ -1546,7 +1546,7 @@ speak - Range that the monster can speak to other monsters so they can help out.
 */
 
 /*QUAKED monster_firefly (1 0.5 0) (-8 -8 -8) (8 8 8) YELLOW GREEN BLUE WHITE RED
-"modelname" "models/global/e_flare.sp2"
+{ model("models/global/e_flare.sp2.dkm"); }
 "episode" "1"
 ------------------------------------
 Complex Fly Generator
@@ -1561,7 +1561,7 @@ alpha_level - Initial Setting for Alpha blending change.<scalar>
 */
 
 /*QUAKED monster_wisp (1 0.5 0) (-8 -8 -8) (8 8 8)
-"modelname" "models/global/e_sflblue.sp2"
+{ model("models/global/e_sflblue.sp2.dkm"); }
 "episode" "3"
 -----------------------------------------------
 Wisps to be sucked down by Wyndrax
@@ -1577,7 +1577,7 @@ alpha_level - Initial Setting for Alpha blending change(1-100%)
 
 /*QUAKED monster_path_corner (0.5 0.3 0) (-8 -8 -8) (8 8 8)
 A path corner for a monster to travel along
-target1 - target4: 
+target1 - target4:
 Can have up to 4 targets for the monster
 to travel to.  If there is more than one target
 the monster will randomly choose the next target
@@ -1592,7 +1592,7 @@ targetname - Name of this pathcorner so other entities can do things with it.
 damage - damage applied when exploding. Default is 15.
 scale - Scale of deco. Default 1.0.
 model  - choose model # -- see list.
-mass   - *optional* - including this overrides the mass value in decoinfo.txt 
+mass   - *optional* - including this overrides the mass value in decoinfo.txt
 frame  - allows you to specify the starting frame for the model.
 animseq - allows you to specify an animation sequence for the model if
   it has multiple sequences defined in decoinfo.txt.. this overrides
@@ -1610,7 +1610,7 @@ movetype- none, toss, bounce, float, overrides value in e1decoinfo.csv
 damage - damage applied when exploding. Default is 15.
 scale - Scale of deco. Default 1.0.
 model  - choose model # -- see list.
-mass   - *optional* - including this overrides the mass value in decoinfo.txt 
+mass   - *optional* - including this overrides the mass value in decoinfo.txt
 frame  - allows you to specify the starting frame for the model.
 animseq - allows you to specify an animation sequence for the model if
   it has multiple sequences defined in decoinfo.txt.. this overrides
@@ -1628,7 +1628,7 @@ movetype- none, toss, bounce, float, overrides value in e1decoinfo.csv
 damage - damage applied when exploding. Default is 15.
 scale - Scale of deco. Default 1.0.
 model  - choose model # -- see list.
-mass   - *optional* - including this overrides the mass value in decoinfo.txt 
+mass   - *optional* - including this overrides the mass value in decoinfo.txt
 frame  - allows you to specify the starting frame for the model.
 animseq - allows you to specify an animation sequence for the model if
   it has multiple sequences defined in decoinfo.txt.. this overrides
@@ -1646,7 +1646,7 @@ movetype- none, toss, bounce, float, overrides value in e1decoinfo.csv
 damage - damage applied when exploding. Default is 15.
 scale - Scale of deco. Default 1.0.
 model  - choose model # -- see list.
-mass   - *optional* - including this overrides the mass value in decoinfo.txt 
+mass   - *optional* - including this overrides the mass value in decoinfo.txt
 frame  - allows you to specify the starting frame for the model.
 animseq - allows you to specify an animation sequence for the model if
   it has multiple sequences defined in decoinfo.txt.. this overrides
@@ -1740,9 +1740,9 @@ frametime - length of time between
             particle spawns (default=0.10)
 sound     - wave file to play when the
             particles are spawned
-RANDOM_SPREAD   
+RANDOM_SPREAD
  when checked creates a random
- dispersement of particles around the 
+ dispersement of particles around the
  entity's origin
 TARGET_EFFECT_BEAMS
  use beams instead of partices
@@ -1782,29 +1782,29 @@ START_OFF - Sound will start in the off state.
 */
 
 /*QUAKED e_seagull (0.5 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW
-"modelname" "models/global/d4_gull"
+{ model("models/global/d4_gull.dkm"); }
 "modelscale" "0.5 0.5 0.5"
 */
 
 /*QUAKED fish_goldfish (0.5 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW
-"modelname" "models/global/e_goldfish"
+{ model("models/global/e_goldfish.dkm"); }
 */
 
 /*QUAKED fish_dopefish (0.5 0.5 0) (-40 -40 -40) (40 40 40) WANDER PATHFOLLOW
-"modelname" "models/global/dopefish"
+{ model("models/global/dopefish.dkm"); }
 "modelscale" "3 3 3"
 */
 
 /*QUAKED fish_grayfish (0.5 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW
-"modelname" "models/global/e_greyfish"
+{ model("models/global/e_greyfish.dkm"); }
 */
 
 /*QUAKED fish_guppy1 (0.5 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW
-"modelname" "models/global/e_guppy"
+{ model("models/global/e_guppy.dkm"); }
 */
 
 /*QUAKED fish_guppy2 (0.5 0.5 0) (-8 -8 -8) (8 8 8) WANDER PATHFOLLOW
-"modelname" "models/global/e_guppy2"
+{ model("models/global/e_guppy2.dkm"); }
 */
 
 /*QUAKED item_health_25 (0 0.5 0.8) (-16 -16 -24) (16 16 8) SUPERFLY MIKIKO
@@ -1817,7 +1817,7 @@ Gives 25 health
 */
 
 /*QUAKED item_health_50 (0 0.5 0.8) (-16 -16 -24) (16 16 8) SUPERFLY MIKIKO
-"modelname" "models/e1/a1_hlth2"
+{ model("models/e1/a1_hlth2.dkm"); }
 "modelname_e1" "models/e1/a1_hlth2"
 "modelname_e3" "models/e3/a3_hlth2"
 "modelname_e4" "models/e4/a4_hlth2"
@@ -1825,176 +1825,176 @@ Gives 50 health
 */
 
 /*QUAKED item_goldensoul (0 0.5 0.8) (-16 -16 -24) (16 16 8) SUPERFLY MIKIKO
-"modelname" "models/global/a_gsoul"
+{ model("models/global/a_gsoul.dkm"); }
 Maxes health to twice vitality.
 */
 
 /*QUAKED item_megashield (0 0.5 0.8) (-16 -16 -16) (16 16 24)
-"modelname" "models/global/a_mshield"
+{ model("models/global/a_mshield.dkm"); }
 Gives 400 armor.
 */
 
 /*QUAKED item_invincibility (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_invincibility"
+{ model("models/global/a_invincibility.dkm"); }
 30 seconds of invulnerability.
 */
 
 /*QUAKED item_wraithorb (0 0.5 0.8) (-16 -16 -24) (16 16 8)
-"modelname" "models/global/a_wraithorb"
+{ model("models/global/a_wraithorb.dkm"); }
 20% translucency, unlessed stopped, in which case
 the player is completely invisible.  Lasts 60 seconds.
 */
 
 /*QUAKED item_savegem (0.3 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_savegem"
+{ model("models/global/a_savegem.dkm"); }
 Save gems are stored in the inventory, and used to save games.
 */
 
 /*QUAKED item_power_boost (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_pwrb"
+{ model("models/global/a_pwrb.dkm"); }
 "modelname2" "models/global/a_pwrc"
 30 second boost to attack power.
 */
 
 /*QUAKED item_attack_boost (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_atkb"
+{ model("models/global/a_atkb.dkm"); }
 "modelname2" "models/global/a_atkc"
 30 second boost to attack speed.
 */
 
 /*QUAKED item_speed_boost (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_spdb"
+{ model("models/global/a_spdb.dkm"); }
 "modelname2" "models/global/a_spdc"
 30 second boost to movement speed.
 */
 
 /*QUAKED item_acro_boost (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_acrb"
+{ model("models/global/a_acrb.dkm"); }
 "modelname2" "models/global/a_acrc"
 30 second boost to jump height.
 */
 
 /*QUAKED item_vita_boost (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/global/a_vtlb"
+{ model("models/global/a_vtlb.dkm"); }
 "modelname2" "models/global/a_vtlc"
 30 second boost to vitality.
 */
 
 /*QUAKED item_antidote (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e2/a_antidote"
+{ model("models/e2/a_antidote.dkm"); }
 "episode" "2"
 Cures poisonous wound.
 */
 
 /*QUAKED item_drachma (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/a2_drachma"
+{ model("models/e2/a2_drachma.dkm"); }
 "episode" "2"
 Needed for the Ferryman.
 */
 
 /*QUAKED item_horn (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/a2_horn"
+{ model("models/e2/a2_horn.dkm"); }
 "episode" "2"
 Needed to call the Ferryman.
 */
 
 /*QUAKED item_purifier_shard1 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_1"
+{ model("models/e3/purifier_1.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard2_1 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_2"
+{ model("models/e3/purifier_2.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard2_2 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_2"
+{ model("models/e3/purifier_2.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard2_3 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_2"
+{ model("models/e3/purifier_2.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard2_4 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_2"
+{ model("models/e3/purifier_2.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard2_5 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_2"
+{ model("models/e3/purifier_2.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_purifier_shard3 (0 0.5 0.8) (-16 -16 -16) (16 16 16) x x USE_TARGETS
-"modelname" "models/e3/purifier_3"
+{ model("models/e3/purifier_3.dkm"); }
 "episode" "3"
-One of the three shard types of the 
+One of the three shard types of the
 Purifier sword.
 */
 
 /*QUAKED item_black_chest (0 0.5 0.8) (-16 -16 0) (16 16 32)
-"modelname" "models/e3/a_blackchest"
+{ model("models/e3/a_blackchest.dkm"); }
 "episode" "3"
 There is a 50% chance of explosion.
 Otherwise an atrifact will appear.
 */
 
 /*QUAKED item_wood_chest (0 0.5 0.8) (-16 -16 0) (16 16 32)
-"modelname" "models/e3/a_chest"
+{ model("models/e3/a_chest.dkm"); }
 "episode" "3"
 When opened will spawn a 1 of the 5 boosts.
 */
 
 /*QUAKED item_ring_of_fire (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/e3/a_ring_fire"
+{ model("models/e3/a_ring_fire.dkm"); }
 "episode" "3"
 You take no damage from fire-based attacks.
 Absorbs 500 HP before breaking.
 */
 
 /*QUAKED item_ring_of_undead (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/e3/a_ringund"
+{ model("models/e3/a_ringund.dkm"); }
 "episode" "3"
 You take no damage from Nharre's undead attacks.
 Absorbs 500 HP before breaking.
 */
 
 /*QUAKED item_ring_of_lightning (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/e3/a_ringlig"
+{ model("models/e3/a_ringlig.dkm"); }
 "episode" "3"
 You take no damage from lightning attacks.
 Absorbs 500 HP before breaking.
 */
 
 /*QUAKED item_envirosuit (0 0.5 0.8) (-16 -16 -16) (16 16 16)
-"modelname" "models/e4/a_envsuit"
+{ model("models/e4/a_envsuit.dkm"); }
 "episode" "4"
 60 seconds of air and protection from harmful liquids.
 */
 
 /*QUAKED item_bottle (0 0.5 0.8) (-16 -16 -24) (16 16 8)
-"modelname" "models/e4/a_bottle"
+{ model("models/e4/a_bottle.dkm"); }
 "episode" "4"
 Bottle for e4m1 explosives.
 */
 
 /*QUAKED item_sulphur (0 0.5 0.8) (-16 -16 -24) (16 16 8)
-"modelname" "models/e4/a_sulphur"
+{ model("models/e4/a_sulphur.dkm"); }
 "episode" "4"
 Sulphur pouch for e4m1 explosives.
 */
@@ -2006,13 +2006,13 @@ Charcoal for e4m1 explosives.
 */
 
 /*QUAKED item_saltpeter (0 0.5 0.8) (-16 -16 -24) (16 16 8)
-"modelname" "models/e4/a_saltp"
+{ model("models/e4/a_saltp.dkm"); }
 "episode" "4"
 Saltpeter for e4m1 explosives.
 */
 
 /*QUAKED item_keycard_cell (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e1/a1_clcrd"
+{ model("models/e1/a1_clcrd.dkm"); }
 "episode" "1"
 "sndkeys" "sound"
 E1 prison cell key
@@ -2025,37 +2025,37 @@ Flags:\n
 */
 
 /*QUAKED item_rune_a (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/c_runea"
+{ model("models/e2/c_runea.dkm"); }
 "episode" "2"
 One of five needed to open the Parthenon gates.
 */
 
 /*QUAKED item_rune_e (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/c_runee"
+{ model("models/e2/c_runee.dkm"); }
 "episode" "2"
 One of five needed to open the Parthenon gates.
 */
 
 /*QUAKED item_rune_g (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/c_runeg"
+{ model("models/e2/c_runeg.dkm"); }
 "episode" "2"
 One of five needed to open the Parthenon gates.
 */
 
 /*QUAKED item_rune_i (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/c_runei"
+{ model("models/e2/c_runei.dkm"); }
 "episode" "2"
 One of five needed to open the Parthenon gates.
 */
 
 /*QUAKED item_rune_s (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e2/c_runes"
+{ model("models/e2/c_runes.dkm"); }
 "episode" "2"
 One of five needed to open the Parthenon gates.
 */
 
 /*QUAKED item_crypt_key (0 0.5 0.8) (-16 -16 0) (16 16 40) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a3_crkey"
+{ model("models/e3/a3_crkey.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 E3 crypt key
@@ -2068,7 +2068,7 @@ Flags:\n
 */
 
 /*QUAKED item_wyndrax_key (0 0.5 0.8) (-16 -16 0) (16 16 40) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a3_ltkey"
+{ model("models/e3/a3_ltkey.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 E3 wyndrax key
@@ -2081,7 +2081,7 @@ Flags:\n
 */
 
 /*QUAKED item_spellbook (0 0.5 0.8) (-16 -16 0) (16 16 40) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a3_bookw"
+{ model("models/e3/a3_bookw.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 E3 wyndrax spell book
@@ -2094,12 +2094,12 @@ Flags:\n
 */
 
 /*QUAKED item_hex_keystone (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a_hex"
+{ model("models/e3/a_hex.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 One of the three keystones needed to
 open the village gates.
-	
+
 Hex keystone
 sound - sound played when the key is used
 Flags:\n
@@ -2110,7 +2110,7 @@ Flags:\n
 */
 
 /*QUAKED item_quad_keystone (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a_quad"
+{ model("models/e3/a_quad.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 One of the three keystones needed to
@@ -2126,7 +2126,7 @@ Flags:\n
 */
 
 /*QUAKED item_trigon_keystone (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e3/a_tri"
+{ model("models/e3/a_tri.dkm"); }
 "episode" "3"
 "sndkeys" "sound"
 One of the three keystones needed to
@@ -2142,7 +2142,7 @@ Flags:\n
 */
 
 /*QUAKED item_control_card_blue (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e4/a4_clcbl"
+{ model("models/e4/a4_clcbl.dkm"); }
 "episode" "4"
 "sndkeys" "sound"
 Blue control card
@@ -2168,7 +2168,7 @@ Flags:\n
 */
 
 /*QUAKED item_control_card_green (0 0.5 0.8) (-16 -16 -16) (16 16 16) USE_ONCE UNLOCK USE_TARGETS
-"modelname" "models/e4/a4_clcgr"
+{ model("models/e4/a4_clcgr.dkm"); }
 "episode" "4"
 "sndkeys" "sound"
 Green control card
@@ -2181,7 +2181,7 @@ Flags:\n
 */
 
 /*QUAKED item_chromatic_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e1/a1_ar2"
+{ model("models/e1/a1_ar2.dkm"); }
 "episode" "1"
 VALUE: 100
 EFFECT: Absorbs 50% damage.
@@ -2190,35 +2190,35 @@ from laser.
 */
 
 /*QUAKED item_plasteel_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e1/a1_ar1"
+{ model("models/e1/a1_ar1.dkm"); }
 "episode" "1"
 VALUE: 200
 EFFECT: Absorbs 75% damage.
 */
 
 /*QUAKED item_silver_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e2/a2_ar1"
+{ model("models/e2/a2_ar1.dkm"); }
 "episode" "2"
 VALUE: 150
 EFFECT: Absorbs 65% damage.
 */
 
 /*QUAKED item_gold_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e2/a2_ar2"
+{ model("models/e2/a2_ar2.dkm"); }
 "episode" "2"
 VALUE: 200
 EFFECT: Absorbs 75% damage.
 */
 
 /*QUAKED item_chainmail_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e3/a3_ar1"
+{ model("models/e3/a3_ar1.dkm"); }
 "episode" "3"
 VALUE: 125
 EFFECT: Absorbs 50% damage.
 */
 
 /*QUAKED item_black_adamant_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e3/a3_ar2"
+{ model("models/e3/a3_ar2.dkm"); }
 "episode" "3"
 VALUE: 250
 EFFECT: Absorbs 80% damage.
@@ -2227,14 +2227,14 @@ from fire.
 */
 
 /*QUAKED item_kevlar_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e4/a4_ar1"
+{ model("models/e4/a4_ar1.dkm"); }
 "episode" "4"
 VALUE: 100%
 EFFECT: Absorbs 40% damage.
 */
 
 /*QUAKED item_ebonite_armor (0 0.5 0.8) (-16 -16 -16) (16 16 16) SUPERFLY MIKIKO
-"modelname" "models/e4/a4_ar2"
+{ model("models/e4/a4_ar2.dkm"); }
 "episode" "4"
 VALUE: 200
 EFFECT: Absorbs 75% damage.
@@ -2248,7 +2248,7 @@ while going in the direction specified by ANGLE, the NPC will
 stop and begin waiting for it's owner to give it a new task.
 Use this trigger along with NPCtrigger_stopwaithere to have an
 NPC wait for the client to complete a difficult area of a map.
- 
+
 Makes superfly and/or Mikiko stop and wait until a new goal is
 given to them, usually by NPCtrigger_stopwaithere.
 angle -    the angle the NPC must be moving to activate the
@@ -2264,7 +2264,7 @@ ANY_DIR  - NPC can trigger from any direction.  USE CAREFULLY.
 /*QUAKED NPCtrigger_stopwaithere (0.5 0.5 0.5) ? ANY_DIR
 Only clients can trigger this.  It will inform all waiting NPCs
 that they should begin following the player again.
- 
+
 angle -    the angle the client must be moving to activate the
            trigger, +/- 45 degrees.
 sfly_msg - message for superfly to say when hitting this trigger
@@ -2343,242 +2343,242 @@ to be set to the choices of WEAPON # flags.
 */
 
 /*QUAKED weapon_daikatana (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/global/a_daikatana"
+{ model("models/global/a_daikatana.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_disruptor (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_tazer"
+{ model("models/e1/a_tazer.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_ionblaster (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_ion"
+{ model("models/e1/a_ion.dkm"); }
 "episode" "1"
 ION blaster thingy
 */
 
 /*QUAKED weapon_shotcycler (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_shot"
+{ model("models/e1/a_shot.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_c4viz  (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_c4"
+{ model("models/e1/a_c4.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_sidewinder (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_swindr"
+{ model("models/e1/a_swindr.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_shockwave (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_shokwv"
+{ model("models/e1/a_shokwv.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_gashands (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e1/a_gashand"
+{ model("models/e1/a_gashand.dkm"); }
 "episode" "1"
 */
 
 /*QUAKED weapon_discus (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_disk"
+{ model("models/e2/a_disk.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_venomous (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_venom"
+{ model("models/e2/a_venom.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_sunflare (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_sflare"
+{ model("models/e2/a_sflare.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_hammer (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_hammer"
+{ model("models/e2/a_hammer.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_trident (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_tri"
+{ model("models/e2/a_tri.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_zeus (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e2/a_zeus"
+{ model("models/e2/a_zeus.dkm"); }
 "episode" "2"
 */
 
 /*QUAKED weapon_silverclaw (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_claw"
+{ model("models/e3/a_claw.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_bolter (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_bolter"
+{ model("models/e3/a_bolter.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_stavros (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_stav"
+{ model("models/e3/a_stav.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_ballista (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_bal"
+{ model("models/e3/a_bal.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_wyndrax (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_wyndrx"
+{ model("models/e3/a_wyndrx.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_nightmare (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e3/a_nmare"
+{ model("models/e3/a_nmare.dkm"); }
 "episode" "3"
 */
 
 /*QUAKED weapon_glock (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_glock"
+{ model("models/e4/a_glock.dkm"); }
 "episode" "4"
 Glock Pistol of Love
 */
 
 /*QUAKED weapon_slugger (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_slugger"
+{ model("models/e4/a_slugger.dkm"); }
 "episode" "4"
 */
 
 /*QUAKED weapon_kineticore (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_kcore"
+{ model("models/e4/a_kcore.dkm"); }
 "episode" "4"
 */
 
 /*QUAKED weapon_ripgun (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_ripgun"
+{ model("models/e4/a_ripgun.dkm"); }
 "episode" "4"
 Pulse Rifle
 */
 
 /*QUAKED weapon_novabeam (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_nova"
+{ model("models/e4/a_nova.dkm"); }
 "episode" "4"
 */
 
 /*QUAKED weapon_metamaser (0 0.5 0.8) (-20 -20 0) (20 20 32) SUPERFLY MIKIKO
-"modelname" "models/e4/a_mmaser"
+{ model("models/e4/a_mmaser.dkm"); }
 "episode" "4"
 */
 
 /*QUAKED ammo_ionpack (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e1/wa_ion"
+{ model("models/e1/wa_ion.dkm"); }
 "episode" "1"
 50 ion cells.
 */
 
 /*QUAKED ammo_c4 (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e1/wa_c4"
+{ model("models/e1/wa_c4.dkm"); }
 "episode" "1"
 8 C4 Modules.
 */
 
 /*QUAKED ammo_shells (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e1/wa_shot6"
+{ model("models/e1/wa_shot6.dkm"); }
 "episode" "1"
 24 shotcycler shells.
 */
 
 /*QUAKED ammo_rockets (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e1/wa_swindr"
+{ model("models/e1/wa_swindr.dkm"); }
 "episode" "1"
 18 rockets.
 */
 
 /*QUAKED ammo_shocksphere (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e1/wa_shokwv"
+{ model("models/e1/wa_shokwv.dkm"); }
 "episode" "1"
 2 ShockSpheres.
 */
 
 /*QUAKED ammo_tritips (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e2/wa_trident"
+{ model("models/e2/wa_trident.dkm"); }
 "episode" "2"
 30 trident tips.
 */
 
 /*QUAKED ammo_venomous (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e2/wa_venom"
+{ model("models/e2/wa_venom.dkm"); }
 "episode" "2"
 25 cobra venom for Venomous.
 */
 
 /*QUAKED ammo_zeus (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e2/wa_zeus"
+{ model("models/e2/wa_zeus.dkm"); }
 "episode" "2"
 1 mystic eye for Zeus.
 */
 
 /*QUAKED ammo_bolts (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e3/wa_bolt"
+{ model("models/e3/wa_bolt.dkm"); }
 "episode" "3"
 50 crossbow bolts.
 */
 
 /*QUAKED ammo_stavros (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e3/wa_stav"
+{ model("models/e3/wa_stav.dkm"); }
 "episode" "3"
 2 lava rocks.
 */
 
 /*QUAKED ammo_ballista (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e3/wa_bal"
+{ model("models/e3/wa_bal.dkm"); }
 "episode" "3"
 10 Ballista logs.
 */
 
 /*QUAKED ammo_wisp (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e3/we_wisp"
+{ model("models/e3/we_wisp.dkm"); }
 "episode" "3"
 Wyndrax ammo.
 */
 
 /*QUAKED ammo_bullets (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_glock"
+{ model("models/e4/wa_glock.dkm"); }
 "episode" "4"
 A loaded magazine for the glock.
 */
 
 /*QUAKED ammo_slugger (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_rip"
+{ model("models/e4/wa_rip.dkm"); }
 "episode" "4"
 15 slugs.
 */
 
 /*QUAKED ammo_cordite (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_rip2"
+{ model("models/e4/wa_rip2.dkm"); }
 "episode" "4"
 4 cordite grenades.
 */
 
 /*QUAKED ammo_kineticore (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_kcore"
+{ model("models/e4/wa_kcore.dkm"); }
 "episode" "4"
 50 freeze things.
 */
 
 /*QUAKED ammo_ripgun (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_slug"
+{ model("models/e4/wa_slug.dkm"); }
 "episode" "4"
 50 Rip-Ups (tm).
 */
 
 /*QUAKED ammo_novabeam (0 0.5 0.8) (-16 -16 0) (16 16 32) SUPERFLY MIKIKO
-"modelname" "models/e4/wa_nova"
+{ model("models/e4/wa_nova.dkm"); }
 "episode" "4"
 50 nova cell units.
 */

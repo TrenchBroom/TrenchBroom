@@ -25,9 +25,14 @@
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "IO/Path.h"
+#include "IO/TextureCollectionLoader.h"
+#include "IO/TextureReader.h"
 #include "Model/GameConfig.h"
 
+#include <memory>
+
 namespace TrenchBroom {
+    class Logger;
     class VariableTable;
 
     namespace Assets {
@@ -42,20 +47,19 @@ namespace TrenchBroom {
         
         class TextureLoader {
         private:
-            const EL::VariableStore* m_variables;
-            const FileSystem& m_gameFS;
-            const IO::Path::List m_fileSearchPaths;
+            using ReaderPtr = std::unique_ptr<TextureReader>;
+            using LoaderPtr = std::unique_ptr<TextureCollectionLoader>;
+
             String m_textureExtension;
-            TextureReader* m_textureReader;
-            TextureCollectionLoader* m_textureCollectionLoader;
+            ReaderPtr m_textureReader;
+            LoaderPtr m_textureCollectionLoader;
         public:
-            TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
-            ~TextureLoader();
+            TextureLoader(const EL::VariableStore& variables, const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
         private:
-            String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig) const;
-            TextureReader* createTextureReader(const Model::GameConfig::TextureConfig& textureConfig) const;
-            Assets::Palette loadPalette(const Model::GameConfig::TextureConfig& textureConfig) const;
-            TextureCollectionLoader* createTextureCollectionLoader(const Model::GameConfig::TextureConfig& textureConfig) const;
+            static String getTextureExtension(const Model::GameConfig::TextureConfig& textureConfig);
+            static ReaderPtr createTextureReader(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            static Assets::Palette loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger);
+            static LoaderPtr createTextureCollectionLoader(const FileSystem& gameFS, const IO::Path::List& fileSearchPaths, const Model::GameConfig::TextureConfig& textureConfig);
         public:
             Assets::TextureCollection* loadTextureCollection(const Path& path);
             void loadTextures(const Path::List& paths, Assets::TextureManager& textureManager);
