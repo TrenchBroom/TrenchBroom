@@ -239,7 +239,7 @@ namespace TrenchBroom {
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
                 throw AssetException() << "Unknown DKM model version: " << version;
 
-            const Vec3f origin = readVec3f(cursor);
+            /* const Vec3f origin = */ readVec3f(cursor);
 
             /*const size_t frameSize =*/ readSize<int32_t>(cursor);
             
