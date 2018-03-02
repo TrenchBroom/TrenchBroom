@@ -79,7 +79,20 @@ namespace TrenchBroom {
                 shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
             }
             
-            const Mat4x4 transform = translationMatrix(box.min) * shearMat * translationMatrix(-box.min);
+            // grab any vertex on side that is opposite the one being sheared.
+            const Vec3 sideOppositeToShearSide = -sideToShear;
+            Vec3 vertOnOppositeSide;
+            bool didGrab = false;
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                if (n == sideOppositeToShearSide) {
+                    vertOnOppositeSide = p0;
+                    didGrab = true;
+                }
+            };
+            eachBBoxFace(box, visitor);
+            assert(didGrab);
+            
+            const Mat4x4 transform = translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Shear Objects", transform, lockTextures));
         }
         
