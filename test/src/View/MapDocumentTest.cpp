@@ -140,6 +140,47 @@ namespace TrenchBroom {
             ASSERT_EQ(brush2ExpectedBounds, brush2->bounds());
         }
         
+        TEST_F(MapDocumentTest, shear) {
+            const BBox3 initialBBox(Vec3(100,100,100), Vec3(200,200,200));
+            
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+            
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+            
+            const std::set<Vec3> initialPositions{
+                // bottom face
+                {100,100,100},
+                {200,100,100},
+                {200,200,100},
+                {100,200,100},
+                // top face
+                {100,100,200},
+                {200,100,200},
+                {200,200,200},
+                {100,200,200},
+            };
+            ASSERT_EQ(initialPositions, SetUtils::makeSet(brush1->vertexPositions()));
+            
+            // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
+            ASSERT_TRUE(document->shearObjects(initialBBox, Vec3::NegY, Vec3(50,0,0)));
+            
+            const std::set<Vec3> shearedPositions{
+                // bottom face
+                {150,100,100},
+                {250,100,100},
+                {200,200,100},
+                {100,200,100},
+                // top face
+                {150,100,200},
+                {250,100,200},
+                {200,200,200},
+                {100,200,200},
+            };
+            ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
+        }
+        
         TEST_F(MapDocumentTest, csgConvexMerge) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
             
