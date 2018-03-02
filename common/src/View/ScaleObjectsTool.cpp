@@ -503,13 +503,27 @@ namespace TrenchBroom {
                     const Vec3 planeAnchor = poly.vertices().front();
                     
                     const FloatType distance = pickRay.intersectWithPlane(side.normal, planeAnchor);
-                    const Vec3 rayHit = pickRay.pointAtDistance(distance);
-                    const Vec3 delta = grid.snap(rayHit - m_dragOrigin);
                     
+                    std::cout << "make shear with dist: " << distance << "\n";
+                    
+                    const Vec3 rayHit = pickRay.pointAtDistance(distance);
+                    
+                    std::cout << "make shear with rayHit: " << rayHit << "\n";
+                    
+                    Vec3 delta = grid.snap(rayHit - m_dragOrigin);                    
+                    if (vertical) {
+                        delta[0] = 0;
+                        delta[1] = 0;
+                    } else {
+                        delta[2] = 0;
+                    }
+                    
+                    std::cout << "make shear with m_dragOrigin: " << m_dragOrigin << "\n";
                     
                     std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
                     if (document->shearObjects(bounds(), side.normal, delta)) {
                         m_totalDelta += faceDelta;
+                        m_dragOrigin += delta;
                     }
                 }
                 
