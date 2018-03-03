@@ -67,13 +67,13 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(!selections.empty());
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
-            IO::Path::List collections = document->enabledTextureCollections();
-            IO::Path::List toRemove;
+            auto collections = document->enabledTextureCollections();
+            decltype(collections) toRemove;
             
             for (size_t i = 0; i < selections.size(); ++i) {
-                const size_t index = static_cast<size_t>(selections[i]);
+                const auto index = static_cast<size_t>(selections[i]);
                 ensure(index < collections.size(), "index out of range");
                 toRemove.push_back(collections[index]);
             }
@@ -89,10 +89,10 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
             
-            MapDocumentSPtr document = lock(m_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
             
-            const size_t index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(selections.front());
             VectorUtils::swapPred(collections, index);
             
             document->setEnabledTextureCollections(collections);
@@ -106,21 +106,28 @@ namespace TrenchBroom {
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
             
-            MapDocumentSPtr document = lock(m_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            auto document = lock(m_document);
+            auto collections = document->enabledTextureCollections();
             
-            const size_t index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(selections.front());
             VectorUtils::swapSucc(collections, index);
             
             document->setEnabledTextureCollections(collections);
             m_collections->SetSelection(static_cast<int>(index + 1));
         }
 
+        void FileTextureCollectionEditor::OnReloadTextureCollectionsClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            document->reloadTextureCollections();
+        }
+
         void FileTextureCollectionEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-                wxArrayInt selections;
-                event.Enable(m_collections->GetSelections(selections) > 0);
+            wxArrayInt selections;
+            event.Enable(m_collections->GetSelections(selections) > 0);
         }
         
         void FileTextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
@@ -133,36 +140,47 @@ namespace TrenchBroom {
         void FileTextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const int collectionCount = static_cast<int>(m_collections->GetCount());
+            const auto collectionCount = static_cast<int>(m_collections->GetCount());
             wxArrayInt selections;
             event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() < collectionCount - 1);
         }
-        
+
+        void FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            event.Enable(!m_collections->IsEmpty());
+        }
+
         void FileTextureCollectionEditor::createGui() {
             m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            wxWindow* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
-            wxWindow* removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
-            wxWindow* moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
-            wxWindow* moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
+            auto* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
+            auto* removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
+            auto* moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
+            auto* moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
+            auto* reloadTextureCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all texture collections");
             
             addTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnAddTextureCollectionsClicked, this);
             removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
             moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
             moveTextureCollectionDownButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnMoveTextureCollectionDownClicked, this);
+            reloadTextureCollectionsButton->Bind(wxEVT_BUTTON, &FileTextureCollectionEditor::OnReloadTextureCollectionsClicked, this);
             removeTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateRemoveButtonUI, this);
             moveTextureCollectionUpButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateMoveUpButtonUI, this);
             moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateMoveDownButtonUI, this);
+            reloadTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &FileTextureCollectionEditor::OnUpdateReloadTextureCollectionsButtonUI, this);
 
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
             buttonSizer->Add(moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(reloadTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            auto* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_collections, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
@@ -172,20 +190,20 @@ namespace TrenchBroom {
         }
         
         void FileTextureCollectionEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
         }
         
         void FileTextureCollectionEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::textureCollectionsDidChange);
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &FileTextureCollectionEditor::preferenceDidChange);
         }
         
@@ -194,7 +212,7 @@ namespace TrenchBroom {
         }
         
         void FileTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->isGamePathPreference(path))
                 updateControls();
         }
@@ -202,8 +220,8 @@ namespace TrenchBroom {
         void FileTextureCollectionEditor::updateControls() {
             m_collections->Clear();
             
-            MapDocumentSPtr document = lock(m_document);
-            for (const IO::Path& path : document->enabledTextureCollections())
+            auto document = lock(m_document);
+            for (const auto& path : document->enabledTextureCollections())
                 m_collections->Append(path.asString());
         }
     }

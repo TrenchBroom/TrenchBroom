@@ -46,9 +46,11 @@ namespace TrenchBroom {
             void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
             void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
             void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
+            void OnReloadTextureCollectionsClicked(wxCommandEvent& event);
             void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
             void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
             void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event);
         private:
             void createGui();
             
