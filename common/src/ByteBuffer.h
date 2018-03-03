@@ -59,6 +59,18 @@ public:
         ensure(actualBuffer != nullptr, "actualBuffer is null");
         return &actualBuffer->front();
     }
+
+    auto begin() const {
+        const InternalBuffer* actualBuffer = m_buffer.get();
+        ensure(actualBuffer != nullptr, "actualBuffer is null");
+        return std::begin(*actualBuffer);
+    }
+
+    auto end() const {
+        const InternalBuffer* actualBuffer = m_buffer.get();
+        ensure(actualBuffer != nullptr, "actualBuffer is null");
+        return std::end(*actualBuffer);
+    }
     
     size_t size() const {
         return m_buffer->size();

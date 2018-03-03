@@ -30,7 +30,8 @@ namespace TrenchBroom {
         class ImageLoader {
         public:
             enum Format {
-                PCX
+                PCX,
+                BMP
             };
             
             enum PixelFormat {
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             ImageLoader(const Format format, const Path& path);
             ImageLoader(const Format format, const char* begin, const char* end);
             ~ImageLoader();
-            
+
             size_t paletteSize() const;
             size_t bitsPerPixel() const;
             size_t width() const;

@@ -81,6 +81,7 @@ namespace TrenchBroom {
             static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
             static Palette loadLmp(IO::MappedFile::Ptr file);
             static Palette loadPcx(IO::MappedFile::Ptr file);
+            static Palette loadBmp(IO::MappedFile::Ptr file);
             static Palette fromRaw(size_t size, const unsigned char* data);
 
             bool initialized() const;

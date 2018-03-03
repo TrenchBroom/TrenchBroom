@@ -22,6 +22,7 @@
 #include "Assets/Palette.h"
 #include "Assets/TextureManager.h"
 #include "EL/Interpolator.h"
+#include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
@@ -64,9 +65,8 @@ namespace TrenchBroom {
         
         Assets::Palette TextureLoader::loadPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             try {
-                const String pathSpec = textureConfig.palette.asString();
-                const String pathStr = EL::interpolate(pathSpec, EL::EvaluationContext(variables));
-                const Path path(pathStr);
+                const Path path = findPalette(variables, gameFS, textureConfig, logger);
+                logger->info("Loading palette file " + path.asString());
                 return Assets::Palette::loadFile(gameFS, path);
             } catch (const Exception& e) {
                 if (logger != nullptr) {
@@ -75,6 +75,25 @@ namespace TrenchBroom {
                     logger->warn(msg.str());
                 }
                 return Assets::Palette();
+            }
+        }
+
+        Path TextureLoader::findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
+            IO::Path path = buildPalettePath(variables, textureConfig.palette, logger);
+            if (path.isEmpty() || !path.isAbsolute() || !gameFS.fileExists(path)) {
+                path = buildPalettePath(variables, textureConfig.palettefallback, logger);
+            }
+            return path;
+        }
+
+        Path TextureLoader::buildPalettePath(const EL::VariableStore& variables, const IO::Path& pathSpec, Logger* logger) {
+            try {
+                return IO::Path(EL::interpolate(pathSpec.asString(), EL::EvaluationContext(variables)));
+            } catch (const Exception& e) {
+                StringStream msg;
+                msg << "Cannot load palette: " << e.what();
+                logger->warn(msg.str());
+                return IO::Path();
             }
         }
 

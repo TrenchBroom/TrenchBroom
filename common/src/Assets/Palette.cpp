@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "IO/CharArrayReader.h"
 #include "IO/FileSystem.h"
+#include "IO/ImageLoader.h"
 
 #include <algorithm>
 #include <cstring>
@@ -56,12 +57,15 @@ namespace TrenchBroom {
             try {
                 auto file = fs.openFile(path);
                 const auto extension = StringUtils::toLower(path.extension());
-                if (extension == "lmp")
+                if (extension == "lmp") {
                     return loadLmp(file);
-                else if (extension == "pcx")
+                } else if (extension == "pcx") {
                     return loadPcx(file);
-                else
+                } else if (extension == "bmp") {
+                    return loadBmp(file);
+                } else {
                     throw AssetException("Could not load palette file '" + path.asString() + "': Unknown palette format");
+                }
             } catch (const FileSystemException& e) {
                 throw AssetException("Could not load palette file '" + path.asString() + "': " + e.what());
             }
@@ -71,7 +75,7 @@ namespace TrenchBroom {
             const auto size = file->size();
             auto data = std::make_unique<unsigned char[]>(size);
 
-            IO::CharArrayReader reader(file->begin(), file->end());
+            IO::CharArrayReader reader(std::begin(*file), std::end(*file));
             reader.read(data.get(), size);
             
             return Palette(size, std::move(data));
@@ -81,10 +85,21 @@ namespace TrenchBroom {
             const auto size = 768;
             auto data = std::make_unique<unsigned char[]>(size);
             
-            IO::CharArrayReader reader(file->begin(), file->end());
+            IO::CharArrayReader reader(std::begin(*file), std::end(*file));
             reader.seekFromEnd(size);
             reader.read(data.get(), size);
             
+            return Palette(size, std::move(data));
+        }
+
+        Palette Palette::loadBmp(IO::MappedFile::Ptr file) {
+            IO::ImageLoader imageLoader(IO::ImageLoader::BMP, std::begin(*file), std::end(*file));
+            const auto& pixels = imageLoader.hasPalette() ? imageLoader.palette() : imageLoader.pixels(IO::ImageLoader::RGB);
+
+            const auto size = pixels.size();
+            auto data = std::make_unique<unsigned char[]>(size);
+            std::copy(std::begin(pixels), std::end(pixels), data.get());
+
             return Palette(size, std::move(data));
         }
 
