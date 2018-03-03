@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         Path TextureLoader::findPalette(const EL::VariableStore& variables, const FileSystem& gameFS, const Model::GameConfig::TextureConfig& textureConfig, Logger* logger) {
             IO::Path path = buildPalettePath(variables, textureConfig.palette, logger);
-            if (path.isEmpty() || !path.isAbsolute() || !gameFS.fileExists(path)) {
+            if (path.isEmpty() || path.isAbsolute() || !gameFS.fileExists(path)) {
                 path = buildPalettePath(variables, textureConfig.palettefallback, logger);
             }
             return path;
