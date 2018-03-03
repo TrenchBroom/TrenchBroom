@@ -53,6 +53,8 @@ namespace TrenchBroom {
 		}
 		
 		void DirectoryTextureCollectionEditor::OnAddTextureCollections(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const auto availableCollections = availableTextureCollections();
             auto enabledCollections = enabledTextureCollections();
             
@@ -71,6 +73,8 @@ namespace TrenchBroom {
         }
         
         void DirectoryTextureCollectionEditor::OnRemoveTextureCollections(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const auto availableCollections = availableTextureCollections();
             auto enabledCollections = enabledTextureCollections();
             
@@ -87,14 +91,31 @@ namespace TrenchBroom {
             document->setEnabledTextureCollections(enabledCollections);
         }
 
+        void DirectoryTextureCollectionEditor::OnReloadTextureCollections(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            auto document = lock(m_document);
+            document->reloadTextureCollections();
+        }
+
         void DirectoryTextureCollectionEditor::OnUpdateAddTextureCollections(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_availableCollectionsList->GetSelections(selections) > 0);
         }
         
         void DirectoryTextureCollectionEditor::OnUpdateRemoveTextureCollections(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_enabledCollectionsList->GetSelections(selections) > 0);
+        }
+
+        void DirectoryTextureCollectionEditor::OnUpdateReloadTextureCollections(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            event.Enable(!m_enabledCollectionsList->IsEmpty());
         }
 
         void DirectoryTextureCollectionEditor::createGui() {
@@ -117,10 +138,13 @@ namespace TrenchBroom {
             
             auto* addCollectionsButton = createBitmapButton(this, "Add.png", "Enable the selected texture collections");
             auto* removeCollectionsButton = createBitmapButton(this, "Remove.png", "Disable the selected texture collections");
+            auto* reloadCollectionsButton = createBitmapButton(this, "Refresh.png", "Reload all enabled texture collections");
             
             auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->Add(removeCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(reloadCollectionsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddStretchSpacer();
             
             auto* sizer = new wxGridBagSizer(0, 0);
@@ -141,8 +165,10 @@ namespace TrenchBroom {
             m_enabledCollectionsList->Bind(wxEVT_LISTBOX_DCLICK, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections, this);
             addCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnAddTextureCollections, this);
             removeCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnRemoveTextureCollections, this);
+            reloadCollectionsButton->Bind(wxEVT_BUTTON, &DirectoryTextureCollectionEditor::OnReloadTextureCollections, this);
             addCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateAddTextureCollections, this);
             removeCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateRemoveTextureCollections, this);
+            reloadCollectionsButton->Bind(wxEVT_UPDATE_UI, &DirectoryTextureCollectionEditor::OnUpdateReloadTextureCollections, this);
         }
         
         void DirectoryTextureCollectionEditor::bindObservers() {
@@ -175,8 +201,9 @@ namespace TrenchBroom {
         
         void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
             auto document = lock(m_document);
-            if (document->isGamePathPreference(path))
+            if (document->isGamePathPreference(path)) {
                 update();
+            }
         }
         
         void DirectoryTextureCollectionEditor::update() {
@@ -196,9 +223,10 @@ namespace TrenchBroom {
             wxArrayString values;
             values.reserve(paths.size());
             
-            for (const auto& path : paths)
+            for (const auto& path : paths) {
                 values.push_back(path.asString());
-            
+            }
+
             box->Set(values);
         }
         

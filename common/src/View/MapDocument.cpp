@@ -1303,6 +1303,17 @@ namespace TrenchBroom {
             submitAndStore(SetTextureCollectionsCommand::set(paths));
         }
 
+        void MapDocument::reloadTextureCollections() {
+            const Model::NodeList nodes(1, m_world);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
+
+            info("Reloading texture collections");
+            unloadTextures();
+            loadTextures();
+            setTextures();
+        }
+
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();

@@ -41,8 +41,10 @@ namespace TrenchBroom {
         private:
             void OnAddTextureCollections(wxCommandEvent& event);
             void OnRemoveTextureCollections(wxCommandEvent& event);
+            void OnReloadTextureCollections(wxCommandEvent& event);
             void OnUpdateAddTextureCollections(wxUpdateUIEvent& event);
             void OnUpdateRemoveTextureCollections(wxUpdateUIEvent& event);
+            void OnUpdateReloadTextureCollections(wxUpdateUIEvent& event);
         private:
             void createGui();
             
