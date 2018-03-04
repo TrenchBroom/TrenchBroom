@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TextureCollection;
         
         typedef Buffer<unsigned char> TextureBuffer;
-        void setMipBufferSize(TextureBuffer::List& buffers, const size_t width, const size_t height);
+        void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height);
         
         class Texture {
         private:

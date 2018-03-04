@@ -19,9 +19,7 @@
 
 #include "WalTextureReader.h"
 
-#include "Color.h"
 #include "StringUtils.h"
-#include "Assets/Texture.h"
 #include "IO/CharArrayReader.h"
 #include "IO/Path.h"
 
@@ -48,10 +46,10 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* WalTextureReader::readQ2Wal(CharArrayReader& reader, const Path& path) const {
-            static const size_t MipLevels = 4;
+            static const size_t MaxMipLevels = 4;
             static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
-            static size_t offsets[MipLevels];
+            static Assets::TextureBuffer::List buffers(MaxMipLevels);
+            static size_t offsets[MaxMipLevels];
 
             assert(m_palette.initialized());
 
@@ -59,29 +57,18 @@ namespace TrenchBroom {
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
 
-            Assets::setMipBufferSize(buffers, width, height);
-
-            for (size_t i = 0; i < MipLevels; ++i)
-                offsets[i] = reader.readSize<uint32_t>();
-
-            for (size_t i = 0; i < MipLevels; ++i) {
-                reader.seekFromBegin(offsets[i]);
-                const size_t size = mipSize(width, height, i);
-                const char* data = reader.cur<char>();
-
-                m_palette.indexedToRgb(data, size, buffers[i], tempColor);
-                if (i == 0)
-                    averageColor = tempColor;
-            }
+            const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
+            Assets::setMipBufferSize(buffers, mipLevels, width, height);
+            readMips(mipLevels, offsets, width, height, reader, buffers, averageColor);
 
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
         }
 
         Assets::Texture* WalTextureReader::readDkWal(CharArrayReader& reader, const Path& path) const {
-            static const size_t MipLevels = 9;
+            static const size_t MaxMipLevels = 9;
             static Color tempColor, averageColor;
-            static Assets::TextureBuffer::List buffers(MipLevels);
-            static size_t offsets[MipLevels];
+            static Assets::TextureBuffer::List buffers(MaxMipLevels);
+            static size_t offsets[MaxMipLevels];
 
             const char version = reader.readChar<char>();
             ensure(version == 3, "Unknown WAL texture version");
@@ -92,10 +79,8 @@ namespace TrenchBroom {
             const auto width = reader.readSize<uint32_t>();
             const auto height = reader.readSize<uint32_t>();
 
-            Assets::setMipBufferSize(buffers, width, height);
-
-            for (size_t i = 0; i < MipLevels; ++i)
-                offsets[i] = reader.readSize<uint32_t>();
+            const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
+            Assets::setMipBufferSize(buffers, mipLevels, width, height);
 
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
@@ -104,28 +89,39 @@ namespace TrenchBroom {
                 m_palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
             }
 
-            size_t curWidth = width;
-            size_t curHeight = height;
-            for (size_t i = 0; i < MipLevels; ++i) {
+            readMips(mipLevels, offsets, width, height, reader, buffers, averageColor);
+
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+        }
+
+        size_t WalTextureReader::readMipOffsets(const size_t maxMipLevels, size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader) const {
+            size_t mipLevels = 0;
+            for (size_t i = 0; i < maxMipLevels; ++i) {
+                offsets[i] = reader.readSize<uint32_t>();
+                ++mipLevels;
+                if (width / (1 << i) == 1 || height / (1 << i) == 1) {
+                    break;
+                }
+            }
+            return mipLevels;
+        }
+
+        void WalTextureReader::readMips(const size_t mipLevels, const size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor) const {
+            static Color tempColor;
+
+            for (size_t i = 0; i < mipLevels; ++i) {
                 const auto offset = offsets[i];
                 reader.seekFromBegin(offset);
+                const auto curWidth = width / (1 << i);
+                const auto curHeight = height / (1 << i);
                 const auto size = curWidth * curHeight;
                 const auto* data = reader.cur<char>();
 
                 m_palette.indexedToRgb(data, size, buffers[i], tempColor);
-                if (i == 0)
+                if (i == 0) {
                     averageColor = tempColor;
-
-                // stop loading once we have loaded a mip of width or height 1
-                if (curWidth == 1 || curHeight == 1) {
-                    break;
-                } else {
-                    curWidth  /= 2;
-                    curHeight /= 2;
                 }
             }
-
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
         }
     }
 }

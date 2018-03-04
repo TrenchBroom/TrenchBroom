@@ -214,11 +214,9 @@ namespace TrenchBroom {
             const AttributableNodeVariableStore variables(node);
             const IO::Path::List paths = extractTextureCollections(node);
 
-            if (!paths.empty()) {
-                const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
-                IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
-                textureLoader.loadTextures(paths, textureManager);
-            }
+            const IO::Path::List fileSearchPaths = textureCollectionSearchPaths(documentPath);
+            IO::TextureLoader textureLoader(variables, m_gameFS, fileSearchPaths, m_config.textureConfig(), logger);
+            textureLoader.loadTextures(paths, textureManager);
         }
 
         IO::Path::List GameImpl::textureCollectionSearchPaths(const IO::Path& documentPath) const {

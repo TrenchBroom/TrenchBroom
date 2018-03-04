@@ -58,7 +58,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < MipLevels; ++i)
                 offset[i] = reader.readSize<int32_t>();
             
-            Assets::setMipBufferSize(buffers, width, height);
+            Assets::setMipBufferSize(buffers, MipLevels, width, height);
             Assets::Palette palette = doGetPalette(reader, offset, width, height);
             
             for (size_t i = 0; i < MipLevels; ++i) {

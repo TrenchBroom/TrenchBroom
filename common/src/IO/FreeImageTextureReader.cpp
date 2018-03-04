@@ -46,7 +46,7 @@ namespace TrenchBroom {
             const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
 
             Assets::TextureBuffer::List buffers(4);
-            Assets::setMipBufferSize(buffers, imageWidth, imageHeight);
+            Assets::setMipBufferSize(buffers, 4, imageWidth, imageHeight);
 
             // TODO: Alpha channel seems to be unsupported by the Texture class
             if (imageColourType != FIC_RGB) {

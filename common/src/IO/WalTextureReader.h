@@ -20,8 +20,10 @@
 #ifndef IdWalTextureReader_h
 #define IdWalTextureReader_h
 
+#include "Color.h"
 #include "IO/TextureReader.h"
 #include "Assets/Palette.h"
+#include "Assets/Texture.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -37,6 +39,8 @@ namespace TrenchBroom {
             Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
             Assets::Texture* readQ2Wal(CharArrayReader& reader, const Path& path) const;
             Assets::Texture* readDkWal(CharArrayReader& reader, const Path& path) const;
+            size_t readMipOffsets(size_t maxMipLevels, size_t offsets[], size_t width, size_t height, CharArrayReader& reader) const;
+            void readMips(size_t mipLevels, const size_t offsets[], size_t width, size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor) const;
         };
     }
 }
