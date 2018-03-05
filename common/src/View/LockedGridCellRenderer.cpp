@@ -45,8 +45,7 @@ namespace TrenchBroom {
 				const wxBrush oldBrush = dc.GetBackground();
 				if (isSelected) {
 					dc.SetBackground(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
-				}
-				else {
+				} else {
 					dc.SetBackground(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
 				}
 				dc.DrawRectangle(wxRect(parentRect.GetRight(), parentRect.GetY(), m_image.GetWidth(), parentRect.GetHeight()));
