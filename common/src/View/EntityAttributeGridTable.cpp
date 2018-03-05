@@ -302,8 +302,7 @@ namespace TrenchBroom {
         m_document(document),
         m_rows(),
         m_ignoreUpdates(false),
-        m_showDefaultRows(true),
-        m_readonlyCellColor(wxColor(224, 224, 224)) {}
+        m_showDefaultRows(true) {}
         
         int EntityAttributeGridTable::GetNumberRows() {
             return static_cast<int>(m_rows.totalRowCount());
@@ -449,7 +448,7 @@ namespace TrenchBroom {
                 } else {
                     if (!m_rows.nameMutable(rowIndex)) {
                         attr->SetReadOnly(true);
-                        attr->SetBackgroundColour(m_readonlyCellColor);
+                        // attr->SetBackgroundColour(m_readonlyCellColor);
                     }
                 }
             } else if (col == 1) {
@@ -458,7 +457,7 @@ namespace TrenchBroom {
                 }
                 if (!m_rows.valueMutable(rowIndex)) {
                     attr->SetReadOnly(true);
-                    attr->SetBackgroundColour(m_readonlyCellColor);
+                    // attr->SetBackgroundColour(m_readonlyCellColor);
                 }
                 if (m_rows.multi(rowIndex)) {
                     attr->SetTextColour(*wxLIGHT_GREY);
