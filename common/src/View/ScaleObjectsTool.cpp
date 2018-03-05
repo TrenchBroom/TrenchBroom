@@ -247,6 +247,32 @@ namespace TrenchBroom {
                 }
             }
 
+            // select back faces
+            if (localPickResult.empty()) {
+                
+                FloatType closest = std::numeric_limits<FloatType>::max();
+                Vec3 bestNormal;
+                
+                auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                    if (n.dot(pickRay.direction) > 0.0) {
+                        // the face is pointing away from the camera
+                        
+                        const std::array<Vec3, 4> points{p0, p1, p2, p3};
+                        for (size_t i = 0; i < 4; i++) {
+                            const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
+                            if (!Math::isnan(result.distance) && result.distance < closest) {
+                                closest = result.distance;
+                                bestNormal = n;
+                            }
+                        }
+                    }
+                };
+                eachBBoxFace(myBounds, visitor);
+                
+                assert(bestNormal != Vec3::Null);
+                localPickResult.addHit(Model::Hit(ScaleToolFaceHit, closest, pickRay.pointAtDistance(closest), BBoxSide{bestNormal}));
+            }
+            
             auto hit = localPickResult.query().first();
 
 #if 0
