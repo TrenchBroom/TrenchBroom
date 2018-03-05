@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
+#include "View/LockedGridCellRenderer.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -447,8 +448,8 @@ namespace TrenchBroom {
                     attr->SetReadOnly();
                 } else {
                     if (!m_rows.nameMutable(rowIndex)) {
-                        attr->SetReadOnly(true);
-                        // attr->SetBackgroundColour(m_readonlyCellColor);
+                        attr->SetReadOnly();
+                        attr->SetRenderer(new LockedGridCellRenderer());
                     }
                 }
             } else if (col == 1) {
@@ -456,8 +457,8 @@ namespace TrenchBroom {
                     attr->SetFont(GetView()->GetFont());
                 }
                 if (!m_rows.valueMutable(rowIndex)) {
-                    attr->SetReadOnly(true);
-                    // attr->SetBackgroundColour(m_readonlyCellColor);
+                    attr->SetReadOnly();
+                    attr->SetRenderer(new LockedGridCellRenderer());
                 }
                 if (m_rows.multi(rowIndex)) {
                     attr->SetTextColour(*wxLIGHT_GREY);
