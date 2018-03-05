@@ -14,16 +14,12 @@
       - VC++ 2015.3 v140 toolset for desktop (x86,x64)
       - Windows XP support for C++
 
-    - Get the binary build of wxWidgets 3 for your platform from
-      [http://www.wxwidgets.org](http://www.wxwidgets.org)
+    - Download the following wxWidgets binary packages:
+        - [wxWidgets-3.1.1-headers.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z)
+        - [wxMSW-3.1.1_vc140_Dev.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_Dev.7z)
+        - [wxMSW-3.1.1_vc140_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleaseDLL.7z)
+        - [wxMSW-3.1.1_vc140_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleasePDB.7z)
 
-    - For 32bit builds, you need the following files:
-        If you are using a different version of Visual Studio, you will have to download other binaries, e.g., `wxMSW-<version>-vc140_Dev.7z` etc. and you will also have to use different directory names instead of vc140_dll below.
-        - `wxWidgets-<version>_headers.7z`
-        - `wxMSW-<version>_vc140_Dev.7z`
-        - `wxMSW-<version>_vc140_ReleaseDLL.7z`
-        - `wxMSW-<version>_vc140_ReleasePDB.7z`
-        
     - Unpack all files into `c:\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
     - The directory layout should look like this:
 
@@ -60,30 +56,6 @@
 
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
 
-- For MinGW 64
-  - Download and install [MinGW](http://mingw-w64.sourceforge.net/)
-    - Scroll down to Mingw-builds and select the appropriate version for your OS (32 or 64 Bit), then select the SJLJ variant.
-    - Add `<MinGW installation dir>/bin` to your path.
-  - Download wxWidgets source (for DOS / Windows) from [http://www.wxwidgets.org/](http://www.wxwidgets.org/)
-    - Unpack the sources somewhere to `C:\wxWidgets-3.0.0`
-  - Build wxWidgets
-    - Open a command prompt and cd into `C:\wxWidgets-3.0.0\build\msw`
-    - Run these commands
-
-      ```
-      mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=release clean
-      mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=release
-      mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=debug clean
-      mingw32-make -f makefile.gcc SHARED=1 UNICODE=1 OPENGL=1 BUILD=debug
-      ```
-
-  - Set a new environment variable `WXWIN=C:\wxWidgets-<version>` (replace the path with the path where you unpacked wxWidgets).
-  - If you want to run the binaries without using the installer, add `%WXWIN%\lib\gc_dll` to your path. The relevant parts of my `PATH` variable look something like this:
-
-    ```
-    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\gcc_dll;
-    ```
-
 ## Linux
 ### Dependencies
 Compiling wxWidgets 3 requires the following dependencies. You should install them using the packager of your Linux distribution.
@@ -104,16 +76,10 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 ### wxWidgets
-- Currently you must download, patch, and build wxWidgets yourself.
-  - Get the latest sources of wxWidgets 3 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
+- Currently you must download and build wxWidgets yourself.
+  - Get the latest sources of wxWidgets 3.1 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
-  - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
-
-    ```
-    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
-    ```
-
   - Create two directories: `build-release` and `build-debug` (don't rename those!)
   - Change into `wxwidgets/build-release`
   - Run 
@@ -194,15 +160,9 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
       ```
 
 3. wxWidgets
-    - Get the latest sources of wxWidgets 3 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
+    - Get the latest sources of wxWidgets 3.1 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
     - Move the unpacked directory someplace where you want to keep it.
     - Open a terminal and change into the wxwidgets directory.
-    - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
-
-      ```
-      patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
-      ```
-
     - Create two directories: `build-release` and `build-debug` (don't rename those!)
     - Change into `wxwidgets/build-release`
     - Run
