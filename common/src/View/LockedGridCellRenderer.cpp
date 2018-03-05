@@ -22,6 +22,7 @@
 #include "IO/ResourceUtils.h"
 
 #include <wx/bitmap.h>
+#include <wx/dc.h>
 #include <wx/settings.h>
 
 #include <algorithm>
