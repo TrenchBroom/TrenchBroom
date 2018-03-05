@@ -1,18 +1,18 @@
 version: 2.0.0-appveyor-{build}
 install:
 - cinst pandoc
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0-headers.7z' -OutFile 'headers.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_Dev.7z' -OutFile 'dev.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_ReleaseDLL.7z' -OutFile 'dll.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_ReleasePDB.7z' -OutFile 'pdb.7z'
-- ps: if ("c1b33a1e9c245b76031461b8cdc1fea8f6c68904" -ne (Get-FileHash -Path "headers.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("23813ed6625253abf1465e9730f0a1cbf0b0da00" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("30394ed5b8fad0307c6dc1c12c47b8bd53214e87" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("89912076136882dcec79eba8e27a111cbdaf20be" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
-- ps: 7z x headers.7z -oc:\wxWidgets-3.1.0
-- ps: 7z x dev.7z -oc:\wxWidgets-3.1.0
-- ps: 7z x dll.7z -oc:\wxWidgets-3.1.0
-- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.0
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z' -OutFile 'headers.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_Dev.7z' -OutFile 'dev.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleaseDLL.7z' -OutFile 'dll.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleasePDB.7z' -OutFile 'pdb.7z'
+- ps: if ("fc2fece046792772d4a05946de1b3a8cc8c69733" -ne (Get-FileHash -Path "headers.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("53bd51281fa9bbb9ce9389164c2f45792482bc83" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("9d0ed3988f43d9b4c32e0fd18863878a6bde6b7f" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("e5451c6b557693435e03d6c2d4576965e5c88b79" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
+- ps: 7z x headers.7z -oc:\wxWidgets-3.1.1
+- ps: 7z x dev.7z -oc:\wxWidgets-3.1.1
+- ps: 7z x dll.7z -oc:\wxWidgets-3.1.1
+- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.1
 clone_depth: 50
 build_script:
 - cmd: call appveyor.bat

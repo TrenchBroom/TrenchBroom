@@ -28,7 +28,7 @@
     - The directory layout should look like this:
 
       ```
-      wxWidgets-3.1.0
+      wxWidgets-3.1.1
         \include
             \msvc
             \wx
@@ -43,7 +43,7 @@
     - If you want to run the binaries without using the installer, add `%WXWIN%\lib\vc140_dll` to your path. The relevant parts of my `PATH` variable look something like this:
 
       ```
-      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.0\lib\vc140_dll;
+      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.1\lib\vc140_dll;
       ```
 
   - Download and install [CMake](http://www.cmake.org) for Windows
