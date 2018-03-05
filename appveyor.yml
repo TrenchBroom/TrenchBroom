@@ -9,10 +9,10 @@ install:
 - ps: if ("53bd51281fa9bbb9ce9389164c2f45792482bc83" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
 - ps: if ("9d0ed3988f43d9b4c32e0fd18863878a6bde6b7f" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
 - ps: if ("e5451c6b557693435e03d6c2d4576965e5c88b79" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
-- ps: 7z x headers.7z -oc:\wxWidgets-3.1.1
-- ps: 7z x dev.7z -oc:\wxWidgets-3.1.1
-- ps: 7z x dll.7z -oc:\wxWidgets-3.1.1
-- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.1
+- ps: 7z x headers.7z -oc:\wxWidgets-3.1.1 -aoa
+- ps: 7z x dev.7z -oc:\wxWidgets-3.1.1 -aoa
+- ps: 7z x dll.7z -oc:\wxWidgets-3.1.1 -aoa
+- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.1 -aoa
 clone_depth: 50
 build_script:
 - cmd: call appveyor.bat
