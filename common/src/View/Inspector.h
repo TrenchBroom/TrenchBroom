@@ -43,6 +43,7 @@ namespace TrenchBroom {
                 InspectorPage_Entity = 1,
                 InspectorPage_Face = 2
             } InspectorPage;
+
         private:
             TabBook* m_tabBook;
             MapInspector* m_mapInspector;
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             void connectTopWidgets(wxWindow* master);
             void switchToPage(InspectorPage page);
+            bool cancelMouseDrag();
         private:
             void OnTopWidgetSize(wxSizeEvent& event);
         };

@@ -48,6 +48,8 @@ namespace TrenchBroom {
         public:
             FaceInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 
+            bool cancelMouseDrag();
+        private:
             void OnTextureSelected(TextureSelectedCommand& event);
         private:
             void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
