@@ -21,7 +21,6 @@
 
 #include "IO/ResourceUtils.h"
 
-#include <wx/bitmap.h>
 #include <wx/dc.h>
 #include <wx/settings.h>
 
@@ -43,13 +42,15 @@ namespace TrenchBroom {
                 const wxRect parentRect(rect.x, rect.y, rect.GetWidth() - m_image.GetWidth(), rect.GetHeight());
                 wxGridCellStringRenderer::Draw(grid, attr, dc, parentRect, row, col, isSelected);
 
-                if (isSelected) {
-                    const wxBrush oldBrush = dc.GetBackground();
-                    const wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-                    dc.SetBackground(wxBrush(background));
-                    dc.DrawRectangle(wxRect(parentRect.GetRight(), parentRect.GetY(), m_image.GetWidth(), parentRect.GetHeight()));
-                    dc.SetBackground(oldBrush);
-                }
+				const wxBrush oldBrush = dc.GetBackground();
+				if (isSelected) {
+					dc.SetBackground(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
+				}
+				else {
+					dc.SetBackground(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX)));
+				}
+				dc.DrawRectangle(wxRect(parentRect.GetRight(), parentRect.GetY(), m_image.GetWidth(), parentRect.GetHeight()));
+				dc.SetBackground(oldBrush);
 
                 const int y = parentRect.y + (parentRect.GetHeight() - m_image.GetHeight()) / 2;
                 dc.DrawBitmap(m_image, parentRect.GetRight(), y);

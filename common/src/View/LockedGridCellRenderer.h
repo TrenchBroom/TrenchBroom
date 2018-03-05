@@ -20,9 +20,9 @@
 #ifndef TRENCHBROOM_LOCKEDGRIDCELLRENDERER_H
 #define TRENCHBROOM_LOCKEDGRIDCELLRENDERER_H
 
+#include <wx/bitmap.h>
 #include <wx/grid.h>
 
-class wxBitmap;
 
 namespace TrenchBroom {
     namespace View {
