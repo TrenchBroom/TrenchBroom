@@ -1,6 +1,6 @@
-PATH=%PATH%;c:\wxWidgets-3.1.0\lib\vc140_dll
+PATH=%PATH%;c:\wxWidgets-3.1.1\lib\vc140_dll
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
-SET WXWIN="c:\wxWidgets-3.1.0"
+SET WXWIN="c:\wxWidgets-3.1.1"
 
 mkdir cmakebuild
 cd cmakebuild
