@@ -78,6 +78,13 @@ namespace TrenchBroom {
                     moveCursorTo(row + 1, 0);
             }
         }
+        
+        void EntityAttributeGrid::setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col) {
+            if (IsBeingDeleted()) return;
+            
+            m_lastSelectedName = name;
+            m_lastSelectedCol = col;
+        }
 
         void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
             tabNavigate(event.GetRow(), event.GetCol(), !event.ShiftDown());
@@ -295,7 +302,13 @@ namespace TrenchBroom {
                 if (event.GetKeyCode() == WXK_TAB) {
                     // HACK: Consume tab key and use it for cell navigation.
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
-                    m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
+                    
+                    // First, close the cell editor
+                    m_grid->gridWindow()->DisableCellEditControl();
+                    
+                    // Closing the editor might reorder the cells (#2094), so m_row/m_col are no longer valid.
+                    // Ask the wxGrid for the cursor row/column.
+                    m_grid->tabNavigate(m_grid->gridWindow()->GetGridCursorRow(), m_grid->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
                 } else if (event.GetKeyCode() == WXK_RETURN && m_col == 1) {
                     // HACK: (#1976) Make the next call to EndEdit return true unconditionally
                     // so it's possible to press enter to apply a value to all entites in a selection
@@ -347,6 +360,15 @@ namespace TrenchBroom {
                 } else {
                     return superclassDidChange;
                 }
+            }
+            
+            void ApplyEdit(int row, int col, wxGrid* grid) override {
+                if (col == 0) {
+                    // Hack to preserve selection when renaming a key (#2094)
+                    const auto newName = GetValue().ToStdString();
+                    m_grid->setLastSelectedNameAndColumn(newName, col);
+                }
+                wxGridCellTextEditor::ApplyEdit(row, col, grid);
             }
         };
         
