@@ -44,13 +44,16 @@ namespace TrenchBroom {
         public:
             UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
 
+            bool cancelMouseDrag();
+        private:
             void OnResetTexture(wxCommandEvent& event);
             void OnFlipTextureH(wxCommandEvent& event);
             void OnFlipTextureV(wxCommandEvent& event);
             void OnRotateTextureCCW(wxCommandEvent& event);
             void OnRotateTextureCW(wxCommandEvent& event);
+
             void OnUpdateButtonUI(wxUpdateUIEvent& event);
-            
+
             void OnSubDivisionChanged(wxSpinEvent& event);
         private:
             void createGui(GLContextManager& contextManager);

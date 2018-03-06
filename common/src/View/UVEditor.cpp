@@ -42,56 +42,60 @@ namespace TrenchBroom {
             createGui(contextManager);
         }
 
+        bool UVEditor::cancelMouseDrag() {
+            return m_uvView->cancelDrag();
+        }
+
         void UVEditor::OnResetTexture(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.resetAll();
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
         }
-        
+
         void UVEditor::OnFlipTextureH(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulXScale(-1.0f);
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
         }
-        
+
         void UVEditor::OnFlipTextureV(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulYScale(-1.0f);
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
         }
-        
+
         void UVEditor::OnRotateTextureCCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(90.0f);
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
         }
-        
+
         void UVEditor::OnRotateTextureCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(-90.0f);
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
         }
-        
+
         void UVEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -106,7 +110,7 @@ namespace TrenchBroom {
             const int y = m_ySubDivisionEditor->GetValue();
             m_uvView->setSubDivisions(Vec2i(x, y));
         }
-        
+
         void UVEditor::createGui(GLContextManager& contextManager) {
             m_uvView = new UVView(this, m_document, contextManager);
             

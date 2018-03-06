@@ -3347,5 +3347,91 @@ namespace TrenchBroom {
             ASSERT_TRUE(pipe->intersects(cube));
             ASSERT_TRUE(cube->intersects(pipe));
         }
+
+        TEST(BrushTest, removeVertexWithCorrectTextures) {
+            // see https://github.com/kduske/TrenchBroom/issues/2082
+
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Valve, nullptr, worldBounds);
+
+            const String data = R"(
+{
+( 32 -32 -0 ) ( -16 -32 -0 ) ( -16 -32 32 ) *04water1 [ -1 0 0 -0.941193 ] [ 0 0 -1 -0 ] 125.468 1 1
+( -16 -32 32 ) ( -16 -32 -0 ) ( -32 -16 -0 ) *04mwat2 [ -1 0 0 -0.941193 ] [ 0 0 -1 -0 ] 125.468 1 1
+( 32 32 -0 ) ( 32 -32 -0 ) ( 32 -32 32 ) *04water2 [ -2.22045e-16 -1 0 -24.9412 ] [ 0 0 -1 -0 ] 125.468 1 1
+( 32 -32 32 ) ( -16 -32 32 ) ( 32 -0 64 ) *teleport [ 0 0 -1 -0 ] [ 1 0 0 0.999969 ] 270 1 1
+( 32 -0 64 ) ( -16 -32 32 ) ( -32 -16 32 ) *slime1 [ 0 -1 -2.22045e-16 -0 ] [ 1 0 0 0.999969 ] 270 1 1
+( 32 32 -0 ) ( -16 32 -0 ) ( -32 -16 -0 ) *lava1 [ 1 0 0 -0 ] [ 0 -1 0 0.999998 ] -0 1 1
+( 32 -0 64 ) ( -16 32 32 ) ( 32 32 32 ) *slime [ 0 -1 2.22045e-16 -0 ] [ 1 0 0 0.999969 ] 270 1 1
+( 32 32 32 ) ( -16 32 32 ) ( -16 32 -0 ) *04awater1 [ 0.894427 -0.447214 0 18.9966 ] [ 0 0 -1 -0 ] -0 1 1
+( -16 32 -0 ) ( -16 32 32 ) ( -32 -16 32 ) *04mwat1 [ -2.22045e-16 1 0 39.0588 ] [ 0 0 -1 -0 ] 125.468 1 1
+( -32 -16 32 ) ( -16 32 32 ) ( 32 -0 64 ) *slime0 [ -2.43359e-08 -1 0 0.999985 ] [ -1 2.43359e-08 0 -0 ] 90 1 1
+}
+)";
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, &world);
+
+            NodeList nodes = reader.read(worldBounds, status);
+            ASSERT_EQ(1, nodes.size());
+
+            Brush* brush = static_cast<Brush*>(nodes.front());
+
+            const Vec3 p1  ( 32.0,  32.0,   0.0);
+            const Vec3 p2  (-16.0,  32.0,   0.0);
+            const Vec3 p3  (-32.0, -16.0,   0.0);
+            const Vec3 p4  (-16.0, -32.0,   0.0);
+            const Vec3 p5  ( 32.0, -32.0,   0.0);
+
+            const Vec3 p6  ( 32.0,  32.0,  32.0);
+            const Vec3 p7  (-16.0,  32.0,  32.0); // this vertex will be deleted
+            const Vec3 p8  (-32.0, -16.0,  32.0);
+            const Vec3 p9  (-16.0, -32.0,  32.0);
+            const Vec3 p10 ( 32.0, -32.0,  32.0);
+
+            const Vec3 p11 ( 32.0,   0.0,  64.0);
+
+            // Make sure that the faces have the textures we expect before the vertex is deleted.
+
+            // side faces
+            assertTexture("*04awater1", brush,  Vec3d::List { p1,  p2,  p7,  p6 });
+            assertTexture("*04mwat1",   brush,  Vec3d::List { p2,  p3,  p8,  p7 });
+            assertTexture("*04mwat2",   brush,  Vec3d::List { p3,  p4,  p9,  p8 });
+            assertTexture("*04water1",  brush,  Vec3d::List { p4,  p5, p10,  p9 });
+            assertTexture("*04water2",  brush,  Vec3d::List { p5,  p1,  p6, p11, p10 });
+
+            // bottom face
+            assertTexture("*lava1",    brush,  Vec3d::List { p5,  p4,  p3,  p2,  p1 });
+
+            // top faces
+            assertTexture("*slime",    brush,  Vec3d::List { p6,  p7, p11 });
+            assertTexture("*slime0",   brush,  Vec3d::List { p7,  p8, p11 });
+            assertTexture("*slime1",   brush,  Vec3d::List { p8,  p9, p11 });
+            assertTexture("*teleport", brush,  Vec3d::List { p9, p10, p11 });
+
+            // delete the vertex
+            ASSERT_TRUE(brush->canRemoveVertices(worldBounds, Vec3d::List { p7 }));
+            brush->removeVertices(worldBounds, Vec3d::List { p7 });
+
+            // assert the structure and textures
+
+            // side faces
+            assertTexture("*04awater1", brush,  Vec3d::List { p1,  p2,  p6 });
+            assertTexture("*04mwat1",   brush,  Vec3d::List { p2,  p3,  p8 });
+            assertTexture("*04mwat2",   brush,  Vec3d::List { p3,  p4,  p9,  p8 });
+            assertTexture("*04water1",  brush,  Vec3d::List { p4,  p5, p10,  p9 });
+            assertTexture("*04water2",  brush,  Vec3d::List { p5,  p1,  p6, p11, p10 });
+
+            // bottom face
+            assertTexture("*lava1",     brush,  Vec3d::List { p5,  p4,  p3,  p2,  p1 });
+
+            // top faces
+            assertTexture("*slime", brush,  Vec3d::List { p6,  p2, p11 });
+            assertTexture("*slime0",   brush,  Vec3d::List { p2,  p8, p11 });
+            assertTexture("*slime1",    brush,  Vec3d::List { p8,  p9, p11 }); // failure, becomes *slime0
+            assertTexture("*teleport",  brush,  Vec3d::List { p9, p10, p11 });
+
+            delete brush;
+        }
     }
 }

@@ -47,7 +47,11 @@ namespace TrenchBroom {
             createGui(document, contextManager);
             bindEvents();
         }
-        
+
+        bool FaceInspector::cancelMouseDrag() {
+            return m_faceAttribsEditor->cancelMouseDrag();
+        }
+
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
             if (IsBeingDeleted()) return;
 

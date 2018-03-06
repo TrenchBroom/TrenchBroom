@@ -803,7 +803,7 @@ namespace TrenchBroom {
             Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectUnselected);
             
-            Model::CollectTransitivelySelectedNodesVisitor collectSelected;
+            Model::CollectSelectedNodesVisitor collectSelected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectSelected);
 
             Transaction transaction(this, "Isolate Objects");
@@ -812,12 +812,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::hide(const Model::NodeList nodes) {
-            Model::CollectTransitivelySelectedNodesVisitor collect;
+            Model::CollectSelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
             
             const Transaction transaction(this, "Hide Objects");
             deselect(collect.nodes());
-            submitAndStore(SetVisibilityCommand::hide(collect.nodes()));
+            submitAndStore(SetVisibilityCommand::hide(nodes));
         }
         
         void MapDocument::hideSelection() {
