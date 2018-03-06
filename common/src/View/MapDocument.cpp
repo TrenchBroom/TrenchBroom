@@ -803,7 +803,7 @@ namespace TrenchBroom {
             Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectUnselected);
             
-            Model::CollectTransitivelySelectedNodesVisitor collectSelected;
+            Model::CollectSelectedNodesVisitor collectSelected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectSelected);
 
             Transaction transaction(this, "Isolate Objects");
@@ -812,12 +812,12 @@ namespace TrenchBroom {
         }
         
         void MapDocument::hide(const Model::NodeList nodes) {
-            Model::CollectTransitivelySelectedNodesVisitor collect;
+            Model::CollectSelectedNodesVisitor collect;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
             
             const Transaction transaction(this, "Hide Objects");
             deselect(collect.nodes());
-            submitAndStore(SetVisibilityCommand::hide(collect.nodes()));
+            submitAndStore(SetVisibilityCommand::hide(nodes));
         }
         
         void MapDocument::hideSelection() {
@@ -1313,6 +1313,17 @@ namespace TrenchBroom {
         
         void MapDocument::setEnabledTextureCollections(const IO::Path::List& paths) {
             submitAndStore(SetTextureCollectionsCommand::set(paths));
+        }
+
+        void MapDocument::reloadTextureCollections() {
+            const Model::NodeList nodes(1, m_world);
+            Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier0::NotifyAfter notifyTextureCollections(textureCollectionsDidChangeNotifier);
+
+            info("Reloading texture collections");
+            unloadTextures();
+            loadTextures();
+            setTextures();
         }
 
         void MapDocument::loadAssets() {

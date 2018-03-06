@@ -71,6 +71,10 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
+        bool FaceAttribsEditor::cancelMouseDrag() {
+            return m_uvEditor->cancelMouseDrag();
+        }
+
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -79,12 +83,12 @@ namespace TrenchBroom {
                 request.addXOffset(static_cast<float>(event.GetValue()));
             else
                 request.setXOffset(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
-        
+
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -93,12 +97,12 @@ namespace TrenchBroom {
                 request.addYOffset(static_cast<float>(event.GetValue()));
             else
                 request.setYOffset(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
-        
+
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -107,12 +111,12 @@ namespace TrenchBroom {
                 request.addRotation(static_cast<float>(event.GetValue()));
             else
                 request.setRotation(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
-        
+
         void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -121,7 +125,7 @@ namespace TrenchBroom {
                 request.addXScale(static_cast<float>(event.GetValue()));
             else
                 request.setXScale(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
@@ -135,12 +139,12 @@ namespace TrenchBroom {
                 request.addYScale(static_cast<float>(event.GetValue()));
             else
                 request.setYScale(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
         }
-        
+
         void FaceAttribsEditor::OnSurfaceFlagChanged(FlagChangedCommand& command) {
             if (IsBeingDeleted()) return;
 
@@ -149,12 +153,12 @@ namespace TrenchBroom {
                 request.setSurfaceFlag(command.index());
             else
                 request.unsetSurfaceFlag(command.index());
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request))
                 command.Veto();
         }
-        
+
         void FaceAttribsEditor::OnContentFlagChanged(FlagChangedCommand& command) {
             if (IsBeingDeleted()) return;
 
@@ -163,7 +167,7 @@ namespace TrenchBroom {
                 request.setContentFlag(command.index());
             else
                 request.unsetContentFlag(command.index());
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request))
                 command.Veto();
@@ -177,7 +181,7 @@ namespace TrenchBroom {
                 request.addSurfaceValue(static_cast<float>(event.GetValue()));
             else
                 request.setSurfaceValue(static_cast<float>(event.GetValue()));
-            
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setFaceAttributes(request) || event.IsSpin())
                 event.Veto();
@@ -188,7 +192,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
-            
+
             m_xOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_yOffsetEditor->SetIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
             m_rotationEditor->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);

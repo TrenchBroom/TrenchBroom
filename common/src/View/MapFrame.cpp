@@ -1711,7 +1711,7 @@ namespace TrenchBroom {
             if (textCtrl != nullptr) {
                 textCtrl->Undo();
             } else {
-                if (!m_mapView->cancelMouseDrag()) {
+                if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
                     m_document->undoLastCommand();
                 }
             }

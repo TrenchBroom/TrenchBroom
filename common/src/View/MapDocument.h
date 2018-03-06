@@ -374,6 +374,7 @@ namespace TrenchBroom {
             IO::Path::List enabledTextureCollections() const;
             IO::Path::List availableTextureCollections() const;
             void setEnabledTextureCollections(const IO::Path::List& paths);
+            void reloadTextureCollections();
         private:
             void loadAssets();
             void unloadAssets();

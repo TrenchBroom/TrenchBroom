@@ -59,6 +59,10 @@ namespace TrenchBroom {
             m_tabBook->switchToPage(static_cast<size_t>(page));
         }
 
+        bool Inspector::cancelMouseDrag() {
+            return m_faceInspector->cancelMouseDrag();
+        }
+
         void Inspector::OnTopWidgetSize(wxSizeEvent& event) {
             if (IsBeingDeleted()) return;
             m_tabBook->setTabBarHeight(event.GetSize().y);
