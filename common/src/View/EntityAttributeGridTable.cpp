@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
+#include "View/LockedGridCellRenderer.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -302,8 +303,7 @@ namespace TrenchBroom {
         m_document(document),
         m_rows(),
         m_ignoreUpdates(false),
-        m_showDefaultRows(true),
-        m_readonlyCellColor(wxColor(224, 224, 224)) {}
+        m_showDefaultRows(true) {}
         
         int EntityAttributeGridTable::GetNumberRows() {
             return static_cast<int>(m_rows.totalRowCount());
@@ -448,8 +448,8 @@ namespace TrenchBroom {
                     attr->SetReadOnly();
                 } else {
                     if (!m_rows.nameMutable(rowIndex)) {
-                        attr->SetReadOnly(true);
-                        attr->SetBackgroundColour(m_readonlyCellColor);
+                        attr->SetReadOnly();
+                        attr->SetRenderer(new LockedGridCellRenderer());
                     }
                 }
             } else if (col == 1) {
@@ -457,8 +457,8 @@ namespace TrenchBroom {
                     attr->SetFont(GetView()->GetFont());
                 }
                 if (!m_rows.valueMutable(rowIndex)) {
-                    attr->SetReadOnly(true);
-                    attr->SetBackgroundColour(m_readonlyCellColor);
+                    attr->SetReadOnly();
+                    attr->SetRenderer(new LockedGridCellRenderer());
                 }
                 if (m_rows.multi(rowIndex)) {
                     attr->SetTextColour(*wxLIGHT_GREY);

@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void OnAttributeGridTab(wxGridEvent& event);
         public:
             void tabNavigate(int row, int col, bool forward);
+            void setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col);
         private:
             void moveCursorTo(int row, int col);
             void fireSelectionEvent(int row, int col);
