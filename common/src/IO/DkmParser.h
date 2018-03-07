@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Md2Model.h"
+#include "IO/WalTextureReader.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
@@ -39,9 +40,9 @@ namespace TrenchBroom {
         class Path;
         
         namespace DkmLayout {
-            static const int Ident = (('2'<<24) + ('P'<<16) + ('D'<<8) + 'I');
-            static const int Version1 = 8;
-            static const int Version2 = 8;
+            static const int Ident = (('D'<<24) + ('M'<<16) + ('K'<<8) + 'D');
+            static const int Version1 = 1;
+            static const int Version2 = 2;
             static const size_t SkinNameLength = 64;
             static const size_t FrameNameLength = 16;
         }
@@ -108,10 +109,11 @@ namespace TrenchBroom {
             String m_name;
             const char* m_begin;
             /* const char* m_end; */
-            const Assets::Palette& m_palette;
             const FileSystem& m_fs;
+
+            const WalTextureReader m_textureReader;
         public:
-            DkmParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
+            DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel() override;
             DkmSkinList parseSkins(const char* begin, size_t skinCount);

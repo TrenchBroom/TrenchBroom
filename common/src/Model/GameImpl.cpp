@@ -24,6 +24,7 @@
 #include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
+#include "IO/DkmParser.h"
 #include "IO/DkPakFileSystem.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
@@ -351,13 +352,17 @@ namespace TrenchBroom {
                 const String extension = StringUtils::toLower(path.extension());
                 const StringSet supported = m_config.entityConfig().modelFormats;
 
-                if (extension == "mdl" && supported.count("mdl") > 0)
+                if (extension == "mdl" && supported.count("mdl") > 0) {
                     return loadMdlModel(modelName, file);
-                if (extension == "md2" && supported.count("md2") > 0)
+                } else if (extension == "md2" && supported.count("md2") > 0) {
                     return loadMd2Model(modelName, file);
-                if (extension == "bsp" && supported.count("bsp") > 0)
+                } else if (extension == "bsp" && supported.count("bsp") > 0) {
                     return loadBspModel(modelName, file);
-                throw GameException("Unsupported model format '" + path.asString() + "'");
+                } else if (extension == "dkm" && supported.count("dkm") > 0) {
+                    return loadDkmModel(modelName, file);
+                } else {
+                    throw GameException("Unsupported model format '" + path.asString() + "'");
+                }
             } catch (FileSystemException& e) {
                 throw GameException("Cannot load model: " + String(e.what()));
             }
@@ -381,6 +386,11 @@ namespace TrenchBroom {
             const Assets::Palette palette = loadTexturePalette();
 
             IO::Md2Parser parser(name, file->begin(), file->end(), palette, m_gameFS);
+            return parser.parseModel();
+        }
+
+        Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
+            IO::DkmParser parser(name, file->begin(), file->end(), m_gameFS);
             return parser.parseModel();
         }
 

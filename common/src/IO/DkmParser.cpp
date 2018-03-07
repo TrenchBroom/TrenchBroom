@@ -221,12 +221,12 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        DkmParser::DkmParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
+        DkmParser::DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
-        m_palette(palette),
-        m_fs(fs) {}
+        m_fs(fs),
+        m_textureReader(TextureReader::TextureNameStrategy()) {}
         
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* DkmParser::doParseModel() {
@@ -316,19 +316,21 @@ namespace TrenchBroom {
             DkmMeshList meshes;
             
             const char* cursor = begin;
-            const char* end = begin + commandCount * 4;
-            while (cursor < end) {
-                DkmMesh mesh(readInt<int32_t>(cursor));
+            auto vertexCount = readInt<int32_t>(cursor);
+            while (vertexCount != 0) {
+                const auto g1 = readInt<int32_t>(cursor); // no idea
+                const auto g2 = readInt<int32_t>(cursor); // no idea
+                
+                DkmMesh mesh(vertexCount);
                 for (size_t i = 0; i < mesh.vertexCount; ++i) {
-                    assert(cursor < end);
+                    mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor); // reversed in DKM
                     mesh.vertices[i].texCoords[0] = readFloat<float>(cursor);
                     mesh.vertices[i].texCoords[1] = readFloat<float>(cursor);
-                    mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor);
                 }
                 meshes.push_back(mesh);
+                vertexCount = readInt<int32_t>(cursor);
             }
-            assert(cursor == end);
-            
+        
             return meshes;
         }
 
@@ -354,16 +356,8 @@ namespace TrenchBroom {
         
         Assets::Texture* DkmParser::readTexture(const DkmSkin& skin) {
             const Path skinPath(String(skin.name));
-            MappedFile::Ptr file = m_fs.openFile(skinPath);
-            
-            Color avgColor;
-            const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
-            
-            const Buffer<unsigned char>& indices = image.indices();
-            Buffer<unsigned char> rgbImage(indices.size() * 3);
-            m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
-            
-            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
+            const auto file = m_fs.openFile(skinPath);
+            return m_textureReader.readTexture(file);
         }
 
         Assets::Md2Model::FrameList DkmParser::buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes) {
