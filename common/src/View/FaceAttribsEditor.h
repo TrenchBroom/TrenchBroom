@@ -67,7 +67,9 @@ namespace TrenchBroom {
         public:
             FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~FaceAttribsEditor();
-            
+
+            bool cancelMouseDrag();
+        private:
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
             void OnRotationChanged(SpinControlEvent& event);

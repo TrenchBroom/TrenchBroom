@@ -29,17 +29,17 @@
 template <typename L, typename R, typename Cmp_L = std::less<L>, typename Cmp_R = std::less<R> >
 class relation {
 private:
-    typedef std::set<L, Cmp_L> left_set;
-    typedef std::set<R, Cmp_R> right_set;
-    typedef std::map<L, right_set, Cmp_L> left_right_map;
-    typedef std::map<R, left_set, Cmp_R> right_left_map;
+    using left_set = std::set<L, Cmp_L>;
+    using right_set = std::set<R, Cmp_R>;
+    using left_right_map =  std::map<L, right_set, Cmp_L>;
+    using right_left_map = std::map<R, left_set, Cmp_R>;
 public:
-    typedef typename left_set::const_iterator const_left_iterator;
-    typedef typename right_set::const_iterator const_right_iterator;
-    typedef std::pair<const_left_iterator, const_left_iterator> const_left_range;
-    typedef std::pair<const_right_iterator, const_right_iterator> const_right_range;
+    using const_left_iterator = typename left_set::const_iterator;
+    using const_right_iterator = typename right_set::const_iterator;
+    using const_left_range = std::pair<const_left_iterator, const_left_iterator>;
+    using const_right_range = std::pair<const_right_iterator, const_right_iterator>;
 public:
-    typedef std::pair<L, R> pair_type;
+    using pair_type = std::pair<L, R>;
 private:
     template <typename left_iter, typename right_iter>
     class iterator_base : public std::iterator<std::forward_iterator_tag, pair_type> {
@@ -81,8 +81,8 @@ private:
         pair_type operator*() const {
             assert(has_more() && !is_at_right_end());
             
-            const L& left = m_left->first;
-            const R& right = *m_right;
+            const auto& left = m_left->first;
+            const auto& right = *m_right;
             
             return std::make_pair(left, right);
         }
@@ -131,7 +131,7 @@ private:
         }
     };
 public:
-    typedef iterator_base<typename left_right_map::const_iterator, const_right_iterator> const_iterator;
+    using const_iterator = iterator_base<typename left_right_map::const_iterator, const_right_iterator>;
 private:
     left_right_map m_left_right_map;
     right_left_map m_right_left_map;
@@ -148,11 +148,11 @@ public:
         typename left_right_map::const_iterator o_lr_it = std::begin(other.m_left_right_map);
         typename left_right_map::const_iterator o_lr_end = std::end(other.m_left_right_map);
         while (o_lr_it != o_lr_end) {
-            const L& l = o_lr_it->first;
-            const right_set& o_r = o_lr_it->second;
+            const auto& l = o_lr_it->first;
+            const auto& o_r = o_lr_it->second;
             
-            right_set& m_r = find_or_insert_right(l);
-            const size_t m_r_s = m_r.size();
+            auto& m_r = find_or_insert_right(l);
+            const auto m_r_s = m_r.size();
             
             m_r.insert(std::begin(o_r), std::end(o_r));
             m_size += (m_r.size() - m_r_s);
@@ -163,9 +163,9 @@ public:
         typename right_left_map::const_iterator o_rl_it = std::begin(other.m_right_left_map);
         typename right_left_map::const_iterator o_rl_end = std::end(other.m_right_left_map);
         while (o_rl_it != o_rl_end) {
-            const R& r = o_rl_it->first;
-            const left_set& o_l = o_rl_it->second;
-            left_set& m_l = find_or_insert_left(r);
+            const auto& r = o_rl_it->first;
+            const auto& o_l = o_rl_it->second;
+            auto& m_l = find_or_insert_left(r);
             m_l.insert(std::begin(o_l), std::end(o_l));
             ++o_rl_it;
         }
@@ -178,12 +178,12 @@ public:
     
     template <typename I>
     void insert(const L& l, I r_cur, I r_end) {
-        typename left_right_map::iterator lrIt = m_left_right_map.find(l);
+        auto lrIt = m_left_right_map.find(l);
         if (lrIt == std::end(m_left_right_map))
             lrIt = m_left_right_map.insert(std::make_pair(l, right_set())).first;
         
         while (r_cur != r_end) {
-            const R& r = *r_cur;
+            const auto& r = *r_cur;
             if (lrIt->second.insert(r).second) {
                 insert_right_to_left(l, r);
                 ++m_size;
@@ -199,12 +199,12 @@ public:
     
     template <typename I>
     void insert(I l_cur, I l_end, const R& r) {
-        typename right_left_map::iterator rlIt = m_right_left_map.find(r);
+        auto rlIt = m_right_left_map.find(r);
         if (rlIt == std::end(m_right_left_map))
             rlIt = m_right_left_map.insert(std::make_pair(r, left_set())).first;
         
         while (l_cur != l_end) {
-            const L& l = *l_cur;
+            const auto& l = *l_cur;
             if (rlIt->second.insert(l).second) {
                 insert_left_to_right(l, r);
                 ++m_size;
@@ -230,16 +230,16 @@ private:
     }
 public:
     bool erase(const L& l, const R& r) {
-        typename left_right_map::iterator lrIt = m_left_right_map.find(l);
+        auto lrIt = m_left_right_map.find(l);
         if (lrIt == std::end(m_left_right_map))
             return false;
         
-        right_set& right = lrIt->second;
+        auto& right = lrIt->second;
         if (right.erase(r) > 0) {
-            typename right_left_map::iterator rlIt = m_right_left_map.find(r);
+            auto rlIt = m_right_left_map.find(r);
             assert(rlIt != std::end(m_right_left_map));
             
-            left_set& left = rlIt->second;
+            auto& left = rlIt->second;
             assertResult(left.erase(l) > 0);
             --m_size;
             
@@ -263,7 +263,7 @@ public:
         return m_size;
     }
     
-    bool contains(const L& l, const R& r) {
+    bool contains(const L& l, const R& r) const {
         return find_right(l).count(r) > 0;
     }
     
@@ -284,7 +284,7 @@ public:
     }
     
     const_left_range left_range(const R& r) const {
-        const left_set& left = find_left(r);
+        const auto& left = find_left(r);
         return std::make_pair(std::begin(left), std::end(left));
     }
     
@@ -297,7 +297,7 @@ public:
     }
     
     const_right_range right_range(const L& l) const {
-        const right_set& right = find_right(l);
+        const auto& right = find_right(l);
         return std::make_pair(std::begin(right), std::end(right));
     }
     
@@ -312,7 +312,7 @@ private:
     const left_set& find_left(const R& r) const {
         static const left_set EMPTY_LEFT_SET;
         
-        typename right_left_map::const_iterator rlIt = m_right_left_map.find(r);
+        auto rlIt = m_right_left_map.find(r);
         if (rlIt == std::end(m_right_left_map))
             return EMPTY_LEFT_SET;
         return rlIt->second;
@@ -321,21 +321,21 @@ private:
     const right_set& find_right(const L& l) const {
         static const right_set EMPTY_RIGHT_SET;
         
-        typename left_right_map::const_iterator lrIt = m_left_right_map.find(l);
+        auto lrIt = m_left_right_map.find(l);
         if (lrIt == std::end(m_left_right_map))
             return EMPTY_RIGHT_SET;
         return lrIt->second;
     }
 private:
     left_set& find_or_insert_left(const R& r) {
-        typename right_left_map::iterator rlIt = m_right_left_map.find(r);
+        auto rlIt = m_right_left_map.find(r);
         if (rlIt == std::end(m_right_left_map))
             rlIt = m_right_left_map.insert(std::make_pair(r, left_set())).first;
         return rlIt->second;
     }
     
     right_set& find_or_insert_right(const L& l) {
-        typename left_right_map::iterator lrIt = m_left_right_map.find(l);
+        auto lrIt = m_left_right_map.find(l);
         if (lrIt == std::end(m_left_right_map))
             lrIt = m_left_right_map.insert(std::make_pair(l, right_set())).first;
         return lrIt->second;
