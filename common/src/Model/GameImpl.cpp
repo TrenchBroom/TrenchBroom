@@ -364,7 +364,7 @@ namespace TrenchBroom {
                     throw GameException("Unsupported model format '" + path.asString() + "'");
                 }
             } catch (FileSystemException& e) {
-                throw GameException("Cannot load model: " + String(e.what()));
+                throw GameException("Cannot load model " + path.asString() + ": " + String(e.what()));
             }
         }
 

@@ -28,6 +28,7 @@
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
+#include "IO/SkinLoader.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/Vertex.h"
@@ -225,8 +226,7 @@ namespace TrenchBroom {
         m_name(name),
         m_begin(begin),
         /* m_end(end), */
-        m_fs(fs),
-        m_textureReader(TextureReader::TextureNameStrategy()) {}
+        m_fs(fs) {}
         
         // http://tfc.duke.free.fr/old/models/md2.htm
         Assets::EntityModel* DkmParser::doParseModel() {
@@ -318,8 +318,8 @@ namespace TrenchBroom {
             const char* cursor = begin;
             auto vertexCount = readInt<int32_t>(cursor);
             while (vertexCount != 0) {
-                const auto g1 = readInt<int32_t>(cursor); // no idea
-                const auto g2 = readInt<int32_t>(cursor); // no idea
+                readInt<int32_t>(cursor); // no idea
+                readInt<int32_t>(cursor); // no idea
                 
                 DkmMesh mesh(vertexCount);
                 for (size_t i = 0; i < mesh.vertexCount; ++i) {
@@ -357,7 +357,7 @@ namespace TrenchBroom {
         Assets::Texture* DkmParser::readTexture(const DkmSkin& skin) {
             const Path skinPath(String(skin.name));
             const auto file = m_fs.openFile(skinPath);
-            return m_textureReader.readTexture(file);
+            return loadSkin(file);
         }
 
         Assets::Md2Model::FrameList DkmParser::buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes) {

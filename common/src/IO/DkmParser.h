@@ -24,7 +24,6 @@
 #include "VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Md2Model.h"
-#include "IO/WalTextureReader.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
@@ -34,7 +33,7 @@ namespace TrenchBroom {
         class EntityModel;
         class Palette;
     }
-    
+
     namespace IO {
         class FileSystem;
         class Path;
@@ -110,8 +109,6 @@ namespace TrenchBroom {
             const char* m_begin;
             /* const char* m_end; */
             const FileSystem& m_fs;
-
-            const WalTextureReader m_textureReader;
         public:
             DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
         private:
