@@ -357,6 +357,12 @@ namespace TrenchBroom {
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
+        static void checkTextureLockWithShear(const BrushFace *origFace) {
+            // shear the x axis towards the y axis
+            Mat4x4 xform = shearMatrix(1, 0, 0, 0, 0, 0);
+            checkTextureLockOnWithTransform(xform, origFace);
+        }
+        
         static void checkTextureLockForFace(const BrushFace *origFace, bool doParallelTests) {
             checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
             checkTextureLockWithSingleAxisRotations(origFace, 30);
@@ -366,6 +372,8 @@ namespace TrenchBroom {
             if (doParallelTests) {
                 checkTextureLockWithMultiAxisRotations(origFace, 30);
                 checkTextureLockWithMultiAxisRotations(origFace, 45);
+                
+                checkTextureLockWithShear(origFace);
             }
             
             checkTextureLockOffWithTranslation(origFace);
