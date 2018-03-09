@@ -161,25 +161,34 @@ namespace TrenchBroom {
             assert(!oldInvariantTechCoords.nan());
             
             // compute the new texture axes
-            const Vec3 offset = effectiveTransformation * Vec3::Null;
-            m_xAxis           = effectiveTransformation * m_xAxis - offset;
-            m_yAxis           = effectiveTransformation * m_yAxis - offset;
+            const Mat4x4 worldToTexSpace = toMatrix(Vec2(0, 0), Vec2(1, 1));
+            
+            // The formula for texturing is:
+            //
+            //     uv = worldToTexSpace * point
+            //
+            // We want to find a new worldToTexSpace matrix, ?, such that
+            // transformed points have the same uv coords as they did
+            // without the transform, with the old worldToTexSpace matrix:
+            //
+            //     uv = ? * transform * point
+            //
+            // The solution for ? is (worldToTexSpace * transform_inverse)
+            const Mat4x4 newWorldToTexSpace = worldToTexSpace * invertedMatrix(effectiveTransformation);
+            
+            // extract the new m_xAxis and m_yAxis from newWorldToTexSpace.
+            // note, the matrix is in column major format.
+            for (size_t i=0; i<3; i++) {
+                m_xAxis[i] = newWorldToTexSpace[i][0];
+                m_yAxis[i] = newWorldToTexSpace[i][1];
+            }
             assert(!m_xAxis.nan());
             assert(!m_yAxis.nan());
-            
-            // transfer the vector lengths to the scale attribute, then reset the vectors to length 1
-            const double transformedXAxisLength = m_xAxis.length();
-            const double transformedYAxisLength = m_yAxis.length();
-            
-            m_xAxis.normalize();
-            m_yAxis.normalize();
-            
-            attribs.setScale(attribs.scale() * Vec2(transformedXAxisLength, transformedYAxisLength));
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = effectiveTransformation * oldInvariant;
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
-            
+
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
