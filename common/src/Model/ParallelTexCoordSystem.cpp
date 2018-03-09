@@ -167,6 +167,15 @@ namespace TrenchBroom {
             assert(!m_xAxis.nan());
             assert(!m_yAxis.nan());
             
+            // transfer the vector lengths to the scale attribute, then reset the vectors to length 1
+            const double transformedXAxisLength = m_xAxis.length();
+            const double transformedYAxisLength = m_yAxis.length();
+            
+            m_xAxis.normalize();
+            m_yAxis.normalize();
+            
+            attribs.setScale(attribs.scale() * Vec2(transformedXAxisLength, transformedYAxisLength));
+            
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = effectiveTransformation * oldInvariant;
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
@@ -179,12 +188,12 @@ namespace TrenchBroom {
         }
 
         float ParallelTexCoordSystem::computeTextureAngle(const Plane3& oldBoundary, const Mat4x4& transformation) const {
-            const Mat4x4& rotation = stripTranslation(transformation);
+            const Mat4x4& rotationScale = stripTranslation(transformation);
             const Vec3& oldNormal = oldBoundary.normal;
-            const Vec3  newNormal = rotation * oldNormal;
+            const Vec3  newNormal = (rotationScale * oldNormal).normalized();
 
-            const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotation);
-            const Vec3 newXAxis = (rotation * m_xAxis).normalized();
+            const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
+            const Vec3 newXAxis = (rotationScale * m_xAxis).normalized();
             const Vec3 nonXAxis = (nonRotation * m_xAxis).normalized();
             const FloatType angle = Math::degrees(angleBetween(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);

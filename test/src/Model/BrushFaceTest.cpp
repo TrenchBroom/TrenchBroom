@@ -352,6 +352,11 @@ namespace TrenchBroom {
             checkTextureLockOffWithTransform(xform, origFace);
         }
         
+        static void checkTextureLockWithScale(const BrushFace *origFace, const Vec3& scaleFactors) {
+            Mat4x4 xform = scalingMatrix(scaleFactors);
+            checkTextureLockOnWithTransform(xform, origFace);
+        }
+        
         static void checkTextureLockForFace(const BrushFace *origFace, bool doParallelTests) {
             checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
             checkTextureLockWithSingleAxisRotations(origFace, 30);
@@ -364,6 +369,8 @@ namespace TrenchBroom {
             }
             
             checkTextureLockOffWithTranslation(origFace);
+            
+            checkTextureLockWithScale(origFace, Vec3(2, 2, 1));
         }
         
         /**
