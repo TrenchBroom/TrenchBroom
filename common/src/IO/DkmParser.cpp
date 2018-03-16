@@ -366,6 +366,11 @@ namespace TrenchBroom {
             return loadSkin(file);
         }
 
+        /**
+         * Daikatana's models contain wrong skin paths. They often refer to a skin like "x/y.bmp" which does
+         * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
+         * a matching file name by disregarding the extension.
+         */
         const IO::Path DkmParser::findTexture(const DkmSkin& skin) const {
             const Path skinPath(String(skin.name));
             if (m_fs.fileExists(skinPath)) {

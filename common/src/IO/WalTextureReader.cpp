@@ -103,6 +103,10 @@ namespace TrenchBroom {
                     break;
                 }
             }
+
+            // make sure the reader position is correct afterwards
+            reader.seekForward((maxMipLevels - mipLevels) * sizeof(uint32_t));
+
             return mipLevels;
         }
 

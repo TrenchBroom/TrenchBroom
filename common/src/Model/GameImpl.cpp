@@ -391,9 +391,6 @@ namespace TrenchBroom {
 
         Assets::EntityModel* GameImpl::loadDkmModel(const String& name, const IO::MappedFile::Ptr& file) const {
             IO::DkmParser parser(name, file->begin(), file->end(), m_gameFS);
-            if (name == "m_cyclops.dkm") {
-                bool b = true;
-            }
             return parser.parseModel();
         }
 
