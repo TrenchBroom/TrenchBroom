@@ -205,6 +205,8 @@ namespace TrenchBroom {
         vertices(vertexCount) {}
 
         Vec3f DkmParser::DkmFrame::vertex(const size_t index) const {
+            assert(index < vertices.size());
+            
             const DkmVertex& vertex = vertices[index];
             const Vec3f position(static_cast<float>(vertex.x),
                                  static_cast<float>(vertex.y),
@@ -213,6 +215,8 @@ namespace TrenchBroom {
         }
 
         const Vec3f& DkmParser::DkmFrame::normal(const size_t index) const {
+            assert(index < vertices.size());
+            
             const DkmVertex& vertex = vertices[index];
             return Normals[vertex.normalIndex];
         }
@@ -297,13 +301,13 @@ namespace TrenchBroom {
 
                     /* Version 2 vertices are packed into a 32bit integer
                      * X occupies the first 11 bits
-                     * Y occupies the following 11 bits
-                     * Z occupies the following 10 bits
+                     * Y occupies the following 10 bits
+                     * Z occupies the following 11 bits
                      */
                     for (size_t j = 0; j < frameVertexCount; ++j) {
-                        frames[i].vertices[j].x = (packedVertices[j].xyz & 0x7FF);
+                        frames[i].vertices[j].x = (packedVertices[j].xyz & 0xFFE00000) >> 21;
                         frames[i].vertices[j].y = (packedVertices[j].xyz & 0x1FF800) >> 11;
-                        frames[i].vertices[j].z = (packedVertices[j].xyz & 0xFFE00000) >> 21;
+                        frames[i].vertices[j].z = (packedVertices[j].xyz & 0x7FF);
                         frames[i].vertices[j].normalIndex = packedVertices[j].normalIndex;
                     }
                 }
@@ -318,12 +322,13 @@ namespace TrenchBroom {
             const char* cursor = begin;
             auto vertexCount = readInt<int32_t>(cursor);
             while (vertexCount != 0) {
-                readInt<int32_t>(cursor); // no idea
-                readInt<int32_t>(cursor); // no idea
+                /* const int skinIndex    = */ readInt<int32_t>(cursor);
+                /* const int surfaceIndex = */ readInt<int32_t>(cursor);
                 
                 DkmMesh mesh(vertexCount);
                 for (size_t i = 0; i < mesh.vertexCount; ++i) {
-                    mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor); // reversed in DKM
+                    mesh.vertices[i].vertexIndex = readSize<int32_t>(cursor); // index before texcoords in DKM
+
                     mesh.vertices[i].texCoords[0] = readFloat<float>(cursor);
                     mesh.vertices[i].texCoords[1] = readFloat<float>(cursor);
                 }
@@ -345,8 +350,9 @@ namespace TrenchBroom {
             textures.reserve(skins.size());
             
             try {
-                for (const DkmSkin& skin : skins)
+                for (const DkmSkin& skin : skins) {
                     textures.push_back(readTexture(skin));
+                }
                 return textures;
             } catch (...) {
                 VectorUtils::clearAndDelete(textures);
@@ -355,17 +361,34 @@ namespace TrenchBroom {
         }
         
         Assets::Texture* DkmParser::readTexture(const DkmSkin& skin) {
-            const Path skinPath(String(skin.name));
+            const auto skinPath = findTexture(skin);
             const auto file = m_fs.openFile(skinPath);
             return loadSkin(file);
+        }
+
+        const IO::Path DkmParser::findTexture(const DkmSkin& skin) const {
+            const Path skinPath(String(skin.name));
+            if (m_fs.fileExists(skinPath)) {
+                return skinPath;
+            } else {
+                const auto folder = skinPath.deleteLastComponent();
+                const auto basename = skinPath.lastComponent().deleteExtension();
+                const auto items = m_fs.findItems(folder, FileNameMatcher(basename.addExtension("*").asString()));
+                if (items.size() == 1) {
+                    return items.front();
+                } else {
+                    return skinPath;
+                }
+            }
         }
 
         Assets::Md2Model::FrameList DkmParser::buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes) {
             Assets::Md2Model::FrameList modelFrames;
             modelFrames.reserve(frames.size());
             
-            for (const DkmFrame& frame : frames)
+            for (const DkmFrame& frame : frames) {
                 modelFrames.push_back(buildFrame(frame, meshes));
+            }
             return modelFrames;
         }
 

@@ -61,15 +61,18 @@ namespace TrenchBroom {
                 unsigned char normalIndex;
             };
 
+#pragma pack(push, 1)
             struct DkmVertex2 {
                 uint32_t xyz;
                 unsigned char normalIndex;
             };
+#pragma pack(pop)
 
             struct DkmVertex {
                 unsigned int x, y, z;
                 unsigned char normalIndex;
             };
+
             typedef std::vector<DkmVertex> DkmVertexList;
             
             struct DkmFrame {
@@ -119,6 +122,7 @@ namespace TrenchBroom {
             Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
             Assets::TextureList loadTextures(const DkmSkinList& skins);
             Assets::Texture* readTexture(const DkmSkin& skin);
+            const IO::Path findTexture(const DkmSkin& skin) const;
             Assets::Md2Model::FrameList buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes);
             Assets::Md2Model::Frame* buildFrame(const DkmFrame& frame, const DkmMeshList& meshes);
             Assets::Md2Model::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
