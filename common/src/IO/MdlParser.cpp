@@ -259,27 +259,18 @@ namespace TrenchBroom {
                     model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
-                    const char* base = cursor;
-                    
-                    Assets::TextureList textures(pictureCount);
-                    Assets::MdlTimeList times(pictureCount);
-                    
-                    for (size_t j = 0; j < pictureCount; ++j) {
-                        cursor = base + j * sizeof(float);
-                        times[j] = readFloat<float>(cursor);
-                        
-                        Buffer<unsigned char> rgbImage(size * 3);
-                        cursor = base + pictureCount * 4 + j * size;
-                        m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
-                        cursor += size;
 
-                        textureName.str();
-                        textureName << m_name << "_" << i << "_" << j;
+                    Buffer<unsigned char> rgbImage(size * 3);
+                    cursor += pictureCount * 4;
 
-                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
-                    }
-                    
-                    model.addSkin(new Assets::MdlSkin(textures, times));
+                    m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                    cursor += size;
+
+                    textureName.str();
+                    textureName << m_name << "_" << i;
+
+                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
+                    model.addSkin(new Assets::MdlSkin(texture));
                 }
             }
         }
