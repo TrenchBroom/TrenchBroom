@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "Assets/Texture.h"
-#include "Assets/Md2Model.h"
 #include "Assets/Palette.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
@@ -340,30 +339,20 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* DkmParser::buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes) {
-            const Assets::TextureList modelTextures = loadTextures(skins);
-            const Assets::Md2Model::FrameList modelFrames = buildFrames(frames, meshes);
-            return new Assets::Md2Model(m_name, modelTextures, modelFrames);
+            using ModelPtr = std::unique_ptr<Assets::DefaultEntityModel>;
+            ModelPtr model = std::make_unique<Assets::DefaultEntityModel>(m_name);
+
+            loadSkins(model.get(), skins);
+            buildFrames(model.get(), frames, meshes);
+
+            return model.release();
         }
 
-        Assets::TextureList DkmParser::loadTextures(const DkmSkinList& skins) {
-            Assets::TextureList textures;
-            textures.reserve(skins.size());
-            
-            try {
-                for (const DkmSkin& skin : skins) {
-                    textures.push_back(readTexture(skin));
-                }
-                return textures;
-            } catch (...) {
-                VectorUtils::clearAndDelete(textures);
-                throw;
+        void DkmParser::loadSkins(Assets::DefaultEntityModel* model, const DkmParser::DkmSkinList& skins) {
+            for (const auto& skin : skins) {
+                const auto skinPath = findSkin(skin);
+                model->addSkin(loadSkin(m_fs.openFile(skinPath)));
             }
-        }
-        
-        Assets::Texture* DkmParser::readTexture(const DkmSkin& skin) {
-            const auto skinPath = findTexture(skin);
-            const auto file = m_fs.openFile(skinPath);
-            return loadSkin(file);
         }
 
         /**
@@ -371,7 +360,7 @@ namespace TrenchBroom {
          * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
          * a matching file name by disregarding the extension.
          */
-        const IO::Path DkmParser::findTexture(const DkmSkin& skin) const {
+        const IO::Path DkmParser::findSkin(const DkmSkin& skin) const {
             const Path skinPath(String(skin.name));
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;
@@ -387,53 +376,44 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Md2Model::FrameList DkmParser::buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes) {
-            Assets::Md2Model::FrameList modelFrames;
-            modelFrames.reserve(frames.size());
-            
-            for (const DkmFrame& frame : frames) {
-                modelFrames.push_back(buildFrame(frame, meshes));
-            }
-            return modelFrames;
-        }
-
-        Assets::Md2Model::Frame* DkmParser::buildFrame(const DkmFrame& frame, const DkmMeshList& meshes) {
-            size_t vertexCount = 0;
-            Renderer::IndexRangeMap::Size size;
-            for (const DkmMesh& md2Mesh : meshes) {
-                vertexCount += md2Mesh.vertices.size();
-                if (md2Mesh.type == DkmMesh::Fan)
-                    size.inc(GL_TRIANGLE_FAN);
-                else
-                    size.inc(GL_TRIANGLE_STRIP);
-            }
-
-            Renderer::IndexRangeMapBuilder<Assets::Md2Model::VertexSpec> builder(vertexCount, size);
-            for (const DkmMesh& md2Mesh : meshes) {
-                if (!md2Mesh.vertices.empty()) {
+        void DkmParser::buildFrames(Assets::DefaultEntityModel* model, const DkmParser::DkmFrameList& frames, const DkmParser::DkmMeshList& meshes) {
+            for (const auto& frame: frames) {
+                size_t vertexCount = 0;
+                Renderer::IndexRangeMap::Size size;
+                for (const auto& md2Mesh : meshes) {
                     vertexCount += md2Mesh.vertices.size();
                     if (md2Mesh.type == DkmMesh::Fan)
-                        builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
+                        size.inc(GL_TRIANGLE_FAN);
                     else
-                        builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                        size.inc(GL_TRIANGLE_STRIP);
                 }
+
+                Renderer::IndexRangeMapBuilder<Assets::DefaultEntityModel::Vertex::Spec> builder(vertexCount, size);
+                for (const auto& md2Mesh : meshes) {
+                    if (!md2Mesh.vertices.empty()) {
+                        vertexCount += md2Mesh.vertices.size();
+                        if (md2Mesh.type == DkmMesh::Fan)
+                            builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
+                        else
+                            builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                    }
+                }
+
+                model->addFrame(frame.name, builder.vertices(), builder.indexArray());
             }
-            
-            return new Assets::Md2Model::Frame(builder.vertices(), builder.indexArray());
         }
-        
-        Assets::Md2Model::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
-            typedef Assets::Md2Model::Vertex Vertex;
+
+        Assets::DefaultEntityModel::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
+            typedef Assets::DefaultEntityModel::Vertex Vertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());
             
             for (const DkmMeshVertex& md2MeshVertex : meshVertices) {
-                const Vec3f position = frame.vertex(md2MeshVertex.vertexIndex);
-                const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
-                const Vec2f& texCoords = md2MeshVertex.texCoords;
+                const auto position = frame.vertex(md2MeshVertex.vertexIndex);
+                const auto& texCoords = md2MeshVertex.texCoords;
                 
-                result.push_back(Vertex(position, normal, texCoords));
+                result.push_back(Vertex(position, texCoords));
             }
             
             return result;

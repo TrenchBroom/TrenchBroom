@@ -20,6 +20,7 @@
 #include "SkinLoader.h"
 
 #include "Exceptions.h"
+#include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/IdMipTextureReader.h"
@@ -29,6 +30,10 @@
 namespace TrenchBroom {
     namespace IO {
         Assets::Texture* loadSkin(const IO::MappedFile::Ptr file) {
+            return loadSkin(file, Assets::Palette());
+        }
+
+        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file, const Assets::Palette& palette) {
             try {
                 ensure(file.get() != nullptr, "file is null");
 
@@ -37,10 +42,10 @@ namespace TrenchBroom {
                 const String extension = StringUtils::toLower(path.extension());
 
                 if (extension == "wal") {
-                    IO::WalTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true));
+                    IO::WalTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), palette);
                     return reader.readTexture(file);
                 } else {
-                    IO::FreeImageTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true));
+                    IO::FreeImageTextureReader reader(IO::TextureReader::PathSuffixNameStrategy(1, true), 1);
                     return reader.readTexture(file);
                 }
             } catch (FileSystemException& e) {

@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityCellData::EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds) :
+        EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds) :
         entityDefinition(i_entityDefinition),
         modelRenderer(i_modelRenderer),
         fontDescriptor(i_fontDescriptor),
@@ -63,8 +63,8 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinition::Name) {
-            const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
-            const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
+            const auto hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
+            const auto vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
             
             m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
@@ -122,30 +122,30 @@ namespace TrenchBroom {
         }
         
         void EntityBrowserView::doReloadLayout(Layout& layout) {
-            const IO::Path& fontPath = pref(Preferences::RendererFontPath());
-            int fontSize = pref(Preferences::BrowserFontSize);
+            const auto& fontPath = pref(Preferences::RendererFontPath());
+            const auto fontSize = pref(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                for (const Assets::EntityDefinitionGroup& group : m_entityDefinitionManager.groups()) {
-                    const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                for (const auto& group : m_entityDefinitionManager.groups()) {
+                    const auto& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
                     if (!definitions.empty()) {
-                        const String displayName = group.displayName();
+                        const auto displayName = group.displayName();
                         layout.addGroup(displayName, fontSize + 2.0f);
 
-                        for (Assets::EntityDefinition* definition : definitions) {
-                            Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                        for (const auto* definition : definitions) {
+                            const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
                             addEntityToLayout(layout, pointEntityDefinition, font);
                         }
                     }
                 }
             } else {
-                const Assets::EntityDefinitionList& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
-                for (Assets::EntityDefinition* definition : definitions) {
-                    Assets::PointEntityDefinition* pointEntityDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+                const auto& definitions = m_entityDefinitionManager.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
+                for (const auto* definition : definitions) {
+                    const auto* pointEntityDefinition = static_cast<const Assets::PointEntityDefinition*>(definition);
                     addEntityToLayout(layout, pointEntityDefinition, font);
                 }
             }
@@ -173,31 +173,32 @@ namespace TrenchBroom {
             return wxString(prefix + name);
         }
 
-        void EntityBrowserView::addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
+        void EntityBrowserView::addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
                 
-                const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager().font(actualFont).measure(definition->name());
+                const auto maxCellWidth = layout.maxCellWidth();
+                const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
+                const auto actualSize = fontManager().font(actualFont).measure(definition->name());
                 
-                const Assets::ModelSpecification spec = definition->defaultModel();
-                Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
-                EntityRenderer* modelRenderer = nullptr;
+                const auto spec = definition->defaultModel();
+                const auto* model = safeGetModel(m_entityModelManager, spec, m_logger);
+                Renderer::TexturedIndexRangeRenderer* modelRenderer = nullptr;
                 
                 BBox3f rotatedBounds;
                 if (model != nullptr) {
-                    const Vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
-                    const Mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
-                    rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
+                    const auto bounds = model->bounds(spec.skinIndex, spec.frameIndex);
+                    const auto center = bounds.center();
+                    const auto transform = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
+                    rotatedBounds = transformBBox(bounds, transform);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = BBox3f(definition->bounds());
-                    const Vec3f center = rotatedBounds.center();
+                    const auto center = rotatedBounds.center();
                     rotatedBounds = rotateBBox(rotatedBounds, m_rotation, center);
                 }
                 
-                const Vec3f size = rotatedBounds.size();
+                const auto size = rotatedBounds.size();
                 layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
                                size.y(),
                                size.z(),
@@ -245,23 +246,23 @@ namespace TrenchBroom {
         };
         
         void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height) {
-            typedef Renderer::VertexSpecs::P3C4::Vertex BoundsVertex;
+            using BoundsVertex = Renderer::VertexSpecs::P3C4::Vertex;
             BoundsVertex::List vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const auto& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const auto& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
-                                EntityRenderer* modelRenderer = cell.item().modelRenderer;
+                                const auto& cell = row[k];
+                                const auto* definition = cell.item().entityDefinition;
+                                auto* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer == nullptr) {
-                                    const Mat4x4f itemTrans = itemTransformation(cell, y, height);
-                                    const Color& color = definition->color();
+                                    const auto itemTrans = itemTransformation(cell, y, height);
+                                    const auto& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
                                     eachBBoxEdge(definition->bounds(), collect);
                                 }
@@ -291,17 +292,17 @@ namespace TrenchBroom {
             m_entityModelManager.prepare(vertexVbo());
             
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const auto& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const auto& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                EntityRenderer* modelRenderer = cell.item().modelRenderer;
+                                const auto& cell = row[k];
+                                auto* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer != nullptr) {
-                                    const Mat4x4f itemTrans = itemTransformation(cell, y, height);
+                                    const auto itemTrans = itemTransformation(cell, y, height);
                                     Renderer::MultiplyModelMatrix multMatrix(transformation, itemTrans);
                                     modelRenderer->render();
                                 }
@@ -329,7 +330,7 @@ namespace TrenchBroom {
             Vertex::List vertices;
             
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const auto& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                     vertices.push_back(Vertex(Vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
@@ -349,18 +350,18 @@ namespace TrenchBroom {
         }
         
         void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height) {
-            typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
+            using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
             StringRendererMap stringRenderers;
             
             { // create and upload all vertex arrays
                 Renderer::ActivateVbo activate(vertexVbo());
                 
-                const StringMap stringVertices = collectStringVertices(layout, y, height);
+                const auto stringVertices = collectStringVertices(layout, y, height);
                 for (const auto& entry : stringVertices) {
-                    const Renderer::FontDescriptor& descriptor = entry.first;
-                    const TextVertex::List& vertices = entry.second;
-                    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
-                    stringRenderers[descriptor].prepare(vertexVbo());
+                    const auto& fontDescriptor = entry.first;
+                    const auto& vertices = entry.second;
+                    stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
+                    stringRenderers[fontDescriptor].prepare(vertexVbo());
                 }
             }
             
@@ -368,10 +369,10 @@ namespace TrenchBroom {
             shader.set("Texture", 0);
             
             for (auto& entry : stringRenderers) {
-                const Renderer::FontDescriptor& descriptor = entry.first;
-                Renderer::VertexArray& vertexArray = entry.second;
+                const auto& fontDescriptor = entry.first;
+                auto& vertexArray = entry.second;
                 
-                Renderer::TextureFont& font = fontManager().font(descriptor);
+                auto& font = fontManager().font(fontDescriptor);
                 font.activate();
                 vertexArray.render(GL_QUADS);
                 font.deactivate();
@@ -386,30 +387,30 @@ namespace TrenchBroom {
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const auto& group = layout[i];
                 if (group.intersectsY(y, height)) {
-                    const String& title = group.item();
+                    const auto& title = group.item();
                     if (!title.empty()) {
                         const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
-                        Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const Vec2f::List quads = font.quads(title, false, offset);
-                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        auto& font = fontManager().font(defaultDescriptor);
+                        const auto quads = font.quads(title, false, offset);
+                        const auto titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
                     
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const auto& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
+                                const auto& cell = row[k];
                                 const LayoutBounds titleBounds = cell.titleBounds();
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const Vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
-                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                auto& font = fontManager().font(cell.item().fontDescriptor);
+                                const auto quads = font.quads(cell.item().entityDefinition->name(), false, offset);
+                                const auto titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }
@@ -421,13 +422,13 @@ namespace TrenchBroom {
         }
         
         Mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
-            Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
+            const auto* definition = cell.item().entityDefinition;
             
-            const Vec3f offset = Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
-            const float scaling = cell.scale();
-            const BBox3f& rotatedBounds = cell.item().bounds;
-            const Vec3f rotationOffset = Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            const Vec3f center = definition->bounds().center();
+            const auto offset = Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+            const auto scaling = cell.scale();
+            const auto& rotatedBounds = cell.item().bounds;
+            const auto rotationOffset = Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
+            const auto center = definition->bounds().center();
             
             return (translationMatrix(offset) *
                     scalingMatrix<4>(scaling) *

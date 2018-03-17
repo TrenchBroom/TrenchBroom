@@ -35,17 +35,18 @@ namespace TrenchBroom {
             EntityModel();
             virtual ~EntityModel();
             
-            Renderer::TexturedIndexRangeRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
-            BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
-            BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
-            
+            Renderer::TexturedIndexRangeRenderer* buildRenderer(size_t skinIndex, size_t frameIndex) const;
+            BBox3f bounds(size_t skinIndex, size_t frameIndex) const;
+
+            virtual size_t frameCount() const = 0;
+            virtual size_t skinCount() const = 0;
+
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
         private:
-            virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
-            virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
-            virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
+            virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(size_t skinIndex, size_t frameIndex) const = 0;
+            virtual BBox3f doGetBounds(size_t skinIndex, size_t frameIndex) const = 0;
             virtual void doPrepare(int minFilter, int magFilter) = 0;
             virtual void doSetTextureMode(int minFilter, int magFilter) = 0;
         };

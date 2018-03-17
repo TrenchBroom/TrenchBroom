@@ -25,17 +25,19 @@ namespace TrenchBroom {
         m_prepared(false) {}
 
         EntityModel::~EntityModel() {}
-        
+
         Renderer::TexturedIndexRangeRenderer * EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            ensure(skinIndex < skinCount(), "skin index out of range");
+            ensure(frameIndex < frameCount(), "frame index out of range");
+
             return doBuildRenderer(skinIndex, frameIndex);
         }
 
         BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
-            return doGetBounds(skinIndex, frameIndex);
-        }
+            ensure(skinIndex < skinCount(), "skin index out of range");
+            ensure(frameIndex < frameCount(), "frame index out of range");
 
-        BBox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            return doGetTransformedBounds(skinIndex, frameIndex, transformation);
+            return doGetBounds(skinIndex, frameIndex);
         }
 
         bool EntityModel::prepared() const {

@@ -80,7 +80,11 @@ namespace TrenchBroom {
                 return "";
             return m_path.lastComponent().asString();
         }
-        
+
+        size_t TextureCollection::textureCount() const {
+            return m_textures.size();
+        }
+
         const TextureList& TextureCollection::textures() const {
             return m_textures;
         }
@@ -96,20 +100,18 @@ namespace TrenchBroom {
         void TextureCollection::prepare(const int minFilter, const int magFilter) {
             assert(!prepared());
             
-            const size_t textureCount = m_textures.size();
-            m_textureIds.resize(textureCount);
-            glAssert(glGenTextures(static_cast<GLsizei>(textureCount),
+            m_textureIds.resize(textureCount());
+            glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
                                    static_cast<GLuint*>(&m_textureIds.front())));
 
-            for (size_t i = 0; i < textureCount; ++i) {
+            for (size_t i = 0; i < textureCount(); ++i) {
                 Texture* texture = m_textures[i];
                 texture->prepare(m_textureIds[i], minFilter, magFilter);
             }
         }
 
         void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
-            for (size_t i = 0; i < m_textures.size(); ++i) {
-                Texture* texture = m_textures[i];
+            for (auto* texture : m_textures) {
                 texture->setMode(minFilter, magFilter);
             }
         }

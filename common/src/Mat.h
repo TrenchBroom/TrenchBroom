@@ -108,7 +108,7 @@ public:
         return *this;
     }
     
-    const Mat<T,R,C> operator-() const {
+    Mat<T,R,C> operator-() const {
         Mat<T,R,C> result;
         for (size_t c = 0; c < C; c++)
             result[c] = -v[c];
@@ -124,7 +124,7 @@ public:
     }
     
     // Matrix addition and subtraction
-    const Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
+    Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result += right;
     }
@@ -135,7 +135,7 @@ public:
         return *this;
     }
     
-    const Mat<T,R,C> operator-(const Mat<T,R,C>& right) const {
+    Mat<T,R,C> operator-(const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result -= right;
     }
@@ -147,7 +147,7 @@ public:
     }
     
     // Matrix multiplication
-    const Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
+    Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
         Mat<T,R,C> result(Mat<T,R,C>::Null);
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
@@ -161,7 +161,7 @@ public:
     }
     
     // Scalar multiplication
-    const Mat<T,R,C> operator*(const T right) const {
+    Mat<T,R,C> operator*(const T right) const {
         Mat<T,R,C> result(*this);
         return result *= right;
     }
@@ -172,7 +172,7 @@ public:
         return *this;
     }
     
-    const Mat<T,R,C> operator/(const T right) const {
+    Mat<T,R,C> operator/(const T right) const {
         Mat<T,R,C> result(*this);
         return result /= right;
     }
@@ -248,7 +248,7 @@ public:
         return *this;
     }
     
-    const Mat<T,C,R> transposed() const {
+    Mat<T,C,R> transposed() const {
         Mat<T,C,R> result;
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
@@ -442,7 +442,7 @@ Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
 template <typename T, size_t S>
 Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat) {
     bool invertible = true;
-    const Mat<T,S,S> inverted = invertedMatrix(mat, invertible);
+    Mat<T,S,S> inverted = invertedMatrix(mat, invertible);
     assert(invertible);
     return inverted;
 }

@@ -52,18 +52,6 @@ namespace TrenchBroom {
         faces(i_faces),
         bounds(i_bounds) {}
 
-        BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
-            BBox3f result;
-            result.min = result.max = faces.front().vertices().front().v1;
-            
-            for (const Face& face : faces) {
-                for (const Face::Vertex& vertex : face.vertices())
-                    result.mergeWith(vertex.v1);
-            }
-            
-            return result;
-        }
-
         Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :
         m_name(name),
         m_textureCollection(textureCollection) {
@@ -105,17 +93,20 @@ namespace TrenchBroom {
             return model.bounds;
         }
 
-        BBox3f Bsp29Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            const SubModel& model = m_subModels.front();
-            return model.transformedBounds(transformation);
-        }
-
         void Bsp29Model::doPrepare(const int minFilter, const int magFilter) {
             m_textureCollection->prepare(minFilter, magFilter);
         }
 
         void Bsp29Model::doSetTextureMode(const int minFilter, const int magFilter) {
             m_textureCollection->setTextureMode(minFilter, magFilter);
+        }
+
+        size_t Bsp29Model::frameCount() const {
+            return 1;
+        }
+
+        size_t Bsp29Model::skinCount() const {
+            return 1;
         }
     }
 }

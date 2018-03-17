@@ -30,8 +30,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
-            TextureReader(nameStrategy) {}
+        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy, const size_t mipCount) :
+        TextureReader(nameStrategy),
+        m_mipCount(mipCount) {
+            assert(m_mipCount > 0);
+        }
 
         Assets::Texture* FreeImageTextureReader::doReadTexture(const char* const begin, const char* const end, const Path& path) const {
             const size_t                imageSize       = static_cast<size_t>(end - begin);
@@ -45,8 +48,8 @@ namespace TrenchBroom {
             const size_t                imageHeight     = static_cast<size_t>(FreeImage_GetHeight(image));
             const FREE_IMAGE_COLOR_TYPE imageColourType = FreeImage_GetColorType(image);
 
-            Assets::TextureBuffer::List buffers(4);
-            Assets::setMipBufferSize(buffers, 4, imageWidth, imageHeight);
+            Assets::TextureBuffer::List buffers(m_mipCount);
+            Assets::setMipBufferSize(buffers, m_mipCount, imageWidth, imageHeight);
 
             // TODO: Alpha channel seems to be unsupported by the Texture class
             if (imageColourType != FIC_RGB) {
@@ -58,7 +61,7 @@ namespace TrenchBroom {
             FreeImage_FlipVertical(image);
 
             std::memcpy(buffers[0].ptr(), FreeImage_GetBits(image), buffers[0].size());
-            for (size_t mip = 1; mip < buffers.size(); ++mip) {
+            for (size_t mip = 1; mip < m_mipCount; ++mip) {
                 FIBITMAP* mipImage = FreeImage_Rescale(image, static_cast<int>(imageWidth >> mip), static_cast<int>(imageHeight >> mip), FILTER_BICUBIC);
                 std::memcpy(buffers[mip].ptr(), FreeImage_GetBits(mipImage), buffers[mip].size());
                 FreeImage_Unload(mipImage);

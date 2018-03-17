@@ -34,8 +34,8 @@ namespace TrenchBroom {
         public:
             class Face {
             public:
-                typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-                typedef Vertex::List VertexList;
+                using Vertex = Renderer::VertexSpecs::P3T2::Vertex;
+                using VertexList = Vertex::List;
             private:
                 Texture* m_texture;
                 VertexList m_vertices;
@@ -52,11 +52,9 @@ namespace TrenchBroom {
                 FaceList faces;
                 BBox3f bounds;
                 SubModel(const FaceList& i_faces, const BBox3f& i_bounds);
-                
-                BBox3f transformedBounds(const Mat4x4f& transformation) const;
             };
 
-            typedef std::vector<SubModel> SubModelList;
+            using SubModelList = std::vector<SubModel>;
             String m_name;
             SubModelList m_subModels;
             TextureCollection* m_textureCollection;
@@ -65,10 +63,12 @@ namespace TrenchBroom {
             ~Bsp29Model();
             
             void addModel(const FaceList& faces, const BBox3f& bounds);
+        public:
+            size_t frameCount() const override;
+            size_t skinCount() const override;
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "VecMath.h"
 #include "Assets/AssetTypes.h"
-#include "Assets/Md2Model.h"
+#include "Assets/DefaultEntityModel.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
@@ -119,13 +119,13 @@ namespace TrenchBroom {
             DkmSkinList parseSkins(const char* begin, size_t skinCount);
             DkmFrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount, int version);
             DkmMeshList parseMeshes(const char* begin, size_t commandCount);
+
             Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
-            Assets::TextureList loadTextures(const DkmSkinList& skins);
-            Assets::Texture* readTexture(const DkmSkin& skin);
-            const IO::Path findTexture(const DkmSkin& skin) const;
-            Assets::Md2Model::FrameList buildFrames(const DkmFrameList& frames, const DkmMeshList& meshes);
-            Assets::Md2Model::Frame* buildFrame(const DkmFrame& frame, const DkmMeshList& meshes);
-            Assets::Md2Model::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
+            void loadSkins(Assets::DefaultEntityModel* model, const DkmSkinList& skins);
+            const IO::Path findSkin(const DkmSkin& skin) const;
+            void buildFrames(Assets::DefaultEntityModel* model, const DkmFrameList& frames, const DkmMeshList& meshes);
+
+            Assets::DefaultEntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }
 }

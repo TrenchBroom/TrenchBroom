@@ -448,7 +448,7 @@ struct TransformBBox {
 };
 
 template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
+BBox<T,3> transformBBox(const BBox<T, 3>& bbox, const Mat<T, 4, 4>& transformation) {
     TransformBBox<T> transformator(transformation);
     eachBBoxVertex(bbox, transformator);
     return transformator.bbox;

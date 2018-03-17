@@ -58,8 +58,8 @@ namespace TrenchBroom {
         
         class MdlFrame : public MdlBaseFrame {
         public:
-            typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-            typedef Vertex::List VertexList;
+            using Vertex = Renderer::VertexSpecs::P3T2::Vertex;
+            using VertexList = Vertex::List;
         private:
             String m_name;
             VertexList m_triangles;
@@ -69,12 +69,11 @@ namespace TrenchBroom {
             const MdlFrame* firstFrame() const override;
             const VertexList& triangles() const;
             BBox3f bounds() const;
-            BBox3f transformedBounds(const Mat4x4f& transformation) const;
         };
         
         class MdlFrameGroup : public MdlBaseFrame {
         private:
-            typedef std::vector<MdlFrame*> SingleFrameList;
+            using SingleFrameList = std::vector<MdlFrame*>;
             
             MdlTimeList m_times;
             SingleFrameList m_frames;
@@ -86,8 +85,8 @@ namespace TrenchBroom {
         
         class MdlModel : public EntityModel {
         private:
-            typedef std::vector<MdlSkin*> MdlSkinList;
-            typedef std::vector<MdlBaseFrame*> MdlFrameList;
+            using MdlSkinList = std::vector<MdlSkin*>;
+            using MdlFrameList = std::vector<MdlBaseFrame*>;
             
             String m_name;
             MdlSkinList m_skins;
@@ -98,10 +97,12 @@ namespace TrenchBroom {
             
             void addSkin(MdlSkin* skin);
             void addFrame(MdlBaseFrame* frame);
+        public:
+            size_t frameCount() const override;
+            size_t skinCount() const override;
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

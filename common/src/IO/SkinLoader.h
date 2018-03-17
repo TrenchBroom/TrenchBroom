@@ -24,11 +24,13 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class Palette;
         class Texture;
     }
 
     namespace IO {
         Assets::Texture* loadSkin(const IO::MappedFile::Ptr file);
+        Assets::Texture* loadSkin(const IO::MappedFile::Ptr file, const Assets::Palette& palette);
     }
 }
 

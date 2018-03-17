@@ -36,16 +36,16 @@ namespace TrenchBroom {
         
         class TexturedIndexRangeMap {
         public:
-            typedef Assets::Texture Texture;
+            using Texture = Assets::Texture;
         private:
-            typedef std::map<const Texture*, IndexRangeMap> TextureToIndexRangeMap;
-            typedef std::shared_ptr<TextureToIndexRangeMap> TextureToIndexRangeMapPtr;
+            using TextureToIndexRangeMap = std::map<const Texture*, IndexRangeMap>;
+            using TextureToIndexRangeMapPtr = std::shared_ptr<TextureToIndexRangeMap>;
         public:
             class Size {
             private:
                 friend class TexturedIndexRangeMap;
                 
-                typedef std::map<const Texture*, IndexRangeMap::Size> TextureToSize;
+                using TextureToSize = std::map<const Texture*, IndexRangeMap::Size>;
                 TextureToSize m_sizes;
                 TextureToSize::iterator m_current;
             public:
