@@ -364,15 +364,24 @@ namespace TrenchBroom {
             const Path skinPath(String(skin.name));
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;
-            } else {
-                const auto folder = skinPath.deleteLastComponent();
-                const auto basename = skinPath.lastComponent().deleteExtension();
-                const auto items = m_fs.findItems(folder, FileNameMatcher(basename.addExtension("*").asString()));
-                if (items.size() == 1) {
-                    return items.front();
-                } else {
-                    return skinPath;
+            }
+
+            // try "wal" extension instead
+            if (StringUtils::toLower(skinPath.extension()) == "bmp") {
+                const auto walPath = skinPath.replaceExtension("wal");
+                if (m_fs.fileExists(walPath)) {
+                    return walPath;
                 }
+            }
+
+            // Search for any file with the correct base name.
+            const auto folder = skinPath.deleteLastComponent();
+            const auto basename = skinPath.lastComponent().deleteExtension();
+            const auto items = m_fs.findItems(folder, FileNameMatcher(basename.addExtension("*").asString()));
+            if (items.size() == 1) {
+                return items.front();
+            } else {
+                return skinPath;
             }
         }
 
