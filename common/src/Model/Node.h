@@ -212,6 +212,15 @@ namespace TrenchBroom {
 
             void childWasSelected();
             void childWasDeselected();
+            
+            /**
+             * Returns the nodes that must be selected for this node
+             * to be selected in the UI.
+             *
+             * Normally just a list of `this`, but for brush entities,
+             * it's a list of the contained brushes (excluding the Entity itself).
+             */
+            virtual NodeList nodesRequiredForViewSelection() const;
         protected:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);
