@@ -30,6 +30,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class DefaultEntityModel;
         class MdlModel;
         class MdlFrame;
         class Palette;
@@ -64,12 +65,12 @@ namespace TrenchBroom {
             MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette);
         private:
             Assets::EntityModel* doParseModel() override;
-            
-            void parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height);
+
+            void parseSkins(const char*& cursor, Assets::DefaultEntityModel* model, const size_t count, const size_t width, const size_t height);
             MdlSkinVertexList parseSkinVertices(const char*& cursor, const size_t count);
             MdlSkinTriangleList parseSkinTriangles(const char*& cursor, const size_t count);
-            void parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale);
-            Assets::MdlFrame* parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale);
+            void parseFrames(const char*& cursor, Assets::DefaultEntityModel* model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale);
+            void parseFrame(const char*& cursor, Assets::DefaultEntityModel* model, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale);
             Vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const Vec3f& origin, const Vec3f& scale) const;
         };
     }

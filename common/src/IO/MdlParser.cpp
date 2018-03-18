@@ -21,12 +21,15 @@
 
 #include "CollectionUtils.h"
 #include "Macros.h"
+#include "Assets/DefaultEntityModel.h"
 #include "Assets/Texture.h"
-#include "Assets/MdlModel.h"
 #include "Assets/Palette.h"
 #include "IO/IOUtils.h"
+#include "Renderer/IndexRangeMap.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 
 #include <cassert>
+#include <memory>
 
 namespace TrenchBroom {
     namespace IO {
@@ -216,8 +219,6 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {
-            Assets::MdlModel* model = new Assets::MdlModel(m_name);
-            
             const char* cursor = m_begin + MdlLayout::HeaderScale;
             const Vec3f scale = readVec3f(cursor);
             const Vec3f origin = readVec3f(cursor);
@@ -229,17 +230,21 @@ namespace TrenchBroom {
             const size_t skinVertexCount = readSize<int32_t>(cursor);
             const size_t skinTriangleCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
-            
-            parseSkins(cursor, *model, skinCount, skinWidth, skinHeight);
+
+            using ModelPtr = std::unique_ptr<Assets::DefaultEntityModel>;
+            ModelPtr model = std::make_unique<Assets::DefaultEntityModel>(m_name);
+
+            parseSkins(cursor, model.get(), skinCount, skinWidth, skinHeight);
+
             const MdlSkinVertexList skinVertices = parseSkinVertices(cursor, skinVertexCount);
             const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
-            parseFrames(cursor, *model, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
 
-            assert(cursor <= m_end);
-            return model;
+            parseFrames(cursor, model.get(), frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+
+            return model.release();
         }
 
-        void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height) {
+        void MdlParser::parseSkins(const char*& cursor, Assets::DefaultEntityModel* model, const size_t count, const size_t width, const size_t height) {
             const size_t size = width * height;
             Color avgColor;
             StringStream textureName;
@@ -251,12 +256,11 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbImage(size * 3);
                     m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
-                    
+
                     textureName.str();
                     textureName << m_name << "_" << i;
-                    
-                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
-                    model.addSkin(new Assets::MdlSkin(texture));
+
+                    model->addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
 
@@ -269,8 +273,7 @@ namespace TrenchBroom {
                     textureName.str();
                     textureName << m_name << "_" << i;
 
-                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
-                    model.addSkin(new Assets::MdlSkin(texture));
+                    model->addSkin(new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage));
                 }
             }
         }
@@ -295,74 +298,70 @@ namespace TrenchBroom {
             return triangles;
         }
 
-        void MdlParser::parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        void MdlParser::parseFrames(const char*& cursor, Assets::DefaultEntityModel* model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
             for (size_t i = 0; i < count; ++i) {
                 const int type = readInt<int32_t>(cursor);
                 if (type == 0) { // single frame
-                    model.addFrame(parseFrame(cursor, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale));
-                } else { // frame group
-                    Assets::MdlFrameGroup* frameGroup = new Assets::MdlFrameGroup();
-                    
+                    parseFrame(cursor, model, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+                } else { // frame group, but we only read the first frame
                     const char* base = cursor;
                     const size_t groupFrameCount = readSize<int32_t>(cursor);
-                    
-                    const char* timeCursor = base + MdlLayout::MultiFrameTimes;
-                    const char* frameCursor = base + MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
 
-                    for (size_t j = 0; j < groupFrameCount; ++j) {
-                        const float time = readFloat<float>(timeCursor);
-                        Assets::MdlFrame* frame = parseFrame(frameCursor, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
-                        frameGroup->addFrame(frame, time);
-                    }
-                    
-                    model.addFrame(frameGroup);
-                    cursor = frameCursor;
+                    const char* frameCursor = base + MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+                    parseFrame(cursor, model, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
+
+                    // forward to after the last group frame as if we had read them all
+                    const auto offset = (groupFrameCount - 1) * (MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + skinVertices.size() * 4);
+                    cursor = frameCursor + offset;
                 }
             }
         }
 
-        Assets::MdlFrame* MdlParser::parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+        void MdlParser::parseFrame(const char*& cursor, Assets::DefaultEntityModel* model, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale) {
+            using Vertex = Assets::DefaultEntityModel::Vertex;
+            using VertexList = Vertex::List;
+
             char name[MdlLayout::SimpleFrameLength + 1];
             name[MdlLayout::SimpleFrameLength] = 0;
             cursor += MdlLayout::SimpleFrameName;
             readBytes(cursor, name, MdlLayout::SimpleFrameLength);
             
             PackedFrameVertexList packedVertices(skinVertices.size());
-            for (size_t i = 0; i < skinVertices.size(); ++i)
-                for (size_t j = 0; j < 4; ++j)
+            for (size_t i = 0; i < skinVertices.size(); ++i) {
+                for (size_t j = 0; j < 4; ++j) {
                     packedVertices[i][j] = static_cast<unsigned char>(*cursor++);
-            
-            Vec3f::List positions(skinVertices.size());
-            BBox3f bounds;
-            
-            positions[0] = unpackFrameVertex(packedVertices[0], origin, scale);
-            bounds.min = bounds.max = positions[0];
-            
-            for (size_t i = 1; i < skinVertices.size(); ++i) {
-                positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
-                bounds.mergeWith(positions[i]);
+                }
             }
-            
-            Assets::MdlFrame::VertexList frameTriangles;
+
+            Vec3f::List positions(skinVertices.size());
+            for (size_t i = 0; i < skinVertices.size(); ++i) {
+                positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
+            }
+
+            VertexList frameTriangles;
             frameTriangles.reserve(skinTriangles.size());
             for (size_t i = 0; i < skinTriangles.size(); ++i) {
                 const MdlSkinTriangle& triangle = skinTriangles[i];
                 for (size_t j = 0; j < 3; ++j) {
-                    const size_t vertexIndex = triangle.vertices[j];
-                    const MdlSkinVertex& skinVertex = skinVertices[vertexIndex];
-                    // const size_t normalIndex = static_cast<size_t>(packedVertices[vertexIndex].w());
-                    
+                    const auto vertexIndex = triangle.vertices[j];
+                    const auto& skinVertex = skinVertices[vertexIndex];
+
                     Vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
                                      static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
                     if (skinVertex.onseam && !triangle.front)
                         texCoords[0] += 0.5f;
-                    
-                    frameTriangles.push_back(Assets::MdlFrame::Vertex(positions[vertexIndex], texCoords));
+
+                    frameTriangles.push_back(Vertex(positions[vertexIndex], texCoords));
                 }
             }
-            
-            assert(frameTriangles.size()%3 == 0);
-            return new Assets::MdlFrame(String(name), frameTriangles, bounds);
+
+            Renderer::IndexRangeMap::Size size;
+            size.inc(GL_TRIANGLES, frameTriangles.size());
+
+            Renderer::IndexRangeMapBuilder<Assets::DefaultEntityModel::Vertex::Spec> builder(frameTriangles.size() * 3, size);
+            builder.addTriangles(frameTriangles);
+
+            model->addFrame(String(name), builder.vertices(), builder.indexArray());
         }
 
         Vec3f MdlParser::unpackFrameVertex(const PackedFrameVertex& vertex, const Vec3f& origin, const Vec3f& scale) const {
