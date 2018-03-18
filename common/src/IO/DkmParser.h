@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "VecMath.h"
 #include "Assets/AssetTypes.h"
-#include "Assets/DefaultEntityModel.h"
+#include "Assets/EntityModel.h"
 #include "IO/EntityModelParser.h"
 
 #include <vector>
@@ -121,11 +121,11 @@ namespace TrenchBroom {
             DkmMeshList parseMeshes(const char* begin, size_t commandCount);
 
             Assets::EntityModel* buildModel(const DkmSkinList& skins, const DkmFrameList& frames, const DkmMeshList& meshes);
-            void loadSkins(Assets::DefaultEntityModel* model, const DkmSkinList& skins);
+            void loadSkins(Assets::EntityModel* model, const DkmSkinList& skins);
             const IO::Path findSkin(const DkmSkin& skin) const;
-            void buildFrames(Assets::DefaultEntityModel* model, const DkmFrameList& frames, const DkmMeshList& meshes);
+            void buildFrames(Assets::EntityModel* model, const DkmFrameList& frames, const DkmMeshList& meshes);
 
-            Assets::DefaultEntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
+            Assets::EntityModel::VertexList getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
         };
     }
 }

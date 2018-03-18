@@ -304,8 +304,8 @@ namespace TrenchBroom {
         }
 
         Assets::EntityModel* Md2Parser::buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes) {
-            using ModelPtr = std::unique_ptr<Assets::DefaultEntityModel>;
-            ModelPtr model = std::make_unique<Assets::DefaultEntityModel>(m_name);
+            using ModelPtr = std::unique_ptr<Assets::EntityModel>;
+            ModelPtr model = std::make_unique<Assets::EntityModel>(m_name);
 
             loadSkins(model.get(), skins);
             buildFrames(model.get(), frames, meshes);
@@ -313,14 +313,14 @@ namespace TrenchBroom {
             return model.release();
         }
 
-        void Md2Parser::loadSkins(Assets::DefaultEntityModel* model, const Md2SkinList& skins) {
+        void Md2Parser::loadSkins(Assets::EntityModel* model, const Md2SkinList& skins) {
             for (const auto& skin : skins) {
                 const Path skinPath(String(skin.name));
                 model->addSkin(loadSkin(m_fs.openFile(skinPath), m_palette));
             }
         }
 
-        void Md2Parser::buildFrames(Assets::DefaultEntityModel* model, const Md2Parser::Md2FrameList& frames, const Md2Parser::Md2MeshList& meshes) {
+        void Md2Parser::buildFrames(Assets::EntityModel* model, const Md2Parser::Md2FrameList& frames, const Md2Parser::Md2MeshList& meshes) {
             for (const auto& frame: frames) {
                 size_t vertexCount = 0;
                 Renderer::IndexRangeMap::Size size;
@@ -332,7 +332,7 @@ namespace TrenchBroom {
                         size.inc(GL_TRIANGLE_STRIP);
                 }
 
-                Renderer::IndexRangeMapBuilder<Assets::DefaultEntityModel::Vertex::Spec> builder(vertexCount, size);
+                Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Spec> builder(vertexCount, size);
                 for (const auto& md2Mesh : meshes) {
                     if (!md2Mesh.vertices.empty()) {
                         vertexCount += md2Mesh.vertices.size();
@@ -347,8 +347,8 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::DefaultEntityModel::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
-            typedef Assets::DefaultEntityModel::Vertex Vertex;
+        Assets::EntityModel::VertexList Md2Parser::getVertices(const Md2Frame& frame, const Md2MeshVertexList& meshVertices) const {
+            typedef Assets::EntityModel::Vertex Vertex;
 
             Vertex::List result(0);
             result.reserve(meshVertices.size());
