@@ -420,8 +420,8 @@ namespace TrenchBroom {
             decChildSelectionCount(1);
         }
         
-        NodeList Node::nodesRequiredForViewSelection() const {
-            return NodeList{const_cast<Node*>(this)};
+        NodeList Node::nodesRequiredForViewSelection() {
+            return NodeList{this};
         }
         
         void Node::incChildSelectionCount(const size_t delta) {

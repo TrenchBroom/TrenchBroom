@@ -220,7 +220,7 @@ namespace TrenchBroom {
              * Normally just a list of `this`, but for brush entities,
              * it's a list of the contained brushes (excluding the Entity itself).
              */
-            virtual NodeList nodesRequiredForViewSelection() const;
+            virtual NodeList nodesRequiredForViewSelection();
         protected:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);

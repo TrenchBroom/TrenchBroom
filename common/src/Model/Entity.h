@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
             
-            NodeList nodesRequiredForViewSelection() const override;
+            NodeList nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
             void doAttributesDidChange() override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
