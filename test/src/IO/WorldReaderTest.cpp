@@ -411,7 +411,41 @@ namespace TrenchBroom {
             
             delete world;
         }
-        
+
+        TEST(WorldReaderTest, parseDaikatanaBrush) {
+            const String data("{\n"
+                                      "\"classname\" \"worldspawn\"\n"
+                                      "{\n"
+                                      "( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3cw 56 -32 0 1 1 0 0 0 5 6 7\n"
+                                      "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1 1 2 3 8 9 10\n"
+                                      "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3cww 16 96 0 1 1\n" // The flags are optional.
+                                      "( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                                      "( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                                      "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                                      "}\n"
+                                      "}\n");
+            BBox3 worldBounds(8192);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, nullptr);
+
+            Model::World* world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
+
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+
+            const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            ASSERT_EQ(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color());
+            ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
+            ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
+            ASSERT_FLOAT_EQ(3.0, brush->findFace("rtz/b_rc_v16w")->surfaceValue());
+            ASSERT_EQ(Color(8, 9, 10), brush->findFace("rtz/b_rc_v16w")->color());
+            ASSERT_FALSE(brush->findFace("rtz/c_mf_v3cww")->hasColor());
+
+            delete world;
+        }
+
         TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"

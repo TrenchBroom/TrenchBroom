@@ -23,6 +23,8 @@
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
@@ -63,6 +65,51 @@ namespace TrenchBroom {
                          "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\"\n"
                          "}\n", result.c_str());
+        }
+
+        TEST(NodeWriterTest, writeDaikatanaMap) {
+            const BBox3 worldBounds(8192.0);
+
+            Model::World map(Model::MapFormat::Daikatana, nullptr, worldBounds);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::BrushBuilder builder(&map, worldBounds);
+            Model::Brush* brush1 = builder.createCube(64.0, "none");
+            for (auto* face : brush1->faces()) {
+                face->setColor(Color(1, 2, 3));
+            }
+            map.defaultLayer()->addChild(brush1);
+
+            Model::Brush* brush2 = builder.createCube(64.0, "none");
+            map.defaultLayer()->addChild(brush2);
+
+            StringStream str;
+            NodeWriter writer(&map, str);
+            writer.writeMap();
+
+            const String result = str.str();
+            ASSERT_STREQ("// entity 0\n"
+                                 "{\n"
+                                 "\"classname\" \"worldspawn\"\n"
+                                 "// brush 0\n"
+                                 "{\n"
+                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0 1 2 3\n"
+                                 "}\n"
+                                 "// brush 1\n"
+                                 "{\n"
+                                 "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1 0 0 0\n"
+                                 "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1 0 0 0\n"
+                                 "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1 0 0 0\n"
+                                 "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1 0 0 0\n"
+                                 "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1 0 0 0\n"
+                                 "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1 0 0 0\n"
+                                 "}\n"
+                                 "}\n", result.c_str());
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {

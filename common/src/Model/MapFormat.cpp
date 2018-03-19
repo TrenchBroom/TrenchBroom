@@ -30,6 +30,8 @@ namespace TrenchBroom {
                 return MapFormat::Valve;
             if (formatName == "Hexen2")
                 return MapFormat::Hexen2;
+            if (formatName == "Daikatana")
+                return MapFormat::Daikatana;
             return MapFormat::Unknown;
         }
 
@@ -42,6 +44,8 @@ namespace TrenchBroom {
                 return "Valve";
             if (format == MapFormat::Hexen2)
                 return "Hexen2";
+            if (format == MapFormat::Daikatana)
+                return "Daikatana";
             return "Unknown";
         }
     }

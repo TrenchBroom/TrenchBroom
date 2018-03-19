@@ -418,6 +418,14 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
+        BrushFace* Brush::findFace(const String& textureName) const {
+            for (BrushFace* face : m_faces) {
+                if (face->textureName() == textureName)
+                    return face;
+            }
+            return nullptr;
+        }
+
         BrushFace* Brush::findFace(const Vec3& normal) const {
             for (BrushFace* face : m_faces) {
                 if (face->boundary().normal.equals(normal))

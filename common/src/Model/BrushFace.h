@@ -148,6 +148,10 @@ namespace TrenchBroom {
             float surfaceValue() const;
             bool hasSurfaceAttributes() const;
 
+            bool hasColor() const;
+            const Color& color() const;
+            void setColor(const Color& color);
+
             void updateTexture(Assets::TextureManager* textureManager);
             void setTexture(Assets::Texture* texture);
             void unsetTexture();

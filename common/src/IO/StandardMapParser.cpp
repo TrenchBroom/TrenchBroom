@@ -388,10 +388,24 @@ namespace TrenchBroom {
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                     const float surfaceValue = token.toFloat<float>();
                     
-                    if (m_format == Model::MapFormat::Quake2) {
+                    if (m_format == Model::MapFormat::Quake2 || m_format == Model::MapFormat::Daikatana) {
                         attribs.setSurfaceContents(surfaceContents);
                         attribs.setSurfaceFlags(surfaceFlags);
                         attribs.setSurfaceValue(surfaceValue);
+                    }
+
+                    // If there's even more stuff, then it's a Daikatana color triple.
+                    if (check(QuakeMapToken::Integer, m_tokenizer.peekToken())) {
+                        token = m_tokenizer.nextToken(); // already checked it!
+                        const int red = token.toInteger<int>();
+                        expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
+                        const int green = token.toInteger<int>();
+                        expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
+                        const int blue = token.toInteger<int>();
+
+                        if (m_format == Model::MapFormat::Daikatana) {
+                            attribs.setColor(Color(red, green, blue));
+                        }
                     }
                 } else {
                     // Noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it

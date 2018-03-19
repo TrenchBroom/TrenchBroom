@@ -41,14 +41,17 @@ namespace TrenchBroom {
         m_rotation(other.m_rotation),
         m_surfaceContents(other.m_surfaceContents),
         m_surfaceFlags(other.m_surfaceFlags),
-        m_surfaceValue(other.m_surfaceValue) {
-            if (m_texture != nullptr)
+        m_surfaceValue(other.m_surfaceValue),
+        m_color(other.m_color) {
+            if (m_texture != nullptr) {
                 m_texture->incUsageCount();
+            }
         }
         
         BrushFaceAttributes::~BrushFaceAttributes() {
-            if (m_texture != nullptr)
+            if (m_texture != nullptr) {
                 m_texture->decUsageCount();
+            }
         }
 
         BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
@@ -67,6 +70,7 @@ namespace TrenchBroom {
             swap(lhs.m_surfaceContents, rhs.m_surfaceContents);
             swap(lhs.m_surfaceFlags, rhs.m_surfaceFlags);
             swap(lhs.m_surfaceValue, rhs.m_surfaceValue);
+            swap(lhs.m_color, rhs.m_color);
         }
 
         BrushFaceAttributes BrushFaceAttributes::takeSnapshot() const {
@@ -77,6 +81,7 @@ namespace TrenchBroom {
             result.m_surfaceContents = m_surfaceContents;
             result.m_surfaceFlags = m_surfaceFlags;
             result.m_surfaceValue = m_surfaceValue;
+            result.m_color = m_color;
             return result;
         }
 
@@ -89,8 +94,10 @@ namespace TrenchBroom {
         }
         
         Vec2f BrushFaceAttributes::textureSize() const {
-            if (m_texture == nullptr)
+            if (m_texture == nullptr) {
                 return Vec2f::One;
+            }
+
             const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
             return Vec2f(w, h);
@@ -141,8 +148,9 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
-            if (m_texture != nullptr)
+            if (m_texture != nullptr) {
                 m_texture->decUsageCount();
+            }
             m_texture = texture;
             if (m_texture != nullptr) {
                 m_texture->incUsageCount();
@@ -151,8 +159,9 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttributes::unsetTexture() {
-            if (m_texture != nullptr)
+            if (m_texture != nullptr) {
                 m_texture->decUsageCount();
+            }
             m_texture = nullptr;
             m_textureName = BrushFace::NoTextureName;
         }
@@ -195,6 +204,14 @@ namespace TrenchBroom {
         
         void BrushFaceAttributes::setSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
+        }
+
+        const Color& BrushFaceAttributes::color() const {
+            return m_color;
+        }
+
+        void BrushFaceAttributes::setColor(const Color& color) {
+            m_color = color;
         }
     }
 }

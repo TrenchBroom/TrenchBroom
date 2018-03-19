@@ -167,9 +167,10 @@ namespace TrenchBroom {
         };
         
         Model::EntityAttribute::List NodeSerializer::parentAttributes(const Model::Node* node) {
-            if (node == nullptr)
+            if (node == nullptr) {
                 return Model::EntityAttribute::List(0);
-            
+            }
+
             GetParentAttributes visitor(m_layerIds, m_groupIds);
             node->accept(visitor);
             return visitor.attributes();
