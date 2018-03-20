@@ -327,5 +327,33 @@ namespace TrenchBroom {
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
         }
+        
+        TEST_F(MapDocumentTest, mergeGroups) {
+            document->selectAllNodes();
+            document->deleteObjects();
+            
+            Model::Entity* ent1 = new Model::Entity();
+            document->addNode(ent1, document->currentParent());
+            document->deselectAll();
+            document->select(Model::NodeList {ent1});
+            Model::Group* group1 = document->groupSelection("group1");
+            
+            Model::Entity* ent2 = new Model::Entity();
+            document->addNode(ent2, document->currentParent());
+            document->deselectAll();
+            document->select(Model::NodeList {ent2});
+            Model::Group* group2 = document->groupSelection("group2");
+            
+            ASSERT_EQ((Model::NodeSet {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
+            
+            document->select(Model::NodeList {group1, group2});
+            document->mergeSelectedGroupsWithGroup(group2);
+            
+            ASSERT_EQ((Model::NodeList {group2}), document->selectedNodes().nodes());
+            ASSERT_EQ((Model::NodeList {group2}), document->currentLayer()->children());
+            
+            ASSERT_EQ((Model::NodeSet {}), SetUtils::makeSet(group1->children()));
+            ASSERT_EQ((Model::NodeSet {ent1, ent2}), SetUtils::makeSet(group2->children()));
+        }
     }
 }

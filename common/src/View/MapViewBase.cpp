@@ -283,6 +283,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
             Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
             Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                  this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
@@ -960,6 +961,9 @@ namespace TrenchBroom {
             if (currentGroup != nullptr && !document->selectedNodes().empty()) {
                 menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
             }
+            if (newGroup != nullptr && document->selectedNodes().hasOnlyGroups() && document->selectedNodes().groupCount() >= 2) {
+                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + newGroup->name());
+            }
             menu.AppendSeparator();
             
             menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::MapViewPopupMenu::LowestPointEntityItem), "Create Point Entity");
@@ -1029,14 +1033,24 @@ namespace TrenchBroom {
                 document->closeGroup();
             reparentNodes(nodes, document->currentLayer(), true);
         }
+        
+        void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::NodeList nodes = document->selectedNodes().nodes();
+            Model::Group* newGroup = findNewGroupForObjects(nodes);
+            ensure(newGroup != nullptr, "newGroup is null");
+            
+            Transaction transaction(document, "Merge Groups");
+            document->mergeSelectedGroupsWithGroup(newGroup);
+        }
 
-        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
-            Model::Node* newGroup = nullptr;
+        Model::Group* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
+            Model::Group* newGroup = nullptr;
             
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
             if (hit.isMatch())
-                newGroup = Model::hitToNode(hit);
+                newGroup = Model::hitToGroup(hit);
             
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;

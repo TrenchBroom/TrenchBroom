@@ -163,8 +163,9 @@ namespace TrenchBroom {
         private: // reparenting objects
             void OnAddObjectsToGroup(wxCommandEvent& event);
             void OnRemoveObjectsFromGroup(wxCommandEvent& event);
-            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
-
+            void OnMergeGroups(wxCommandEvent& event);
+            Model::Group* findNewGroupForObjects(const Model::NodeList& nodes) const;
+            
             void OnMoveBrushesTo(wxCommandEvent& event);
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             

@@ -723,6 +723,24 @@ namespace TrenchBroom {
             
             return group;
         }
+        
+        void MapDocument::mergeSelectedGroupsWithGroup(Model::Group* group) {
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const Transaction transaction(this, "Merge Groups");
+            const Model::GroupList groupsToMerge = m_selectedNodes.groups();
+            
+            deselectAll();
+            for (auto groupToMerge : groupsToMerge) {
+                if (groupToMerge == group)
+                    continue;
+                    
+                const Model::NodeList children = groupToMerge->children();
+                reparentNodes(group, children);
+            }
+            select(group);
+        }
 
         class MapDocument::MatchGroupableNodes {
         private:
