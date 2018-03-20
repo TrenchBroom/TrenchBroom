@@ -226,6 +226,15 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
+        NodeList Entity::nodesRequiredForViewSelection() {
+            if (hasChildren()) {
+                // Selecting a brush entity means selecting the children
+                return children();
+            } else {
+                return NodeList{this};
+            }
+        }
+        
         void Entity::doAttributesDidChange() {
             nodeBoundsDidChange();
         }

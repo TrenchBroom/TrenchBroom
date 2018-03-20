@@ -63,12 +63,15 @@ namespace TrenchBroom {
             Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
-            for (Model::Node* node : nodes) {
-                if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
-                    node->escalate(ancestors);
-                    node->recurse(descendants);
-                    node->select();
-                    selected.push_back(node);
+            for (Model::Node* initialNode : nodes) {
+                const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
+                for (Model::Node* node : nodesToSelect) {
+                    if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
+                        node->escalate(ancestors);
+                        node->recurse(descendants);
+                        node->select();
+                        selected.push_back(node);
+                    }
                 }
             }
 
