@@ -291,5 +291,41 @@ namespace TrenchBroom {
             ASSERT_EQ(outer, innerEnt1->parent());
             ASSERT_EQ(outer, innerEnt2->parent());
         }
+        
+        TEST_F(MapDocumentTest, ungroupLeavesPointEntitySelected) {
+            Model::Entity* ent1 = new Model::Entity();
+            
+            document->addNode(ent1, document->currentParent());
+            document->select(Model::NodeList {ent1});
+            
+            Model::Group* group = document->groupSelection("Group");
+            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            
+            document->ungroupSelection();
+            ASSERT_EQ((Model::NodeList {ent1}), document->selectedNodes().nodes());
+        }
+        
+        TEST_F(MapDocumentTest, ungroupLeavesBrushEntitySelected) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            
+            Model::Entity* ent1 = new Model::Entity();
+            document->addNode(ent1, document->currentParent());
+            
+            Model::Brush* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, ent1);
+            document->select(Model::NodeList{ent1});
+            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            ASSERT_FALSE(ent1->selected());
+            ASSERT_TRUE(brush1->selected());
+            
+            Model::Group* group = document->groupSelection("Group");
+            ASSERT_EQ((Model::NodeList {ent1}), group->children());
+            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            
+            document->ungroupSelection();
+            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            ASSERT_FALSE(ent1->selected());
+            ASSERT_TRUE(brush1->selected());
+        }
     }
 }
