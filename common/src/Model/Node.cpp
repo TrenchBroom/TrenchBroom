@@ -419,7 +419,11 @@ namespace TrenchBroom {
         void Node::childWasDeselected() {
             decChildSelectionCount(1);
         }
-
+        
+        NodeList Node::nodesRequiredForViewSelection() {
+            return NodeList{this};
+        }
+        
         void Node::incChildSelectionCount(const size_t delta) {
             if (delta == 0)
                 return;
