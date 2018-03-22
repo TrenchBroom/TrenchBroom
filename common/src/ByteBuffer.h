@@ -61,15 +61,11 @@ public:
     }
 
     auto begin() const {
-        const InternalBuffer* actualBuffer = m_buffer.get();
-        ensure(actualBuffer != nullptr, "actualBuffer is null");
-        return std::begin(*actualBuffer);
+        return std::begin(*m_buffer);
     }
 
     auto end() const {
-        const InternalBuffer* actualBuffer = m_buffer.get();
-        ensure(actualBuffer != nullptr, "actualBuffer is null");
-        return std::end(*actualBuffer);
+        return std::end(*m_buffer);
     }
     
     size_t size() const {
