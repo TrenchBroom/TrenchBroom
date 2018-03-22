@@ -948,11 +948,15 @@ namespace TrenchBroom {
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
+            Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             
             wxMenu menu;
             menu.SetEventHandler(this);
             menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
             menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
+            if (mergeGroup != nullptr) {
+                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + mergeGroup->name());
+            }
             menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
             
             if (newGroup != nullptr && newGroup != currentGroup) {
@@ -960,9 +964,6 @@ namespace TrenchBroom {
             }
             if (currentGroup != nullptr && !document->selectedNodes().empty()) {
                 menu.Append(CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup, "Remove Objects from Group " + currentGroup->name());
-            }
-            if (newGroup != nullptr && document->selectedNodes().hasOnlyGroups() && document->selectedNodes().groupCount() >= 2) {
-                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + newGroup->name());
             }
             menu.AppendSeparator();
             
@@ -1033,28 +1034,58 @@ namespace TrenchBroom {
                 document->closeGroup();
             reparentNodes(nodes, document->currentLayer(), true);
         }
+
+        Model::Node* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
+            Model::Node* newGroup = nullptr;
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
+            if (hit.isMatch())
+                newGroup = Model::hitToNode(hit);
+            
+            if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
+                return newGroup;
+            return nullptr;
+        }
         
         void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList nodes = document->selectedNodes().nodes();
-            Model::Group* newGroup = findNewGroupForObjects(nodes);
+            Model::Group* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             ensure(newGroup != nullptr, "newGroup is null");
             
             Transaction transaction(document, "Merge Groups");
             document->mergeSelectedGroupsWithGroup(newGroup);
         }
 
-        Model::Group* MapViewBase::findNewGroupForObjects(const Model::NodeList& nodes) const {
-            Model::Group* newGroup = nullptr;
+        Model::Group* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
+            if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
+                return nullptr;
+            }
+            Model::Group* mergeTarget = nullptr;
             
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
-            if (hit.isMatch())
-                newGroup = Model::hitToGroup(hit);
+            if (hit.isMatch()) {
+                mergeTarget = Model::hitToGroup(hit);
+            }
             
-            if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
-                return newGroup;
+            const Model::NodeList& nodes = selectedNodes.nodes();
+            const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
+                if (node == mergeTarget) {
+                    return true;
+                } else {
+                    return canReparentNode(node, mergeTarget);
+                }
+            });
+            
+            if (canReparentAll) {
+                return mergeTarget;
+            }
             return nullptr;
+        }
+        
+        bool MapViewBase::canReparentNode(const Model::Node* node, const Model::Node* newParent) const {
+            return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node);
         }
         
         void MapViewBase::OnMoveBrushesTo(wxCommandEvent& event) {
