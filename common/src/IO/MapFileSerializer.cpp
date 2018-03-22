@@ -25,21 +25,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class StandardFileSerializer : public MapFileSerializer {
-        public:
-            enum class Format {
-                Quake,
-                Quake2,
-                Daikatana
-            };
+        class QuakeFileSerializer : public MapFileSerializer {
         private:
-            Format m_format;
-            String FaceFormat;
-            String DkExtraFormat;
+            String FacePointFormat;
+            String TextureInfoFormat;
         public:
-            StandardFileSerializer(FILE* stream, const Format format) :
-            MapFileSerializer(stream),
-            m_format(format) {
+            QuakeFileSerializer(FILE* stream) :
+            MapFileSerializer(stream) {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -50,208 +42,168 @@ namespace TrenchBroom {
                 "%." << FloatPrecision << "g ) " <<
                 "( %." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "%s %.6g %.6g %.6g %.6g %.6g";
-                if (m_format != Format::Quake) {
-                    str << " %d %d %.6g";
-                }
-                FaceFormat = str.str();
-                DkExtraFormat = " %d %d %d";
+                "%." << FloatPrecision << "g )";
+
+                FacePointFormat = str.str();
+                TextureInfoFormat = " %s %.6g %.6g %.6g %.6g %.6g";
             }
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+                std::fprintf(stream, "\n");
+                return 1;
+            }
+        protected:
+            void writeFacePoints(FILE* stream, Model::BrushFace* face) {
                 const Model::BrushFace::Points& points = face->points();
 
-                switch (m_format) {
-                    case Format::Quake:
-                        std::fprintf(stream, FaceFormat.c_str(),
-                                     points[0].x(),
-                                     points[0].y(),
-                                     points[0].z(),
-                                     points[1].x(),
-                                     points[1].y(),
-                                     points[1].z(),
-                                     points[2].x(),
-                                     points[2].y(),
-                                     points[2].z(),
-                                     textureName.c_str(),
-                                     face->xOffset(),
-                                     face->yOffset(),
-                                     face->rotation(),
-                                     face->xScale(),
-                                     face->yScale());
-                        break;
-                    case Format::Quake2:
-                        std::fprintf(stream, FaceFormat.c_str(),
-                                     points[0].x(),
-                                     points[0].y(),
-                                     points[0].z(),
-                                     points[1].x(),
-                                     points[1].y(),
-                                     points[1].z(),
-                                     points[2].x(),
-                                     points[2].y(),
-                                     points[2].z(),
-                                     textureName.c_str(),
-                                     face->xOffset(),
-                                     face->yOffset(),
-                                     face->rotation(),
-                                     face->xScale(),
-                                     face->yScale(),
-                                     face->surfaceContents(),
-                                     face->surfaceFlags(),
-                                     face->surfaceValue());
-                        break;
-                    case Format::Daikatana:
-                        std::fprintf(stream, FaceFormat.c_str(),
-                                     points[0].x(),
-                                     points[0].y(),
-                                     points[0].z(),
-                                     points[1].x(),
-                                     points[1].y(),
-                                     points[1].z(),
-                                     points[2].x(),
-                                     points[2].y(),
-                                     points[2].z(),
-                                     textureName.c_str(),
-                                     face->xOffset(),
-                                     face->yOffset(),
-                                     face->rotation(),
-                                     face->xScale(),
-                                     face->yScale(),
-                                     face->surfaceContents(),
-                                     face->surfaceFlags(),
-                                     face->surfaceValue());
-                        if (face->hasColor()) {
-                            std::fprintf(stream, DkExtraFormat.c_str(),
-                                         face->color().r() * 255.0f,
-                                         face->color().g() * 255.0f,
-                                         face->color().b() * 255.0f);
-                        }
-                        break;
+                std::fprintf(stream, FacePointFormat.c_str(),
+                             points[0].x(),
+                             points[0].y(),
+                             points[0].z(),
+                             points[1].x(),
+                             points[1].y(),
+                             points[1].z(),
+                             points[2].x(),
+                             points[2].y(),
+                             points[2].z());
+            }
+
+            void writeTextureInfo(FILE* stream, Model::BrushFace* face) {
+                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+                std::fprintf(stream, TextureInfoFormat.c_str(),
+                             textureName.c_str(),
+                             face->xOffset(),
+                             face->yOffset(),
+                             face->rotation(),
+                             face->xScale(),
+                             face->yScale());
+            }
+        };
+
+        class Quake2FileSerializer : public QuakeFileSerializer {
+        private:
+            String SurfaceAttributesFormat;
+        public:
+            Quake2FileSerializer(FILE* stream) :
+            QuakeFileSerializer(stream) {
+                SurfaceAttributesFormat = " %d %d %.6g";
+            }
+        private:
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+
+                if (face->hasSurfaceAttributes()) {
+                    writeSurfaceAttributes(stream, face);
                 }
 
                 std::fprintf(stream, "\n");
                 return 1;
             }
+        protected:
+            void writeSurfaceAttributes(FILE* stream, Model::BrushFace* face) {
+                std::fprintf(stream, SurfaceAttributesFormat.c_str(),
+                             face->surfaceContents(),
+                             face->surfaceFlags(),
+                             face->surfaceValue());
+            }
         };
-        
-        class Hexen2FileSerializer : public MapFileSerializer {
+
+
+        class DaikatanaFileSerializer : public Quake2FileSerializer {
         private:
-            String FaceFormat;
+            String SurfaceColorFormat;
         public:
-            Hexen2FileSerializer(FILE* stream) :
-            MapFileSerializer(stream) {
-                StringStream str;
-                str <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "%s %.6g %.6g %.6g %.6g %.6g 0\n"; // the extra value is written here
-                
-                FaceFormat = str.str();
+            DaikatanaFileSerializer(FILE* stream) :
+            Quake2FileSerializer(stream) {
+                SurfaceColorFormat = " %d %d %d";
             }
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
-                const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
-                const Model::BrushFace::Points& points = face->points();
-                
-                std::fprintf(stream, FaceFormat.c_str(),
-                             points[0].x(),
-                             points[0].y(),
-                             points[0].z(),
-                             points[1].x(),
-                             points[1].y(),
-                             points[1].z(),
-                             points[2].x(),
-                             points[2].y(),
-                             points[2].z(),
-                             textureName.c_str(),
-                             face->xOffset(),
-                             face->yOffset(),
-                             face->rotation(),
-                             face->xScale(),
-                             face->yScale());
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+
+                if (face->hasSurfaceAttributes() || face->hasColor()) {
+                    writeSurfaceAttributes(stream, face);
+                }
+                if (face->hasColor()) {
+                    writeSurfaceColor(stream, face);
+                }
+
+                std::fprintf(stream, "\n");
+                return 1;
+            }
+        protected:
+            void writeSurfaceColor(FILE* stream, Model::BrushFace* face) {
+                std::fprintf(stream, SurfaceColorFormat.c_str(),
+                             face->color().r() * 255.0f,
+                             face->color().g() * 255.0f,
+                             face->color().b() * 255.0f);
+            }
+        };
+
+        class Hexen2FileSerializer : public QuakeFileSerializer {
+        public:
+            Hexen2FileSerializer(FILE* stream):
+            QuakeFileSerializer(stream) {}
+        private:
+            size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+                std::fprintf(stream, "0 \n"); // extra value written here
                 return 1;
             }
         };
         
-        class ValveFileSerializer : public MapFileSerializer {
+        class ValveFileSerializer : public QuakeFileSerializer {
         private:
-            String FaceFormat;
+            String ValveTextureInfoFormat;
         public:
             ValveFileSerializer(FILE* stream) :
-            MapFileSerializer(stream) {
-                StringStream str;
-                str <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "( %." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g " <<
-                "%." << FloatPrecision << "g ) " <<
-                "%s " <<
-                "[ %.6g %.6g %.6g %.6g ] " <<
-                "[ %.6g %.6g %.6g %.6g ] " <<
-                "%.6g %.6g %.6g\n";
-                
-                FaceFormat = str.str();
-            }
+            QuakeFileSerializer(stream),
+            ValveTextureInfoFormat(" %s [ %.6g %.6g %.6g %.6g ] [ %.6g %.6g %.6g %.6g ] %.6g %.6g %.6g") {}
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
+                writeFacePoints(stream, face);
+                writeValveTextureInfo(stream, face);
+                std::fprintf(stream, "\n");
+                return 1;
+            }
+        private:
+            void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Vec3 xAxis = face->textureXAxis();
                 const Vec3 yAxis = face->textureYAxis();
-                const Model::BrushFace::Points& points = face->points();
-                
-                std::fprintf(stream, FaceFormat.c_str(),
-                             points[0].x(),
-                             points[0].y(),
-                             points[0].z(),
-                             points[1].x(),
-                             points[1].y(),
-                             points[1].z(),
-                             points[2].x(),
-                             points[2].y(),
-                             points[2].z(),
-                             
+
+                std::fprintf(stream, ValveTextureInfoFormat.c_str(),
                              textureName.c_str(),
-                             
+
                              xAxis.x(),
                              xAxis.y(),
                              xAxis.z(),
                              face->xOffset(),
-                             
+
                              yAxis.x(),
                              yAxis.y(),
                              yAxis.z(),
                              face->yOffset(),
-                             
+
                              face->rotation(),
                              face->xScale(),
                              face->yScale());
-                return 1;
             }
         };
 
         NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(stream, StandardFileSerializer::Format::Quake));
+                    return NodeSerializer::Ptr(new QuakeFileSerializer(stream));
                 case Model::MapFormat::Quake2:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(stream, StandardFileSerializer::Format::Quake2));
+                    return NodeSerializer::Ptr(new Quake2FileSerializer(stream));
                 case Model::MapFormat::Daikatana:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(stream, StandardFileSerializer::Format::Daikatana));
+                    return NodeSerializer::Ptr(new DaikatanaFileSerializer(stream));
                 case Model::MapFormat::Valve:
                     return NodeSerializer::Ptr(new ValveFileSerializer(stream));
                 case Model::MapFormat::Hexen2:
