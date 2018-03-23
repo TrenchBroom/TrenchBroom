@@ -1074,7 +1074,7 @@ namespace TrenchBroom {
                 if (node == mergeTarget) {
                     return true;
                 } else {
-                    return canReparentNode(node, mergeTarget);
+                    return this->canReparentNode(node, mergeTarget);
                 }
             });
             
