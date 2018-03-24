@@ -515,9 +515,13 @@ namespace TrenchBroom {
                 << newBbox.max.asString() << "\n";
                 
                 std::cout << "make resize with delta: " << faceDelta << "\n";
-                if (document->scaleObjectsBBox(bounds(), newBbox)) {
-                    m_totalDelta += faceDelta;
-                    //m_dragOrigin += faceDelta;
+                if (newBbox.empty()) {
+                    std::cout << "skipping because empty\n";
+                } else {
+                    if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                        m_totalDelta += faceDelta;
+                        //m_dragOrigin += faceDelta;
+                    }
                 }
                 
             } else {
