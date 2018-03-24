@@ -1554,6 +1554,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCsgIntersect:
                     event.Enable(canDoCsgIntersect());
                     break;
+                case CommandIds::Menu::EditCsgHollow:
+                    event.Enable(canDoCsgHollow());
+                    break;
                 case CommandIds::Menu::EditSnapVerticesToInteger:
                 case CommandIds::Menu::EditSnapVerticesToGrid:
                     event.Enable(canSnapVertices());

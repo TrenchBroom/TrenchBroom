@@ -1000,22 +1000,46 @@ namespace TrenchBroom {
             if (brushes.size() <= 0)
                 return false;
             
-            Model::ParentChildrenMap toAdd;      
+            Model::ParentChildrenMap toAdd;
             Model::NodeList toRemove;
-
-            for (Model::Brush* brush : brushes) {
-
-                const Model::BrushList result = brush->hollow(*m_world, m_worldBounds, currentTextureName());
-                VectorUtils::append(toAdd[brush->parent()], result);
-                toRemove.push_back(brush);
-            }
             
+            for (Model::Brush* brush : brushes) {
+                // make an expanded copy of brush
+                Model::Brush* expanded = brush->clone(m_worldBounds);
+                expanded->expand(m_worldBounds, m_grid->actualSize(), true);
+                
+                // subtract each of `brushes` from the expanded brush
+//                Model::BrushList currentMinuends { expanded };
+//                for (const Model::Brush* subtrahend : brushes) {
+//                    Model::BrushList newMinuends;
+//
+//                    for (const Model::Brush* minuend : currentMinuends) {
+//                        const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
+//                        VectorUtils::append(newMinuends, result);
+//                    }
+//
+//                    // currentMinuends are now temporary brushes we must delete
+//                    VectorUtils::deleteAll(currentMinuends);
+//
+//                    currentMinuends = newMinuends;
+//                }
+                
+                
+                const Model::BrushList currentMinuends = expanded->subtract(*m_world, m_worldBounds, currentTextureName(), brush);
+                
+                // now add currentMinuends to the map
+                VectorUtils::append(toAdd[brush->parent()], currentMinuends);
+                toRemove.push_back(brush);
+                
+                delete expanded;
+            }
+
             Transaction transaction(this, "CSG Hollow");
             deselectAll();
             const Model::NodeList added = addNodes(toAdd);
             removeNodes(toRemove);
             select(added);
-
+            
             return true;
         }
 
