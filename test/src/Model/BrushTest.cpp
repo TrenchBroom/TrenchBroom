@@ -3433,5 +3433,19 @@ namespace TrenchBroom {
 
             delete brush;
         }
+        
+        TEST(BrushTest, expand) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+            
+            Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            brush1->expand(worldBounds, 6, true);
+            
+            const BBox3 expandedBBox(Vec3(-70, -70, -70), Vec3(70, 70, 70));
+            
+            EXPECT_EQ(expandedBBox, brush1->bounds());
+            EXPECT_EQ(SetUtils::makeSet(bBoxVertices(expandedBBox)), SetUtils::makeSet(brush1->vertexPositions()));
+        }
     }
 }
