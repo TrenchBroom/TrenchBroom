@@ -131,7 +131,11 @@ namespace TrenchBroom {
         public: // move face along normal
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace* face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture);
-            void expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture);
+            /**
+             * Moves all faces by `delta` units along their normals; negative values shrink the brush.
+             * Returns true if the brush is valid after the modification, false if it is empty.
+             */
+            bool expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture);
         public:
             // geometry access
             size_t vertexCount() const;

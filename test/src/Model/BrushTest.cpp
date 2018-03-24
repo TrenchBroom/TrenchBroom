@@ -3461,12 +3461,35 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
             
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
-            brush1->expand(worldBounds, 6, true);
+            EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
             
             const BBox3 expandedBBox(Vec3(-70, -70, -70), Vec3(70, 70, 70));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(bBoxVertices(expandedBBox)), SetUtils::makeSet(brush1->vertexPositions()));
+        }
+        
+        TEST(BrushTest, contract) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+            
+            Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
+            
+            const BBox3 expandedBBox(Vec3(-32, -32, -32), Vec3(32, 32, 32));
+            
+            EXPECT_EQ(expandedBBox, brush1->bounds());
+            EXPECT_EQ(SetUtils::makeSet(bBoxVertices(expandedBBox)), SetUtils::makeSet(brush1->vertexPositions()));
+        }
+        
+        TEST(BrushTest, contractToZero) {
+            const BBox3 worldBounds(8192.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+            const BrushBuilder builder(&world, worldBounds);
+            
+            Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
         }
     }
 }
