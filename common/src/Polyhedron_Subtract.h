@@ -47,9 +47,10 @@ public:
     m_minuend(minuend),
     m_subtrahend(subtrahend),
     m_callback(callback) {
-        if (clipSubtrahend()) {
+        // FIXME: this early-out test is broken
+        //if (clipSubtrahend()) {
             subtract();
-        }
+        //}
     }
     
     const List result() {

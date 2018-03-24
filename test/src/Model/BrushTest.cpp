@@ -2619,6 +2619,27 @@ namespace TrenchBroom {
             VectorUtils::deleteAll(result);
         }
         
+        TEST(BrushTest, subtractDisjoint) {
+            const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, nullptr, worldBounds);
+            
+            const BBox3 brush1Bounds(Vec3::Null, 8);
+            const BBox3 brush2Bounds(Vec3(128, 128, 0), 8);
+            ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
+            
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
+            Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
+            
+            BrushList result = brush1->subtract(world, worldBounds, "texture", brush2);
+            ASSERT_EQ(1u, result.size());
+            
+            Brush* subtraction = result.at(0);
+            ASSERT_EQ(SetUtils::makeSet(brush1->vertexPositions()), SetUtils::makeSet(subtraction->vertexPositions()));
+
+            VectorUtils::deleteAll(result);
+        }
+        
         TEST(BrushTest, subtractTruncatedCones) {
             // https://github.com/kduske/TrenchBroom/issues/1469
             
