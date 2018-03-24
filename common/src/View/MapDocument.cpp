@@ -1004,34 +1004,17 @@ namespace TrenchBroom {
             Model::NodeList toRemove;
             
             for (Model::Brush* brush : brushes) {
-                // make an expanded copy of brush
-                Model::Brush* expanded = brush->clone(m_worldBounds);
-                expanded->expand(m_worldBounds, m_grid->actualSize(), true);
+                // make an shrunken copy of brush
+                Model::Brush* shrunken = brush->clone(m_worldBounds);
+                if (shrunken->expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
+                    // shrinking gave us a valid brush, so subtract it from `brush`
+                    const Model::BrushList fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    
+                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    toRemove.push_back(brush);
+                }
                 
-                // subtract each of `brushes` from the expanded brush
-//                Model::BrushList currentMinuends { expanded };
-//                for (const Model::Brush* subtrahend : brushes) {
-//                    Model::BrushList newMinuends;
-//
-//                    for (const Model::Brush* minuend : currentMinuends) {
-//                        const Model::BrushList result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahend);
-//                        VectorUtils::append(newMinuends, result);
-//                    }
-//
-//                    // currentMinuends are now temporary brushes we must delete
-//                    VectorUtils::deleteAll(currentMinuends);
-//
-//                    currentMinuends = newMinuends;
-//                }
-                
-                
-                const Model::BrushList currentMinuends = expanded->subtract(*m_world, m_worldBounds, currentTextureName(), brush);
-                
-                // now add currentMinuends to the map
-                VectorUtils::append(toAdd[brush->parent()], currentMinuends);
-                toRemove.push_back(brush);
-                
-                delete expanded;
+                delete shrunken;
             }
 
             Transaction transaction(this, "CSG Hollow");
