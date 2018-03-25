@@ -250,9 +250,12 @@ namespace TrenchBroom {
             // select back faces
             if (localPickResult.empty()) {
                 
-                FloatType closest = std::numeric_limits<FloatType>::max();
+                FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
+                FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
                 Vec3 bestNormal;
                 
+                // idea is: find the closest point on an edge of the cube, belonging
+                // to a face that's facing away from the pick ray.
                 auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
                     if (n.dot(pickRay.direction) > 0.0) {
                         // the face is pointing away from the camera
@@ -260,9 +263,10 @@ namespace TrenchBroom {
                         const std::array<Vec3, 4> points{p0, p1, p2, p3};
                         for (size_t i = 0; i < 4; i++) {
                             const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
-                            if (!Math::isnan(result.distance) && result.distance < closest) {
-                                closest = result.distance;
+                            if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
+                                closestDistToRay = result.distance;
                                 bestNormal = n;
+                                bestDistAlongRay = result.rayDistance;
                             }
                         }
                     }
@@ -270,14 +274,16 @@ namespace TrenchBroom {
                 eachBBoxFace(myBounds, visitor);
                 
                 assert(bestNormal != Vec3::Null);
-                localPickResult.addHit(Model::Hit(ScaleToolFaceHit, closest, pickRay.pointAtDistance(closest), BBoxSide{bestNormal}));
+                localPickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
+                
+                std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
             
             auto hit = localPickResult.query().first();
 
 #if 0
             if (hit.type() == ScaleToolFaceHit)
-                printf("hit face\n");
+                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
             else if (hit.type() == ScaleToolEdgeHit)
                 printf("hit edge\n");
             else if (hit.type() == ScaleToolCornerHit)
