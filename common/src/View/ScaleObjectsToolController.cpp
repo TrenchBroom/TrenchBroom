@@ -123,6 +123,7 @@ namespace TrenchBroom {
                 renderService.renderHandle(corner);
             }
             
+            renderService.renderHandle(m_tool->dragOrigin());
             
             // highlighted stuff
             

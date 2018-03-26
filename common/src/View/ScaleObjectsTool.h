@@ -122,6 +122,10 @@ namespace TrenchBroom {
              * bounds in beginResize()
              */
             BBox3 m_bboxAtDragStart;
+
+        public: // debug only
+            
+            Vec3 dragOrigin() const { return m_dragOrigin; }
             
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
