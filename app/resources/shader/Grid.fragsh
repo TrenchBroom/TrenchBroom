@@ -55,7 +55,8 @@ float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float line
 }
 
 float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor) {
-    float lineWidth = (gridSize < 4 ? 0.25 : 0.5) * lineWidthFactor;
+    float lineWidth = (gridSize < 1 ? (1.0 / 32.0)
+                       : (gridSize < 4 ? 0.25 : 0.5)) * lineWidthFactor;
 
     float baseGridSize = gridSize;
     float nextGridSize = baseGridSize;

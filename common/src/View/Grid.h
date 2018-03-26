@@ -34,21 +34,22 @@ namespace TrenchBroom {
     namespace View {
         class Grid {
         public:
-            static const size_t MaxSize = 8;
+            static const int MaxSize = 8;
+            static const int MinSize = -3;
         private:
-            size_t m_size;
+            int m_size;
             bool m_snap;
             bool m_visible;
         public:
             Notifier0 gridDidChangeNotifier;
         public:
-            Grid(const size_t size);
+            explicit Grid(const int size);
             
-            size_t size() const;
-            void setSize(const size_t size);
+            int size() const;
+            void setSize(const int size);
             void incSize();
             void decSize();
-            size_t actualSize() const;
+            FloatType actualSize() const;
             FloatType angle() const;
         
             bool visible() const;
@@ -103,11 +104,11 @@ namespace TrenchBroom {
                         return actSize * Math::round(f / actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s + actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s - actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s - static_cast<T>(actualSize()) : s;
                     }
 					switchDefault()
                 }

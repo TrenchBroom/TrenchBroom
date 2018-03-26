@@ -680,7 +680,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const size_t snapTo) {
+        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::Snapshot* snapshot = new Model::Snapshot(std::begin(brushes), std::end(brushes));
 

@@ -28,15 +28,21 @@
 namespace TrenchBroom {
     namespace View {
         TEST(GridTest, size) {
-            for (size_t i = 0; i < Grid::MaxSize; ++i)
+            for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
                 ASSERT_EQ(i, Grid(i).size());
         }
         
-        TEST(GridTest, actualSize) {
-            for (size_t i = 0; i < Grid::MaxSize; ++i) {
-                const size_t actualSize = static_cast<size_t>(std::pow(2, i));
+        TEST(GridTest, actualSizeInteger) {
+            for (int i = 0; i < Grid::MaxSize; ++i) {
+                const int actualSize = static_cast<int>(std::pow(2, i));
                 ASSERT_EQ(actualSize, Grid(i).actualSize());
             }
+        }
+        
+        TEST(GridTest, actualSizeSubInteger) {
+            ASSERT_EQ(0.5, Grid(-1).actualSize());
+            ASSERT_EQ(0.25, Grid(-2).actualSize());
+            ASSERT_EQ(0.125, Grid(-3).actualSize());
         }
         
         TEST(GridTest, changeSize) {
@@ -45,6 +51,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, g.size());
             g.decSize();
             ASSERT_EQ(0u, g.size());
+            g.decSize();
+            ASSERT_EQ(-1, g.size());
             
             g.setSize(4u);
             ASSERT_EQ(4u, g.size());
@@ -64,6 +72,12 @@ namespace TrenchBroom {
         }
         
         TEST(GridTest, snapScalars) {
+            ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.0));
+            ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.1));
+            ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.24));
+            ASSERT_DOUBLE_EQ(0.5, Grid(-1).snap(0.25));
+            ASSERT_DOUBLE_EQ(0.5, Grid(-1).snap(0.7));
+            
             ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.0));
             ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.3));
             ASSERT_DOUBLE_EQ(0.0, Grid(0u).snap(0.49));

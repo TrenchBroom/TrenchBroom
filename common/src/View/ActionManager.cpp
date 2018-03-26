@@ -239,6 +239,9 @@ namespace TrenchBroom {
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, "Increase Grid Size", KeyboardShortcut('+'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, "Decrease Grid Size", KeyboardShortcut('-'));
             gridMenu->addSeparator();
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point125, "Set Grid Size 0.125");
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point25, "Set Grid Size 0.25");
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point5, "Set Grid Size 0.5");
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, "Set Grid Size 1", KeyboardShortcut('1'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, "Set Grid Size 2", KeyboardShortcut('2'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, "Set Grid Size 4", KeyboardShortcut('3'));

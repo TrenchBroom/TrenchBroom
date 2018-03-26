@@ -19,6 +19,8 @@
 
 #include "Grid.h"
 
+#include <cmath>
+
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -26,17 +28,18 @@
 
 namespace TrenchBroom {
     namespace View {
-        Grid::Grid(const size_t size) :
+        Grid::Grid(const int size) :
         m_size(size),
         m_snap(true),
         m_visible(true) {}
         
-        size_t Grid::size() const {
+        int Grid::size() const {
             return m_size;
         }
         
-        void Grid::setSize(const size_t size) {
+        void Grid::setSize(const int size) {
             assert(size <= MaxSize);
+            assert(size >= MinSize);
             m_size = size;
             gridDidChangeNotifier();
         }
@@ -49,15 +52,16 @@ namespace TrenchBroom {
         }
         
         void Grid::decSize() {
-            if (m_size > 0) {
+            if (m_size > MinSize) {
                 --m_size;
                 gridDidChangeNotifier();
             }
         }
         
-        size_t Grid::actualSize() const {
-            if (snap())
-                return 1 << m_size;
+        FloatType Grid::actualSize() const {
+            if (snap()) {
+                return std::exp2(m_size);
+            }
             return 1;
         }
         
@@ -236,7 +240,7 @@ namespace TrenchBroom {
             }
             
             Vec3 normDelta = face->boundary().normal * dist;
-            size_t gridSkip = static_cast<size_t>(normDelta.dot(normDelta.firstAxis())) / actualSize();
+            size_t gridSkip = static_cast<size_t>(static_cast<size_t>(normDelta.dot(normDelta.firstAxis())) / actualSize());
             if (gridSkip > 0)
                 --gridSkip;
             FloatType actualDist = std::numeric_limits<FloatType>::max();
