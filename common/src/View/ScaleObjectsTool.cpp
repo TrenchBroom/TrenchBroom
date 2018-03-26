@@ -221,7 +221,10 @@ namespace TrenchBroom {
             for (const BBoxCorner& corner : AllCorners()) {
                 const Vec3 point = pointForBBoxCorner(myBounds, corner);
                 
-                const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                // make the spheres for the corner handles slightly larger than the
+                // cylinders of the edge handles, so they take priority where they overlap.
+                const FloatType cornerRadius = pref(Preferences::HandleRadius) + 0.1;
+                const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
                 if (!Math::isnan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
                 }
