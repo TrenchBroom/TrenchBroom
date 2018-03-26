@@ -56,26 +56,31 @@ namespace TrenchBroom {
         TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures) {
             
             const Vec3 oldSize = box.size();
-            const Vec3 relativeDelta = delta / oldSize;
             
             // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
             Mat4x4 shearMat;
             if (sideToShear == Vec3::PosX) {
+                const Vec3 relativeDelta = delta / oldSize.x();
                 shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
             }
             if (sideToShear == Vec3::NegX) {
+                const Vec3 relativeDelta = delta / oldSize.x();
                 shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
             }
             if (sideToShear == Vec3::PosY) {
+                const Vec3 relativeDelta = delta / oldSize.y();
                 shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
             }
             if (sideToShear == Vec3::NegY) {
+                const Vec3 relativeDelta = delta / oldSize.y();
                 shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
             }
             if (sideToShear == Vec3::PosZ) {
+                const Vec3 relativeDelta = delta / oldSize.z();
                 shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
             }
             if (sideToShear == Vec3::NegZ) {
+                const Vec3 relativeDelta = delta / oldSize.z();
                 shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
             }
             
