@@ -109,6 +109,9 @@ namespace TrenchBroom {
             Vec3 m_dragOrigin;
             /**
              * Total amount of drag accumulated since beginResize()
+             *
+             * Only used to decide whether to commit the change at the end of the drag
+             * in ScaleObjectsTool::commitResize
              */
             Vec3 m_totalDelta;
 
