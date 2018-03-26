@@ -562,7 +562,8 @@ namespace TrenchBroom {
 
                         std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
                         if (document->shearObjects(bounds(), side.normal, delta)) {
-                            m_totalDelta += faceDelta;
+                            // only used to tell whether to commit the shear
+                            m_totalDelta += delta;
                             
                             // update the ref point for the next iteration
                             m_dragOrigin = rayHit;
