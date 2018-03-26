@@ -276,7 +276,7 @@ namespace TrenchBroom {
                 assert(bestNormal != Vec3::Null);
                 localPickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
                 
-                std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
+                //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
             
             auto hit = localPickResult.query().first();
@@ -554,12 +554,14 @@ namespace TrenchBroom {
                         delta[2] = 0;
                     }
                     
-                    std::cout << "make shear with m_dragOrigin: " << m_dragOrigin << "\n";
-                    
-                    std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
-                    if (document->shearObjects(bounds(), side.normal, delta)) {
-                        m_totalDelta += faceDelta;
-                        m_dragOrigin += delta;
+                    if (!delta.null()) {
+                        std::cout << "make shear with m_dragOrigin: " << m_dragOrigin << "\n";
+                        
+                        std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
+                        if (document->shearObjects(bounds(), side.normal, delta)) {
+                            m_totalDelta += faceDelta;
+                            m_dragOrigin += delta;
+                        }
                     }
                 }
                 

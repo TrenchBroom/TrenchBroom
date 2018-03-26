@@ -101,18 +101,25 @@ namespace TrenchBroom {
             
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
-            
-            Vec3 m_dragAxis;
-            
+
+            /**
+             * current "handle" location. Updated every time the currently
+             * dragged face/edge/corner moves one grid step.
+             */
             Vec3 m_dragOrigin;
+            /**
+             * Total amount of drag accumulated since beginResize()
+             */
             Vec3 m_totalDelta;
 
             Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
-            bool m_resizing;
-            //BBoxSide m_dragSide;
+            bool m_resizing; // unused
+            
+            /**
+             * bounds in beginResize()
+             */
             BBox3 m_bboxAtDragStart;
             
-            //bool m_proportional;
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool();
