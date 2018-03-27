@@ -76,10 +76,16 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 ### wxWidgets
-- Currently you must download and build wxWidgets yourself.
+- Currently you must download, patch, and build wxWidgets yourself.
   - Get the latest sources of wxWidgets 3.1 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
   - Move the unpacked directory someplace where you want to keep it.
   - Open a terminal and change into the wxwidgets directory.
+  - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
+
+    ```
+    patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+    ```
+
   - Create two directories: `build-release` and `build-debug` (don't rename those!)
   - Change into `wxwidgets/build-release`
   - Run 
@@ -163,6 +169,12 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Get the latest sources of wxWidgets 3.1 from [wxwidgets.org](http://www.wxwidgets.org) and unpack them.
     - Move the unpacked directory someplace where you want to keep it.
     - Open a terminal and change into the wxwidgets directory.
+    - Apply the patches in `TrenchBroom/patches/wxWidgets` as follows:
+
+      ```
+      patch -p0 < <path_to_trenchbroom_directory>/patches/wxWidgets/*.patch
+      ```
+
     - Create two directories: `build-release` and `build-debug` (don't rename those!)
     - Change into `wxwidgets/build-release`
     - Run
