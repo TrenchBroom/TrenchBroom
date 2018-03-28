@@ -997,8 +997,9 @@ namespace TrenchBroom {
 
         bool MapDocument::csgHollow() {
             const Model::BrushList brushes = selectedNodes().brushes();
-            if (brushes.size() <= 0)
+            if (brushes.empty()) {
                 return false;
+            }
             
             Model::ParentChildrenMap toAdd;
             Model::NodeList toRemove;

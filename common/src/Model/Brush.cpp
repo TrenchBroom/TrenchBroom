@@ -620,6 +620,14 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
         
+        bool Brush::canExpand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) const {
+            Brush *testBrush = clone(worldBounds);
+            const bool didExpand = testBrush->expand(worldBounds, delta, lockTexture);
+            delete testBrush;
+            
+            return didExpand;
+        }
+        
         bool Brush::expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) {
             const NotifyNodeChange nodeChange(this);
             

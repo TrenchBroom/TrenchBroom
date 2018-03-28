@@ -3461,6 +3461,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
             
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
             
             const BBox3 expandedBBox(Vec3(-70, -70, -70), Vec3(70, 70, 70));
@@ -3475,6 +3476,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
             
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
             
             const BBox3 expandedBBox(Vec3(-32, -32, -32), Vec3(32, 32, 32));
@@ -3489,6 +3491,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
             
             Model::Brush *brush1 = builder.createCuboid(BBox3(Vec3(-64, -64, -64), Vec3(64, 64, 64)), "texture");
+            EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
         }
     }
