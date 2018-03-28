@@ -1058,7 +1058,7 @@ It is recommended to use the following general process for compiling maps and to
 
 1. Set the working directory to `${MAP_DIR_PATH}`.
 2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map`.
-3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map`` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
+3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
 4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
 
 The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${WORK_DIR_PATH}/${MAP_BASE_NAME}.*` to copy related files.
