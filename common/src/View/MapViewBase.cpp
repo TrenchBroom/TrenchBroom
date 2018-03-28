@@ -1134,8 +1134,9 @@ namespace TrenchBroom {
 
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             for (const Model::Node* node : nodes) {
-                if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node))
+                if (canReparentNode(node, newParent)) {
                     return true;
+                }
             }
             return false;
         }
