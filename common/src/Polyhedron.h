@@ -472,6 +472,8 @@ public: // Clipping
     };
 
     /**
+     Removes the part of the polyhedron that is in front of the given plane.
+     
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
     ClipResult clip(const Plane<T,3>& plane);

@@ -47,16 +47,26 @@ public:
     m_minuend(minuend),
     m_subtrahend(subtrahend),
     m_callback(callback) {
-        // FIXME: this early-out test is broken
-        //if (clipSubtrahend()) {
+        if (clipSubtrahend()) {
             subtract();
-        //}
+        } else {
+            // minuend and subtrahend are disjoint
+            m_fragments = { minuend };
+        }
     }
     
     const List result() {
         return m_fragments;
     }
 private:
+    /**
+     * Clips away the parts of m_subtrahend which are not intersecting m_minuend
+     * (and therefore aren't useful for the subtraction).
+     * This is an optimization that might result in better quality subtractions.
+     *
+     * If the entire subtrahend is clipped away (i.e. the minuend and subtrahend are disjoint), returns false.
+     * Otherwise, returns true.
+     */
     bool clipSubtrahend() {
         Face* first = m_minuend.faces().front();
         Face* current = first;
