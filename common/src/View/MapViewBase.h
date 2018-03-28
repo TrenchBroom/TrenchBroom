@@ -218,6 +218,7 @@ namespace TrenchBroom {
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
+            void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface

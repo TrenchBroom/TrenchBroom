@@ -291,6 +291,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
@@ -956,6 +957,8 @@ namespace TrenchBroom {
             menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
             if (mergeGroup != nullptr) {
                 menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + mergeGroup->name());
+            } else {
+                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups");
             }
             menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
             
@@ -1198,6 +1201,9 @@ namespace TrenchBroom {
                 case CommandIds::MapViewPopupMenu::UngroupObjects:
                     updateUngroupObjectsMenuItem(event);
                     break;
+                case CommandIds::MapViewPopupMenu::MergeGroups:
+                    updateMergeGroupsMenuItem(event);
+                    break;
                 case CommandIds::MapViewPopupMenu::RenameGroups:
                     updateRenameGroupsMenuItem(event);
                     break;
@@ -1223,6 +1229,12 @@ namespace TrenchBroom {
         void MapViewBase::updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->selectedNodes().hasOnlyGroups());
+        }
+        
+        void MapViewBase::updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
+            event.Enable(mergeGroup != nullptr);
         }
         
         void MapViewBase::updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const {
