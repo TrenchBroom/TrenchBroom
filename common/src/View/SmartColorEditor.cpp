@@ -77,14 +77,14 @@ namespace TrenchBroom {
             assert(m_colorHistory == nullptr);
             
             m_panel = new wxPanel(parent);
-            wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
+            auto* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
             rangeTxt->SetFont(rangeTxt->GetFont().Bold());
             m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
             m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
             m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
             
-            wxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
+            auto* leftSizer = new wxBoxSizer(wxVERTICAL);
             leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(rangeTxt);
             leftSizer->AddSpacer(LayoutConstants::WideVMargin);
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             leftSizer->Add(m_colorPicker);
             leftSizer->AddStretchSpacer();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(leftSizer);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
@@ -139,7 +139,7 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
-            const Assets::ColorRange::Type range = detectColorRange(name(), attributables);
+            const auto range = detectColorRange(name(), attributables);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->SetValue(true);
                 m_byteRadio->SetValue(false);
@@ -154,12 +154,12 @@ namespace TrenchBroom {
         
         struct ColorCmp {
             bool operator()(const wxColor& lhs, const wxColor& rhs) const {
-                const float lr = lhs.Red() / 255.0f;
-                const float lg = lhs.Green() / 255.0f;
-                const float lb = lhs.Blue() / 255.0f;
-                const float rr = rhs.Red() / 255.0f;
-                const float rg = rhs.Green() / 255.0f;
-                const float rb = rhs.Blue() / 255.0f;
+                const auto lr = lhs.Red() / 255.0f;
+                const auto lg = lhs.Green() / 255.0f;
+                const auto lb = lhs.Blue() / 255.0f;
+                const auto rr = rhs.Red() / 255.0f;
+                const auto rg = rhs.Green() / 255.0f;
+                const auto rb = rhs.Blue() / 255.0f;
                 
                 float lh, ls, lbr, rh, rs, rbr;
                 Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
@@ -195,8 +195,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Brush* brush) override   {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {
-                static const Model::AttributeValue NullValue("");
-                const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
+                static const auto NullValue("");
+                const auto& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue)
                     addColor(Model::parseEntityColor(value));
             }
@@ -212,19 +212,19 @@ namespace TrenchBroom {
             m_colorHistory->setColors(collectAllColors.colors());
             
             CollectColorsVisitor collectSelectedColors(name());
-            const Model::AttributableNodeList nodes = document()->allSelectedAttributableNodes();
+            const auto nodes = document()->allSelectedAttributableNodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), collectSelectedColors);
             
-            const wxColorList& selectedColors = collectSelectedColors.colors();
+            const auto& selectedColors = collectSelectedColors.colors();
             m_colorHistory->setSelection(selectedColors);
             
-            const wxColor& color = !selectedColors.empty() ? selectedColors.back() : *wxBLACK;
+            const auto& color = !selectedColors.empty() ? selectedColors.back() : *wxBLACK;
             m_colorPicker->SetColour(color);
         }
         
         void SmartColorEditor::setColor(const wxColor& color) const {
-            const Assets::ColorRange::Type colorRange = m_floatRadio->GetValue() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
-            const Model::AttributeValue value = Model::entityColorAsString(color, colorRange);
+            const auto colorRange = m_floatRadio->GetValue() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
+            const auto value = Model::entityColorAsString(color, colorRange);
             document()->setAttribute(name(), value);
         }
     }

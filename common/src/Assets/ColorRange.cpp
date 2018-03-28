@@ -31,11 +31,21 @@ namespace TrenchBroom {
             if (components.size() != 3)
                 return ColorRange::Unset;
             
-            ColorRange::Type range = ColorRange::Byte;
-            for (size_t i = 0; i < 3 && range == ColorRange::Byte; ++i)
-                if (components[i].find('.') != String::npos)
+            auto range = ColorRange::Byte;
+            auto leq1 = true;
+            for (size_t i = 0; i < 3 && range == ColorRange::Byte; ++i) {
+                if (components[i].find('.') != String::npos) {
                     range = ColorRange::Float;
-            
+                } else if (components[i] != "0" && components[i] != "1") {
+                    leq1 = false;
+                }
+            }
+
+            // All values are either 0 or 1, so we assume float range.
+            if (range == ColorRange::Byte && leq1) {
+                range = ColorRange::Float;
+            }
+
             return range;
         }
     }
