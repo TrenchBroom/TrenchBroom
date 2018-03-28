@@ -275,6 +275,10 @@ namespace TrenchBroom {
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
+        private: // grid helpers
+            static int indexForGridSize(const int gridSize);
+            static int gridSizeForIndex(const int index);
+            static int gridSizeForMenuId(const int menuId);
         };
     }
 }
