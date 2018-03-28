@@ -995,6 +995,38 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MapDocument::csgHollow() {
+            const Model::BrushList brushes = selectedNodes().brushes();
+            if (brushes.empty()) {
+                return false;
+            }
+            
+            Model::ParentChildrenMap toAdd;
+            Model::NodeList toRemove;
+            
+            for (Model::Brush* brush : brushes) {
+                // make an shrunken copy of brush
+                Model::Brush* shrunken = brush->clone(m_worldBounds);
+                if (shrunken->expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
+                    // shrinking gave us a valid brush, so subtract it from `brush`
+                    const Model::BrushList fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    
+                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    toRemove.push_back(brush);
+                }
+                
+                delete shrunken;
+            }
+
+            Transaction transaction(this, "CSG Hollow");
+            deselectAll();
+            const Model::NodeList added = addNodes(toAdd);
+            removeNodes(toRemove);
+            select(added);
+            
+            return true;
+        }
+
         bool MapDocument::clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;

@@ -619,6 +619,32 @@ namespace TrenchBroom {
             face->transform(translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds);
         }
+        
+        bool Brush::canExpand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) const {
+            Brush *testBrush = clone(worldBounds);
+            const bool didExpand = testBrush->expand(worldBounds, delta, lockTexture);
+            delete testBrush;
+            
+            return didExpand;
+        }
+        
+        bool Brush::expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) {
+            const NotifyNodeChange nodeChange(this);
+            
+            // move the faces
+            for (BrushFace* face : m_faces) {
+                const Vec3 moveAmount = face->boundary().normal * delta;
+                face->transform(translationMatrix(moveAmount), lockTexture);
+            }
+            
+            // rebuild geometry
+            try {
+                rebuildGeometry(worldBounds);
+                return !m_faces.empty();
+            } catch (GeometryException&) {
+                return false;
+            }
+        }
 
         size_t Brush::vertexCount() const {
             ensure(m_geometry != nullptr, "geometry is null");
