@@ -296,11 +296,23 @@ namespace TrenchBroom {
         public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;
             
+            /**
+             * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
+             * Otherwise, returns the original point for that axis.
+             */
             Vec3 moveDeltaForPoint(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;
+            /**
+             * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
+             * The box is positioned so it is in front of `dragPlane`.
+             */
             Vec3 moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const;
             Vec3 moveDelta(const BBox3& bounds, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& delta) const;
+            /**
+             * Given `delta`, a vector in the direction of the face's normal,
+             * returns a copy of it, also in the direction of the face's normal, that will try to keep the face on-grid.
+             */
             Vec3 moveDelta(const Model::BrushFace* face, const Vec3& delta) const;
             Vec3 combineDeltas(const Vec3& delta1, const Vec3& delta2) const;
             Vec3 referencePoint(const BBox3& bounds) const;
