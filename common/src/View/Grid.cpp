@@ -240,7 +240,12 @@ namespace TrenchBroom {
             }
             
             Vec3 normDelta = face->boundary().normal * dist;
-            size_t gridSkip = static_cast<size_t>(static_cast<size_t>(normDelta.dot(normDelta.firstAxis())) / actualSize());
+            /**
+             * Scalar projection of normDelta onto the nearest axial normal vector.
+             */
+            const FloatType normDeltaScalarProj = normDelta.dot(normDelta.firstAxis());
+            
+            size_t gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
             if (gridSkip > 0)
                 --gridSkip;
             FloatType actualDist = std::numeric_limits<FloatType>::max();
