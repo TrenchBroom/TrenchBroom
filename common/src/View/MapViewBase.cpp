@@ -283,6 +283,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
             Bind(wxEVT_MENU, &MapViewBase::OnAddObjectsToGroup,            this, CommandIds::MapViewPopupMenu::AddObjectsToGroup);
             Bind(wxEVT_MENU, &MapViewBase::OnRemoveObjectsFromGroup,       this, CommandIds::MapViewPopupMenu::RemoveObjectsFromGroup);
+            Bind(wxEVT_MENU, &MapViewBase::OnMergeGroups,                  this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToEntity);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesTo,                this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
@@ -290,6 +291,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
+            Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MergeGroups);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
@@ -947,11 +949,17 @@ namespace TrenchBroom {
             Model::Node* newBrushParent = findNewParentEntityForBrushes(nodes);
             Model::Node* currentGroup = document->editorContext().currentGroup();
             Model::Node* newGroup = findNewGroupForObjects(nodes);
+            Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
             
             wxMenu menu;
             menu.SetEventHandler(this);
             menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
             menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
+            if (mergeGroup != nullptr) {
+                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups into " + mergeGroup->name());
+            } else {
+                menu.Append(CommandIds::MapViewPopupMenu::MergeGroups, "Merge Groups");
+            }
             menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
             
             if (newGroup != nullptr && newGroup != currentGroup) {
@@ -1043,6 +1051,46 @@ namespace TrenchBroom {
             return nullptr;
         }
         
+        void MapViewBase::OnMergeGroups(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Group* newGroup = findGroupToMergeGroupsInto(document->selectedNodes());
+            ensure(newGroup != nullptr, "newGroup is null");
+            
+            Transaction transaction(document, "Merge Groups");
+            document->mergeSelectedGroupsWithGroup(newGroup);
+        }
+
+        Model::Group* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
+            if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
+                return nullptr;
+            }
+            Model::Group* mergeTarget = nullptr;
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Group::GroupHit).first();
+            if (hit.isMatch()) {
+                mergeTarget = Model::hitToGroup(hit);
+            }
+            
+            const Model::NodeList& nodes = selectedNodes.nodes();
+            const bool canReparentAll = std::all_of(nodes.begin(), nodes.end(), [&](const auto* node){
+                if (node == mergeTarget) {
+                    return true;
+                } else {
+                    return this->canReparentNode(node, mergeTarget);
+                }
+            });
+            
+            if (canReparentAll) {
+                return mergeTarget;
+            }
+            return nullptr;
+        }
+        
+        bool MapViewBase::canReparentNode(const Model::Node* node, const Model::Node* newParent) const {
+            return newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node);
+        }
+        
         void MapViewBase::OnMoveBrushesTo(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1086,8 +1134,9 @@ namespace TrenchBroom {
 
         bool MapViewBase::canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const {
             for (const Model::Node* node : nodes) {
-                if (newParent != node && newParent != node->parent() && !newParent->isDescendantOf(node))
+                if (canReparentNode(node, newParent)) {
                     return true;
+                }
             }
             return false;
         }
@@ -1153,6 +1202,9 @@ namespace TrenchBroom {
                 case CommandIds::MapViewPopupMenu::UngroupObjects:
                     updateUngroupObjectsMenuItem(event);
                     break;
+                case CommandIds::MapViewPopupMenu::MergeGroups:
+                    updateMergeGroupsMenuItem(event);
+                    break;
                 case CommandIds::MapViewPopupMenu::RenameGroups:
                     updateRenameGroupsMenuItem(event);
                     break;
@@ -1178,6 +1230,12 @@ namespace TrenchBroom {
         void MapViewBase::updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->selectedNodes().hasOnlyGroups());
+        }
+        
+        void MapViewBase::updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Node* mergeGroup = findGroupToMergeGroupsInto(document->selectedNodes());
+            event.Enable(mergeGroup != nullptr);
         }
         
         void MapViewBase::updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const {

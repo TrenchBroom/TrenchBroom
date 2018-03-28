@@ -22,6 +22,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
+#include "Model/NodeCollection.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
@@ -164,7 +165,11 @@ namespace TrenchBroom {
             void OnAddObjectsToGroup(wxCommandEvent& event);
             void OnRemoveObjectsFromGroup(wxCommandEvent& event);
             Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
-
+            
+            void OnMergeGroups(wxCommandEvent& event);
+            Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
+            bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
+            
             void OnMoveBrushesTo(wxCommandEvent& event);
             Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
             
@@ -213,6 +218,7 @@ namespace TrenchBroom {
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
+            void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
