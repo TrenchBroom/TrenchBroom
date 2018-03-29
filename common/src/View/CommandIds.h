@@ -84,6 +84,7 @@ namespace TrenchBroom {
                 const int EditCsgConvexMerge                 = Lowest + 116;
                 const int EditCsgSubtract                    = Lowest + 117;
                 const int EditCsgIntersect                   = Lowest + 118;
+                const int EditCsgHollow                      = Lowest + 119;
                 const int EditGroupSelection                 = Lowest + 120;
                 const int EditUngroupSelection               = Lowest + 121;
                 const int ViewHideSelection                  = Lowest + 122;
@@ -191,6 +192,7 @@ namespace TrenchBroom {
                 static const int GroupObjects                       = Lowest + 4;
                 static const int UngroupObjects                     = Lowest + 5;
                 static const int RenameGroups                       = Lowest + 6;
+                static const int MergeGroups                        = Lowest + 7;
             }
         }
     }

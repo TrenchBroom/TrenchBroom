@@ -250,6 +250,7 @@ namespace TrenchBroom {
             bool duplicateObjects() override;
         public: // group management
             Model::Group* groupSelection(const String& name);
+            void mergeSelectedGroupsWithGroup(Model::Group* group);
         private:
             class MatchGroupableNodes;
             Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;
@@ -283,6 +284,7 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
+            bool csgHollow();
         public:
             bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface

@@ -2005,7 +2005,10 @@ TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
     const Polyhedron3d subtrahend(BBox3d(Vec3d(96.0, 96.0, 96.0), Vec3d(128.0, 128.0, 128.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
-    ASSERT_TRUE(result.empty());
+    ASSERT_EQ(1, result.size());
+    
+    const Polyhedron3d resultPolyhedron = result.front();
+    ASSERT_EQ(minuend, resultPolyhedron);
 }
 
 TEST(PolyhedronTest, subtractCuboidFromInnerCuboid) {

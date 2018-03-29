@@ -37,11 +37,12 @@ namespace TrenchBroom {
 
         void MoveObjectsToolPage::createGui() {
             wxStaticText* text = new wxStaticText(this, wxID_ANY, "Move objects by");
-            m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0");
+            m_offset = new wxTextCtrl(this, wxID_ANY, "0.0 0.0 0.0", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
             m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
          
             m_button->Bind(wxEVT_UPDATE_UI, &MoveObjectsToolPage::OnUpdateButton, this);
             m_button->Bind(wxEVT_BUTTON, &MoveObjectsToolPage::OnApply, this);
+            m_offset->Bind(wxEVT_TEXT_ENTER, &MoveObjectsToolPage::OnApply, this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
