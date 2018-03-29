@@ -27,6 +27,7 @@
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/ScaleObjectsToolPage.h"
+#include "BBox.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -122,7 +123,8 @@ namespace TrenchBroom {
              * bounds in beginResize()
              */
             BBox3 m_bboxAtDragStart;
-
+            bool m_isShearing;
+            
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }
@@ -153,6 +155,11 @@ namespace TrenchBroom {
             
             bool hasDragCorner() const;
             Vec3 dragCorner() const;
+            
+            // for rendering sheared bbox
+            BBox3 bboxAtDragStart() const;
+            Mat4x4 bboxShearMatrix() const;
+            bool isShearing() const;
             
             // regular handles
             Vec3::List cornerHandles() const;

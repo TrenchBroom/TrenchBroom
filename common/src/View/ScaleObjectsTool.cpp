@@ -338,6 +338,22 @@ namespace TrenchBroom {
             return pointForBBoxCorner(bounds(), whichCorner);
         }
 
+        // for rendering sheared bbox
+        BBox3 ScaleObjectsTool::bboxAtDragStart() const {
+            return m_bboxAtDragStart;
+        }
+        Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
+            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+            
+            return shearBBoxMatrix(m_bboxAtDragStart,
+                                   side.normal,
+                                   m_totalDelta);
+        }
+        
+        bool ScaleObjectsTool::isShearing() const {
+            return m_isShearing;
+        }
+
         Vec3::List ScaleObjectsTool::cornerHandles() const {
             Vec3::List result;
             result.reserve(8);
@@ -504,6 +520,9 @@ namespace TrenchBroom {
             //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
 
             const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
+            
+            
+            m_isShearing = shear;
             
             if (!shear) {
                 BBox3 newBbox;

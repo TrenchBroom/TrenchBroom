@@ -117,7 +117,17 @@ namespace TrenchBroom {
             
             
             renderService.setForegroundColor(Color(0, 255, 0));
-            renderService.renderBounds(m_tool->bounds());
+            
+            if (m_tool->isShearing()) {
+                // render sheared box
+                const auto mat = m_tool->bboxShearMatrix();
+                const auto op = [&](const Vec3& start, const Vec3& end){
+                    renderService.renderLine(mat * start, mat * end);
+                };
+                eachBBoxEdge(m_tool->bboxAtDragStart(), op);
+            } else {
+                renderService.renderBounds(m_tool->bounds());
+            }
             
             for (const Vec3& corner : m_tool->cornerHandles()) {
                 renderService.renderHandle(corner);
