@@ -148,13 +148,13 @@ namespace TrenchBroom {
             
             // getting highlighted hanles
             bool hasDragPolygon() const;
-            Polygon3 dragPolygon() const;
+            Polygon3f dragPolygon() const;
             
             bool hasDragEdge() const;
-            Edge3 dragEdge() const;
+            Edge3f dragEdge() const;
             
             bool hasDragCorner() const;
-            Vec3 dragCorner() const;
+            Vec3f dragCorner() const;
             
             // for rendering sheared bbox
             BBox3 bboxAtDragStart() const;

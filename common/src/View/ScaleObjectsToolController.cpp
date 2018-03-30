@@ -156,14 +156,14 @@ namespace TrenchBroom {
             
             // highlighted stuff
             
+            renderService.setForegroundColor(Color(255, 255, 0));
             if (m_tool->hasDragPolygon()) {
-                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRendererForSide();
-                edgeRenderer.render(renderBatch, pref(Preferences::ResizeHandleColor));
+                renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
             }
             
             if (m_tool->hasDragEdge()) {
-                Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRendererForEdge();
-                edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
+                const auto line = m_tool->dragEdge();
+                renderService.renderLine(line.start(), line.end());
             }
             
             if (m_tool->hasDragCorner()) {

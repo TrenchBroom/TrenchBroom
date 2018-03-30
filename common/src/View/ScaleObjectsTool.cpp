@@ -309,33 +309,33 @@ namespace TrenchBroom {
             return dragPolygon().vertexCount() > 0;
         }
 
-        Polygon3 ScaleObjectsTool::dragPolygon() const {
+        Polygon3f ScaleObjectsTool::dragPolygon() const {
             if (m_dragStartHit.type() == ScaleToolFaceHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return polygonForBBoxSide(bounds(), side);
+                return Polygon3f(polygonForBBoxSide(bounds(), side));
             }
                                                             
-            return Polygon3();
+            return Polygon3f();
         }
         
         bool ScaleObjectsTool::hasDragEdge() const {
             return m_dragStartHit.type() == ScaleToolEdgeHit;
         }
         
-        Edge3 ScaleObjectsTool::dragEdge() const {
+        Edge3f ScaleObjectsTool::dragEdge() const {
             assert(hasDragEdge());
             auto whichEdge = m_dragStartHit.target<BBoxEdge>();
-            return pointsForBBoxEdge(bounds(), whichEdge);
+            return Edge3f(pointsForBBoxEdge(bounds(), whichEdge));
         }
         
         bool ScaleObjectsTool::hasDragCorner() const {
             return m_dragStartHit.type() == ScaleToolCornerHit;
         }
         
-        Vec3 ScaleObjectsTool::dragCorner() const {
+        Vec3f ScaleObjectsTool::dragCorner() const {
             assert(hasDragCorner());
             auto whichCorner = m_dragStartHit.target<BBoxCorner>();
-            return pointForBBoxCorner(bounds(), whichCorner);
+            return Vec3f(pointForBBoxCorner(bounds(), whichCorner));
         }
 
         // for rendering sheared bbox
@@ -386,7 +386,10 @@ namespace TrenchBroom {
         
       void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {          
             const Model::Hit& hit = pickResult.query().type(ScaleToolFaceHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
-//
+
+            // hack for highlighting on mouseover
+            m_dragStartHit = hit;
+          
 //
 //            auto newDragFaces = getDragPolygon(hit);
 //            //if (newDragFaces != m_dragPolygon)
