@@ -138,9 +138,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(FILE* stream, Model::BrushFace* face) {
                 std::fprintf(stream, SurfaceColorFormat.c_str(),
-                             face->color().r() * 255.0f,
-                             face->color().g() * 255.0f,
-                             face->color().b() * 255.0f);
+                             static_cast<int>(face->color().r()),
+                             static_cast<int>(face->color().g()),
+                             static_cast<int>(face->color().b()));
             }
         };
 

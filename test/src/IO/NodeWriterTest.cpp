@@ -76,7 +76,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush1 = builder.createCube(64.0, "none");
             for (auto* face : brush1->faces()) {
-                face->setColor(Color(1, 2, 3));
+                face->setColor(Color(1.0f, 2.0f, 3.0f));
             }
             map.defaultLayer()->addChild(brush1);
 

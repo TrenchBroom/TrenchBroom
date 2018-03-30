@@ -267,15 +267,21 @@ public:
             result[i] = static_cast<T>(0.0);
         return result;
     }
-    
-    static Vec<T,S> parse(const std::string& str) {
+
+    static bool canParse(const std::string& str, const size_t s = S) {
         size_t pos = 0;
         Vec<T,S> result;
-        doParse(str, pos, result);
+        return doParse(str, pos, s, result);
+    }
+
+    static Vec<T,S> parse(const std::string& str, const size_t s = S) {
+        size_t pos = 0;
+        Vec<T,S> result;
+        doParse(str, pos, s, result);
         return result;
     }
     
-    static List parseList(const std::string& str) {
+    static List parseList(const std::string& str, const size_t s = S) {
         static const std::string blank(" \t\n\r,;");
         
         size_t pos = 0;
@@ -283,7 +289,7 @@ public:
 
         while (pos != std::string::npos) {
             Vec<T,S> temp;
-            if (doParse(str, pos, temp))
+            if (doParse(str, pos, s, temp))
                 result.push_back(temp);
             pos = str.find_first_of(blank, pos);
         }
@@ -292,16 +298,17 @@ public:
     }
 
 private:
-    static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
+    static bool doParse(const std::string& str, size_t& pos, const size_t s, Vec<T,S>& result) {
         static const std::string blank(" \t\n\r()");
+        assert(s <= S);
 
         const char* cstr = str.c_str();
-        for (size_t i = 0; i < S; ++i) {
+        for (size_t i = 0; i < s; ++i) {
             if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
                 return false;
             result[i] = static_cast<T>(std::atof(cstr + pos));
-            if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
-                return false;;
+            if ((pos = str.find_first_of(blank, pos)) == std::string::npos && i < s-1)
+                return false;
         }
         return true;
     }

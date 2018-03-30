@@ -20,9 +20,18 @@
 
 #include "Color.h"
 
+bool Color::canParse(const std::string& str) {
+    return Vec<float, 4>::canParse(str, 4) || Vec<float, 4>::canParse(str, 3);
+}
+
 Color Color::parse(const std::string& str) {
-    const Vec<float, 4> vec = Vec<float, 4>::parse(str);
-    return Color(vec.x(), vec.y(), vec.z(), vec.w());
+    if (Vec<float, 4>::canParse(str, 4)) {
+        const Vec<float, 4> vec = Vec<float, 4>::parse(str);
+        return Color(vec.x(), vec.y(), vec.z(), vec.w());
+    } else {
+        const Vec<float, 3> vec = Vec<float, 3>::parse(str);
+        return Color(vec.x(), vec.y(), vec.z());
+    }
 }
 
 Color::Color() :

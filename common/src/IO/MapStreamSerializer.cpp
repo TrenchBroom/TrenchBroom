@@ -110,9 +110,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(std::ostream& stream, Model::BrushFace* face) {
                 stream <<
-                static_cast<int>(face->color().r() * 255.0f) << " " <<
-                static_cast<int>(face->color().g() * 255.0f) << " " <<
-                static_cast<int>(face->color().b() * 255.0f);
+                static_cast<int>(face->color().r()) << " " <<
+                static_cast<int>(face->color().g()) << " " <<
+                static_cast<int>(face->color().b());
             }
         };
 
