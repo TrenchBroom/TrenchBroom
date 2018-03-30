@@ -157,8 +157,13 @@ namespace TrenchBroom {
             // highlighted stuff
             
             renderService.setForegroundColor(Color(255, 255, 0));
+            
             if (m_tool->hasDragPolygon()) {
                 renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
+                
+                renderService.setShowBackfaces();
+                renderService.setForegroundColor(Color(255, 255, 255, 32));
+                renderService.renderFilledPolygon(m_tool->dragPolygon().vertices());
             }
             
             if (m_tool->hasDragEdge()) {
