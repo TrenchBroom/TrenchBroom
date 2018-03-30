@@ -159,6 +159,7 @@ namespace TrenchBroom {
             // for rendering sheared bbox
             BBox3 bboxAtDragStart() const;
             Mat4x4 bboxShearMatrix() const;
+            Polygon3f shearHandle() const;
             bool isShearing() const;
             
             // regular handles

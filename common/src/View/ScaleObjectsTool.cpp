@@ -343,13 +343,25 @@ namespace TrenchBroom {
             return m_bboxAtDragStart;
         }
         Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
+            assert(m_isShearing);
+            assert(m_dragStartHit.type() == ScaleToolFaceHit);
+            
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             
             return shearBBoxMatrix(m_bboxAtDragStart,
                                    side.normal,
                                    m_totalDelta);
         }
-        
+        Polygon3f ScaleObjectsTool::shearHandle() const {
+            assert(m_isShearing);
+            assert(m_dragStartHit.type() == ScaleToolFaceHit);
+            
+            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+            const Polygon3 polyAtDragStart = polygonForBBoxSide(m_bboxAtDragStart, side);
+            
+            const Polygon3 handle = polyAtDragStart.transformed(bboxShearMatrix());
+            return Polygon3f(handle);
+        }
         bool ScaleObjectsTool::isShearing() const {
             return m_isShearing;
         }
