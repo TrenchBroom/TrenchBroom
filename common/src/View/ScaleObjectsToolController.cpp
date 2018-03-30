@@ -110,8 +110,13 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (thisToolDragging())
+            
+            if (m_tool->isShearing()) {
+                renderContext.setForceHideSelectionGuide();
+            }
+            if (thisToolDragging() && !m_tool->isShearing()) {
                 renderContext.setForceShowSelectionGuide();
+            }
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
         
