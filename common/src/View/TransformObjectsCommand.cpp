@@ -44,12 +44,7 @@ namespace TrenchBroom {
         }
         
         TransformObjectsCommand::Ptr TransformObjectsCommand::scaleBBox(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures) {
-            
-            const Vec3 oldSize = oldBBox.size();
-            const Vec3 newSize = newBBox.size();
-            const Vec3 scaleFactors = newSize / oldSize;
-            
-            const Mat4x4 transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+            const Mat4x4 transform = scaleBBoxMatrix(oldBBox, newBBox);
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Scale Objects", transform, lockTextures));
         }
         

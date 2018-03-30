@@ -455,6 +455,16 @@ BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
 }
 
 template <typename T>
+Mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
+    const Vec<T,3>& oldSize = oldBBox.size();
+    const Vec<T,3>& newSize = newBBox.size();
+    const Vec<T,3> scaleFactors = newSize / oldSize;
+    
+    const Mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+    return transform;
+}
+
+template <typename T>
 Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const Vec<T,3>& sideToShear, const Vec<T,3>& delta) {
     const auto oldSize = box.size();
     
