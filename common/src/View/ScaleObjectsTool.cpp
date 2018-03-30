@@ -305,6 +305,92 @@ namespace TrenchBroom {
         
         // used for rendering
         
+        std::vector<Polygon3f> ScaleObjectsTool::polygonsHighlightedByProportionalDrag() const {
+            if (m_isProportional) {
+                if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                    const auto side = m_dragStartHit.target<BBoxSide>();
+                    
+                    // return all sides except the opposite one
+                    
+
+                    return {};
+                }
+                if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                    return {};
+                }
+            }
+            return {};
+        }
+        
+        /**
+         * For dragging a corner retursn the 3 sides that touch that corner
+         */
+        static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner corner) {
+            std::vector<BBoxSide> result;
+            for (size_t i = 0; i < 3; ++i) {
+                Vec3 sideNormal = Vec3::Null;
+                sideNormal[i] = corner.corner[i];
+                
+                result.push_back(BBoxSide(sideNormal));
+            }
+            assert(result.size() == 3);
+            return result;
+        }
+        
+        /**
+         * For dragging an edge, returns the 2 bbox sides that contain that edge
+         */
+        static std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge edge) {
+            std::vector<BBoxSide> result;
+            
+            const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
+            
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                const Vec3 verts[4] = {p0, p1, p2, p3};
+                
+                // look for the edge
+                for (size_t i = 0; i < 4; ++i) {
+                    if ((verts[i] == edge.point0 && verts[(i+1)%4] == edge.point1)
+                        || (verts[i] == edge.point1 && verts[(i+1)%4] == edge.point0)) {
+                        result.push_back(BBoxSide(n));
+                    }
+                }
+                
+            };
+            eachBBoxFace(box, visitor);
+            assert(result.size() == 2);
+            
+            return result;
+        }
+        
+        static std::vector<Polygon3f> polysForSides(const BBox3& box,
+                                                    const std::vector<BBoxSide>& sides) {
+            std::vector<Polygon3f> result;
+            for (const auto side : sides) {
+                result.push_back(Polygon3f(polygonForBBoxSide(box, side)));
+            }
+            return result;
+        }
+        
+        
+        std::vector<Polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
+            if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                const auto side = m_dragStartHit.target<BBoxSide>();
+                return polysForSides(bounds(), {side});
+                
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                const auto edge = m_dragStartHit.target<BBoxEdge>();
+                return polysForSides(bounds(), sidesForEdgeSelection(edge));
+                
+            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                const auto corner = m_dragStartHit.target<BBoxCorner>();
+                return polysForSides(bounds(), sidesForCornerSelection(corner));
+                
+            } else {
+                return {};
+            }
+        }
+        
         bool ScaleObjectsTool::hasDragPolygon() const {
             return dragPolygon().vertexCount() > 0;
         }
@@ -482,6 +568,7 @@ namespace TrenchBroom {
             m_resizing = true;
             
             m_isShearing = shear;
+            m_isProportional = proportional;
             
             return true;
         }
@@ -620,6 +707,7 @@ namespace TrenchBroom {
 //            m_dragFaces.clear();
             m_resizing = false;
             m_isShearing = false;
+            m_isProportional = false;
         }
         
         void ScaleObjectsTool::cancelResize() {
@@ -628,6 +716,7 @@ namespace TrenchBroom {
 //            m_dragFaces.clear();
             m_resizing = false;
             m_isShearing = false;
+            m_isProportional = false;
         }
         
         void ScaleObjectsTool::bindObservers() {

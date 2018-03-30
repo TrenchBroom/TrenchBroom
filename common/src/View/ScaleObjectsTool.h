@@ -124,6 +124,7 @@ namespace TrenchBroom {
              */
             BBox3 m_bboxAtDragStart;
             bool m_isShearing;
+            bool m_isProportional;
             
         public: // debug only
             
@@ -147,6 +148,11 @@ namespace TrenchBroom {
             std::vector<Polygon3> bboxFaces() const;
             
             // getting highlighted hanles
+            std::vector<Polygon3f> polygonsHighlightedByProportionalDrag() const;
+            std::vector<Polygon3f> polygonsHighlightedByDrag() const;
+            
+            
+            
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;
             

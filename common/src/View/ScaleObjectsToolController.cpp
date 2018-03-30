@@ -59,6 +59,11 @@ namespace TrenchBroom {
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
 //            if (!anyToolDragging(inputState))
 //                m_tool->updateDragFaces(inputState.pickResult());
+            
+            // Modifiers that can be enabled/disabled any time:
+            // - proportional (shift)
+            // - vertical (alt)
+            
             if (thisToolDragging()) {
                 updateResize(inputState);
             }
@@ -127,10 +132,9 @@ namespace TrenchBroom {
             // regular indicators
             
             
-            renderService.setForegroundColor(Color(0, 255, 0));
-            
             if (thisToolDragging() && m_tool->isShearing()) {
                 // render sheared box
+                renderService.setForegroundColor(Color(0, 255, 0));
                 const auto mat = m_tool->bboxShearMatrix();
                 const auto op = [&](const Vec3& start, const Vec3& end){
                     renderService.renderLine(mat * start, mat * end);
@@ -146,6 +150,7 @@ namespace TrenchBroom {
                 return;
             }
             
+            renderService.setForegroundColor(Color(0, 255, 0));
             renderService.renderBounds(m_tool->bounds());            
             
             for (const Vec3& corner : m_tool->cornerHandles()) {
@@ -156,22 +161,26 @@ namespace TrenchBroom {
             
             // highlighted stuff
             
-            renderService.setForegroundColor(Color(255, 255, 0));
             
-            if (m_tool->hasDragPolygon()) {
-                renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
+            
+            auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
+            for (const auto& poly : highlightedPolys) {
+                renderService.setForegroundColor(Color(255, 255, 0));
+                renderService.renderPolygonOutline(poly.vertices());
                 
                 renderService.setShowBackfaces();
                 renderService.setForegroundColor(Color(255, 255, 255, 32));
-                renderService.renderFilledPolygon(m_tool->dragPolygon().vertices());
+                renderService.renderFilledPolygon(poly.vertices());
             }
             
             if (m_tool->hasDragEdge()) {
                 const auto line = m_tool->dragEdge();
+                renderService.setForegroundColor(Color(255, 255, 0));
                 renderService.renderLine(line.start(), line.end());
             }
             
             if (m_tool->hasDragCorner()) {
+                renderService.setForegroundColor(Color(255, 255, 0));
                 renderService.renderHandleHighlight(m_tool->dragCorner());
             }
         }
