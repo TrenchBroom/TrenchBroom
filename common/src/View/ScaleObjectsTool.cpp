@@ -450,7 +450,7 @@ namespace TrenchBroom {
 //            return visitor.faces();
         }
         
-        bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult, const bool split) {
+        bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult, const bool proportional, const bool vertical, const bool shear) {
             const Model::Hit& hit = pickResult.query().type(ScaleToolFaceHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
             if (!hit.isMatch())
                 return false;
@@ -477,6 +477,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Resize Brushes");
             m_resizing = true;
+            
+            m_isShearing = shear;
+            
             return true;
         }
         
@@ -491,14 +494,14 @@ namespace TrenchBroom {
             return res;
         }
         
-        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical, const bool shear) {
+        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
             
             printf("proportional %d vertical %d shear %d\n",
-                   (int)proportional, (int)vertical, (int)shear);
+                   (int)proportional, (int)vertical, (int)m_isShearing);
             
             Vec3 dragObjNormal;
             if (m_dragStartHit.type() == ScaleToolFaceHit) {
@@ -533,10 +536,7 @@ namespace TrenchBroom {
 
             const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             
-            
-            m_isShearing = shear;
-            
-            if (!shear) {
+            if (!m_isShearing) {
                 BBox3 newBbox;
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
                     const auto side = m_dragStartHit.target<BBoxSide>();
@@ -616,6 +616,7 @@ namespace TrenchBroom {
                 document->commitTransaction();
 //            m_dragFaces.clear();
             m_resizing = false;
+            m_isShearing = false;
         }
         
         void ScaleObjectsTool::cancelResize() {
@@ -623,6 +624,7 @@ namespace TrenchBroom {
             document->cancelTransaction();
 //            m_dragFaces.clear();
             m_resizing = false;
+            m_isShearing = false;
         }
         
         void ScaleObjectsTool::bindObservers() {

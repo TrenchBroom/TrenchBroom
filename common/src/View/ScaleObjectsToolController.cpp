@@ -74,8 +74,12 @@ namespace TrenchBroom {
                 return false;
             
             m_tool->updateDragFaces(inputState.pickResult());
-            const bool split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-            if (m_tool->beginResize(inputState.pickResult(), split)) {
+            
+            const bool proportional = inputState.modifierKeysDown(ModifierKeys::MKShift);
+            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+            const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+            
+            if (m_tool->beginResize(inputState.pickResult(), proportional, vertical, shear)) {
                 m_tool->updateDragFaces(inputState.pickResult());
                 return true;
             }
@@ -87,11 +91,13 @@ namespace TrenchBroom {
         }
         
         bool ScaleObjectsToolController::updateResize(const InputState& inputState) {
+            const bool proportional = inputState.modifierKeysDown(ModifierKeys::MKShift);
+            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+                        
             return m_tool->resize(inputState.pickRay(),
                                   inputState.camera(),
-                                  inputState.modifierKeysDown(ModifierKeys::MKShift),
-                                  inputState.modifierKeysDown(ModifierKeys::MKAlt),
-                                  inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
+                                  proportional,
+                                  vertical);
         }
         
         void ScaleObjectsToolController::doEndMouseDrag(const InputState& inputState) {

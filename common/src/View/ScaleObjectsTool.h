@@ -175,8 +175,8 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
-            bool beginResize(const Model::PickResult& pickResult, bool split);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical, const bool shear);
+            bool beginResize(const Model::PickResult& pickResult, const bool proportional, const bool vertical, const bool shear);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical);
             
             void commitResize();
             void cancelResize();
