@@ -449,6 +449,7 @@ namespace TrenchBroom {
         Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
             assert(m_isShearing);
             // FIXME: could be shearing without ScaleToolFaceHit
+            // happens if you cmd+drag on an edge or corner
             assert(m_dragStartHit.type() == ScaleToolFaceHit);
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
@@ -591,18 +592,7 @@ namespace TrenchBroom {
             
             return true;
         }
-        
-        Vec3 makeNormalOnGrid(Vec3 normal) {
-            Vec3 res = normal;
-            for (size_t i = 0; i < 3; ++i) {
-                if (res[i] < 0)
-                    res[i] = -1;
-                if (res[i] > 0)
-                    res[i] = 1;
-            }
-            return res;
-        }
-        
+
         bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
@@ -612,40 +602,53 @@ namespace TrenchBroom {
             printf("proportional %d vertical %d shear %d\n",
                    (int)proportional, (int)vertical, (int)m_isShearing);
             
-            Vec3 dragObjNormal;
-            if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                dragObjNormal = normalForBBoxSide(m_dragStartHit.target<BBoxSide>());
-                std::cout << "ScaleObjectsTool::resize with face normal " << dragObjNormal.asString() << "\n";
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-                dragObjNormal = normalForBBoxEdge(m_dragStartHit.target<BBoxEdge>());
-                std::cout << "ScaleObjectsTool::resize with edge normal " << dragObjNormal.asString() << "\n";
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-                dragObjNormal = normalForBBoxCorner(m_dragStartHit.target<BBoxCorner>());
-                std::cout << "ScaleObjectsTool::resize with corner normal " << dragObjNormal.asString() << "\n";
-            } else
-                assert(0);
-            
-            std::cout << "ScaleObjectsTool::resize with start bbox: "
-                        << m_bboxAtDragStart.min.asString() << "->"
-                        << m_bboxAtDragStart.max.asString() << "\n";
-//                        << " side: " << m_dragSide.normal.asString() << "\n";
-            
-            const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, dragObjNormal);
-            if (distance.parallel)
-                return true;
-
-            const FloatType dragDist = distance.lineDistance;
-
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
-            
-            // FIXME: Do makeNormalOnGrid in a cleaner way
-            const Vec3 relativeFaceDelta = grid.snap(dragDist) * makeNormalOnGrid(dragObjNormal);
-            //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
-
-            const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            
+           
             if (!m_isShearing) {
+                Vec3 dragObjNormal;
+                if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                    dragObjNormal = normalForBBoxSide(m_dragStartHit.target<BBoxSide>());
+                    std::cout << "ScaleObjectsTool::resize with face normal " << dragObjNormal.asString() << "\n";
+                } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                    const auto endEdge = m_dragStartHit.target<BBoxEdge>();
+                    const auto startEdge = oppositeEdge(endEdge);
+                    
+                    const Edge3 endEdgeActual = pointsForBBoxEdge(bounds(), endEdge);
+                    const Edge3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
+                    
+                    dragObjNormal = (endEdgeActual.center() - startEdgeActual.center()).normalized();
+                    
+                    std::cout << "ScaleObjectsTool::resize with edge normal " << dragObjNormal.asString() << "\n";
+                } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                    const auto endCorner = m_dragStartHit.target<BBoxCorner>();
+                    const auto startCorner = oppositeCorner(endCorner);
+                    
+                    const Vec3 endCornerActual = pointForBBoxCorner(bounds(), endCorner);
+                    const Vec3 startCornerActual = pointForBBoxCorner(bounds(), startCorner);
+                    
+                    dragObjNormal = (endCornerActual - startCornerActual).normalized();
+                    
+                    std::cout << "ScaleObjectsTool::resize with corner normal " << dragObjNormal.asString() << "\n";
+                } else
+                    assert(0);
+                
+                std::cout << "ScaleObjectsTool::resize with start bbox: "
+                << m_bboxAtDragStart.min.asString() << "->"
+                << m_bboxAtDragStart.max.asString() << "\n";
+                //                        << " side: " << m_dragSide.normal.asString() << "\n";
+                
+                const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, dragObjNormal);
+                if (distance.parallel)
+                    return true;
+                
+                const FloatType dragDist = distance.lineDistance;
+                
+                const Vec3 relativeFaceDelta = grid.snap(dragDist) * dragObjNormal;
+                //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
+                
+                const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
+                
                 BBox3 newBbox;
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
                     const auto side = m_dragStartHit.target<BBoxSide>();
