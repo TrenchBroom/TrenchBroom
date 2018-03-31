@@ -144,9 +144,10 @@ namespace TrenchBroom {
                 // render shear handle
                 
                 const Polygon3f poly = m_tool->shearHandle();
-                
-                renderService.setForegroundColor(Color(128, 128, 255));
-                renderService.renderPolygonOutline(poly.vertices());
+                if (poly.vertexCount() != 0) {
+                    renderService.setForegroundColor(Color(128, 128, 255));
+                    renderService.renderPolygonOutline(poly.vertices());
+                }
                 return;
             }
             

@@ -448,9 +448,11 @@ namespace TrenchBroom {
         }
         Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
             assert(m_isShearing);
-            // FIXME: could be shearing without ScaleToolFaceHit
+            
             // happens if you cmd+drag on an edge or corner
-            assert(m_dragStartHit.type() == ScaleToolFaceHit);
+            if (m_dragStartHit.type() != ScaleToolFaceHit) {
+                return Mat4x4::Identity;
+            }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             
@@ -460,7 +462,11 @@ namespace TrenchBroom {
         }
         Polygon3f ScaleObjectsTool::shearHandle() const {
             assert(m_isShearing);
-            assert(m_dragStartHit.type() == ScaleToolFaceHit);
+            
+            // happens if you cmd+drag on an edge or corner
+            if (m_dragStartHit.type() != ScaleToolFaceHit) {
+                return Polygon3f();
+            }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             const Polygon3 polyAtDragStart = polygonForBBoxSide(m_bboxAtDragStart, side);
