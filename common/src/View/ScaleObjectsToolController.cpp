@@ -196,30 +196,6 @@ namespace TrenchBroom {
             }
         }
         
-        Renderer::DirectEdgeRenderer ScaleObjectsToolController::buildEdgeRendererForEdge() {
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices;
-            
-            const Edge3 edge = m_tool->dragEdge();
-            vertices.push_back(Vertex(edge.start()));
-            vertices.push_back(Vertex(edge.end()));
-        
-            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-        }
-        
-        Renderer::DirectEdgeRenderer ScaleObjectsToolController::buildEdgeRendererForSide() {
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices;
-            
-            const Polygon3 poly = m_tool->dragPolygon();
-            for (size_t i = 0; i < poly.vertexCount(); ++i) {
-                vertices.push_back(Vertex(poly.vertices().at(i)));
-                vertices.push_back(Vertex(poly.vertices().at((i + 1) % poly.vertexCount())));
-            }
-            
-            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::swap(vertices), GL_LINES);
-        }
-        
         bool ScaleObjectsToolController::doCancel() {
             return false;
         }
