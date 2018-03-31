@@ -664,7 +664,13 @@ namespace TrenchBroom {
                     const Vec3 planeAnchor = poly.vertices().front();
                     
                     // get the point where the pick ray intersects the plane being dragged.
-                    const Vec3 rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(side.normal, planeAnchor));
+                    Vec3 rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(side.normal, planeAnchor));
+                    if (rayHit.nan()) {
+                        // in 2D views the pick ray will be perpendicular to the face normal.
+                        // in that case, use a plane with a normal opposite the pickRay.
+                        rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(pickRay.direction * -1.0, planeAnchor));
+                    }
+                    assert(!rayHit.nan());
                     
                     std::cout << "make shear with rayHit: " << rayHit << "\n";
 
@@ -672,11 +678,19 @@ namespace TrenchBroom {
                     
                     Vec3 delta = rayHit - m_dragOrigin;
                     delta = grid.snap(delta);
-                    if (vertical) {
-                        delta[0] = 0;
-                        delta[1] = 0;
+                    
+                    if (camera.perspectiveProjection()) {
+                        if (vertical) {
+                            delta[0] = 0;
+                            delta[1] = 0;
+                        } else {
+                            delta[2] = 0;
+                        }
+                    } else if (camera.orthographicProjection()) {
+                        const Plane3 cameraPlane(0.0, camera.direction());
+                        delta = cameraPlane.projectVector(delta);
                     } else {
-                        delta[2] = 0;
+                        assert(0);
                     }
 
                     if (!delta.null()) {
