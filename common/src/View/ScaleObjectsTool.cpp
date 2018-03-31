@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 
                 // make the spheres for the corner handles slightly larger than the
                 // cylinders of the edge handles, so they take priority where they overlap.
-                const FloatType cornerRadius = pref(Preferences::HandleRadius) + 0.1;
+                const FloatType cornerRadius = pref(Preferences::HandleRadius) * 2.0;
                 const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
                 if (!Math::isnan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
