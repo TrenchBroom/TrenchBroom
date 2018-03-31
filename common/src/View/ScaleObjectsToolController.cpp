@@ -235,14 +235,14 @@ namespace TrenchBroom {
         ScaleObjectsToolController(tool) {}
         
         Model::Hit ScaleObjectsToolController2D::doPick(const Ray3& pickRay, const Renderer::Camera& camera,const Model::PickResult& pickResult) {
-            return m_tool->pick2D(pickRay, camera, pickResult);
+            return m_tool->pick(pickRay, camera, pickResult, false);
         }
         
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
         Model::Hit ScaleObjectsToolController3D::doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
-            return m_tool->pick3D(pickRay, camera, pickResult);
+            return m_tool->pick(pickRay, camera, pickResult, true);
         }
     }
 }
