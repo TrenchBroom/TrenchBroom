@@ -214,7 +214,7 @@ namespace TrenchBroom {
             Model::PickResult localPickResult;
 
             // these handles only work in 3D.
-            if (is3D) {
+            if (camera.perspectiveProjection()) {
                 // corners
                 for (const BBoxCorner& corner : AllCorners()) {
                     const Vec3 point = pointForBBoxCorner(myBounds, corner);
