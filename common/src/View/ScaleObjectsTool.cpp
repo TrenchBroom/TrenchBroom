@@ -248,6 +248,24 @@ namespace TrenchBroom {
                     }
                 }
             }
+            
+            // bbox corners in 2d views
+            if (camera.orthographicProjection()) {
+                for (const BBoxEdge& edge : AllEdges()) {
+                    const Edge3 points = pointsForBBoxEdge(myBounds, edge);
+                    
+                    // in 2d views, only use edges that are parallel to the camera
+                    if (points.direction().parallelTo(camera.direction())) {
+                        // could figure out which endpoint is closer to camera, or just test both.
+                        for (const Vec3& point : Vec3::List{points.start(), points.end()}) {
+                            const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                            if (!Math::isnan(dist)) {
+                                localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
+                            }
+                        }
+                    }
+                }
+            }
 
             // select back faces
             if (localPickResult.empty()) {
