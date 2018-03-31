@@ -843,8 +843,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canSnapVertices(const BBox3& worldBounds, const size_t snapTo) {
-            const FloatType snapToF = static_cast<FloatType>(snapTo);
+        bool Brush::canSnapVertices(const BBox3& worldBounds, const FloatType snapToF) {
             BrushGeometry newGeometry;
 
             for (const BrushVertex* vertex : m_geometry->vertices()) {
@@ -856,10 +855,9 @@ namespace TrenchBroom {
             return newGeometry.polyhedron();
         }
 
-        void Brush::snapVertices(const BBox3& worldBounds, const size_t snapTo) {
+        void Brush::snapVertices(const BBox3& worldBounds, const FloatType snapToF) {
             ensure(m_geometry != nullptr, "geometry is null");
 
-            const FloatType snapToF = static_cast<FloatType>(snapTo);
             BrushGeometry newGeometry;
 
             for (const BrushVertex* vertex : m_geometry->vertices()) {

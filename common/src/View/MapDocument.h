@@ -307,7 +307,7 @@ namespace TrenchBroom {
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes) override;
             
-            bool snapVertices(size_t snapTo) override;
+            bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
             
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) override;

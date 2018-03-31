@@ -171,8 +171,8 @@ namespace TrenchBroom {
             bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
             void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
             
-            bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
-            void snapVertices(const BBox3& worldBounds, size_t snapTo);
+            bool canSnapVertices(const BBox3& worldBounds, FloatType snapTo);
+            void snapVertices(const BBox3& worldBounds, FloatType snapTo);
 
             // edge operations
             bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const;

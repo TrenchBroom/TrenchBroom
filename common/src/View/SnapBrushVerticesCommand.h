@@ -35,12 +35,12 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<SnapBrushVerticesCommand> Ptr;
         private:
-            size_t m_snapTo;
+            FloatType m_snapTo;
             Model::Snapshot* m_snapshot;
         public:
-            static SnapBrushVerticesCommand::Ptr snap(size_t snapTo);
+            static SnapBrushVerticesCommand::Ptr snap(FloatType snapTo);
         private:
-            SnapBrushVerticesCommand(size_t snapTo);
+            explicit SnapBrushVerticesCommand(FloatType snapTo);
         public:
             ~SnapBrushVerticesCommand();
         private:

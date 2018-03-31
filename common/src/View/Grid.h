@@ -34,21 +34,22 @@ namespace TrenchBroom {
     namespace View {
         class Grid {
         public:
-            static const size_t MaxSize = 8;
+            static const int MaxSize = 8;
+            static const int MinSize = -3;
         private:
-            size_t m_size;
+            int m_size;
             bool m_snap;
             bool m_visible;
         public:
             Notifier0 gridDidChangeNotifier;
         public:
-            Grid(const size_t size);
+            explicit Grid(const int size);
             
-            size_t size() const;
-            void setSize(const size_t size);
+            int size() const;
+            void setSize(const int size);
             void incSize();
             void decSize();
-            size_t actualSize() const;
+            FloatType actualSize() const;
             FloatType angle() const;
         
             bool visible() const;
@@ -103,11 +104,11 @@ namespace TrenchBroom {
                         return actSize * Math::round(f / actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s + actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s - actualSize() : s;
+                        return (skip && Math::eq(s, f)) ? s - static_cast<T>(actualSize()) : s;
                     }
 					switchDefault()
                 }
@@ -295,11 +296,23 @@ namespace TrenchBroom {
         public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;
             
+            /**
+             * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
+             * Otherwise, returns the original point for that axis.
+             */
             Vec3 moveDeltaForPoint(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;
+            /**
+             * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
+             * The box is positioned so it is in front of `dragPlane`.
+             */
             Vec3 moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const;
             Vec3 moveDelta(const BBox3& bounds, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;
             Vec3 moveDelta(const Vec3& delta) const;
+            /**
+             * Given `delta`, a vector in the direction of the face's normal,
+             * returns a copy of it, also in the direction of the face's normal, that will try to keep the face on-grid.
+             */
             Vec3 moveDelta(const Model::BrushFace* face, const Vec3& delta) const;
             Vec3 combineDeltas(const Vec3& delta1, const Vec3& delta2) const;
             Vec3 referencePoint(const BBox3& bounds) const;
