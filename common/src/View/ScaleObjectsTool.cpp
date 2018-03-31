@@ -61,7 +61,7 @@ namespace TrenchBroom {
         static Vec3 normalForBBoxSide(const BBoxSide side) {
             return side.normal;
         }
-                
+        
         static std::vector<BBoxEdge> AllEdges() {
             std::vector<BBoxEdge> result;
             result.reserve(12);
@@ -105,6 +105,10 @@ namespace TrenchBroom {
             return corner.corner.normalized();
         }
         
+        static BBoxSide oppositeSide(const BBoxSide side) {
+            return BBoxSide(side.normal * -1.0);
+        }
+        
         static BBoxCorner oppositeCorner(const BBoxCorner corner) {
             return BBoxCorner(Vec3(-corner.corner.x(),
                                    -corner.corner.y(),
@@ -141,6 +145,23 @@ namespace TrenchBroom {
             
             assert(res.vertexCount() == 4);
             return res;
+        }
+        
+        static Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide side) {
+            const Vec3 wantedNormal = normalForBBoxSide(side);
+            
+            Vec3 result;
+            bool setResult = false;
+            
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                if (n == wantedNormal) {
+                    result = (p0 + p1 + p2 + p3) / 4.0;
+                    setResult = true;
+                }
+            };
+            eachBBoxFace(box, visitor);
+            assert(setResult);
+            return result;
         }
         
         static BBox3 moveBBoxFace(const BBox3& in, const BBoxSide side, const Vec3& delta) {
@@ -612,10 +633,16 @@ namespace TrenchBroom {
             const View::Grid& grid = document->grid();
            
             if (!m_isShearing) {
-                Vec3 dragObjNormal;
+                
+                Vec3 resizeStart, resizeEnd;
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    dragObjNormal = normalForBBoxSide(m_dragStartHit.target<BBoxSide>());
-                    std::cout << "ScaleObjectsTool::resize with face normal " << dragObjNormal.asString() << "\n";
+                    const auto endSide = m_dragStartHit.target<BBoxSide>();
+                    const auto startSide = oppositeSide(endSide);
+                    
+                    resizeStart = centerForBBoxSide(bounds(), startSide);
+                    resizeEnd = centerForBBoxSide(bounds(), endSide);
+
+                    //std::cout << "ScaleObjectsTool::resize with face normal " << dragDir.asString() << "\n";
                 } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                     const auto startEdge = oppositeEdge(endEdge);
@@ -623,34 +650,39 @@ namespace TrenchBroom {
                     const Edge3 endEdgeActual = pointsForBBoxEdge(bounds(), endEdge);
                     const Edge3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
                     
-                    dragObjNormal = (endEdgeActual.center() - startEdgeActual.center()).normalized();
+                    resizeStart = startEdgeActual.center();
+                    resizeEnd = endEdgeActual.center();
                     
-                    std::cout << "ScaleObjectsTool::resize with edge normal " << dragObjNormal.asString() << "\n";
+//                    dragDir = (endEdgeActual.center() - startEdgeActual.center()).normalized();
+//                    std::cout << "ScaleObjectsTool::resize with edge normal " << dragDir.asString() << "\n";
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                     const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                     const auto startCorner = oppositeCorner(endCorner);
                     
-                    const Vec3 endCornerActual = pointForBBoxCorner(bounds(), endCorner);
-                    const Vec3 startCornerActual = pointForBBoxCorner(bounds(), startCorner);
+                    resizeStart = pointForBBoxCorner(bounds(), startCorner);
+                    resizeEnd = pointForBBoxCorner(bounds(), endCorner);
                     
-                    dragObjNormal = (endCornerActual - startCornerActual).normalized();
-                    
-                    std::cout << "ScaleObjectsTool::resize with corner normal " << dragObjNormal.asString() << "\n";
+//                    dragDir = (endCornerActual - startCornerActual).normalized();
+//
+//                    std::cout << "ScaleObjectsTool::resize with corner normal " << dragDir.asString() << "\n";
                 } else
                     assert(0);
+                
+                const Line3 resizeLine(resizeStart, (resizeEnd - resizeStart).normalized());
                 
                 std::cout << "ScaleObjectsTool::resize with start bbox: "
                 << m_bboxAtDragStart.min.asString() << "->"
                 << m_bboxAtDragStart.max.asString() << "\n";
                 //                        << " side: " << m_dragSide.normal.asString() << "\n";
                 
-                const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, dragObjNormal);
+                const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, resizeLine.direction);
                 if (distance.parallel)
                     return true;
                 
                 const FloatType dragDist = distance.lineDistance;
                 
-                const Vec3 relativeFaceDelta = grid.snap(dragDist) * dragObjNormal;
+                const Vec3 relativeFaceDelta = dragDist * resizeLine.direction; //grid.snap(dragDist * resizeLine.direction, resizeLine);
+                //const Vec3 relativeFaceDelta = grid.snap(dragDist) * dragDir;
                 //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
                 
                 const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
