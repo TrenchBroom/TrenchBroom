@@ -127,12 +127,12 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             
-            Renderer::RenderService renderService(renderContext, renderBatch);
             
             // regular indicators
             
-            
             if (thisToolDragging() && m_tool->isShearing()) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                
                 // render sheared box
                 renderService.setForegroundColor(Color(0, 255, 0));
                 const auto mat = m_tool->bboxShearMatrix();
@@ -150,36 +150,47 @@ namespace TrenchBroom {
                 return;
             }
             
-            renderService.setForegroundColor(Color(0, 255, 0));
-            renderService.renderBounds(m_tool->bounds());            
-            
-            for (const Vec3& corner : m_tool->cornerHandles()) {
-                renderService.renderHandle(corner);
+            {
+                // bounds
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(0, 255, 0));
+                renderService.renderBounds(m_tool->bounds());
+                
+                // corner handles
+                for (const Vec3& corner : m_tool->cornerHandles()) {
+                    renderService.renderHandle(corner);
+                }
+                
+                //renderService.renderHandle(m_tool->dragOrigin());
             }
-            
-            renderService.renderHandle(m_tool->dragOrigin());
             
             // highlighted stuff
             
-            
-            
+            // highlight the polygons that will be dragged
             auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
             for (const auto& poly : highlightedPolys) {
-                renderService.setForegroundColor(Color(255, 255, 0));
-                renderService.renderPolygonOutline(poly.vertices());
-                
+                Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setShowBackfaces();
                 renderService.setForegroundColor(Color(255, 255, 255, 32));
                 renderService.renderFilledPolygon(poly.vertices());
             }
             
+            if (m_tool->hasDragPolygon()) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(255, 255, 0));
+                renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
+            }
+            
             if (m_tool->hasDragEdge()) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
                 const auto line = m_tool->dragEdge();
                 renderService.setForegroundColor(Color(255, 255, 0));
+                renderService.setLineWidth(2.0);
                 renderService.renderLine(line.start(), line.end());
             }
             
             if (m_tool->hasDragCorner()) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(255, 255, 0));
                 renderService.renderHandleHighlight(m_tool->dragCorner());
             }
