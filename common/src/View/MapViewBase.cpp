@@ -931,6 +931,7 @@ namespace TrenchBroom {
                 // render fills
                 
                 renderService.setShowBackfaces();
+                renderService.setHideOccludedObjects();
                 renderService.setForegroundColor(pref(Preferences::PortalFileFillColor));
                 
                 for (const auto& poly : portalFile->portals()) {
@@ -939,6 +940,7 @@ namespace TrenchBroom {
                 
                 // render strokes
                 
+                renderService.setLineWidth(4.0f);
                 renderService.setForegroundColor(pref(Preferences::PortalFileBorderColor));
                 for (const auto& poly : portalFile->portals()) {
                     renderService.renderPolygonOutline(poly.vertices());
