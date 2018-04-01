@@ -85,7 +85,7 @@ namespace TrenchBroom {
             m_changeCount(0),
             m_dragging(false) {}
         public:
-            virtual ~VertexToolBase() {}
+            virtual ~VertexToolBase() override {}
         public:
             const Grid& grid() const {
                 return lock(m_document)->grid();

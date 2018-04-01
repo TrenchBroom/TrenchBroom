@@ -125,7 +125,7 @@ namespace TrenchBroom {
             bool m_dragging;
         public:
             ClipTool(MapDocumentWPtr document);
-            ~ClipTool();
+            ~ClipTool() override;
             
             const Grid& grid() const;
             

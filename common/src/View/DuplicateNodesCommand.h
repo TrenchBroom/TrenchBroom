@@ -40,7 +40,7 @@ namespace TrenchBroom {
         private:
             DuplicateNodesCommand();
         public:
-            ~DuplicateNodesCommand();
+            ~DuplicateNodesCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ToolBox m_toolBox;
         public:
             UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~UVView();
+            ~UVView() override;
             
             void setSubDivisions(const Vec2i& subDivisions);
         private:
