@@ -37,7 +37,7 @@ namespace TrenchBroom {
             /**
              * Constructor throws an exception if portalFilePath couldn't be read.
              */
-            PortalFile(const IO::Path& portalFilePath);
+            explicit PortalFile(const IO::Path& portalFilePath);
             
             const Polygon3f::List& portals() const;
         private:

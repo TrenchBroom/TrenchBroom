@@ -30,20 +30,36 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(PortalFileTest, parseIncludedPortalFiles) {
-            const auto basePath = IO::Disk::getCurrentWorkingDir() + IO::Path("data/Model/PortalFile");
-            const auto prtFiles = IO::Disk::findItems(basePath, [] (const IO::Path& path, bool directory) {
-                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "prt");
-            });
+        TEST(PortalFileTest, parseInvalidPRT1) {
+            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1_invalid.prt");
 
-            for (const auto& path : prtFiles) {
-                std::unique_ptr<Model::PortalFile> portalFile;
+            EXPECT_ANY_THROW(const Model::PortalFile p = Model::PortalFile(path));
+        }
 
-                EXPECT_NO_THROW(portalFile = std::make_unique<Model::PortalFile>(path));
-                if (portalFile) {
-                    EXPECT_GT(portalFile->portals().size(), 0);
-                }
-            }
+        static const std::vector<Polygon3f> ExpectedPortals {
+                {{-96,-32,80}, {-96,160,80}, {0,160,80}, {0,-32,80}},
+                {{208,-64,80}, {64,-64,80}, {64,160,80}, {208,160,80}},
+                {{64,80,48}, {64,80,16}, {64,64,0}, {64,32,0}, {64,16,16}, {64,16,48}, {64,32,64}, {64,64,64}},
+                {{0,80,48}, {0,80,16}, {0,64,0}, {0,32,0}, {0,16,16}, {0,16,48}, {0,32,64}, {0,64,64}},
+                {{-64,-32,0}, {-32,-32,0}, {-48,-32,64}}
+        };
+
+        TEST(PortalFileTest, parsePRT1) {
+            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1.prt");
+            const Model::PortalFile portalFile(path);
+            ASSERT_EQ(ExpectedPortals, portalFile.portals());
+        }
+
+        TEST(PortalFileTest, parsePRT1AM) {
+            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt1am.prt");
+            const Model::PortalFile portalFile(path);
+            ASSERT_EQ(ExpectedPortals, portalFile.portals());
+        }
+
+        TEST(PortalFileTest, parsePRT2) {
+            const auto path = IO::Path("data/Model/PortalFile/portaltest_prt2.prt");
+            const Model::PortalFile portalFile(path);
+            ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }
     }
 }
