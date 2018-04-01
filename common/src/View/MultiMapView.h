@@ -38,7 +38,7 @@ namespace TrenchBroom {
         protected:
             MultiMapView(wxWindow* parent);
         public:
-            virtual ~MultiMapView();
+            virtual ~MultiMapView() override;
         protected:
             void addMapView(MapView* mapView);
         private: // implement ViewEffectsService interface

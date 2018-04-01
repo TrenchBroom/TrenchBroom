@@ -81,7 +81,7 @@ namespace TrenchBroom {
             
             void setCompass(Renderer::Compass* compass);
         public:
-            virtual ~MapViewBase();
+            virtual ~MapViewBase() override;
         private:
             void bindObservers();
             void unbindObservers();

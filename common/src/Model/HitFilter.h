@@ -49,7 +49,7 @@ namespace TrenchBroom {
             const HitFilter* m_next;
         public:
             HitFilterChain(const HitFilter* filter, const HitFilter* next);
-            ~HitFilterChain();
+            ~HitFilterChain() override;
         private:
             HitFilter* doClone() const override;
             bool doMatches(const Hit& hit) const override;

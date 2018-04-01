@@ -44,7 +44,7 @@ namespace TrenchBroom {
         
         class TextAnchor3D : public TextAnchor {
         public:
-            virtual ~TextAnchor3D();
+            virtual ~TextAnchor3D() override;
             Vec3f offset(const Camera& camera, const Vec2f& size) const override;
             Vec3f position(const Camera& camera) const override;
         private:

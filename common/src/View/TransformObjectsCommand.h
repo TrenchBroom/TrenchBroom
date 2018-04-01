@@ -54,7 +54,7 @@ namespace TrenchBroom {
             static Ptr translate(const Vec3& delta, bool lockTextures);
             static Ptr rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
             static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
-            ~TransformObjectsCommand();
+            ~TransformObjectsCommand() override;
         private:
             TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
 

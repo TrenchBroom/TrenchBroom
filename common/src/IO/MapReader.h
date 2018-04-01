@@ -87,7 +87,7 @@ namespace TrenchBroom {
             void readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
             void readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
         public:
-            virtual ~MapReader();
+            virtual ~MapReader() override;
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat::Type format) override;
             void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;

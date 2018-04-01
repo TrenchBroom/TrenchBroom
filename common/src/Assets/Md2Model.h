@@ -60,7 +60,7 @@ namespace TrenchBroom {
             FrameList m_frames;
         public:
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
-            ~Md2Model();
+            ~Md2Model() override;
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;

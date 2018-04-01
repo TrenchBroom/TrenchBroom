@@ -97,7 +97,7 @@ namespace TrenchBroom {
             mutable Preference<KeyboardShortcut> m_preference;
         public:
             ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            virtual ~ActionMenuItem();
+            virtual ~ActionMenuItem() override;
 
             wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         protected:
             MenuItemParent(Type type, MenuItemParent* parent, int id, const String& label);
         public:
-            virtual ~MenuItemParent();
+            virtual ~MenuItemParent() override;
 
             void addItem(MenuItem* item);
             const List& items() const;

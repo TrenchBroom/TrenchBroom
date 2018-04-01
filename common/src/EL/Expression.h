@@ -127,7 +127,7 @@ namespace TrenchBroom {
             ArrayExpression(const ExpressionBase::List& elements, size_t line, size_t column);
         public:
             static ExpressionBase* create(const ExpressionBase::List& elements, size_t line, size_t column);
-            ~ArrayExpression();
+            ~ArrayExpression() override;
         private:
             ExpressionBase* doClone() const override;
             ExpressionBase* doOptimize() override;
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             MapExpression(const ExpressionBase::Map& elements, size_t line, size_t column);
         public:
             static ExpressionBase* create(const ExpressionBase::Map& elements, size_t line, size_t column);
-            ~MapExpression();
+            ~MapExpression() override;
         private:
             ExpressionBase* doClone() const override;
             ExpressionBase* doOptimize() override;
@@ -160,7 +160,7 @@ namespace TrenchBroom {
         protected:
             UnaryOperator(ExpressionBase* operand, size_t line, size_t column);
         public:
-            virtual ~UnaryOperator();
+            virtual ~UnaryOperator() override;
         private:
             ExpressionBase* doOptimize() override;
             deleteCopyAndAssignment(UnaryOperator)
@@ -238,7 +238,7 @@ namespace TrenchBroom {
         private:
             SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
         public:
-            ~SubscriptOperator();
+            ~SubscriptOperator() override;
         public:
             static ExpressionBase* create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
         private:
@@ -257,7 +257,7 @@ namespace TrenchBroom {
         protected:
             BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
-            virtual ~BinaryOperator();
+            virtual ~BinaryOperator() override;
         private:
             ExpressionBase* doReorderByPrecedence() override;
             ExpressionBase* doReorderByPrecedence(BinaryOperator* parent) override;
@@ -514,7 +514,7 @@ namespace TrenchBroom {
         private:
             SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column);
         public:
-            ~SwitchOperator();
+            ~SwitchOperator() override;
         public:
             static ExpressionBase* create(const ExpressionBase::List& cases, size_t line, size_t column);
         private:

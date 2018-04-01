@@ -72,7 +72,7 @@ namespace TrenchBroom {
             StandardMapParser(const char* begin, const char* end);
             StandardMapParser(const String& str);
             
-            virtual ~StandardMapParser();
+            virtual ~StandardMapParser() override;
         protected:
             Model::MapFormat::Type detectFormat();
             

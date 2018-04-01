@@ -42,7 +42,7 @@ namespace TrenchBroom {
         
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
         public:
-            virtual ~StandardNodeCollectionStrategy();
+            virtual ~StandardNodeCollectionStrategy() override;
         public:
             void addNode(Node* node) override;
         };
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         private:
             NodeSet m_addedNodes;
         public:
-            virtual ~UniqueNodeCollectionStrategy();
+            virtual ~UniqueNodeCollectionStrategy() override;
         public:
             void addNode(Node* node) override;
         };

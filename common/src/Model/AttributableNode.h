@@ -48,7 +48,7 @@ namespace TrenchBroom {
             // cache the classname for faster access
             AttributeValue m_classname;
         public:
-            virtual ~AttributableNode();
+            virtual ~AttributableNode() override;
         public: // definition
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
