@@ -32,7 +32,7 @@ namespace TrenchBroom {
         protected:
             MipTextureReader(const NameStrategy& nameStrategy);
         public:
-            virtual ~MipTextureReader();
+            virtual ~MipTextureReader() override;
         public:
             static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
         protected:
