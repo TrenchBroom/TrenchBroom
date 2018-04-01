@@ -95,6 +95,11 @@ namespace TrenchBroom {
                 glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
             }
             
+            // Disable depth writes if drawing something transparent
+            if (m_color.a() < 1.0) {
+                glAssert(glDepthMask(GL_FALSE));
+            }
+            
             switch (m_occlusionPolicy) {
                 case OP_Hide:
                     shader.set("Color", m_color);
@@ -114,6 +119,10 @@ namespace TrenchBroom {
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
+            }
+            
+            if (m_color.a() < 1.0) {
+                glAssert(glDepthMask(GL_TRUE));
             }
             
             if (m_cullingPolicy == CP_ShowBackfaces) {
