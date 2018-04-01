@@ -41,6 +41,8 @@ namespace TrenchBroom {
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;
         extern Preference<Color> PointFileColor;
+        extern Preference<Color> PortalFileBorderColor;
+        extern Preference<Color> PortalFileFillColor;
         
         Preference<Color>& axisColor(Math::Axis::Type axis);
         

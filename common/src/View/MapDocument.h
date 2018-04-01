@@ -51,6 +51,7 @@ namespace TrenchBroom {
         class Group;
         class PickResult;
         class PointFile;
+        class PortalFile;
     }
     
     namespace View {
@@ -71,6 +72,7 @@ namespace TrenchBroom {
             Model::World* m_world;
             Model::Layer* m_currentLayer;
             Model::PointFile* m_pointFile;
+            Model::PortalFile* m_portalFile;
             Model::EditorContext* m_editorContext;
             
             Assets::EntityDefinitionManager* m_entityDefinitionManager;
@@ -137,6 +139,9 @@ namespace TrenchBroom {
             
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
+            
+            Notifier0 portalFileWasLoadedNotifier;
+            Notifier0 portalFileWasUnloadedNotifier;
         protected:
             MapDocument();
         public:
@@ -164,6 +169,7 @@ namespace TrenchBroom {
             Grid& grid() const;
             
             Model::PointFile* pointFile() const;
+            Model::PortalFile* portalFile() const;
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
@@ -188,6 +194,10 @@ namespace TrenchBroom {
             void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             void unloadPointFile();
+        public: // portal file management
+            void loadPortalFile(const IO::Path& path);
+            bool isPortalFileLoaded() const;
+            void unloadPortalFile();
         public: // selection
             bool hasSelection() const override;
             bool hasSelectedNodes() const override;

@@ -74,6 +74,7 @@
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
+#include "Model/PortalFile.h"
 #include "Model/World.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -121,6 +122,7 @@ namespace TrenchBroom {
         m_world(nullptr),
         m_currentLayer(nullptr),
         m_pointFile(nullptr),
+        m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
         m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
@@ -140,8 +142,12 @@ namespace TrenchBroom {
         MapDocument::~MapDocument() {
             unbindObservers();
             
-            if (isPointFileLoaded())
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
             clearWorld();
             
             delete m_grid;
@@ -218,6 +224,10 @@ namespace TrenchBroom {
         
         Model::PointFile* MapDocument::pointFile() const {
             return m_pointFile;
+        }
+        
+        Model::PortalFile* MapDocument::portalFile() const {
+            return m_portalFile;
         }
         
         void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
@@ -365,6 +375,37 @@ namespace TrenchBroom {
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
+        }
+        
+        void MapDocument::loadPortalFile(const IO::Path& path) {
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
+            
+            try {
+                m_portalFile = new Model::PortalFile(path);
+            } catch (...) {
+            }
+            
+            if (isPortalFileLoaded()) {
+                info("Loaded portal file " + path.asString());
+                portalFileWasLoadedNotifier();
+            } else {
+                info("Couldn't load portal file " + path.asString());
+            }
+        }
+        
+        bool MapDocument::isPortalFileLoaded() const {
+            return m_portalFile != nullptr;
+        }
+        
+        void MapDocument::unloadPortalFile() {
+            assert(isPortalFileLoaded());
+            delete m_portalFile;
+            m_portalFile = nullptr;
+            
+            info("Unloaded portal file");
+            portalFileWasUnloadedNotifier();
         }
         
         bool MapDocument::hasSelection() const {

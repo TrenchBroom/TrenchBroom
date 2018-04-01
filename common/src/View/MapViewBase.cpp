@@ -38,6 +38,7 @@
 #include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
+#include "Model/PortalFile.h"
 #include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
@@ -885,6 +886,7 @@ namespace TrenchBroom {
             doRenderExtras(renderContext, renderBatch);
             renderCoordinateSystem(renderContext, renderBatch);
             renderPointFile(renderContext, renderBatch);
+            renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -917,6 +919,30 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::PointFileColor));
                 renderService.renderLineStrip(pointFile->points());
+            }
+        }
+        
+        void MapViewBase::renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::PortalFile* portalFile = document->portalFile();
+            if (portalFile != nullptr) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                
+                // render fills
+                
+                renderService.setShowBackfaces();
+                renderService.setForegroundColor(pref(Preferences::PortalFileFillColor));
+                
+                for (const auto& poly : portalFile->portals()) {
+                    renderService.renderFilledPolygon(poly.vertices());
+                }
+                
+                // render strokes
+                
+                renderService.setForegroundColor(pref(Preferences::PortalFileBorderColor));
+                for (const auto& poly : portalFile->portals()) {
+                    renderService.renderPolygonOutline(poly.vertices());
+                }
             }
         }
 

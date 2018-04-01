@@ -679,6 +679,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
@@ -818,6 +820,28 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
+        }
+        
+        void MapFrame::OnFileLoadPortalFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxString defaultDir;
+            if (!m_document->path().isEmpty()) {
+                defaultDir = m_document->path().deleteLastComponent().asString();
+            }
+            wxFileDialog browseDialog(this, "Load Portal File", defaultDir, wxEmptyString, "Portal files (*.prt)|*.prt|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            
+            if (browseDialog.ShowModal() == wxID_OK) {
+                m_document->loadPortalFile(IO::Path(browseDialog.GetPath().ToStdString()));
+            }
+        }
+        
+        void MapFrame::OnFileUnloadPortalFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canUnloadPortalFile()) {
+                m_document->unloadPortalFile();
+            }
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
@@ -1443,6 +1467,12 @@ namespace TrenchBroom {
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
                     break;
+                case CommandIds::Menu::FileLoadPortalFile:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::FileUnloadPortalFile:
+                    event.Enable(canUnloadPortalFile());
+                    break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
                     ensure(item != nullptr, "item is null");
@@ -1701,6 +1731,10 @@ namespace TrenchBroom {
 
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
+        }
+        
+        bool MapFrame::canUnloadPortalFile() const {
+            return m_document->isPortalFileLoaded();
         }
 
         bool MapFrame::canUndo() const {
