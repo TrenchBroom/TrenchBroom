@@ -106,7 +106,7 @@ namespace TrenchBroom {
             ClipTool* m_tool;
         protected:
             ClipToolController(ClipTool* tool);
-            virtual ~ClipToolController();
+            virtual ~ClipToolController() override;
         private:
             Tool* doGetTool() override;
             

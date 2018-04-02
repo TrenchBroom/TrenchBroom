@@ -79,7 +79,7 @@ namespace TrenchBroom {
             MdlTimeList m_times;
             SingleFrameList m_frames;
         public:
-            ~MdlFrameGroup();
+            ~MdlFrameGroup() override;
             const MdlFrame* firstFrame() const override;
             void addFrame(MdlFrame* frame, const float time);
         };
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             MdlFrameList m_frames;
         public:
             explicit MdlModel(const String& name);
-            ~MdlModel();
+            ~MdlModel() override;
             
             void addSkin(MdlSkin* skin);
             void addFrame(MdlBaseFrame* frame);

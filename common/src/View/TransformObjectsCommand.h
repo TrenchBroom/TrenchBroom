@@ -57,7 +57,7 @@ namespace TrenchBroom {
             static Ptr scaleBBox(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures);
             static Ptr shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures);
             static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
-            ~TransformObjectsCommand();
+            ~TransformObjectsCommand() override;
         private:
             TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
 

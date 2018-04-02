@@ -72,7 +72,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
         public:
             LayerListBox(wxWindow* parent, MapDocumentWPtr document);
-            ~LayerListBox();
+            ~LayerListBox() override;
 
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);

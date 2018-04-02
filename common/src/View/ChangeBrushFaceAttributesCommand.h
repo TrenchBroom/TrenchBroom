@@ -43,7 +43,7 @@ namespace TrenchBroom {
         private:
             ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
         public:
-            ~ChangeBrushFaceAttributesCommand();
+            ~ChangeBrushFaceAttributesCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

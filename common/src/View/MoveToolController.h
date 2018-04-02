@@ -70,7 +70,7 @@ namespace TrenchBroom {
             const Grid& m_grid;
         public:
             MoveToolController(const Grid& grid) : m_grid(grid) {}
-            virtual ~MoveToolController() {}
+            virtual ~MoveToolController() override {}
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) override {
                 if (Super::thisToolDragging()) {

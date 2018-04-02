@@ -140,7 +140,7 @@ namespace TrenchBroom {
         protected:
             MapDocument();
         public:
-            virtual ~MapDocument();
+            virtual ~MapDocument() override;
         public: // accessors and such
             Model::GameSPtr game() const;
             const BBox3& worldBounds() const;

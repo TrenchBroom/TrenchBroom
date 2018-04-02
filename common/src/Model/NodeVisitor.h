@@ -94,7 +94,7 @@ namespace TrenchBroom {
         protected:
             MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
         public:
-            virtual ~MatchingNodeVisitor() {}
+            virtual ~MatchingNodeVisitor() override {}
             
             void visit(World* world) override {
                 const bool match = m_p(world);
