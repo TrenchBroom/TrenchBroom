@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
-                virtual ~SelectPartBase() {
+                virtual ~SelectPartBase() override {
                     delete m_lasso;
                 }
             protected:
@@ -229,7 +229,7 @@ namespace TrenchBroom {
                 MoveToolController(tool->grid()),
                 PartBase(tool, hitType) {}
             public:
-                virtual ~MovePartBase() {}
+                virtual ~MovePartBase() override {}
             protected:
                 using PartBase::m_tool;
                 using PartBase::findDraggableHandle;
@@ -306,7 +306,7 @@ namespace TrenchBroom {
             VertexToolControllerBase(T* tool) :
             m_tool(tool) {}
         public:
-            virtual ~VertexToolControllerBase() {}
+            virtual ~VertexToolControllerBase() override {}
         private:
             Tool* doGetTool() override {
                 return m_tool;

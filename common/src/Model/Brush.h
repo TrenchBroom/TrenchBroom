@@ -73,7 +73,7 @@ namespace TrenchBroom {
             mutable bool m_contentTypeValid;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
-            ~Brush();
+            ~Brush() override;
         private:
             void cleanup();
         public:

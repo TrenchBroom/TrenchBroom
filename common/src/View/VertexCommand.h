@@ -39,7 +39,7 @@ namespace TrenchBroom {
         protected:
             VertexCommand(CommandType type, const String& name, const Model::BrushList& brushes);
         public:
-            virtual ~VertexCommand();
+            virtual ~VertexCommand() override;
         protected:
             template <typename H, typename C>
             static void extract(const std::map<H, Model::BrushSet, C>& handleToBrushes, Model::BrushList& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {

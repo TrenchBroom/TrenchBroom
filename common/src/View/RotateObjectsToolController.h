@@ -44,7 +44,7 @@ namespace TrenchBroom {
         protected:
             RotateObjectsToolController(RotateObjectsTool* tool);
         public:
-            virtual ~RotateObjectsToolController();
+            virtual ~RotateObjectsToolController() override;
         private:
             Tool* doGetTool() override;
             

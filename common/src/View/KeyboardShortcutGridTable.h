@@ -40,7 +40,7 @@ namespace TrenchBroom {
             KeyboardGridCellEditor* m_cellEditor;
         public:
             KeyboardShortcutGridTable();
-            ~KeyboardShortcutGridTable();
+            ~KeyboardShortcutGridTable() override;
             
             int GetNumberRows() override;
             int GetNumberCols() override;
