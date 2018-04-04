@@ -223,11 +223,11 @@ namespace TrenchBroom {
         }
         
         Model::PointFile* MapDocument::pointFile() const {
-            return m_pointFile;
+            return m_pointFile.get();
         }
         
         Model::PortalFile* MapDocument::portalFile() const {
-            return m_portalFile;
+            return m_portalFile.get();
         }
         
         void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
@@ -359,7 +359,7 @@ namespace TrenchBroom {
         void MapDocument::loadPointFile(const IO::Path& path) {
             if (isPointFileLoaded())
                 unloadPointFile();
-            m_pointFile = new Model::PointFile(path);
+            m_pointFile = std::make_unique<Model::PointFile>(path);
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -370,7 +370,6 @@ namespace TrenchBroom {
         
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
-            delete m_pointFile;
             m_pointFile = nullptr;
             
             info("Unloaded point file");
@@ -383,15 +382,14 @@ namespace TrenchBroom {
             }
             
             try {
-                m_portalFile = new Model::PortalFile(path);
-            } catch (...) {
+                m_portalFile = std::make_unique<Model::PortalFile>(path);
+            } catch (const std::exception &exception) {
+                info("Couldn't load portal file " + path.asString() + ": " + exception.what());
             }
             
             if (isPortalFileLoaded()) {
                 info("Loaded portal file " + path.asString());
                 portalFileWasLoadedNotifier();
-            } else {
-                info("Couldn't load portal file " + path.asString());
             }
         }
         
@@ -401,7 +399,6 @@ namespace TrenchBroom {
         
         void MapDocument::unloadPortalFile() {
             assert(isPortalFileLoaded());
-            delete m_portalFile;
             m_portalFile = nullptr;
             
             info("Unloaded portal file");

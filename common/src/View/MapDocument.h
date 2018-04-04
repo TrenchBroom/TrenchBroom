@@ -36,6 +36,8 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
+#include <memory>
+
 class Color;
 namespace TrenchBroom {
     namespace Assets {
@@ -71,8 +73,8 @@ namespace TrenchBroom {
             Model::GameSPtr m_game;
             Model::World* m_world;
             Model::Layer* m_currentLayer;
-            Model::PointFile* m_pointFile;
-            Model::PortalFile* m_portalFile;
+            std::unique_ptr<Model::PointFile> m_pointFile;
+            std::unique_ptr<Model::PortalFile> m_portalFile;
             Model::EditorContext* m_editorContext;
             
             Assets::EntityDefinitionManager* m_entityDefinitionManager;
