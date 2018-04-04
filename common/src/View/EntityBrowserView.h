@@ -80,7 +80,7 @@ namespace TrenchBroom {
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
                               Logger& logger);
-            ~EntityBrowserView();
+            ~EntityBrowserView() override;
         public:
             void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
             void setGroup(bool group);

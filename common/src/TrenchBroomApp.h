@@ -48,7 +48,7 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp();
-            ~TrenchBroomApp();
+            ~TrenchBroomApp() override;
             
             void detectAndSetupUbuntu();
         protected:

@@ -73,7 +73,7 @@ namespace TrenchBroom {
                                wxScrollBar* scrollBar,
                                GLContextManager& contextManager,
                                Assets::TextureManager& textureManager);
-            ~TextureBrowserView();
+            ~TextureBrowserView() override;
 
             void setSortOrder(SortOrder sortOrder);
             void setGroup(bool group);

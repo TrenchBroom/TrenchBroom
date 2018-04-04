@@ -42,7 +42,7 @@ namespace TrenchBroom {
         private:
             explicit SnapBrushVerticesCommand(FloatType snapTo);
         public:
-            ~SnapBrushVerticesCommand();
+            ~SnapBrushVerticesCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

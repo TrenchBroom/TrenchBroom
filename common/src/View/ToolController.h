@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         class NoPickingPolicy : public PickingPolicy {
         public:
-            virtual ~NoPickingPolicy();
+            virtual ~NoPickingPolicy() override;
         public:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
         };
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         
         class NoKeyPolicy : public KeyPolicy {
         public:
-            virtual ~NoKeyPolicy();
+            virtual ~NoKeyPolicy() override;
         public:
             void doModifierKeyChange(const InputState& inputState) override;
         };
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         
         class NoMouseDragPolicy : public MouseDragPolicy {
         public:
-            virtual ~NoMouseDragPolicy();
+            virtual ~NoMouseDragPolicy() override;
         public:
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
@@ -275,7 +275,7 @@ namespace TrenchBroom {
 
         public:
             RestrictedDragPolicy();
-            virtual ~RestrictedDragPolicy();
+            virtual ~RestrictedDragPolicy() override;
 
             typedef enum {
                 DR_Continue,
@@ -335,7 +335,7 @@ namespace TrenchBroom {
         
         class NoDropPolicy : public DropPolicy {
         public:
-            virtual ~NoDropPolicy();
+            virtual ~NoDropPolicy() override;
         public:
             bool doDragEnter(const InputState& inputState, const String& payload) override;
             bool doDragMove(const InputState& inputState) override;
@@ -391,7 +391,7 @@ namespace TrenchBroom {
             ToolControllerBase() :
             m_dragging(false) {}
             
-            virtual ~ToolControllerBase() {}
+            virtual ~ToolControllerBase() override {}
             
             void pick(const InputState& inputState, Model::PickResult& pickResult) override {
                 if (toolActive())
@@ -512,7 +512,7 @@ namespace TrenchBroom {
             ToolController* m_dropReceiver;
         public:
             ToolControllerGroup();
-            virtual ~ToolControllerGroup();
+            virtual ~ToolControllerGroup() override;
         protected:
             void addController(ToolController* controller);
         protected:

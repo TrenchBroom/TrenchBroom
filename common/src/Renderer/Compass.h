@@ -46,7 +46,7 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             Compass();
-            virtual ~Compass();
+            virtual ~Compass() override;
             
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface

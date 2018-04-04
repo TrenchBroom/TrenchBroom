@@ -41,7 +41,7 @@ namespace TrenchBroom {
             CompareHits* m_second;
         public:
             CombineCompareHits(CompareHits* first, CompareHits* second);
-            ~CombineCompareHits();
+            ~CombineCompareHits() override;
         private:
             int doCompare(const Hit& lhs, const Hit& rhs) const override;
         };

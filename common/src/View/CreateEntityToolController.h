@@ -34,7 +34,7 @@ namespace TrenchBroom {
         protected:
             CreateEntityToolController(CreateEntityTool* tool);
         public:
-            virtual ~CreateEntityToolController();
+            virtual ~CreateEntityToolController() override;
         private:
             Tool* doGetTool() override;
             

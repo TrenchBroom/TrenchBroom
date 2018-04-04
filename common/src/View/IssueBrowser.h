@@ -54,7 +54,7 @@ namespace TrenchBroom {
             FlagsPopupEditor* m_filterEditor;
         public:
             IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
-            ~IssueBrowser();
+            ~IssueBrowser() override;
 
             wxWindow* createTabBarPage(wxWindow* parent) override;
             

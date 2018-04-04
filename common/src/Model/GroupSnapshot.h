@@ -34,7 +34,7 @@ namespace TrenchBroom {
             NodeSnapshotList m_snapshots;
         public:
             GroupSnapshot(Group* group);
-            ~GroupSnapshot();
+            ~GroupSnapshot() override;
         private:
             void takeSnapshot(Group* group);
             void doRestore(const BBox3& worldBounds) override;

@@ -84,7 +84,7 @@ namespace TrenchBroom {
                 m_block(nullptr),
                 m_vertexCount(vertexCount) {}
                 
-                virtual ~Holder() {
+                virtual ~Holder() override {
                     if (m_block != nullptr) {
                         m_block->free();
                         m_block = nullptr;

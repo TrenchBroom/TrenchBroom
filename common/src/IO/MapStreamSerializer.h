@@ -35,7 +35,7 @@ namespace TrenchBroom {
         protected:
             MapStreamSerializer(std::ostream& stream);
         public:
-            virtual ~MapStreamSerializer();
+            virtual ~MapStreamSerializer() override;
         private:
             void doBeginFile() override;
             void doEndFile() override;

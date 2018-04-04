@@ -47,7 +47,7 @@ namespace TrenchBroom {
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
-            ~MapView3D();
+            ~MapView3D() override;
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);

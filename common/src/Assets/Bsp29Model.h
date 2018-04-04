@@ -62,7 +62,7 @@ namespace TrenchBroom {
             TextureCollection* m_textureCollection;
         public:
             Bsp29Model(const String& name, TextureCollection* textureCollection);
-            ~Bsp29Model();
+            ~Bsp29Model() override;
             
             void addModel(const FaceList& faces, const BBox3f& bounds);
         private:
