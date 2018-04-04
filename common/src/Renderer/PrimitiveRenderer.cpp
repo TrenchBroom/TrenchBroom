@@ -40,10 +40,12 @@ namespace TrenchBroom {
                 return false;
             if (m_color < other.m_color)
                 return true;
-            if (m_color < other.m_color)
+            if (m_color > other.m_color)
                 return false;
             if (m_occlusionPolicy < other.m_occlusionPolicy)
                 return true;
+            if (m_occlusionPolicy > other.m_occlusionPolicy)
+                return false;
             return false;
         }
         
@@ -79,12 +81,16 @@ namespace TrenchBroom {
         bool PrimitiveRenderer::TriangleRenderAttributes::operator<(const TriangleRenderAttributes& other) const {
             if (m_color < other.m_color)
                 return true;
-            if (m_color < other.m_color)
+            if (m_color > other.m_color)
                 return false;
             if (m_occlusionPolicy < other.m_occlusionPolicy)
                 return true;
+            if (m_occlusionPolicy > other.m_occlusionPolicy)
+                return false;
             if (m_cullingPolicy < other.m_cullingPolicy)
                 return true;
+            if (m_cullingPolicy > other.m_cullingPolicy)
+                return false;
             return false;
         }
         
