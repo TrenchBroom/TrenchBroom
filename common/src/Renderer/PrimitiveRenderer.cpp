@@ -34,6 +34,13 @@ namespace TrenchBroom {
         
 
         bool PrimitiveRenderer::LineRenderAttributes::operator<(const LineRenderAttributes& other) const {
+            // As a special exception, sort by descending alpha so opaque batches render first.
+            if (m_color.a() < other.m_color.a())
+                return false;
+            if (m_color.a() > other.m_color.a())
+                return true;
+            // alpha is equal; continue with the regular comparison.
+            
             if (m_lineWidth < other.m_lineWidth)
                 return true;
             if (m_lineWidth > other.m_lineWidth)
@@ -79,6 +86,13 @@ namespace TrenchBroom {
         m_cullingPolicy(cullingPolicy) {}
         
         bool PrimitiveRenderer::TriangleRenderAttributes::operator<(const TriangleRenderAttributes& other) const {
+            // As a special exception, sort by descending alpha so opaque batches render first.
+            if (m_color.a() < other.m_color.a())
+                return false;
+            if (m_color.a() > other.m_color.a())
+                return true;
+            // alpha is equal; continue with the regular comparison.
+
             if (m_color < other.m_color)
                 return true;
             if (m_color > other.m_color)
