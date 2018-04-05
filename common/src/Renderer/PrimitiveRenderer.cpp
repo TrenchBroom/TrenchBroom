@@ -34,16 +34,25 @@ namespace TrenchBroom {
         
 
         bool PrimitiveRenderer::LineRenderAttributes::operator<(const LineRenderAttributes& other) const {
+            // As a special exception, sort by descending alpha so opaque batches render first.
+            if (m_color.a() < other.m_color.a())
+                return false;
+            if (m_color.a() > other.m_color.a())
+                return true;
+            // alpha is equal; continue with the regular comparison.
+            
             if (m_lineWidth < other.m_lineWidth)
                 return true;
             if (m_lineWidth > other.m_lineWidth)
                 return false;
             if (m_color < other.m_color)
                 return true;
-            if (m_color < other.m_color)
+            if (m_color > other.m_color)
                 return false;
             if (m_occlusionPolicy < other.m_occlusionPolicy)
                 return true;
+            if (m_occlusionPolicy > other.m_occlusionPolicy)
+                return false;
             return false;
         }
         
@@ -77,14 +86,25 @@ namespace TrenchBroom {
         m_cullingPolicy(cullingPolicy) {}
         
         bool PrimitiveRenderer::TriangleRenderAttributes::operator<(const TriangleRenderAttributes& other) const {
+            // As a special exception, sort by descending alpha so opaque batches render first.
+            if (m_color.a() < other.m_color.a())
+                return false;
+            if (m_color.a() > other.m_color.a())
+                return true;
+            // alpha is equal; continue with the regular comparison.
+
             if (m_color < other.m_color)
                 return true;
-            if (m_color < other.m_color)
+            if (m_color > other.m_color)
                 return false;
             if (m_occlusionPolicy < other.m_occlusionPolicy)
                 return true;
+            if (m_occlusionPolicy > other.m_occlusionPolicy)
+                return false;
             if (m_cullingPolicy < other.m_cullingPolicy)
                 return true;
+            if (m_cullingPolicy > other.m_cullingPolicy)
+                return false;
             return false;
         }
         
@@ -93,6 +113,11 @@ namespace TrenchBroom {
                 glAssert(glPushAttrib(GL_POLYGON_BIT));
                 glAssert(glDisable(GL_CULL_FACE));
                 glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            }
+            
+            // Disable depth writes if drawing something transparent
+            if (m_color.a() < 1.0) {
+                glAssert(glDepthMask(GL_FALSE));
             }
             
             switch (m_occlusionPolicy) {
@@ -114,6 +139,10 @@ namespace TrenchBroom {
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
+            }
+            
+            if (m_color.a() < 1.0) {
+                glAssert(glDepthMask(GL_TRUE));
             }
             
             if (m_cullingPolicy == CP_ShowBackfaces) {
