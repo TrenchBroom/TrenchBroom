@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MapViewContainer : public wxPanel, public MapView {
         public:
             MapViewContainer(wxWindow* parent);
-            virtual ~MapViewContainer();
+            virtual ~MapViewContainer() override;
         public:
             bool canMaximizeCurrentView() const;
             bool currentViewMaximized() const;

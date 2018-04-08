@@ -79,7 +79,7 @@ namespace TrenchBroom {
         protected:
             ImageFileSystem(const Path& path, MappedFile::Ptr file);
         public:
-            virtual ~ImageFileSystem();
+            virtual ~ImageFileSystem() override;
         protected:
             void initialize();
         private:

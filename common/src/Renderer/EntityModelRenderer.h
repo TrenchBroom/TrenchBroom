@@ -59,7 +59,7 @@ namespace TrenchBroom {
             bool m_showHiddenEntities;
         public:
             EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
-            ~EntityModelRenderer();
+            ~EntityModelRenderer() override;
             
             template <typename I>
             void setEntities(I cur, I end) {

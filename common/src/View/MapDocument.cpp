@@ -74,6 +74,7 @@
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
+#include "Model/PortalFile.h"
 #include "Model/World.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -121,6 +122,7 @@ namespace TrenchBroom {
         m_world(nullptr),
         m_currentLayer(nullptr),
         m_pointFile(nullptr),
+        m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
         m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
@@ -140,8 +142,12 @@ namespace TrenchBroom {
         MapDocument::~MapDocument() {
             unbindObservers();
             
-            if (isPointFileLoaded())
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
             clearWorld();
             
             delete m_grid;
@@ -217,7 +223,11 @@ namespace TrenchBroom {
         }
         
         Model::PointFile* MapDocument::pointFile() const {
-            return m_pointFile;
+            return m_pointFile.get();
+        }
+        
+        Model::PortalFile* MapDocument::portalFile() const {
+            return m_portalFile.get();
         }
         
         void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
@@ -349,7 +359,7 @@ namespace TrenchBroom {
         void MapDocument::loadPointFile(const IO::Path& path) {
             if (isPointFileLoaded())
                 unloadPointFile();
-            m_pointFile = new Model::PointFile(path);
+            m_pointFile = std::make_unique<Model::PointFile>(path);
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -360,11 +370,39 @@ namespace TrenchBroom {
         
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
-            delete m_pointFile;
             m_pointFile = nullptr;
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
+        }
+        
+        void MapDocument::loadPortalFile(const IO::Path& path) {
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
+            
+            try {
+                m_portalFile = std::make_unique<Model::PortalFile>(path);
+            } catch (const std::exception &exception) {
+                info("Couldn't load portal file " + path.asString() + ": " + exception.what());
+            }
+            
+            if (isPortalFileLoaded()) {
+                info("Loaded portal file " + path.asString());
+                portalFileWasLoadedNotifier();
+            }
+        }
+        
+        bool MapDocument::isPortalFileLoaded() const {
+            return m_portalFile != nullptr;
+        }
+        
+        void MapDocument::unloadPortalFile() {
+            assert(isPortalFileLoaded());
+            m_portalFile = nullptr;
+            
+            info("Unloaded portal file");
+            portalFileWasUnloadedNotifier();
         }
         
         bool MapDocument::hasSelection() const {
@@ -723,6 +761,24 @@ namespace TrenchBroom {
             
             return group;
         }
+        
+        void MapDocument::mergeSelectedGroupsWithGroup(Model::Group* group) {
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const Transaction transaction(this, "Merge Groups");
+            const Model::GroupList groupsToMerge = m_selectedNodes.groups();
+            
+            deselectAll();
+            for (auto groupToMerge : groupsToMerge) {
+                if (groupToMerge == group)
+                    continue;
+                    
+                const Model::NodeList children = groupToMerge->children();
+                reparentNodes(group, children);
+            }
+            select(group);
+        }
 
         class MapDocument::MatchGroupableNodes {
         private:
@@ -757,7 +813,7 @@ namespace TrenchBroom {
             
             for (Model::Node* group : groups) {
                 Model::Node* parent = group->parent();
-                const Model::NodeList& children = group->children();
+                const Model::NodeList children = group->children();
                 reparentNodes(parent, children);
                 VectorUtils::append(allChildren, children);
             }
@@ -995,6 +1051,38 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool MapDocument::csgHollow() {
+            const Model::BrushList brushes = selectedNodes().brushes();
+            if (brushes.empty()) {
+                return false;
+            }
+            
+            Model::ParentChildrenMap toAdd;
+            Model::NodeList toRemove;
+            
+            for (Model::Brush* brush : brushes) {
+                // make an shrunken copy of brush
+                Model::Brush* shrunken = brush->clone(m_worldBounds);
+                if (shrunken->expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
+                    // shrinking gave us a valid brush, so subtract it from `brush`
+                    const Model::BrushList fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    
+                    VectorUtils::append(toAdd[brush->parent()], fragments);
+                    toRemove.push_back(brush);
+                }
+                
+                delete shrunken;
+            }
+
+            Transaction transaction(this, "CSG Hollow");
+            deselectAll();
+            const Model::NodeList added = addNodes(toAdd);
+            removeNodes(toRemove);
+            select(added);
+            
+            return true;
+        }
+
         bool MapDocument::clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;
@@ -1116,7 +1204,7 @@ namespace TrenchBroom {
             performRebuildBrushGeometry(brushes);
         }
         
-        bool MapDocument::snapVertices(const size_t snapTo) {
+        bool MapDocument::snapVertices(const FloatType snapTo) {
             assert(m_selectedNodes.hasOnlyBrushes());
             return submitAndStore(SnapBrushVerticesCommand::snap(snapTo));
         }

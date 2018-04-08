@@ -37,20 +37,20 @@ namespace TrenchBroom {
             
             KeyboardShortcut::sortModifierKeys(m_modifiers[0], m_modifiers[1], m_modifiers[2]);
             wxString label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
-            m_label->SetLabel(label);
+            m_shortcutLabel->SetLabel(label);
             Refresh();
         }
         
         KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
         m_panel(new wxPanel(this)),
-        m_label(new wxStaticText(m_panel, wxID_ANY, "")),
+        m_shortcutLabel(new wxStaticText(m_panel, wxID_ANY, "")),
         m_resetOnNextKey(false) {
             resetKey();
             resetModifiers();
             
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-            panelSizer->Add(m_label, 0, wxEXPAND);
+            panelSizer->Add(m_shortcutLabel, 0, wxEXPAND);
             m_panel->SetSizer(panelSizer);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -71,9 +71,9 @@ namespace TrenchBroom {
             m_panel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_panel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
             
-            m_label->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
-            m_label->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
-            m_label->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_shortcutLabel->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_shortcutLabel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_shortcutLabel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
         }
 
         int KeyboardShortcutEditor::key() const {
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
+            m_shortcutLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
             Refresh();
             event.Skip();
         }
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
+            m_shortcutLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             Refresh();
             event.Skip();
         }

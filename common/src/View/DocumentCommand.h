@@ -29,7 +29,7 @@ namespace TrenchBroom {
             size_t m_modificationCount;
         public:
             DocumentCommand(CommandType type, const String& name);
-            virtual ~DocumentCommand();
+            virtual ~DocumentCommand() override;
         public:
             bool performDo(MapDocumentCommandFacade* document) override;
             bool performUndo(MapDocumentCommandFacade* document) override;

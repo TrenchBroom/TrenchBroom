@@ -148,11 +148,11 @@ namespace TrenchBroom {
             m_showGrid = showGrid;
         }
         
-        size_t RenderContext::gridSize() const {
+        FloatType RenderContext::gridSize() const {
             return m_gridSize;
         }
         
-        void RenderContext::setGridSize(const size_t gridSize) {
+        void RenderContext::setGridSize(const FloatType gridSize) {
             m_gridSize = gridSize;
         }
 

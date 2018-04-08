@@ -38,7 +38,7 @@ namespace TrenchBroom {
             FileSystemList m_fileSystems;
         public:
             FileSystemHierarchy();
-            virtual ~FileSystemHierarchy();
+            virtual ~FileSystemHierarchy() override;
             
             void addFileSystem(FileSystem* fileSystem);
             virtual void clear();

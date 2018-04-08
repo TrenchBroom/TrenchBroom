@@ -44,7 +44,7 @@ namespace TrenchBroom {
         protected:
             ResizeBrushesToolController(ResizeBrushesTool* tool);
         public:
-            virtual ~ResizeBrushesToolController();
+            virtual ~ResizeBrushesToolController() override;
         private:
             Tool* doGetTool() override;
             

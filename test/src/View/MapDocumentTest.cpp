@@ -291,5 +291,69 @@ namespace TrenchBroom {
             ASSERT_EQ(outer, innerEnt1->parent());
             ASSERT_EQ(outer, innerEnt2->parent());
         }
+        
+        TEST_F(MapDocumentTest, ungroupLeavesPointEntitySelected) {
+            Model::Entity* ent1 = new Model::Entity();
+            
+            document->addNode(ent1, document->currentParent());
+            document->select(Model::NodeList {ent1});
+            
+            Model::Group* group = document->groupSelection("Group");
+            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            
+            document->ungroupSelection();
+            ASSERT_EQ((Model::NodeList {ent1}), document->selectedNodes().nodes());
+        }
+        
+        TEST_F(MapDocumentTest, ungroupLeavesBrushEntitySelected) {
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            
+            Model::Entity* ent1 = new Model::Entity();
+            document->addNode(ent1, document->currentParent());
+            
+            Model::Brush* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, ent1);
+            document->select(Model::NodeList{ent1});
+            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            ASSERT_FALSE(ent1->selected());
+            ASSERT_TRUE(brush1->selected());
+            
+            Model::Group* group = document->groupSelection("Group");
+            ASSERT_EQ((Model::NodeList {ent1}), group->children());
+            ASSERT_EQ((Model::NodeList {group}), document->selectedNodes().nodes());
+            
+            document->ungroupSelection();
+            ASSERT_EQ((Model::NodeList {brush1}), document->selectedNodes().nodes());
+            ASSERT_FALSE(ent1->selected());
+            ASSERT_TRUE(brush1->selected());
+        }
+        
+        TEST_F(MapDocumentTest, mergeGroups) {
+            document->selectAllNodes();
+            document->deleteObjects();
+            
+            Model::Entity* ent1 = new Model::Entity();
+            document->addNode(ent1, document->currentParent());
+            document->deselectAll();
+            document->select(Model::NodeList {ent1});
+            Model::Group* group1 = document->groupSelection("group1");
+            
+            Model::Entity* ent2 = new Model::Entity();
+            document->addNode(ent2, document->currentParent());
+            document->deselectAll();
+            document->select(Model::NodeList {ent2});
+            Model::Group* group2 = document->groupSelection("group2");
+            
+            ASSERT_EQ((Model::NodeSet {group1, group2}), SetUtils::makeSet(document->currentLayer()->children()));
+            
+            document->select(Model::NodeList {group1, group2});
+            document->mergeSelectedGroupsWithGroup(group2);
+            
+            ASSERT_EQ((Model::NodeList {group2}), document->selectedNodes().nodes());
+            ASSERT_EQ((Model::NodeList {group2}), document->currentLayer()->children());
+            
+            ASSERT_EQ((Model::NodeSet {}), SetUtils::makeSet(group1->children()));
+            ASSERT_EQ((Model::NodeSet {ent1, ent2}), SetUtils::makeSet(group2->children()));
+        }
     }
 }

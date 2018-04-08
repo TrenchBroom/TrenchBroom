@@ -34,7 +34,7 @@ namespace TrenchBroom {
         FILE* m_file;
     public:
         FileLogger(const IO::Path& filePath);
-        ~FileLogger();
+        ~FileLogger() override;
         
         static FileLogger& instance();
     private:

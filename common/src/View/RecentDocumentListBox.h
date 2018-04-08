@@ -33,7 +33,7 @@ namespace TrenchBroom {
             wxBitmap m_documentIcon;
         public:
             RecentDocumentListBox(wxWindow* parent);
-            ~RecentDocumentListBox();
+            ~RecentDocumentListBox() override;
             
             void OnListBoxDoubleClick(wxCommandEvent& event);
         private:

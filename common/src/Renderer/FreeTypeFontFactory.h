@@ -33,7 +33,7 @@ namespace TrenchBroom {
             FT_Library m_library;
         public:
             FreeTypeFontFactory();
-            ~FreeTypeFontFactory();
+            ~FreeTypeFontFactory() override;
         private:
             TextureFont* doCreateFont(const FontDescriptor& fontDescriptor) override;
             

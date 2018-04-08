@@ -63,7 +63,7 @@ namespace TrenchBroom {
             class CameraEvent;
         public:
             FlyModeHelper(wxWindow* window, Renderer::Camera& camera);
-            ~FlyModeHelper();
+            ~FlyModeHelper() override;
             
             void enable();
             void disable();

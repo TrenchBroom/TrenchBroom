@@ -69,7 +69,7 @@ namespace TrenchBroom {
             bool m_showFog;
             
             bool m_showGrid;
-            size_t m_gridSize;
+            FloatType m_gridSize;
             
             bool m_hideSelection;
             bool m_tintSelection;
@@ -116,8 +116,8 @@ namespace TrenchBroom {
             bool showGrid() const;
             void setShowGrid(bool showGrid);
             
-            size_t gridSize() const;
-            void setGridSize(size_t gridSize);
+            FloatType gridSize() const;
+            void setGridSize(FloatType gridSize);
             
             bool hideSelection() const;
             void setHideSelection();

@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         class StringHolder : public ValueHolder {
         public:
-            virtual ~StringHolder();
+            virtual ~StringHolder() override;
             
             ValueType type() const override;
             const StringType& stringValue() const override;

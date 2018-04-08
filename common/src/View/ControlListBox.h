@@ -37,7 +37,7 @@ namespace TrenchBroom {
             class Item : public wxWindow {
             public:
                 Item(wxWindow* parent);
-                virtual ~Item();
+                virtual ~Item() override;
                 
                 bool AcceptsFocus() const override;
                 

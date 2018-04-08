@@ -47,7 +47,7 @@ namespace TrenchBroom {
         private:
             CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
         public:
-            ~CopyTexCoordSystemFromFaceCommand();
+            ~CopyTexCoordSystemFromFaceCommand() override;
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;

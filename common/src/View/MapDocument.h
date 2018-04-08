@@ -36,6 +36,8 @@
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
 
+#include <memory>
+
 class Color;
 namespace TrenchBroom {
     namespace Assets {
@@ -51,6 +53,7 @@ namespace TrenchBroom {
         class Group;
         class PickResult;
         class PointFile;
+        class PortalFile;
     }
     
     namespace View {
@@ -70,7 +73,8 @@ namespace TrenchBroom {
             Model::GameSPtr m_game;
             Model::World* m_world;
             Model::Layer* m_currentLayer;
-            Model::PointFile* m_pointFile;
+            std::unique_ptr<Model::PointFile> m_pointFile;
+            std::unique_ptr<Model::PortalFile> m_portalFile;
             Model::EditorContext* m_editorContext;
             
             Assets::EntityDefinitionManager* m_entityDefinitionManager;
@@ -137,10 +141,13 @@ namespace TrenchBroom {
             
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
+            
+            Notifier0 portalFileWasLoadedNotifier;
+            Notifier0 portalFileWasUnloadedNotifier;
         protected:
             MapDocument();
         public:
-            virtual ~MapDocument();
+            virtual ~MapDocument() override;
         public: // accessors and such
             Model::GameSPtr game() const;
             const BBox3& worldBounds() const;
@@ -164,6 +171,7 @@ namespace TrenchBroom {
             Grid& grid() const;
             
             Model::PointFile* pointFile() const;
+            Model::PortalFile* portalFile() const;
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
@@ -188,6 +196,10 @@ namespace TrenchBroom {
             void loadPointFile(const IO::Path& path);
             bool isPointFileLoaded() const;
             void unloadPointFile();
+        public: // portal file management
+            void loadPortalFile(const IO::Path& path);
+            bool isPortalFileLoaded() const;
+            void unloadPortalFile();
         public: // selection
             bool hasSelection() const override;
             bool hasSelectedNodes() const override;
@@ -250,6 +262,7 @@ namespace TrenchBroom {
             bool duplicateObjects() override;
         public: // group management
             Model::Group* groupSelection(const String& name);
+            void mergeSelectedGroupsWithGroup(Model::Group* group);
         private:
             class MatchGroupableNodes;
             Model::NodeList collectGroupableNodes(const Model::NodeList& selectedNodes) const;
@@ -280,6 +293,7 @@ namespace TrenchBroom {
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
+            bool csgHollow();
         public:
             bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
@@ -305,7 +319,7 @@ namespace TrenchBroom {
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes) override;
             
-            bool snapVertices(size_t snapTo) override;
+            bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
             
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) override;
