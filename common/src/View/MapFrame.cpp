@@ -1366,6 +1366,7 @@ namespace TrenchBroom {
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wcast-qual"
 #endif
         static void debugSegfault() {
             volatile void *test = nullptr;
