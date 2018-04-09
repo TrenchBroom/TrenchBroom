@@ -132,7 +132,7 @@ namespace TrenchBroom {
             
         public:
             ScaleObjectsTool(MapDocumentWPtr document);
-            ~ScaleObjectsTool();
+            ~ScaleObjectsTool() override;
             
             bool applies() const;
             

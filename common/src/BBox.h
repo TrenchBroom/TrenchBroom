@@ -465,6 +465,15 @@ Mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
 }
 
 template <typename T>
+Mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const Vec<T,3>& newSize, const Vec<T,3>& anchorPoint) {
+    const Vec<T,3>& oldSize = oldBBox.size();
+    const Vec<T,3> scaleFactors = newSize / oldSize;
+
+    const Mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
+    return transform;
+}
+
+template <typename T>
 Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const Vec<T,3>& sideToShear, const Vec<T,3>& delta) {
     const auto oldSize = box.size();
     
