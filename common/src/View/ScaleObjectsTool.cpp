@@ -129,6 +129,19 @@ namespace TrenchBroom {
             return Edge3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
         }
+
+        static size_t axisIndexParallelToBBoxEdge(const BBoxEdge edge) {
+            size_t answer = 0;
+            size_t timesSet = 0;
+            for (size_t i = 0; i < 3; ++i) {
+                if (edge.point0[i] != edge.point1[i]) {
+                    answer = i;
+                    ++timesSet;
+                }
+            }
+            assert(timesSet == 1);
+            return answer;
+        }
         
         static Vec3 normalForBBoxEdge(const BBoxEdge edge) {
             const Vec3 corner0Normal = edge.point0;
@@ -199,31 +212,54 @@ namespace TrenchBroom {
         }
 
 
-        static BBox3 moveBBoxCornerProportional(const BBox3& in, const BBoxCorner corner, const Vec3& delta) {
+        static BBox3 moveBBoxCorner(const BBox3& in,
+                                    const Line3& dragLine,
+                                    const FloatType sideLength,
+                                    const BBoxCorner corner) {
+
             const BBoxCorner opposite = oppositeCorner(corner);
-            
-            const Vec3::List newVerts {
-                pointForBBoxCorner(in, opposite),
-                pointForBBoxCorner(in, corner) + delta,
-            };
-            
-            return BBox3(newVerts);
+            const Vec3 anchor = pointForBBoxCorner(in, opposite);
+
+            const size_t axis1 = dragLine.direction.firstComponent();
+            const size_t axis2 = dragLine.direction.secondComponent();
+            const size_t axis3 = dragLine.direction.thirdComponent();
+
+            Vec3 newSize = in.size();
+
+            newSize[axis1] = sideLength;
+            const FloatType ratio = sideLength / in.size()[axis1];
+            newSize[axis2] *= ratio;
+            newSize[axis3] *= ratio;
+
+            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
+
+            return BBox3(matrix * in.min, matrix * in.max);
         }
-        
-        static BBox3 moveBBoxEdge(const BBox3& in, const BBoxEdge edge, const Vec3& delta) {
+
+        static BBox3 moveBBoxEdge(const BBox3& in,
+                                    const Line3& dragLine,
+                                    const FloatType sideLength,
+                                    const BBoxEdge edge) {
+
             const BBoxEdge opposite = oppositeEdge(edge);
-            
-            const Edge3 oppositePoints = pointsForBBoxEdge(in, opposite);
-            const Edge3 edgePoints = pointsForBBoxEdge(in, edge);
-            
-            const Vec3::List newVerts {
-                oppositePoints.start(),
-                oppositePoints.end(),
-                edgePoints.start() + delta,
-                edgePoints.end() + delta,
-            };
-            
-            return BBox3(newVerts);
+            const Vec3 anchor = pointsForBBoxEdge(in, opposite).center();
+
+            // get the ratio
+            const size_t axis1 = dragLine.direction.firstComponent();
+            const FloatType ratio = sideLength / in.size()[axis1];
+
+            const size_t edgeAxis = axisIndexParallelToBBoxEdge(edge);
+
+            Vec3 newSize = in.size();
+            for (size_t i = 0; i < 3; ++i) {
+                if (i != edgeAxis) {
+                    newSize[i] *= ratio;
+                }
+            }
+
+            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
+
+            return BBox3(matrix * in.min, matrix * in.max);
         }
         
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
@@ -720,10 +756,10 @@ namespace TrenchBroom {
                     newBbox = moveBBoxFace(bounds(), side, dragDist, proportional);
                 } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    //newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, faceDelta);
+                    newBbox = moveBBoxEdge(bounds(), resizeLineSnapped, dragDist, edge);
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                     const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxFace(bounds(), sideForNormal(resizeLineSnapped.direction), dragDist, true);
+                    newBbox = moveBBoxCorner(bounds(), resizeLineSnapped, dragDist, corner);
                 } else
                     assert(0);
 
