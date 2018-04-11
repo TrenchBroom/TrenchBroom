@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
+#include <array>
 
 namespace TrenchBroom {
     namespace View {
@@ -183,6 +184,32 @@ namespace TrenchBroom {
         }
 
         // manipulating bboxes
+
+        static BBox3 moveBBoxGeneral(const BBox3& in,
+                                     const Vec3& dragLineStart,
+                                     const Vec3& dragLineEnd,
+                                     const size_t numAxes) {
+
+            const Vec3 resizeDir = (dragLineEnd - dragLineStart).normalized();
+            const std::array<size_t, 3> axes {
+                    resizeDir.firstComponent(),
+                    resizeDir.secondComponent(),
+                    resizeDir.thirdComponent()
+            };
+
+            Vec3 newSize = in.size();
+
+            assert(numAxes >= 1 && numAxes <= 3);
+
+            for (size_t i = 0; i < numAxes; ++i) {
+                const size_t axisIndex = axes[i];
+                newSize[axisIndex] = std::abs(dragLineEnd[axisIndex] - dragLineStart[axisIndex]);
+            }
+
+            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, dragLineStart);
+
+            return BBox3(matrix * in.min, matrix * in.max);
+        }
 
         static BBox3 moveBBoxFace(const BBox3& in, const BBoxSide side, const FloatType sideLength, const bool proportional) {
             if (sideLength <= 0) {
@@ -729,20 +756,15 @@ namespace TrenchBroom {
                 //  - corner dragging: diagonally opposite corner to corner being dragged
                 const Line3 resizeLine(resizeStart, (resizeEnd - resizeStart).normalized());
 
-                // snap to axis.
-                const Line3 resizeLineSnapped(resizeStart, resizeLine.direction.firstAxis());
-                std::cout << "ScaleObjectsTool::resizeDirSnapped: " << resizeLineSnapped.direction << "\n";
-
-                // project the pick ray's closest point to the resizeLine onto resizeLine.
-
-                const Ray3::LineDistance distance = pickRay.distanceToLine(resizeLineSnapped.point, resizeLineSnapped.direction);
+                // find closest point on resizeLine to pickRay
+                const Ray3::LineDistance distance = pickRay.distanceToLine(resizeLine.point, resizeLine.direction);
                 if (distance.parallel)
                     return true;
 
-                //const Vec3 hitPoint = resizeLineSnapped.pointAtDistance(distance.lineDistance);
+                const Vec3 hitPoint = resizeLine.pointAtDistance(distance.lineDistance);
+                const Vec3 hitPointSnapped = grid.snap(hitPoint, resizeLine);
 
-                // FIXME: snap on absolute grid
-                const FloatType dragDist = grid.snap(distance.lineDistance);
+                const FloatType dragDist = resizeLine.distance(hitPointSnapped);
 
                 if (dragDist < 0.0) {
                     std::cout << "can't collapse bbox\n";
@@ -751,15 +773,16 @@ namespace TrenchBroom {
 
                 // only do sides for now
                 BBox3 newBbox;
+
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    const auto side = m_dragStartHit.target<BBoxSide>();
-                    newBbox = moveBBoxFace(bounds(), side, dragDist, proportional);
+//                    const auto side = m_dragStartHit.target<BBoxSide>();
+                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, proportional ? 3 : 1);
                 } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-                    const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    newBbox = moveBBoxEdge(bounds(), resizeLineSnapped, dragDist, edge);
+//                    const auto edge = m_dragStartHit.target<BBoxEdge>();
+                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, proportional ? 3 : 2);
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-                    const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxCorner(bounds(), resizeLineSnapped, dragDist, corner);
+//                    const auto corner = m_dragStartHit.target<BBoxCorner>();
+                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, 3);
                 } else
                     assert(0);
 
