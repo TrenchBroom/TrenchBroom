@@ -177,6 +177,8 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPortalFile, "Load Portal File...");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPortalFile, "Unload Portal File");
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
             

@@ -38,6 +38,7 @@
 #include "Model/HitQuery.h"
 #include "Model/Layer.h"
 #include "Model/PointFile.h"
+#include "Model/PortalFile.h"
 #include "Model/PushSelection.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
@@ -893,6 +894,7 @@ namespace TrenchBroom {
             doRenderExtras(renderContext, renderBatch);
             renderCoordinateSystem(renderContext, renderBatch);
             renderPointFile(renderContext, renderBatch);
+            renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -925,6 +927,32 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::PointFileColor));
                 renderService.renderLineStrip(pointFile->points());
+            }
+        }
+        
+        void MapViewBase::renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::PortalFile* portalFile = document->portalFile();
+            if (portalFile != nullptr) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                
+                // render fills
+                
+                renderService.setShowBackfaces();
+                renderService.setHideOccludedObjects();
+                renderService.setForegroundColor(pref(Preferences::PortalFileFillColor));
+                
+                for (const auto& poly : portalFile->portals()) {
+                    renderService.renderFilledPolygon(poly.vertices());
+                }
+                
+                // render strokes
+                
+                renderService.setLineWidth(4.0f);
+                renderService.setForegroundColor(pref(Preferences::PortalFileBorderColor));
+                for (const auto& poly : portalFile->portals()) {
+                    renderService.renderPolygonOutline(poly.vertices());
+                }
             }
         }
 
@@ -1103,13 +1131,15 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
 
             const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent, false);
-            document->select(newParent->children());
+
+            document->deselectAll();
+            document->select(nodes);
         }
         
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {

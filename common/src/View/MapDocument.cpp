@@ -74,6 +74,7 @@
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
+#include "Model/PortalFile.h"
 #include "Model/World.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -121,6 +122,7 @@ namespace TrenchBroom {
         m_world(nullptr),
         m_currentLayer(nullptr),
         m_pointFile(nullptr),
+        m_portalFile(nullptr),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
         m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
@@ -140,8 +142,12 @@ namespace TrenchBroom {
         MapDocument::~MapDocument() {
             unbindObservers();
             
-            if (isPointFileLoaded())
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
             clearWorld();
             
             delete m_grid;
@@ -217,7 +223,11 @@ namespace TrenchBroom {
         }
         
         Model::PointFile* MapDocument::pointFile() const {
-            return m_pointFile;
+            return m_pointFile.get();
+        }
+        
+        Model::PortalFile* MapDocument::portalFile() const {
+            return m_portalFile.get();
         }
         
         void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
@@ -349,7 +359,7 @@ namespace TrenchBroom {
         void MapDocument::loadPointFile(const IO::Path& path) {
             if (isPointFileLoaded())
                 unloadPointFile();
-            m_pointFile = new Model::PointFile(path);
+            m_pointFile = std::make_unique<Model::PointFile>(path);
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -360,11 +370,39 @@ namespace TrenchBroom {
         
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
-            delete m_pointFile;
             m_pointFile = nullptr;
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
+        }
+        
+        void MapDocument::loadPortalFile(const IO::Path& path) {
+            if (isPortalFileLoaded()) {
+                unloadPortalFile();
+            }
+            
+            try {
+                m_portalFile = std::make_unique<Model::PortalFile>(path);
+            } catch (const std::exception &exception) {
+                info("Couldn't load portal file " + path.asString() + ": " + exception.what());
+            }
+            
+            if (isPortalFileLoaded()) {
+                info("Loaded portal file " + path.asString());
+                portalFileWasLoadedNotifier();
+            }
+        }
+        
+        bool MapDocument::isPortalFileLoaded() const {
+            return m_portalFile != nullptr;
+        }
+        
+        void MapDocument::unloadPortalFile() {
+            assert(isPortalFileLoaded());
+            m_portalFile = nullptr;
+            
+            info("Unloaded portal file");
+            portalFileWasUnloadedNotifier();
         }
         
         bool MapDocument::hasSelection() const {

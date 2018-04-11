@@ -59,8 +59,10 @@ namespace TrenchBroom {
                 const int ViewDecGridSize                    = Lowest +  75;
                 const int FileLoadPointFile                  = Lowest +  76;
                 const int FileUnloadPointFile                = Lowest +  77;
-                const int ViewMoveCameraToNextPoint          = Lowest +  78;
-                const int ViewMoveCameraToPreviousPoint      = Lowest +  79;
+                const int FileLoadPortalFile                 = Lowest +  78;
+                const int FileUnloadPortalFile               = Lowest +  79;
+                const int ViewMoveCameraToNextPoint          = Lowest +  80;
+                const int ViewMoveCameraToPreviousPoint      = Lowest +  81;
 
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;

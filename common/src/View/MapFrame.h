@@ -141,6 +141,8 @@ namespace TrenchBroom {
             void OnFileExportObj(wxCommandEvent& event);
             void OnFileLoadPointFile(wxCommandEvent& event);
             void OnFileUnloadPointFile(wxCommandEvent& event);
+            void OnFileLoadPortalFile(wxCommandEvent& event);
+            void OnFileUnloadPortalFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
             void OnEditUndo(wxCommandEvent& event);
@@ -241,6 +243,7 @@ namespace TrenchBroom {
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
             bool canUnloadPointFile() const;
+            bool canUnloadPortalFile() const;
 
             bool canUndo() const;
             void undo();
