@@ -1054,13 +1054,8 @@ namespace TrenchBroom {
             const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent, false);
 
-            if (isEntity(newParent)) {
-                document->select(newParent->children());
-            } else {
-                // Assume newParent is the world. Select only the reparented nodes.
-                document->deselectAll();
-                document->select(nodes);
-            }
+            document->deselectAll();
+            document->select(nodes);
         }
         
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {
