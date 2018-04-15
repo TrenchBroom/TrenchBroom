@@ -1,3 +1,4 @@
+image: Visual Studio 2017
 version: 2.0.0-appveyor-{build}
 install:
 - cinst pandoc
