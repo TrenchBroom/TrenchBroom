@@ -521,6 +521,12 @@ Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const Vec<T,3>& sideToShear, co
     return transform;
 }
 
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
+    stream << "{min:" << bbox.min << " max:" << bbox.max << "}";
+    return stream;
+}
+
 typedef BBox<float,1> BBox1f;
 typedef BBox<double,1> BBox1d;
 typedef BBox<float,2> BBox2f;
