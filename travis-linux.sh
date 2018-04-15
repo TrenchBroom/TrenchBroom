@@ -15,7 +15,7 @@ cd wxWidgets || exit 1
 #patch -p0 < ../patches/wxWidgets/*.patch || exit 1
 mkdir build-release
 cd build-release
-CC=gcc-5 CXX=g++-5 ../configure --quiet --disable-shared --with-opengl --with-cxx=14 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
+CC=gcc-5 CXX=g++-5 ../configure --quiet --disable-shared --with-opengl --with-cxx=17 --with-gtk=2 --prefix=$(pwd)/install --disable-precomp-headers --with-libpng=builtin --with-libtiff=builtin --with-libjpeg=builtin && make -j2 && make install
 cd ..
 cd ..
 
