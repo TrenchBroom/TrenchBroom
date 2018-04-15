@@ -446,6 +446,49 @@ namespace TrenchBroom {
             delete world;
         }
 
+        TEST(WorldReaderTest, parseDaikatanaMapHeader) {
+            const String data(R"(
+////////////////////////////////////////////////////////////
+// ldef 000 "Base Brush Layer"
+////////////////////////////////////////////////////////////
+{
+"angle" "0"
+"mapname" "Plague Poundings"
+"cloud2speed" "2"
+"lightningfreq" "1"
+"classname" "worldspawn"
+"sky" "e3m1"
+"palette" "e3m1"
+"episode" "3"
+"ambient" "5"
+"cloudname" "mtntile"
+"musictrack" "E3C"
+// brush 0  layer 000
+{
+( 1024 1520 0 ) ( 864 1520 160 ) ( 864 1728 160 ) e3m1/thatch2sno 49 0 90 1 1 134217728 16384 0
+( 960 1488 48 ) ( 1008 1488 0 ) ( 1008 1872 0 ) e3m1/roof03 -83 45 -180 1 1 134217728 1024 0
+( 1008 2152 -48 ) ( 1024 2152 -48 ) ( 944 2152 80 ) e3m1/rooftrim 32 13 135 1 -0.500000 134217728 0 0
+( 944 1536 72 ) ( 944 1792 64 ) ( 944 1792 80 ) e3m1/rooftrim 32 -31 133 0.999905 -0.499926 134217728 0 0
+( 1024 2144 -48 ) ( 1008 2144 -48 ) ( 1032 2120 -24 ) e3m1/rooftrim -18 -26 -135 0.999873 -0.499936 134217728 0 0
+( 968 2120 -48 ) ( 944 2120 -48 ) ( 956 2120 80 ) e3m1/rooftrim -18 -26 -135 0.999873 -0.499936 134217728 0 0
+}
+}
+)");
+
+            BBox3 worldBounds(8192);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data, nullptr);
+
+            Model::World* world = reader.read(Model::MapFormat::Daikatana, worldBounds, status);
+
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+
+            delete world;
+        }
+
         TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"

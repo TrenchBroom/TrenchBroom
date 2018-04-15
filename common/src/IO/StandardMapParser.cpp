@@ -52,7 +52,7 @@ namespace TrenchBroom {
                         advance();
                         if (curChar() == '/') {
                             advance();
-                            if (curChar() == '/') {
+                            if (curChar() == '/' && lookAhead(1) == ' ') {
                                 advance();
                                 return Token(QuakeMapToken::Comment, c, c+3, offset(c), startLine, startColumn);
                             }
