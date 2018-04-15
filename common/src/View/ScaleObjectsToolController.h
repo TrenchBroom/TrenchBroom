@@ -44,7 +44,7 @@ namespace TrenchBroom {
         protected:
             ScaleObjectsToolController(ScaleObjectsTool* tool);
         public:
-            virtual ~ScaleObjectsToolController();
+            virtual ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
             

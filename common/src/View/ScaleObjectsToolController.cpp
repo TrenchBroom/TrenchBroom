@@ -195,6 +195,13 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(Color(255, 255, 0));
                 renderService.renderHandleHighlight(m_tool->dragCorner());
             }
+
+            {
+                // bounds
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(0, 255, 255));
+                renderService.renderHandle(m_tool->handlePos());
+            }
         }
         
         bool ScaleObjectsToolController::doCancel() {

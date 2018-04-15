@@ -185,6 +185,7 @@ namespace TrenchBroom {
 
         // manipulating bboxes
 
+#if 0
         static BBox3 moveBBoxGeneral(const BBox3& in,
                                      const Vec3& dragLineStart,
                                      const Vec3& dragLineEnd,
@@ -210,8 +211,19 @@ namespace TrenchBroom {
 
             return BBox3(matrix * in.min, matrix * in.max);
         }
+#endif
 
-        static BBox3 moveBBoxFace(const BBox3& in, const BBoxSide side, const FloatType sideLength, const bool proportional) {
+
+        BBox3 moveBBoxFace(const BBox3& in,
+                              const BBoxSide side,
+                              const Vec3 delta,
+                              const bool proportional) {
+            const FloatType sideLengthDelta = side.normal.dot(delta);
+
+            const size_t axis = side.normal.firstComponent();
+            const FloatType inSideLenth = in.max[axis] - in.min[axis];
+            const FloatType sideLength = inSideLenth + sideLengthDelta;
+
             if (sideLength <= 0) {
                 std::cerr << "moveBBoxFace: given invalid side length " << sideLength << "\n";
                 return in;
@@ -239,54 +251,57 @@ namespace TrenchBroom {
         }
 
 
-        static BBox3 moveBBoxCorner(const BBox3& in,
-                                    const Line3& dragLine,
-                                    const FloatType sideLength,
-                                    const BBoxCorner corner) {
+        BBox3 moveBBoxCorner(const BBox3& in,
+                                    const BBoxCorner corner,
+                                    const Vec3 delta) {
 
             const BBoxCorner opposite = oppositeCorner(corner);
             const Vec3 anchor = pointForBBoxCorner(in, opposite);
+            const Vec3 newCorner = pointForBBoxCorner(in, corner) + delta;
 
-            const size_t axis1 = dragLine.direction.firstComponent();
-            const size_t axis2 = dragLine.direction.secondComponent();
-            const size_t axis3 = dragLine.direction.thirdComponent();
+            const BBox3 result(Vec3::List{anchor, newCorner});
 
-            Vec3 newSize = in.size();
-
-            newSize[axis1] = sideLength;
-            const FloatType ratio = sideLength / in.size()[axis1];
-            newSize[axis2] *= ratio;
-            newSize[axis3] *= ratio;
-
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
-
-            return BBox3(matrix * in.min, matrix * in.max);
+            if (result.empty()) {
+                return in;
+            } else {
+                return result;
+            }
         }
 
-        static BBox3 moveBBoxEdge(const BBox3& in,
-                                    const Line3& dragLine,
-                                    const FloatType sideLength,
-                                    const BBoxEdge edge) {
+        BBox3 moveBBoxEdge(const BBox3& in,
+                                    const BBoxEdge edge,
+                                    const Vec3 delta,
+                                    const bool proportional) {
 
             const BBoxEdge opposite = oppositeEdge(edge);
-            const Vec3 anchor = pointsForBBoxEdge(in, opposite).center();
+            const Vec3 edgeMid = pointsForBBoxEdge(in, edge).center();
+            const Vec3 oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
+
+            const Vec3 edgeEdgeDir = (edgeMid - oppositeEdgeMid).normalized();
+            const size_t axis1 = edgeEdgeDir.firstComponent();
+            const size_t axis2 = edgeEdgeDir.secondComponent();
+            const size_t axis3 = edgeEdgeDir.thirdComponent();
 
             // get the ratio
-            const size_t axis1 = dragLine.direction.firstComponent();
-            const FloatType ratio = sideLength / in.size()[axis1];
-
-            const size_t edgeAxis = axisIndexParallelToBBoxEdge(edge);
+            const FloatType inAxis1Length = in.size()[axis1];
+            const FloatType ratio = (inAxis1Length + delta[axis1]) / inAxis1Length;
 
             Vec3 newSize = in.size();
-            for (size_t i = 0; i < 3; ++i) {
-                if (i != edgeAxis) {
-                    newSize[i] *= ratio;
-                }
+            newSize[axis1] *= ratio;
+            newSize[axis2] *= ratio;
+            if (proportional) {
+                newSize[axis3] *= ratio;
             }
 
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
+            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, oppositeEdgeMid);
 
-            return BBox3(matrix * in.min, matrix * in.max);
+            const BBox3 result(matrix * in.min, matrix * in.max);
+
+            if (result.empty()) {
+                return in;
+            } else {
+                return result;
+            }
         }
         
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
@@ -402,7 +417,7 @@ namespace TrenchBroom {
                 assert(bestNormal != Vec3::Null);
                 localPickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
                 
-                //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
+                std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
             
             auto hit = localPickResult.query().first();
@@ -716,23 +731,23 @@ namespace TrenchBroom {
             const View::Grid& grid = document->grid();
            
             if (!m_isShearing) {
-                
+
                 Vec3 resizeStart, resizeEnd;
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
                     const auto endSide = m_dragStartHit.target<BBoxSide>();
                     const auto startSide = oppositeSide(endSide);
-                    
-                    resizeStart = centerForBBoxSide(bounds(), startSide);
-                    resizeEnd = centerForBBoxSide(bounds(), endSide);
+
+                    resizeStart = centerForBBoxSide(m_bboxAtDragStart, startSide);
+                    resizeEnd = centerForBBoxSide(m_bboxAtDragStart, endSide);
 
                     std::cout << "ScaleObjectsTool::resize from face " << resizeStart << " to " << resizeEnd << "\n";
                 } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                     const auto startEdge = oppositeEdge(endEdge);
-                    
-                    const Edge3 endEdgeActual = pointsForBBoxEdge(bounds(), endEdge);
-                    const Edge3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
-                    
+
+                    const Edge3 endEdgeActual = pointsForBBoxEdge(m_bboxAtDragStart, endEdge);
+                    const Edge3 startEdgeActual = pointsForBBoxEdge(m_bboxAtDragStart, startEdge);
+
                     resizeStart = startEdgeActual.center();
                     resizeEnd = endEdgeActual.center();
 
@@ -740,49 +755,65 @@ namespace TrenchBroom {
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                     const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                     const auto startCorner = oppositeCorner(endCorner);
-                    
-                    resizeStart = pointForBBoxCorner(bounds(), startCorner);
-                    resizeEnd = pointForBBoxCorner(bounds(), endCorner);
+
+                    resizeStart = pointForBBoxCorner(m_bboxAtDragStart, startCorner);
+                    resizeEnd = pointForBBoxCorner(m_bboxAtDragStart, endCorner);
 
                     std::cout << "ScaleObjectsTool::resize from corner " << resizeStart << " to " << resizeEnd << "\n";
                 } else
                     assert(0);
 
-                // FIXME: base on the m_bboxAtDragStart
-
-                // This is a line from:
+                // This is a dir from:
                 //  - face dragging: center of opposite face to center of face being dragged
                 //  - edge dragging: midpoint of diagonally opposite edge to midpoint of edge being dragged
                 //  - corner dragging: diagonally opposite corner to corner being dragged
-                const Line3 resizeLine(resizeStart, (resizeEnd - resizeStart).normalized());
+                const Vec3 resizeDir = (resizeEnd - resizeStart).normalized();
 
-                // find closest point on resizeLine to pickRay
-                const Ray3::LineDistance distance = pickRay.distanceToLine(resizeLine.point, resizeLine.direction);
+
+                const Line3 line(m_dragOrigin, resizeDir);
+
+                // Point on the initial pick ray that's closest to the handle being dragged.
+                // Note, when dragging "back faces" the mouse can start far from the bbox.
+                // In this case the m_dragOrigin can be far from the bbox being resized, and close to the camera instead.
+                const Ray3::LineDistance distance = pickRay.distanceToLine(line.point, line.direction);
                 if (distance.parallel)
                     return true;
+#if 0
+                const Vec3 deltaUnsnapped = line.pointAtDistance(distance.lineDistance);
+                const Vec3 handlePosSnapped = grid.snap(handlePosUnsnapped, resizeLine);
 
-                const Vec3 hitPoint = resizeLine.pointAtDistance(distance.lineDistance);
-                const Vec3 hitPointSnapped = grid.snap(hitPoint, resizeLine);
 
-                const FloatType dragDist = resizeLine.distance(hitPointSnapped);
+                // now, convert the snapped mouse position to a delta.
+                const Vec3 delta = handlePosSnapped - m_dragOrigin;
 
-                if (dragDist < 0.0) {
-                    std::cout << "can't collapse bbox\n";
+                if (delta.null()) {
                     return true;
                 }
+
+                const Vec3 actualEnd = resizeEnd + delta;
+                {
+                    const FloatType dragDist = resizeLine.distance(actualEnd);
+                    if (dragDist < 0.0) {
+                        std::cout << "can't collapse bbox\n";
+                        return true;
+                    }
+                }
+                m_handlePos = actualEnd;
+
+                // convert
 
                 // only do sides for now
                 BBox3 newBbox;
 
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
-//                    const auto side = m_dragStartHit.target<BBoxSide>();
-                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, proportional ? 3 : 1);
+                    const auto side = m_dragStartHit.target<BBoxSide>();
+                    newBbox = moveBBoxFace(m_bboxAtDragStart, side, delta, proportional);
                 } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-//                    const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, proportional ? 3 : 2);
+                    const auto edge = m_dragStartHit.target<BBoxEdge>();
+                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, delta, proportional);
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-//                    const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxGeneral(bounds(), resizeStart, hitPointSnapped, 3);
+                    const auto corner = m_dragStartHit.target<BBoxCorner>();
+                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, delta);
                 } else
                     assert(0);
 
@@ -792,11 +823,13 @@ namespace TrenchBroom {
                     if (document->scaleObjectsBBox(bounds(), newBbox)) {
                         m_totalDelta += Vec3(1,0,0); // FIXME:
                         //m_dragOrigin += faceDelta;
+
+                        // update the ref point for the next iteration
+                        m_dragOrigin = hitPoint;
                     }
                 }
-
                 return true;
-
+#endif
 
 #if 0
                 std::cout << "ScaleObjectsTool::resize with start bbox: "

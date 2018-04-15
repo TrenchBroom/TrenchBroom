@@ -68,7 +68,22 @@ namespace TrenchBroom {
             
             explicit BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {}
         };
-        
+
+
+        BBox3 moveBBoxFace(const BBox3& in,
+                           const BBoxSide side,
+                           const Vec3 delta,
+                           const bool proportional);
+
+        BBox3 moveBBoxCorner(const BBox3& in,
+                             const BBoxCorner corner,
+                             const Vec3 delta);
+
+        BBox3 moveBBoxEdge(const BBox3& in,
+                           const BBoxEdge edge,
+                           const Vec3 delta,
+                           const bool proportional);
+
         // handle class hierarchy
         
         class BBoxHandle {
@@ -104,8 +119,10 @@ namespace TrenchBroom {
             ScaleObjectsToolPage* m_toolPage;
 
             /**
-             * current "handle" location. Updated every time the currently
-             * dragged face/edge/corner moves one grid step.
+             * Point on the initial pick ray that's closest to the handle being dragged.
+             * Note, when dragging "back faces" the mouse can start far from the bbox.
+             * In this case the m_dragOrigin can be far from the bbox being resized, and close to the camera instead.
+             *
              */
             Vec3 m_dragOrigin;
             /**
@@ -115,6 +132,11 @@ namespace TrenchBroom {
              * in ScaleObjectsTool::commitResize
              */
             Vec3 m_totalDelta;
+
+            /**
+             * debug temporary
+             */
+            Vec3 m_handlePos;
 
             Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
             bool m_resizing; // unused
@@ -149,7 +171,10 @@ namespace TrenchBroom {
             // getting highlighted hanles
             std::vector<Polygon3f> polygonsHighlightedByProportionalDrag() const;
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
-            
+
+            Vec3 handlePos() const {
+                return m_handlePos;
+            }
             
             
             bool hasDragPolygon() const;
