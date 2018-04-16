@@ -1123,13 +1123,15 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            const Model::NodeList nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewParentEntityForBrushes(nodes);
             ensure(newParent != nullptr, "newParent is null");
 
             const Transaction transaction(document, "Move " + StringUtils::safePlural(nodes.size(), "Brush", "Brushes"));
             reparentNodes(nodes, newParent, false);
-            document->select(newParent->children());
+
+            document->deselectAll();
+            document->select(nodes);
         }
         
         Model::Node* MapViewBase::findNewParentEntityForBrushes(const Model::NodeList& nodes) const {

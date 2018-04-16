@@ -8,17 +8,16 @@
 
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
-    - VS2015 and VS2017 are supported.
-    - For VS2015, install the `v140_xp` platform toolset (listed as "Windows XP Support for C++" in the installer).
+    - VS2017 is supported.
     - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
-      - VC++ 2015.3 v140 toolset for desktop (x86,x64)
+      - VC++ 2017 v141 toolset for desktop (x86,x64)
       - Windows XP support for C++
 
     - Download the following wxWidgets binary packages:
         - [wxWidgets-3.1.1-headers.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z)
-        - [wxMSW-3.1.1_vc140_Dev.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_Dev.7z)
-        - [wxMSW-3.1.1_vc140_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleaseDLL.7z)
-        - [wxMSW-3.1.1_vc140_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleasePDB.7z)
+        - [wxMSW-3.1.1_vc141_Dev.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z)
+        - [wxMSW-3.1.1_vc141_ReleaseDLL.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z)
+        - [wxMSW-3.1.1_vc141_ReleasePDB.7z](https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z)
 
     - Unpack all files into `c:\wxWidgets-<version>` so that `include` and `lib` directories are at the same level after unpacking.
     - The directory layout should look like this:
@@ -31,15 +30,15 @@
             \wx
             <wxwidgets header files>
         \lib
-            \vc140_dll
+            \vc141_dll
             <wxwidgets libraries>
       ```
 
     - Set a new environment variable `WXWIN=C:\wxWidgets-<version>` (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add `%WXWIN%\lib\vc140_dll` to your path. The relevant parts of my `PATH` variable look something like this:
+    - If you want to run the binaries without using the installer, add `%WXWIN%\lib\vc141_dll` to your path. The relevant parts of my `PATH` variable look something like this:
 
       ```
-      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.1\lib\vc140_dll;
+      C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.1.1\lib\vc141_dll;
       ```
 
   - Download and install [CMake](http://www.cmake.org) for Windows
@@ -48,11 +47,11 @@
   - Run the following two commands
 
     ```
-    cmake .. -T v140_xp -DCMAKE_BUILD_TYPE=Release
+    cmake .. -T v141_xp -DCMAKE_BUILD_TYPE=Release
     cmake --build . --config Release --target TrenchBroom
     ```
 
-    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v140_xp` is the _Visual Studio 2015_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v140_xp`; earlier versions won't be able to compile TrenchBroom.
+    The `-T` option selects the "platform toolset" for the Visual Studio generator, which determines which C++ compiler and runtime the project will use. `v141_xp` is the _Visual Studio 2017_ runtime, with compatibility down to Windows XP. TrenchBroom releases and CI builds use `v141_xp`; earlier versions won't be able to compile TrenchBroom.
 
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
 
@@ -180,7 +179,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run
 
       ```
-      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=14 --prefix=$(pwd)/install
+      ../configure --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
       ```
 
     - Run
@@ -194,7 +193,7 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
     - Run 
 
       ```
-      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=14 --prefix=$(pwd)/install
+      ../configure --enable-debug --with-osx_cocoa --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$(pwd)/install
       ```
 
     - Run

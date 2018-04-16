@@ -163,7 +163,12 @@ namespace TrenchBroom {
                 if (mainContext != nullptr)
                     mainContext->SetCurrent(*canvas);
             }
-            
+
+            // The MapDocument's CachingLogger has a pointer to m_console, which
+            // is about to be destroyed (DestroyChildren()). Clear the pointer
+            // so we don't try to log to a dangling pointer (#1885).
+            m_document->setParentLogger(nullptr);
+
             // Makes IsBeingDeleted() return true
             SendDestroyEvent();
 
