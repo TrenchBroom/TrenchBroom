@@ -141,6 +141,8 @@ namespace TrenchBroom {
             void OnFileExportObj(wxCommandEvent& event);
             void OnFileLoadPointFile(wxCommandEvent& event);
             void OnFileUnloadPointFile(wxCommandEvent& event);
+            void OnFileLoadPortalFile(wxCommandEvent& event);
+            void OnFileUnloadPortalFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
             void OnEditUndo(wxCommandEvent& event);
@@ -182,6 +184,7 @@ namespace TrenchBroom {
             void OnEditCsgConvexMerge(wxCommandEvent& event);
             void OnEditCsgSubtract(wxCommandEvent& event);
             void OnEditCsgIntersect(wxCommandEvent& event);
+            void OnEditCsgHollow(wxCommandEvent& event);
 
             void OnEditReplaceTexture(wxCommandEvent& event);
 
@@ -239,6 +242,7 @@ namespace TrenchBroom {
             void OnToolBarSetGridSize(wxCommandEvent& event);
         private:
             bool canUnloadPointFile() const;
+            bool canUnloadPortalFile() const;
 
             bool canUndo() const;
             void undo();
@@ -264,6 +268,7 @@ namespace TrenchBroom {
             bool canDoCsgConvexMerge() const;
             bool canDoCsgSubtract() const;
             bool canDoCsgIntersect() const;
+            bool canDoCsgHollow() const;
             bool canSnapVertices() const;
             bool canDecGridSize() const;
             bool canIncGridSize() const;
@@ -275,6 +280,10 @@ namespace TrenchBroom {
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
+        private: // grid helpers
+            static int indexForGridSize(const int gridSize);
+            static int gridSizeForIndex(const int index);
+            static int gridSizeForMenuId(const int menuId);
         };
     }
 }

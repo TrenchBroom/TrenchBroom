@@ -163,7 +163,12 @@ namespace TrenchBroom {
                 if (mainContext != nullptr)
                     mainContext->SetCurrent(*canvas);
             }
-            
+
+            // The MapDocument's CachingLogger has a pointer to m_console, which
+            // is about to be destroyed (DestroyChildren()). Clear the pointer
+            // so we don't try to log to a dangling pointer (#1885).
+            m_document->setParentLogger(nullptr);
+
             // Makes IsBeingDeleted() return true
             SendDestroyEvent();
 
@@ -465,9 +470,9 @@ namespace TrenchBroom {
             toolBar->AddCheckTool(CommandIds::Menu::EditToggleTextureLock, "Texture Lock", textureLockBitmap(), wxNullBitmap, "Toggle Texture Lock");
             toolBar->AddSeparator();
 
-            const wxString gridSizes[9] = { "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
-            m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 9, gridSizes);
-            m_gridChoice->SetSelection(static_cast<int>(m_document->grid().size()));
+            const wxString gridSizes[12] = { "Grid 0.125", "Grid 0.25", "Grid 0.5", "Grid 1", "Grid 2", "Grid 4", "Grid 8", "Grid 16", "Grid 32", "Grid 64", "Grid 128", "Grid 256" };
+            m_gridChoice = new wxChoice(toolBar, wxID_ANY, wxDefaultPosition, wxDefaultSize, 12, gridSizes);
+            m_gridChoice->SetSelection(indexForGridSize(m_document->grid().size()));
             toolBar->AddControl(m_gridChoice);
             
             toolBar->Realize();
@@ -654,7 +659,7 @@ namespace TrenchBroom {
 
         void MapFrame::gridDidChange() {
             const Grid& grid = m_document->grid();
-            m_gridChoice->SetSelection(static_cast<int>(grid.size()));
+            m_gridChoice->SetSelection(indexForGridSize(grid.size()));
         }
         
         void MapFrame::selectionDidChange(const Selection& selection) {
@@ -679,6 +684,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
@@ -715,6 +722,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgConvexMerge, this, CommandIds::Menu::EditCsgConvexMerge);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgSubtract, this, CommandIds::Menu::EditCsgSubtract);
             Bind(wxEVT_MENU, &MapFrame::OnEditCsgIntersect, this, CommandIds::Menu::EditCsgIntersect);
+            Bind(wxEVT_MENU, &MapFrame::OnEditCsgHollow, this, CommandIds::Menu::EditCsgHollow);
             
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
@@ -725,7 +733,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
             Bind(wxEVT_MENU, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
             Bind(wxEVT_MENU, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
-            Bind(wxEVT_MENU, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256);
+            Bind(wxEVT_MENU, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize0Point125, CommandIds::Menu::ViewSetGridSize256);
 
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
@@ -817,6 +825,28 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             if (canUnloadPointFile())
                 m_document->unloadPointFile();
+        }
+        
+        void MapFrame::OnFileLoadPortalFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            wxString defaultDir;
+            if (!m_document->path().isEmpty()) {
+                defaultDir = m_document->path().deleteLastComponent().asString();
+            }
+            wxFileDialog browseDialog(this, "Load Portal File", defaultDir, wxEmptyString, "Portal files (*.prt)|*.prt|Any files (*.*)|*.*", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+            
+            if (browseDialog.ShowModal() == wxID_OK) {
+                m_document->loadPortalFile(IO::Path(browseDialog.GetPath().ToStdString()));
+            }
+        }
+        
+        void MapFrame::OnFileUnloadPortalFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canUnloadPortalFile()) {
+                m_document->unloadPortalFile();
+            }
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
@@ -1107,6 +1137,14 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnEditCsgHollow(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            if (canDoCsgHollow()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
+                m_document->csgHollow();
+            }
+        }
+
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -1169,9 +1207,7 @@ namespace TrenchBroom {
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
-            assert(size <= Grid::MaxSize);
-            m_document->grid().setSize(size);
+            m_document->grid().setSize(gridSizeForMenuId(event.GetId()));
         }
 
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
@@ -1361,6 +1397,7 @@ namespace TrenchBroom {
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wold-style-cast"
+#pragma clang diagnostic ignored "-Wcast-qual"
 #endif
         static void debugSegfault() {
             volatile void *test = nullptr;
@@ -1435,6 +1472,12 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
+                    break;
+                case CommandIds::Menu::FileLoadPortalFile:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::FileUnloadPortalFile:
+                    event.Enable(canUnloadPortalFile());
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
@@ -1545,6 +1588,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditCsgIntersect:
                     event.Enable(canDoCsgIntersect());
                     break;
+                case CommandIds::Menu::EditCsgHollow:
+                    event.Enable(canDoCsgHollow());
+                    break;
                 case CommandIds::Menu::EditSnapVerticesToInteger:
                 case CommandIds::Menu::EditSnapVerticesToGrid:
                     event.Enable(canSnapVertices());
@@ -1569,6 +1615,18 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::ViewDecGridSize:
                     event.Enable(canDecGridSize());
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point125:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == -3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point25:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == -2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize0Point5:
+                    event.Enable(true);
+                    event.Check(m_document->grid().size() == -1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
@@ -1674,13 +1732,15 @@ namespace TrenchBroom {
         void MapFrame::OnToolBarSetGridSize(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const size_t size = static_cast<size_t>(event.GetSelection());
-            assert(size <= Grid::MaxSize);
-            m_document->grid().setSize(size);
+            m_document->grid().setSize(gridSizeForIndex(event.GetSelection()));
         }
 
         bool MapFrame::canUnloadPointFile() const {
             return m_document->isPointFileLoaded();
+        }
+        
+        bool MapFrame::canUnloadPortalFile() const {
+            return m_document->isPortalFileLoaded();
         }
 
         bool MapFrame::canUndo() const {
@@ -1699,7 +1759,7 @@ namespace TrenchBroom {
             if (textCtrl != nullptr) {
                 textCtrl->Undo();
             } else {
-                if (!m_mapView->cancelMouseDrag()) {
+                if (!m_mapView->cancelMouseDrag() && !m_inspector->cancelMouseDrag()) {
                     m_document->undoLastCommand();
                 }
             }
@@ -1815,12 +1875,16 @@ namespace TrenchBroom {
             return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1;
         }
 
+        bool MapFrame::canDoCsgHollow() const {
+            return m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() >= 1;
+        }
+
         bool MapFrame::canSnapVertices() const {
             return m_document->selectedNodes().hasOnlyBrushes();
         }
 
         bool MapFrame::canDecGridSize() const {
-            return m_document->grid().size() > 0;
+            return m_document->grid().size() > Grid::MinSize;
         }
 
         bool MapFrame::canIncGridSize() const {
@@ -1865,6 +1929,24 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             m_autosaver->triggerAutosave(logger());
+        }
+        
+        int MapFrame::indexForGridSize(const int gridSize) {
+            return gridSize - Grid::MinSize;
+        }
+        
+        int MapFrame::gridSizeForIndex(const int index) {
+            const int size = index + Grid::MinSize;
+            assert(size <= Grid::MaxSize);
+            assert(size >= Grid::MinSize);
+            return size;
+        }
+        
+        int MapFrame::gridSizeForMenuId(const int menuId) {
+            const int size = menuId - CommandIds::Menu::ViewSetGridSize1;
+            assert(size <= Grid::MaxSize);
+            assert(size >= Grid::MinSize);
+            return size;
         }
     }
 }

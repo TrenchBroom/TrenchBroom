@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Model::CompilationProfile* m_profile;
         public:
             CompilationTaskList(wxWindow* parent, MapDocumentWPtr document);
-            ~CompilationTaskList();
+            ~CompilationTaskList() override;
             
             void setProfile(Model::CompilationProfile* profile);
         private:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void refresh();
         private:
             class CompilationTaskEditorFactory;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

@@ -33,9 +33,12 @@ namespace TrenchBroom {
                 const int EditSelectNone                     = Lowest +   5;
                 const int EditSnapVerticesToInteger          = Lowest +  12;
                 const int EditSnapVerticesToGrid             = Lowest +  13;
-                const int EditToggleTextureLock              = Lowest +  42;
-                const int ViewToggleShowGrid                 = Lowest +  43;
-                const int ViewToggleSnapToGrid               = Lowest +  44;
+                const int EditToggleTextureLock              = Lowest +  39;
+                const int ViewToggleShowGrid                 = Lowest +  40;
+                const int ViewToggleSnapToGrid               = Lowest +  41;
+                const int ViewSetGridSize0Point125           = Lowest +  42;
+                const int ViewSetGridSize0Point25            = Lowest +  43;
+                const int ViewSetGridSize0Point5             = Lowest +  44;
                 const int ViewSetGridSize1                   = Lowest +  45;
                 const int ViewSetGridSize2                   = Lowest +  46;
                 const int ViewSetGridSize4                   = Lowest +  47;
@@ -56,8 +59,10 @@ namespace TrenchBroom {
                 const int ViewDecGridSize                    = Lowest +  75;
                 const int FileLoadPointFile                  = Lowest +  76;
                 const int FileUnloadPointFile                = Lowest +  77;
-                const int ViewMoveCameraToNextPoint          = Lowest +  78;
-                const int ViewMoveCameraToPreviousPoint      = Lowest +  79;
+                const int FileLoadPortalFile                 = Lowest +  78;
+                const int FileUnloadPortalFile               = Lowest +  79;
+                const int ViewMoveCameraToNextPoint          = Lowest +  80;
+                const int ViewMoveCameraToPreviousPoint      = Lowest +  81;
 
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
@@ -83,6 +88,7 @@ namespace TrenchBroom {
                 const int EditCsgConvexMerge                 = Lowest + 116;
                 const int EditCsgSubtract                    = Lowest + 117;
                 const int EditCsgIntersect                   = Lowest + 118;
+                const int EditCsgHollow                      = Lowest + 119;
                 const int EditGroupSelection                 = Lowest + 120;
                 const int EditUngroupSelection               = Lowest + 121;
                 const int ViewHideSelection                  = Lowest + 122;
@@ -190,6 +196,7 @@ namespace TrenchBroom {
                 static const int GroupObjects                       = Lowest + 4;
                 static const int UngroupObjects                     = Lowest + 5;
                 static const int RenameGroups                       = Lowest + 6;
+                static const int MergeGroups                        = Lowest + 7;
             }
         }
     }

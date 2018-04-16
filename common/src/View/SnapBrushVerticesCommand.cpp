@@ -29,11 +29,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(size_t snapTo) {
+        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const FloatType snapTo) {
             return Ptr(new SnapBrushVerticesCommand(snapTo));
         }
         
-        SnapBrushVerticesCommand::SnapBrushVerticesCommand(const size_t snapTo) :
+        SnapBrushVerticesCommand::SnapBrushVerticesCommand(const FloatType snapTo) :
         DocumentCommand(Type, "Snap Brush Vertices"),
         m_snapTo(snapTo),
         m_snapshot(nullptr) {}

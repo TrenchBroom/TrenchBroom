@@ -177,6 +177,8 @@ namespace TrenchBroom {
             fileMenu->addSeparator();
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File...");
             fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileLoadPortalFile, "Load Portal File...");
+            fileMenu->addModifiableActionItem(CommandIds::Menu::FileUnloadPortalFile, "Unload Portal File");
             fileMenu->addSeparator();
             fileMenu->addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
             
@@ -224,6 +226,7 @@ namespace TrenchBroom {
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgConvexMerge, "Convex Merge", KeyboardShortcut('J', WXK_CONTROL));
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgSubtract, "Subtract", KeyboardShortcut('K', WXK_CONTROL));
             csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgIntersect, "Intersect", KeyboardShortcut('L', WXK_CONTROL));
+            csgMenu->addModifiableActionItem(CommandIds::Menu::EditCsgHollow, "Hollow", KeyboardShortcut('H'));
             
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVerticesToInteger, "Snap Vertices to Integer", KeyboardShortcut('V', WXK_SHIFT, WXK_CONTROL));
@@ -239,6 +242,9 @@ namespace TrenchBroom {
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, "Increase Grid Size", KeyboardShortcut('+'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, "Decrease Grid Size", KeyboardShortcut('-'));
             gridMenu->addSeparator();
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point125, "Set Grid Size 0.125");
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point25, "Set Grid Size 0.25");
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize0Point5, "Set Grid Size 0.5");
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, "Set Grid Size 1", KeyboardShortcut('1'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, "Set Grid Size 2", KeyboardShortcut('2'));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, "Set Grid Size 4", KeyboardShortcut('3'));
@@ -368,17 +374,17 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::MoveObjectsForward, "Move objects forward", true),
                                Action(View::CommandIds::Actions::MoveObjectsDown, "Move objects down", true));
 
-            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::RollObjectsCW, "Roll objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::RollObjectsCCW, "Roll objects counter-clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::YawObjectsCW, "Yaw objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::YawObjectsCCW, "Yaw objects counter-clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::PitchObjectsCW, "Pitch objects clockwise", true));
-            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT), ActionContext_NodeSelection,
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT), ActionContext_NodeSelection | ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::PitchObjectsCCW, "Pitch objects counter-clockwise", true));
 
             createViewShortcut(KeyboardShortcut('F', WXK_CONTROL), ActionContext_NodeSelection,

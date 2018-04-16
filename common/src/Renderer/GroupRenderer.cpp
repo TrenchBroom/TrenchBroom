@@ -124,9 +124,9 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
-                
-                for (const Model::Group* group : m_groups) {
-                    if (m_editorContext.visible(group)) {
+
+                for (const auto* group : m_groups) {
+                    if (shouldRenderGroup(group)) {
                         const GroupNameAnchor anchor(group);
                         if (m_showOccludedOverlays)
                             renderService.setShowOccludedObjects();
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 
                 BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::Group* group : m_groups) {
-                    if (m_editorContext.visible(group)) {
+                    if (shouldRenderGroup(group)) {
                         eachBBoxEdge(group->bounds(), boundsBuilder);
                     }
                 }
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
                 
                 for (const Model::Group* group : m_groups) {
-                    if (m_editorContext.visible(group)) {
+                    if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
                         eachBBoxEdge(group->bounds(), boundsBuilder);
                     }
@@ -197,7 +197,13 @@ namespace TrenchBroom {
             
             m_boundsValid = true;
         }
-        
+
+        bool GroupRenderer::shouldRenderGroup(const Model::Group* group) const {
+            const auto& currentGroup = m_editorContext.currentGroup();
+            const auto* parentGroup = group->group();
+            return parentGroup == currentGroup && m_editorContext.visible(group);
+        }
+
         AttrString GroupRenderer::groupString(const Model::Group* group) const {
             return group->name();
         }

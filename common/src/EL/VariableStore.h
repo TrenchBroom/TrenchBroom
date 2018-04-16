@@ -52,22 +52,22 @@ namespace TrenchBroom {
             VariableTable();
             VariableTable(const Table& variables);
         private:
-            VariableStore* doClone() const;
-            Value doGetValue(const String& name) const;
-            StringSet doGetNames() const;
-            void doDeclare(const String& name, const Value& value);
-            void doAssign(const String& name, const Value& value);
+            VariableStore* doClone() const override;
+            Value doGetValue(const String& name) const override;
+            StringSet doGetNames() const override;
+            void doDeclare(const String& name, const Value& value) override;
+            void doAssign(const String& name, const Value& value) override;
         };
         
         class NullVariableStore : public VariableStore {
         public:
             NullVariableStore();
         private:
-            VariableStore* doClone() const;
-            Value doGetValue(const String& name) const;
-            StringSet doGetNames() const;
-            void doDeclare(const String& name, const Value& value);
-            void doAssign(const String& name, const Value& value);
+            VariableStore* doClone() const override;
+            Value doGetValue(const String& name) const override;
+            StringSet doGetNames() const override;
+            void doDeclare(const String& name, const Value& value) override;
+            void doAssign(const String& name, const Value& value) override;
         };
     }
 }

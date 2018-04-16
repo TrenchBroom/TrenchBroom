@@ -39,7 +39,7 @@ namespace TrenchBroom {
         protected:
             VertexCommand(CommandType type, const String& name, const Model::BrushList& brushes);
         public:
-            virtual ~VertexCommand();
+            virtual ~VertexCommand() override;
         protected:
             template <typename H, typename C>
             static void extract(const std::map<H, Model::BrushSet, C>& handleToBrushes, Model::BrushList& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
@@ -68,10 +68,10 @@ namespace TrenchBroom {
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushFacesMap& faces);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             void restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document);
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
         private:
             void takeSnapshot();
             void deleteSnapshot();

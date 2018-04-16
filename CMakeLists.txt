@@ -23,7 +23,7 @@ ENDIF()
 
 # Compiler configuration
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
@@ -49,11 +49,11 @@ INCLUDE(cmake/StackWalker.cmake)
 IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant")
 ELSEIF(COMPILER_IS_GNU)
     MESSAGE(STATUS "Compiler is GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn -Wno-zero-as-null-pointer-constant -Wno-error=maybe-uninitialized")
 ELSEIF(COMPILER_IS_MSVC)
     MESSAGE(STATUS "Compiler is MSVC")
 
@@ -69,6 +69,18 @@ ELSEIF(COMPILER_IS_MSVC)
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
 ELSE()
     MESSAGE(FATAL_ERROR "Unsupported compiler detected.")
+ENDIF()
+
+IF(TB_ENABLE_ASAN)
+    MESSAGE(STATUS "AddressSanitizer requested via TB_ENABLE_ASAN cmake variable")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+
+    # Workaround for false positives on macOS
+    IF(COMPILER_IS_CLANG)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_HAS_NO_ASAN")
+    ENDIF()
 ENDIF()
 
 IF(CMAKE_GENERATOR STREQUAL "Xcode")

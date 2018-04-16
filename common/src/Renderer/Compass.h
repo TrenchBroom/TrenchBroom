@@ -46,12 +46,12 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             Compass();
-            virtual ~Compass();
+            virtual ~Compass() override;
             
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepareVertices(Vbo& vertexVbo);
-            void doRender(RenderContext& renderContext);
+            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doRender(RenderContext& renderContext) override;
         private:
             void makeArrows();
             void makeBackground();

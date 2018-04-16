@@ -40,7 +40,7 @@ namespace TrenchBroom {
             MapDocumentTest();
             MapDocumentTest(Model::MapFormat::Type mapFormat);
             
-            void SetUp();
+            void SetUp() override;
             
             Model::Brush* createBrush(const String& textureName = "texture");
         };

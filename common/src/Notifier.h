@@ -22,7 +22,7 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 
 #include <algorithm>
 #include <cassert>
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         }
         
         void notify() {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             for (O* observer : m_observers) {
                 if (!observer->skip())
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         
         template <typename A1>
         void notify(A1 a1) {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             
             for (O* observer : m_observers) {
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         
         template <typename A1, typename A2>
         void notify(A1 a1, A2 a2) {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             for (O* observer : m_observers) {
                 if (!observer->skip())
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         
         template <typename A1, typename A2, typename A3>
         void notify(A1 a1, A2 a2, A3 a3) {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             for (O* observer : m_observers) {
                 if (!observer->skip())
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         
         template <typename A1, typename A2, typename A3, typename A4>
         void notify(A1 a1, A2 a2, A3 a3, A4 a4) {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             for (O* observer : m_observers) {
                 if (!observer->skip())
@@ -169,7 +169,7 @@ namespace TrenchBroom {
         
         template <typename A1, typename A2, typename A3, typename A4, typename A5>
         void notify(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
-            const SetBool notifying(m_notifying);
+            const TemporarilySetBool notifying(m_notifying);
             
             for (O* observer : m_observers) {
                 if (!observer->skip())
@@ -243,11 +243,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()() {
+            void operator()() override {
                 (m_receiver->*m_function)();
             }
 
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                 return m_function;
             }
 
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
@@ -352,11 +352,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()(A1 a1) {
+            void operator()(A1 a1) override {
                 (m_receiver->*m_function)(a1);
             }
             
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -364,7 +364,7 @@ namespace TrenchBroom {
                 return m_function;
             }
             
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }
@@ -480,11 +480,11 @@ namespace TrenchBroom {
             m_receiver(receiver),
             m_function(function) {}
             
-            void operator()(A1 a1, A2 a2) {
+            void operator()(A1 a1, A2 a2) override {
                 (m_receiver->*m_function)(a1, a2);
             }
             
-            void* receiver() const {
+            void* receiver() const override {
                 return static_cast<void*>(m_receiver);
             }
             
@@ -492,7 +492,7 @@ namespace TrenchBroom {
                 return m_function;
             }
             
-            bool compareFunctions(const Observer& rhs) const {
+            bool compareFunctions(const Observer& rhs) const override {
                 const CObserver<R>& rhsR = static_cast<const CObserver<R>&>(rhs);
                 return m_function == rhsR.function();
             }

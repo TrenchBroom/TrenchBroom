@@ -34,17 +34,17 @@ namespace TrenchBroom {
         protected:
             CreateEntityToolController(CreateEntityTool* tool);
         public:
-            virtual ~CreateEntityToolController();
+            virtual ~CreateEntityToolController() override;
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            bool doDragEnter(const InputState& inputState, const String& payload);
-            bool doDragMove(const InputState& inputState);
-            void doDragLeave(const InputState& inputState);
-            bool doDragDrop(const InputState& inputState);
+            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragMove(const InputState& inputState) override;
+            void doDragLeave(const InputState& inputState) override;
+            bool doDragDrop(const InputState& inputState) override;
             void updateEntityPosition(const InputState& inputState);
             
-            bool doCancel();
+            bool doCancel() override;
         private:
             virtual void doUpdateEntityPosition(const InputState& inputState) = 0;
         };
@@ -53,14 +53,14 @@ namespace TrenchBroom {
         public:
             CreateEntityToolController2D(CreateEntityTool* tool);
         private:
-            void doUpdateEntityPosition(const InputState& inputState);
+            void doUpdateEntityPosition(const InputState& inputState) override;
         };
         
         class CreateEntityToolController3D : public CreateEntityToolController {
         public:
             CreateEntityToolController3D(CreateEntityTool* tool);
         private:
-            void doUpdateEntityPosition(const InputState& inputState);
+            void doUpdateEntityPosition(const InputState& inputState) override;
         };
     }
 }

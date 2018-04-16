@@ -32,11 +32,11 @@ namespace TrenchBroom {
         protected:
             MipTextureReader(const NameStrategy& nameStrategy);
         public:
-            virtual ~MipTextureReader();
+            virtual ~MipTextureReader() override;
         public:
             static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
         protected:
-            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const;
+            Assets::Texture* doReadTexture(const char* const begin, const char* const end, const Path& path) const override;
             virtual Assets::Palette doGetPalette(CharArrayReader& reader, const size_t offset[], size_t width, size_t height) const = 0;
         };
     }

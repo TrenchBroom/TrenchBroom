@@ -40,7 +40,7 @@ namespace TrenchBroom {
         SetLockStateCommand::SetLockStateCommand(const Model::NodeList& nodes, const Model::LockState state) :
         UndoableCommand(Type, makeName(state)),
         m_nodes(nodes),
-        m_state(state) {}
+        m_lockState(state) {}
 
         String SetLockStateCommand::makeName(const Model::LockState state) {
             switch (state) {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         }
         
         bool SetLockStateCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_oldState = document->setLockState(m_nodes, m_state);
+            m_oldState = document->setLockState(m_nodes, m_lockState);
             return true;
         }
 

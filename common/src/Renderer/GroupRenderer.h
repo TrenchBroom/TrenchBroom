@@ -104,6 +104,8 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
+            bool shouldRenderGroup(const Model::Group* group) const;
+
             AttrString groupString(const Model::Group* group) const;
             const Color& boundsColor(const Model::Group* group) const;
         };

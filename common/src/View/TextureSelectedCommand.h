@@ -37,7 +37,7 @@ namespace TrenchBroom {
             Assets::Texture* texture() const;
             void setTexture(Assets::Texture* texture);
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(TextureSelectedCommand);
         };

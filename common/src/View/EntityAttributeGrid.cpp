@@ -78,6 +78,13 @@ namespace TrenchBroom {
                     moveCursorTo(row + 1, 0);
             }
         }
+        
+        void EntityAttributeGrid::setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col) {
+            if (IsBeingDeleted()) return;
+            
+            m_lastSelectedName = name;
+            m_lastSelectedCol = col;
+        }
 
         void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
             tabNavigate(event.GetRow(), event.GetCol(), !event.ShiftDown());
@@ -85,7 +92,7 @@ namespace TrenchBroom {
         
         void EntityAttributeGrid::moveCursorTo(const int row, const int col) {
             {
-                const SetBool ignoreSelection(m_ignoreSelection);
+                const TemporarilySetBool ignoreSelection(m_ignoreSelection);
                 m_grid->GoToCell(row, col);
                 m_grid->SelectRow(row);
             }
@@ -114,6 +121,9 @@ namespace TrenchBroom {
             } else if (isRemoveRowShortcut(event)) {
                 if (canRemoveSelectedAttributes())
                     removeSelectedAttributes();
+            } else if (isOpenCellEditorShortcut(event)) {
+                if (m_grid->CanEnableCellControl())
+                    m_grid->EnableCellEditControl();
             } else {
                 event.Skip();
             }
@@ -132,6 +142,10 @@ namespace TrenchBroom {
         
         bool EntityAttributeGrid::isRemoveRowShortcut(const wxKeyEvent& event) const {
             return (event.GetKeyCode() == WXK_DELETE || event.GetKeyCode() == WXK_BACK) && !m_grid->IsCellEditControlShown();
+        }
+        
+        bool EntityAttributeGrid::isOpenCellEditorShortcut(const wxKeyEvent& event) const {
+            return event.GetKeyCode() == WXK_RETURN && !event.HasAnyModifiers() && !m_grid->IsCellEditControlShown();
         }
 
         void EntityAttributeGrid::OnAttributeGridMouseMove(wxMouseEvent& event) {
@@ -180,15 +194,35 @@ namespace TrenchBroom {
         void EntityAttributeGrid::removeSelectedAttributes() {
             assert(canRemoveSelectedAttributes());
             
-            int firstRowIndex = m_grid->GetNumberRows();
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            for (auto it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
-                m_grid->DeleteRows(*it, 1);
-                firstRowIndex = std::min(*it, firstRowIndex);
+            const auto selectedRows = selectedRowsAndCursorRow();
+            
+            StringList attributes;
+            for (const int row : selectedRows) {
+                attributes.push_back(m_table->attributeName(row));
             }
             
-            if (firstRowIndex < m_grid->GetNumberRows())
-                m_grid->SelectRow(firstRowIndex);
+            for (const String& key : attributes) {
+                removeAttribute(key);
+            }
+        }
+        
+        /**
+         * Removes an attribute, and clear the current selection.
+         *
+         * If this attribute is still in the table after removing, sets the grid cursor on the new row
+         */
+        void EntityAttributeGrid::removeAttribute(const String& key) {
+            const int row = m_table->rowForName(key);
+            if (row == -1)
+                return;
+            
+            m_grid->DeleteRows(row, 1);
+            m_grid->ClearSelection();
+            
+            const int newRow = m_table->rowForName(key);
+            if (newRow != -1) {
+                m_grid->SetGridCursor(newRow, m_grid->GetGridCursorCol());
+            }
         }
 
         void EntityAttributeGrid::OnShowDefaultPropertiesCheckBox(wxCommandEvent& event) {
@@ -207,7 +241,7 @@ namespace TrenchBroom {
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            event.Enable(!m_grid->GetSelectedRows().IsEmpty() && canRemoveSelectedAttributes());
+            event.Enable(canRemoveSelectedAttributes());
         }
 
         void EntityAttributeGrid::OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event) {
@@ -217,11 +251,29 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
-            for (const int rowIndex : m_grid->GetSelectedRows()) {
-                if (!m_table->canRemove(rowIndex))
+            const auto rows = selectedRowsAndCursorRow();
+            if (rows.empty())
+                return false;
+            
+            for (const int row : rows) {
+                if (!m_table->canRemove(row))
                     return false;
             }
             return true;
+        }
+
+        std::set<int> EntityAttributeGrid::selectedRowsAndCursorRow() const {
+            std::set<int> result;
+            
+            if (m_grid->GetGridCursorCol() != -1
+                && m_grid->GetGridCursorRow() != -1) {
+                result.insert(m_grid->GetGridCursorRow());
+            }
+            
+            for (const int row : m_grid->GetSelectedRows()) {
+                result.insert(row);
+            }
+            return result;
         }
 
         /**
@@ -233,28 +285,49 @@ namespace TrenchBroom {
             EntityAttributeGrid* m_grid;
             EntityAttributeGridTable* m_table;
             int m_row, m_col;
+            bool m_forceChange;
+            String m_forceChangeAttribute;
             
         public:
             EntityAttributeCellEditor(EntityAttributeGrid* grid, EntityAttributeGridTable* table)
             : m_grid(grid),
             m_table(table),
             m_row(-1),
-            m_col(-1) {}
+            m_col(-1),
+            m_forceChange(false),
+            m_forceChangeAttribute("") {}
 
         private:
             void OnCharHook(wxKeyEvent& event) {
                 if (event.GetKeyCode() == WXK_TAB) {
                     // HACK: Consume tab key and use it for cell navigation.
                     // Otherwise, wxTextCtrl::AutoComplete uses it for cycling between completions (on Windows)
-                    m_grid->tabNavigate(m_row, m_col, !event.ShiftDown());
+                    
+                    // First, close the cell editor
+                    m_grid->gridWindow()->DisableCellEditControl();
+                    
+                    // Closing the editor might reorder the cells (#2094), so m_row/m_col are no longer valid.
+                    // Ask the wxGrid for the cursor row/column.
+                    m_grid->tabNavigate(m_grid->gridWindow()->GetGridCursorRow(), m_grid->gridWindow()->GetGridCursorCol(), !event.ShiftDown());
+                } else if (event.GetKeyCode() == WXK_RETURN && m_col == 1) {
+                    // HACK: (#1976) Make the next call to EndEdit return true unconditionally
+                    // so it's possible to press enter to apply a value to all entites in a selection
+                    // even though the grid editor hasn't changed.
+
+                    const TemporarilySetBool forceChange{m_forceChange};
+                    const TemporarilySetAny<String> forceChangeAttribute{m_forceChangeAttribute, m_table->attributeName(m_row)};
+                        
+                    m_grid->gridWindow()->SaveEditControlValue();
+                    m_grid->gridWindow()->HideCellEditControl();
                 } else {
-                	event.Skip();
+                    event.Skip();
                 }
             }
 
         public:
             void BeginEdit(int row, int col, wxGrid* grid) override {
                 wxGridCellTextEditor::BeginEdit(row, col, grid);
+                assert(grid == m_grid->gridWindow());
 
                 m_row = row;
                 m_col = col;
@@ -269,12 +342,33 @@ namespace TrenchBroom {
             }
             
             bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {
+                assert(grid == m_grid->gridWindow());
+                
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
                 
                 textCtrl->Unbind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
                 
-                return wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+                const bool superclassDidChange = wxGridCellTextEditor::EndEdit(row, col, grid, oldval, newval);
+
+                const String changedAttribute = m_table->attributeName(row);
+                
+                if (m_forceChange
+                    && col == 1
+                    && m_forceChangeAttribute == changedAttribute) {
+                    return true;
+                } else {
+                    return superclassDidChange;
+                }
+            }
+            
+            void ApplyEdit(int row, int col, wxGrid* grid) override {
+                if (col == 0) {
+                    // Hack to preserve selection when renaming a key (#2094)
+                    const auto newName = GetValue().ToStdString();
+                    m_grid->setLastSelectedNameAndColumn(newName, col);
+                }
+                wxGridCellTextEditor::ApplyEdit(row, col, grid);
             }
         };
         
@@ -373,7 +467,7 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGrid::selectionDidChange(const Selection& selection) {
-            const SetBool ignoreSelection(m_ignoreSelection);
+            const TemporarilySetBool ignoreSelection(m_ignoreSelection);
             updateControls();
         }
 
@@ -403,6 +497,10 @@ namespace TrenchBroom {
             } else {
                 fireSelectionEvent(row, m_lastSelectedCol);
             }
+        }
+        
+        wxGrid* EntityAttributeGrid::gridWindow() const {
+            return m_grid;
         }
         
         Model::AttributeName EntityAttributeGrid::selectedRowName() const {

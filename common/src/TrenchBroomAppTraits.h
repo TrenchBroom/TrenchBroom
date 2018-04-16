@@ -27,7 +27,7 @@ namespace TrenchBroom {
     public:
         ~TrenchBroomAppTraits();
 #ifdef __WXGTK20__
-        wxConfigBase* CreateConfig();
+        wxConfigBase* CreateConfig() override;
 #endif
     };
 }

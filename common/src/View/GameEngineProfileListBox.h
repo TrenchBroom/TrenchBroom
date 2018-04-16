@@ -34,14 +34,14 @@ namespace TrenchBroom {
             const Model::GameEngineConfig& m_config;
         public:
             GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config);
-            ~GameEngineProfileListBox();
+            ~GameEngineProfileListBox() override;
             
             Model::GameEngineProfile* selectedProfile() const;
         private:
             void profilesDidChange();
         private:
             class ProfileItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

@@ -41,7 +41,7 @@ namespace TrenchBroom {
             SpinControlEvent(const SpinControlEvent& event);
             bool IsSpin() const;
             double GetValue() const;
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
         private:
             wxDECLARE_DYNAMIC_CLASS(SpinControlEvent);
         };
@@ -70,10 +70,10 @@ namespace TrenchBroom {
             void SetIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
             void SetDigits(unsigned int minDigits, unsigned int maxDigits);
             void SetHint(const wxString& hint);
-            bool Enable(bool enable = true);
-            void SetFocus();
+            bool Enable(bool enable = true) override;
+            void SetFocus() override;
         private:
-            wxSize DoGetBestSize() const;
+            wxSize DoGetBestSize() const override;
             
             bool InRange(double value) const;
             double AdjustToRange(double value);

@@ -37,9 +37,9 @@ namespace TrenchBroom {
             ParallelTexCoordSystemSnapshot(const Vec3& xAxis, const Vec3& yAxis);
             ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
         private:
-            TexCoordSystemSnapshot* doClone() const;
-            void doRestore(ParallelTexCoordSystem* coordSystem) const;
-            void doRestore(ParaxialTexCoordSystem* coordSystem) const;
+            TexCoordSystemSnapshot* doClone() const override;
+            void doRestore(ParallelTexCoordSystem* coordSystem) const override;
+            void doRestore(ParaxialTexCoordSystem* coordSystem) const override;
         };
         
         class ParallelTexCoordSystem : public TexCoordSystem {
@@ -52,35 +52,35 @@ namespace TrenchBroom {
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
             ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis);
         private:
-            TexCoordSystem* doClone() const;
-            TexCoordSystemSnapshot* doTakeSnapshot();
-            void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot);
+            TexCoordSystem* doClone() const override;
+            TexCoordSystemSnapshot* doTakeSnapshot() override;
+            void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
             
-            Vec3 getXAxis() const;
-            Vec3 getYAxis() const;
-            Vec3 getZAxis() const;
+            Vec3 getXAxis() const override;
+            Vec3 getYAxis() const override;
+            Vec3 getZAxis() const override;
 
-            void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
-            void doResetTextureAxes(const Vec3& normal);
-            void doResetTextureAxesToParaxial(const Vec3& normal, float angle);
-            void doResetTextureAxesToParallel(const Vec3& normal, float angle);
+            void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) override;
+            void doResetTextureAxes(const Vec3& normal) override;
+            void doResetTextureAxesToParaxial(const Vec3& normal, float angle) override;
+            void doResetTextureAxesToParallel(const Vec3& normal, float angle) override;
 
-            bool isRotationInverted(const Vec3& normal) const;
-            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
+            bool isRotationInverted(const Vec3& normal) const override;
+            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const override;
             
-            void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
+            void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) override;
             void applyRotation(const Vec3& normal, FloatType angle);
             
-            void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
+            void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) override;
             float computeTextureAngle(const Plane3& oldBoundary, const Mat4x4& transformation) const;
             Mat4x4 computeNonTextureRotation(const Vec3& oldNormal, const Vec3& newNormal, const Mat4x4& rotation) const;
             
-            void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
-            void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
+            void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) override;
+            void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) override;
 
-            void doShearTexture(const Vec3& normal, const Vec2f& factors);
+            void doShearTexture(const Vec3& normal, const Vec2f& factors) override;
 
-            float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
+            float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const override;
             void computeInitialAxes(const Vec3& normal, Vec3& xAxis, Vec3& yAxis) const;
         private:
             ParallelTexCoordSystem(const ParallelTexCoordSystem& other);

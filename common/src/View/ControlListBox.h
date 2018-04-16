@@ -37,9 +37,9 @@ namespace TrenchBroom {
             class Item : public wxWindow {
             public:
                 Item(wxWindow* parent);
-                virtual ~Item();
+                virtual ~Item() override;
                 
-                bool AcceptsFocus() const;
+                bool AcceptsFocus() const override;
                 
                 virtual void setSelectionColours(const wxColour& foreground, const wxColour& background);
                 virtual void setDefaultColours(const wxColour& foreground, const wxColour& background);

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
-            ~MapView3D();
+            ~MapView3D() override;
         private:
             void initializeCamera();
             void initializeToolChain(MapViewToolBox& toolBox);
@@ -85,43 +85,43 @@ namespace TrenchBroom {
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
         private: // implement ToolBoxConnector interface
-            PickRequest doGetPickRequest(int x, int y) const;
-            Model::PickResult doPick(const Ray3& pickRay) const;
+            PickRequest doGetPickRequest(int x, int y) const override;
+            Model::PickResult doPick(const Ray3& pickRay) const override;
         private: // implement RenderView interface
-            void doUpdateViewport(int x, int y, int width, int height);
+            void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
 
-            bool doCanSelectTall();
-            void doSelectTall();
+            bool doCanSelectTall() override;
+            void doSelectTall() override;
 
-            void doFocusCameraOnSelection(bool animate);
+            void doFocusCameraOnSelection(bool animate) override;
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
             Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
-            void doMoveCameraToPosition(const Vec3& position, bool animate);
+            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
-            void doMoveCameraToCurrentTracePoint();
+            void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
-            Vec3 doGetMoveDirection(Math::Direction direction) const;
-            Vec3 doComputePointEntityPosition(const BBox3& bounds) const;
+            Vec3 doGetMoveDirection(Math::Direction direction) const override;
+            Vec3 doComputePointEntityPosition(const BBox3& bounds) const override;
             
-            ActionContext doGetActionContext() const;
-            wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
-            bool doCancel();
+            ActionContext doGetActionContext() const override;
+            wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;
+            bool doCancel() override;
             
-            Renderer::RenderContext::RenderMode doGetRenderMode();
-            Renderer::Camera& doGetCamera();
-            void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            Renderer::RenderContext::RenderMode doGetRenderMode() override;
+            Renderer::Camera& doGetCamera() override;
+            void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+            void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             
-            bool doBeforePopupMenu();
+            bool doBeforePopupMenu() override;
         private: // implement CameraLinkableView interface
-            void doLinkCamera(CameraLinkHelper& linkHelper);
+            void doLinkCamera(CameraLinkHelper& linkHelper) override;
         };
     }
 }

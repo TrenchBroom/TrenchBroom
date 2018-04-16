@@ -49,9 +49,9 @@ namespace TrenchBroom {
         
         class NoPickingPolicy : public PickingPolicy {
         public:
-            virtual ~NoPickingPolicy();
+            virtual ~NoPickingPolicy() override;
         public:
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
         };
         
         class KeyPolicy {
@@ -63,9 +63,9 @@ namespace TrenchBroom {
         
         class NoKeyPolicy : public KeyPolicy {
         public:
-            virtual ~NoKeyPolicy();
+            virtual ~NoKeyPolicy() override;
         public:
-            void doModifierKeyChange(const InputState& inputState);
+            void doModifierKeyChange(const InputState& inputState) override;
         };
         
         class MousePolicy {
@@ -94,12 +94,12 @@ namespace TrenchBroom {
         
         class NoMouseDragPolicy : public MouseDragPolicy {
         public:
-            virtual ~NoMouseDragPolicy();
+            virtual ~NoMouseDragPolicy() override;
         public:
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
         };
         
         class DragRestricter {
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         public:
             PlaneDragRestricter(const Plane3& plane);
         private:
-            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const override;
         };
         
         class CircleDragRestricter : public DragRestricter {
@@ -127,7 +127,7 @@ namespace TrenchBroom {
         public:
             CircleDragRestricter(const Vec3& center, const Vec3& normal, FloatType radius);
         private:
-            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const override;
         };
         
         class LineDragRestricter : public DragRestricter {
@@ -136,7 +136,7 @@ namespace TrenchBroom {
         public:
             LineDragRestricter(const Line3& line);
         private:
-            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const override;
         };
         
         class SurfaceDragHelper {
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         
         class SurfaceDragRestricter : public SurfaceDragHelper, public DragRestricter {
         private:
-            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const;
+            bool doComputeHitPoint(const InputState& inputState, Vec3& point) const override;
         };
         
         class DragSnapper {
@@ -212,7 +212,7 @@ namespace TrenchBroom {
         public:
             AbsoluteDragSnapper(const Grid& grid, const Vec3& offset = Vec3::Null);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         };
         
         class DeltaDragSnapper : public DragSnapper {
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         public:
             DeltaDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         };
         
         class CircleDragSnapper : public DragSnapper {
@@ -234,7 +234,7 @@ namespace TrenchBroom {
         public:
             CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, FloatType radius);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         };
         
         class SurfaceDragSnapper : public SurfaceDragHelper, public DragSnapper {
@@ -243,7 +243,7 @@ namespace TrenchBroom {
         public:
             SurfaceDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const;
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         private:
             virtual Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
         };
@@ -275,7 +275,7 @@ namespace TrenchBroom {
 
         public:
             RestrictedDragPolicy();
-            virtual ~RestrictedDragPolicy();
+            virtual ~RestrictedDragPolicy() override;
 
             typedef enum {
                 DR_Continue,
@@ -295,10 +295,10 @@ namespace TrenchBroom {
             
             bool hitPoint(const InputState& inputState, Vec3& result) const;
         public:
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
 
             void setRestricter(const InputState& inputState, DragRestricter* restricter, bool resetInitialPoint);
             void setSnapper(const InputState& inputState, DragSnapper* snapper, bool resetCurrentHandlePosition);
@@ -335,12 +335,12 @@ namespace TrenchBroom {
         
         class NoDropPolicy : public DropPolicy {
         public:
-            virtual ~NoDropPolicy();
+            virtual ~NoDropPolicy() override;
         public:
-            bool doDragEnter(const InputState& inputState, const String& payload);
-            bool doDragMove(const InputState& inputState);
-            void doDragLeave(const InputState& inputState);
-            bool doDragDrop(const InputState& inputState);
+            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragMove(const InputState& inputState) override;
+            void doDragLeave(const InputState& inputState) override;
+            bool doDragDrop(const InputState& inputState) override;
         };
         
         class ToolController {
@@ -391,114 +391,114 @@ namespace TrenchBroom {
             ToolControllerBase() :
             m_dragging(false) {}
             
-            virtual ~ToolControllerBase() {}
+            virtual ~ToolControllerBase() override {}
             
-            void pick(const InputState& inputState, Model::PickResult& pickResult) {
+            void pick(const InputState& inputState, Model::PickResult& pickResult) override {
                 if (toolActive())
                     static_cast<PickingPolicyType*>(this)->doPick(inputState, pickResult);
             }
             
-            void modifierKeyChange(const InputState& inputState) {
+            void modifierKeyChange(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<KeyPolicyType*>(this)->doModifierKeyChange(inputState);
             }
             
-            void mouseDown(const InputState& inputState) {
+            void mouseDown(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<MousePolicyType*>(this)->doMouseDown(inputState);
             }
             
-            void mouseUp(const InputState& inputState) {
+            void mouseUp(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<MousePolicyType*>(this)->doMouseUp(inputState);
             }
             
-            bool mouseClick(const InputState& inputState) {
+            bool mouseClick(const InputState& inputState) override {
                 if (toolActive())
                     return static_cast<MousePolicyType*>(this)->doMouseClick(inputState);
                 return false;
             }
             
-            bool mouseDoubleClick(const InputState& inputState) {
+            bool mouseDoubleClick(const InputState& inputState) override {
                 if (toolActive())
                     return static_cast<MousePolicyType*>(this)->doMouseDoubleClick(inputState);
                 return false;
             }
 
-            void mouseMove(const InputState& inputState) {
+            void mouseMove(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<MousePolicyType*>(this)->doMouseMove(inputState);
             }
             
-            void mouseScroll(const InputState& inputState) {
+            void mouseScroll(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<MousePolicyType*>(this)->doMouseScroll(inputState);
             }
             
-            bool startMouseDrag(const InputState& inputState) {
+            bool startMouseDrag(const InputState& inputState) override {
                 m_dragging = (toolActive() && static_cast<MouseDragPolicyType*>(this)->doStartMouseDrag(inputState));
                 return m_dragging;
             }
             
-            bool mouseDrag(const InputState& inputState) {
+            bool mouseDrag(const InputState& inputState) override {
                 assert(thisToolDragging() && toolActive());
                 return static_cast<MouseDragPolicyType*>(this)->doMouseDrag(inputState);
             }
             
-            void endMouseDrag(const InputState& inputState) {
+            void endMouseDrag(const InputState& inputState) override {
                 assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doEndMouseDrag(inputState);
                 m_dragging = false;
             }
             
-            void cancelMouseDrag() {
+            void cancelMouseDrag() override {
                 assert(thisToolDragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doCancelMouseDrag();
                 m_dragging = false;
             }
             
-            bool thisToolDragging() const {
+            bool thisToolDragging() const override {
                 return m_dragging;
             }
 
-            bool anyToolDragging(const InputState& inputState) const {
+            bool anyToolDragging(const InputState& inputState) const override {
                 return inputState.anyToolDragging();
             }
 
-            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) override {
                 if (toolActive())
                     static_cast<RenderPolicyType*>(this)->doSetRenderOptions(inputState, renderContext);
             }
             
-            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 if (toolActive())
                     static_cast<RenderPolicyType*>(this)->doRender(inputState, renderContext, renderBatch);
             }
             
-            bool dragEnter(const InputState& inputState, const String& payload) {
+            bool dragEnter(const InputState& inputState, const String& payload) override {
                 if (toolActive())
                     return static_cast<DropPolicyType*>(this)->doDragEnter(inputState, payload);
                 return false;
             }
             
-            bool dragMove(const InputState& inputState) {
+            bool dragMove(const InputState& inputState) override {
                 if (toolActive())
                     return static_cast<DropPolicyType*>(this)->doDragMove(inputState);
                 return false;
             }
             
-            void dragLeave(const InputState& inputState) {
+            void dragLeave(const InputState& inputState) override {
                 if (toolActive())
                     static_cast<DropPolicyType*>(this)->doDragLeave(inputState);
             }
             
-            bool dragDrop(const InputState& inputState) {
+            bool dragDrop(const InputState& inputState) override {
                 if (toolActive())
                     return static_cast<DropPolicyType*>(this)->doDragDrop(inputState);
                 return false;
             }
             
-            bool cancel() {
+            bool cancel() override {
                 return doCancel();
             }
         private:
@@ -512,35 +512,35 @@ namespace TrenchBroom {
             ToolController* m_dropReceiver;
         public:
             ToolControllerGroup();
-            virtual ~ToolControllerGroup();
+            virtual ~ToolControllerGroup() override;
         protected:
             void addController(ToolController* controller);
         protected:
-            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
-            virtual void doModifierKeyChange(const InputState& inputState);
+            virtual void doModifierKeyChange(const InputState& inputState) override;
 
-            virtual void doMouseDown(const InputState& inputState);
-            virtual void doMouseUp(const InputState& inputState);
-            virtual bool doMouseClick(const InputState& inputState);
-            virtual bool doMouseDoubleClick(const InputState& inputState);
-            virtual void doMouseMove(const InputState& inputState);
-            virtual void doMouseScroll(const InputState& inputState);
+            virtual void doMouseDown(const InputState& inputState) override;
+            virtual void doMouseUp(const InputState& inputState) override;
+            virtual bool doMouseClick(const InputState& inputState) override;
+            virtual bool doMouseDoubleClick(const InputState& inputState) override;
+            virtual void doMouseMove(const InputState& inputState) override;
+            virtual void doMouseScroll(const InputState& inputState) override;
 
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
-            virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doDragEnter(const InputState& inputState, const String& payload);
-            bool doDragMove(const InputState& inputState);
-            void doDragLeave(const InputState& inputState);
-            bool doDragDrop(const InputState& inputState);
+            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragMove(const InputState& inputState) override;
+            void doDragLeave(const InputState& inputState) override;
+            bool doDragDrop(const InputState& inputState) override;
             
-            virtual bool doCancel();
+            virtual bool doCancel() override;
         private: // subclassing interface
             virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
             virtual void doMouseDragStarted(const InputState& inputState);

@@ -40,18 +40,18 @@ namespace TrenchBroom {
         private:
             DuplicateNodesCommand();
         public:
-            ~DuplicateNodesCommand();
+            ~DuplicateNodesCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
             class CloneParentQuery;
             bool cloneParent(const Model::Node* node) const;
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             EntitySnapshot(Entity* entity, const EntityAttribute& origin, const EntityAttribute& rotation);
         private:
-            void doRestore(const BBox3& worldBounds);
+            void doRestore(const BBox3& worldBounds) override;
         };
     }
 }

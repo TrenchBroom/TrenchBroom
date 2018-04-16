@@ -48,11 +48,11 @@ namespace TrenchBroom {
             static TrenchBroomApp& instance();
 
             TrenchBroomApp();
-            ~TrenchBroomApp();
+            ~TrenchBroomApp() override;
             
             void detectAndSetupUbuntu();
         protected:
-            wxAppTraits* CreateTraits();
+            wxAppTraits* CreateTraits() override;
         public:
             FrameManager* frameManager();
             
@@ -67,16 +67,16 @@ namespace TrenchBroom {
             void openPreferences();
             void openAbout();
 
-            bool OnInit();
+            bool OnInit() override;
             
-            bool OnExceptionInMainLoop();
-            void OnUnhandledException();
-            void OnFatalException();
+            bool OnExceptionInMainLoop() override;
+            void OnUnhandledException() override;
+            void OnFatalException() override;
         private:
             void handleException();
         public:
             
-            int OnRun();
+            int OnRun() override;
             
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
@@ -88,16 +88,16 @@ namespace TrenchBroom {
 
             void OnExecutableEvent(ExecutableEvent& event);
             
-            int FilterEvent(wxEvent& event);
+            int FilterEvent(wxEvent& event) override;
 #ifdef __APPLE__
             void OnFileExit(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
 
-            void MacNewFile();
-            void MacOpenFiles(const wxArrayString& filenames);
+            void MacNewFile() override;
+            void MacOpenFiles(const wxArrayString& filenames) override;
 #else
-            void OnInitCmdLine(wxCmdLineParser& parser);
-            bool OnCmdLineParsed(wxCmdLineParser& parser);
+            void OnInitCmdLine(wxCmdLineParser& parser) override;
+            bool OnCmdLineParsed(wxCmdLineParser& parser) override;
 #endif
         private:
             static bool useSDI();

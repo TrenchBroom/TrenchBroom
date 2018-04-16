@@ -34,6 +34,8 @@ namespace TrenchBroom {
         Preference<Color> YAxisColor(IO::Path("Renderer/Colors/Y axis"), Color(0x4B, 0x95, 0x00, 0.7f));
         Preference<Color> ZAxisColor(IO::Path("Renderer/Colors/Z axis"), Color(0x10, 0x9C, 0xFF, 0.7f));
         Preference<Color> PointFileColor(IO::Path("Renderer/Colors/Point file"), Color(0.0f, 1.0f, 0.0f, 1.0f));
+        Preference<Color> PortalFileBorderColor(IO::Path("Renderer/Colors/Portal file border"), Color(1.0f, 1.0f, 1.0f, 0.5f));
+        Preference<Color> PortalFileFillColor(IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
         
         Preference<Color>& axisColor(Math::Axis::Type axis) {
             switch (axis) {
@@ -59,8 +61,8 @@ namespace TrenchBroom {
         Preference<Color> TutorialOverlayBackgroundColor(IO::Path("Renderer/Colors/Tutorial overlay background"), Color(1.0f, 0.5f, 0.0f, 0.6f));
 
         Preference<Color> FaceColor(IO::Path("Renderer/Colors/Faces"), Color(0.2f,  0.2f,  0.2f,  1.0f));
-        Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(0.7f,  0.45f, 0.45f, 1.0f));
-        Preference<Color> LockedFaceColor(IO::Path("Renderer/Colors/Locked faces"), Color(0.35f, 0.35f, 0.6f,  1.0f));
+        Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(1.0f,  0.85f, 0.85f, 1.0f));
+        Preference<Color> LockedFaceColor(IO::Path("Renderer/Colors/Locked faces"), Color(0.85f, 0.85f, 1.0f,  1.0f));
         Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f,  0.9f,  0.9f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
@@ -71,6 +73,7 @@ namespace TrenchBroom {
         Preference<Color> SelectionBoundsColor(IO::Path("Renderer/Colors/Selection bounds"), Color(1.0f, 0.0f, 0.0f, 0.5f));
         
         Preference<Color> InfoOverlayTextColor(IO::Path("Renderer/Colors/Info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> GroupInfoOverlayTextColor(IO::Path("Renderer/Colors/Group info overlay text"), Color(0.7f,  0.4f,  1.0f,  1.0f));
         Preference<Color> InfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
         Preference<Color> WeakInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Weak info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.3f));
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));

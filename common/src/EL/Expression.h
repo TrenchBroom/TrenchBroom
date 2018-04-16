@@ -96,10 +96,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(const Value& value, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(LiteralExpression)
         };
@@ -112,10 +112,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(const String& variableName, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(VariableExpression)
         };
@@ -127,12 +127,12 @@ namespace TrenchBroom {
             ArrayExpression(const ExpressionBase::List& elements, size_t line, size_t column);
         public:
             static ExpressionBase* create(const ExpressionBase::List& elements, size_t line, size_t column);
-            ~ArrayExpression();
+            ~ArrayExpression() override;
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(ArrayExpression)
         };
@@ -144,12 +144,12 @@ namespace TrenchBroom {
             MapExpression(const ExpressionBase::Map& elements, size_t line, size_t column);
         public:
             static ExpressionBase* create(const ExpressionBase::Map& elements, size_t line, size_t column);
-            ~MapExpression();
+            ~MapExpression() override;
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(MapExpression)
         };
@@ -160,9 +160,9 @@ namespace TrenchBroom {
         protected:
             UnaryOperator(ExpressionBase* operand, size_t line, size_t column);
         public:
-            virtual ~UnaryOperator();
+            virtual ~UnaryOperator() override;
         private:
-            ExpressionBase* doOptimize();
+            ExpressionBase* doOptimize() override;
             deleteCopyAndAssignment(UnaryOperator)
         };
         
@@ -172,9 +172,9 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(UnaryPlusOperator)
         };
@@ -185,9 +185,9 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(UnaryMinusOperator)
         };
@@ -198,9 +198,9 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(LogicalNegationOperator)
         };
@@ -211,9 +211,9 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(BitwiseNegationOperator)
         };
@@ -224,9 +224,9 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* operand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(GroupingOperator)
         };
@@ -238,14 +238,14 @@ namespace TrenchBroom {
         private:
             SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
         public:
-            ~SubscriptOperator();
+            ~SubscriptOperator() override;
         public:
             static ExpressionBase* create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
             
             deleteCopyAndAssignment(SubscriptOperator)
         };
@@ -257,14 +257,14 @@ namespace TrenchBroom {
         protected:
             BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         public:
-            virtual ~BinaryOperator();
+            virtual ~BinaryOperator() override;
         private:
-            ExpressionBase* doReorderByPrecedence();
-            ExpressionBase* doReorderByPrecedence(BinaryOperator* parent);
+            ExpressionBase* doReorderByPrecedence() override;
+            ExpressionBase* doReorderByPrecedence(BinaryOperator* parent) override;
             BinaryOperator* rotateLeftUp(BinaryOperator* leftOperand);
             BinaryOperator* rotateRightUp(BinaryOperator* rightOperand);
         private:
-            ExpressionBase* doOptimize();
+            ExpressionBase* doOptimize() override;
         protected:
             struct Traits;
         private:
@@ -285,10 +285,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(AdditionOperator)
         };
@@ -299,10 +299,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(SubtractionOperator)
         };
@@ -313,10 +313,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(MultiplicationOperator)
         };
@@ -327,10 +327,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(DivisionOperator)
         };
@@ -341,10 +341,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(ModulusOperator)
         };
@@ -355,10 +355,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(LogicalAndOperator)
         };
@@ -369,10 +369,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(LogicalOrOperator)
         };
@@ -383,10 +383,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(BitwiseAndOperator)
         };
@@ -397,10 +397,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(BitwiseXorOperator)
         };
@@ -411,10 +411,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(BitwiseOrOperator)
         };
@@ -425,10 +425,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(BitwiseShiftLeftOperator)
         };
@@ -439,10 +439,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(BitwiseShiftRightOperator)
         };
@@ -468,10 +468,10 @@ namespace TrenchBroom {
             static ExpressionBase* createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
             static ExpressionBase* createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(ComparisonOperator)
         };
@@ -486,10 +486,10 @@ namespace TrenchBroom {
             static ExpressionBase* createAutoRangeWithLeftOperand(ExpressionBase* leftOperand, size_t line, size_t column);
             static ExpressionBase* createAutoRangeWithRightOperand(ExpressionBase* rightOperand, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(RangeOperator)
         };
@@ -500,10 +500,10 @@ namespace TrenchBroom {
         public:
             static ExpressionBase* create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            Value doEvaluate(const EvaluationContext& context) const;
-            void doAppendToStream(std::ostream& str) const;
-            Traits doGetTraits() const;
+            ExpressionBase* doClone() const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
+            void doAppendToStream(std::ostream& str) const override;
+            Traits doGetTraits() const override;
             
             deleteCopyAndAssignment(CaseOperator)
         };
@@ -514,14 +514,14 @@ namespace TrenchBroom {
         private:
             SwitchOperator(const ExpressionBase::List& cases, size_t line, size_t column);
         public:
-            ~SwitchOperator();
+            ~SwitchOperator() override;
         public:
             static ExpressionBase* create(const ExpressionBase::List& cases, size_t line, size_t column);
         private:
-            ExpressionBase* doClone() const;
-            ExpressionBase* doOptimize();
-            void doAppendToStream(std::ostream& str) const;
-            Value doEvaluate(const EvaluationContext& context) const;
+            ExpressionBase* doClone() const override;
+            ExpressionBase* doOptimize() override;
+            void doAppendToStream(std::ostream& str) const override;
+            Value doEvaluate(const EvaluationContext& context) const override;
             
             deleteCopyAndAssignment(SwitchOperator)
         };

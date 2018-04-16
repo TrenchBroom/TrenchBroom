@@ -47,15 +47,15 @@ namespace TrenchBroom {
         private:
             CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot* coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
         public:
-            ~CopyTexCoordSystemFromFaceCommand();
+            ~CopyTexCoordSystemFromFaceCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
             
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         private:
             CopyTexCoordSystemFromFaceCommand(const CopyTexCoordSystemFromFaceCommand& other);
             CopyTexCoordSystemFromFaceCommand& operator=(const CopyTexCoordSystemFromFaceCommand& other);

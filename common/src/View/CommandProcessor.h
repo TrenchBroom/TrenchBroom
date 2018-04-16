@@ -54,14 +54,14 @@ namespace TrenchBroom {
                          Notifier1<UndoableCommand::Ptr>& commandUndoNotifier,
                          Notifier1<UndoableCommand::Ptr>& commandUndoneNotifier);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
 
-            bool doIsRepeatDelimiter() const;
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            bool doIsRepeatDelimiter() const override;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
         
         class CommandProcessor {

@@ -42,19 +42,19 @@ namespace TrenchBroom {
         public:
             CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
 
-            void doModifierKeyChange(const InputState& inputState);
+            void doModifierKeyChange(const InputState& inputState) override;
 
-            DragInfo doStartDrag(const InputState& inputState);
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
-            void doEndDrag(const InputState& inputState);
-            void doCancelDrag();
+            DragInfo doStartDrag(const InputState& inputState) override;
+            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            void doEndDrag(const InputState& inputState) override;
+            void doCancelDrag() override;
 
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-            bool doCancel();
+            bool doCancel() override;
         private:
             void updateBounds(const Vec3& point, Vec3 cameraPosition);
         };

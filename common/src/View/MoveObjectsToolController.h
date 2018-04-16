@@ -31,18 +31,18 @@ namespace TrenchBroom {
             MoveObjectsTool* m_tool;
         public:
             MoveObjectsToolController(MoveObjectsTool* tool);
-            virtual ~MoveObjectsToolController();
+            virtual ~MoveObjectsToolController() override;
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
 
-            MoveInfo doStartMove(const InputState& inputState);
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
-            void doEndMove(const InputState& inputState);
-            void doCancelMove();
+            MoveInfo doStartMove(const InputState& inputState) override;
+            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            void doEndMove(const InputState& inputState) override;
+            void doCancelMove() override;
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

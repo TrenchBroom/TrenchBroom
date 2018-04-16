@@ -50,9 +50,9 @@ namespace TrenchBroom {
             void OnListBoxDoubleClick(wxCommandEvent& event);
             void reloadGameInfos();
         private:
-            bool image(size_t n, wxBitmap& result) const;
-            wxString title(size_t n) const;
-            wxString subtitle(size_t n) const;
+            bool image(size_t n, wxBitmap& result) const override;
+            wxString title(size_t n) const override;
+            wxString subtitle(size_t n) const override;
             
             void submitChangeEvent(wxEventType type);
         };

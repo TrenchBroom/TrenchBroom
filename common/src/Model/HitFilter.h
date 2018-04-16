@@ -49,10 +49,10 @@ namespace TrenchBroom {
             const HitFilter* m_next;
         public:
             HitFilterChain(const HitFilter* filter, const HitFilter* next);
-            ~HitFilterChain();
+            ~HitFilterChain() override;
         private:
-            HitFilter* doClone() const;
-            bool doMatches(const Hit& hit) const;
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
         };
         
         class TypedHitFilter : public HitFilter {
@@ -61,14 +61,14 @@ namespace TrenchBroom {
         public:
             TypedHitFilter(Hit::HitType typeMask);
         private:
-            HitFilter* doClone() const;
-            bool doMatches(const Hit& hit) const;
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
         };
 
         class SelectionHitFilter : public HitFilter {
         private:
-            HitFilter* doClone() const;
-            bool doMatches(const Hit& hit) const;
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
         };
         
         class MinDistanceHitFilter : public HitFilter {
@@ -77,8 +77,8 @@ namespace TrenchBroom {
         public:
             MinDistanceHitFilter(FloatType minDistance);
         private:
-            HitFilter* doClone() const;
-            bool doMatches(const Hit& hit) const;
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
         };
         
         class EditorContext;
@@ -89,8 +89,8 @@ namespace TrenchBroom {
         public:
             ContextHitFilter(const EditorContext& context);
         private:
-            HitFilter* doClone() const;
-            bool doMatches(const Hit& hit) const;
+            HitFilter* doClone() const override;
+            bool doMatches(const Hit& hit) const override;
         };
     }
 }

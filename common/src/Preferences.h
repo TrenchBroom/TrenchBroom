@@ -41,6 +41,8 @@ namespace TrenchBroom {
         extern Preference<Color> YAxisColor;
         extern Preference<Color> ZAxisColor;
         extern Preference<Color> PointFileColor;
+        extern Preference<Color> PortalFileBorderColor;
+        extern Preference<Color> PortalFileFillColor;
         
         Preference<Color>& axisColor(Math::Axis::Type axis);
         
@@ -68,6 +70,7 @@ namespace TrenchBroom {
         extern Preference<Color> SelectionBoundsColor;
         
         extern Preference<Color> InfoOverlayTextColor;
+        extern Preference<Color> GroupInfoOverlayTextColor;
         extern Preference<Color> InfoOverlayBackgroundColor;
         extern Preference<Color> WeakInfoOverlayBackgroundColor;
         extern Preference<Color> SelectedInfoOverlayTextColor;

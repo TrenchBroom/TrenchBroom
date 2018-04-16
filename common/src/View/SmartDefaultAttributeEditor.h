@@ -37,9 +37,9 @@ namespace TrenchBroom {
         public:
             SmartDefaultAttributeEditor(View::MapDocumentWPtr document);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent);
-            void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableNodeList& attributables);
+            wxWindow* doCreateVisual(wxWindow* parent) override;
+            void doDestroyVisual() override;
+            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
         };
     }
 }

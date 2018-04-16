@@ -73,7 +73,7 @@ namespace TrenchBroom {
             mutable bool m_contentTypeValid;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
-            ~Brush();
+            ~Brush() override;
         private:
             void cleanup();
         public:
@@ -131,6 +131,12 @@ namespace TrenchBroom {
         public: // move face along normal
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace* face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture);
+            bool canExpand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) const;
+            /**
+             * Moves all faces by `delta` units along their normals; negative values shrink the brush.
+             * Returns true if the brush is valid after the modification, false if the brush is invalid.
+             */
+            bool expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture);
         public:
             // geometry access
             size_t vertexCount() const;
@@ -165,8 +171,8 @@ namespace TrenchBroom {
             bool canRemoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions) const;
             void removeVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions);
             
-            bool canSnapVertices(const BBox3& worldBounds, size_t snapTo);
-            void snapVertices(const BBox3& worldBounds, size_t snapTo);
+            bool canSnapVertices(const BBox3& worldBounds, FloatType snapTo);
+            void snapVertices(const BBox3& worldBounds, FloatType snapTo);
 
             // edge operations
             bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) const;
@@ -215,27 +221,27 @@ namespace TrenchBroom {
             void invalidateContentType();
             void validateContentType() const;
         private: // implement Node interface
-            const String& doGetName() const;
-            const BBox3& doGetBounds() const;
+            const String& doGetName() const override;
+            const BBox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const;
-            NodeSnapshot* doTakeSnapshot();
+            Node* doClone(const BBox3& worldBounds) const override;
+            NodeSnapshot* doTakeSnapshot() override;
             
-            bool doCanAddChild(const Node* child) const;
-            bool doCanRemoveChild(const Node* child) const;
-            bool doRemoveIfEmpty() const;
+            bool doCanAddChild(const Node* child) const override;
+            bool doCanRemoveChild(const Node* child) const override;
+            bool doRemoveIfEmpty() const override;
 
-            void doParentDidChange();
+            void doParentDidChange() override;
 
-            bool doSelectable() const;
+            bool doSelectable() const override;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doAccept(NodeVisitor& visitor) override;
+            void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
-            FloatType doIntersectWithRay(const Ray3& ray) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const Ray3& ray) const override;
 
             struct BrushFaceHit {
                 BrushFace* face;
@@ -246,17 +252,17 @@ namespace TrenchBroom {
 
             BrushFaceHit findFaceHit(const Ray3& ray) const;
             
-            Node* doGetContainer() const;
-            Layer* doGetLayer() const;
-            Group* doGetGroup() const;
+            Node* doGetContainer() const override;
+            Layer* doGetLayer() const override;
+            Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
+            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
 
             class Contains;
-            bool doContains(const Node* node) const;
+            bool doContains(const Node* node) const override;
             
             class Intersects;
-            bool doIntersects(const Node* node) const;
+            bool doIntersects(const Node* node) const override;
         private:
             Brush(const Brush&);
             Brush& operator=(const Brush&);

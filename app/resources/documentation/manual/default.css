@@ -14,10 +14,8 @@ div#TOC {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	width: 310px;
+	width: 300px;
 	padding: 0px;
-	float: left;
-	overflow: hidden;
 	max-height: 100%;
 	overflow-y: auto;
 }
@@ -42,11 +40,10 @@ div#TOC ul ul {
 
 div#CONTENT {
 	top: 0px;
-	left: 320px;
-	padding-left: 20px;
-	padding-right: 20px;
+	left: 300px;
+	padding-left: 30px;
+	padding-right: 30px;
 	float: left;
-	overflow: hidden;
 	position: absolute;
 	background-color: white;
 }
@@ -55,7 +52,7 @@ div#CONTENT p {
 	text-indent: 0px;
 }
 
-div.figure {
+div.figure, figure {
 	display: inline-block;
 	padding: 5px;
 	margin-left: 40px;
@@ -64,13 +61,13 @@ div.figure {
 	background-color: gray;
 }
 
-div.figure img {
+div.figure img, figure img {
 	max-width: 100%;
     height: auto;
     width: auto\9; /* ie8 */
 }
 
-div.figure p {
+div.figure p, figcaption {
 	text-align: center;
 	color: white;
 	margin: 0px;
@@ -131,4 +128,7 @@ pre {
 	background-color: rgb(200, 200, 200);
 	border-radius: 5px;
 	border: 1px solid gray;
+    font-size: small;
+	overflow: auto;
+	max-width: 100%;
 }

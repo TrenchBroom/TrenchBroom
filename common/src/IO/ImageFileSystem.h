@@ -45,7 +45,7 @@ namespace TrenchBroom {
             public:
                 SimpleFile(MappedFile::Ptr file);
             private:
-                MappedFile::Ptr doOpen();
+                MappedFile::Ptr doOpen() override;
             };
             
             class Directory {
@@ -79,16 +79,16 @@ namespace TrenchBroom {
         protected:
             ImageFileSystem(const Path& path, MappedFile::Ptr file);
         public:
-            virtual ~ImageFileSystem();
+            virtual ~ImageFileSystem() override;
         protected:
             void initialize();
         private:
-            Path doMakeAbsolute(const Path& relPath) const;
-            bool doDirectoryExists(const Path& path) const;
-            bool doFileExists(const Path& path) const;
+            Path doMakeAbsolute(const Path& relPath) const override;
+            bool doDirectoryExists(const Path& path) const override;
+            bool doFileExists(const Path& path) const override;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
-            const MappedFile::Ptr doOpenFile(const Path& path) const;
+            Path::List doGetDirectoryContents(const Path& path) const override;
+            const MappedFile::Ptr doOpenFile(const Path& path) const override;
         private:
             virtual void doReadDirectory() = 0;
         };

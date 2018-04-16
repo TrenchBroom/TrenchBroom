@@ -63,6 +63,10 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        void IssueBrowserView::deselectAll() {
+            deselectAllListrCtrlItems(this);
+        }
+
         void IssueBrowserView::OnSize(wxSizeEvent& event) {
             if (IsBeingDeleted()) return;
 

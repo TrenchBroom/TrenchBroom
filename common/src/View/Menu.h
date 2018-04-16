@@ -76,7 +76,7 @@ namespace TrenchBroom {
         public:
             SeparatorItem(MenuItemParent* parent);
         private:
-            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
         };
         
         class LabeledMenuItem : public MenuItem {
@@ -97,28 +97,28 @@ namespace TrenchBroom {
             mutable Preference<KeyboardShortcut> m_preference;
         public:
             ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            virtual ~ActionMenuItem();
+            virtual ~ActionMenuItem() override;
 
             wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
-            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
-            const ActionMenuItem* doFindActionMenuItem(int id) const;
-            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
-            void doResetShortcuts();
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
+            const ActionMenuItem* doFindActionMenuItem(int id) const override;
+            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
+            void doResetShortcuts() override;
             
-            int doGetId() const;
-            const String& doGetLabel() const;
+            int doGetId() const override;
+            const String& doGetLabel() const override;
         private: // implement KeyboardShortcutEntry interface
-            int doGetActionContext() const;
-            bool doGetModifiable() const;
-            wxString doGetActionDescription() const;
-            wxString doGetJsonString() const;
-            const Preference<KeyboardShortcut>& doGetPreference() const;
-            const KeyboardShortcut& doGetShortcut() const;
-            void doUpdateShortcut(const KeyboardShortcut& shortcut);
-            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
+            int doGetActionContext() const override;
+            bool doGetModifiable() const override;
+            wxString doGetActionDescription() const override;
+            wxString doGetJsonString() const override;
+            const Preference<KeyboardShortcut>& doGetPreference() const override;
+            const KeyboardShortcut& doGetShortcut() const override;
+            void doUpdateShortcut(const KeyboardShortcut& shortcut) override;
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const override;
         };
         
         class Menu;
@@ -131,22 +131,22 @@ namespace TrenchBroom {
         protected:
             MenuItemParent(Type type, MenuItemParent* parent, int id, const String& label);
         public:
-            virtual ~MenuItemParent();
+            virtual ~MenuItemParent() override;
 
             void addItem(MenuItem* item);
             const List& items() const;
             List& items();
         private:
-            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
-            void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const override;
+            void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const override;
             wxMenu* buildMenu(bool withShortcuts) const;
 
-            const ActionMenuItem* doFindActionMenuItem(int id) const;
-            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
-            void doResetShortcuts();
+            const ActionMenuItem* doFindActionMenuItem(int id) const override;
+            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries) override;
+            void doResetShortcuts() override;
             
-            int doGetId() const;
-            const String& doGetLabel() const;
+            int doGetId() const override;
+            const String& doGetLabel() const override;
         };
         
         class Menu : public MenuItemParent {

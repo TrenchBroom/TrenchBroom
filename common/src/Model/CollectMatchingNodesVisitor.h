@@ -42,18 +42,18 @@ namespace TrenchBroom {
         
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
         public:
-            virtual ~StandardNodeCollectionStrategy();
+            virtual ~StandardNodeCollectionStrategy() override;
         public:
-            void addNode(Node* node);
+            void addNode(Node* node) override;
         };
         
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
             NodeSet m_addedNodes;
         public:
-            virtual ~UniqueNodeCollectionStrategy();
+            virtual ~UniqueNodeCollectionStrategy() override;
         public:
-            void addNode(Node* node);
+            void addNode(Node* node) override;
         };
 
         template <class D>
@@ -90,11 +90,11 @@ namespace TrenchBroom {
         public:
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}
         private:
-            void doVisit(World* world)   { C::addNode(world);  }
-            void doVisit(Layer* layer)   { C::addNode(layer);  }
-            void doVisit(Group* group)   { C::addNode(group);  }
-            void doVisit(Entity* entity) { C::addNode(entity); }
-            void doVisit(Brush* brush)   { C::addNode(brush);  }
+            void doVisit(World* world)   override { C::addNode(world);  }
+            void doVisit(Layer* layer)   override { C::addNode(layer);  }
+            void doVisit(Group* group)   override { C::addNode(group);  }
+            void doVisit(Entity* entity) override { C::addNode(entity); }
+            void doVisit(Brush* brush)   override { C::addNode(brush);  }
         };
 
         template <typename V, typename I>

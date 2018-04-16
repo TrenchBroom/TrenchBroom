@@ -122,9 +122,10 @@ namespace TrenchBroom {
             Renderer::BrushRenderer* m_clippedBrushRenderer;
             
             bool m_ignoreNotifications;
+            bool m_dragging;
         public:
             ClipTool(MapDocumentWPtr document);
-            ~ClipTool();
+            ~ClipTool() override;
             
             const Grid& grid() const;
             
@@ -139,11 +140,13 @@ namespace TrenchBroom {
         public:
             void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const;
         public:
+            bool hasBrushes() const;
             bool canClip() const;
             void performClip();
         private:
             Model::ParentChildrenMap clipBrushes();
         public:
+
             Vec3 defaultClipPointPos() const;
 
             bool canAddPoint(const Vec3& point) const;
@@ -176,8 +179,8 @@ namespace TrenchBroom {
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
         private:
-            bool doActivate();
-            bool doDeactivate();
+            bool doActivate() override;
+            bool doDeactivate() override;
             
             bool doRemove();
             

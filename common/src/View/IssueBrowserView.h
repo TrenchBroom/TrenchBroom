@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void setHiddenGenerators(int hiddenGenerators);
             void setShowHiddenIssues(bool show);
             void reload();
+            void deselectAll();
             
             void OnSize(wxSizeEvent& event);
             
@@ -78,8 +79,8 @@ namespace TrenchBroom {
             void updateSelection();
             IndexList getSelection() const;
             
-            wxListItemAttr* OnGetItemAttr(long item) const;
-            wxString OnGetItemText(long item, long column) const;
+            wxListItemAttr* OnGetItemAttr(long item) const override;
+            wxString OnGetItemText(long item, long column) const override;
             
             void bindEvents();
         private:

@@ -45,18 +45,18 @@ namespace TrenchBroom {
         public:
             UVShearTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
             Vec2f getHit(const Ray3& pickRay) const;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

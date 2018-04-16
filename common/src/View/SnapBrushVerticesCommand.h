@@ -35,20 +35,20 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<SnapBrushVerticesCommand> Ptr;
         private:
-            size_t m_snapTo;
+            FloatType m_snapTo;
             Model::Snapshot* m_snapshot;
         public:
-            static SnapBrushVerticesCommand::Ptr snap(size_t snapTo);
+            static SnapBrushVerticesCommand::Ptr snap(FloatType snapTo);
         private:
-            SnapBrushVerticesCommand(size_t snapTo);
+            explicit SnapBrushVerticesCommand(FloatType snapTo);
         public:
-            ~SnapBrushVerticesCommand();
+            ~SnapBrushVerticesCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command);
+            bool doCollateWith(UndoableCommand::Ptr command) override;
         };
     }
 }

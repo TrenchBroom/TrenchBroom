@@ -58,25 +58,25 @@ namespace TrenchBroom {
             BooleanType m_value;
         public:
             BooleanValueHolder(const BooleanType& value);
-            ValueType type() const;
-            const BooleanType& booleanValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const BooleanType& booleanValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
 
         class StringHolder : public ValueHolder {
         public:
-            virtual ~StringHolder();
+            virtual ~StringHolder() override;
             
-            ValueType type() const;
-            const StringType& stringValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const StringType& stringValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         private:
             virtual const StringType& doGetValue() const = 0;
         };
@@ -86,9 +86,9 @@ namespace TrenchBroom {
             StringType m_value;
         public:
             StringValueHolder(const StringType& value);
-            ValueHolder* clone() const;
+            ValueHolder* clone() const override;
         private:
-            const StringType& doGetValue() const;
+            const StringType& doGetValue() const override;
         };
         
         class StringReferenceHolder : public StringHolder {
@@ -96,9 +96,9 @@ namespace TrenchBroom {
             const StringType& m_value;
         public:
             StringReferenceHolder(const StringType& value);
-            ValueHolder* clone() const;
+            ValueHolder* clone() const override;
         private:
-            const StringType& doGetValue() const;
+            const StringType& doGetValue() const override;
         };
         
         class NumberValueHolder : public ValueHolder {
@@ -106,13 +106,13 @@ namespace TrenchBroom {
             NumberType m_value;
         public:
             NumberValueHolder(const NumberType& value);
-            ValueType type() const;
-            const NumberType& numberValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const NumberType& numberValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class ArrayValueHolder : public ValueHolder {
@@ -120,13 +120,13 @@ namespace TrenchBroom {
             ArrayType m_value;
         public:
             ArrayValueHolder(const ArrayType& value);
-            ValueType type() const;
-            const ArrayType& arrayValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const ArrayType& arrayValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class MapValueHolder : public ValueHolder {
@@ -134,13 +134,13 @@ namespace TrenchBroom {
             MapType m_value;
         public:
             MapValueHolder(const MapType& value);
-            ValueType type() const;
-            const MapType& mapValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const MapType& mapValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class RangeValueHolder : public ValueHolder {
@@ -148,38 +148,38 @@ namespace TrenchBroom {
             RangeType m_value;
         public:
             RangeValueHolder(const RangeType& value);
-            ValueType type() const;
-            const RangeType& rangeValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const RangeType& rangeValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class NullValueHolder : public ValueHolder {
         public:
-            ValueType type() const;
-            const StringType& stringValue() const;
-            const BooleanType& booleanValue() const;
-            const NumberType& numberValue() const;
-            const ArrayType& arrayValue() const;
-            const MapType& mapValue() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            const StringType& stringValue() const override;
+            const BooleanType& booleanValue() const override;
+            const NumberType& numberValue() const override;
+            const ArrayType& arrayValue() const override;
+            const MapType& mapValue() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class UndefinedValueHolder : public ValueHolder {
         public:
-            ValueType type() const;
-            size_t length() const;
-            bool convertibleTo(ValueType toType) const;
-            ValueHolder* convertTo(ValueType toType) const;
-            ValueHolder* clone() const;
-            void appendToStream(std::ostream& str, bool multiline, const String& indent) const;
+            ValueType type() const override;
+            size_t length() const override;
+            bool convertibleTo(ValueType toType) const override;
+            ValueHolder* convertTo(ValueType toType) const override;
+            ValueHolder* clone() const override;
+            void appendToStream(std::ostream& str, bool multiline, const String& indent) const override;
         };
         
         class Value {

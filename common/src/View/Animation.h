@@ -72,7 +72,7 @@ namespace TrenchBroom {
         public:
             ExecutableAnimation(const Animation::List& animations);
         private:
-            void execute();
+            void execute() override;
         };
         
         class AnimationManager : public wxThread {
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             AnimationManager();
             void runAnimation(Animation* animation, bool replace);
         private:
-            ExitCode Entry();
+            ExitCode Entry() override;
         };
     }
 }

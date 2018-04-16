@@ -49,6 +49,9 @@ public:
     m_callback(callback) {
         if (clipSubtrahend()) {
             subtract();
+        } else {
+            // minuend and subtrahend are disjoint
+            m_fragments = { minuend };
         }
     }
     
@@ -56,6 +59,14 @@ public:
         return m_fragments;
     }
 private:
+    /**
+     * Clips away the parts of m_subtrahend which are not intersecting m_minuend
+     * (and therefore aren't useful for the subtraction).
+     * This is an optimization that might result in better quality subtractions.
+     *
+     * If the entire subtrahend is clipped away (i.e. the minuend and subtrahend are disjoint), returns false.
+     * Otherwise, returns true.
+     */
     bool clipSubtrahend() {
         Face* first = m_minuend.faces().front();
         Face* current = first;
@@ -90,7 +101,6 @@ private:
     }
     
     static PlaneList sortPlanes(PlaneList planes) {
-        typedef Vec<T,3> V;
         typedef typename V::List VList;
         
         auto it = std::begin(planes);

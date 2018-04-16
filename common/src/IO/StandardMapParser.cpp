@@ -20,7 +20,7 @@
 #include "StandardMapParser.h"
 
 #include "Logger.h"
-#include "SetAny.h"
+#include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
@@ -88,6 +88,7 @@ namespace TrenchBroom {
                             advance();
                             return Token(QuakeMapToken::Eol, c, c+1, offset(c), startLine, startColumn);
                         }
+                        switchFallthrough();
                     case '\r':
                     case ' ':
                     case '\t':
@@ -417,7 +418,7 @@ namespace TrenchBroom {
         }
 
         void StandardMapParser::parseExtraAttributes(ExtraAttributes& attributes, ParserStatus& status) {
-            const SetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
+            const TemporarilySetBoolFun<QuakeMapTokenizer> parseEof(&m_tokenizer, &QuakeMapTokenizer::setSkipEol, false);
             Token token = m_tokenizer.nextToken();
             expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token);
             while (token.type() != QuakeMapToken::Eol && token.type() != QuakeMapToken::Eof) {

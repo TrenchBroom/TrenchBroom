@@ -37,6 +37,9 @@
 #define switchDefault() default: assert(false); throw "Unhandled switch case";
 #endif
 
+// Annotate an intended switch fallthrough
+#define switchFallthrough() [[fallthrough]]
+
 #define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
 
 #define deleteCopyAndAssignment(classname) private: classname(const classname& other); classname& operator=(const classname& other);

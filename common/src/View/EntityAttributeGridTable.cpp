@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/World.h"
+#include "View/LockedGridCellRenderer.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
@@ -302,8 +303,7 @@ namespace TrenchBroom {
         m_document(document),
         m_rows(),
         m_ignoreUpdates(false),
-        m_showDefaultRows(true),
-        m_readonlyCellColor(wxColor(224, 224, 224)) {}
+        m_showDefaultRows(true) {}
         
         int EntityAttributeGridTable::GetNumberRows() {
             return static_cast<int>(m_rows.totalRowCount());
@@ -346,7 +346,7 @@ namespace TrenchBroom {
             
             // Ignoring the updates here fails if the user changes the entity classname because in that
             // case, we must really refresh everything from the entity.
-            // const SetBool ignoreUpdates(m_ignoreUpdates);
+            // const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
             if (col == 0)
                 renameAttribute(rowIndex, value.ToStdString(), attributables);
             else
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             
             const StringList newKeys = m_rows.insertRows(pos, numRows, attributables);
 
-            const SetBool ignoreUpdates(m_ignoreUpdates);
+            const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
 
             const Transaction transaction(document);
             for (const String& name : newKeys)
@@ -398,7 +398,7 @@ namespace TrenchBroom {
             ensure(names.size() == numRows, "invalid number of row names");
             
             {
-                const SetBool ignoreUpdates(m_ignoreUpdates);
+                const TemporarilySetBool ignoreUpdates(m_ignoreUpdates);
                 
                 Transaction transaction(document, StringUtils::safePlural(numRows, "Remove Attribute", "Remove Attributes"));
                 
@@ -448,8 +448,8 @@ namespace TrenchBroom {
                     attr->SetReadOnly();
                 } else {
                     if (!m_rows.nameMutable(rowIndex)) {
-                        attr->SetReadOnly(true);
-                        attr->SetBackgroundColour(m_readonlyCellColor);
+                        attr->SetReadOnly();
+                        attr->SetRenderer(new LockedGridCellRenderer());
                     }
                 }
             } else if (col == 1) {
@@ -457,8 +457,8 @@ namespace TrenchBroom {
                     attr->SetFont(GetView()->GetFont());
                 }
                 if (!m_rows.valueMutable(rowIndex)) {
-                    attr->SetReadOnly(true);
-                    attr->SetBackgroundColour(m_readonlyCellColor);
+                    attr->SetReadOnly();
+                    attr->SetRenderer(new LockedGridCellRenderer());
                 }
                 if (m_rows.multi(rowIndex)) {
                     attr->SetTextColour(*wxLIGHT_GREY);
@@ -590,6 +590,10 @@ namespace TrenchBroom {
             ensure(rowIndex < m_rows.attributeRowCount(), "row index out of bounds");
             
             const String& oldName = m_rows.name(rowIndex);
+            
+            if (oldName == newName)
+                return;
+            
             if (!m_rows.nameMutable(rowIndex)) {
                 wxString msg;
                 msg << "Cannot rename property '" << oldName << "' to '" << newName << "'";
@@ -615,6 +619,7 @@ namespace TrenchBroom {
         void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
             ensure(rowIndex < m_rows.totalRowCount(), "row index out of bounds");
 
+            bool hasChange = false;
             const String& name = m_rows.name(rowIndex);
             for (const Model::AttributableNode* attributable : attributables) {
                 if (attributable->hasAttribute(name)) {
@@ -625,8 +630,15 @@ namespace TrenchBroom {
                         wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
                         return;
                     }
+                    if (attributable->attribute(name) != newValue)
+                        hasChange = true;
+                } else {
+                    hasChange = true;
                 }
             }
+            
+            if (!hasChange)
+                return;
 
             MapDocumentSPtr document = lock(m_document);
             if (document->setAttribute(name, newValue)) {

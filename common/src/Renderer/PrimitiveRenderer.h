@@ -103,11 +103,11 @@ namespace TrenchBroom {
             
             void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f& start, const Vec3f& end);
         private:
-            void doPrepareVertices(Vbo& vertexVbo);
+            void doPrepareVertices(Vbo& vertexVbo) override;
             void prepareLines(Vbo& vertexVbo);
             void prepareTriangles(Vbo& vertexVbo);
 
-            void doRender(RenderContext& renderContext);
+            void doRender(RenderContext& renderContext) override;
             void renderLines(RenderContext& renderContext);
             void renderTriangles(RenderContext& renderContext);
         };

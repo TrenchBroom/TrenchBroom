@@ -36,10 +36,10 @@ namespace TrenchBroom {
             BrushFaceList m_faces;
         public:
             BrushSnapshot(Brush* brush);
-            ~BrushSnapshot();
+            ~BrushSnapshot() override;
         private:
             void takeSnapshot(Brush* brush);
-            void doRestore(const BBox3& worldBounds);
+            void doRestore(const BBox3& worldBounds) override;
         };
     }
 }

@@ -34,7 +34,7 @@ namespace TrenchBroom {
         UpdateEntitySpawnflagCommand::UpdateEntitySpawnflagCommand(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) :
         DocumentCommand(Type, makeName(setFlag)),
         m_setFlag(setFlag),
-        m_name(name),
+        m_attributeName(name),
         m_flagIndex(flagIndex) {}
         
         String UpdateEntitySpawnflagCommand::makeName(const bool setFlag) {
@@ -42,12 +42,12 @@ namespace TrenchBroom {
         }
         
         bool UpdateEntitySpawnflagCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            document->performUpdateSpawnflag(m_name, m_flagIndex, m_setFlag);
+            document->performUpdateSpawnflag(m_attributeName, m_flagIndex, m_setFlag);
             return true;
         }
         
         bool UpdateEntitySpawnflagCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->performUpdateSpawnflag(m_name, m_flagIndex, !m_setFlag);
+            document->performUpdateSpawnflag(m_attributeName, m_flagIndex, !m_setFlag);
             return true;
         }
         

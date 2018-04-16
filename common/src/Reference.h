@@ -72,8 +72,8 @@ namespace TrenchBroom {
             T m_value;
         public:
             CopyHolder(const T& value) : m_value(value) {}
-            T& get() { return m_value; }
-            const T& get() const { return m_value; }
+            T& get() override { return m_value; }
+            const T& get() const override { return m_value; }
         };
         
         class RefHolder : public TypedHolder {

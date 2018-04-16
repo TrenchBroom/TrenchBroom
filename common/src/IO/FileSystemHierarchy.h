@@ -38,18 +38,18 @@ namespace TrenchBroom {
             FileSystemList m_fileSystems;
         public:
             FileSystemHierarchy();
-            virtual ~FileSystemHierarchy();
+            virtual ~FileSystemHierarchy() override;
             
             void addFileSystem(FileSystem* fileSystem);
             virtual void clear();
         private:
-            Path doMakeAbsolute(const Path& relPath) const;
-            bool doDirectoryExists(const Path& path) const;
-            bool doFileExists(const Path& path) const;
+            Path doMakeAbsolute(const Path& relPath) const override;
+            bool doDirectoryExists(const Path& path) const override;
+            bool doFileExists(const Path& path) const override;
             FileSystem* findFileSystemContaining(const Path& path) const;
             
-            Path::List doGetDirectoryContents(const Path& path) const;
-            const MappedFile::Ptr doOpenFile(const Path& path) const;
+            Path::List doGetDirectoryContents(const Path& path) const override;
+            const MappedFile::Ptr doOpenFile(const Path& path) const override;
 
             deleteCopyAndAssignment(FileSystemHierarchy)
         };
@@ -67,13 +67,13 @@ namespace TrenchBroom {
             
             void addReadableFileSystem(FileSystem* fileSystem);
             void addWritableFileSystem(WritableFileSystem* fileSystem);
-            void clear();
+            void clear() override;
         private:
-            void doCreateFile(const Path& path, const String& contents);
-            void doCreateDirectory(const Path& path);
-            void doDeleteFile(const Path& path);
-            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+            void doCreateFile(const Path& path, const String& contents) override;
+            void doCreateDirectory(const Path& path) override;
+            void doDeleteFile(const Path& path) override;
+            void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+            void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
             
             deleteCopyAndAssignment(WritableFileSystemHierarchy)
         };

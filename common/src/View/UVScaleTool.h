@@ -59,26 +59,26 @@ namespace TrenchBroom {
         public:
             UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
             Vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
             Vec2f getHitPoint(const Ray3& pickRay) const;
             
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag();
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
             
             Vec2f getScaledTranslatedHandlePos() const;
             Vec2f getHandlePos() const;
             Vec2f snap(const Vec2f& position) const;
 
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
             
-            bool doCancel();
+            bool doCancel() override;
         };
     }
 }

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const wxColor& color() const;
             void setColor(const wxColor& color);
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(ColorTableSelectedCommand);
         };

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const String& gameName() const;
             void setGameName(const String& gameName);
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(GameSelectionCommand);
         };

@@ -62,7 +62,7 @@ namespace TrenchBroom {
             Model::Layer* layer() const;
             void setLayer(Model::Layer* layer);
 
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
         };
 
         class LayerListBox : public ControlListBox {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
         public:
             LayerListBox(wxWindow* parent, MapDocumentWPtr document);
-            ~LayerListBox();
+            ~LayerListBox() override;
 
             Model::Layer* selectedLayer() const;
             void setSelectedLayer(Model::Layer* layer);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
 
             void bindEvents();
         private:
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index);
+            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
         };
     }
 }

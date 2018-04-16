@@ -397,6 +397,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPoly
         case Math::PointStatus::PSAbove:
             face->flip();
             callback.faceWasFlipped(face);
+            switchFallthrough();
         case Math::PointStatus::PSBelow:
             return makePolyhedron(position, callback);
     }
@@ -1045,6 +1046,7 @@ public:
             switch (result) {
                 case MatchResult_Second:
                     edge->flip();
+                    switchFallthrough();
                 case MatchResult_First:
                     return edge;
                 case MatchResult_Both:
@@ -1106,7 +1108,7 @@ public:
     SplitByConnectivityCriterion(const Vertex* vertex) :
     m_vertex(vertex) {}
 private:
-    bool doMatches(const Face* face) const {
+    bool doMatches(const Face* face) const override {
         return !m_vertex->incident(face);
     }
 };
@@ -1121,7 +1123,7 @@ public:
     SplitByVisibilityCriterion(const V& point) :
     m_point(point) {}
 private:
-    bool doMatches(const Face* face) const {
+    bool doMatches(const Face* face) const override {
         return face->pointStatus(m_point) == Math::PointStatus::PSBelow;
     }
 };

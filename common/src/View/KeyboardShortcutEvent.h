@@ -39,7 +39,7 @@ namespace TrenchBroom {
             int modifier2() const;
             int modifier3() const;
             
-            virtual wxEvent* Clone() const;
+            virtual wxEvent* Clone() const override;
             
             wxDECLARE_DYNAMIC_CLASS(KeyboardShortcutEvent);
         };

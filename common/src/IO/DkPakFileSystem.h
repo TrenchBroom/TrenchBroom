@@ -37,13 +37,13 @@ namespace TrenchBroom {
             public:
                 CompressedFile(MappedFile::Ptr file, size_t uncompressedSize);
             private:
-                MappedFile::Ptr doOpen();
+                MappedFile::Ptr doOpen() override;
                 char* decompress() const;
             };
         public:
             DkPakFileSystem(const Path& path, MappedFile::Ptr file);
         private:
-            void doReadDirectory();
+            void doReadDirectory() override;
             
         };
     }

@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void OnAttributeGridTab(wxGridEvent& event);
         public:
             void tabNavigate(int row, int col, bool forward);
+            void setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col);
         private:
             void moveCursorTo(int row, int col);
             void fireSelectionEvent(int row, int col);
@@ -63,6 +64,7 @@ namespace TrenchBroom {
             void OnAttributeGridKeyUp(wxKeyEvent& event);
             bool isInsertRowShortcut(const wxKeyEvent& event) const;
             bool isRemoveRowShortcut(const wxKeyEvent& event) const;
+            bool isOpenCellEditorShortcut(const wxKeyEvent& event) const;
         private:
             void OnAttributeGridMouseMove(wxMouseEvent& event);
 
@@ -73,6 +75,7 @@ namespace TrenchBroom {
             
             void addAttribute();
             void removeSelectedAttributes();
+            void removeAttribute(const String& key);
             
             void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
             void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
@@ -80,6 +83,7 @@ namespace TrenchBroom {
             void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
 
             bool canRemoveSelectedAttributes() const;
+            std::set<int> selectedRowsAndCursorRow() const;
         private:
             void createGui(MapDocumentWPtr document);
             
@@ -93,6 +97,8 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
         private:
             void updateControls();
+        public:
+            wxGrid* gridWindow() const;
         public:
             Model::AttributeName selectedRowName() const;
         };

@@ -63,12 +63,15 @@ namespace TrenchBroom {
             Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
             Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
-            for (Model::Node* node : nodes) {
-                if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
-                    node->escalate(ancestors);
-                    node->recurse(descendants);
-                    node->select();
-                    selected.push_back(node);
+            for (Model::Node* initialNode : nodes) {
+                const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
+                for (Model::Node* node : nodesToSelect) {
+                    if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
+                        node->escalate(ancestors);
+                        node->recurse(descendants);
+                        node->select();
+                        selected.push_back(node);
+                    }
                 }
             }
 
@@ -119,7 +122,12 @@ namespace TrenchBroom {
             performDeselectAll();
             
             Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
-            m_world->acceptAndRecurse(visitor);
+
+            Model::Node* target = currentGroup();
+            if (target == nullptr)
+                target = m_world;
+
+            target->recurse(visitor);
             performSelect(visitor.nodes());
         }
         
@@ -672,7 +680,7 @@ namespace TrenchBroom {
             return snapshot;
         }
 
-        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const size_t snapTo) {
+        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::Snapshot* snapshot = new Model::Snapshot(std::begin(brushes), std::end(brushes));
 
@@ -951,14 +959,17 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::doBeginTransaction(const String& name) {
+            debug("Starting transaction '" + name + "'");
             m_commandProcessor.beginGroup(name);
         }
         
         void MapDocumentCommandFacade::doEndTransaction() {
+            debug("Committing transaction");
             m_commandProcessor.endGroup();
         }
         
         void MapDocumentCommandFacade::doRollbackTransaction() {
+            debug("Rolling back transaction");
             m_commandProcessor.rollbackGroup();
         }
 

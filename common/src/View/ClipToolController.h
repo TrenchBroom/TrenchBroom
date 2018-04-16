@@ -80,42 +80,42 @@ namespace TrenchBroom {
             public:
                 AddClipPointPart(Callback* callback);
             private:
-                Tool* doGetTool();
-                bool doMouseClick(const InputState& inputState);
-                bool doMouseDoubleClick(const InputState& inputState);
-                DragInfo doStartDrag(const InputState& inputState);
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
-                void doEndDrag(const InputState& inputState);
-                void doCancelDrag();
-                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-                bool doCancel();
+                Tool* doGetTool() override;
+                bool doMouseClick(const InputState& inputState) override;
+                bool doMouseDoubleClick(const InputState& inputState) override;
+                DragInfo doStartDrag(const InputState& inputState) override;
+                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+                void doEndDrag(const InputState& inputState) override;
+                void doCancelDrag() override;
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+                bool doCancel() override;
             };
             
             class MoveClipPointPart : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy>, protected PartBase {
             public:
                 MoveClipPointPart(Callback* callback);
             private:
-                Tool* doGetTool();
-                DragInfo doStartDrag(const InputState& inputState);
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition);
-                void doEndDrag(const InputState& inputState);
-                void doCancelDrag();
-                bool doCancel();
+                Tool* doGetTool() override;
+                DragInfo doStartDrag(const InputState& inputState) override;
+                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+                void doEndDrag(const InputState& inputState) override;
+                void doCancelDrag() override;
+                bool doCancel() override;
             };
         protected:
             ClipTool* m_tool;
         protected:
             ClipToolController(ClipTool* tool);
-            virtual ~ClipToolController();
+            virtual ~ClipToolController() override;
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             
-            bool doCancel();
+            bool doCancel() override;
         };
         
         class ClipToolController2D : public ClipToolController {

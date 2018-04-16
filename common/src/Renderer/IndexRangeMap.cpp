@@ -54,6 +54,7 @@ namespace TrenchBroom {
                             break;
                         }
                     }
+                    switchFallthrough();
                 }
                 case GL_LINE_STRIP:
                 case GL_LINE_LOOP:

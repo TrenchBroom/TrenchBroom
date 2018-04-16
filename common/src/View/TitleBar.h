@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
             
-            bool AcceptsFocus() const;
+            bool AcceptsFocus() const override;
         };
     }
 }

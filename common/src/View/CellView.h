@@ -259,7 +259,7 @@ namespace TrenchBroom {
                 }
             }
         private:
-            void doRender() {
+            void doRender() override {
                 if (!m_valid)
                     validate();
                 if (!m_layoutInitialized)

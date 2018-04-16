@@ -36,8 +36,8 @@ namespace TrenchBroom {
         public:
             Console(wxWindow* parent);
         private:
-            void doLog(LogLevel level, const String& message);
-            void doLog(LogLevel level, const wxString& message);
+            void doLog(LogLevel level, const String& message) override;
+            void doLog(LogLevel level, const wxString& message) override;
             void logToDebugOut(LogLevel level, const wxString& message);
             void logToConsole(LogLevel level, const wxString& message);
         };

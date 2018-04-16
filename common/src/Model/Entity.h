@@ -57,44 +57,46 @@ namespace TrenchBroom {
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
         private: // implement Node interface
-            const BBox3& doGetBounds() const;
+            const BBox3& doGetBounds() const override;
 
-            Node* doClone(const BBox3& worldBounds) const;
-            NodeSnapshot* doTakeSnapshot();
+            Node* doClone(const BBox3& worldBounds) const override;
+            NodeSnapshot* doTakeSnapshot() override;
             
-            bool doCanAddChild(const Node* child) const;
-            bool doCanRemoveChild(const Node* child) const;
-            bool doRemoveIfEmpty() const;
+            bool doCanAddChild(const Node* child) const override;
+            bool doCanRemoveChild(const Node* child) const override;
+            bool doRemoveIfEmpty() const override;
 
-            void doChildWasAdded(Node* node);
-            void doChildWasRemoved(Node* node);
+            void doChildWasAdded(Node* node) override;
+            void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange();
-            void doChildBoundsDidChange(Node* node);
+            void doNodeBoundsDidChange() override;
+            void doChildBoundsDidChange(Node* node) override;
 
-            bool doSelectable() const;
+            bool doSelectable() const override;
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
-            void doFindNodesContaining(const Vec3& point, NodeList& result);
-            FloatType doIntersectWithRay(const Ray3& ray) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const Ray3& ray) const override;
 
-            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
+            void doAccept(NodeVisitor& visitor) override;
+            void doAccept(ConstNodeVisitor& visitor) const override;
+            
+            NodeList nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange();
-            bool doIsAttributeNameMutable(const AttributeName& name) const;
-            bool doIsAttributeValueMutable(const AttributeName& name) const;
-            Vec3 doGetLinkSourceAnchor() const;
-            Vec3 doGetLinkTargetAnchor() const;
+            void doAttributesDidChange() override;
+            bool doIsAttributeNameMutable(const AttributeName& name) const override;
+            bool doIsAttributeValueMutable(const AttributeName& name) const override;
+            Vec3 doGetLinkSourceAnchor() const override;
+            Vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface
-            Node* doGetContainer() const;
-            Layer* doGetLayer() const;
-            Group* doGetGroup() const;
+            Node* doGetContainer() const override;
+            Layer* doGetLayer() const override;
+            Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
-            bool doContains(const Node* node) const;
-            bool doIntersects(const Node* node) const;
+            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            bool doContains(const Node* node) const override;
+            bool doIntersects(const Node* node) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

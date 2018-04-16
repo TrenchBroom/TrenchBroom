@@ -51,10 +51,10 @@ namespace TrenchBroom {
             void createGui();
             wxWindow* createGamePreferencesPage(wxWindow* parent);
             
-            bool doCanResetToDefaults();
-            void doResetToDefaults();
-            void doUpdateControls();
-            bool doValidate();
+            bool doCanResetToDefaults() override;
+            void doResetToDefaults() override;
+            void doUpdateControls() override;
+            bool doValidate() override;
         };
     }
 }
