@@ -34,7 +34,7 @@ namespace TrenchBroom {
             typedef std::shared_ptr<SetLockStateCommand> Ptr;
         private:
             Model::NodeList m_nodes;
-            Model::LockState m_state;
+            Model::LockState m_lockState;
             Model::LockStateMap m_oldState;
         public:
             static Ptr lock(const Model::NodeList& nodes);

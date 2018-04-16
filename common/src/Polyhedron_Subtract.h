@@ -101,7 +101,6 @@ private:
     }
     
     static PlaneList sortPlanes(PlaneList planes) {
-        typedef Vec<T,3> V;
         typedef typename V::List VList;
         
         auto it = std::begin(planes);

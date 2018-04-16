@@ -1,14 +1,15 @@
+image: Visual Studio 2017
 version: 2.0.0-appveyor-{build}
 install:
 - cinst pandoc
 - ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z' -OutFile 'headers.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_Dev.7z' -OutFile 'dev.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleaseDLL.7z' -OutFile 'dll.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_ReleasePDB.7z' -OutFile 'pdb.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z' -OutFile 'dev.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z' -OutFile 'dll.7z'
+- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z' -OutFile 'pdb.7z'
 - ps: if ("fc2fece046792772d4a05946de1b3a8cc8c69733" -ne (Get-FileHash -Path "headers.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("53bd51281fa9bbb9ce9389164c2f45792482bc83" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("9d0ed3988f43d9b4c32e0fd18863878a6bde6b7f" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("e5451c6b557693435e03d6c2d4576965e5c88b79" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("b7edda49bfec0654954d263712acc0199af1c141" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("e94cbe52d61e6263760648646f7bd694e8ee3c54" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
+- ps: if ("deca4222d38f77186b54ed1faab2c7111aa29c69" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
 - ps: 7z x headers.7z -oc:\wxWidgets-3.1.1 -aoa
 - ps: 7z x dev.7z -oc:\wxWidgets-3.1.1 -aoa
 - ps: 7z x dll.7z -oc:\wxWidgets-3.1.1 -aoa
