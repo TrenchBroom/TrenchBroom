@@ -81,6 +81,18 @@ namespace TrenchBroom {
             EXPECT_EQ(input1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-200,-200,0), false));
         }
 
+        TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional_NegY) {
+            const auto input1 = BBox3(Vec3(-100,-100,-100),
+                                      Vec3( 100, 100, 100));
+
+            const auto exp1 = BBox3(Vec3(-100,-125,-100),
+                                    Vec3( 100, 100, 125));
+
+            // move the (+Z, -Y, +/-X) edge by Z=25, Y=-25
+            EXPECT_EQ(exp1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,-1,1), Vec3(-1,-1,1)), Vec3(0,-25,25), false));
+        }
+
+
         TEST(ScaleObjectsToolTest, moveBBoxEdge_Proportional) {
             const auto input1 = BBox3(Vec3(-100,-100,-100),
                                       Vec3( 100, 100, 100));

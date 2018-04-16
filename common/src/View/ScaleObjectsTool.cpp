@@ -283,8 +283,14 @@ namespace TrenchBroom {
             const size_t axis3 = edgeEdgeDir.thirdComponent();
 
             // get the ratio
-            const FloatType inAxis1Length = in.size()[axis1];
-            const FloatType ratio = (inAxis1Length + delta[axis1]) / inAxis1Length;
+            const FloatType movingEdgeAxis1 = edgeMid[axis1];
+            const FloatType movedEdgeAxis1 = edgeMid[axis1] + delta[axis1];
+            const FloatType oppositeEdgeAxis1 = oppositeEdgeMid[axis1];
+
+            const FloatType oldLength = std::abs(movingEdgeAxis1 - oppositeEdgeAxis1);
+            const FloatType newLength = std::abs(movedEdgeAxis1 - oppositeEdgeAxis1);
+
+            const FloatType ratio = newLength / oldLength;
 
             Vec3 newSize = in.size();
             newSize[axis1] *= ratio;
