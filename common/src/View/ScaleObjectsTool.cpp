@@ -226,7 +226,7 @@ namespace TrenchBroom {
 
             if (sideLength <= 0) {
                 std::cerr << "moveBBoxFace: given invalid side length " << sideLength << "\n";
-                return in;
+                return BBox3();
             }
 
             const Vec3 n = side.normal;
@@ -257,15 +257,22 @@ namespace TrenchBroom {
 
             const BBoxCorner opposite = oppositeCorner(corner);
             const Vec3 anchor = pointForBBoxCorner(in, opposite);
-            const Vec3 newCorner = pointForBBoxCorner(in, corner) + delta;
+            const Vec3 oldCorner = pointForBBoxCorner(in, corner);
+            const Vec3 newCorner = oldCorner + delta;
 
-            const BBox3 result(Vec3::List{anchor, newCorner});
-
-            if (result.empty()) {
-                return in;
-            } else {
-                return result;
+            // check for inverting the box
+            for (size_t i = 0; i < 3; ++i) {
+                if (newCorner[i] == anchor[i]) {
+                    return BBox3();
+                }
+                const bool oldPositive = oldCorner[i] > anchor[i];
+                const bool newPositive = newCorner[i] > anchor[i];
+                if (oldPositive != newPositive) {
+                    return BBox3();
+                }
             }
+
+            return BBox3(Vec3::List{anchor, newCorner});
         }
 
         BBox3 moveBBoxEdge(const BBox3& in,
@@ -287,8 +294,15 @@ namespace TrenchBroom {
             const FloatType movedEdgeAxis1 = edgeMid[axis1] + delta[axis1];
             const FloatType oppositeEdgeAxis1 = oppositeEdgeMid[axis1];
 
+            if ((movingEdgeAxis1 > oppositeEdgeAxis1) != (movedEdgeAxis1 > oppositeEdgeAxis1)) {
+                return BBox3();
+            }
+
             const FloatType oldLength = std::abs(movingEdgeAxis1 - oppositeEdgeAxis1);
             const FloatType newLength = std::abs(movedEdgeAxis1 - oppositeEdgeAxis1);
+            if (newLength == 0.0) {
+                return BBox3();
+            }
 
             const FloatType ratio = newLength / oldLength;
 

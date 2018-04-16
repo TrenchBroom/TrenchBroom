@@ -34,9 +34,9 @@ namespace TrenchBroom {
 
             EXPECT_EQ(exp1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(25,0,0), false));
 
-            // attempting to collapse the bbox just returns the original bbox
-            EXPECT_EQ(input1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-200,0,0), false));
-            EXPECT_EQ(input1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-225,0,0), false));
+            // attempting to collapse the bbox returns an empty box
+            EXPECT_TRUE(moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-200,0,0), false).empty());
+            EXPECT_TRUE(moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-225,0,0), false).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxFace_Proportional) {
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             EXPECT_EQ(Vec3(225,225,225), exp1.size());
             EXPECT_EQ(exp1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(25,0,0), true));
 
-            // attempting to collapse the bbox just returns the original bbox
-            EXPECT_EQ(input1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-200,0,0), true));
-            EXPECT_EQ(input1, moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-225,0,0), true));
+            // attempting to collapse the bbox returns an empty box
+            EXPECT_TRUE(moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-200,0,0), true).empty());
+            EXPECT_TRUE(moveBBoxFace(input1, BBoxSide(Vec3::PosX), Vec3(-225,0,0), true).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxCorner) {
@@ -63,8 +63,9 @@ namespace TrenchBroom {
 
             EXPECT_EQ(exp1, moveBBoxCorner(input1, BBoxCorner(Vec3(1,1,1)), Vec3(25,25,25)));
 
-            // attempting to collapse the bbox just returns the original bbox
-            EXPECT_EQ(input1, moveBBoxCorner(input1, BBoxCorner(Vec3(1,1,1)), Vec3(-200,0,0)));
+            // attempting to collapse the bbox returns an empty box
+            EXPECT_TRUE(moveBBoxCorner(input1, BBoxCorner(Vec3(1,1,1)), Vec3(-200,0,0)).empty());
+            EXPECT_TRUE(moveBBoxCorner(input1, BBoxCorner(Vec3(1,1,1)), Vec3(-225,0,0)).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional) {
@@ -77,8 +78,9 @@ namespace TrenchBroom {
             // move the (+X, +Y, +/-Z) edge by X=25, Y=25
             EXPECT_EQ(exp1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(25,25,0), false));
 
-            // attempting to collapse the bbox just returns the original bbox
-            EXPECT_EQ(input1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-200,-200,0), false));
+            // attempting to collapse the bbox returns an empty box
+            EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-200,-200,0), false).empty());
+            EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-225,-225,0), false).empty());
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional_NegY) {
@@ -103,8 +105,9 @@ namespace TrenchBroom {
             // move the (+X, +Y, +/-Z) edge by X=25, Y=25
             EXPECT_EQ(exp1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(25,25,0), true));
 
-            // attempting to collapse the bbox just returns the original bbox
-            EXPECT_EQ(input1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-200,-200,0), true));
+            // attempting to collapse the bbox returns an empty box
+            EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-200,-200,0), true).empty());
+            EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-225,-225,0), true).empty());
         }
     }
 }
