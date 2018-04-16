@@ -413,11 +413,13 @@ namespace TrenchBroom {
                     }
                 };
                 eachBBoxFace(myBounds, visitor);
-                
+
+                // The hit point is the closest point on the pick ray to one of the edges of the face.
+                // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(bestNormal != Vec3::Null);
                 localPickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
                 
-                std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
+                //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
             
             auto hit = localPickResult.query().first();
@@ -724,24 +726,60 @@ namespace TrenchBroom {
 //
 //            Model::BrushFace* dragFace = m_dragFaces.front();
             
-            printf("proportional %d vertical %d shear %d\n",
-                   (int)proportional, (int)vertical, (int)m_isShearing);
+//            printf("proportional %d vertical %d shear %d\n",
+//                   (int)proportional, (int)vertical, (int)m_isShearing);
             
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
            
             if (!m_isShearing) {
 
-                Vec3 resizeStart, resizeEnd;
+                // side dragging
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
                     const auto endSide = m_dragStartHit.target<BBoxSide>();
-                    const auto startSide = oppositeSide(endSide);
 
-                    resizeStart = centerForBBoxSide(m_bboxAtDragStart, startSide);
-                    resizeEnd = centerForBBoxSide(m_bboxAtDragStart, endSide);
+                    // This is the line that our invisible handle will be dragged along.
+                    // It doesn't necessarily intersect the bbox.
+                    const Line3 handleLine(m_dragOrigin, normalForBBoxSide(endSide));
 
-                    std::cout << "ScaleObjectsTool::resize from face " << resizeStart << " to " << resizeEnd << "\n";
-                } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                    // project pickRay onto handleLine
+                    const Ray3::LineDistance distance = pickRay.distanceToLine(handleLine.point, handleLine.direction);
+                    if (distance.parallel) {
+                        return true;
+                    }
+                    const Vec3 handlePos = handleLine.pointAtDistance(distance.lineDistance);
+
+
+                    // grid snapping
+                    const Vec3 dragOriginHandlePosSnapped = grid.snap(m_dragOrigin, handleLine);
+                    const Vec3 handlePosSnapped = grid.snap(handlePos, handleLine);
+
+                    const Vec3 delta = handlePosSnapped - dragOriginHandlePosSnapped;
+//                    if (delta.null()) {
+//                        return true;
+//                    }
+
+                    // debug
+                    std::cout << "new delta: " << delta << "\n";
+                    m_handlePos = handlePosSnapped;
+
+                    // do the resize
+                    const BBox3 newBbox= moveBBoxFace(m_bboxAtDragStart, endSide, delta, proportional);
+
+                    if (newBbox.empty()) {
+                        std::cout << "skipping because empty\n";
+                    } else {
+                        if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                            m_totalDelta += Vec3(1,0,0); // FIXME:
+                            //m_dragOrigin += faceDelta;
+                        }
+                    }
+
+                    return true;
+                }
+
+                Vec3 resizeStart, resizeEnd;
+                if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                     const auto startEdge = oppositeEdge(endEdge);
 
@@ -770,14 +808,7 @@ namespace TrenchBroom {
                 const Vec3 resizeDir = (resizeEnd - resizeStart).normalized();
 
 
-                const Line3 line(m_dragOrigin, resizeDir);
 
-                // Point on the initial pick ray that's closest to the handle being dragged.
-                // Note, when dragging "back faces" the mouse can start far from the bbox.
-                // In this case the m_dragOrigin can be far from the bbox being resized, and close to the camera instead.
-                const Ray3::LineDistance distance = pickRay.distanceToLine(line.point, line.direction);
-                if (distance.parallel)
-                    return true;
 #if 0
                 const Vec3 deltaUnsnapped = line.pointAtDistance(distance.lineDistance);
                 const Vec3 handlePosSnapped = grid.snap(handlePosUnsnapped, resizeLine);
