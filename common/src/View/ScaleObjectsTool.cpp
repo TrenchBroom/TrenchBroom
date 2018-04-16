@@ -755,9 +755,6 @@ namespace TrenchBroom {
                     const Vec3 handlePosSnapped = grid.snap(handlePos, handleLine);
 
                     const Vec3 delta = handlePosSnapped - dragOriginHandlePosSnapped;
-//                    if (delta.null()) {
-//                        return true;
-//                    }
 
                     // debug
                     std::cout << "new delta: " << delta << "\n";
@@ -778,7 +775,8 @@ namespace TrenchBroom {
                     return true;
                 }
 
-                Vec3 resizeStart, resizeEnd;
+                // edge, corner
+                Vec3 handleLineStart, handleLineEnd;
                 if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                     const auto startEdge = oppositeEdge(endEdge);
@@ -786,28 +784,69 @@ namespace TrenchBroom {
                     const Edge3 endEdgeActual = pointsForBBoxEdge(m_bboxAtDragStart, endEdge);
                     const Edge3 startEdgeActual = pointsForBBoxEdge(m_bboxAtDragStart, startEdge);
 
-                    resizeStart = startEdgeActual.center();
-                    resizeEnd = endEdgeActual.center();
+                    handleLineStart = startEdgeActual.center();
+                    handleLineEnd = endEdgeActual.center();
 
-                    std::cout << "ScaleObjectsTool::resize from edge " << resizeStart << " to " << resizeEnd << "\n";
+                    std::cout << "ScaleObjectsTool::resize from edge " << handleLineStart << " to " << handleLineEnd << "\n";
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                     const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                     const auto startCorner = oppositeCorner(endCorner);
 
-                    resizeStart = pointForBBoxCorner(m_bboxAtDragStart, startCorner);
-                    resizeEnd = pointForBBoxCorner(m_bboxAtDragStart, endCorner);
+                    handleLineStart = pointForBBoxCorner(m_bboxAtDragStart, startCorner);
+                    handleLineEnd = pointForBBoxCorner(m_bboxAtDragStart, endCorner);
 
-                    std::cout << "ScaleObjectsTool::resize from corner " << resizeStart << " to " << resizeEnd << "\n";
-                } else
+                    std::cout << "ScaleObjectsTool::resize from corner " << handleLineStart << " to " << handleLineEnd << "\n";
+                } else {
                     assert(0);
+                }
 
                 // This is a dir from:
-                //  - face dragging: center of opposite face to center of face being dragged
                 //  - edge dragging: midpoint of diagonally opposite edge to midpoint of edge being dragged
                 //  - corner dragging: diagonally opposite corner to corner being dragged
-                const Vec3 resizeDir = (resizeEnd - resizeStart).normalized();
+                const Vec3 handleLineDir = (handleLineEnd - handleLineStart).normalized();
+                const Line3 handleLine(handleLineStart, handleLineDir);
 
+                // project m_dragOrigin and pickRay onto handleLine
 
+                const Vec3 dragOriginHandlePos = handleLine.pointOnLineClosestToPoint(m_dragOrigin);
+                // project pickRay onto handleLine
+                const Ray3::LineDistance distance = pickRay.distanceToLine(handleLine.point, handleLine.direction);
+                if (distance.parallel) {
+                    return true;
+                }
+                const Vec3 handlePos = handleLine.pointAtDistance(distance.lineDistance);
+
+                // grid snapping
+                const Vec3 dragOriginHandlePosSnapped = grid.snap(dragOriginHandlePos, handleLine);
+                const Vec3 handlePosSnapped = grid.snap(handlePos, handleLine);
+
+                const Vec3 delta = handlePosSnapped - dragOriginHandlePosSnapped;
+
+                // debug
+                std::cout << "new delta: " << delta << "\n";
+                m_handlePos = handlePosSnapped;
+
+                // do the resize
+                BBox3 newBbox;
+                if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                    const auto edge = m_dragStartHit.target<BBoxEdge>();
+                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, delta, proportional);
+                } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                    const auto corner = m_dragStartHit.target<BBoxCorner>();
+                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, delta);
+                } else {
+                    assert(0);
+                }
+
+                if (newBbox.empty()) {
+                    std::cout << "skipping because empty\n";
+                } else {
+                    if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                        m_totalDelta += Vec3(1,0,0); // FIXME:
+                        //m_dragOrigin += faceDelta;
+                    }
+                }
+                return true;
 
 #if 0
                 const Vec3 deltaUnsnapped = line.pointAtDistance(distance.lineDistance);
