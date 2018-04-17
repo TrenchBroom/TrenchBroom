@@ -1,11 +1,11 @@
-PATH=%PATH%;c:\wxWidgets-3.1.1\lib\vc140_dll
+PATH=%PATH%;c:\wxWidgets-3.1.1\lib\vc141_dll
 PATH=%PATH%;C:\Program Files (x86)\Pandoc
 SET WXWIN="c:\wxWidgets-3.1.1"
 
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 14 2015" -T v140_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
+cmake .. -G"Visual Studio 15 2017" -T v141_xp -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=/WX
 cmake --build . --config Release
 cpack
 

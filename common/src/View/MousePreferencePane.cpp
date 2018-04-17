@@ -228,7 +228,7 @@ namespace TrenchBroom {
                     &Preferences::CameraFlyDown
             };
 
-            return std::any_of(std::begin(prefs), std::end(prefs), [this, &shortcut, &preference](const auto* other){
+            return std::any_of(std::begin(prefs), std::end(prefs), [&shortcut, &preference](const auto* other){
                 return preference.path() != other->path() && pref(*other).hasKey() && pref(*other) == shortcut;
             });
         }

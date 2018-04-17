@@ -38,13 +38,7 @@
 #endif
 
 // Annotate an intended switch fallthrough
-#ifdef __clang__
-#define switchFallthrough() [[clang::fallthrough]]
-#elif __GNUC__ >= 7
-#define switchFallthrough() [[gnu::fallthrough]]
-#else
-#define switchFallthrough()
-#endif
+#define switchFallthrough() [[fallthrough]]
 
 #define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
 
