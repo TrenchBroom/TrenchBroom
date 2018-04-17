@@ -197,10 +197,10 @@ namespace TrenchBroom {
             }
 
             {
-                // bounds
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(0, 255, 255));
-                renderService.renderHandle(m_tool->handlePos());
+                // debugging point
+//                Renderer::RenderService renderService(renderContext, renderBatch);
+//                renderService.setForegroundColor(Color(0, 255, 255));
+//                renderService.renderHandle(m_tool->handlePos());
             }
         }
         
