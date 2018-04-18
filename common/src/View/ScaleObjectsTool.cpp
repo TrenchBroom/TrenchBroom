@@ -215,10 +215,17 @@ namespace TrenchBroom {
 
 
         BBox3 moveBBoxFace(const BBox3& in,
-                              const BBoxSide side,
-                              const Vec3 delta,
-                              const bool proportional) {
-            const FloatType sideLengthDelta = side.normal.dot(delta);
+                           const BBoxSide side,
+                           const Vec3 delta,
+                           const bool proportional,
+                           const AnchorPos anchorType) {
+            FloatType sideLengthDelta = side.normal.dot(delta);
+
+            // when using a center anchor, we're stretching both sides
+            // at once, so multiply the delta by 2.
+            if (anchorType == AnchorPos::Center) {
+                sideLengthDelta *= 2.0;
+            }
 
             const size_t axis = side.normal.firstComponent();
             const FloatType inSideLenth = in.max[axis] - in.min[axis];
@@ -243,7 +250,9 @@ namespace TrenchBroom {
                 newSize[axis3] *= ratio;
             }
 
-            const Vec3 anchor = centerForBBoxSide(in, oppositeSide(side));
+            const Vec3 anchor = (anchorType == AnchorPos::Center)
+                ? in.center()
+                : centerForBBoxSide(in, oppositeSide(side));
 
             const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
 
@@ -252,11 +261,15 @@ namespace TrenchBroom {
 
 
         BBox3 moveBBoxCorner(const BBox3& in,
-                                    const BBoxCorner corner,
-                                    const Vec3 delta) {
+                             const BBoxCorner corner,
+                             const Vec3 delta,
+                             const AnchorPos anchorType) {
 
             const BBoxCorner opposite = oppositeCorner(corner);
-            const Vec3 anchor = pointForBBoxCorner(in, opposite);
+            const Vec3 oppositePoint = pointForBBoxCorner(in, opposite);
+            const Vec3 anchor = (anchorType == AnchorPos::Center)
+                                ? in.center()
+                                : oppositePoint;
             const Vec3 oldCorner = pointForBBoxCorner(in, corner);
             const Vec3 newCorner = oldCorner + delta;
 
@@ -272,17 +285,26 @@ namespace TrenchBroom {
                 }
             }
 
-            return BBox3(Vec3::List{anchor, newCorner});
+            if (anchorType == AnchorPos::Center) {
+                return BBox3(Vec3::List{anchor - (newCorner - anchor), newCorner});
+            } else {
+                return BBox3(Vec3::List{oppositePoint, newCorner});
+            }
         }
 
         BBox3 moveBBoxEdge(const BBox3& in,
-                                    const BBoxEdge edge,
-                                    const Vec3 delta,
-                                    const bool proportional) {
+                           const BBoxEdge edge,
+                           const Vec3 delta,
+                           const bool proportional,
+                           const AnchorPos anchorType) {
 
             const BBoxEdge opposite = oppositeEdge(edge);
             const Vec3 edgeMid = pointsForBBoxEdge(in, edge).center();
             const Vec3 oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
+
+            const Vec3 anchor = (anchorType == AnchorPos::Center)
+                                ? in.center()
+                                : oppositeEdgeMid;
 
             const Vec3 edgeEdgeDir = (edgeMid - oppositeEdgeMid).normalized();
             const size_t axis1 = edgeEdgeDir.firstComponent();
@@ -290,16 +312,23 @@ namespace TrenchBroom {
             const size_t axis3 = edgeEdgeDir.thirdComponent();
 
             // get the ratio
-            const FloatType movingEdgeAxis1 = edgeMid[axis1];
-            const FloatType movedEdgeAxis1 = edgeMid[axis1] + delta[axis1];
-            const FloatType oppositeEdgeAxis1 = oppositeEdgeMid[axis1];
+            const FloatType oldEdgeAxis1 = edgeMid[axis1];
+            const FloatType newEdgeAxis1 = edgeMid[axis1] + delta[axis1];
 
-            if ((movingEdgeAxis1 > oppositeEdgeAxis1) != (movedEdgeAxis1 > oppositeEdgeAxis1)) {
+            const FloatType oppositeOldEdgeAxis1 = oppositeEdgeMid[axis1];
+            const FloatType oppositeNewEdgeAxis1 = (anchorType == AnchorPos::Center)
+                                                    ? oppositeEdgeMid[axis1] - delta[axis1]
+                                                    : oppositeEdgeMid[axis1];
+
+            const FloatType anchorAxis1 = anchor[axis1];
+
+            // check for crossing over the anchor
+            if ((oldEdgeAxis1 > anchorAxis1) != (newEdgeAxis1 > anchorAxis1)) {
                 return BBox3();
             }
 
-            const FloatType oldLength = std::abs(movingEdgeAxis1 - oppositeEdgeAxis1);
-            const FloatType newLength = std::abs(movedEdgeAxis1 - oppositeEdgeAxis1);
+            const FloatType oldLength = std::abs(oldEdgeAxis1 - oppositeOldEdgeAxis1);
+            const FloatType newLength = std::abs(newEdgeAxis1 - oppositeNewEdgeAxis1);
             if (newLength == 0.0) {
                 return BBox3();
             }
@@ -313,7 +342,7 @@ namespace TrenchBroom {
                 newSize[axis3] *= ratio;
             }
 
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, oppositeEdgeMid);
+            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
 
             const BBox3 result(matrix * in.min, matrix * in.max);
 
@@ -740,7 +769,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical) {
+        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool verticalOrCenterAnchor) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
 //
@@ -753,6 +782,7 @@ namespace TrenchBroom {
             const View::Grid& grid = document->grid();
            
             if (!m_isShearing) {
+                const auto anchorPos = verticalOrCenterAnchor ? AnchorPos::Center : AnchorPos::Opposite;
 
                 // side dragging
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
@@ -781,7 +811,7 @@ namespace TrenchBroom {
                     m_handlePos = handlePosSnapped;
 
                     // do the resize
-                    const BBox3 newBbox= moveBBoxFace(m_bboxAtDragStart, endSide, delta, proportional);
+                    const BBox3 newBbox= moveBBoxFace(m_bboxAtDragStart, endSide, delta, proportional, anchorPos);
 
                     if (newBbox.empty()) {
                         std::cout << "skipping because empty\n";
@@ -850,10 +880,10 @@ namespace TrenchBroom {
                 BBox3 newBbox;
                 if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                     const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, delta, proportional);
+                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, delta, proportional, anchorPos);
                 } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                     const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, delta);
+                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, delta, anchorPos);
                 } else {
                     assert(0);
                 }
@@ -987,7 +1017,7 @@ namespace TrenchBroom {
                     delta = grid.snap(delta);
                     
                     if (camera.perspectiveProjection()) {
-                        if (vertical) {
+                        if (verticalOrCenterAnchor) {
                             delta[0] = 0;
                             delta[1] = 0;
                         } else {

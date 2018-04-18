@@ -70,19 +70,27 @@ namespace TrenchBroom {
         };
 
 
+        enum class AnchorPos {
+            Opposite,
+            Center
+        };
+
         BBox3 moveBBoxFace(const BBox3& in,
-                           const BBoxSide side,
-                           const Vec3 delta,
-                           const bool proportional);
+                           BBoxSide side,
+                           Vec3 delta,
+                           bool proportional,
+                           AnchorPos anchor);
 
         BBox3 moveBBoxCorner(const BBox3& in,
-                             const BBoxCorner corner,
-                             const Vec3 delta);
+                             BBoxCorner corner,
+                             Vec3 delta,
+                             AnchorPos anchor);
 
         BBox3 moveBBoxEdge(const BBox3& in,
-                           const BBoxEdge edge,
-                           const Vec3 delta,
-                           const bool proportional);
+                           BBoxEdge edge,
+                           Vec3 delta,
+                           bool proportional,
+                           AnchorPos anchor);
 
         // handle class hierarchy
         
@@ -206,7 +214,7 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, const bool proportional, const bool vertical, const bool shear);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool verticalOrCenterAnchor);
             
             void commitResize();
             void cancelResize();
