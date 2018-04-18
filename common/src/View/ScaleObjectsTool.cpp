@@ -815,6 +815,8 @@ namespace TrenchBroom {
 
                     if (newBbox.empty()) {
                         std::cout << "skipping because empty\n";
+                    } else if (newBbox == bounds()) {
+                        std::cout << "skipping because no change\n";
                     } else {
                         if (document->scaleObjectsBBox(bounds(), newBbox)) {
                             m_totalDelta += Vec3(1,0,0); // FIXME:
@@ -890,6 +892,8 @@ namespace TrenchBroom {
 
                 if (newBbox.empty()) {
                     std::cout << "skipping because empty\n";
+                } else if (newBbox == bounds()) {
+                    std::cout << "skipping because no change\n";
                 } else {
                     if (document->scaleObjectsBBox(bounds(), newBbox)) {
                         m_totalDelta += Vec3(1,0,0); // FIXME:
