@@ -151,10 +151,11 @@ namespace TrenchBroom {
             Vec3 m_handlePos;
 
             Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
-            bool m_resizing; // unused
-            
+            bool m_resizing;
+
             /**
              * bounds in beginResize()
+             * Only valid during a drag (when m_resizing is true).
              */
             BBox3 m_bboxAtDragStart;
             bool m_isShearing;
@@ -204,11 +205,21 @@ namespace TrenchBroom {
             
             bool hasDragCorner() const;
             Vec3f dragCorner() const;
-            
-            // for rendering sheared bbox
+
+            /**
+             * If inside a drag, returns the bbox at the start of the drag.
+             * Otherwise, returns the current bounds(). for rendering sheared bbox.
+             */
             BBox3 bboxAtDragStart() const;
+
+
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
+            /**
+             * This can only be called when a drag is not in progress
+             * @param shearing
+             */
+            void setShearing(bool shearing);
             bool isShearing() const;
             
             // regular handles
@@ -231,7 +242,7 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
-            bool beginResize(const Model::PickResult& pickResult, const bool vertical, const bool shear);
+            bool beginResize(const Model::PickResult& pickResult);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool vertical);
             
             void commitResize();

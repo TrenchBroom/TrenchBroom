@@ -57,9 +57,8 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
-//            if (!anyToolDragging(inputState))
-//                m_tool->updateDragFaces(inputState.pickResult());
 
+            const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
             const bool centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt);
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
@@ -72,7 +71,13 @@ namespace TrenchBroom {
             
             if (thisToolDragging()) {
                 updateResize(inputState);
+            } else {
+                m_tool->setShearing(shear);
             }
+
+//            if (!anyToolDragging(inputState))
+//                m_tool->updateDragFaces(inputState.pickResult());
+
         }
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
@@ -85,11 +90,8 @@ namespace TrenchBroom {
                 return false;
             
             m_tool->updateDragFaces(inputState.pickResult());
-            
-            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-            const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-            
-            if (m_tool->beginResize(inputState.pickResult(), vertical, shear)) {
+
+            if (m_tool->beginResize(inputState.pickResult())) {
                 m_tool->updateDragFaces(inputState.pickResult());
                 return true;
             }
@@ -133,7 +135,7 @@ namespace TrenchBroom {
             
             // regular indicators
             
-            if (thisToolDragging() && m_tool->isShearing()) {
+            if (m_tool->isShearing()) { // && thisToolDragging()
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 
                 // render sheared box

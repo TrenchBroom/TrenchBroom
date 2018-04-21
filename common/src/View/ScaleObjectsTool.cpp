@@ -636,11 +636,19 @@ namespace TrenchBroom {
 
         // for rendering sheared bbox
         BBox3 ScaleObjectsTool::bboxAtDragStart() const {
-            return m_bboxAtDragStart;
+            if (m_resizing) {
+                return m_bboxAtDragStart;
+            } else {
+                return bounds();
+            }
         }
         Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
             assert(m_isShearing);
-            
+
+            if (!m_resizing) {
+                return Mat4x4::Identity;
+            }
+
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ScaleToolFaceHit) {
                 return Mat4x4::Identity;
@@ -661,10 +669,16 @@ namespace TrenchBroom {
             }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            const Polygon3 polyAtDragStart = polygonForBBoxSide(m_bboxAtDragStart, side);
+            // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
+            const Polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
             
             const Polygon3 handle = polyAtDragStart.transformed(bboxShearMatrix());
             return Polygon3f(handle);
+        }
+
+        void ScaleObjectsTool::setShearing(bool shearing) {
+            // FIXME: Ensure we are not dragging
+            m_isShearing = shearing;
         }
         bool ScaleObjectsTool::isShearing() const {
             return m_isShearing;
@@ -773,7 +787,7 @@ namespace TrenchBroom {
 //            return visitor.faces();
         }
         
-        bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult, const bool vertical, const bool shear) {
+        bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult) {
             const Model::Hit& hit = pickResult.query().type(ScaleToolFaceHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
             if (!hit.isMatch())
                 return false;
@@ -800,8 +814,6 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Resize Brushes");
             m_resizing = true;
-            
-            m_isShearing = shear;
 
             return true;
         }
@@ -1099,7 +1111,6 @@ namespace TrenchBroom {
                 document->commitTransaction();
 //            m_dragFaces.clear();
             m_resizing = false;
-            m_isShearing = false;
         }
         
         void ScaleObjectsTool::cancelResize() {
@@ -1107,7 +1118,6 @@ namespace TrenchBroom {
             document->cancelTransaction();
 //            m_dragFaces.clear();
             m_resizing = false;
-            m_isShearing = false;
         }
         
         void ScaleObjectsTool::bindObservers() {
