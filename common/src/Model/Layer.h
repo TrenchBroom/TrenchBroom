@@ -23,15 +23,15 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
-#include "Model/Octree.h"
+#include "AABBTree.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Layer : public Node {
         private:
             String m_name;
-            
-            typedef Octree<FloatType, Node*> NodeTree;
+
+            using NodeTree = AABBTree<FloatType, 3, Node*>;
             NodeTree m_octree;
         public:
             Layer(const String& name, const BBox3& worldBounds);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             
             void doChildWasAdded(Node* node) override;
             void doChildWillBeRemoved(Node* node) override;
-            void doChildBoundsDidChange(Node* node) override;
+            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
             
             bool doSelectable() const override;
             

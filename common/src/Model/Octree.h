@@ -26,6 +26,7 @@
 #include "Exceptions.h"
 #include "SharedPointer.h"
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -70,9 +71,8 @@ namespace TrenchBroom {
                         return m_children[i]->containsObject(bounds, object);
                     }
                 }
-                
-                typename List::const_iterator it = std::find(std::begin(m_objects), std::end(m_objects), object);
-                return it != std::end(m_objects);
+
+                return std::find(std::begin(m_objects), std::end(m_objects), object) != std::end(m_objects);
             }
             
             OctreeNode* addObject(const BBox<F,3>& bounds, T object) {
@@ -199,7 +199,7 @@ namespace TrenchBroom {
                 return m_bounds;
             }
             
-            void addObject(const BBox<F,3>& bounds, T object) {
+            void insert(const BBox<F, 3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
                 
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                 assertResult(MapUtils::insertOrFail(m_objectMap, object, node));
             }
             
-            void removeObject(T object) {
+            void remove(T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
                 if (it == std::end(m_objectMap))
                     throw OctreeException("Cannot find object in octree");
@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 m_objectMap.erase(it);
             }
             
-            void updateObject(const BBox<F,3>& bounds, T object) {
+            void update(const BBox<F, 3>& bounds, T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
                 if (it == std::end(m_objectMap))
                     throw OctreeException("Cannot find object in octree");
@@ -244,13 +244,13 @@ namespace TrenchBroom {
                 return m_root->containsObject(bounds, object);
             }
             
-            List findObjects(const Ray<F,3>& ray) const {
+            List findIntersectors(const Ray<F, 3>& ray) const {
                 List result;
                 m_root->findObjects(ray, result);
                 return result;
             }
             
-            List findObjects(const Vec<F,3>& point) const {
+            List findContainers(const Vec<F, 3>& point) const {
                 List result;
                 m_root->findObjects(point, result);
                 return result;

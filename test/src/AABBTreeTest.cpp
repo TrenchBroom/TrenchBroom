@@ -56,6 +56,7 @@ L [ (0 0 0) (2 1 1) ]: 1
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(1u, tree.height());
     ASSERT_EQ(bounds, tree.bounds());
+    ASSERT_TRUE(tree.contains(bounds, 1u));
 }
 
 TEST(AABBTreeTest, insertTwoNodes) {
@@ -75,6 +76,8 @@ O [ (-1 -1 -1) (2 1 1) ]
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(2u, tree.height());
     ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
 }
 
 TEST(AABBTreeTest, insertThreeNodes) {
@@ -98,6 +101,9 @@ O [ (-2 -2 -1) (2 1 1) ]
     ASSERT_FALSE(tree.empty());
     ASSERT_EQ(3u, tree.height());
     ASSERT_EQ(bounds1.mergedWith(bounds2).mergedWith(bounds3), tree.bounds());
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
 }
 
 TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
@@ -110,6 +116,10 @@ TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+
     assertTree(R"(
 O [ (-2 -2 -1) (2 1 1) ]
   L [ (0 0 0) (2 1 1) ]: 1
@@ -119,6 +129,10 @@ O [ (-2 -2 -1) (2 1 1) ]
 )" , tree);
 
     ASSERT_TRUE(tree.remove(bounds3, 3u));
+
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
 O [ (-1 -1 -1) (2 1 1) ]
@@ -133,6 +147,10 @@ O [ (-1 -1 -1) (2 1 1) ]
     ASSERT_FALSE(tree.remove(bounds3, 3u));
     ASSERT_TRUE(tree.remove(bounds2, 2u));
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
+
     assertTree(R"(
 L [ (0 0 0) (2 1 1) ]: 1
 )" , tree);
@@ -144,6 +162,10 @@ L [ (0 0 0) (2 1 1) ]: 1
     ASSERT_FALSE(tree.remove(bounds3, 3u));
     ASSERT_FALSE(tree.remove(bounds2, 2u));
     ASSERT_TRUE(tree.remove(bounds1, 1u));
+
+    ASSERT_FALSE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
 )" , tree);
@@ -166,6 +188,10 @@ TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+
     assertTree(R"(
 O [ (-2 -2 -1) (2 1 1) ]
   L [ (0 0 0) (2 1 1) ]: 1
@@ -175,6 +201,10 @@ O [ (-2 -2 -1) (2 1 1) ]
 )" , tree);
 
     ASSERT_TRUE(tree.remove(bounds1, 1u));
+
+    ASSERT_FALSE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
 O [ (-2 -2 -1) (1 1 1) ]
@@ -189,6 +219,10 @@ O [ (-2 -2 -1) (1 1 1) ]
     ASSERT_FALSE(tree.remove(bounds1, 1u));
     ASSERT_TRUE(tree.remove(bounds2, 2u));
 
+    ASSERT_FALSE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+
     assertTree(R"(
 L [ (-2 -2 -1) (0 0 1) ]: 3
 )" , tree);
@@ -200,6 +234,10 @@ L [ (-2 -2 -1) (0 0 1) ]: 3
     ASSERT_FALSE(tree.remove(bounds1, 1u));
     ASSERT_FALSE(tree.remove(bounds2, 2u));
     ASSERT_TRUE(tree.remove(bounds3, 3u));
+
+    ASSERT_FALSE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
 )" , tree);
@@ -254,8 +292,13 @@ O [ (-4 -4 -4) (4 4 4) ]
     L [ (-1 -1 -1) (1 1 1) ]: 4
 )" , tree);
 
-    ASSERT_EQ(4u, tree.height());
+    ASSERT_EQ(3u, tree.height());
     ASSERT_EQ(bounds1, tree.bounds());
+
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    ASSERT_TRUE(tree.contains(bounds4, 4u));
 }
 
 TEST(AABBTreeTest, insertFourContainedNodesInverse) {
@@ -301,10 +344,14 @@ O [ (-4 -4 -4) (4 4 4) ]
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(4u, tree.height());
+    ASSERT_EQ(3u, tree.height());
     ASSERT_EQ(bounds4, tree.bounds());
-}
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    ASSERT_TRUE(tree.contains(bounds4, 4u));
+}
 
 TEST(AABBTreeTest, removeFourContainedNodes) {
     const BOX bounds1(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
@@ -317,6 +364,11 @@ TEST(AABBTreeTest, removeFourContainedNodes) {
     tree.insert(bounds2, 2u);
     tree.insert(bounds3, 3u);
     tree.insert(bounds4, 4u);
+
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    ASSERT_TRUE(tree.contains(bounds4, 4u));
 
     assertTree(R"(
 O [ (-4 -4 -4) (4 4 4) ]
@@ -339,6 +391,11 @@ O [ (-3 -3 -3) (3 3 3) ]
 )" , tree);
 
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_TRUE(tree.contains(bounds3, 3u));
+    ASSERT_FALSE(tree.contains(bounds4, 4u));
+
     tree.remove(bounds3, 3u);
     assertTree(R"(
 O [ (-2 -2 -2) (2 2 2) ]
@@ -347,15 +404,30 @@ O [ (-2 -2 -2) (2 2 2) ]
 )" , tree);
 
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_TRUE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    ASSERT_FALSE(tree.contains(bounds4, 4u));
+
     tree.remove(bounds2, 2u);
     assertTree(R"(
 L [ (-1 -1 -1) (1 1 1) ]: 1
 )" , tree);
 
 
+    ASSERT_TRUE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    ASSERT_FALSE(tree.contains(bounds4, 4u));
+
     tree.remove(bounds1, 1u);
     assertTree(R"(
 )" , tree);
+
+    ASSERT_FALSE(tree.contains(bounds1, 1u));
+    ASSERT_FALSE(tree.contains(bounds2, 2u));
+    ASSERT_FALSE(tree.contains(bounds3, 3u));
+    ASSERT_FALSE(tree.contains(bounds4, 4u));
 
 }
 
@@ -372,6 +444,13 @@ TEST(AABBTreeTest, rebalanceAfterRemoval) {
     tree.insert(makeBounds(2, 4), 2u);
     tree.insert(makeBounds(6, 8), 4u);
     tree.insert(makeBounds(7, 9), 5u);
+    ASSERT_EQ(4u, tree.height());
+
+    ASSERT_TRUE(tree.contains(makeBounds(1, 3), 1u));
+    ASSERT_TRUE(tree.contains(makeBounds(5, 7), 3u));
+    ASSERT_TRUE(tree.contains(makeBounds(2, 4), 2u));
+    ASSERT_TRUE(tree.contains(makeBounds(6, 8), 4u));
+    ASSERT_TRUE(tree.contains(makeBounds(7, 9), 5u));
 
     assertTree(R"(
 O [ (1 -1 -1) (9 1 1) ]
@@ -387,6 +466,13 @@ O [ (1 -1 -1) (9 1 1) ]
 
     // Removing node 1 leads to the collapse of the first child of the root, makeing the root unbalanced.
     tree.remove(makeBounds(1, 3), 1u);
+    ASSERT_EQ(3u, tree.height());
+
+    ASSERT_FALSE(tree.contains(makeBounds(1, 3), 1u));
+    ASSERT_TRUE(tree.contains(makeBounds(5, 7), 3u));
+    ASSERT_TRUE(tree.contains(makeBounds(2, 4), 2u));
+    ASSERT_TRUE(tree.contains(makeBounds(6, 8), 4u));
+    ASSERT_TRUE(tree.contains(makeBounds(7, 9), 5u));
 
     // Rebalancig the tree should remove node 3 from the right subtree and insert it into the left, yielding the
     // following structure.
@@ -410,6 +496,13 @@ TEST(AABBTreeTest, rebalanceAfterRemoval2) {
     tree.insert(makeBounds( 2,  3), 2u);
     tree.insert(makeBounds( 5,  6), 4u);
 
+    ASSERT_TRUE(tree.contains(makeBounds( 1,  2), 1u));
+    ASSERT_TRUE(tree.contains(makeBounds( 9, 10), 5u));
+    ASSERT_TRUE(tree.contains(makeBounds(10, 11), 6u));
+    ASSERT_TRUE(tree.contains(makeBounds( 4,  5), 3u));
+    ASSERT_TRUE(tree.contains(makeBounds( 2,  3), 2u));
+    ASSERT_TRUE(tree.contains(makeBounds( 5,  6), 4u));
+
     assertTree(R"(
 O [ (1 -1 -1) (11 1 1) ]
   O [ (1 -1 -1) (6 1 1) ]
@@ -425,6 +518,14 @@ O [ (1 -1 -1) (11 1 1) ]
 )", tree);
 
     tree.remove(makeBounds(10, 11), 6u);
+    ASSERT_EQ(4u, tree.height());
+
+    ASSERT_TRUE(tree.contains(makeBounds( 1,  2), 1u));
+    ASSERT_TRUE(tree.contains(makeBounds( 9, 10), 5u));
+    ASSERT_FALSE(tree.contains(makeBounds(10, 11), 6u));
+    ASSERT_TRUE(tree.contains(makeBounds( 4,  5), 3u));
+    ASSERT_TRUE(tree.contains(makeBounds( 2,  3), 2u));
+    ASSERT_TRUE(tree.contains(makeBounds( 5,  6), 4u));
 
     assertTree(R"(
 O [ (1 -1 -1) (10 1 1) ]
@@ -450,6 +551,19 @@ O [ (1 -1 -1) (31 1 1) ]
   L [ (30 -1 -1) (31 1 1) ]: 10
 )", tree);
 
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_FALSE(tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_FALSE(tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_FALSE(tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_FALSE(tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_FALSE(tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
+
     tree.insert(makeBounds(11, 12),  6u);
     assertTree(R"(
 O [ (1 -1 -1) (31 1 1) ]
@@ -458,6 +572,19 @@ O [ (1 -1 -1) (31 1 1) ]
     L [ (11 -1 -1) (12 1 1) ]: 6
   L [ (30 -1 -1) (31 1 1) ]: 10
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_FALSE(tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_FALSE(tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_FALSE(tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_FALSE(tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds(31, 32), 11u);
     assertTree(R"(
@@ -469,6 +596,19 @@ O [ (1 -1 -1) (32 1 1) ]
     L [ (30 -1 -1) (31 1 1) ]: 10
     L [ (31 -1 -1) (32 1 1) ]: 11
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_FALSE(tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_FALSE(tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_FALSE(tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds(32, 33), 12u);
     assertTree(R"(
@@ -482,6 +622,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_FALSE(tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_FALSE(tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds( 5,  6),  4u);
     assertTree(R"(
@@ -497,6 +650,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_FALSE(tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds(14, 15),  8u);
     assertTree(R"(
@@ -514,6 +680,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_FALSE(tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds( 3,  4),  3u);
     assertTree(R"(
@@ -533,6 +712,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_TRUE( tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_FALSE(tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds( 7,  8),  5u);
     assertTree(R"(
@@ -554,6 +746,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_TRUE( tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_TRUE( tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_FALSE(tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds(15, 16),  9u);
     assertTree(R"(
@@ -577,6 +782,19 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (31 -1 -1) (32 1 1) ]: 11
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_TRUE( tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_TRUE( tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_TRUE( tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_FALSE(tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
 
     tree.insert(makeBounds(12, 13),  7u);
     assertTree(R"(
@@ -603,12 +821,65 @@ O [ (1 -1 -1) (33 1 1) ]
       L [ (32 -1 -1) (33 1 1) ]: 12
 )", tree);
 
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_TRUE( tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_TRUE( tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_TRUE( tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_TRUE( tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_FALSE(tree.contains(makeBounds( 2,  3),  2u));
+
     /*
      * This tree is constructed in a way such that, when inserting a node into the leftmost subtree, a single rebalancing
      * operation will not suffice to rebalance the root.
      */
 
     tree.insert(makeBounds(2, 3),  2u);
+    assertTree(R"(
+O [ (1 -1 -1) (33 1 1) ]
+  O [ (1 -1 -1) (13 1 1) ]
+    O [ (1 -1 -1) (6 1 1) ]
+      O [ (1 -1 -1) (3 1 1) ]
+        L [ (1 -1 -1) (2 1 1) ]: 1
+        L [ (2 -1 -1) (3 1 1) ]: 2
+      O [ (3 -1 -1) (6 1 1) ]
+        L [ (5 -1 -1) (6 1 1) ]: 4
+        L [ (3 -1 -1) (4 1 1) ]: 3
+    O [ (7 -1 -1) (13 1 1) ]
+      O [ (7 -1 -1) (12 1 1) ]
+        L [ (11 -1 -1) (12 1 1) ]: 6
+        L [ (7 -1 -1) (8 1 1) ]: 5
+      L [ (12 -1 -1) (13 1 1) ]: 7
+  O [ (14 -1 -1) (33 1 1) ]
+    O [ (14 -1 -1) (31 1 1) ]
+      L [ (30 -1 -1) (31 1 1) ]: 10
+      O [ (14 -1 -1) (16 1 1) ]
+        L [ (15 -1 -1) (16 1 1) ]: 9
+        L [ (14 -1 -1) (15 1 1) ]: 8
+    O [ (31 -1 -1) (33 1 1) ]
+      L [ (31 -1 -1) (32 1 1) ]: 11
+      L [ (32 -1 -1) (33 1 1) ]: 12
+)", tree);
+
+    ASSERT_TRUE( tree.contains(makeBounds( 1,  2),  1u));
+    ASSERT_TRUE( tree.contains(makeBounds(30, 31), 10u));
+    ASSERT_TRUE( tree.contains(makeBounds(11, 12),  6u));
+    ASSERT_TRUE( tree.contains(makeBounds(31, 32), 11u));
+    ASSERT_TRUE( tree.contains(makeBounds(32, 33), 12u));
+    ASSERT_TRUE( tree.contains(makeBounds( 5,  6),  4u));
+    ASSERT_TRUE( tree.contains(makeBounds(14, 15),  8u));
+    ASSERT_TRUE( tree.contains(makeBounds( 3,  4),  3u));
+    ASSERT_TRUE( tree.contains(makeBounds( 7,  8),  5u));
+    ASSERT_TRUE( tree.contains(makeBounds(15, 16),  9u));
+    ASSERT_TRUE( tree.contains(makeBounds(12, 13),  7u));
+    ASSERT_TRUE( tree.contains(makeBounds( 2,  3),  2u));
+
+    ASSERT_EQ(5u, tree.height());
 }
 
 TEST(AABBTreeTest, findIntersectorsOfEmptyTree) {

@@ -29,9 +29,10 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include <list>
 #include <memory>
 
-template <typename T, size_t S, typename U, typename EQ = std::equal_to<U>>
+template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
 class AABBTree {
 public:
     using Box = BBox<T,S>;
@@ -84,6 +85,24 @@ private:
         }
 
         /**
+         * Checks whether the given bounds are equal to this node's bounds. The bounds are compared
+         * using the equality operator ==.
+         *
+         * @param bounds the bounds to check
+         * @return true if the given bounds are equal to this node's bounds
+         */
+        bool hasBounds(const Box& bounds) const {
+            return bounds == this->bounds();
+        }
+
+        /**
+         * Indicates whether this node is a leaf.
+         *
+         * @return true if this node is a leaf and false otherwise
+         */
+        virtual bool leaf() const = 0;
+
+        /**
          * Return the height of this node. A leaf always has a height of 1, and an inner node has a height equal to the
          * maximum of the heights of its children plus one.
          *
@@ -107,6 +126,15 @@ private:
         bool balanced() const {
             return std::abs(balance()) <= 1;
         }
+
+        /**
+         * Find a leaf containing the given bounds and data in this subtree.
+         *
+         * @param bounds the bounds to find
+         * @param data the data to find
+         * @return the leaf that contains the given bounds and data
+         */
+        virtual const Leaf* find(const Box& bounds, const U& data) const = 0;
 
         /**
          * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
@@ -195,15 +223,23 @@ private:
         Node* m_right;
         size_t m_height;
     public:
-        InnerNode(Node* left, Node* right) : Node(left->bounds().mergedWith(right->bounds())), m_left(left), m_right(right), m_height(0) {
+        InnerNode(Node* left, Node* right) :
+        Node(left->bounds().mergedWith(right->bounds())),
+        m_left(left),
+        m_right(right),
+        m_height(0) {
             assert(m_left != nullptr);
             assert(m_right != nullptr);
             updateHeight();
         }
 
-        ~InnerNode() {
+        ~InnerNode() override {
             delete m_left;
             delete m_right;
+        }
+
+        bool leaf() const override {
+            return false;
         }
 
         size_t height() const override {
@@ -214,6 +250,17 @@ private:
             const auto l = static_cast<int>(m_left->height());
             const auto r = static_cast<int>(m_right->height());
             return r - l;
+        }
+
+        const Leaf* find(const Box& bounds, const U& data) const override {
+            const Leaf* result = nullptr;
+            if (this->bounds().contains(bounds)) {
+                result = m_left->find(bounds, data);
+                if (result == nullptr) {
+                    result = m_right->find(bounds, data);
+                }
+            }
+            return result;
         }
 
         Node* insert(const Box& bounds, const U& data) override {
@@ -253,13 +300,15 @@ private:
             Node* result = nullptr;
             if (child->bounds().contains(bounds)) {
                 auto* newChild = child->remove(bounds, data);
-                if (newChild == nullptr) {
-                    // child is a leaf, and it represents the node to remove; return sibling to the caller
-                    result = sibling;
-                    // prevent the sibling to get deleted when this node gets deleted by the parent
-                    sibling = nullptr;
-                    // child will be deleted when this node gets deleted by the caller
-                } else {
+                if (child->leaf()) {
+                    if (newChild == nullptr) {
+                        // child is a leaf, and it represents the node to remove; return sibling to the caller
+                        result = sibling;
+                        // prevent the sibling to get deleted when this node gets deleted by the parent
+                        sibling = nullptr;
+                        // child will be deleted when this node gets deleted by the caller
+                    }
+                } else if (newChild != nullptr) {
                     if (newChild != child) {
                         // the node to be removed was deleted from child's subtree, and we need to update our pointer
                         // with the new root of that subtree
@@ -314,6 +363,9 @@ private:
 
             higher = higher->remove(bounds, data);
             lower = lower->insert(bounds, data);
+
+            updateBounds();
+            updateHeight();
         }
 
     public:
@@ -417,6 +469,10 @@ private:
             return m_data;
         }
 
+        bool leaf() const override {
+            return true;
+        }
+
         /**
          * Returns the height of this node, which is always 1.
          *
@@ -435,6 +491,13 @@ private:
             return 0;
         }
 
+        const Leaf* find(const Box& bounds, const U& data) const override {
+            if (this->hasBounds(bounds) && hasData(data)) {
+                return this;
+            } else {
+                return nullptr;
+            }
+        }
         /**
          * Returns a new inner node that has this leaf as its left child and a new leaf representing the given bounds
          * and data as its right child.
@@ -455,12 +518,24 @@ private:
          * @return nullptr if this node matches the given data and a pointer to this node otherwise
          */
         Node* remove(const Box& bounds, const U& data) override {
-            static const EQ eq;
-            if (eq(data, m_data)) {
+            if (hasData(data)) {
                 return nullptr;
             } else {
                 return this;
             }
+        }
+
+        /**
+         * Checks whether the given data equals the data of this leaf. The given data is considered
+         * equal to this node's data if and only if !(data < m_data) && !(m_data < data) where < is
+         * implemented by the comparison operator Cmp.
+         *
+         * @param data the data to check
+         * @return true if the given data is equal to the data of this leaf
+         */
+        bool hasData(const U& data) const {
+            static const Cmp cmp;
+            return !cmp(data, m_data) && !cmp(m_data, data);
         }
 
         /**
@@ -489,10 +564,23 @@ private:
 private:
     Node* m_root;
 public:
+    using List = std::list<U>;
+public:
     AABBTree() : m_root(nullptr) {}
 
     ~AABBTree() {
         delete m_root;
+    }
+
+    /**
+     * Indicates whether a node with the given bounds and data exists in this tree.
+     *
+     * @param bounds the bounds to find
+     * @param data the data to find
+     * @return true if a node with the given bounds and data exists and false otherwise
+     */
+    bool contains(const Box& bounds, const U& data) {
+        return (!empty() && m_root->find(bounds, data) != nullptr);
     }
 
     /**
@@ -527,7 +615,7 @@ public:
                 m_root = newRoot;
             }
             assert(balanced());
-            return true;
+            return true; // this is wrong, we cannot know this!
         } else {
             return false;
         }
@@ -536,16 +624,16 @@ public:
     /**
      * Updates the node with the given bounds and data with the given new bounds.
      *
-     * @param bounds the current bounds of the node to update
+     * @param oldBounds the old bounds of the node to update
      * @param newBounds the new bounds of the node
      * @param data the node data
      *
      * @throws AABBException if no node with the given bounds and data can be found in this tree
      */
-    void update(const Box& bounds, const Box& newBounds, const U& data) {
-        if (!remove(bounds, data)) {
+    void update(const Box& oldBounds, const Box& newBounds, const U& data) {
+        if (!remove(oldBounds, data)) {
             AABBException ex;
-            ex << "AABB node not found with bounds [ (" << bounds.min.asString(S) << ") (" << bounds.max.asString(S) << ") ]: " << data;
+            ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
             throw ex;
         } else {
             insert(newBounds, data);
@@ -602,6 +690,18 @@ public:
     }
 
     /**
+     * Finds every data item in this tree whose bounding box intersects with the given ray and retuns a list of those items.
+     *
+     * @param ray the ray to test
+     * @return a list containing all found data items
+     */
+    List findIntersectors(const Ray<T,S>& ray) const {
+        List result;
+        findIntersectors(ray, std::back_inserter(result));
+        return std::move(result);
+    }
+
+    /**
      * Finds every data item in this tree whose bounding box intersects with the given ray and appends it to the given
      * output iterator.
      *
@@ -625,6 +725,18 @@ public:
             m_root->accept(visitor);
         }
     }
+
+    /**
+     * Finds every data item in this tree whose bounding box contains the given point and returns a list of those items.
+     *
+     * @param point the point to test
+     * @return a list containing all found data items
+     */
+     List findContainers(const Vec<T,S>& point) const {
+         List result;
+         findContainers(point, std::back_inserter(result));
+         return std::move(result);
+     }
 
     /**
      * Finds every data item in this tree whose bounding box contains the given point and appends it to the given

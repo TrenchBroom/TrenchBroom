@@ -119,11 +119,11 @@ public:
         return false;
     }
     
-    const Vec<T,S> center() const {
+    Vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }
     
-    const Vec<T,S> size() const {
+    Vec<T,S> size() const {
         return max - min;
     }
 
@@ -136,14 +136,14 @@ public:
         return result;
     }
 
-    const Vec<T,S> vertex(const Corner c[S]) const {
+    Vec<T,S> vertex(const Corner c[S]) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = c[i] == Corner_Min ? min[i] : max[i];
         return result;
     }
     
-    const Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
+    Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
         Corner c[] = { x, y, z };
         return vertex(c);
     }
@@ -156,7 +156,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> mergedWith(const BBox<T,S>& right) const {
+    BBox<T,S> mergedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
@@ -169,7 +169,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> mergedWith(const Vec<T,S>& right) const {
+    BBox<T,S> mergedWith(const Vec<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
@@ -181,7 +181,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
+    BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).insersectWith(right);
     }
     
@@ -202,7 +202,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> translatedToOrigin() const {
+    BBox<T,S> translatedToOrigin() const {
         return BBox<T,S>(*this).translateToOrigin();
     }
     
@@ -214,22 +214,25 @@ public:
         return *this;
     }
     
-    const BBox<T,S> repaired() const {
+    BBox<T,S> repaired() const {
         return BBox<T,S>(*this).repair();
     }
 
-    const BBox<T,S> rounded() const {
+    BBox<T,S> rounded() const {
         return BBox<T,S>(min.rounded(), max.rounded());
     }
     
-    bool contains(const Vec<T,S>& point) const {
-        for (size_t i = 0; i < S; ++i)
-            if (point[i] < min[i] || point[i] > max[i])
+    bool contains(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::almostZero()) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(point[i], min[i], epsilon) ||
+                Math::gt(point[i], max[i], epsilon)) {
                 return false;
+            }
+        }
         return true;
     }
     
-    const RelativePosition relativePosition(const Vec<T,S>& point) const {
+    RelativePosition relativePosition(const Vec<T,S>& point) const {
         typename RelativePosition::Range p[S];
         for (size_t i = 0; i < S; ++i) {
             if (point[i] < min[i])
@@ -243,23 +246,45 @@ public:
         return RelativePosition(p);
     }
 
-    bool contains(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; ++i)
-            if (bounds.min[i] < min[i] || bounds.max[i] > max[i])
+    bool contains(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(bounds.min[i], min[i], epsilon) ||
+                Math::gt(bounds.max[i], max[i], epsilon)) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether the given bounding box is contained within this bounding box, but without touching it.
+     *
+     * @param bounds the bounds to check
+     * @param epsilon the epsilon value
+     * @return true if the given bounding box is enclosed within this bounding box and false otherwise
+     */
+    bool encloses(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lte(bounds.min[i], min[i], epsilon) ||
+                Math::gte(bounds.max[i], max[i], epsilon)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool intersects(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(bounds.max[i], min[i], epsilon) ||
+                Math::gt(bounds.min[i], max[i], epsilon)) {
+                return false;
+            }
+        }
         return true;
     }
     
-    bool intersects(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; ++i)
-            if (bounds.max[i] < min[i] || bounds.min[i] > max[i])
-                return false;
-        return true;
-        
-    }
-    
-    bool touches(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        if (contains(start) || contains(end))
+    bool touches(const Vec<T,S>& start, const Vec<T,S>& end, const T epsilon = Math::Constants<T>::almostZero()) const {
+        if (contains(start, epsilon) || contains(end, epsilon))
             return true;
 
         const Ray<T,S> ray(start, (end-start).normalized());
@@ -308,7 +333,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> expanded(const T f) const {
+    BBox<T,S> expanded(const T f) const {
         return BBox<T,S>(*this).expand(f);
     }
     
@@ -318,8 +343,18 @@ public:
         return *this;
     }
     
-    const BBox<T,S> translated(const Vec<T,S>& delta) const {
+    BBox<T,S> translated(const Vec<T,S>& delta) const {
         return BBox<T,S>(*this).translate(delta);
+    }
+
+    String asString() const {
+        StringStream result;
+        result << "[";
+        min.write(result);
+        result << " - ";
+        max.write(result);
+        result << "]";
+        return result.str();
     }
 };
 

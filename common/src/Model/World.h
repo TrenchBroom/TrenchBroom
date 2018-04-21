@@ -79,7 +79,7 @@ namespace TrenchBroom {
             void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
             void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange() override;
+            void doAttributesDidChange(const BBox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
             Vec3 doGetLinkSourceAnchor() const override;

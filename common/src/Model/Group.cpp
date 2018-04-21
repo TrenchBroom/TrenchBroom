@@ -139,19 +139,23 @@ namespace TrenchBroom {
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
         
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
-        void Group::doNodeBoundsDidChange() {
+        void Group::doNodeBoundsDidChange(const BBox3& oldBounds) {
             invalidateBounds();
         }
         
-        void Group::doChildBoundsDidChange(Node* node) {
-            nodeBoundsDidChange();
+        void Group::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            const BBox3 myBounds = bounds();
+            if (!myBounds.encloses(oldBounds) && !myBounds.encloses(node->bounds())) {
+                // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
+                nodeBoundsDidChange(myBounds);
+            }
         }
 
         bool Group::doShouldPropagateDescendantEvents() const {

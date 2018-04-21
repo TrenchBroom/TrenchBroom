@@ -34,7 +34,7 @@ namespace TrenchBroom {
             
             const int a = 1;
             const BBox3f aBounds(1.0f, 2.0f);
-            octree.addObject(aBounds, a);
+            octree.insert(aBounds, a);
             ASSERT_TRUE(octree.containsObject(aBounds, a));
         }
         
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             const int a = 1;
             const BBox3f aBounds(-129.0f, 2.0f);
-            ASSERT_THROW(octree.addObject(aBounds, a), OctreeException);
+            ASSERT_THROW(octree.insert(aBounds, a), OctreeException);
         }
         
         TEST(OctreeTest, removeExistingObject) {
@@ -55,10 +55,10 @@ namespace TrenchBroom {
             
             const int a = 1;
             const BBox3f aBounds(1.0f, 2.0f);
-            octree.addObject(aBounds, a);
+            octree.insert(aBounds, a);
 
             ASSERT_TRUE(octree.containsObject(aBounds, a));
-            octree.removeObject(a);
+            octree.remove(a);
             ASSERT_FALSE(octree.containsObject(aBounds, a));
         }
         
@@ -70,8 +70,8 @@ namespace TrenchBroom {
             const int a = 1;
             const int b = 2;
             const BBox3f aBounds(1.0f, 2.0f);
-            octree.addObject(aBounds, a);
-            ASSERT_THROW(octree.removeObject(b), OctreeException);
+            octree.insert(aBounds, a);
+            ASSERT_THROW(octree.remove(b), OctreeException);
         }
     }
 }

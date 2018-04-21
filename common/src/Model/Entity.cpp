@@ -150,19 +150,23 @@ namespace TrenchBroom {
         }
 
         void Entity::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
         
         void Entity::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
-        void Entity::doNodeBoundsDidChange() {
+        void Entity::doNodeBoundsDidChange(const BBox3& oldBounds) {
             invalidateBounds();
         }
         
-        void Entity::doChildBoundsDidChange(Node* node) {
-            nodeBoundsDidChange();
+        void Entity::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            const BBox3 myBounds = bounds();
+            if (!myBounds.encloses(oldBounds) && !myBounds.encloses(node->bounds())) {
+                // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
+                nodeBoundsDidChange(myBounds);
+            }
         }
 
         bool Entity::doSelectable() const {
@@ -235,8 +239,8 @@ namespace TrenchBroom {
             }
         }
         
-        void Entity::doAttributesDidChange() {
-            nodeBoundsDidChange();
+        void Entity::doAttributesDidChange(const BBox3& oldBounds) {
+            nodeBoundsDidChange(oldBounds);
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {

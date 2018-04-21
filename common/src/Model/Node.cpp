@@ -327,10 +327,18 @@ namespace TrenchBroom {
             m_node->nodeDidChange();
         }
 
-        void Node::nodeBoundsDidChange() {
-            doNodeBoundsDidChange();
+        Node::NotifyNodeBoundsChange::NotifyNodeBoundsChange(Node* node) :
+        m_node(node),
+        m_oldBounds(node->bounds()) {}
+
+        Node::NotifyNodeBoundsChange::~NotifyNodeBoundsChange() {
+            m_node->nodeBoundsDidChange(m_oldBounds);
+        }
+
+        void Node::nodeBoundsDidChange(const BBox3& oldBounds) {
+            doNodeBoundsDidChange(oldBounds);
             if (m_parent != nullptr)
-                m_parent->childBoundsDidChange(this);
+                m_parent->childBoundsDidChange(this, oldBounds);
         }
         
         void Node::childWillChange(Node* node) {
@@ -357,8 +365,8 @@ namespace TrenchBroom {
             invalidateIssues();
         }
 
-        void Node::childBoundsDidChange(Node* node) {
-            doChildBoundsDidChange(node);
+        void Node::childBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            doChildBoundsDidChange(node, oldBounds);
         }
 
         bool Node::selected() const {
@@ -626,8 +634,8 @@ namespace TrenchBroom {
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doNodeBoundsDidChange() {}
-        void Node::doChildBoundsDidChange(Node* node) {}
+        void Node::doNodeBoundsDidChange(const BBox3& oldBounds) {}
+        void Node::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {}
 
         void Node::doChildWillChange(Node* node) {}
         void Node::doChildDidChange(Node* node) {}

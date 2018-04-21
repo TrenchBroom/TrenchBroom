@@ -211,7 +211,7 @@ namespace TrenchBroom {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 
-        void World::doAttributesDidChange() {}
+        void World::doAttributesDidChange(const BBox3& oldBounds) {}
 
         bool World::doIsAttributeNameMutable(const AttributeName& name) const {
             if (name == AttributeNames::Classname)
