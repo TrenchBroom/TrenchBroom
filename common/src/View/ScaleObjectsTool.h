@@ -206,6 +206,9 @@ namespace TrenchBroom {
             bool hasDragCorner() const;
             Vec3f dragCorner() const;
 
+            bool hasDragAnchor() const;
+            Vec3f dragAnchor() const;
+
             /**
              * If inside a drag, returns the bbox at the start of the drag.
              * Otherwise, returns the current bounds(). for rendering sheared bbox.

@@ -634,6 +634,42 @@ namespace TrenchBroom {
             return Vec3f(pointForBBoxCorner(bounds(), whichCorner));
         }
 
+        bool ScaleObjectsTool::hasDragAnchor() const {
+            const auto type = m_dragStartHit.type();
+            return type == ScaleToolEdgeHit
+                   || type == ScaleToolCornerHit
+                   || type == ScaleToolFaceHit;
+        }
+
+        Vec3f ScaleObjectsTool::dragAnchor() const {
+            if (m_anchorPos == AnchorPos::Center) {
+                return Vec3f(bounds().center());
+            }
+
+            if (m_dragStartHit.type() == ScaleToolFaceHit) {
+                const auto endSide = m_dragStartHit.target<BBoxSide>();
+                const auto startSide = oppositeSide(endSide);
+
+                return Vec3f(centerForBBoxSide(bounds(), startSide));
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+                const auto endEdge = m_dragStartHit.target<BBoxEdge>();
+                const auto startEdge = oppositeEdge(endEdge);
+
+                const Edge3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
+
+                return Vec3f(startEdgeActual.center());
+            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+                const auto endCorner = m_dragStartHit.target<BBoxCorner>();
+                const auto startCorner = oppositeCorner(endCorner);
+
+                const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
+                return Vec3f(startCornerActual);
+            }
+
+            assert(0);
+            return Vec3f::Null;
+        }
+
         // for rendering sheared bbox
         BBox3 ScaleObjectsTool::bboxAtDragStart() const {
             if (m_resizing) {

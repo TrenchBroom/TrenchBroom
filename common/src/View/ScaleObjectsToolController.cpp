@@ -203,6 +203,16 @@ namespace TrenchBroom {
                 renderService.renderHandleHighlight(corner);
             }
 
+            // draw anchor crosshair
+            if (m_tool->hasDragAnchor()) {
+                const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setShowOccludedObjects();
+
+                renderService.renderCoordinateSystem(BBox3f(radius).translated(m_tool->dragAnchor()));
+            }
+
             {
                 // debugging point
 //                Renderer::RenderService renderService(renderContext, renderBatch);
