@@ -44,8 +44,24 @@ namespace TrenchBroom {
         class BBoxSide {
         public:
             Vec3 normal;
-            
-            explicit BBoxSide(const Vec3& n) : normal(n) {}
+
+            static bool validSideNormal(const Vec3& n) {
+                for (size_t i = 0; i < 3; ++i) {
+                    Vec3 expected = Vec3::Null;
+                    expected[i] = 1.0;
+                    if (n == expected || n == -expected) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            explicit BBoxSide(const Vec3& n)
+                    : normal(n) {
+                if (!validSideNormal(n)) {
+                    throw std::invalid_argument("BBoxSide created with invalid normal " + n.asString());
+                }
+            }
 
             bool operator<(const BBoxSide& other) const {
                 return normal < other.normal;
@@ -58,8 +74,22 @@ namespace TrenchBroom {
         class BBoxCorner {
         public:
             Vec3 corner;
-            
-            explicit BBoxCorner(const Vec3& c) : corner(c) {}
+
+            static bool validCorner(const Vec3& c) {
+                // all components must be either +1 or -1
+                for (size_t i = 0; i < 3; ++i) {
+                    if (!(c[i] == -1.0 || c[i] == 1.0)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            explicit BBoxCorner(const Vec3& c) : corner(c) {
+                if (!validCorner(c)) {
+                    throw std::invalid_argument("BBoxCorner created with invalid corner " + c.asString());
+                }
+            }
         };
         
         /**
@@ -70,7 +100,14 @@ namespace TrenchBroom {
             Vec3 point0;
             Vec3 point1;
             
-            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {}
+            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
+                if (!BBoxCorner::validCorner(p0)) {
+                    throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
+                }
+                if (!BBoxCorner::validCorner(p1)) {
+                    throw std::invalid_argument("BBoxEdge created with invalid corner " + p1.asString());
+                }
+            }
         };
 
 
