@@ -374,7 +374,7 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
     
-        Model::Hit ScaleObjectsTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult, const bool is3D) {
+        Model::Hit ScaleObjectsTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
             const BBox3& myBounds = bounds();
             
             // origin in bbox

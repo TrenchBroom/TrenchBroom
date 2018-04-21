@@ -94,7 +94,7 @@ namespace TrenchBroom {
             addTool(new CameraTool3D(m_document, m_camera));
             addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
             addTool(new RotateObjectsToolController3D(toolBox.rotateObjectsTool()));
-            addTool(new ScaleObjectsToolController3D(toolBox.scaleObjectsTool()));
+            addTool(new ScaleObjectsToolController(toolBox.scaleObjectsTool()));
             addTool(new ResizeBrushesToolController3D(toolBox.resizeBrushesTool()));
             addTool(new CreateComplexBrushToolController3D(toolBox.createComplexBrushTool()));
             addTool(new ClipToolController3D(toolBox.clipTool()));
