@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const String& name, const BBox3& worldBounds) :
         m_name(name),
-        m_octree() {}
+        m_nodeTree() {}
         
         void Layer::setName(const String& name) {
             m_name = name;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
 
         const BBox3& Layer::doGetBounds() const {
-            return m_octree.bounds();
+            return m_nodeTree.bounds();
         }
 
         Node* Layer::doClone(const BBox3& worldBounds) const {
@@ -120,17 +120,17 @@ namespace TrenchBroom {
         };
 
         void Layer::doChildWasAdded(Node* node) {
-            AddNodeToOctree visitor(m_octree);
+            AddNodeToOctree visitor(m_nodeTree);
             node->accept(visitor);
         }
         
         void Layer::doChildWillBeRemoved(Node* node) {
-            RemoveNodeFromOctree visitor(m_octree, node->bounds());
+            RemoveNodeFromOctree visitor(m_nodeTree, node->bounds());
             node->accept(visitor);
         }
         
         void Layer::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
-            UpdateNodeInOctree visitor(m_octree, oldBounds);
+            UpdateNodeInOctree visitor(m_nodeTree, oldBounds);
             node->accept(visitor);
         }
 
@@ -151,12 +151,12 @@ namespace TrenchBroom {
         }
 
         void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {
-            for (const Node* node : m_octree.findIntersectors(ray))
+            for (const Node* node : m_nodeTree.findIntersectors(ray))
                 node->pick(ray, pickResult);
         }
         
         void Layer::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            for (Node* node : m_octree.findContainers(point))
+            for (Node* node : m_nodeTree.findContainers(point))
                 node->findNodesContaining(point, result);
         }
 

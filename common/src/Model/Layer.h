@@ -32,7 +32,7 @@ namespace TrenchBroom {
             String m_name;
 
             using NodeTree = AABBTree<FloatType, 3, Node*>;
-            NodeTree m_octree;
+            NodeTree m_nodeTree;
         public:
             Layer(const String& name, const BBox3& worldBounds);
             
