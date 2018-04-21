@@ -39,11 +39,10 @@ namespace TrenchBroom {
         class ScaleObjectsTool;
         
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
-        protected:
+        private:
             ScaleObjectsTool* m_tool;
-        protected:
-            ScaleObjectsToolController(ScaleObjectsTool* tool);
         public:
+            ScaleObjectsToolController(ScaleObjectsTool* tool);
             virtual ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
@@ -67,8 +66,6 @@ namespace TrenchBroom {
             bool handleInput(const InputState& inputState) const;
             
             bool updateResize(const InputState& inputState);
-        private:
-            virtual Model::Hit doPick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) = 0;
         };
     }
 }
