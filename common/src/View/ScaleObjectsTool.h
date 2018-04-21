@@ -155,7 +155,8 @@ namespace TrenchBroom {
             BBox3 m_bboxAtDragStart;
             bool m_isShearing;
             bool m_isProportional;
-            
+
+            AnchorPos m_anchorPos;
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }
@@ -206,7 +207,10 @@ namespace TrenchBroom {
 //            Vec3 dragPolygonNormal() const;
             
             void updateDragFaces(const Model::PickResult& pickResult);
-            
+
+            void setAnchorPos(const AnchorPos pos);
+            AnchorPos anchorPos() const;
+
         private:
 //            Polygon3 getDragPolygon(const Model::Hit& hit) const;
             class MatchFaceBoundary;
@@ -214,7 +218,7 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, const bool proportional, const bool vertical, const bool shear);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool verticalOrCenterAnchor);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical);
             
             void commitResize();
             void cancelResize();

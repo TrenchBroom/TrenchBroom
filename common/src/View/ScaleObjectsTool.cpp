@@ -358,7 +358,8 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(nullptr),
         m_dragStartHit(Model::Hit::NoHit),
-        m_resizing(false)
+        m_resizing(false),
+        m_anchorPos(AnchorPos::Opposite)
         {
             bindObservers();
         }
@@ -560,23 +561,38 @@ namespace TrenchBroom {
             }
             return result;
         }
+
+        static std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides) {
+            std::vector<BBoxSide> result;
+            for (const auto& side : sides) {
+                result.push_back(side);
+                result.push_back(oppositeSide(side));
+            }
+            return result;
+        }
         
         std::vector<Polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
+            std::vector<BBoxSide> sides;
+
             if (m_dragStartHit.type() == ScaleToolFaceHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return polysForSides(bounds(), {side});
-                
+                sides = {side};
             } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                 const auto edge = m_dragStartHit.target<BBoxEdge>();
-                return polysForSides(bounds(), sidesForEdgeSelection(edge));
-                
+                sides = sidesForEdgeSelection(edge);
             } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                 const auto corner = m_dragStartHit.target<BBoxCorner>();
-                return polysForSides(bounds(), sidesForCornerSelection(corner));
-                
+                sides = sidesForCornerSelection(corner);
             } else {
-                return {};
+                // ???
             }
+
+            // When the anchor point is the center, highlight the opposite sides also.
+            if (m_anchorPos == AnchorPos::Center) {
+                sides = sidesWithOppositeSides(sides);
+            }
+
+            return polysForSides(bounds(), sides);
         }
         
         bool ScaleObjectsTool::hasDragPolygon() const {
@@ -680,6 +696,15 @@ namespace TrenchBroom {
 //            //m_dragPolygon = newDragFaces;
           
       }
+
+        void ScaleObjectsTool::setAnchorPos(const AnchorPos pos) {
+            m_anchorPos = pos;
+        }
+
+        AnchorPos ScaleObjectsTool::anchorPos() const {
+            return m_anchorPos;
+        }
+
         
 //        BBoxSide ScaleObjectsTool::getDragPolygon(const Model::Hit& hit) const {
 //            if (!hit.isMatch()) return Polygon3();
@@ -769,7 +794,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool verticalOrCenterAnchor) {
+        bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical) {
 //            assert(!m_dragFaces.empty());
 //            assert(hasDragPolygon());
 //
@@ -782,7 +807,7 @@ namespace TrenchBroom {
             const View::Grid& grid = document->grid();
            
             if (!m_isShearing) {
-                const auto anchorPos = verticalOrCenterAnchor ? AnchorPos::Center : AnchorPos::Opposite;
+                const auto anchorPos = m_anchorPos;
 
                 // side dragging
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
@@ -1021,7 +1046,7 @@ namespace TrenchBroom {
                     delta = grid.snap(delta);
                     
                     if (camera.perspectiveProjection()) {
-                        if (verticalOrCenterAnchor) {
+                        if (vertical) {
                             delta[0] = 0;
                             delta[1] = 0;
                         } else {

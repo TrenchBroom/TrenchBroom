@@ -59,7 +59,11 @@ namespace TrenchBroom {
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
 //            if (!anyToolDragging(inputState))
 //                m_tool->updateDragFaces(inputState.pickResult());
-            
+
+            m_tool->setAnchorPos(inputState.modifierKeysDown(ModifierKeys::MKAlt)
+                ? AnchorPos::Center
+                : AnchorPos::Opposite);
+
             // Modifiers that can be enabled/disabled any time:
             // - proportional (shift)
             // - vertical (alt)
