@@ -198,7 +198,9 @@ namespace TrenchBroom {
             if (m_tool->hasDragCorner()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(255, 255, 0));
-                renderService.renderHandleHighlight(m_tool->dragCorner());
+                const auto corner = m_tool->dragCorner();
+                renderService.renderHandle(corner);
+                renderService.renderHandleHighlight(corner);
             }
 
             {
