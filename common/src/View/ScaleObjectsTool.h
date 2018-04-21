@@ -46,6 +46,10 @@ namespace TrenchBroom {
             Vec3 normal;
             
             explicit BBoxSide(const Vec3& n) : normal(n) {}
+
+            bool operator<(const BBoxSide& other) const {
+                return normal < other.normal;
+            }
         };
         
         /**
@@ -154,9 +158,15 @@ namespace TrenchBroom {
              */
             BBox3 m_bboxAtDragStart;
             bool m_isShearing;
-            bool m_isProportional;
 
+            /**
+             * Modifier key state
+             */
             AnchorPos m_anchorPos;
+            /**
+             * Modifier key state
+             */
+            bool m_scaleAllAxes;
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }
@@ -208,8 +218,12 @@ namespace TrenchBroom {
             
             void updateDragFaces(const Model::PickResult& pickResult);
 
-            void setAnchorPos(const AnchorPos pos);
+            // persist the state of modifier keys
+            void setAnchorPos(AnchorPos pos);
             AnchorPos anchorPos() const;
+
+            void setScaleAllAxes(bool allAxes);
+            bool scaleAllAxes() const;
 
         private:
 //            Polygon3 getDragPolygon(const Model::Hit& hit) const;
@@ -217,8 +231,8 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
-            bool beginResize(const Model::PickResult& pickResult, const bool proportional, const bool vertical, const bool shear);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool proportional, const bool vertical);
+            bool beginResize(const Model::PickResult& pickResult, const bool vertical, const bool shear);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool vertical);
             
             void commitResize();
             void cancelResize();

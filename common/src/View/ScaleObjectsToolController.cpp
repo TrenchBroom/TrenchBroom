@@ -60,9 +60,11 @@ namespace TrenchBroom {
 //            if (!anyToolDragging(inputState))
 //                m_tool->updateDragFaces(inputState.pickResult());
 
-            m_tool->setAnchorPos(inputState.modifierKeysDown(ModifierKeys::MKAlt)
-                ? AnchorPos::Center
-                : AnchorPos::Opposite);
+            const bool centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+            const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
+
+            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
+            m_tool->setScaleAllAxes(scaleAllAxes);
 
             // Modifiers that can be enabled/disabled any time:
             // - proportional (shift)
@@ -84,11 +86,10 @@ namespace TrenchBroom {
             
             m_tool->updateDragFaces(inputState.pickResult());
             
-            const bool proportional = inputState.modifierKeysDown(ModifierKeys::MKShift);
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
             const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
             
-            if (m_tool->beginResize(inputState.pickResult(), proportional, vertical, shear)) {
+            if (m_tool->beginResize(inputState.pickResult(), vertical, shear)) {
                 m_tool->updateDragFaces(inputState.pickResult());
                 return true;
             }
@@ -100,12 +101,10 @@ namespace TrenchBroom {
         }
         
         bool ScaleObjectsToolController::updateResize(const InputState& inputState) {
-            const bool proportional = inputState.modifierKeysDown(ModifierKeys::MKShift);
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
                         
             return m_tool->resize(inputState.pickRay(),
                                   inputState.camera(),
-                                  proportional,
                                   vertical);
         }
         
