@@ -155,9 +155,10 @@ namespace TrenchBroom {
                 }
                 return;
             }
-            
-            {
-                // bounds
+
+            // bounds and corner handles
+
+            if (!m_tool->bounds().empty())  {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(0, 255, 0));
                 renderService.renderBounds(m_tool->bounds());
