@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_DoublyLinkedList_h
 #define TrenchBroom_DoublyLinkedList_h
 
+#include "Ensure.h"
+
 #include <iterator>
 
 template <typename Item, typename GetLink>
@@ -55,7 +57,7 @@ public:
             ensure(next != nullptr, "next is null");
             m_next = next;
         }
-        
+
         bool selfLoop(Item* item) const {
             return m_previous == item && m_next == item;
         }
@@ -454,14 +456,19 @@ public:
         assert(check());
     }
 
+    void release() {
+        m_head = nullptr;
+        m_size = 0;
+    }
+
     void clear() {
         if (m_head != nullptr) {
             Item* item = m_head;
-            while (item != m_head) {
+            do {
                 Item* nextItem = next(item);
                 delete item;
                 item = nextItem;
-            }
+            } while (item != m_head);
             m_head = nullptr;
             m_size = 0;
             ++m_version;
