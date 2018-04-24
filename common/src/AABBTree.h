@@ -714,10 +714,10 @@ public:
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {
-                        return !Math::isnan(innerNode->bounds().intersectWithRay(ray));
+                        return innerNode->bounds().contains(ray.origin) || !Math::isnan(innerNode->bounds().intersectWithRay(ray));
                     },
                     [&](const Leaf* leaf) {
-                        if (!Math::isnan(leaf->bounds().intersectWithRay(ray))) {
+                        if (leaf->bounds().contains(ray.origin) || !Math::isnan(leaf->bounds().intersectWithRay(ray))) {
                             out = leaf->data();
                         }
                     }
