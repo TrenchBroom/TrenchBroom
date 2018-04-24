@@ -207,47 +207,47 @@ namespace TrenchBroom {
 
         void Node::childWillBeAdded(Node* node) {
             doChildWillBeAdded(node);
-            descendantWillBeAdded(this, node);
+            descendantWillBeAdded(this, node, 1);
         }
 
         void Node::childWasAdded(Node* node) {
             doChildWasAdded(node);
-            descendantWasAdded(node);
+            descendantWasAdded(node, 1);
         }
         
         void Node::childWillBeRemoved(Node* node) {
             doChildWillBeRemoved(node);
-            descendantWillBeRemoved(node);
+            descendantWillBeRemoved(node, 1);
         }
         
         void Node::childWasRemoved(Node* node) {
             doChildWasRemoved(node);
-            descendantWasRemoved(this, node);
+            descendantWasRemoved(this, node, 1);
         }
         
-        void Node::descendantWillBeAdded(Node* newParent, Node* node) {
-            doDescendantWillBeAdded(newParent, node);
+        void Node::descendantWillBeAdded(Node* newParent, Node* node, const size_t depth) {
+            doDescendantWillBeAdded(newParent, node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
-                m_parent->descendantWillBeAdded(newParent, node);
+                m_parent->descendantWillBeAdded(newParent, node, depth + 1);
         }
 
-        void Node::descendantWasAdded(Node* node) {
-            doDescendantWasAdded(node);
+        void Node::descendantWasAdded(Node* node, const size_t depth) {
+            doDescendantWasAdded(node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
-                m_parent->descendantWasAdded(node);
+                m_parent->descendantWasAdded(node, depth + 1);
             invalidateIssues();
         }
         
-        void Node::descendantWillBeRemoved(Node* node) {
-            doDescendantWillBeRemoved(node);
+        void Node::descendantWillBeRemoved(Node* node, const size_t depth) {
+            doDescendantWillBeRemoved(node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
-                m_parent->descendantWillBeRemoved(node);
+                m_parent->descendantWillBeRemoved(node, depth + 1);
         }
 
-        void Node::descendantWasRemoved(Node* oldParent, Node* node) {
-            doDescendantWasRemoved(oldParent, node);
+        void Node::descendantWasRemoved(Node* oldParent, Node* node, const size_t depth) {
+            doDescendantWasRemoved(oldParent, node, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr)
-                m_parent->descendantWasRemoved(oldParent, node);
+                m_parent->descendantWasRemoved(oldParent, node, depth + 1);
             invalidateIssues();
         }
 
@@ -335,7 +335,8 @@ namespace TrenchBroom {
             m_node->nodeBoundsDidChange(m_oldBounds);
         }
 
-        void Node::nodeBoundsDidChange(const BBox3& oldBounds) {
+        // notice that we take a copy here so that we can safely propagate the old bounds up
+        void Node::nodeBoundsDidChange(const BBox3 oldBounds) {
             doNodeBoundsDidChange(oldBounds);
             if (m_parent != nullptr)
                 m_parent->childBoundsDidChange(this, oldBounds);
@@ -353,20 +354,36 @@ namespace TrenchBroom {
 
         void Node::descendantWillChange(Node* node) {
             doDescendantWillChange(node);
-            if (shouldPropagateDescendantEvents() && m_parent != nullptr)
+            if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
                 m_parent->descendantWillChange(node);
+            }
             invalidateIssues();
         }
         
         void Node::descendantDidChange(Node* node) {
             doDescendantDidChange(node);
-            if (shouldPropagateDescendantEvents() && m_parent != nullptr)
+            if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
                 m_parent->descendantDidChange(node);
+            }
             invalidateIssues();
         }
 
         void Node::childBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            const BBox3 myOldBounds = bounds();
+            if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->bounds())) {
+                // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
+                nodeBoundsDidChange(myOldBounds);
+            }
+
             doChildBoundsDidChange(node, oldBounds);
+            descendantBoundsDidChange(node, oldBounds, 1);
+        }
+
+        void Node::descendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
+            doDescendantBoundsDidChange(node, oldBounds, depth);
+            if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
+                m_parent->descendantBoundsDidChange(node, oldBounds, depth + 1);
+            }
         }
 
         bool Node::selected() const {
@@ -623,10 +640,10 @@ namespace TrenchBroom {
         void Node::doChildWillBeRemoved(Node* node) {}
         void Node::doChildWasRemoved(Node* node) {}
 
-        void Node::doDescendantWillBeAdded(Node* newParent, Node* node) {}
-        void Node::doDescendantWasAdded(Node* node) {}
-        void Node::doDescendantWillBeRemoved(Node* node) {}
-        void Node::doDescendantWasRemoved(Node* oldParent, Node* node) {}
+        void Node::doDescendantWillBeAdded(Node* newParent, Node* node, const size_t depth) {}
+        void Node::doDescendantWasAdded(Node* node, const size_t depth) {}
+        void Node::doDescendantWillBeRemoved(Node* node, const size_t depth) {}
+        void Node::doDescendantWasRemoved(Node* oldParent, Node* node, const size_t depth) {}
         bool Node::doShouldPropagateDescendantEvents() const { return true; }
 
         void Node::doParentWillChange() {}
@@ -636,6 +653,7 @@ namespace TrenchBroom {
 
         void Node::doNodeBoundsDidChange(const BBox3& oldBounds) {}
         void Node::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {}
+        void Node::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {}
 
         void Node::doChildWillChange(Node* node) {}
         void Node::doChildDidChange(Node* node) {}

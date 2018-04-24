@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
@@ -41,6 +42,9 @@ namespace TrenchBroom {
             Layer* m_defaultLayer;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
+
+            using NodeTree = AABBTree<FloatType, 3, Node*>;
+            NodeTree m_nodeTree;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management
@@ -67,6 +71,15 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
+
+            class AddNodeToNodeTree;
+            class RemoveNodeFromNodeTree;
+            class UpdateNodeInNodeTree;
+
+            void doDescendantWasAdded(Node* node, size_t depth) override;
+            void doDescendantWillBeRemoved(Node* node, size_t depth) override;
+            void doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth) override;
+
             bool doSelectable() const override;
             void doPick(const Ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const Vec3& point, NodeList& result) override;

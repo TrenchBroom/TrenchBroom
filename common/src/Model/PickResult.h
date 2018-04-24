@@ -56,6 +56,8 @@ namespace TrenchBroom {
 
             const Hit::List& all() const;
             HitQuery query() const;
+
+            void clear();
         };
     }
 }

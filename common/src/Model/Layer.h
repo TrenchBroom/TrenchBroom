@@ -23,7 +23,6 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
-#include "AABBTree.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,8 +30,8 @@ namespace TrenchBroom {
         private:
             String m_name;
 
-            using NodeTree = AABBTree<FloatType, 3, Node*>;
-            NodeTree m_nodeTree;
+            mutable BBox3 m_bounds;
+            mutable bool m_boundsValid;
         public:
             Layer(const String& name, const BBox3& worldBounds);
             
@@ -45,24 +44,20 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
-            
-            class AddNodeToOctree;
-            class RemoveNodeFromOctree;
-            class UpdateNodeInOctree;
-            
-            void doChildWasAdded(Node* node) override;
-            void doChildWillBeRemoved(Node* node) override;
-            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
-            
+            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
             bool doSelectable() const override;
-            
+
+            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
 
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
             FloatType doIntersectWithRay(const Ray3& ray) const override;
+        private:
+            void invalidateBounds();
+            void validateBounds() const;
         private:
             Layer(const Layer&);
             Layer& operator=(const Layer&);

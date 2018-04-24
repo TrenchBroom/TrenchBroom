@@ -165,18 +165,87 @@ namespace TrenchBroom {
             return false;
         }
 
+        class World::AddNodeToNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+        public:
+            AddNodeToNodeTree(NodeTree& nodeTree) :
+                    m_nodeTree(nodeTree) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
+        };
+
+        class World::RemoveNodeFromNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+            const BBox3 m_oldBounds;
+        public:
+            RemoveNodeFromNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+                    m_nodeTree(nodeTree),
+                    m_oldBounds(oldBounds) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.remove(m_oldBounds, group); }
+            void doVisit(Entity* entity) override { m_nodeTree.remove(m_oldBounds, entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.remove(m_oldBounds, brush); }
+        };
+
+        class World::UpdateNodeInNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+            const BBox3 m_oldBounds;
+        public:
+            UpdateNodeInNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+                    m_nodeTree(nodeTree),
+                    m_oldBounds(oldBounds) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
+        };
+
+        void World::doDescendantWasAdded(Node* node, const size_t depth) {
+            if (depth == 2) {
+                AddNodeToNodeTree visitor(m_nodeTree);
+                node->accept(visitor);
+            }
+        }
+
+        void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
+            if (depth == 2) {
+                RemoveNodeFromNodeTree visitor(m_nodeTree, node->bounds());
+                node->accept(visitor);
+            }
+        }
+
+        void World::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
+            if (depth == 2) {
+                UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
+                node->accept(visitor);
+            }
+        }
+
         bool World::doSelectable() const {
             return false;
         }
 
         void World::doPick(const Ray3& ray, PickResult& pickResult) const {
-            for (const Node* child : Node::children())
-                child->pick(ray, pickResult);
+            for (const auto* node : m_nodeTree.findIntersectors(ray)) {
+                node->pick(ray, pickResult);
+            }
         }
         
         void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            for (Node* child : Node::children())
-                child->findNodesContaining(point, result);
+            for (auto* node : m_nodeTree.findContainers(point)) {
+                node->findNodesContaining(point, result);
+            }
         }
 
         FloatType World::doIntersectWithRay(const Ray3& ray) const {

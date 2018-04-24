@@ -48,6 +48,7 @@ namespace TrenchBroom {
             ~EntityDefinitionManager();
 
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
+            void setDefinitions(const EntityDefinitionList& newDefinitions);
             void clear();
             
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;

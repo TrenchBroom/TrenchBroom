@@ -260,6 +260,9 @@ namespace TrenchBroom {
         public:
             bool deleteObjects() override;
             bool duplicateObjects() override;
+        public: // entity management
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const Vec3& delta);
+            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
         public: // group management
             Model::Group* groupSelection(const String& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
@@ -381,7 +384,10 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
-            
+
+            // For testing
+            void setEntityDefinitions(const Assets::EntityDefinitionList& definitions);
+
             IO::Path::List enabledTextureCollections() const;
             IO::Path::List availableTextureCollections() const;
             void setEnabledTextureCollections(const IO::Path::List& paths);

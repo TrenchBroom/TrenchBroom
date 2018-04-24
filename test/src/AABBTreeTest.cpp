@@ -911,6 +911,21 @@ TEST(AABBTreeTest, findIntersectorsOfTreeWithTwoNodes) {
     assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::PosY), { 2u });
 }
 
+TEST(AABBTreeTest, findIntersectorFromInside) {
+    AABB tree;
+    tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 1u);
+
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 1u });
+}
+
+TEST(AABBTreeTest, findIntersectorsFromInsideRootBBox) {
+    AABB tree;
+    tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(-2.0, +1.0, +1.0)), 1u);
+    tree.insert(BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 2u);
+
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 2u });
+}
+
 void assertTree(const std::string& exp, const AABB& actual) {
     std::stringstream str;
     actual.print(str);

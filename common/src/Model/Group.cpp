@@ -100,8 +100,9 @@ namespace TrenchBroom {
         }
 
         const BBox3& Group::doGetBounds() const {
-            if (!m_boundsValid)
+            if (!m_boundsValid) {
                 validateBounds();
+            }
             return m_bounds;
         }
         
@@ -150,14 +151,6 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        void Group::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
-            const BBox3 myBounds = bounds();
-            if (!myBounds.encloses(oldBounds) && !myBounds.encloses(node->bounds())) {
-                // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
-                nodeBoundsDidChange(myBounds);
-            }
-        }
-
         bool Group::doShouldPropagateDescendantEvents() const {
             return false;
         }

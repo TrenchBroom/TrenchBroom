@@ -68,5 +68,9 @@ namespace TrenchBroom {
                 return HitQuery(m_hits, *m_editorContext);
             return HitQuery(m_hits);
         }
+
+        void PickResult::clear() {
+            m_hits.clear();
+        }
     }
 }
