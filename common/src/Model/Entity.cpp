@@ -174,10 +174,7 @@ namespace TrenchBroom {
         }
 
         void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
-            if (hasChildren()) {
-                for (const Node* child : Node::children())
-                    child->pick(ray, pickResult);
-            } else {
+            if (!hasChildren()) {
                 const BBox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = myBounds.intersectWithRay(ray);
