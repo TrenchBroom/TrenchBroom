@@ -212,18 +212,24 @@ namespace TrenchBroom {
         };
 
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
-            AddNodeToNodeTree visitor(m_nodeTree);
-            node->accept(visitor);
+            if (depth > 1) { // ignore layers
+                AddNodeToNodeTree visitor(m_nodeTree);
+                node->accept(visitor);
+            }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
-            RemoveNodeFromNodeTree visitor(m_nodeTree, node->bounds());
-            node->accept(visitor);
+            if (depth > 1) { // ignore layers
+                RemoveNodeFromNodeTree visitor(m_nodeTree, node->bounds());
+                node->accept(visitor);
+            }
         }
 
         void World::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
-            UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
-            node->accept(visitor);
+            if (depth > 1) { // ignore layers
+                UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
+                node->accept(visitor);
+            }
         }
 
         bool World::doSelectable() const {
