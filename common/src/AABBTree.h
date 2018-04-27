@@ -32,7 +32,7 @@
 #include <list>
 #include <memory>
 
-template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
+template <typename T, size_t S, typename U, int MaxBalance = 1, typename Cmp = std::less<U>>
 class AABBTree {
 public:
     using Box = BBox<T,S>;
@@ -124,7 +124,7 @@ private:
          * @return true if this node is balanced and false otherwise
          */
         bool balanced() const {
-            return std::abs(balance()) <= 1;
+            return std::abs(balance()) <= MaxBalance;
         }
 
         /**
