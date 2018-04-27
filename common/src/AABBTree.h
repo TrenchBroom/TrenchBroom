@@ -370,9 +370,10 @@ private:
 
     public:
         Leaf* findRebalanceCandidate(const Box& bounds) override {
-            Leaf* leftCandidate = m_left->findRebalanceCandidate(bounds);
-            Leaf* rightCandidate = m_right->findRebalanceCandidate(bounds);
-            return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
+            return selectLeastIncreaser(m_left, m_right, bounds)->findRebalanceCandidate(bounds);
+            // Leaf* leftCandidate = m_left->findRebalanceCandidate(bounds);
+            // Leaf* rightCandidate = m_right->findRebalanceCandidate(bounds);
+            // return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
         }
     private:
         /**
