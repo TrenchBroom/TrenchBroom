@@ -77,8 +77,7 @@ namespace TrenchBroom {
             void doChildWasRemoved(Node* node) override;
 
             void doNodeBoundsDidChange(const BBox3& oldBounds) override;
-            bool doShouldPropagateDescendantEvents() const override;
-            
+
             bool doSelectable() const override;
             
             void doPick(const Ray3& ray, PickResult& pickResult) const override;

@@ -151,10 +151,6 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        bool Group::doShouldPropagateDescendantEvents() const {
-            return true;
-        }
-
         bool Group::doSelectable() const {
             return true;
         }
