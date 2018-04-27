@@ -37,14 +37,23 @@ namespace TrenchBroom {
         class PickResult;
         
         class World : public AttributableNode, public ModelFactory {
+        public:
+            class CreateNodeTree {
+            private:
+                World* m_world;
+            public:
+                CreateNodeTree(World* world);
+                ~CreateNodeTree();
+            };
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
 
-            using NodeTree = AABBTree<FloatType, 3, Node*>;
+            using NodeTree = AABBTree<FloatType, 3, Node*, 1>;
             NodeTree m_nodeTree;
+            bool m_updateNodeTree;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management
@@ -62,6 +71,14 @@ namespace TrenchBroom {
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
+            class AddNodeToNodeTree;
+            class RemoveNodeFromNodeTree;
+            class UpdateNodeInNodeTree;
+        public: // node tree bulk updating
+            void disableNodeTreeUpdates();
+            void enableNodeTreeUpdates();
+            void rebuildNodeTree();
+        private:
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
@@ -71,10 +88,6 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
-
-            class AddNodeToNodeTree;
-            class RemoveNodeFromNodeTree;
-            class UpdateNodeInNodeTree;
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;

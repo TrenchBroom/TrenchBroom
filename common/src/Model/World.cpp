@@ -27,9 +27,20 @@
 
 namespace TrenchBroom {
     namespace Model {
+        World::CreateNodeTree::CreateNodeTree(World* world) :
+        m_world(world) {
+            m_world->disableNodeTreeUpdates();
+        }
+
+        World::CreateNodeTree::~CreateNodeTree() {
+            m_world->rebuildNodeTree();
+            m_world->enableNodeTreeUpdates();
+        }
+
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
-        m_defaultLayer(nullptr) {
+        m_defaultLayer(nullptr),
+        m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
         }
@@ -77,6 +88,66 @@ namespace TrenchBroom {
         void World::unregisterAllIssueGenerators() {
             m_issueGeneratorRegistry.unregisterAllGenerators();
             invalidateAllIssues();
+        }
+
+        class World::AddNodeToNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+        public:
+            AddNodeToNodeTree(NodeTree& nodeTree) :
+            m_nodeTree(nodeTree) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
+        };
+        
+        class World::RemoveNodeFromNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+            const BBox3 m_oldBounds;
+        public:
+            RemoveNodeFromNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+            m_nodeTree(nodeTree),
+            m_oldBounds(oldBounds) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.remove(m_oldBounds, group); }
+            void doVisit(Entity* entity) override { m_nodeTree.remove(m_oldBounds, entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.remove(m_oldBounds, brush); }
+        };
+        
+        class World::UpdateNodeInNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+            const BBox3 m_oldBounds;
+        public:
+            UpdateNodeInNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+            m_nodeTree(nodeTree),
+            m_oldBounds(oldBounds) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
+        };
+
+        void World::disableNodeTreeUpdates() {
+            m_updateNodeTree = false;
+        }
+        
+        void World::enableNodeTreeUpdates() {
+            m_updateNodeTree = true;
+        }
+        
+        void World::rebuildNodeTree() {
+            m_nodeTree.clear();
+            AddNodeToNodeTree visitor(m_nodeTree);
+            acceptAndRecurse(visitor);
         }
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
@@ -165,68 +236,22 @@ namespace TrenchBroom {
             return false;
         }
 
-        class World::AddNodeToNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            AddNodeToNodeTree(NodeTree& nodeTree) :
-                    m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
-        };
-
-        class World::RemoveNodeFromNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-            const BBox3 m_oldBounds;
-        public:
-            RemoveNodeFromNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
-                    m_nodeTree(nodeTree),
-                    m_oldBounds(oldBounds) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.remove(m_oldBounds, group); }
-            void doVisit(Entity* entity) override { m_nodeTree.remove(m_oldBounds, entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.remove(m_oldBounds, brush); }
-        };
-
-        class World::UpdateNodeInNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-            const BBox3 m_oldBounds;
-        public:
-            UpdateNodeInNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
-                    m_nodeTree(nodeTree),
-                    m_oldBounds(oldBounds) {}
-        private:
-            void doVisit(World* world) override   {}
-            void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
-            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
-        };
-
         void World::doDescendantWasAdded(Node* node, const size_t depth) {
-            if (depth > 1) { // ignore layers
+            if (m_updateNodeTree && depth > 1) { // ignore layers
                 AddNodeToNodeTree visitor(m_nodeTree);
-                node->accept(visitor);
+                node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
-            if (depth > 1) { // ignore layers
+            if (m_updateNodeTree && depth > 1) { // ignore layers
                 RemoveNodeFromNodeTree visitor(m_nodeTree, node->bounds());
-                node->accept(visitor);
+                node->acceptAndRecurse(visitor);
             }
         }
 
         void World::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
-            if (depth > 1) { // ignore layers
+            if (m_updateNodeTree && depth > 1) { // ignore layers
                 UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
                 node->accept(visitor);
             }
