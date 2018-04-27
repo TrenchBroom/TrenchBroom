@@ -174,19 +174,21 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Entity* entity) const {
-            if (entity->selected())
-                return true;
-            if (entity->brushEntity()) {
-                if (!anyChildVisible(entity))
-                    return false;
+            if (entity->selected()) {
                 return true;
             }
-            if (!entity->visible())
+            if (entity->brushEntity()) {
+                return anyChildVisible(entity);
+            }
+            if (!entity->visible()) {
                 return false;
-            if (entity->pointEntity() && !m_showPointEntities)
+            }
+            if (entity->pointEntity() && !m_showPointEntities) {
                 return false;
-            if (entityDefinitionHidden(entity))
+            }
+            if (entityDefinitionHidden(entity)) {
                 return false;
+            }
             return true;
         }
         

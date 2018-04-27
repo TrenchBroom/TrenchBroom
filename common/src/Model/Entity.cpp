@@ -43,15 +43,11 @@ namespace TrenchBroom {
         m_boundsValid(false) {}
 
         bool Entity::brushEntity() const {
-            return !pointEntity();
+            return hasChildren() || hasBrushEntityDefinition();
         }
 
         bool Entity::pointEntity() const {
-            if (!hasChildren())
-                return true;
-            if (definition() == nullptr)
-                return !hasChildren();
-            return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return !brushEntity();
         }
         
         bool Entity::hasBrushEntityDefinition() const {
