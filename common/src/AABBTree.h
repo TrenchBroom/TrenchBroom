@@ -570,7 +570,7 @@ public:
     AABBTree() : m_root(nullptr) {}
 
     ~AABBTree() {
-        delete m_root;
+        clear();
     }
 
     /**
@@ -585,29 +585,33 @@ public:
     }
 
     /**
-     * Insert a node with the given bounds and data into this tree.
+     * Insert a node with the given bounds and data into this tree. If the given bounds are empty,
+     * nothing is inserted.
      *
      * @param bounds the bounds to insert
      * @param data the data to insert
      */
     void insert(const Box& bounds, const U& data) {
-        if (empty()) {
-            m_root = new Leaf(bounds, data);
-        } else {
-            m_root = m_root->insert(bounds, data);
+        if (!bounds.empty()) {
+            if (empty()) {
+                m_root = new Leaf(bounds, data);
+            } else {
+                m_root = m_root->insert(bounds, data);
+            }
+            assert(balanced());
         }
-        assert(balanced());
     }
 
     /**
-     * Removes the node with the given bounds and data into this tree.
+     * Removes the node with the given bounds and data into this tree. If the given bounds are empty,
+     * nothing is removed.
      *
      * @param bounds the bounds to remove
      * @param data the data to remove
      * @return true if a node with the given bounds and data was removed, and false otherwise
      */
     bool remove(const Box& bounds, const U& data) {
-        if (empty()) {
+        if (empty() || bounds.empty()) {
             return false;
         } else if (m_root->bounds().contains(bounds)) {
             auto* newRoot = m_root->remove(bounds, data);
@@ -632,15 +636,24 @@ public:
      * @throws AABBException if no node with the given bounds and data can be found in this tree
      */
     void update(const Box& oldBounds, const Box& newBounds, const U& data) {
-        if (!remove(oldBounds, data)) {
+        if (!oldBounds.empty() && !remove(oldBounds, data)) {
             AABBException ex;
             ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
             throw ex;
-        } else {
-            insert(newBounds, data);
         }
+        insert(newBounds, data);
     }
 
+    /**
+     * Clears this node tree.
+     */
+    void clear() {
+        if (!empty()) {
+            delete m_root;
+            m_root = nullptr;
+        }
+    }
+    
     /**
      * Indicates whether this tree is empty.
      *
