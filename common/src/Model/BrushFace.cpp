@@ -623,17 +623,11 @@ namespace TrenchBroom {
         }
         
         void BrushFace::countIndices(Renderer::TexturedIndexArrayMap::Size& size) const {
-            if (vertexCount() == 4)
-                size.inc(texture(), GL_QUADS, 4);
-            else
-                size.inc(texture(), GL_TRIANGLES, 3 * (vertexCount() - 2));
+            size.inc(texture(), GL_TRIANGLES, 3 * (vertexCount() - 2));
         }
 
         void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const {
-            if (vertexCount() == 4)
-                builder.addQuads(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
-            else
-                builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
+            builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
