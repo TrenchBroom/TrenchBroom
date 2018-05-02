@@ -22,12 +22,12 @@
 #include "CollectionUtils.h"
 #include "Reference.h"
 #include "Renderer/RenderUtils.h"
+#include "Assets/Texture.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexArrayMap::Size::Size() :
-        m_current(std::end(m_sizes)),
-        m_indexCount(0) {}
+                m_indexCount(0) {}
         
         size_t TexturedIndexArrayMap::Size::indexCount() const {
             return m_indexCount;
@@ -40,43 +40,22 @@ namespace TrenchBroom {
         }
 
         IndexArrayMap::Size& TexturedIndexArrayMap::Size::findCurrent(const Texture* texture) {
-            if (!isCurrent(texture))
-                m_current = MapUtils::findOrInsert(m_sizes, texture, IndexArrayMap::Size());
-            return m_current->second;
+            return m_sizes[texture];
         }
-        
-        bool TexturedIndexArrayMap::Size::isCurrent(const Texture* texture) const {
-            if (m_current == std::end(m_sizes))
-                return false;
-            
-            typedef TextureToSize::key_compare Cmp;
-            const Cmp& cmp = m_sizes.key_comp();
-            
-            const Texture* currentTexture = m_current->first;
-            if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
-                return false;
-            return true;
-        }
-        
-        void TexturedIndexArrayMap::Size::initialize(TextureToIndexArrayMap& ranges) const {
+
+        void TexturedIndexArrayMap::Size::initialize(TexturedIndexArrayMap& map) const {
             size_t baseOffset = 0;
-            
-            for (const auto& entry : m_sizes) {
-                const Texture* texture = entry.first;
-                const IndexArrayMap::Size& size = entry.second;
-                ranges.insert(std::make_pair(texture, IndexArrayMap(size, baseOffset)));
+
+            for (const auto& [texture, size] : m_sizes) {
+                map.m_ranges[texture] = IndexArrayMap(size, baseOffset);
                 baseOffset += size.indexCount();
             }
         }
 
-        TexturedIndexArrayMap::TexturedIndexArrayMap() :
-        m_ranges(new TextureToIndexArrayMap()),
-        m_current(m_ranges->end()) {}
+        TexturedIndexArrayMap::TexturedIndexArrayMap() {}
         
-        TexturedIndexArrayMap::TexturedIndexArrayMap(const Size& size) :
-        m_ranges(new TextureToIndexArrayMap()),
-        m_current(m_ranges->end()) {
-            size.initialize(*m_ranges);
+        TexturedIndexArrayMap::TexturedIndexArrayMap(const Size& size) {
+            size.initialize(*this);
         }
 
         size_t TexturedIndexArrayMap::add(const Texture* texture, const PrimType primType, const size_t count) {
@@ -90,10 +69,7 @@ namespace TrenchBroom {
         }
         
         void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
-            for (const auto& entry : *m_ranges) {
-                const Texture* texture = entry.first;
-                const IndexArrayMap& indexRange = entry.second;
-                
+            for (const auto& [texture, indexRange] : m_ranges) {
                 func.before(texture);
                 indexRange.render(vertexArray);
                 func.after(texture);
@@ -101,23 +77,7 @@ namespace TrenchBroom {
         }
 
         IndexArrayMap& TexturedIndexArrayMap::findCurrent(const Texture* texture) {
-            if (!isCurrent(texture))
-                m_current = m_ranges->find(texture);
-            assert(m_current != m_ranges->end());
-            return m_current->second;
-        }
-        
-        bool TexturedIndexArrayMap::isCurrent(const Texture* texture) {
-            if (m_current == m_ranges->end())
-                return false;
-            
-            typedef TextureToIndexArrayMap::key_compare Cmp;
-            const Cmp& cmp = m_ranges->key_comp();
-            
-            const Texture* currentTexture = m_current->first;
-            if (cmp(texture, currentTexture) || cmp(currentTexture, texture))
-                return false;
-            return true;
+            return m_ranges[texture];
         }
     }
 }

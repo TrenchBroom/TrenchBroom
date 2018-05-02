@@ -20,10 +20,9 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
-#include "SharedPointer.h"
 #include "Renderer/IndexArrayMap.h"
 
-#include <map>
+#include <unordered_map>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -36,18 +35,21 @@ namespace TrenchBroom {
         
         class TexturedIndexArrayMap {
         public:
-            typedef Assets::Texture Texture;
+            using Texture = Assets::Texture;
         private:
-            typedef std::map<const Texture*, IndexArrayMap> TextureToIndexArrayMap;
-            typedef std::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
+            class HashPtr {
+            public:
+                size_t operator()(const Texture* texture) const {
+                    return reinterpret_cast<size_t>(texture);
+                }
+            };
         public:
             class Size {
             private:
                 friend class TexturedIndexArrayMap;
                 
-                typedef std::map<const Texture*, IndexArrayMap::Size> TextureToSize;
-                TextureToSize m_sizes;
-                TextureToSize::iterator m_current;
+                std::unordered_map<const Texture*, IndexArrayMap::Size, HashPtr> m_sizes;
+
                 size_t m_indexCount;
             public:
                 Size();
@@ -55,13 +57,12 @@ namespace TrenchBroom {
                 void inc(const Texture* texture, PrimType primType, size_t count);
             private:
                 IndexArrayMap::Size& findCurrent(const Texture* texture);
-                bool isCurrent(const Texture* texture) const;
-                
-                void initialize(TextureToIndexArrayMap& ranges) const;
+
+                void initialize(TexturedIndexArrayMap& map) const;
             };
         private:
-            TextureToIndexArrayMapPtr m_ranges;
-            TextureToIndexArrayMap::iterator m_current;
+            std::unordered_map<const Texture*, IndexArrayMap, HashPtr> m_ranges;
+
         public:
             TexturedIndexArrayMap();
             TexturedIndexArrayMap(const Size& size);
@@ -72,7 +73,6 @@ namespace TrenchBroom {
             void render(IndexArray& vertexArray, TextureRenderFunc& func);
         private:
             IndexArrayMap& findCurrent(const Texture* texture);
-            bool isCurrent(const Texture* texture);
         };
     }
 }
