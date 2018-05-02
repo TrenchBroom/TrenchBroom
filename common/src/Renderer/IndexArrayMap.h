@@ -20,12 +20,7 @@
 #ifndef IndexArrayMap_h
 #define IndexArrayMap_h
 
-#include "Reference.h"
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
-
-#include <map>
-#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -37,41 +32,41 @@ namespace TrenchBroom {
                 size_t offset;
                 size_t capacity;
                 size_t count;
+
+                IndexArrayRange();
                 IndexArrayRange(size_t i_offset, size_t i_capacity);
                 
                 size_t add(size_t count);
             };
-            
-            typedef std::map<PrimType, IndexArrayRange> PrimTypeToRangeMap;
-        private:
-            typedef std::shared_ptr<PrimTypeToRangeMap> PrimTypeToRangeMapPtr;
         public:
             class Size {
             private:
                 friend class IndexArrayMap;
 
-                typedef std::map<PrimType, size_t> PrimTypeToSize;
-                PrimTypeToSize m_sizes;
-                size_t m_indexCount;
+                size_t m_points;
+                size_t m_lines;
+                size_t m_triangles;
+                size_t m_quads;
             public:
                 Size();
-                void inc(const PrimType primType, size_t count);
+                void inc(PrimType primType, size_t count);
                 size_t indexCount() const;
-            private:
-                void initialize(PrimTypeToRangeMap& ranges, size_t baseOffset) const;
             };
         private:
-            PrimTypeToRangeMapPtr m_ranges;
+            IndexArrayRange m_pointsRange;
+            IndexArrayRange m_linesRange;
+            IndexArrayRange m_trianglesRange;
+            IndexArrayRange m_quadsRange;
+
+            void initialize(const Size& size, size_t baseOffset);
         public:
             IndexArrayMap();
-            IndexArrayMap(const Size& size);
+            explicit IndexArrayMap(const Size& size);
             IndexArrayMap(const Size& size, size_t baseOffset);
 
             size_t add(PrimType primType, size_t count);
 
             void render(IndexArray& indexArray) const;
-        private:
-            IndexArrayRange& findRange(PrimType primType);
         };
     }
 }
