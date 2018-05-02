@@ -49,7 +49,8 @@ namespace TrenchBroom {
             
             void addPoint(const Texture* texture, Index i);
             void addPoints(const Texture* texture, const IndexList& indices);
-            
+
+#if 0
             void addLine(const Texture* texture, Index i1, Index i2);
             void addLines(const Texture* texture, const IndexList& indices);
             
@@ -58,12 +59,14 @@ namespace TrenchBroom {
             
             void addQuad(const Texture* texture, Index, Index i1, Index i2, Index i3, Index i4);
             void addQuads(const Texture* texture, const IndexList& indices);
+#endif
             void addQuads(const Texture* texture, Index baseIndex, size_t vertexCount);
-            
+#if 0
             void addPolygon(const Texture* texture, const IndexList& indices);
+#endif
             void addPolygon(const Texture* texture, Index baseIndex, size_t vertexCount);
         private:
-            void add(const Texture* texture, PrimType primType, const IndexList& indices);
+            Index* add(const Texture* texture, PrimType primType, size_t indexCount);
         };
     }
 }

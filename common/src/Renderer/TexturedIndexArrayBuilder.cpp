@@ -19,8 +19,6 @@
 
 #include "TexturedIndexArrayBuilder.h"
 
-#include <algorithm>
-
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexArrayBuilder::TexturedIndexArrayBuilder(const TexturedIndexArrayMap::Size& size) :
@@ -45,9 +43,13 @@ namespace TrenchBroom {
         }
         
         void TexturedIndexArrayBuilder::addPoints(const Texture* texture, const IndexList& indices) {
-            add(texture, GL_POINTS, indices);
+            Index* dest = add(texture, GL_POINTS, indices.size());
+            for (Index index : indices) {
+                *(dest++) = index;
+            }
         }
-        
+
+#if 0
         void TexturedIndexArrayBuilder::addLine(const Texture* texture, const Index i1, const Index i2) {
             const size_t offset = m_ranges.add(texture, GL_LINES, 2);
             m_indices[offset + 0] = i1;
@@ -83,50 +85,44 @@ namespace TrenchBroom {
             assert(indices.size() % 4 == 0);
             add(texture, GL_QUADS, indices);
         }
-        
+#endif
         void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
             assert(vertexCount % 4 == 0);
-            IndexList indices(vertexCount);
+            Index* dest = add(texture, GL_QUADS, vertexCount);
             
-            for (size_t i = 0; i < vertexCount; ++i)
-                indices[i] = baseIndex + static_cast<Index>(i);
-            
-            add(texture, GL_QUADS, indices);
+            for (size_t i = 0; i < vertexCount; ++i) {
+                dest[i] = baseIndex + static_cast<Index>(i);
+            }
         }
-
+#if 0
         void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const IndexList& indices) {
             const size_t count = indices.size();
-            
-            IndexList polyIndices(0);
-            polyIndices.reserve(3 * (count - 2));
+
+            const size_t indexCount = 3 * (count - 2);
+            Index* dest = add(texture, GL_TRIANGLES, indexCount);
             
             for (size_t i = 0; i < count - 2; ++i) {
-                polyIndices.push_back(indices[0]);
-                polyIndices.push_back(indices[i + 1]);
-                polyIndices.push_back(indices[i + 2]);
+                *(dest++) = indices[0];
+                *(dest++) = indices[i + 1];
+                *(dest++) = indices[i + 2];
             }
-            
-            add(texture, GL_TRIANGLES, polyIndices);
         }
-
+#endif
         void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
-            IndexList polyIndices(0);
-            polyIndices.reserve(3 * (vertexCount - 2));
-            
+            const size_t indexCount = 3 * (vertexCount - 2);
+            Index* dest = add(texture, GL_TRIANGLES, indexCount);
+
             for (size_t i = 0; i < vertexCount - 2; ++i) {
-                polyIndices.push_back(baseIndex);
-                polyIndices.push_back(baseIndex + static_cast<Index>(i + 1));
-                polyIndices.push_back(baseIndex + static_cast<Index>(i + 2));
+                *(dest++) = baseIndex;
+                *(dest++) = baseIndex + static_cast<Index>(i + 1);
+                *(dest++) = baseIndex + static_cast<Index>(i + 2);
             }
-            
-            add(texture, GL_TRIANGLES, polyIndices);
         }
 
-        void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexList& indices) {
-            const size_t offset = m_ranges.add(texture, primType, indices.size());
-            IndexList::iterator dest = std::begin(m_indices);
-            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
-            std::copy(std::begin(indices), std::end(indices), dest);
+        TexturedIndexArrayBuilder::Index* TexturedIndexArrayBuilder::add(const Texture* texture, PrimType primType, size_t indexCount) {
+            const size_t offset = m_ranges.add(texture, primType, indexCount);
+
+            return m_indices.data() + offset;
         }
     }
 }
