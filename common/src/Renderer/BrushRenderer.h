@@ -170,7 +170,8 @@ namespace TrenchBroom {
             void renderOpaqueFaces(RenderBatch& renderBatch);
             void renderTransparentFaces(RenderBatch& renderBatch);
             void renderEdges(RenderBatch& renderBatch);
-            
+
+        public:
             void validate();
             void validateVertices();
             void validateIndices();
