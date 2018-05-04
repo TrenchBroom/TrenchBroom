@@ -67,14 +67,12 @@ namespace TrenchBroom {
                 const bool brushSelected = selected(brush);
                 
                 if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushEdge* edge : brush->edges()) {
-                        const Model::BrushFace* first = edge->firstFace()->payload();
-                        const Model::BrushFace* second = edge->secondFace()->payload();
+                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
                         assert(second->brush() == brush);
-                        
+
                         if (brushSelected || selected(first) || selected(second))
                             edgeAcceptor.accept(edge);
-                    }
+                    });
                 }
             }
             
@@ -103,8 +101,9 @@ namespace TrenchBroom {
                 
                 if (brushVisible) {
                     // collect all edges
-                    for (const Model::BrushEdge* edge : brush->edges())
-                         edgeAcceptor.accept(edge);
+                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
+                        edgeAcceptor.accept(edge);
+                    });
                 }
             }
             
@@ -129,14 +128,12 @@ namespace TrenchBroom {
             
             void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
                 if (visible(brush) && !selected(brush)) {
-                    for (const Model::BrushEdge* edge : brush->edges()) {
-                        const Model::BrushFace* first = edge->firstFace()->payload();
-                        const Model::BrushFace* second = edge->secondFace()->payload();
+                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
                         assert(second->brush() == brush);
-                        
+
                         if (!selected(first) && !selected(second))
                             edgeAcceptor.accept(edge);
-                    }
+                    });
                 }
             }
             

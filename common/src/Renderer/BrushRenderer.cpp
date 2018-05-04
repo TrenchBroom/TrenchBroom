@@ -112,8 +112,9 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
-            for (const Model::BrushEdge* edge : brush->edges())
+            brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* firstFace, const Model::BrushFace* secondFace, const Model::Brush* brush){
                 edgeAcceptor.accept(edge);
+            });
         }
         
         
