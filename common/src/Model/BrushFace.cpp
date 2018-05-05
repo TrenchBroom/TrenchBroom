@@ -530,7 +530,7 @@ namespace TrenchBroom {
         }
 
         size_t BrushFace::vertexCount() const {
-            ensure(m_geometry != nullptr, "geometry is null");
+            assert(m_geometry != nullptr);
             return m_geometry->boundary().size();
         }
 
