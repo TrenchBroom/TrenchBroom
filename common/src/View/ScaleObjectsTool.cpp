@@ -387,12 +387,12 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
     
-        Model::Hit ScaleObjectsTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const BBox3& myBounds = bounds();
             
             // origin in bbox
             if (myBounds.contains(pickRay.origin))
-                return Model::Hit::NoHit;
+                return;
 
             Model::PickResult localPickResult;
 
@@ -498,8 +498,10 @@ namespace TrenchBroom {
             else
                 printf("no hit\n");
 #endif
-            
-            return hit;
+
+            if (hit.isMatch()) {
+                pickResult.addHit(hit);
+            }
         }
         
         BBox3 ScaleObjectsTool::bounds() const {

@@ -50,9 +50,7 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
-                const Model::Hit hit = m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
-                if (hit.isMatch())
-                    pickResult.addHit(hit);
+                m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
         

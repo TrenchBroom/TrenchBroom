@@ -151,7 +151,7 @@ namespace TrenchBroom {
             
             bool applies() const;
             
-            Model::Hit pick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
         public:
             BBox3 bounds() const;
         public:
