@@ -110,11 +110,6 @@ namespace TrenchBroom {
             return side.normal;
         }
 
-        static BBoxSide sideForNormal(const Vec3& normal) {
-            assert(normal == normal.firstAxis());
-            return BBoxSide(normal);
-        }
-        
         static std::vector<BBoxEdge> AllEdges() {
             std::vector<BBoxEdge> result;
             result.reserve(12);
@@ -171,25 +166,6 @@ namespace TrenchBroom {
         static Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge edge) {
             return Edge3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
-        }
-
-        static size_t axisIndexParallelToBBoxEdge(const BBoxEdge edge) {
-            size_t answer = 0;
-            size_t timesSet = 0;
-            for (size_t i = 0; i < 3; ++i) {
-                if (edge.point0[i] != edge.point1[i]) {
-                    answer = i;
-                    ++timesSet;
-                }
-            }
-            assert(timesSet == 1);
-            return answer;
-        }
-        
-        static Vec3 normalForBBoxEdge(const BBoxEdge edge) {
-            const Vec3 corner0Normal = edge.point0;
-            const Vec3 corner1Normal = edge.point1;
-            return (corner0Normal + corner1Normal).normalized();
         }
 
         static Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide side) {
