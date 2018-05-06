@@ -74,10 +74,6 @@ namespace TrenchBroom {
             } else {
                 m_tool->setShearing(shear);
             }
-
-//            if (!anyToolDragging(inputState))
-//                m_tool->updateDragFaces(inputState.pickResult());
-
         }
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
@@ -131,11 +127,7 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            
-            
-            // regular indicators
-            
-            if (m_tool->isShearing()) { // && thisToolDragging()
+            if (m_tool->isShearing()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 
                 // render sheared box
@@ -167,8 +159,6 @@ namespace TrenchBroom {
                 for (const Vec3& corner : m_tool->cornerHandles()) {
                     renderService.renderHandle(corner);
                 }
-                
-                //renderService.renderHandle(m_tool->dragOrigin());
             }
             
             // highlighted stuff
@@ -213,13 +203,6 @@ namespace TrenchBroom {
 
                 renderService.renderCoordinateSystem(BBox3f(radius).translated(m_tool->dragAnchor()));
             }
-
-            {
-                // debugging point
-//                Renderer::RenderService renderService(renderContext, renderBatch);
-//                renderService.setForegroundColor(Color(0, 255, 255));
-//                renderService.renderHandle(m_tool->handlePos());
-            }
         }
         
         bool ScaleObjectsToolController::doCancel() {
@@ -228,9 +211,6 @@ namespace TrenchBroom {
         
         bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
             return m_tool->applies();
-//            return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-//                     inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
-//                    m_tool->applies());
         }
     }
 }
