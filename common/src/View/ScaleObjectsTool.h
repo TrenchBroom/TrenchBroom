@@ -132,14 +132,7 @@ namespace TrenchBroom {
              */
             BBox3 m_bboxAtDragStart;
             bool m_isShearing;
-
-            /**
-             * Modifier key state
-             */
             AnchorPos m_anchorPos;
-            /**
-             * Modifier key state
-             */
             bool m_scaleAllAxes;
         public: // debug only
             
