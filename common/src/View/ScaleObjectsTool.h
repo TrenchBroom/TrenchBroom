@@ -146,7 +146,7 @@ namespace TrenchBroom {
             Vec3 dragOrigin() const { return m_dragOrigin; }
             
         public:
-            ScaleObjectsTool(MapDocumentWPtr document);
+            explicit ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool() override;
             
             bool applies() const;
@@ -154,22 +154,15 @@ namespace TrenchBroom {
             Model::Hit pick(const Ray3& pickRay, const Renderer::Camera& camera, const Model::PickResult& pickResult);
         public:
             BBox3 bounds() const;
-        private:
-            class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
         public:
         
-            std::vector<Polygon3> bboxFaces() const;
-            
-            // getting highlighted hanles
-            std::vector<Polygon3f> polygonsHighlightedByProportionalDrag() const;
+            // getting highlighted handles
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
             Vec3 handlePos() const {
                 return m_handlePos;
             }
-            
-            
+
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;
             
@@ -188,7 +181,6 @@ namespace TrenchBroom {
              */
             BBox3 bboxAtDragStart() const;
 
-
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
             /**
@@ -200,9 +192,7 @@ namespace TrenchBroom {
             
             // regular handles
             Vec3::List cornerHandles() const;
-            
-//            Vec3 dragPolygonNormal() const;
-            
+
             void updateDragFaces(const Model::PickResult& pickResult);
 
             // persist the state of modifier keys
@@ -212,14 +202,9 @@ namespace TrenchBroom {
             void setScaleAllAxes(bool allAxes);
             bool scaleAllAxes() const;
 
-        private:
-//            Polygon3 getDragPolygon(const Model::Hit& hit) const;
-            class MatchFaceBoundary;
-            Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
-            Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool vertical);
+            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, bool vertical);
             
             void commitResize();
             void cancelResize();

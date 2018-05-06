@@ -45,7 +45,7 @@ namespace TrenchBroom {
         const Model::Hit::HitType ScaleObjectsTool::ScaleToolEdgeHit = Model::Hit::freeHitType();
         const Model::Hit::HitType ScaleObjectsTool::ScaleToolCornerHit = Model::Hit::freeHitType();
 
-        static bool BBoxSide::validSideNormal(const Vec3& n) {
+        bool BBoxSide::validSideNormal(const Vec3& n) {
             for (size_t i = 0; i < 3; ++i) {
                 Vec3 expected = Vec3::Null;
                 expected[i] = 1.0;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        explicit BBoxSide::BBoxSide(const Vec3& n)
+        BBoxSide::BBoxSide(const Vec3& n)
                 : normal(n) {
             if (!validSideNormal(n)) {
                 throw std::invalid_argument("BBoxSide created with invalid normal " + n.asString());
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return normal < other.normal;
         }
 
-        static bool BBoxCorner::validCorner(const Vec3& c) {
+        bool BBoxCorner::validCorner(const Vec3& c) {
             // all components must be either +1 or -1
             for (size_t i = 0; i < 3; ++i) {
                 if (!(c[i] == -1.0 || c[i] == 1.0)) {
@@ -77,13 +77,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        explicit BBoxCorner::BBoxCorner(const Vec3& c) : corner(c) {
+        BBoxCorner::BBoxCorner(const Vec3& c) : corner(c) {
             if (!validCorner(c)) {
                 throw std::invalid_argument("BBoxCorner created with invalid corner " + c.asString());
             }
         }
 
-        explicit BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
+        BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
                 throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
             }
@@ -151,11 +151,6 @@ namespace TrenchBroom {
                 res[i] = (corner.corner[i] == 1.0) ? box.max[i] : box.min[i];
             }
             return res;
-        }
-        
-        static Vec3 normalForBBoxCorner(const BBoxCorner corner) {
-            // HACK: Due to the representation of corners, all we need to do is normalize it
-            return corner.corner.normalized();
         }
         
         static BBoxSide oppositeSide(const BBoxSide side) {
@@ -231,35 +226,6 @@ namespace TrenchBroom {
         }
 
         // manipulating bboxes
-
-#if 0
-        static BBox3 moveBBoxGeneral(const BBox3& in,
-                                     const Vec3& dragLineStart,
-                                     const Vec3& dragLineEnd,
-                                     const size_t numAxes) {
-
-            const Vec3 resizeDir = (dragLineEnd - dragLineStart).normalized();
-            const std::array<size_t, 3> axes {
-                    resizeDir.firstComponent(),
-                    resizeDir.secondComponent(),
-                    resizeDir.thirdComponent()
-            };
-
-            Vec3 newSize = in.size();
-
-            assert(numAxes >= 1 && numAxes <= 3);
-
-            for (size_t i = 0; i < numAxes; ++i) {
-                const size_t axisIndex = axes[i];
-                newSize[axisIndex] = std::abs(dragLineEnd[axisIndex] - dragLineStart[axisIndex]);
-            }
-
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, dragLineStart);
-
-            return BBox3(matrix * in.min, matrix * in.max);
-        }
-#endif
-
 
         BBox3 moveBBoxFace(const BBox3& in,
                            const BBoxSide side,
@@ -776,29 +742,13 @@ namespace TrenchBroom {
             eachBBoxVertex(bounds(), op);
             return result;
         }
-        
-//        Vec3 ScaleObjectsTool::dragPolygonNormal() const {
-//            Plane3 plane;
-//            if (!getPlane(m_dragPolygon.begin(), m_dragPolygon.end(), plane))
-//                return Vec3(0,0,0);
-//
-//            return plane.normal;
-//        }
-        
-      void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {          
+
+        void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
             const Model::Hit& hit = pickResult.query().type(ScaleToolFaceHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
 
             // hack for highlighting on mouseover
             m_dragStartHit = hit;
-          
-//
-//            auto newDragFaces = getDragPolygon(hit);
-//            //if (newDragFaces != m_dragPolygon)
-//                refreshViews();
-//
-//            //m_dragPolygon = newDragFaces;
-          
-      }
+        }
 
         void ScaleObjectsTool::setAnchorPos(const AnchorPos pos) {
             m_anchorPos = pos;
@@ -811,63 +761,9 @@ namespace TrenchBroom {
         void ScaleObjectsTool::setScaleAllAxes(bool allAxes) {
             m_scaleAllAxes = allAxes;
         }
+
         bool ScaleObjectsTool::scaleAllAxes() const {
             return m_scaleAllAxes;
-        }
-
-        
-//        BBoxSide ScaleObjectsTool::getDragPolygon(const Model::Hit& hit) const {
-//            if (!hit.isMatch()) return Polygon3();
-//
-//            const BBoxSide index = hit.target<BBoxSide>();
-//            printf("hit out: %d\n", static_cast<int>(index));
-//
-//            return polygonForBBoxSide(bounds(), index);
-//        }
-        
-//        class ScaleObjectsTool::MatchFaceBoundary {
-//        private:
-//            const Model::BrushFace* m_reference;
-//        public:
-//            MatchFaceBoundary(const Model::BrushFace* reference) :
-//            m_reference(reference) {
-//                ensure(m_reference != nullptr, "reference is null");
-//            }
-//
-//            bool operator()(Model::BrushFace* face) const {
-//                return face != m_reference && face->boundary().equals(m_reference->boundary());
-//            }
-//        };
-        
-        Model::BrushFaceList ScaleObjectsTool::collectDragFaces(const Model::Hit& hit) const {
-            assert(hit.isMatch());
-//            assert(hit.type() == ScaleHit2D || hit.type() == ScaleHit3D);
-
-            Model::BrushFaceList result;
-//            if (hit.type() == ScaleHit2D) {
-//                const Model::BrushFaceList& faces = hit.target<Model::BrushFaceList>();
-//                assert(!faces.empty());
-//                VectorUtils::append(result, faces);
-//                VectorUtils::append(result, collectDragFaces(faces[0]));
-//                if (faces.size() > 1)
-//                    VectorUtils::append(result, collectDragFaces(faces[1]));
-//            } else {
-//                Model::BrushFace* face = hit.target<Model::BrushFace*>();
-//                result.push_back(face);
-//                VectorUtils::append(result, collectDragFaces(face));
-//            }
-
-            return result;
-        }
-        
-        Model::BrushFaceList ScaleObjectsTool::collectDragFaces(Model::BrushFace* face) const {
-            return {};
-//            Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
-//
-//            MapDocumentSPtr document = lock(m_document);
-//            const Model::NodeList& nodes = document->selectedNodes().nodes();
-//            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
-//            return visitor.faces();
         }
         
         bool ScaleObjectsTool::beginResize(const Model::PickResult& pickResult) {
@@ -888,12 +784,7 @@ namespace TrenchBroom {
                 printf("start corner\n");
             else
                 assert(0);
-            
-//            m_dragSide = hit.target<BBoxSide>();
-//            std::cout << "initial hitpoint: " << hit.hitPoint() << " drag side: " << m_dragSide.normal.asString() << "\n";
-            
-         //   m_splitBrushes = split;
-            
+
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Resize Brushes");
             m_resizing = true;
@@ -902,14 +793,6 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool vertical) {
-//            assert(!m_dragFaces.empty());
-//            assert(hasDragPolygon());
-//
-//            Model::BrushFace* dragFace = m_dragFaces.front();
-            
-//            printf("proportional %d vertical %d shear %d\n",
-//                   (int)proportional, (int)vertical, (int)m_isShearing);
-            
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
            
@@ -1033,101 +916,6 @@ namespace TrenchBroom {
                     }
                 }
                 return true;
-
-#if 0
-                const Vec3 deltaUnsnapped = line.pointAtDistance(distance.lineDistance);
-                const Vec3 handlePosSnapped = grid.snap(handlePosUnsnapped, resizeLine);
-
-
-                // now, convert the snapped mouse position to a delta.
-                const Vec3 delta = handlePosSnapped - m_dragOrigin;
-
-                if (delta.null()) {
-                    return true;
-                }
-
-                const Vec3 actualEnd = resizeEnd + delta;
-                {
-                    const FloatType dragDist = resizeLine.distance(actualEnd);
-                    if (dragDist < 0.0) {
-                        std::cout << "can't collapse bbox\n";
-                        return true;
-                    }
-                }
-                m_handlePos = actualEnd;
-
-                // convert
-
-                // only do sides for now
-                BBox3 newBbox;
-
-                if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    const auto side = m_dragStartHit.target<BBoxSide>();
-                    newBbox = moveBBoxFace(m_bboxAtDragStart, side, delta, proportional);
-                } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-                    const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, delta, proportional);
-                } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-                    const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, delta);
-                } else
-                    assert(0);
-
-                if (newBbox.empty()) {
-                    std::cout << "skipping because empty\n";
-                } else {
-                    if (document->scaleObjects(bounds(), newBbox)) {
-                        m_totalDelta += Vec3(1,0,0); // FIXME:
-                        //m_dragOrigin += faceDelta;
-
-                        // update the ref point for the next iteration
-                        m_dragOrigin = hitPoint;
-                    }
-                }
-                return true;
-#endif
-
-#if 0
-                std::cout << "ScaleObjectsTool::resize with start bbox: "
-                << m_bboxAtDragStart.min.asString() << "->"
-                << m_bboxAtDragStart.max.asString() << "\n";
-                //                        << " side: " << m_dragSide.normal.asString() << "\n";
-                
-
-                
-                const Vec3 relativeFaceDelta = dragDist * resizeLine.direction; //grid.snap(dragDist * resizeLine.direction, resizeLine);
-                //const Vec3 relativeFaceDelta = grid.snap(dragDist) * dragDir;
-                //const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
-                
-                const Vec3 faceDelta = relativeFaceDelta;//selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-                
-                BBox3 newBbox;
-                if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    const auto side = m_dragStartHit.target<BBoxSide>();
-                    newBbox = moveBBoxFace(m_bboxAtDragStart, side, faceDelta);
-                } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
-                    const auto edge = m_dragStartHit.target<BBoxEdge>();
-                    newBbox = moveBBoxEdge(m_bboxAtDragStart, edge, faceDelta);
-                } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
-                    const auto corner = m_dragStartHit.target<BBoxCorner>();
-                    newBbox = moveBBoxCorner(m_bboxAtDragStart, corner, faceDelta);
-                } else
-                    assert(0);
-
-                std::cout << "ScaleObjectsTool new bbox: "
-                << newBbox.min.asString() << "->"
-                << newBbox.max.asString() << "\n";
-                
-                std::cout << "make resize with delta: " << faceDelta << "\n";
-                if (newBbox.empty()) {
-                    std::cout << "skipping because empty\n";
-                } else {
-                    if (document->scaleObjects(bounds(), newBbox)) {
-                        m_totalDelta += faceDelta;
-                        //m_dragOrigin += faceDelta;
-                    }
-                }
-#endif
             } else {
                 // shear
                 if (m_dragStartHit.type() == ScaleToolFaceHit) {
@@ -1188,18 +976,17 @@ namespace TrenchBroom {
         
         void ScaleObjectsTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
-            if (m_totalDelta.null())
+            if (m_totalDelta.null()) {
                 document->cancelTransaction();
-            else
+            } else {
                 document->commitTransaction();
-//            m_dragFaces.clear();
+            }
             m_resizing = false;
         }
         
         void ScaleObjectsTool::cancelResize() {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
-//            m_dragFaces.clear();
             m_resizing = false;
         }
         
@@ -1222,13 +1009,9 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsTool::nodesDidChange(const Model::NodeList& nodes) {
-//            if (!m_resizing)
-//                m_dragFaces.clear();
         }
         
         void ScaleObjectsTool::selectionDidChange(const Selection& selection) {
-//            if (!m_resizing)
-//                m_dragFaces.clear();
         }
 
         wxWindow* ScaleObjectsTool::doCreatePage(wxWindow* parent) {
