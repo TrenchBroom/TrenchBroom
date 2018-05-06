@@ -45,27 +45,9 @@ namespace TrenchBroom {
         public:
             Vec3 normal;
 
-            static bool validSideNormal(const Vec3& n) {
-                for (size_t i = 0; i < 3; ++i) {
-                    Vec3 expected = Vec3::Null;
-                    expected[i] = 1.0;
-                    if (n == expected || n == -expected) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            explicit BBoxSide(const Vec3& n)
-                    : normal(n) {
-                if (!validSideNormal(n)) {
-                    throw std::invalid_argument("BBoxSide created with invalid normal " + n.asString());
-                }
-            }
-
-            bool operator<(const BBoxSide& other) const {
-                return normal < other.normal;
-            }
+            static bool validSideNormal(const Vec3& n);
+            explicit BBoxSide(const Vec3& n);
+            bool operator<(const BBoxSide& other) const;
         };
         
         /**
@@ -75,21 +57,8 @@ namespace TrenchBroom {
         public:
             Vec3 corner;
 
-            static bool validCorner(const Vec3& c) {
-                // all components must be either +1 or -1
-                for (size_t i = 0; i < 3; ++i) {
-                    if (!(c[i] == -1.0 || c[i] == 1.0)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            explicit BBoxCorner(const Vec3& c) : corner(c) {
-                if (!validCorner(c)) {
-                    throw std::invalid_argument("BBoxCorner created with invalid corner " + c.asString());
-                }
-            }
+            static bool validCorner(const Vec3& c);
+            explicit BBoxCorner(const Vec3& c);
         };
         
         /**
@@ -100,16 +69,8 @@ namespace TrenchBroom {
             Vec3 point0;
             Vec3 point1;
             
-            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
-                if (!BBoxCorner::validCorner(p0)) {
-                    throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
-                }
-                if (!BBoxCorner::validCorner(p1)) {
-                    throw std::invalid_argument("BBoxEdge created with invalid corner " + p1.asString());
-                }
-            }
+            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1);
         };
-
 
         enum class AnchorPos {
             Opposite,
@@ -133,31 +94,6 @@ namespace TrenchBroom {
                            bool proportional,
                            AnchorPos anchor);
 
-        // handle class hierarchy
-        
-        class BBoxHandle {
-        };
-        class CornerHandle : public BBoxHandle {
-        public:
-            BBoxCorner corner;
-            
-            explicit CornerHandle(const BBoxCorner& c) : corner(c) {}
-        };
-        class EdgeHandle : public BBoxHandle {
-        public:
-            BBoxEdge edge;
-            
-            explicit EdgeHandle(const BBoxEdge& e) : edge(e) {}
-        };
-        class FaceHandle : public BBoxHandle {
-        public:
-            BBoxSide side;
-            
-            explicit FaceHandle(const BBoxSide& s) : side(s) {}
-        };
-        
-        
-        
         class ScaleObjectsTool : public Tool {
         private:
             static const Model::Hit::HitType ScaleToolFaceHit;

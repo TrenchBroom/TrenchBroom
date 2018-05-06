@@ -44,7 +44,54 @@ namespace TrenchBroom {
         const Model::Hit::HitType ScaleObjectsTool::ScaleToolFaceHit = Model::Hit::freeHitType();
         const Model::Hit::HitType ScaleObjectsTool::ScaleToolEdgeHit = Model::Hit::freeHitType();
         const Model::Hit::HitType ScaleObjectsTool::ScaleToolCornerHit = Model::Hit::freeHitType();
-        
+
+        static bool BBoxSide::validSideNormal(const Vec3& n) {
+            for (size_t i = 0; i < 3; ++i) {
+                Vec3 expected = Vec3::Null;
+                expected[i] = 1.0;
+                if (n == expected || n == -expected) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        explicit BBoxSide::BBoxSide(const Vec3& n)
+                : normal(n) {
+            if (!validSideNormal(n)) {
+                throw std::invalid_argument("BBoxSide created with invalid normal " + n.asString());
+            }
+        }
+
+        bool BBoxSide::operator<(const BBoxSide& other) const {
+            return normal < other.normal;
+        }
+
+        static bool BBoxCorner::validCorner(const Vec3& c) {
+            // all components must be either +1 or -1
+            for (size_t i = 0; i < 3; ++i) {
+                if (!(c[i] == -1.0 || c[i] == 1.0)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        explicit BBoxCorner::BBoxCorner(const Vec3& c) : corner(c) {
+            if (!validCorner(c)) {
+                throw std::invalid_argument("BBoxCorner created with invalid corner " + c.asString());
+            }
+        }
+
+        explicit BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
+            if (!BBoxCorner::validCorner(p0)) {
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
+            }
+            if (!BBoxCorner::validCorner(p1)) {
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + p1.asString());
+            }
+        }
+
         static const std::vector<BBoxSide> AllSides() {
             std::vector<BBoxSide> result;
             result.reserve(6);
