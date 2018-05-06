@@ -903,7 +903,7 @@ namespace TrenchBroom {
                     } else if (newBbox == bounds()) {
                         std::cout << "skipping because no change\n";
                     } else {
-                        if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                        if (document->scaleObjects(bounds(), newBbox)) {
                             m_totalDelta += Vec3(1,0,0); // FIXME:
                             //m_dragOrigin += faceDelta;
                         }
@@ -980,7 +980,7 @@ namespace TrenchBroom {
                 } else if (newBbox == bounds()) {
                     std::cout << "skipping because no change\n";
                 } else {
-                    if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                    if (document->scaleObjects(bounds(), newBbox)) {
                         m_totalDelta += Vec3(1,0,0); // FIXME:
                         //m_dragOrigin += faceDelta;
                     }
@@ -1029,7 +1029,7 @@ namespace TrenchBroom {
                 if (newBbox.empty()) {
                     std::cout << "skipping because empty\n";
                 } else {
-                    if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                    if (document->scaleObjects(bounds(), newBbox)) {
                         m_totalDelta += Vec3(1,0,0); // FIXME:
                         //m_dragOrigin += faceDelta;
 
@@ -1075,7 +1075,7 @@ namespace TrenchBroom {
                 if (newBbox.empty()) {
                     std::cout << "skipping because empty\n";
                 } else {
-                    if (document->scaleObjectsBBox(bounds(), newBbox)) {
+                    if (document->scaleObjects(bounds(), newBbox)) {
                         m_totalDelta += faceDelta;
                         //m_dragOrigin += faceDelta;
                     }

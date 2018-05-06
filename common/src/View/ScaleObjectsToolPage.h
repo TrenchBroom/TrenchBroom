@@ -48,6 +48,8 @@ namespace TrenchBroom {
             
             void OnUpdateButton(wxUpdateUIEvent& event);
             void OnApply(wxCommandEvent& event);
+
+            static BBox3 scaleBBoxFromCenter(const BBox3& box, const Vec3& scaleFactors);
         };
     }
 }

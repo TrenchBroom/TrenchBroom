@@ -64,14 +64,24 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
-        
+
         void ScaleObjectsToolPage::OnApply(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
             const Vec3 scaleFactors = Vec3::parse(m_scaleFactors->GetValue().ToStdString());
             
             MapDocumentSPtr document = lock(m_document);
-            document->scaleObjects(document->selectionBounds().min, scaleFactors);
+            const auto box = document->selectionBounds();
+            document->scaleObjects(box, scaleBBoxFromCenter(box, scaleFactors));
+        }
+
+        BBox3 ScaleObjectsToolPage::scaleBBoxFromCenter(const BBox3& box, const Vec3& scaleFactors) {
+            Vec3 newSize;
+            for (size_t i = 0; i < 3; i++) {
+                newSize[i] = box.size()[i] * scaleFactors[i];
+            }
+
+            return BBox3(box.min - (newSize * 0.5), box.max + (newSize * 0.5));
         }
     }
 }
