@@ -46,7 +46,6 @@ namespace TrenchBroom {
                 size_t m_points;
                 size_t m_lines;
                 size_t m_triangles;
-                size_t m_quads;
             public:
                 Size();
                 void inc(PrimType primType, size_t count);
@@ -56,7 +55,6 @@ namespace TrenchBroom {
             IndexArrayRange m_pointsRange;
             IndexArrayRange m_linesRange;
             IndexArrayRange m_trianglesRange;
-            IndexArrayRange m_quadsRange;
 
             void initialize(const Size& size, size_t baseOffset);
         public:

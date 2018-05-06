@@ -46,8 +46,7 @@ namespace TrenchBroom {
         IndexArrayMap::Size::Size() :
                 m_points(0),
                 m_lines(0),
-                m_triangles(0),
-                m_quads(0){}
+                m_triangles(0){}
         
         void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
             switch (primType) {
@@ -60,16 +59,13 @@ namespace TrenchBroom {
                 case GL_TRIANGLES:
                     m_triangles += count;
                     break;
-                case GL_QUADS:
-                    m_quads += count;
-                    break;
                 default:
                     throw std::invalid_argument("Unsupported primitive type " + std::to_string(primType));
             }
         }
 
         size_t IndexArrayMap::Size::indexCount() const {
-            return m_points + m_lines + m_triangles + m_quads;
+            return m_points + m_lines + m_triangles;
         }
 
         void IndexArrayMap::initialize(const Size& size, const size_t baseOffset) {
@@ -83,16 +79,12 @@ namespace TrenchBroom {
 
             m_trianglesRange = IndexArrayRange(offset, size.m_triangles);
             offset += size.m_triangles;
-
-            m_quadsRange = IndexArrayRange(offset, size.m_quads);
-            offset += size.m_quads;
         }
 
         IndexArrayMap::IndexArrayMap() :
                 m_pointsRange(0,0),
                 m_linesRange(0,0),
-                m_trianglesRange(0,0),
-                m_quadsRange(0,0){}
+                m_trianglesRange(0,0){}
 
         IndexArrayMap::IndexArrayMap(const Size& size) {
             initialize(size, 0);
@@ -110,8 +102,6 @@ namespace TrenchBroom {
                     return m_linesRange.add(count);
                 case GL_TRIANGLES:
                     return m_trianglesRange.add(count);
-                case GL_QUADS:
-                    return m_quadsRange.add(count);
                 default:
                     throw std::invalid_argument("Unsupported primitive type " + std::to_string(primType));
             }
@@ -126,9 +116,6 @@ namespace TrenchBroom {
             }
             if (m_trianglesRange.count > 0) {
                 indexArray.render(GL_TRIANGLES, m_trianglesRange.offset, m_trianglesRange.count);
-            }
-            if (m_quadsRange.count > 0) {
-                indexArray.render(GL_QUADS, m_quadsRange.offset, m_quadsRange.count);
             }
         }
     }
