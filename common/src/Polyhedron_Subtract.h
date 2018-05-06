@@ -101,8 +101,8 @@ private:
     }
     
     static PlaneList sortPlanes(PlaneList planes) {
-        typedef typename V::List VList;
-        
+        using VList = typename V::List;
+
         auto it = std::begin(planes);
         it = sortPlanes(it, std::end(planes), VList({ V::PosX, V::PosY, V::PosZ }));
         it = sortPlanes(it, std::end(planes), VList({ V::PosY, V::PosX, V::PosZ }));
