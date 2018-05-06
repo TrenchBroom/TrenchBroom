@@ -104,7 +104,7 @@ namespace TrenchBroom {
             
             assert(result.size() == 6);
             return result;
-        };
+        }
         
         static Vec3 normalForBBoxSide(const BBoxSide side) {
             return side.normal;
@@ -398,7 +398,7 @@ namespace TrenchBroom {
                 }
                 
                 // faces
-                for (const BBoxSide side : AllSides()) {
+                for (const BBoxSide& side : AllSides()) {
                     const auto poly = polygonForBBoxSide(myBounds, side);
                     
                     const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
@@ -531,7 +531,7 @@ namespace TrenchBroom {
         static std::vector<Polygon3f> polysForSides(const BBox3& box,
                                                     const std::vector<BBoxSide>& sides) {
             std::vector<Polygon3f> result;
-            for (const auto side : sides) {
+            for (const auto& side : sides) {
                 result.push_back(Polygon3f(polygonForBBoxSide(box, side)));
             }
             return result;

@@ -178,7 +178,6 @@ namespace TrenchBroom {
             Polygon3f shearHandle() const;
             /**
              * This can only be called when a drag is not in progress
-             * @param shearing
              */
             void setShearing(bool shearing);
             bool isShearing() const;
