@@ -116,7 +116,6 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            
             if (m_tool->isShearing()) {
                 renderContext.setForceHideSelectionGuide();
             }
@@ -128,26 +127,33 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_tool->isShearing()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                
-                // render sheared box
-                renderService.setForegroundColor(Color(0, 255, 0));
-                const auto mat = m_tool->bboxShearMatrix();
-                const auto op = [&](const Vec3& start, const Vec3& end){
-                    renderService.renderLine(mat * start, mat * end);
-                };
-                eachBBoxEdge(m_tool->bboxAtDragStart(), op);
-                
-                // render shear handle
-                
-                const Polygon3f poly = m_tool->shearHandle();
-                if (poly.vertexCount() != 0) {
-                    renderService.setForegroundColor(Color(128, 128, 255));
-                    renderService.renderPolygonOutline(poly.vertices());
-                }
-                return;
+                renderShear(inputState, renderContext, renderBatch);
+            } else {
+                renderScale(inputState, renderContext, renderBatch);
             }
+        }
 
+        void ScaleObjectsToolController::renderShear(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+
+            // render sheared box
+            renderService.setForegroundColor(Color(0, 255, 0));
+            const auto mat = m_tool->bboxShearMatrix();
+            const auto op = [&](const Vec3& start, const Vec3& end){
+                renderService.renderLine(mat * start, mat * end);
+            };
+            eachBBoxEdge(m_tool->bboxAtDragStart(), op);
+
+            // render shear handle
+
+            const Polygon3f poly = m_tool->shearHandle();
+            if (poly.vertexCount() != 0) {
+                renderService.setForegroundColor(Color(128, 128, 255));
+                renderService.renderPolygonOutline(poly.vertices());
+            }
+        }
+
+        void ScaleObjectsToolController::renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // bounds and corner handles
 
             if (!m_tool->bounds().empty())  {
