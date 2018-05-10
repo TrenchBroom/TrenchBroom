@@ -661,6 +661,10 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
+            if (bounds().empty()) {
+                return false;
+            }
+
             const auto type = m_dragStartHit.type();
             return type == ScaleToolEdgeHit
                    || type == ScaleToolCornerHit
