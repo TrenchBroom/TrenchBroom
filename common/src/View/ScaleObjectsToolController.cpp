@@ -30,6 +30,7 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
 
@@ -189,7 +190,8 @@ namespace TrenchBroom {
 
             // draw anchor crosshair
             if (m_tool->hasDragAnchor()) {
-                const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+                const float scale = renderContext.camera().perspectiveScalingFactor(m_tool->dragAnchor());
+                const float radius = 32.0f * scale;
 
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setShowOccludedObjects();
