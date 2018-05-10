@@ -48,12 +48,6 @@ namespace TrenchBroom {
             return m_tool;
         }
         
-        void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
-                m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
-            }
-        }
-        
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
 
             const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
@@ -210,6 +204,24 @@ namespace TrenchBroom {
         
         bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
             return m_tool->applies();
+        }
+        
+        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
+        ScaleObjectsToolController(tool) {}
+        
+        void ScaleObjectsToolController2D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            if (handleInput(inputState)) {
+                m_tool->pick2D(inputState.pickRay(), inputState.camera(), pickResult);
+            }
+        }
+        
+        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
+        ScaleObjectsToolController(tool) {}
+        
+        void ScaleObjectsToolController3D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            if (handleInput(inputState)) {
+                m_tool->pick3D(inputState.pickRay(), inputState.camera(), pickResult);
+            }
         }
     }
 }

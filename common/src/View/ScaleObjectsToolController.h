@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class ScaleObjectsTool;
         
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
-        private:
+        protected:
             ScaleObjectsTool* m_tool;
         public:
             ScaleObjectsToolController(ScaleObjectsTool* tool);
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool() override;
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override = 0;
             
             void doModifierKeyChange(const InputState& inputState) override;
             
@@ -65,10 +65,26 @@ namespace TrenchBroom {
             void renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel() override;
-            
+
+        protected:
             bool handleInput(const InputState& inputState) const;
-            
+
+        private:
             bool updateResize(const InputState& inputState);
+        };
+        
+        class ScaleObjectsToolController2D : public ScaleObjectsToolController {
+        public:
+            ScaleObjectsToolController2D(ScaleObjectsTool* tool);
+        private:
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
+        };
+        
+        class ScaleObjectsToolController3D : public ScaleObjectsToolController {
+        public:
+            ScaleObjectsToolController3D(ScaleObjectsTool* tool);
+        private:
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
         };
     }
 }

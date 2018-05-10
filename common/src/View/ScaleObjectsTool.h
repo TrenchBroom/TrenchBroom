@@ -143,8 +143,10 @@ namespace TrenchBroom {
             ~ScaleObjectsTool() override;
             
             bool applies() const;
-            
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+
+            void pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
         public:
             BBox3 bounds() const;
         public:

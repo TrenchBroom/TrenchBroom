@@ -362,77 +362,17 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             return !document->selectedNodes().empty();
         }
-    
-        void ScaleObjectsTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+
+        void ScaleObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const BBox3& myBounds = bounds();
-            
-            // origin in bbox
-            if (myBounds.contains(pickRay.origin))
-                return;
 
-            Model::PickResult localPickResult;
+            // select back faces. Used for both 2D and 3D.
+            if (pickResult.empty()) {
 
-            // these handles only work in 3D.
-            if (camera.perspectiveProjection()) {
-                // corners
-                for (const BBoxCorner& corner : AllCorners()) {
-                    const Vec3 point = pointForBBoxCorner(myBounds, corner);
-                    
-                    // make the spheres for the corner handles slightly larger than the
-                    // cylinders of the edge handles, so they take priority where they overlap.
-                    const FloatType cornerRadius = pref(Preferences::HandleRadius) * 2.0;
-                    const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
-                    if (!Math::isnan(dist)) {
-                        localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
-                    }
-                }
-                
-                // edges
-                for (const BBoxEdge& edge : AllEdges()) {
-                    const Edge3 points = pointsForBBoxEdge(myBounds, edge);
-                    
-                    const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
-                    if (!Math::isnan(dist)) {
-                        localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
-                    }
-                }
-                
-                // faces
-                for (const BBoxSide& side : AllSides()) {
-                    const auto poly = polygonForBBoxSide(myBounds, side);
-                    
-                    const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
-                    if (!Math::isnan(dist)) {
-                        localPickResult.addHit(Model::Hit(ScaleToolFaceHit, dist, pickRay.pointAtDistance(dist), side));
-                    }
-                }
-            }
-            
-            // bbox corners in 2d views
-            if (camera.orthographicProjection()) {
-                for (const BBoxEdge& edge : AllEdges()) {
-                    const Edge3 points = pointsForBBoxEdge(myBounds, edge);
-                    
-                    // in 2d views, only use edges that are parallel to the camera
-                    if (points.direction().parallelTo(camera.direction())) {
-                        // could figure out which endpoint is closer to camera, or just test both.
-                        for (const Vec3& point : Vec3::List{points.start(), points.end()}) {
-                            const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                            if (!Math::isnan(dist)) {
-                                localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
-                            }
-                        }
-                    }
-                }
-            }
-
-            // select back faces
-            if (localPickResult.empty()) {
-                
                 FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
                 FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
                 Vec3 bestNormal;
-                
+
                 // idea is: find the closest point on an edge of the cube, belonging
                 // to a face that's facing away from the pick ray.
                 auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
@@ -440,7 +380,7 @@ namespace TrenchBroom {
                     if (cosAngle >= 0.0 && cosAngle < 1.0) {
                         // the face is pointing away from the camera (or exactly perpendicular)
                         // but not equal to the camera direction (important for 2D views)
-                        
+
                         const std::array<Vec3, 4> points{p0, p1, p2, p3};
                         for (size_t i = 0; i < 4; i++) {
                             const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
@@ -457,11 +397,40 @@ namespace TrenchBroom {
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(bestNormal != Vec3::Null);
-                localPickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
-                
+                pickResult.addHit(Model::Hit(ScaleToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
+
                 //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
-            
+        }
+
+        void ScaleObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            const BBox3& myBounds = bounds();
+
+            // origin in bbox
+            if (myBounds.contains(pickRay.origin))
+                return;
+
+            Model::PickResult localPickResult;
+
+            // bbox corners in 2d views
+            assert(camera.orthographicProjection());
+            for (const BBoxEdge& edge : AllEdges()) {
+                const Edge3 points = pointsForBBoxEdge(myBounds, edge);
+
+                // in 2d views, only use edges that are parallel to the camera
+                if (points.direction().parallelTo(camera.direction())) {
+                    // could figure out which endpoint is closer to camera, or just test both.
+                    for (const Vec3& point : Vec3::List{points.start(), points.end()}) {
+                        const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                        if (!Math::isnan(dist)) {
+                            localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
+                        }
+                    }
+                }
+            }
+
+            pickBackSides(pickRay, camera, localPickResult);
+
             auto hit = localPickResult.query().first();
 
 #if 0
@@ -479,7 +448,73 @@ namespace TrenchBroom {
                 pickResult.addHit(hit);
             }
         }
-        
+
+        void ScaleObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            const BBox3& myBounds = bounds();
+
+            // origin in bbox
+            if (myBounds.contains(pickRay.origin))
+                return;
+
+            Model::PickResult localPickResult;
+
+            // these handles only work in 3D.
+            assert(camera.perspectiveProjection());
+
+            // corners
+            for (const BBoxCorner& corner : AllCorners()) {
+                const Vec3 point = pointForBBoxCorner(myBounds, corner);
+
+                // make the spheres for the corner handles slightly larger than the
+                // cylinders of the edge handles, so they take priority where they overlap.
+                const FloatType cornerRadius = pref(Preferences::HandleRadius) * 2.0;
+                const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
+                if (!Math::isnan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
+                }
+            }
+
+            // edges
+            for (const BBoxEdge& edge : AllEdges()) {
+                const Edge3 points = pointsForBBoxEdge(myBounds, edge);
+
+                const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
+                if (!Math::isnan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
+                }
+            }
+
+            // faces
+            for (const BBoxSide& side : AllSides()) {
+                const auto poly = polygonForBBoxSide(myBounds, side);
+
+                const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
+                if (!Math::isnan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolFaceHit, dist, pickRay.pointAtDistance(dist), side));
+                }
+            }
+
+            pickBackSides(pickRay, camera, localPickResult);
+
+            auto hit = localPickResult.query().first();
+
+#if 0
+            if (hit.type() == ScaleToolFaceHit)
+                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
+            else if (hit.type() == ScaleToolEdgeHit)
+                printf("hit edge\n");
+            else if (hit.type() == ScaleToolCornerHit)
+                printf("hit corner\n");
+            else
+                printf("no hit\n");
+#endif
+
+            if (hit.isMatch()) {
+                pickResult.addHit(hit);
+            }
+        }
+
+
         BBox3 ScaleObjectsTool::bounds() const {
             MapDocumentSPtr document = lock(m_document);
             return document->selectionBounds();
