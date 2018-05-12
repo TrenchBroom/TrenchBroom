@@ -42,8 +42,8 @@ namespace TrenchBroom {
         protected:
             ScaleObjectsTool* m_tool;
         public:
-            ScaleObjectsToolController(ScaleObjectsTool* tool);
-            virtual ~ScaleObjectsToolController() override;
+            explicit ScaleObjectsToolController(ScaleObjectsTool* tool);
+            ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
             
@@ -75,14 +75,14 @@ namespace TrenchBroom {
         
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
         public:
-            ScaleObjectsToolController2D(ScaleObjectsTool* tool);
+            explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
         };
         
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
-            ScaleObjectsToolController3D(ScaleObjectsTool* tool);
+            explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool);
         private:
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
         };

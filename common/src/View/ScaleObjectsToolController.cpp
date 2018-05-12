@@ -43,7 +43,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
         
-        ScaleObjectsToolController::~ScaleObjectsToolController() {}
+        ScaleObjectsToolController::~ScaleObjectsToolController() = default;
         
         Tool* ScaleObjectsToolController::doGetTool() {
             return m_tool;
