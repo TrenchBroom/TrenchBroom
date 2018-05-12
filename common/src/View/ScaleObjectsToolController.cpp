@@ -188,6 +188,7 @@ namespace TrenchBroom {
                 renderService.renderHandleHighlight(corner);
             }
 
+#if 0
             // draw anchor crosshair
             if (m_tool->hasDragAnchor()) {
                 const float scale = renderContext.camera().perspectiveScalingFactor(m_tool->dragAnchor());
@@ -198,6 +199,7 @@ namespace TrenchBroom {
 
                 renderService.renderCoordinateSystem(BBox3f(radius).translated(m_tool->dragAnchor()));
             }
+#endif
         }
         
         bool ScaleObjectsToolController::doCancel() {
