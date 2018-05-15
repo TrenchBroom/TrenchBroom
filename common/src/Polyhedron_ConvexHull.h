@@ -700,9 +700,12 @@ typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const Splitti
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
     assert(seam.size() >= 3);
-    if (seam.hasMultipleLoops())
+#ifndef NDEBUG
+    if (seam.hasMultipleLoops()) {
         seam.print();
+    }
     assert(!seam.hasMultipleLoops());
+#endif
     
     // First, unset the second half edge of every seam edge.
     // Thereby remember the second half edge of the first seam edge.
