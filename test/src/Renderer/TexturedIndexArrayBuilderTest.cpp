@@ -33,6 +33,7 @@
 #include <chrono>
 #include <string>
 #include <iostream>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -93,6 +94,47 @@ namespace TrenchBroom {
                 r.addBrushes(brushes);
                 timeLambda([&](){ r.validate(); }, "validate");
             }
+
+            timeLambda([&](){
+                std::vector<int> payloads;
+                payloads.reserve(1536000);
+
+                int edges = 0;
+                for (const auto* brush : brushes) {
+                    brush->visitEdges([&](const Model::BrushEdge* edge,
+                                          const Model::BrushFace* f1,
+                                          const Model::BrushFace* f2,
+                                          const Model::Brush* b){
+                        payloads.push_back(edge->firstVertex()->payload());
+                        payloads.push_back(edge->secondVertex()->payload());
+                        edges++;
+                    });
+                }
+                printf("visited %d edges of %d brushes\n", edges, (int)brushes.size());
+                }, "iter all edges");
+
+            // let's try an "efficient" version
+
+            std::vector<std::tuple<const Model::BrushEdge*, int, int, Model::BrushFace*, Model::BrushFace*, const Model::Brush*>> edges;
+            for (const Model::Brush* brush : brushes) {
+                for (const Model::BrushEdge* edge : brush->edges()) {
+                    edges.push_back(std::make_tuple(edge, edge->firstVertex()->payload(), edge->secondVertex()->payload(),
+                                                    edge->firstFace()->payload(), edge->secondFace()->payload(), brush));
+                }
+            }
+
+            timeLambda([&](){
+                std::vector<int> payloads;
+                payloads.reserve(1536000);
+
+                int eCnt = 0;
+                for (const auto& edgePack : edges) {
+                    eCnt++;
+                    payloads.push_back(std::get<1>(edgePack));
+                    payloads.push_back(std::get<2>(edgePack));
+                }
+                printf("visited %d edges of %d brushes. got %d verts\n", eCnt, (int)brushes.size(), (int)payloads.size());
+            }, "iter efficient edges");
 
             VectorUtils::clearAndDelete(brushes);
         }
