@@ -51,33 +51,17 @@ namespace TrenchBroom {
         public:
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushSelected = selected(brush);
-                
-                if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushFace* face : brush->faces()) {
-                        if (brushSelected || selected(face))
-                            faceAcceptor.accept(face);
-                    }
-                }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                const bool brushSelected = selected(brush);
-                
-                if (visible(brush) && editable(brush)) {
-                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
-                        assert(second->brush() == brush);
 
-                        if (brushSelected || selected(first) || selected(second))
-                            edgeAcceptor.accept(edge);
-                    });
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                if (!(visible(brush) && editable(brush))) {
+                    return renderNothing();
                 }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return false;
+
+                const bool brushSelected = selected(brush);
+                for (Model::BrushFace* face : brush->faces()) {
+                    face->setMarked(brushSelected || selected(face));
+                }
+                return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
         };
         
@@ -85,30 +69,19 @@ namespace TrenchBroom {
         public:
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                
-                if (brushVisible) {
+
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                if (!visible(brush)) {
+                    return renderNothing();
+                }
+
+                for (Model::BrushFace* face : brush->faces()) {
                     // collect all faces
-                    for (const Model::BrushFace* face : brush->faces())
-                         faceAcceptor.accept(face);
+                    face->setMarked(true);
                 }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                
-                if (brushVisible) {
-                    // collect all edges
-                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
-                        edgeAcceptor.accept(edge);
-                    });
-                }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return brush->transparent();
+                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
+                                       FaceRenderPolicy::RenderMarked,
+                                       EdgeRenderPolicy::RenderAll);
             }
         };
         
@@ -116,29 +89,24 @@ namespace TrenchBroom {
         public:
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushFace* face : brush->faces()) {
-                        if (!selected(face))
-                            faceAcceptor.accept(face);
-                    }
-                }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                if (visible(brush) && !selected(brush)) {
-                    brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* first, const Model::BrushFace* second, const Model::Brush* brush){
-                        assert(second->brush() == brush);
 
-                        if (!selected(first) && !selected(second))
-                            edgeAcceptor.accept(edge);
-                    });
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                const bool brushVisible = visible(brush);
+                const bool brushEditable = editable(brush);
+
+                const bool renderFaces = (brushVisible && brushEditable);
+                const bool renderEdges = (brushVisible && !selected(brush));
+
+                if (!(renderFaces || renderEdges)) {
+                    return renderNothing();
                 }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return brush->transparent();
+
+                for (Model::BrushFace* face : brush->faces()) {
+                    face->setMarked(!selected(face));
+                }
+                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
+                                       renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
+                                       renderEdges ? EdgeRenderPolicy::RenderIfBothFacesMarked : EdgeRenderPolicy::RenderNone);
             }
         };
         

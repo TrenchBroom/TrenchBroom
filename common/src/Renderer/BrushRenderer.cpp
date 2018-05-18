@@ -34,9 +34,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BrushRenderer::FaceAcceptor::~FaceAcceptor() {}
-        BrushRenderer::EdgeAcceptor::~EdgeAcceptor() {}
-        
+        // Filter
+
         BrushRenderer::Filter::Filter() {}
         
         BrushRenderer::Filter::Filter(const Filter& other) {}
@@ -45,17 +44,7 @@ namespace TrenchBroom {
         
         BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
 
-        void BrushRenderer::Filter::provideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& collectFace) const {
-            doProvideFaces(brush, collectFace);
-        }
-        
-        void BrushRenderer::Filter::provideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& collectEdge) const {
-            doProvideEdges(brush, collectEdge);
-        }
-        
-        bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  {
-            return doIsTransparent(brush);
-        }
+        // DefaultFilter
 
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
         BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
@@ -104,23 +93,20 @@ namespace TrenchBroom {
             return brush->descendantSelected();
         }
 
+        // NoFilter
+
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
-        void BrushRenderer::NoFilter::doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor& faceAcceptor) const {
-            for (const Model::BrushFace* face : brush->faces())
-                faceAcceptor.accept(face);
+        BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(const Model::Brush* brush) const {
+            for (Model::BrushFace* face : brush->faces()) {
+                face->setMarked(true);
+            }
+            return std::make_tuple(m_transparent ? RenderOpacity::Transparent : RenderOpacity::Opaque,
+                                   FaceRenderPolicy::RenderMarked,
+                                   Model::Brush::EdgeRenderPolicy::RenderAll);
         }
-        
-        void BrushRenderer::NoFilter::doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor& edgeAcceptor) const {
-            brush->visitEdges([&](const Model::BrushEdge* edge, const Model::BrushFace* firstFace, const Model::BrushFace* secondFace, const Model::Brush* brush){
-                edgeAcceptor.accept(edge);
-            });
-        }
-        
-        
-        bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const {
-            return m_transparent;
-        }
+
+        // BrushRenderer
 
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
@@ -254,241 +240,112 @@ namespace TrenchBroom {
             const Filter& m_filter;
             bool m_showHiddenBrushes;
             NoFilter m_noFilter;
+
+            const Filter& resolve() const {
+                if (m_showHiddenBrushes) {
+                    return m_noFilter;
+                } else {
+                    return m_filter;
+                }
+            }
         public:
             FilterWrapper(const Filter& filter, const bool showHiddenBrushes) :
             m_filter(filter),
             m_showHiddenBrushes(showHiddenBrushes),
             m_noFilter(false) {}
-            
-            void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const override {
-                if (m_showHiddenBrushes)
-                    m_noFilter.provideFaces(brush, faceAcceptor);
-                else
-                    m_filter.provideFaces(brush, faceAcceptor);
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const override {
-                if (m_showHiddenBrushes)
-                    m_noFilter.provideEdges(brush, edgeAcceptor);
-                else
-                    m_filter.provideEdges(brush, edgeAcceptor);
-            }
 
-            bool doIsTransparent(const Model::Brush* brush) const override { return m_filter.transparent(brush); }
-        };
-        
-        class BrushRenderer::CountVertices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor {
-        private:
-            const FilterWrapper& m_filter;
-            size_t m_vertexCount;
-        public:
-            CountVertices(const FilterWrapper& filter) :
-            m_filter(filter),
-            m_vertexCount(0) {}
-            
-            size_t vertexCount() const {
-                return m_vertexCount;
-            }
-        private:
-            void doVisit(const Model::World* world) override {}
-            void doVisit(const Model::Layer* layer) override {}
-            void doVisit(const Model::Group* group) override {}
-            void doVisit(const Model::Entity* entity) override {}
-            void doVisit(const Model::Brush* brush) override {
-                countFaceVertices(brush);
-            }
-            
-            void countFaceVertices(const Model::Brush* brush) {
-                m_filter.provideFaces(brush, *this);
-            }
-            
-            void accept(const Model::BrushFace* face) override {
-                m_vertexCount += face->vertexCount();
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                return resolve().markFaces(brush);
             }
         };
 
-        class BrushRenderer::CollectVertices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor {
-        private:
-            const FilterWrapper& m_filter;
-            VertexListBuilder<Model::BrushFace::Vertex::Spec> m_builder;
-        public:
-            CollectVertices(const FilterWrapper& filter, const size_t faceVertexCount) :
-            m_filter(filter),
-            m_builder(faceVertexCount) {}
-            
-            VertexArray vertexArray() {
-                return VertexArray::swap(m_builder.vertices());
-            }
-        private:
-            void doVisit(const Model::World* world) override {}
-            void doVisit(const Model::Layer* layer) override {}
-            void doVisit(const Model::Group* group) override {}
-            void doVisit(const Model::Entity* entity) override {}
-            void doVisit(const Model::Brush* brush) override {
-                collectFaceVertices(brush);
-            }
-            
-            void collectFaceVertices(const Model::Brush* brush) {
-                m_filter.provideFaces(brush, *this);
-            }
-            
-            void accept(const Model::BrushFace* face) override {
-                face->getVertices(m_builder);
-            }
-        };
-        
-        class BrushRenderer::CountIndices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor, public BrushRenderer::EdgeAcceptor {
-        private:
-            bool m_brushTransparent;
-            const FilterWrapper& m_filter;
-            TexturedIndexArrayMap::Size m_opaqueIndexSize;
-            TexturedIndexArrayMap::Size m_transparentIndexSize;
-            IndexArrayMap::Size m_edgeIndexSize;
-        public:
-            CountIndices(const FilterWrapper& filter) :
-            m_filter(filter) {}
-            
-            const TexturedIndexArrayMap::Size& opaqueIndexSize() const {
-                return m_opaqueIndexSize;
-            }
-            
-            const TexturedIndexArrayMap::Size& transparentIndexSize() const {
-                return m_transparentIndexSize;
-            }
-            
-            const IndexArrayMap::Size& edgeIndexSize() const {
-                return m_edgeIndexSize;
-            }
-        private:
-            void doVisit(const Model::World* world) override {}
-            void doVisit(const Model::Layer* layer) override {}
-            void doVisit(const Model::Group* group) override {}
-            void doVisit(const Model::Entity* entity) override {}
-            void doVisit(const Model::Brush* brush) override {
-                countFaceIndices(brush);
-                countEdgeIndices(brush);
-            }
-            
-            void countFaceIndices(const Model::Brush* brush) {
-                // HACK:
-                m_brushTransparent = m_filter.transparent(brush);
-                m_filter.provideFaces(brush, *this);
-            }
-            
-            void accept(const Model::BrushFace* face) override {
-                if (m_brushTransparent)
-                    face->countIndices(m_transparentIndexSize);
-                else
-                    face->countIndices(m_opaqueIndexSize);
-            }
-            
-            void countEdgeIndices(const Model::Brush* brush) {
-                m_filter.provideEdges(brush, *this);
-            }
-            
-            void accept(const Model::BrushEdge* edge) override {
-                m_edgeIndexSize.inc(GL_LINES, 2);
-            }
-        };
-        
-        class BrushRenderer::CollectIndices : public Model::ConstNodeVisitor, public BrushRenderer::FaceAcceptor, public BrushRenderer::EdgeAcceptor {
-        private:
-            bool m_brushTransparent;
-            const FilterWrapper& m_filter;
-            TexturedIndexArrayBuilder m_opaqueFaceIndexBuilder;
-            TexturedIndexArrayBuilder m_transparentFaceIndexBuilder;
-            IndexArrayMapBuilder m_edgeIndexBuilder;
-        public:
-            CollectIndices(const FilterWrapper& filter, const CountIndices& indexSize) :
-            m_filter(filter),
-            m_opaqueFaceIndexBuilder(indexSize.opaqueIndexSize()),
-            m_transparentFaceIndexBuilder(indexSize.transparentIndexSize()),
-            m_edgeIndexBuilder(indexSize.edgeIndexSize()) {}
-            
-            TexturedIndexArrayBuilder& opaqueFaceIndices() {
-                return m_opaqueFaceIndexBuilder;
-            }
-            
-            TexturedIndexArrayBuilder& transparentFaceIndices() {
-                return m_transparentFaceIndexBuilder;
-            }
-            
-            IndexArrayMapBuilder& edgeIndices() {
-                return m_edgeIndexBuilder;
-            }
-        private:
-            void doVisit(const Model::World* world) override {}
-            void doVisit(const Model::Layer* layer) override {}
-            void doVisit(const Model::Group* group) override {}
-            void doVisit(const Model::Entity* entity) override {}
-            void doVisit(const Model::Brush* brush) override {
-                collectFaceIndices(brush);
-                collectEdgeIndices(brush);
-            }
-            
-            void collectFaceIndices(const Model::Brush* brush) {
-                // HACK: cache this now
-                m_brushTransparent = m_filter.transparent(brush);
-                
-                m_filter.provideFaces(brush, *this);
-            }
-            
-            void accept(const Model::BrushFace* face) override {
-                if (m_brushTransparent)
-                    face->getFaceIndices(m_transparentFaceIndexBuilder);
-                else
-                    face->getFaceIndices(m_opaqueFaceIndexBuilder);
-            }
-            
-            void collectEdgeIndices(const Model::Brush* brush) {
-                m_filter.provideEdges(brush, *this);
-            }
-            
-            void accept(const Model::BrushEdge* edge) override {
-                const Model::BrushVertex* v1 = edge->firstVertex();
-                const Model::BrushVertex* v2 = edge->secondVertex();
-                m_edgeIndexBuilder.addLine(v1->payload(), v2->payload());
-            }
-        };
-        
         void BrushRenderer::validate() {
             assert(!m_valid);
-            validateVertices();
-            validateIndices();
-            m_valid = true;
-        }
-        
-        void BrushRenderer::validateVertices() {
+            
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
-            CountVertices countVertices(wrapper);
-            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countVertices);
-            
-            CollectVertices collectVertices(wrapper, countVertices.vertexCount());
-            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectVertices);
-            
-            m_vertexArray = collectVertices.vertexArray();
-        }
-        
-        void BrushRenderer::validateIndices() {
-            const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
-            CountIndices countIndices(wrapper);
-            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), countIndices);
-            
-            CollectIndices collectIndices(wrapper, countIndices);
-            Model::Node::accept(std::begin(m_brushes), std::end(m_brushes), collectIndices);
-            
-            const IndexArray opaqueIndices = IndexArray::swap(collectIndices.opaqueFaceIndices().indices());
-            const TexturedIndexArrayMap& opaqueRanges = collectIndices.opaqueFaceIndices().ranges();
-            
-            const IndexArray transparentIndices = IndexArray::swap(collectIndices.transparentFaceIndices().indices());
-            const TexturedIndexArrayMap& transparentRanges = collectIndices.transparentFaceIndices().ranges();
-            
+
+            // evaluate filter and count vertices
+            // the goal is to only evaluate the filter once per brush.
+            size_t vertexCount = 0;
+            for (const auto *brush : m_brushes) {
+                const auto settings = wrapper.markFaces(brush);
+                brush->setRenderSettings(settings);
+
+                const auto [renderType, facePolicy, edgePolicy] = settings;
+                if (facePolicy != Filter::FaceRenderPolicy::RenderNone ||
+                    edgePolicy != Filter::EdgeRenderPolicy::RenderNone) {
+                    vertexCount += brush->cachedVertexCount();
+                }
+            }
+
+            // collect vertices
+            {
+                VertexListBuilder<Model::Brush::Vertex::Spec> builder(vertexCount);
+                for (const auto *brush : m_brushes) {
+                    const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+
+                    if (facePolicy != Filter::FaceRenderPolicy::RenderNone ||
+                        edgePolicy != Filter::EdgeRenderPolicy::RenderNone) {
+                        brush->getVertices(builder);
+                    }
+                }
+                m_vertexArray = VertexArray::swap(builder.vertices());
+            }
+
+            // count indices
+            TexturedIndexArrayMap::Size opaqueIndexSize;
+            TexturedIndexArrayMap::Size transparentIndexSize;
+            IndexArrayMap::Size edgeIndexSize;
+            for (const auto *brush : m_brushes) {
+                const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+
+                brush->countMarkedEdgeIndices(edgePolicy, edgeIndexSize);
+
+                switch (renderType) {
+                    case Filter::RenderOpacity::Opaque:
+                        brush->countMarkedFaceIndices(facePolicy, opaqueIndexSize);
+                        break;
+                    case Filter::RenderOpacity::Transparent:
+                        brush->countMarkedFaceIndices(facePolicy, transparentIndexSize);
+                        break;
+                }
+            }
+
+            // collect indices
+            TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
+            TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
+            IndexArrayMapBuilder edgeIndexBuilder(edgeIndexSize);
+            for (const auto *brush : m_brushes) {
+                const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+
+                brush->getMarkedEdgeIndices(edgePolicy, edgeIndexBuilder);
+
+                switch (renderType) {
+                    case Filter::RenderOpacity::Opaque:
+                        brush->getMarkedFaceIndices(facePolicy, opaqueFaceIndexBuilder);
+                        break;
+                    case Filter::RenderOpacity::Transparent:
+                        brush->getMarkedFaceIndices(facePolicy, transparentFaceIndexBuilder);
+                        break;
+                }
+            }
+
+            // Move the vertices and indices into the VBO/index buffer wrapper objects.
+            // (they're not actually copied to the GPU until later)
+            const IndexArray opaqueIndices = IndexArray::swap(opaqueFaceIndexBuilder.indices());
+            const TexturedIndexArrayMap& opaqueRanges = opaqueFaceIndexBuilder.ranges();
+
+            const IndexArray transparentIndices = IndexArray::swap(transparentFaceIndexBuilder.indices());
+            const TexturedIndexArrayMap& transparentRanges = transparentFaceIndexBuilder.ranges();
+
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, opaqueIndices, opaqueRanges, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, transparentIndices, transparentRanges, m_faceColor);
-            
-            const IndexArray edgeIndices = IndexArray::swap(collectIndices.edgeIndices().indices());
-            const IndexArrayMap& edgeRanges = collectIndices.edgeIndices().ranges();
+
+            const IndexArray edgeIndices = IndexArray::swap(edgeIndexBuilder.indices());
+            const IndexArrayMap& edgeRanges = edgeIndexBuilder.ranges();
             m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, edgeIndices, edgeRanges);
+
+            m_valid = true;
         }
     }
 }

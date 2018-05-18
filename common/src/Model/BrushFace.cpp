@@ -48,9 +48,7 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(nullptr),
-        m_vertexIndex(0),
-        m_cachedVertices(0),
-        m_verticesValid(false),
+        m_indexOfFirstVertexRelativeToBrush(0),
         m_attribs(attribs) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
@@ -605,31 +603,6 @@ namespace TrenchBroom {
                 m_brush->childWasDeselected();
         }
 
-        void BrushFace::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
-            validateVertexCache();
-            m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
-
-            GLuint index = static_cast<GLuint>(m_vertexIndex);
-            // set the vertex indices
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-            do {
-                BrushVertex* vertex = current->origin();
-                vertex->setPayload(index++);
-                
-                // The boundary is in CCW order, but the renderer expects CW order:
-                current = current->previous();
-            } while (current != first);
-        }
-        
-        void BrushFace::countIndices(Renderer::TexturedIndexArrayMap::Size& size) const {
-            size.inc(texture(), GL_TRIANGLES, 3 * (vertexCount() - 2));
-        }
-
-        void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const {
-            builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
-        }
-
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
@@ -681,31 +654,26 @@ namespace TrenchBroom {
                 m_points[i].correct();
         }
 
-        bool BrushFace::vertexCacheValid() const {
-            return m_verticesValid;
-        }
-        
         void BrushFace::invalidateVertexCache() {
-            m_verticesValid = false;
-        }
-        
-        void BrushFace::validateVertexCache() const {
-            if (!m_verticesValid) {
-                m_cachedVertices.clear();
-                m_cachedVertices.reserve(vertexCount());
-                
-                const BrushHalfEdge* first = m_geometry->boundary().front();
-                const BrushHalfEdge* current = first;
-                do {
-                    const Vec3& position = current->origin()->position();
-                    m_cachedVertices.push_back(Vertex(position, m_boundary.normal, textureCoords(position)));
-                    
-                    // The boundary is in CCW order, but the renderer expects CW order:
-                    current = current->previous();
-                } while (current != first);
-                
-                m_verticesValid = true;
+            if (m_brush != nullptr) {
+                m_brush->invalidateVertexCache();
             }
+        }
+
+        size_t BrushFace::indexOfFirstVertexRelativeToBrush() const {
+            return m_indexOfFirstVertexRelativeToBrush;
+        }
+
+        void BrushFace::setIndexOfFirstVertexRelativeToBrush(size_t index) const {
+            m_indexOfFirstVertexRelativeToBrush = index;
+        }
+
+        void BrushFace::setMarked(bool marked) const {
+            m_markedToRenderFace = marked;
+        }
+
+        bool BrushFace::isMarked() const {
+            return m_markedToRenderFace;
         }
     }
 }

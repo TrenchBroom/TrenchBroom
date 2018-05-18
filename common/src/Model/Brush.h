@@ -29,6 +29,13 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+#include "Renderer/VertexSpec.h"
+#include "Renderer/VertexListBuilder.h"
+#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/IndexArrayMapBuilder.h"
+#include "Renderer/TexturedIndexArrayBuilder.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -63,6 +70,9 @@ namespace TrenchBroom {
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+            using VertexSpec = Renderer::VertexSpecs::P3NT2;
+            using Vertex = VertexSpec::Vertex;
+
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
@@ -71,6 +81,41 @@ namespace TrenchBroom {
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
+
+        public:
+            // vertex and index cache
+            enum class RenderOpacity {
+                Opaque,
+                Transparent
+            };
+
+            enum class FaceRenderPolicy {
+                RenderMarked,
+                RenderNone
+            };
+
+            enum class EdgeRenderPolicy {
+                RenderAll,
+                RenderIfEitherFaceMarked,
+                RenderIfBothFacesMarked,
+                RenderNone
+            };
+
+            using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
+
+        private:
+            struct CachedEdge {
+                BrushFace* face1;
+                BrushFace* face2;
+                size_t m_vertexIndex1RelativeToBrush;
+                size_t m_vertexIndex2RelativeToBrush;
+            };
+
+            mutable std::vector<Vertex> m_cachedVertices;
+            mutable std::vector<CachedEdge> m_cachedEdges;
+            mutable bool m_rendererCacheValid;
+            mutable size_t m_brushVerticesStartIndex;
+            mutable RenderSettings m_renderSettings;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;
@@ -288,6 +333,33 @@ namespace TrenchBroom {
         private:
             Brush(const Brush&);
             Brush& operator=(const Brush&);
+            
+        public:
+            void invalidateVertexCache();
+            void validateVertexCache() const;
+
+            // reading from the cache
+
+            /**
+             * differs from vertexCount() because it includes each face's copy of each vert
+             */
+            size_t cachedVertexCount() const;
+
+            /**
+             * Returns all vertices for all faces of the brush
+             */
+            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
+
+            void countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const;
+            void getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const;
+
+            void countMarkedEdgeIndices(EdgeRenderPolicy policy, Renderer::IndexArrayMap::Size& size) const;
+            void getMarkedEdgeIndices(EdgeRenderPolicy policy, Renderer::IndexArrayMapBuilder& builder) const;
+
+            RenderSettings renderSettings() const;
+            void setRenderSettings(const RenderSettings& settings) const;
+        private:
+            static bool shouldRenderEdge(const Brush::CachedEdge& edge, Brush::EdgeRenderPolicy policy);
         };
     }
 }

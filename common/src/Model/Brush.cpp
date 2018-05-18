@@ -370,7 +370,9 @@ namespace TrenchBroom {
         m_contentTypeBuilder(nullptr),
         m_contentType(0),
         m_transparent(false),
-        m_contentTypeValid(true) {
+        m_contentTypeValid(true),
+        // these values don't matter
+        m_renderSettings({RenderOpacity::Opaque, FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll}) {
             addFaces(faces);
             try {
                 rebuildGeometry(worldBounds);
@@ -493,6 +495,7 @@ namespace TrenchBroom {
             m_faces.push_back(face);
             face->setBrush(this);
             invalidateContentType();
+            invalidateVertexCache();
             if (face->selected())
                 incChildSelectionCount(1);
         }
@@ -524,6 +527,7 @@ namespace TrenchBroom {
                 decChildSelectionCount(1);
             face->setBrush(nullptr);
             invalidateContentType();
+            invalidateVertexCache();
         }
 
         void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
@@ -1139,6 +1143,7 @@ namespace TrenchBroom {
             }
 
             invalidateContentType();
+            invalidateVertexCache();
         }
 
         void Brush::updatePointsFromVertices(const BBox3& worldBounds) {
@@ -1410,6 +1415,151 @@ namespace TrenchBroom {
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();
+        }
+
+        void Brush::invalidateVertexCache() {
+            m_rendererCacheValid = false;
+            m_cachedVertices.clear();
+        }
+
+        void Brush::validateVertexCache() const {
+            if (m_rendererCacheValid)
+                return;
+
+            ensure(m_geometry != nullptr, "geometry is null");
+
+            // build vertex cache
+
+            m_cachedVertices.clear();
+            m_cachedVertices.reserve(vertexCount());
+
+            for (BrushFace* face : m_faces) {
+                const size_t startIndex = m_cachedVertices.size();
+
+                const BrushHalfEdge *first = face->geometry()->boundary().front();
+                const BrushHalfEdge *current = first;
+                do {
+                    BrushVertex* vertex = current->origin();
+
+                    // Set the vertex payload to the index, relative to the brush's first vertex being 0.
+                    // This is used below when building the edge cache.
+                    // NOTE: we'll overwrite the payload as we visit the same vertex several times while visiting
+                    // different faces, this is fine.
+                    const size_t currentIndex = m_cachedVertices.size();
+                    vertex->setPayload(static_cast<GLuint>(currentIndex));
+
+                    const Vec3 &position = vertex->position();
+                    m_cachedVertices.push_back(Brush::Vertex(position, face->boundary().normal, face->textureCoords(position)));
+
+                    // The boundary is in CCW order, but the renderer expects CW order:
+                    current = current->previous();
+                } while (current != first);
+
+                face->setIndexOfFirstVertexRelativeToBrush(startIndex);
+            }
+
+            // build edge index cache
+
+            m_cachedEdges.clear();
+            m_cachedEdges.reserve(edgeCount());
+
+            {
+                const BrushEdge *firstEdge = m_geometry->edges().front();
+                const BrushEdge *currentEdge = firstEdge;
+                do {
+                    CachedEdge edge;
+                    edge.face1 = currentEdge->firstFace()->payload();
+                    edge.face2 = currentEdge->secondFace()->payload();
+                    edge.m_vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
+                    edge.m_vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
+                    m_cachedEdges.push_back(edge);
+
+                    currentEdge = currentEdge->next();
+                } while (currentEdge != firstEdge);
+            }
+
+            m_rendererCacheValid = true;
+        }
+
+        size_t Brush::cachedVertexCount() const {
+            validateVertexCache();
+            return m_cachedVertices.size();
+        }
+
+        void Brush::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
+            validateVertexCache();
+            m_brushVerticesStartIndex = builder.addPoints(m_cachedVertices).index;
+        }
+
+        void Brush::countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const {
+            if (policy == FaceRenderPolicy::RenderNone) {
+                return;
+            }
+
+            for (const BrushFace* face : m_faces) {
+                if (face->isMarked()) {
+                    size.inc(face->texture(), GL_TRIANGLES, 3 * (face->vertexCount() - 2));
+                }
+            }
+        }
+
+        void Brush::getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const {
+            if (policy == FaceRenderPolicy::RenderNone) {
+                return;
+            }
+
+            for (const BrushFace* face : m_faces) {
+                if (face->isMarked()) {
+                    builder.addPolygon(face->texture(),
+                                       static_cast<GLuint>(m_brushVerticesStartIndex + face->indexOfFirstVertexRelativeToBrush()),
+                                       face->vertexCount());
+                }
+            }
+        }
+
+        void Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy, Renderer::IndexArrayMap::Size& size) const {
+            if (policy == EdgeRenderPolicy::RenderNone) {
+                return;
+            }
+
+            for (const CachedEdge& edge : m_cachedEdges) {
+                if (shouldRenderEdge(edge, policy)) {
+                    size.inc(GL_LINES, 2);
+                }
+            }
+        }
+
+        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, Renderer::IndexArrayMapBuilder& builder) const {
+            if (policy == EdgeRenderPolicy::RenderNone) {
+                return;
+            }
+            
+            for (const CachedEdge& edge : m_cachedEdges) {
+                if (shouldRenderEdge(edge, policy)) {
+                    builder.addLine(static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush),
+                                    static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush));
+                }
+            }
+        }
+
+        bool Brush::shouldRenderEdge(const CachedEdge& edge, const EdgeRenderPolicy policy) {
+            switch (policy) {
+                case EdgeRenderPolicy::RenderAll:
+                    return true;
+                case EdgeRenderPolicy::RenderIfEitherFaceMarked:
+                    return edge.face1->isMarked() || edge.face2->isMarked();
+                case EdgeRenderPolicy ::RenderIfBothFacesMarked:
+                    return edge.face1->isMarked() && edge.face2->isMarked();
+                case EdgeRenderPolicy::RenderNone:
+                    return false;
+            }
+        }
+
+        Brush::RenderSettings Brush::renderSettings() const {
+            return m_renderSettings;
+        }
+        void Brush::setRenderSettings(const RenderSettings& settings) const {
+            m_renderSettings = settings;
         }
     }
 }

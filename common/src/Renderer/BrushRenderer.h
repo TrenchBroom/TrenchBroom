@@ -24,6 +24,9 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
+#include "Model/Brush.h"
+
+#include <tuple>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,18 +40,6 @@ namespace TrenchBroom {
         
         class BrushRenderer {
         public:
-            class FaceAcceptor {
-            public:
-                virtual ~FaceAcceptor();
-                virtual void accept(const Model::BrushFace* face) = 0;
-            };
-            
-            class EdgeAcceptor {
-            public:
-                virtual ~EdgeAcceptor();
-                virtual void accept(const Model::BrushEdge* edge) = 0;
-            };
-            
             class Filter {
             public:
                 Filter();
@@ -56,15 +47,24 @@ namespace TrenchBroom {
                 virtual ~Filter();
                 
                 Filter& operator=(const Filter& other);
-                
-                void  provideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const;
-                void  provideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const;
-                
-                bool transparent(const Model::Brush* brush) const;
-            private:
-                virtual void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const = 0;
-                virtual void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const = 0;
-                virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
+
+                using RenderSettings = Model::Brush::RenderSettings;
+                using RenderOpacity = Model::Brush::RenderOpacity;
+                using FaceRenderPolicy = Model::Brush::FaceRenderPolicy;
+                using EdgeRenderPolicy = Model::Brush::EdgeRenderPolicy;
+
+                /**
+                 * Classifies whether the brush will be rendered.
+                 * If RenderType::Invisible is returned, the brush is skipped (not added to the VBO).
+                 * Otherwise, markFaces() should mark the desired faces for rendering and return the
+                 * type of edge rendering.
+                 */
+                virtual RenderSettings markFaces(const Model::Brush* brush) const = 0;
+
+            protected:
+                static RenderSettings renderNothing() {
+                    return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
+                }
             };
             
             class DefaultFilter : public Filter {
@@ -96,10 +96,8 @@ namespace TrenchBroom {
                 bool m_transparent;
             public:
                 NoFilter(bool transparent);
-            private:
-                void doProvideFaces(const Model::Brush* brush, FaceAcceptor& faceAcceptor) const override;
-                void doProvideEdges(const Model::Brush* brush, EdgeAcceptor& edgeAcceptor) const override;
-                bool doIsTransparent(const Model::Brush* brush) const override;
+
+                RenderSettings markFaces(const Model::Brush* brush) const override;
             private:
                 NoFilter(const NoFilter& other);
                 NoFilter& operator=(const NoFilter& other);
@@ -173,8 +171,6 @@ namespace TrenchBroom {
 
         public:
             void validate();
-            void validateVertices();
-            void validateIndices();
         private:
             BrushRenderer(const BrushRenderer& other);
             BrushRenderer& operator=(const BrushRenderer& other);

@@ -31,9 +31,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
-#include "Renderer/TexturedIndexArrayMap.h"
-#include "Renderer/VertexListBuilder.h"
-#include "Renderer/VertexSpec.h"
 
 #include <vector>
 
@@ -65,9 +62,6 @@ namespace TrenchBroom {
              */
             typedef Vec3 Points[3];
         public:
-            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
-            typedef VertexSpec::Vertex Vertex;
-        public:
             static const String NoTextureName;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
@@ -91,9 +85,9 @@ namespace TrenchBroom {
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
             
-            mutable size_t m_vertexIndex;
-            mutable Vertex::List m_cachedVertices;
-            mutable bool m_verticesValid;
+            mutable size_t m_indexOfFirstVertexRelativeToBrush;
+            mutable bool m_markedToRenderFace;
+            mutable bool m_markedToRenderEdges;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -199,11 +193,6 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
-            
-            void countIndices(Renderer::TexturedIndexArrayMap::Size& size) const;
-            void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
-            
             Vec2f textureCoords(const Vec3& point) const;
 
             bool containsPoint(const Vec3& point) const;
@@ -213,11 +202,16 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
-            
-            bool vertexCacheValid() const;
-            void invalidateVertexCache();
-            void validateVertexCache() const;
 
+            void invalidateVertexCache();
+        public:
+            // renderer
+            size_t indexOfFirstVertexRelativeToBrush() const;
+            void setIndexOfFirstVertexRelativeToBrush(size_t index) const;
+
+            void setMarked(bool marked) const;
+            bool isMarked() const;
+        private:
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };
