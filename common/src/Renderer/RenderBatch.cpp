@@ -36,14 +36,10 @@ namespace TrenchBroom {
                 ensure(m_wrappee != nullptr, "wrappee is null");
             }
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override {
-                m_wrappee->prepareVertices(vertexVbo);
+            void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override {
+                m_wrappee->prepareVerticesAndIndices(vertexVbo, indexVbo);
             }
-            
-            void doPrepareIndices(Vbo& indexVbo) override {
-                m_wrappee->prepareIndices(indexVbo);
-            }
-            
+
             void doRender(RenderContext& renderContext) override {
                 ActivateVbo activate(m_indexBuffer);
                 m_wrappee->render(renderContext);
@@ -106,25 +102,15 @@ namespace TrenchBroom {
         }
 
         void RenderBatch::prepareRenderables() {
-            prepareVertices();
-            prepareIndices();
-        }
-        
-        void RenderBatch::prepareVertices() {
-            ActivateVbo activate(m_vertexVbo);
-            
-            for (DirectRenderable* renderable : m_directRenderables)
+            ActivateVbo activateVertexVbo(m_vertexVbo);
+            ActivateVbo activateIndexVbo(m_indexVbo);
+
+            for (DirectRenderable* renderable : m_directRenderables) {
                 renderable->prepareVertices(m_vertexVbo);
-            
-            for (IndexedRenderable* renderable : m_indexedRenderables)
-                renderable->prepareVertices(m_vertexVbo);
-        }
-        
-        void RenderBatch::prepareIndices() {
-            ActivateVbo activate(m_indexVbo);
-            
-            for (IndexedRenderable* renderable : m_indexedRenderables)
-                renderable->prepareIndices(m_indexVbo);
+            }
+            for (IndexedRenderable* renderable : m_indexedRenderables) {
+                renderable->prepareVerticesAndIndices(m_vertexVbo, m_indexVbo);
+            }
         }
 
         void RenderBatch::renderRenderables(RenderContext& renderContext) {

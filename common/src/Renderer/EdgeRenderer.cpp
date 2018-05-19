@@ -165,12 +165,9 @@ namespace TrenchBroom {
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_indexRanges(indexRanges) {}
-        
-        void IndexedEdgeRenderer::Render::doPrepareVertices(Vbo& vertexVbo) {
+
+        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
             m_vertexArray.prepare(vertexVbo);
-        }
-        
-        void IndexedEdgeRenderer::Render::doPrepareIndices(Vbo& indexVbo) {
             m_indexArray.prepare(indexVbo);
         }
 

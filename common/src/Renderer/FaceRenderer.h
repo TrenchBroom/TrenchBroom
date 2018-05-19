@@ -64,8 +64,7 @@ namespace TrenchBroom {
             
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
-            void doPrepareIndices(Vbo& indexVbo) override;
+            void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
             void doRender(RenderContext& context) override;
         };
 

@@ -121,11 +121,8 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void FaceRenderer::doPrepareVertices(Vbo& vertexVbo) {
+        void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
             m_vertexArray.prepare(vertexVbo);
-        }
-
-        void FaceRenderer::doPrepareIndices(Vbo& indexVbo) {
             m_indexArray.prepare(indexVbo);
         }
         
