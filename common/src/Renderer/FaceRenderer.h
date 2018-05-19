@@ -42,7 +42,8 @@ namespace TrenchBroom {
             struct RenderFunc;
             
             VertexArray m_vertexArray;
-            TexturedIndexArrayRenderer m_meshRenderer;
+            IndexArray m_indexArray;
+            TexturedIndexArrayMap m_indexRanges;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;

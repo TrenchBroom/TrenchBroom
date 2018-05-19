@@ -66,7 +66,8 @@ namespace TrenchBroom {
         
         FaceRenderer::FaceRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor) :
         m_vertexArray(vertexArray),
-        m_meshRenderer(indexArray, indexArrayMap),
+        m_indexArray(indexArray),
+        m_indexRanges(indexArrayMap),
         m_faceColor(faceColor),
         m_grayscale(false),
         m_tint(false),
@@ -74,7 +75,8 @@ namespace TrenchBroom {
 
         FaceRenderer::FaceRenderer(const FaceRenderer& other) :
         m_vertexArray(other.m_vertexArray),
-        m_meshRenderer(other.m_meshRenderer),
+        m_indexArray(other.m_indexArray),
+        m_indexRanges(other.m_indexRanges),
         m_faceColor(other.m_faceColor),
         m_grayscale(other.m_grayscale),
         m_tint(other.m_tint),
@@ -90,7 +92,8 @@ namespace TrenchBroom {
         void swap(FaceRenderer& left, FaceRenderer& right)  {
             using std::swap;
             swap(left.m_vertexArray, right.m_vertexArray);
-            swap(left.m_meshRenderer, right.m_meshRenderer);
+            swap(left.m_indexArray, right.m_indexArray);
+            swap(left.m_indexRanges, right.m_indexRanges);
             swap(left.m_faceColor, right.m_faceColor);
             swap(left.m_grayscale, right.m_grayscale);
             swap(left.m_tint, right.m_tint);
@@ -123,11 +126,11 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::doPrepareIndices(Vbo& indexVbo) {
-            m_meshRenderer.prepare(indexVbo);
+            m_indexArray.prepare(indexVbo);
         }
         
         void FaceRenderer::doRender(RenderContext& context) {
-            if (m_meshRenderer.empty())
+            if (m_indexArray.empty())
                 return;
             
             if (m_vertexArray.setup()) {
@@ -159,10 +162,10 @@ namespace TrenchBroom {
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {
                     glAssert(glDepthMask(GL_FALSE));
-                    m_meshRenderer.render(func);
+                    m_indexRanges.render(m_indexArray, func);
                     glAssert(glDepthMask(GL_TRUE));
                 } else {
-                    m_meshRenderer.render(func);
+                    m_indexRanges.render(m_indexArray, func);
                 }
                 m_vertexArray.cleanup();
             }
