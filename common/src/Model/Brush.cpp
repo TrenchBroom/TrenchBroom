@@ -1498,7 +1498,7 @@ namespace TrenchBroom {
 
             for (const BrushFace* face : m_faces) {
                 if (face->isMarked()) {
-                    size.inc(face->texture(), GL_TRIANGLES, 3 * (face->vertexCount() - 2));
+                    size.incTriangles(face->texture(), 3 * (face->vertexCount() - 2));
                 }
             }
         }

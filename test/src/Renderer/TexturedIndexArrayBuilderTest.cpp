@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             TexturedIndexArrayMap::Size sizes;
             for (size_t i = 0; i < NumFaces; ++i) {
-                sizes.inc(&texture1, GL_TRIANGLES, 6); // one quad = two tris
+                sizes.incTriangles(&texture1, 6); // one quad = two tris
             }
 
             TexturedIndexArrayBuilder b(sizes);

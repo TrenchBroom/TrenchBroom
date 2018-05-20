@@ -19,10 +19,8 @@
 
 #include "TexturedIndexArrayMap.h"
 
-#include "CollectionUtils.h"
-#include "Reference.h"
+#include "Renderer/IndexArray.h"
 #include "Renderer/RenderUtils.h"
-#include "Assets/Texture.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -33,22 +31,17 @@ namespace TrenchBroom {
             return m_indexCount;
         }
 
-        void TexturedIndexArrayMap::Size::inc(const Texture* texture, const PrimType primType, const size_t count) {
-            IndexArrayMap::Size& sizeForKey = findCurrent(texture);
-            sizeForKey.inc(primType, count);
+        void TexturedIndexArrayMap::Size::incTriangles(const Texture* texture, const size_t count) {
+            m_triangles[texture] += count;
             m_indexCount += count;
-        }
-
-        IndexArrayMap::Size& TexturedIndexArrayMap::Size::findCurrent(const Texture* texture) {
-            return m_sizes[texture];
         }
 
         void TexturedIndexArrayMap::Size::initialize(TexturedIndexArrayMap& map) const {
             size_t baseOffset = 0;
 
-            for (const auto& [texture, size] : m_sizes) {
-                map.m_ranges[texture] = IndexArrayMap(size, baseOffset);
-                baseOffset += size.indexCount();
+            for (const auto& [texture, size] : m_triangles) {
+                map.m_ranges[texture] = IndexArrayRange(baseOffset, size);
+                baseOffset += size;
             }
         }
 
@@ -58,9 +51,9 @@ namespace TrenchBroom {
             size.initialize(*this);
         }
 
-        size_t TexturedIndexArrayMap::add(const Texture* texture, const PrimType primType, const size_t count) {
-            IndexArrayMap& current = findCurrent(texture);
-            return current.add(primType, count);
+        size_t TexturedIndexArrayMap::addTriangles(const Texture* texture, const size_t count) {
+            IndexArrayRange& current = m_ranges[texture];
+            return current.add(count);
         }
 
         void TexturedIndexArrayMap::render(IndexArray& indexArray) {
@@ -68,16 +61,12 @@ namespace TrenchBroom {
             render(indexArray, func);
         }
         
-        void TexturedIndexArrayMap::render(IndexArray& vertexArray, TextureRenderFunc& func) {
+        void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func) {
             for (const auto& [texture, indexRange] : m_ranges) {
                 func.before(texture);
-                indexRange.render(vertexArray);
+                indexArray.render(GL_TRIANGLES, indexRange.offset, indexRange.count);
                 func.after(texture);
             }
-        }
-
-        IndexArrayMap& TexturedIndexArrayMap::findCurrent(const Texture* texture) {
-            return m_ranges[texture];
         }
     }
 }

@@ -48,31 +48,27 @@ namespace TrenchBroom {
             private:
                 friend class TexturedIndexArrayMap;
                 
-                std::unordered_map<const Texture*, IndexArrayMap::Size, HashPtr> m_sizes;
+                std::unordered_map<const Texture*, size_t, HashPtr> m_triangles;
 
                 size_t m_indexCount;
             public:
                 Size();
                 size_t indexCount() const;
-                void inc(const Texture* texture, PrimType primType, size_t count);
+                void incTriangles(const Texture* texture, size_t count);
             private:
-                IndexArrayMap::Size& findCurrent(const Texture* texture);
-
                 void initialize(TexturedIndexArrayMap& map) const;
             };
         private:
-            std::unordered_map<const Texture*, IndexArrayMap, HashPtr> m_ranges;
+            std::unordered_map<const Texture*, IndexArrayRange, HashPtr> m_ranges;
 
         public:
             TexturedIndexArrayMap();
-            TexturedIndexArrayMap(const Size& size);
+            explicit TexturedIndexArrayMap(const Size& size);
 
-            size_t add(const Texture* texture, PrimType primType, size_t count);
+            size_t addTriangles(const Texture* texture, size_t count);
 
             void render(IndexArray& vertexArray);
             void render(IndexArray& vertexArray, TextureRenderFunc& func);
-        private:
-            IndexArrayMap& findCurrent(const Texture* texture);
         };
     }
 }
