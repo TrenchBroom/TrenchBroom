@@ -25,19 +25,21 @@
 namespace TrenchBroom {
     namespace Renderer {
         class IndexArray;
-        
+
+        struct IndexArrayRange {
+            size_t offset;
+            size_t capacity;
+            size_t count;
+
+            IndexArrayRange();
+            IndexArrayRange(size_t i_offset, size_t i_capacity);
+
+            size_t add(size_t count);
+        };
+
         class IndexArrayMap {
         private:
-            struct IndexArrayRange {
-                size_t offset;
-                size_t capacity;
-                size_t count;
 
-                IndexArrayRange();
-                IndexArrayRange(size_t i_offset, size_t i_capacity);
-                
-                size_t add(size_t count);
-            };
         public:
             class Size {
             private:

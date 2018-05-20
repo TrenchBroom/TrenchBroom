@@ -26,17 +26,17 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        IndexArrayMap::IndexArrayRange::IndexArrayRange() :
+        IndexArrayRange::IndexArrayRange() :
                 offset(0),
                 capacity(0),
                 count(0) {}
 
-        IndexArrayMap::IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity) :
+        IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity) :
                 offset(i_offset),
                 capacity(i_capacity),
                 count(0) {}
 
-        size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
+        size_t IndexArrayRange::add(const size_t i_count) {
             assert(capacity - count >= i_count);
             const size_t result = offset + count;
             count += i_count;
