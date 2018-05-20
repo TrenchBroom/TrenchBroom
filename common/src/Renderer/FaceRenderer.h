@@ -24,8 +24,10 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/IndexArray.h"
+#include "Renderer/IndexArrayMap.h"
+#include "Renderer/TexturedIndexArrayMap.h"
 
 #include <map>
 
