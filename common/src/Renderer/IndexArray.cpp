@@ -17,63 +17,185 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IndexArray.h"
+#include "Renderer/IndexArray.h"
+
+#include "Renderer/GL.h"
+#include "Renderer/VboBlock.h"
+#include "Renderer/DirtyRangeTracker.h"
+
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {
-        void IndexArray::BaseHolder::render(const PrimType primType, const size_t offset, const size_t count) const {
-            doRender(primType, offset, count);
+        class IndexArray::Holder {
+            std::vector <Index> m_snapshot;
+            DirtyRangeTracker m_dirtyRanges;
+            VboBlock *m_block;
+
+        private:
+            void freeBlock() {
+                if (m_block != nullptr) {
+                    m_block->free();
+                    m_block = nullptr;
+                }
+            }
+
+            void allocateBlock(Vbo &vbo) {
+                assert(m_block == nullptr);
+
+                ActivateVbo activate(vbo);
+                m_block = vbo.allocateBlock(m_snapshot.size() * sizeof(Index));
+                assert(m_block != nullptr);
+
+                MapVboBlock map(m_block);
+                m_block->writeElements(0, m_snapshot);
+
+                m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
+                assert(m_dirtyRanges.clean());
+                assert((m_block->capacity() / sizeof(Index)) == m_dirtyRanges.capacity());
+            }
+
+        public:
+            /**
+             * NOTE: This destructively moves the contents of `elements` into the Holder.
+             */
+            Holder(std::vector <Index> &elements)
+                    : m_snapshot(),
+                      m_dirtyRanges(elements.size()),
+                      m_block(nullptr) {
+
+                const size_t elementsCount = elements.size();
+                m_dirtyRanges.markDirty(0, elementsCount);
+
+                elements.swap(m_snapshot);
+
+                // we allow zero elements.
+                if (!empty()) {
+                    assert(!prepared());
+                }
+            }
+
+            virtual ~Holder() {
+                freeBlock();
+            }
+
+            void resize(size_t newSize) {
+                m_snapshot.resize(newSize);
+                m_dirtyRanges.expand(newSize);
+            }
+
+            void writeElements(const size_t offsetWithinBlock, const std::vector <Index> &elements) {
+                assert(m_block != nullptr);
+                assert(offsetWithinBlock + m_snapshot.size() <= m_snapshot.size());
+
+                // apply update to memory
+                std::copy(elements.begin(), elements.end(), m_snapshot.begin() + offsetWithinBlock);
+
+                // mark dirty range
+                m_dirtyRanges.markDirty(offsetWithinBlock, elements.size());
+            }
+
+            void zeroRange(const size_t offsetWithinBlock, const size_t count) {
+                // TODO: It's wasteful to allocate a buffer of zeros. Try glMapBuffer and memset to 0?
+                std::vector <Index> zeros;
+                zeros.resize(count);
+
+                writeElements(offsetWithinBlock, zeros);
+            }
+
+            void render(const PrimType primType, const size_t offset, size_t count) const {
+                const GLsizei renderCount = static_cast<GLsizei>(count);
+                const GLvoid *renderOffset = reinterpret_cast<GLvoid *>(m_block->offset() + sizeof(Index) * offset);
+
+                glAssert(glDrawElements(primType, renderCount, glType<Index>(), renderOffset));
+            }
+
+            bool prepared() const {
+                // NOTE: this returns true if the capacity is 0
+                return m_dirtyRanges.clean();
+            }
+
+            void prepare(Vbo& vbo) {
+                if (empty()) {
+                    return;
+                }
+                if (prepared()) {
+                    return;
+                }
+
+                // first ever upload?
+                if (m_block == nullptr) {
+                    allocateBlock(vbo);
+                    return;
+                }
+
+                // resize?
+                if (m_dirtyRanges.capacity() != (m_block->capacity() / sizeof(Index))) {
+                    freeBlock();
+                    allocateBlock(vbo);
+                    return;
+                }
+
+                // otherwise, it's an incremental update of the dirty ranges.
+                ActivateVbo activate(vbo);
+                MapVboBlock map(m_block);
+
+                m_dirtyRanges.visitRanges([&](const DirtyRangeTracker::Range& range){
+                    // FIXME: Avoid this unnecessary copy
+                    std::vector<Index> updatedElements;
+                    updatedElements.resize(range.size);
+
+                    std::copy(m_snapshot.cbegin() + range.pos,
+                              m_snapshot.cbegin() + range.pos + range.size,
+                              updatedElements.begin());
+
+                    m_block->writeElements(range.pos, updatedElements);
+                });
+            }
+
+            bool empty() const {
+                return m_snapshot.empty();
+            }
+        };
+
+        IndexArray::IndexArray(std::vector<Index>& indices)
+        : m_holder(new IndexArray::Holder(indices)) {}
+
+        IndexArray IndexArray::swap(std::vector<Index>& indices) {
+            return IndexArray(indices);
         }
 
-        IndexArray::IndexArray() :
-        m_prepared(false) {}
-        
-        IndexArray::IndexArray(const IndexArray& other) :
-        m_holder(other.m_holder),
-        m_prepared(other.m_prepared) {}
-
-        IndexArray& IndexArray::operator=(IndexArray other) {
-            using std::swap;
-            swap(*this, other);
-            return *this;
-        }
-        
-        void swap(IndexArray& left, IndexArray& right) {
-            using std::swap;
-            swap(left.m_holder, right.m_holder);
-            swap(left.m_prepared, right.m_prepared);
-        }
+        IndexArray::IndexArray() : m_holder(nullptr) {}
 
         bool IndexArray::empty() const {
-            return indexCount() == 0;
+            if (m_holder == nullptr) {
+                return true;
+            }
+            return m_holder->empty();
         }
-        
-        size_t IndexArray::sizeInBytes() const {
-            return m_holder.get() == nullptr ? 0 : m_holder->sizeInBytes();
+
+        void IndexArray::resize(size_t newSize) {
+            m_holder->resize(newSize);
         }
-        
-        size_t IndexArray::indexCount() const {
-            return m_holder.get() == nullptr ? 0 : m_holder->indexCount();
+
+        void IndexArray::writeElements(const size_t offsetWithinBlock, const std::vector<Index> &elements) {
+            m_holder->writeElements(offsetWithinBlock, elements);
         }
-        
-        bool IndexArray::prepared() const {
-            return m_prepared;
-        }
-        
-        void IndexArray::prepare(Vbo& vbo) {
-            if (!prepared() && !empty())
-                m_holder->prepare(vbo);
-            m_prepared = true;
+
+        void IndexArray::zeroRange(const size_t offsetWithinBlock, const size_t count) {
+            m_holder->zeroRange(offsetWithinBlock, count);
         }
 
         void IndexArray::render(const PrimType primType, const size_t offset, size_t count) const {
-            assert(prepared());
-            if (!empty())
-                m_holder->render(primType, offset, count);
+            m_holder->render(primType, offset, count);
         }
 
-        IndexArray::IndexArray(BaseHolder::Ptr holder) :
-        m_holder(holder),
-        m_prepared(false) {}
+        bool IndexArray::prepared() const {
+            return m_holder->prepared();
+        }
+
+        void IndexArray::prepare(Vbo& vbo) {
+            m_holder->prepare(vbo);
+        }
     }
 }

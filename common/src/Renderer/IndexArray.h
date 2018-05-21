@@ -20,187 +20,57 @@
 #ifndef IndexArray_h
 #define IndexArray_h
 
-#include "CollectionUtils.h"
-#include "SharedPointer.h"
-#include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
-#include "Renderer/VboBlock.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
+        /**
+         * A reference-counted handle to a VboBlock (which is a subset of a VBO).
+         *
+         * It maintains an in-memory copy of the data that was uploaded to the VBO.
+         * Support resizing.
+         *
+         * Copying the IndexArray just increments the reference count,
+         * the same underlying buffer is shared between the copies.
+         */
         class IndexArray {
         private:
-            class BaseHolder {
-            public:
-                typedef std::shared_ptr<BaseHolder> Ptr;
-                virtual ~BaseHolder() {}
-                
-                virtual size_t indexCount() const = 0;
-                virtual size_t sizeInBytes() const = 0;
-                
-                virtual void prepare(Vbo& vbo) = 0;
-            public:
-                void render(PrimType primType, size_t offset, size_t count) const;
-                
-                virtual size_t indexOffset() const = 0;
-            private:
-                virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
-            };
-            
-            template <typename Index>
-            class Holder : public BaseHolder {
-            protected:
-                typedef std::vector<Index> IndexList;
-            private:
-                VboBlock* m_block;
-                size_t m_indexCount;
-            public:
-                size_t indexCount() const override {
-                    return m_indexCount;
-                }
-                
-                size_t sizeInBytes() const override {
-                    return sizeof(Index) * m_indexCount;
-                }
-                
-                virtual void prepare(Vbo& vbo) override {
-                    if (m_indexCount > 0 && m_block == nullptr) {
-                        ActivateVbo activate(vbo);
-                        m_block = vbo.allocateBlock(sizeInBytes());
-                        
-                        MapVboBlock map(m_block);
-                        m_block->writeBuffer(0, doGetIndices());
-                    }
-                }
-            protected:
-                Holder(const size_t indexCount) :
-                m_block(nullptr),
-                m_indexCount(indexCount) {}
-                
-                virtual ~Holder() override {
-                    if (m_block != nullptr) {
-                        m_block->free();
-                        m_block = nullptr;
-                    }
-                }
-            private:
-                size_t indexOffset() const override {
-                    if (m_indexCount == 0)
-                        return 0;
-                    ensure(m_block != nullptr, "block is null");
-                    return m_block->offset();
-                    
-                }
+            using Index = GLuint;
 
-                void doRender(PrimType primType, size_t offset, size_t count) const override {
-                    const GLsizei renderCount  = static_cast<GLsizei>(count);
-                    const GLenum indexType     = glType<Index>();
-                    const GLvoid* renderOffset = reinterpret_cast<GLvoid*>(indexOffset() + sizeof(Index) * offset);
+            class Holder;
 
-                    glAssert(glDrawElements(primType, renderCount, indexType, renderOffset));
-                }
-            private:
-                virtual const IndexList& doGetIndices() const = 0;
-            };
-            
-            template <typename Index>
-            class CopyHolder : public Holder<Index> {
-            public:
-                typedef typename Holder<Index>::IndexList IndexList;
-            private:
-                IndexList m_indices;
-            public:
-                CopyHolder(const IndexList& indices) :
-                Holder<Index>(indices.size()),
-                m_indices(indices) {}
-                
-                void prepare(Vbo& vbo) {
-                    Holder<Index>::prepare(vbo);
-                    VectorUtils::clearToZero(m_indices);
-                }
-            private:
-                const IndexList& doGetIndices() const {
-                    return m_indices;
-                }
-            };
-            
-            template <typename Index>
-            class SwapHolder : public Holder<Index> {
-            public:
-                typedef typename Holder<Index>::IndexList IndexList;
-            private:
-                IndexList m_indices;
-            public:
-                SwapHolder(IndexList& indices) :
-                Holder<Index>(indices.size()),
-                m_indices(0) {
-                    using std::swap;
-                    swap(m_indices, indices);
-                }
-                
-                void prepare(Vbo& vbo) override {
-                    Holder<Index>::prepare(vbo);
-                    VectorUtils::clearToZero(m_indices);
-                }
-            private:
-                const IndexList& doGetIndices() const override {
-                    return m_indices;
-                }
-            };
-            
-            template <typename Index>
-            class RefHolder : public Holder<Index> {
-            public:
-                typedef typename Holder<Index>::IndexList IndexList;
-            private:
-                const IndexList& m_indices;
-            public:
-                RefHolder(const IndexList& indices) :
-                Holder<Index>(indices.size()),
-                m_indices(indices) {}
-            private:
-                const IndexList& doGetIndices() const {
-                    return m_indices;
-                }
-            };
-        private:
-            BaseHolder::Ptr m_holder;
-            bool m_prepared;
+            std::shared_ptr<Holder> m_holder;
+
+            IndexArray(std::vector<Index>& indices);
         public:
-            explicit IndexArray();
-            
-            template <typename Index>
-            static IndexArray copy(const std::vector<Index>& indices) {
-                return IndexArray(BaseHolder::Ptr(new CopyHolder<Index>(indices)));
-            }
-            
-            template <typename Index>
-            static IndexArray swap(std::vector<Index>& indices) {
-                return IndexArray(BaseHolder::Ptr(new SwapHolder<Index>(indices)));
-            }
-            
-            template <typename Index>
-            static IndexArray ref(const std::vector<Index>& indices) {
-                return IndexArray(BaseHolder::Ptr(new RefHolder<Index>(indices)));
-            }
+            /**
+             * creates an empty IndexArray
+             */
+            IndexArray();
 
-            IndexArray(const IndexArray& other);
-            
-            IndexArray& operator=(IndexArray other);
-            friend void swap(IndexArray& left, IndexArray& right);
-            
             bool empty() const;
-            size_t sizeInBytes() const;
-            size_t indexCount() const;
-            
+
+            static IndexArray swap(std::vector<Index>& indices);
+
+            void resize(size_t newSize);
+
+            void writeElements(const size_t offsetWithinBlock, const std::vector<Index> &elements);
+
+            void zeroRange(const size_t offsetWithinBlock, const size_t count);
+
+            void render(const PrimType primType, const size_t offset, size_t count) const;
+
+            /**
+             * Returns true if all of the edits have been uploaded to the VBO.
+             */
             bool prepared() const;
+
+            /**
+             * Uploads pending changes to the VBO, allocating a VboBlock if needed.
+             */
             void prepare(Vbo& vbo);
-            
-            void render(PrimType primType, size_t offset, size_t count) const;
-        private:
-            IndexArray(BaseHolder::Ptr holder);
         };
     }
 }
