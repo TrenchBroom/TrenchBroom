@@ -42,8 +42,8 @@ namespace TrenchBroom {
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;
-            
-            VertexArray m_vertexArray;
+
+            VertexArrayPtr m_vertexArray;
             IndexArrayPtr m_indexArray;
             TexturedIndexArrayMap m_indexRanges;
             Color m_faceColor;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             float m_alpha;
         public:
             FaceRenderer();
-            FaceRenderer(const VertexArray& vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
+            FaceRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
             
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator=(FaceRenderer other);

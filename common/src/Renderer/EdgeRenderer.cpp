@@ -160,32 +160,33 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexRanges));
         }
         
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArray& vertexArray, IndexArrayPtr indexArray, IndexArrayMap& indexRanges) :
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArrayPtr vertexArray, IndexArrayPtr indexArray, IndexArrayMap& indexRanges) :
         RenderBase(params),
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_indexRanges(indexRanges) {}
 
         void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+            m_vertexArray->prepareVertices(vertexVbo);
             m_indexArray->prepare(indexVbo);
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {
-            if (m_vertexArray.vertexCount() == 0)
+            if (m_indexArray->empty()) {
                 return;
+            }
             renderEdges(renderContext);
         }
         
         void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext) {
-            m_vertexArray.setup();
+            m_vertexArray->setupVertices();
             m_indexRanges.render(m_indexArray);
-            m_vertexArray.cleanup();
+            m_vertexArray->cleanupVertices();
         }
         
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
         
-        IndexedEdgeRenderer::IndexedEdgeRenderer(const VertexArray& vertexArray, IndexArrayPtr indexArray, const IndexArrayMap& indexRanges) :
+        IndexedEdgeRenderer::IndexedEdgeRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray, const IndexArrayMap& indexRanges) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_indexRanges(indexRanges) {}

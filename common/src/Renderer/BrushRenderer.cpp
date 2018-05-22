@@ -134,7 +134,7 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::invalidate() {
-            m_vertexArray = VertexArray();
+            m_vertexArray = nullptr;
             m_valid = false;
         }
         
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             m_brushes.clear();
             m_transparentFaceRenderer = FaceRenderer();
             m_opaqueFaceRenderer = FaceRenderer();
-            m_vertexArray = VertexArray();
+            m_vertexArray = nullptr;
             m_valid = true;
         }
 
@@ -289,7 +289,7 @@ namespace TrenchBroom {
                         brush->getVertices(builder);
                     }
                 }
-                m_vertexArray = VertexArray::swap(builder.vertices());
+                m_vertexArray = VertexHolder<Model::Brush::Vertex>::swap(builder.vertices());
             }
 
             // count indices

@@ -45,5 +45,7 @@ namespace TrenchBroom {
         std::shared_ptr<IndexHolder> IndexHolder::swap(std::vector<IndexHolder::Index> &elements) {
             return std::make_shared<IndexHolder>(elements);
         }
+
+        VertexArrayInterface::~VertexArrayInterface() {}
     }
 }

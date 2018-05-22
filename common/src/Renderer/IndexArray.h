@@ -178,6 +178,40 @@ namespace TrenchBroom {
          * the same underlying buffer is shared between the copies.
          */
         using IndexArrayPtr = std::shared_ptr<IndexHolder>;
+
+
+        class VertexArrayInterface {
+        public:
+            virtual ~VertexArrayInterface() = 0;
+            virtual bool setupVertices() = 0;
+            virtual void prepareVertices(Vbo& vbo) = 0;
+            virtual void cleanupVertices() = 0;
+        };
+
+        template<typename V>
+        class VertexHolder : public VboBlockHolder<V>, public VertexArrayInterface {
+        public:
+            VertexHolder(std::vector<V>& elements)
+                    : VboBlockHolder<V>(elements) {}
+
+            bool setupVertices() override {
+                ensure(VboBlockHolder<V>::m_block != nullptr, "block is null");
+                V::Spec::setup(VboBlockHolder<V>::m_block->offset());
+                return true;
+            }
+            void prepareVertices(Vbo& vbo) override {
+                VboBlockHolder<V>::prepare(vbo);
+            }
+            void cleanupVertices() override {
+                V::Spec::cleanup();
+            }
+
+            static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {
+                return std::make_shared<VertexHolder<V>>(elements);
+            }
+        };
+
+        using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
     }
 }
 

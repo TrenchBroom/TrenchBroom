@@ -64,7 +64,7 @@ namespace TrenchBroom {
         m_tint(false),
         m_alpha(1.0f) {}
         
-        FaceRenderer::FaceRenderer(const VertexArray& vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_indexRanges(indexArrayMap),
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+            m_vertexArray->prepareVertices(vertexVbo);
             m_indexArray->prepare(indexVbo);
         }
         
@@ -130,7 +130,7 @@ namespace TrenchBroom {
             if (m_indexArray->empty())
                 return;
             
-            if (m_vertexArray.setup()) {
+            if (m_vertexArray->setupVertices()) {
                 ShaderManager& shaderManager = context.shaderManager();
                 ActiveShader shader(shaderManager, Shaders::FaceShader);
                 PreferenceManager& prefs = PreferenceManager::instance();
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 } else {
                     m_indexRanges.render(m_indexArray, func);
                 }
-                m_vertexArray.cleanup();
+                m_vertexArray->cleanupVertices();
             }
         }
     }
