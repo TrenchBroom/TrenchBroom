@@ -25,6 +25,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class IndexHolder;
+
         struct IndexArrayRange {
             size_t offset;
             size_t capacity;
@@ -65,7 +67,7 @@ namespace TrenchBroom {
 
             size_t add(PrimType primType, size_t count);
 
-            void render(IndexArrayPtr indexArray) const;
+            void render(std::shared_ptr<IndexHolder> indexArray) const;
         };
     }
 }

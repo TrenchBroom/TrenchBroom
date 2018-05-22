@@ -177,7 +177,7 @@ namespace TrenchBroom {
          * Copying the IndexArray just increments the reference count,
          * the same underlying buffer is shared between the copies.
          */
-        using IndexArrayPtr = std::shared_ptr<IndexHolder>;
+        //using IndexArrayPtr = std::shared_ptr<IndexHolder>;
 
 
         class VertexArrayInterface {
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             }
         };
 
-        using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
+        //using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
     }
 }
 

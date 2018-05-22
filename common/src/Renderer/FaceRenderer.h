@@ -25,11 +25,11 @@
 #include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/IndexArray.h"
 #include "Renderer/IndexArrayMap.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 
 #include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -38,7 +38,12 @@ namespace TrenchBroom {
         class RenderContext;
         class TexturedIndexArrayMap;
         class Vbo;
-        
+        class VertexArrayInterface;
+        class IndexHolder;
+
+        using IndexArrayPtr = std::shared_ptr<IndexHolder>;
+        using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
+
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;

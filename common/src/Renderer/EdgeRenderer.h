@@ -22,19 +22,24 @@
 
 #include "Color.h"
 #include "Reference.h"
-#include "Renderer/IndexArray.h"
 #include "Renderer/IndexArrayMap.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
 #include <vector>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
         class Vbo;
+        class VertexArrayInterface;
+        class IndexHolder;
+
+        using IndexArrayPtr = std::shared_ptr<IndexHolder>;
+        using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
 
         class EdgeRenderer {
         public:

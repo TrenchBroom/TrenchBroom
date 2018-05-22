@@ -20,10 +20,10 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
-#include "Renderer/IndexArray.h"
 #include "Renderer/IndexArrayMap.h"
 
 #include <unordered_map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -32,6 +32,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class TextureRenderFunc;
+        class IndexHolder;
         
         class TexturedIndexArrayMap {
         public:
@@ -67,8 +68,8 @@ namespace TrenchBroom {
 
             size_t addTriangles(const Texture* texture, size_t count);
 
-            void render(IndexArrayPtr vertexArray);
-            void render(IndexArrayPtr vertexArray, TextureRenderFunc& func);
+            void render(std::shared_ptr<IndexHolder> vertexArray);
+            void render(std::shared_ptr<IndexHolder> vertexArray, TextureRenderFunc& func);
         };
     }
 }

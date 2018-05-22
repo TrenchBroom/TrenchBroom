@@ -107,7 +107,7 @@ namespace TrenchBroom {
             }
         }
 
-        void IndexArrayMap::render(IndexArrayPtr indexArray) const {
+        void IndexArrayMap::render(std::shared_ptr<IndexHolder> indexArray) const {
             if (m_pointsRange.count > 0) {
                 indexArray->render(GL_POINTS, m_pointsRange.offset, m_pointsRange.count);
             }
