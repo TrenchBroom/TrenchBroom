@@ -145,6 +145,16 @@ namespace TrenchBroom {
             EXPECT_ANY_THROW(t.allocate(301));
             EXPECT_EQ(200, t.allocate(300));
         }
+
+        static constexpr size_t NumBrushes = 64'000;
+
+        TEST(AllocationTrackerTest, benchmark) {
+            AllocationTracker t(100 * NumBrushes);
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                t.allocate(100);
+            }
+            EXPECT_EQ(0, t.largestPossibleAllocation());
+        }
     }
 }
 
