@@ -85,6 +85,8 @@ namespace TrenchBroom {
                 }
             }
 
+            VboBlockHolder(const VboBlockHolder& other) = delete;
+
             virtual ~VboBlockHolder() {
                 freeBlock();
             }
@@ -154,15 +156,16 @@ namespace TrenchBroom {
         };
 
         class IndexHolder : public VboBlockHolder<GLuint> {
-        private:
-            using Index = GLuint;
         public:
+            using Index = GLuint;
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            IndexHolder(std::vector<Index> &elements);
+            IndexHolder(std::vector<Index>& elements);
             void zeroRange(const size_t offsetWithinBlock, const size_t count);
             void render(const PrimType primType, const size_t offset, size_t count) const;
+
+            static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
         };
 
         /**
@@ -174,41 +177,7 @@ namespace TrenchBroom {
          * Copying the IndexArray just increments the reference count,
          * the same underlying buffer is shared between the copies.
          */
-        class IndexArray {
-        private:
-            using Index = GLuint;
-
-            std::shared_ptr<IndexHolder> m_holder;
-
-            IndexArray(std::vector<Index>& indices);
-        public:
-            /**
-             * creates an empty IndexArray
-             */
-            IndexArray();
-
-            bool empty() const;
-
-            static IndexArray swap(std::vector<Index>& indices);
-
-            void resize(size_t newSize);
-
-            void writeElements(const size_t offsetWithinBlock, const std::vector<Index> &elements);
-
-            void zeroRange(const size_t offsetWithinBlock, const size_t count);
-
-            void render(const PrimType primType, const size_t offset, size_t count) const;
-
-            /**
-             * Returns true if all of the edits have been uploaded to the VBO.
-             */
-            bool prepared() const;
-
-            /**
-             * Uploads pending changes to the VBO, allocating a VboBlock if needed.
-             */
-            void prepare(Vbo& vbo);
-        };
+        using IndexArrayPtr = std::shared_ptr<IndexHolder>;
     }
 }
 

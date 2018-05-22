@@ -21,11 +21,10 @@
 #define IndexArrayMap_h
 
 #include "Renderer/GL.h"
+#include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class IndexArray;
-
         struct IndexArrayRange {
             size_t offset;
             size_t capacity;
@@ -66,7 +65,7 @@ namespace TrenchBroom {
 
             size_t add(PrimType primType, size_t count);
 
-            void render(IndexArray& indexArray) const;
+            void render(IndexArrayPtr indexArray) const;
         };
     }
 }

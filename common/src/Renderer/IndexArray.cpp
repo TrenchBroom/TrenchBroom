@@ -42,46 +42,8 @@ namespace TrenchBroom {
             glAssert(glDrawElements(primType, renderCount, glType<Index>(), renderOffset));
         }
 
-        // IndexArray
-
-        IndexArray::IndexArray(std::vector<Index>& indices)
-        : m_holder(new IndexHolder(indices)) {}
-
-        IndexArray IndexArray::swap(std::vector<Index>& indices) {
-            return IndexArray(indices);
-        }
-
-        IndexArray::IndexArray() : m_holder(nullptr) {}
-
-        bool IndexArray::empty() const {
-            if (m_holder == nullptr) {
-                return true;
-            }
-            return m_holder->empty();
-        }
-
-        void IndexArray::resize(size_t newSize) {
-            m_holder->resize(newSize);
-        }
-
-        void IndexArray::writeElements(const size_t offsetWithinBlock, const std::vector<Index> &elements) {
-            m_holder->writeElements(offsetWithinBlock, elements);
-        }
-
-        void IndexArray::zeroRange(const size_t offsetWithinBlock, const size_t count) {
-            m_holder->zeroRange(offsetWithinBlock, count);
-        }
-
-        void IndexArray::render(const PrimType primType, const size_t offset, size_t count) const {
-            m_holder->render(primType, offset, count);
-        }
-
-        bool IndexArray::prepared() const {
-            return m_holder->prepared();
-        }
-
-        void IndexArray::prepare(Vbo& vbo) {
-            m_holder->prepare(vbo);
+        std::shared_ptr<IndexHolder> IndexHolder::swap(std::vector<IndexHolder::Index> &elements) {
+            return std::make_shared<IndexHolder>(elements);
         }
     }
 }

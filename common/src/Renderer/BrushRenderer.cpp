@@ -332,16 +332,16 @@ namespace TrenchBroom {
 
             // Move the vertices and indices into the VBO/index buffer wrapper objects.
             // (they're not actually copied to the GPU until later)
-            const IndexArray opaqueIndices = IndexArray::swap(opaqueFaceIndexBuilder.indices());
+            IndexArrayPtr opaqueIndices = IndexHolder::swap(opaqueFaceIndexBuilder.indices());
             const TexturedIndexArrayMap& opaqueRanges = opaqueFaceIndexBuilder.ranges();
 
-            const IndexArray transparentIndices = IndexArray::swap(transparentFaceIndexBuilder.indices());
+            IndexArrayPtr transparentIndices = IndexHolder::swap(transparentFaceIndexBuilder.indices());
             const TexturedIndexArrayMap& transparentRanges = transparentFaceIndexBuilder.ranges();
 
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, opaqueIndices, opaqueRanges, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, transparentIndices, transparentRanges, m_faceColor);
 
-            const IndexArray edgeIndices = IndexArray::swap(edgeIndexBuilder.indices());
+            IndexArrayPtr edgeIndices = IndexHolder::swap(edgeIndexBuilder.indices());
             const IndexArrayMap& edgeRanges = edgeIndexBuilder.ranges();
             m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, edgeIndices, edgeRanges);
 

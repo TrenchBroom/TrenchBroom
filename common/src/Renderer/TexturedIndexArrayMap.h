@@ -20,6 +20,7 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
+#include "Renderer/IndexArray.h"
 #include "Renderer/IndexArrayMap.h"
 
 #include <unordered_map>
@@ -30,7 +31,6 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class IndexArray;
         class TextureRenderFunc;
         
         class TexturedIndexArrayMap {
@@ -67,8 +67,8 @@ namespace TrenchBroom {
 
             size_t addTriangles(const Texture* texture, size_t count);
 
-            void render(IndexArray& vertexArray);
-            void render(IndexArray& vertexArray, TextureRenderFunc& func);
+            void render(IndexArrayPtr vertexArray);
+            void render(IndexArrayPtr vertexArray, TextureRenderFunc& func);
         };
     }
 }

@@ -56,15 +56,15 @@ namespace TrenchBroom {
             return current.add(count);
         }
 
-        void TexturedIndexArrayMap::render(IndexArray& indexArray) {
+        void TexturedIndexArrayMap::render(IndexArrayPtr indexArray) {
             DefaultTextureRenderFunc func;
             render(indexArray, func);
         }
         
-        void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func) {
+        void TexturedIndexArrayMap::render(IndexArrayPtr indexArray, TextureRenderFunc& func) {
             for (const auto& [texture, indexRange] : m_ranges) {
                 func.before(texture);
-                indexArray.render(GL_TRIANGLES, indexRange.offset, indexRange.count);
+                indexArray->render(GL_TRIANGLES, indexRange.offset, indexRange.count);
                 func.after(texture);
             }
         }

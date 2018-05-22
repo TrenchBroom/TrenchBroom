@@ -107,15 +107,15 @@ namespace TrenchBroom {
             }
         }
 
-        void IndexArrayMap::render(IndexArray& indexArray) const {
+        void IndexArrayMap::render(IndexArrayPtr indexArray) const {
             if (m_pointsRange.count > 0) {
-                indexArray.render(GL_POINTS, m_pointsRange.offset, m_pointsRange.count);
+                indexArray->render(GL_POINTS, m_pointsRange.offset, m_pointsRange.count);
             }
             if (m_linesRange.count > 0) {
-                indexArray.render(GL_LINES, m_linesRange.offset, m_linesRange.count);
+                indexArray->render(GL_LINES, m_linesRange.offset, m_linesRange.count);
             }
             if (m_trianglesRange.count > 0) {
-                indexArray.render(GL_TRIANGLES, m_trianglesRange.offset, m_trianglesRange.count);
+                indexArray->render(GL_TRIANGLES, m_trianglesRange.offset, m_trianglesRange.count);
             }
         }
     }

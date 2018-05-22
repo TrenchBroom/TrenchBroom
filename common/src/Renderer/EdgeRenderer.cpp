@@ -160,7 +160,7 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexRanges));
         }
         
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArray& vertexArray, IndexArray& indexArray, IndexArrayMap& indexRanges) :
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArray& vertexArray, IndexArrayPtr indexArray, IndexArrayMap& indexRanges) :
         RenderBase(params),
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
@@ -168,7 +168,7 @@ namespace TrenchBroom {
 
         void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
             m_vertexArray.prepare(vertexVbo);
-            m_indexArray.prepare(indexVbo);
+            m_indexArray->prepare(indexVbo);
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {
@@ -185,7 +185,7 @@ namespace TrenchBroom {
         
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
         
-        IndexedEdgeRenderer::IndexedEdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const IndexArrayMap& indexRanges) :
+        IndexedEdgeRenderer::IndexedEdgeRenderer(const VertexArray& vertexArray, IndexArrayPtr indexArray, const IndexArrayMap& indexRanges) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray),
         m_indexRanges(indexRanges) {}

@@ -108,10 +108,10 @@ namespace TrenchBroom {
             class Render : public RenderBase, public IndexedRenderable {
             private:
                 VertexArray m_vertexArray;
-                IndexArray m_indexArray;
+                IndexArrayPtr m_indexArray;
                 IndexArrayMap m_indexRanges;
             public:
-                Render(const Params& params, VertexArray& vertexArray, IndexArray& indexArray, IndexArrayMap& indexRanges);
+                Render(const Params& params, VertexArray& vertexArray, IndexArrayPtr indexArray, IndexArrayMap& indexRanges);
             private:
                 void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
                 void doRender(RenderContext& renderContext) override;
@@ -119,11 +119,11 @@ namespace TrenchBroom {
             };
         private:
             VertexArray m_vertexArray;
-            IndexArray m_indexArray;
+            IndexArrayPtr m_indexArray;
             IndexArrayMap m_indexRanges;
         public:
             IndexedEdgeRenderer();
-            IndexedEdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const IndexArrayMap& indexRanges);
+            IndexedEdgeRenderer(const VertexArray& vertexArray, IndexArrayPtr indexArray, const IndexArrayMap& indexRanges);
 
             IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
             IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);
