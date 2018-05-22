@@ -21,11 +21,150 @@
 #define IndexArray_h
 
 #include "Renderer/Vbo.h"
+#include "Renderer/DirtyRangeTracker.h"
+#include "Renderer/GL.h"
+#include "Renderer/VboBlock.h"
 
+#include <algorithm>
 #include <vector>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
+
+        /**
+         * Wrapper around a std::vector<T> and VboBlock.
+         */
+        template<typename T>
+        class VboBlockHolder {
+        protected:
+            std::vector<T> m_snapshot;
+            DirtyRangeTracker m_dirtyRanges;
+            VboBlock *m_block;
+
+        private:
+            void freeBlock() {
+                if (m_block != nullptr) {
+                    m_block->free();
+                    m_block = nullptr;
+                }
+            }
+
+            void allocateBlock(Vbo &vbo) {
+                assert(m_block == nullptr);
+
+                ActivateVbo activate(vbo);
+                m_block = vbo.allocateBlock(m_snapshot.size() * sizeof(T));
+                assert(m_block != nullptr);
+
+                MapVboBlock map(m_block);
+                m_block->writeElements(0, m_snapshot);
+
+                m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
+                assert(m_dirtyRanges.clean());
+                assert((m_block->capacity() / sizeof(T)) == m_dirtyRanges.capacity());
+            }
+
+        public:
+            /**
+             * NOTE: This destructively moves the contents of `elements` into the Holder.
+             */
+            VboBlockHolder(std::vector<T> &elements)
+                    : m_snapshot(),
+                      m_dirtyRanges(elements.size()),
+                      m_block(nullptr) {
+
+                const size_t elementsCount = elements.size();
+                m_dirtyRanges.markDirty(0, elementsCount);
+
+                elements.swap(m_snapshot);
+
+                // we allow zero elements.
+                if (!empty()) {
+                    assert(!prepared());
+                }
+            }
+
+            virtual ~VboBlockHolder() {
+                freeBlock();
+            }
+
+            void resize(size_t newSize) {
+                m_snapshot.resize(newSize);
+                m_dirtyRanges.expand(newSize);
+            }
+
+            void writeElements(const size_t offsetWithinBlock, const std::vector<T>& elements) {
+                assert(m_block != nullptr);
+                assert(offsetWithinBlock + m_snapshot.size() <= m_snapshot.size());
+
+                // apply update to memory
+                std::copy(elements.begin(), elements.end(), m_snapshot.begin() + offsetWithinBlock);
+
+                // mark dirty range
+                m_dirtyRanges.markDirty(offsetWithinBlock, elements.size());
+            }
+
+            bool prepared() const {
+                // NOTE: this returns true if the capacity is 0
+                return m_dirtyRanges.clean();
+            }
+
+            void prepare(Vbo& vbo) {
+                if (empty()) {
+                    return;
+                }
+                if (prepared()) {
+                    return;
+                }
+
+                // first ever upload?
+                if (m_block == nullptr) {
+                    allocateBlock(vbo);
+                    return;
+                }
+
+                // resize?
+                if (m_dirtyRanges.capacity() != (m_block->capacity() / sizeof(T))) {
+                    freeBlock();
+                    allocateBlock(vbo);
+                    return;
+                }
+
+                // otherwise, it's an incremental update of the dirty ranges.
+                ActivateVbo activate(vbo);
+                MapVboBlock map(m_block);
+
+                m_dirtyRanges.visitRanges([&](const DirtyRangeTracker::Range& range){
+                    // FIXME: Avoid this unnecessary copy
+                    std::vector<T> updatedElements;
+                    updatedElements.resize(range.size);
+
+                    std::copy(m_snapshot.cbegin() + range.pos,
+                              m_snapshot.cbegin() + range.pos + range.size,
+                              updatedElements.begin());
+
+                    m_block->writeElements(range.pos, updatedElements);
+                });
+            }
+
+            bool empty() const {
+                return m_snapshot.empty();
+            }
+        };
+
+        class IndexHolder : public VboBlockHolder<GLuint> {
+        private:
+            using Index = GLuint;
+        public:
+            /**
+             * NOTE: This destructively moves the contents of `elements` into the Holder.
+             */
+            IndexHolder(std::vector<Index> &elements);
+            void zeroRange(const size_t offsetWithinBlock, const size_t count);
+            void render(const PrimType primType, const size_t offset, size_t count) const;
+        };
+
         /**
          * A reference-counted handle to a VboBlock (which is a subset of a VBO).
          *
@@ -39,9 +178,7 @@ namespace TrenchBroom {
         private:
             using Index = GLuint;
 
-            class Holder;
-
-            std::shared_ptr<Holder> m_holder;
+            std::shared_ptr<IndexHolder> m_holder;
 
             IndexArray(std::vector<Index>& indices);
         public:
