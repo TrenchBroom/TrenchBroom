@@ -82,14 +82,16 @@ namespace TrenchBroom {
         AllocationTracker::AllocationTracker()
                 : m_capacity(0) {}
 
-        AllocationTracker::Index AllocationTracker::allocate(Index bytes) {
+        std::pair<bool, AllocationTracker::Index> AllocationTracker::allocate(const size_t bytesUnsigned) {
+            const Index bytes = static_cast<Index>(bytesUnsigned);
+
             if (bytes <= 0)
                 throw std::runtime_error("allocate() requires positive nonzero size");
 
             // find the smallest free block that will fit the allocation
             auto it = m_sizeToFreePositions.lower_bound(bytes);
             if (it == m_sizeToFreePositions.end()) {
-                throw std::runtime_error("out of space");
+                return {false, 0};
             }
             const Block oldFree{*it->second.begin(), it->first};
 
@@ -107,10 +109,10 @@ namespace TrenchBroom {
             // insert the used block
             m_posToUsedSize[oldFree.pos] = bytes;
 
-            return oldFree.pos;
+            return {true, oldFree.pos};
         }
 
-        void AllocationTracker::free(Index pos) {
+        AllocationTracker::Block AllocationTracker::free(Index pos) {
             // remove the used block
             auto it = m_posToUsedSize.find(pos);
             if (it == m_posToUsedSize.end())
@@ -141,10 +143,12 @@ namespace TrenchBroom {
             }
 
             insertFree(newFree);
+
+            return oldUsedBlock;
         }
 
-        AllocationTracker::Index AllocationTracker::capacity() const {
-            return m_capacity;
+        size_t AllocationTracker::capacity() const {
+            return static_cast<size_t>(m_capacity);
         }
 
         void AllocationTracker::expand(Index newcap) {

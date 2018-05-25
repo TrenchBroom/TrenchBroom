@@ -22,6 +22,7 @@
 
 #include <map>
 #include <set>
+#include <utility>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -61,9 +62,18 @@ namespace TrenchBroom {
         public:
             explicit AllocationTracker(Index initial_capacity);
             AllocationTracker();
-            Index allocate(Index bytes);
-            void free(Index pos);
-            Index capacity() const;
+
+            /**
+             * Tries to make an allocation. Returns {true, index} on success,
+             * and {false, ?} on failure (the Index is meaningless if the
+             * first element is false.)
+             */
+            std::pair<bool, Index> allocate(size_t bytes);
+            /**
+             * Returns the block that was freed.
+             */
+            Block free(Index pos);
+            size_t capacity() const;
             void expand(Index newcap);
 
             // Testing / debugging

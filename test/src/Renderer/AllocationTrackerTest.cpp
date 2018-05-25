@@ -35,7 +35,7 @@ namespace TrenchBroom {
             AllocationTracker t;
             EXPECT_EQ(0, t.capacity());
             EXPECT_EQ(0, t.largestPossibleAllocation());
-            EXPECT_ANY_THROW(t.allocate(1));
+            EXPECT_EQ(false, t.allocate(1).first);
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.usedBlocks());
         }
@@ -60,47 +60,47 @@ namespace TrenchBroom {
             AllocationTracker t(500);
 
             // allocate all the memory
-            EXPECT_EQ(0, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 0ll), t.allocate(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{100, 400}}), t.freeBlocks());
             
-            EXPECT_EQ(100, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 100ll), t.allocate(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {100, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{200, 300}}), t.freeBlocks());
             
-            EXPECT_EQ(200, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 200ll), t.allocate(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {100, 100}, {200, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{300, 200}}), t.freeBlocks());
             
-            EXPECT_EQ(300, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 300ll), t.allocate(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {100, 100}, {200, 100}, {300, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{400, 100}}), t.freeBlocks());
             
-            EXPECT_EQ(400, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 400ll), t.allocate(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {100, 100}, {200, 100}, {300, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.freeBlocks());
             
             // further allocations throw
-            EXPECT_ANY_THROW(t.allocate(1));
+            EXPECT_EQ(false, t.allocate(1).first);
             
             // now start freeing
-            t.free(100);
+            EXPECT_EQ(AllocationTracker::Block(100, 100), t.free(100));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {200, 100}, {300, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{100, 100}}), t.freeBlocks());
-            
-            t.free(300);
+
+            EXPECT_EQ(AllocationTracker::Block(300, 100), t.free(300));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {200, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{100, 100}, {300, 100}}), t.freeBlocks());
             EXPECT_EQ(100, t.largestPossibleAllocation());
-            
-            t.free(200);
+
+            EXPECT_EQ(AllocationTracker::Block(200, 100), t.free(200));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{100, 300}}), t.freeBlocks());
             EXPECT_EQ(300, t.largestPossibleAllocation());
             
             // allocate the free block of 300 in the middle
-            EXPECT_ANY_THROW(t.allocate(301));
-            EXPECT_EQ(100, t.allocate(300));
+            EXPECT_EQ(false, t.allocate(301).first);
+            EXPECT_EQ(std::make_pair(true, 100ll), t.allocate(300));
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 100}, {100, 300}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.freeBlocks());
         }
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         
         TEST(AllocationTrackerTest, expandWithFreeSpaceAtEnd) {
             AllocationTracker t(200);
-            EXPECT_EQ(0, t.allocate(100));
+            EXPECT_EQ(std::make_pair(true, 0ll), t.allocate(100));
             EXPECT_EQ(100, t.largestPossibleAllocation());
             
             t.expand(500);
@@ -131,9 +131,9 @@ namespace TrenchBroom {
         
         TEST(AllocationTrackerTest, expandWithUsedSpaceAtEnd) {
             AllocationTracker t(200);
-            EXPECT_EQ(0, t.allocate(200));
+            EXPECT_EQ(std::make_pair(true, 0ll), t.allocate(200));
             EXPECT_EQ(0, t.largestPossibleAllocation());
-            EXPECT_ANY_THROW(t.allocate(1));
+            EXPECT_EQ(false, t.allocate(1).first);
             
             t.expand(500);
             EXPECT_EQ(500, t.capacity());
@@ -142,8 +142,8 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Block>{{200, 300}}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{{0, 200}}), t.usedBlocks());
             
-            EXPECT_ANY_THROW(t.allocate(301));
-            EXPECT_EQ(200, t.allocate(300));
+            EXPECT_EQ(false, t.allocate(301).first);
+            EXPECT_EQ(std::make_pair(true, 200ll), t.allocate(300));
         }
 
         static constexpr size_t NumBrushes = 64'000;
