@@ -21,6 +21,7 @@
 #define IndexArray_h
 
 #include "Renderer/Vbo.h"
+#include "Renderer/AllocationTracker.h"
 #include "Renderer/DirtyRangeTracker.h"
 #include "Renderer/GL.h"
 #include "Renderer/VboBlock.h"
@@ -28,8 +29,12 @@
 #include <algorithm>
 #include <vector>
 #include <cassert>
+#include <unordered_map>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Brush;
+    }
     namespace Renderer {
 
         /**
@@ -66,6 +71,10 @@ namespace TrenchBroom {
             }
 
         public:
+            VboBlockHolder() : m_snapshot(),
+                               m_dirtyRanges(0),
+                               m_block(nullptr) {}
+
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
@@ -153,11 +162,17 @@ namespace TrenchBroom {
             bool empty() const {
                 return m_snapshot.empty();
             }
+
+            size_t size() const {
+                return m_snapshot.size();
+            }
         };
 
         class IndexHolder : public VboBlockHolder<GLuint> {
         public:
             using Index = GLuint;
+
+            IndexHolder();
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
@@ -167,6 +182,29 @@ namespace TrenchBroom {
 
             static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
         };
+
+        class BrushIndexHolder {
+        private:
+            IndexHolder m_indexHolder;
+            AllocationTracker m_allocationTracker;
+            std::unordered_map<const Model::Brush*, AllocationTracker::Index> m_brushToOffset;
+
+            void insertElementsAtIndex(const std::vector<GLuint>& elements,
+                                       const AllocationTracker::Index index,
+                                       const Model::Brush* key);
+        public:
+            BrushIndexHolder();
+
+            size_t insertElements(const std::vector<GLuint>& elements,
+                                  const Model::Brush* key);
+
+            void zeroElementsWithKey(const Model::Brush* key);
+
+            void render(const PrimType primType) const;
+            bool prepared() const;
+            void prepare(Vbo& vbo);
+        };
+
 
         /**
          * A reference-counted handle to a VboBlock (which is a subset of a VBO).

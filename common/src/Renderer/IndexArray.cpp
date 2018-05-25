@@ -19,10 +19,17 @@
 
 #include "Renderer/IndexArray.h"
 
+#include <cassert>
+#include <algorithm>
+
 namespace TrenchBroom {
+    // BrushIndexHolder
+
     namespace Renderer {
 
         // IndexHolder
+
+        IndexHolder::IndexHolder() : VboBlockHolder<Index>() {}
 
         IndexHolder::IndexHolder(std::vector<Index> &elements)
                 : VboBlockHolder<Index>(elements) {}
@@ -47,5 +54,63 @@ namespace TrenchBroom {
         }
 
         VertexArrayInterface::~VertexArrayInterface() {}
+
+        // BrushIndexHolder
+
+        BrushIndexHolder::BrushIndexHolder() : m_indexHolder(),
+                                               m_allocationTracker(0),
+                                               m_brushToOffset() {}
+
+        void BrushIndexHolder::insertElementsAtIndex(const std::vector<TrenchBroom::GLuint> &elements,
+                                                     const TrenchBroom::Renderer::AllocationTracker::Index index,
+                                                     const TrenchBroom::Model::Brush *key) {
+            m_brushToOffset[key] = index;
+            m_indexHolder.writeElements(index, elements);
+        }
+
+        size_t BrushIndexHolder::insertElements(const std::vector<GLuint>& elements,
+                                                const Model::Brush* key) {
+            if (auto [success, index] = m_allocationTracker.allocate(elements.size()); success) {
+                insertElementsAtIndex(elements, index, key);
+                return index;
+            }
+
+            // retry
+            const size_t newSize = std::max(2 * m_allocationTracker.capacity(),
+                                            m_allocationTracker.capacity() + elements.size());
+            m_allocationTracker.expand(newSize);
+            m_indexHolder.resize(newSize);
+
+            // insert again
+            auto [success, index] = m_allocationTracker.allocate(elements.size());
+            assert(success);
+            insertElementsAtIndex(elements, index, key);
+            return index;
+        }
+
+        void BrushIndexHolder::zeroElementsWithKey(const Model::Brush* key) {
+            auto it = m_brushToOffset.find(key);
+            if (it == m_brushToOffset.end()) {
+                throw std::invalid_argument("unknown key");
+            }
+
+            const auto offset = it->second;
+
+            auto range = m_allocationTracker.free(offset);
+            m_indexHolder.zeroRange(range.pos, range.size);
+        }
+
+        void BrushIndexHolder::render(const PrimType primType) const {
+            assert(m_indexHolder.prepared());
+            m_indexHolder.render(primType, 0, m_indexHolder.size());
+        }
+
+        bool BrushIndexHolder::prepared() const {
+            return m_indexHolder.prepared();
+        }
+
+        void BrushIndexHolder::prepare(Vbo& vbo) {
+            m_indexHolder.prepare(vbo);
+        }
     }
 }
