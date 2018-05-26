@@ -196,6 +196,8 @@ namespace TrenchBroom {
         public:
             BrushIndexHolder();
 
+            bool empty() const;
+
             size_t insertElements(const std::vector<GLuint>& elements,
                                   const Model::Brush* key);
 

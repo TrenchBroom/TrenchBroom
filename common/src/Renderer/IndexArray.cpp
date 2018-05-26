@@ -61,6 +61,10 @@ namespace TrenchBroom {
                                                m_allocationTracker(0),
                                                m_brushToOffset() {}
 
+        bool BrushIndexHolder::empty() const {
+            return m_indexHolder.empty();
+        }
+
         void BrushIndexHolder::insertElementsAtIndex(const std::vector<TrenchBroom::GLuint> &elements,
                                                      const TrenchBroom::Renderer::AllocationTracker::Index index,
                                                      const TrenchBroom::Model::Brush *key) {
