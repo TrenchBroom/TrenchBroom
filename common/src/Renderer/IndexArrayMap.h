@@ -67,6 +67,10 @@ namespace TrenchBroom {
             size_t add(PrimType primType, size_t count);
 
             void render(std::shared_ptr<IndexHolder> indexArray) const;
+
+            IndexArrayRange pointsRange() const;
+            IndexArrayRange linesRange() const;
+            IndexArrayRange trianglesRange() const;
         };
     }
 }

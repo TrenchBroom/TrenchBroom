@@ -118,5 +118,17 @@ namespace TrenchBroom {
                 indexArray->render(GL_TRIANGLES, m_trianglesRange.offset, m_trianglesRange.count);
             }
         }
+
+        IndexArrayRange IndexArrayMap::pointsRange() const {
+            return m_pointsRange;
+        }
+
+        IndexArrayRange IndexArrayMap::linesRange() const {
+            return m_linesRange;
+        }
+
+        IndexArrayRange IndexArrayMap::trianglesRange() const {
+            return m_trianglesRange;
+        }
     }
 }
