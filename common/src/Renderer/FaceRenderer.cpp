@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
 #include "Renderer/Camera.h"
+#include "Renderer/IndexArray.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"

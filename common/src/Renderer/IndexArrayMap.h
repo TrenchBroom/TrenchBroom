@@ -21,7 +21,6 @@
 #define IndexArrayMap_h
 
 #include "Renderer/GL.h"
-#include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -24,6 +24,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
