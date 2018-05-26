@@ -95,7 +95,7 @@ namespace TrenchBroom {
         void BrushIndexHolder::zeroElementsWithKey(const Model::Brush* key) {
             auto it = m_brushToOffset.find(key);
             if (it == m_brushToOffset.end()) {
-                throw std::invalid_argument("unknown key");
+                return;
             }
 
             const auto offset = it->second;
@@ -155,7 +155,7 @@ namespace TrenchBroom {
         void BrushVertexHolder::deleteVerticesWithKey(const Model::Brush* key) {
             auto it = m_brushToOffset.find(key);
             if (it == m_brushToOffset.end()) {
-                throw std::invalid_argument("unknown key");
+                return;
             }
 
             const auto offset = it->second;

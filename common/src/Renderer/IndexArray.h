@@ -200,6 +200,9 @@ namespace TrenchBroom {
             size_t insertElements(const std::vector<GLuint>& elements,
                                   const Model::Brush* key);
 
+            /**
+             * Deletes indices for the given brush. No-op if the brush is not used.
+             */
             void zeroElementsWithKey(const Model::Brush* key);
 
             void render(const PrimType primType) const;
@@ -274,6 +277,9 @@ namespace TrenchBroom {
             size_t insertVertices(const std::vector<Vertex>& elements,
                                   const Model::Brush* key);
 
+            /**
+             * No-op if `key` is not used.
+             */
             void deleteVerticesWithKey(const Model::Brush* key);
 
             // setting up GL attributes

@@ -387,5 +387,17 @@ namespace TrenchBroom {
                 (*m_transparentFaces)[texture]->insertElements(textureTris, brush);
             }
         }
+
+        void BrushRenderer::removeBrush(const Model::Brush* brush) {
+            m_vertexArray->deleteVerticesWithKey(brush);
+            m_edgeIndices->zeroElementsWithKey(brush);
+
+            for (const auto& [texture, brushIndexHolder] : *m_transparentFaces) {
+                brushIndexHolder->zeroElementsWithKey(brush);
+            }
+            for (const auto& [texture, brushIndexHolder] : *m_opaqueFaces) {
+                brushIndexHolder->zeroElementsWithKey(brush);
+            }
+        }
     }
 }
