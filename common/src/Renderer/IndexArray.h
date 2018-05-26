@@ -20,6 +20,7 @@
 #ifndef IndexArray_h
 #define IndexArray_h
 
+#include "Renderer/VertexSpec.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/DirtyRangeTracker.h"
@@ -229,6 +230,9 @@ namespace TrenchBroom {
         template<typename V>
         class VertexHolder : public VboBlockHolder<V>, public VertexArrayInterface {
         public:
+            VertexHolder()
+                    : VboBlockHolder<V>() {}
+
             VertexHolder(std::vector<V>& elements)
                     : VboBlockHolder<V>(elements) {}
 
@@ -247,6 +251,37 @@ namespace TrenchBroom {
             static std::shared_ptr<VertexHolder<V>> swap(std::vector<V>& elements) {
                 return std::make_shared<VertexHolder<V>>(elements);
             }
+        };
+
+        // TODO: This is mostly copied/pasted from BrushIndexHolder.
+        // The only difference is deleteVerticesWithKey() doesn't need to zero out
+        // the deleted memory in the VBO, while BrushIndexHolder's does.
+        class BrushVertexHolder {
+        private:
+            using Vertex = Renderer::VertexSpecs::P3NT2::Vertex;
+
+            VertexHolder<Vertex> m_vertexHolder;
+            AllocationTracker m_allocationTracker;
+            std::unordered_map<const Model::Brush*, AllocationTracker::Index> m_brushToOffset;
+
+            void insertVerticesAtIndex(const std::vector<Vertex>& elements,
+                                       AllocationTracker::Index index,
+                                       const Model::Brush* key);
+        public:
+            BrushVertexHolder();
+
+            size_t insertVertices(const std::vector<Vertex>& elements,
+                                  const Model::Brush* key);
+
+            void deleteVerticesWithKey(const Model::Brush* key);
+
+            // setting up GL attributes
+            bool setupVertices();
+            void cleanupVertices();
+
+            // uploading the VBO
+            bool prepared() const;
+            void prepare(Vbo& vbo);
         };
 
         //using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
