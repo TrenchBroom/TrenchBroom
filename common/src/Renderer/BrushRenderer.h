@@ -176,6 +176,7 @@ namespace TrenchBroom {
 
         public:
             void validate();
+            void validateBrush(const Model::Brush* brush);
         private:
             BrushRenderer(const BrushRenderer& other);
             BrushRenderer& operator=(const BrushRenderer& other);
