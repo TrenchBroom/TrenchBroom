@@ -1488,7 +1488,11 @@ namespace TrenchBroom {
 
         void Brush::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
             validateVertexCache();
-            m_brushVerticesStartIndex = builder.addPoints(m_cachedVertices).index;
+            [[maybe_unused]] const size_t offsetWithinBuilder = builder.addPoints(m_cachedVertices).index;
+        }
+
+        void Brush::setBrushVerticesStartIndex(const size_t offset) const {
+            m_brushVerticesStartIndex = offset;
         }
 
         void Brush::countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const {

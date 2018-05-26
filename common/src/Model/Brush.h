@@ -346,9 +346,12 @@ namespace TrenchBroom {
             size_t cachedVertexCount() const;
 
             /**
-             * Returns all vertices for all faces of the brush
+             * Returns all vertices for all faces of the brush.
+             * You must call setBrushVerticesStartIndex() after calling this to record the offset with the VBO
+             * where the returned vertices were written.
              */
             void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
+            void setBrushVerticesStartIndex(size_t offset) const;
 
             void countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const;
             void getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const;

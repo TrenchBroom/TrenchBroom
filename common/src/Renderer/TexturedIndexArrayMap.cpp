@@ -68,5 +68,9 @@ namespace TrenchBroom {
                 func.after(texture);
             }
         }
+
+        const std::unordered_map<const Assets::Texture*, IndexArrayRange, TexturedIndexArrayMap::HashPtr>& TexturedIndexArrayMap::ranges() const {
+            return m_ranges;
+        }
     }
 }

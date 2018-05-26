@@ -65,10 +65,9 @@ namespace TrenchBroom {
         m_tint(false),
         m_alpha(1.0f) {}
         
-        FaceRenderer::FaceRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor) :
+        FaceRenderer::FaceRenderer(VertexArrayPtr vertexArray, std::shared_ptr<const TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor) :
         m_vertexArray(vertexArray),
-        m_indexArray(indexArray),
-        m_indexRanges(indexArrayMap),
+        m_indexArrayMap(indexArrayMap),
         m_faceColor(faceColor),
         m_grayscale(false),
         m_tint(false),
@@ -76,8 +75,7 @@ namespace TrenchBroom {
 
         FaceRenderer::FaceRenderer(const FaceRenderer& other) :
         m_vertexArray(other.m_vertexArray),
-        m_indexArray(other.m_indexArray),
-        m_indexRanges(other.m_indexRanges),
+        m_indexArrayMap(other.m_indexArrayMap),
         m_faceColor(other.m_faceColor),
         m_grayscale(other.m_grayscale),
         m_tint(other.m_tint),
@@ -93,8 +91,7 @@ namespace TrenchBroom {
         void swap(FaceRenderer& left, FaceRenderer& right)  {
             using std::swap;
             swap(left.m_vertexArray, right.m_vertexArray);
-            swap(left.m_indexArray, right.m_indexArray);
-            swap(left.m_indexRanges, right.m_indexRanges);
+            swap(left.m_indexArrayMap, right.m_indexArrayMap);
             swap(left.m_faceColor, right.m_faceColor);
             swap(left.m_grayscale, right.m_grayscale);
             swap(left.m_tint, right.m_tint);
@@ -123,14 +120,17 @@ namespace TrenchBroom {
         }
 
         void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
-            m_vertexArray->prepareVertices(vertexVbo);
-            m_indexArray->prepare(indexVbo);
+            m_vertexArray->prepare(vertexVbo);
+
+            for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap) {
+                brushIndexHolderPtr->prepare(indexVbo);
+            }
         }
         
         void FaceRenderer::doRender(RenderContext& context) {
-            if (m_indexArray->empty())
+            if (m_indexArrayMap->empty())
                 return;
-            
+
             if (m_vertexArray->setupVertices()) {
                 ShaderManager& shaderManager = context.shaderManager();
                 ActiveShader shader(shaderManager, Shaders::FaceShader);
@@ -160,10 +160,17 @@ namespace TrenchBroom {
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {
                     glAssert(glDepthMask(GL_FALSE));
-                    m_indexRanges.render(m_indexArray, func);
+                }
+                for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap) {
+                    if (brushIndexHolderPtr->empty()) {
+                        continue;
+                    }
+                    func.before(texture);
+                    brushIndexHolderPtr->render(GL_TRIANGLES);
+                    func.after(texture);
+                }
+                if (m_alpha < 1.0f) {
                     glAssert(glDepthMask(GL_TRUE));
-                } else {
-                    m_indexRanges.render(m_indexArray, func);
                 }
                 m_vertexArray->cleanupVertices();
             }

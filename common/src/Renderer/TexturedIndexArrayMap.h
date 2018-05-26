@@ -70,6 +70,8 @@ namespace TrenchBroom {
 
             void render(std::shared_ptr<IndexHolder> vertexArray);
             void render(std::shared_ptr<IndexHolder> vertexArray, TextureRenderFunc& func);
+
+            const std::unordered_map<const Texture*, IndexArrayRange, HashPtr>& ranges() const;
         };
     }
 }

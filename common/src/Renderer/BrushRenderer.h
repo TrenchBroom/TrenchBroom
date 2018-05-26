@@ -111,7 +111,12 @@ namespace TrenchBroom {
         private:
             Filter* m_filter;
             Model::BrushList m_brushes;
+
             VertexArrayPtr m_vertexArray;
+            IndexArrayPtr m_edgeIndices;
+            std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
+            std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
+
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             IndexedEdgeRenderer m_edgeRenderer;

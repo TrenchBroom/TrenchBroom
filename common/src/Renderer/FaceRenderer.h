@@ -25,32 +25,29 @@
 #include "Model/BrushFace.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/IndexArrayMap.h"
-#include "Renderer/TexturedIndexArrayMap.h"
 
 #include <map>
 #include <memory>
+#include <unordered_map>
 
 namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
+        class BrushIndexHolder;
+        class BrushVertexHolder;
         class RenderBatch;
         class RenderContext;
-        class TexturedIndexArrayMap;
         class Vbo;
-        class VertexArrayInterface;
-        class IndexHolder;
 
-        using IndexArrayPtr = std::shared_ptr<IndexHolder>;
-        using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
+        using VertexArrayPtr = std::shared_ptr<BrushVertexHolder>;
+        using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexHolder>>;
 
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;
 
             VertexArrayPtr m_vertexArray;
-            IndexArrayPtr m_indexArray;
-            TexturedIndexArrayMap m_indexRanges;
+            std::shared_ptr<const TextureToBrushIndicesMap> m_indexArrayMap;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
@@ -58,7 +55,7 @@ namespace TrenchBroom {
             float m_alpha;
         public:
             FaceRenderer();
-            FaceRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray, const TexturedIndexArrayMap& indexArrayMap, const Color& faceColor);
+            FaceRenderer(VertexArrayPtr vertexArray, std::shared_ptr<const TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor);
             
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator=(FaceRenderer other);

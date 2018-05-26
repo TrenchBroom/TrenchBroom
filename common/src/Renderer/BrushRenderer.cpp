@@ -33,6 +33,8 @@
 #include "Renderer/TexturedIndexArrayBuilder.h"
 #include "Renderer/VertexSpec.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Renderer {
         // Filter
@@ -265,40 +267,43 @@ namespace TrenchBroom {
             
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
 
-            // evaluate filter and count vertices
-            // the goal is to only evaluate the filter once per brush.
-            size_t vertexCount = 0;
+            // FIXME: temporary until we persist the Vbo's between validate() calls
+            m_vertexArray = std::make_shared<BrushVertexHolder>();
+            m_edgeIndices = std::make_shared<BrushIndexHolder>();
+            m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
+            m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
+
+            // evaluate filter. only evaluate the filter once per brush.
             for (const auto *brush : m_brushes) {
                 const auto settings = wrapper.markFaces(brush);
                 brush->setRenderSettings(settings);
-
-                const auto [renderType, facePolicy, edgePolicy] = settings;
-                if (facePolicy != Filter::FaceRenderPolicy::RenderNone ||
-                    edgePolicy != Filter::EdgeRenderPolicy::RenderNone) {
-                    vertexCount += brush->cachedVertexCount();
-                }
             }
 
             // collect vertices
-            {
-                VertexListBuilder<Model::Brush::Vertex::Spec> builder(vertexCount);
-                for (const auto *brush : m_brushes) {
-                    const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
-
-                    if (facePolicy != Filter::FaceRenderPolicy::RenderNone ||
-                        edgePolicy != Filter::EdgeRenderPolicy::RenderNone) {
-                        brush->getVertices(builder);
-                    }
-                }
-                m_vertexArray = VertexHolder<Model::Brush::Vertex>::swap(builder.vertices());
-            }
-
-            // count indices
-            TexturedIndexArrayMap::Size opaqueIndexSize;
-            TexturedIndexArrayMap::Size transparentIndexSize;
-            IndexArrayMap::Size edgeIndexSize;
             for (const auto *brush : m_brushes) {
                 const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+
+                if (facePolicy != Filter::FaceRenderPolicy::RenderNone ||
+                    edgePolicy != Filter::EdgeRenderPolicy::RenderNone) {
+
+                    const size_t vertexCount = brush->cachedVertexCount();
+                    VertexListBuilder<Model::Brush::Vertex::Spec> builder(vertexCount);
+                    brush->getVertices(builder);
+
+                    const size_t vertOffset = m_vertexArray->insertVertices(builder.vertices(), brush);
+                    brush->setBrushVerticesStartIndex(vertOffset);
+                }
+            }
+
+            for (const auto *brush : m_brushes) {
+                const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+
+                // count indices
+
+                TexturedIndexArrayMap::Size opaqueIndexSize;
+                TexturedIndexArrayMap::Size transparentIndexSize;
+                // TODO: These are only ever gl_lines, so get rid of the map.
+                IndexArrayMap::Size edgeIndexSize;
 
                 brush->countMarkedEdgeIndices(edgePolicy, edgeIndexSize);
 
@@ -310,14 +315,12 @@ namespace TrenchBroom {
                         brush->countMarkedFaceIndices(facePolicy, transparentIndexSize);
                         break;
                 }
-            }
 
-            // collect indices
-            TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
-            TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
-            IndexArrayMapBuilder edgeIndexBuilder(edgeIndexSize);
-            for (const auto *brush : m_brushes) {
-                const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+                // collect indices
+
+                TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
+                TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
+                IndexArrayMapBuilder edgeIndexBuilder(edgeIndexSize);
 
                 brush->getMarkedEdgeIndices(edgePolicy, edgeIndexBuilder);
 
@@ -329,22 +332,58 @@ namespace TrenchBroom {
                         brush->getMarkedFaceIndices(facePolicy, transparentFaceIndexBuilder);
                         break;
                 }
+
+                // insert into Vbo's
+
+                // the edges can only be lines.
+                assert(edgeIndexBuilder.ranges().pointsRange().count == 0);
+                assert(edgeIndexBuilder.ranges().trianglesRange().count == 0);
+                assert(edgeIndexBuilder.ranges().linesRange().count == edgeIndexBuilder.indices().size());
+                m_edgeIndices->insertElements(edgeIndexBuilder.indices(), brush);
+
+                // the faces can only be tris
+                for (const auto& [texture, range] : opaqueFaceIndexBuilder.ranges().ranges()) {
+                    // FIXME: skip copy
+                    std::vector<GLuint> textureTris;
+                    textureTris.resize(range.count);
+                    assert(range.count > 0);
+
+                    std::copy(opaqueFaceIndexBuilder.indices().cbegin() + range.offset,
+                              opaqueFaceIndexBuilder.indices().cbegin() + range.offset + range.count,
+                              textureTris.begin());
+
+                    assert(textureTris.size() == range.count);
+
+                    // FIXME: consolidate map lookups
+                    if ((*m_opaqueFaces)[texture] == nullptr) {
+                        (*m_opaqueFaces)[texture] = std::make_shared<BrushIndexHolder>();
+                    }
+                    (*m_opaqueFaces)[texture]->insertElements(textureTris, brush);
+                }
+
+                for (const auto& [texture, range] : transparentFaceIndexBuilder.ranges().ranges()) {
+                    // FIXME: skip copy
+                    std::vector<GLuint> textureTris;
+                    textureTris.resize(range.count);
+                    assert(range.count > 0);
+
+                    std::copy(transparentFaceIndexBuilder.indices().cbegin() + range.offset,
+                              transparentFaceIndexBuilder.indices().cbegin() + range.offset + range.count,
+                              textureTris.begin());
+
+                    assert(textureTris.size() == range.count);
+
+                    // FIXME: consolidate map lookups
+                    if ((*m_transparentFaces)[texture] == nullptr) {
+                        (*m_transparentFaces)[texture] = std::make_shared<BrushIndexHolder>();
+                    }
+                    (*m_transparentFaces)[texture]->insertElements(textureTris, brush);
+                }
             }
 
-            // Move the vertices and indices into the VBO/index buffer wrapper objects.
-            // (they're not actually copied to the GPU until later)
-            IndexArrayPtr opaqueIndices = IndexHolder::swap(opaqueFaceIndexBuilder.indices());
-            const TexturedIndexArrayMap& opaqueRanges = opaqueFaceIndexBuilder.ranges();
-
-            IndexArrayPtr transparentIndices = IndexHolder::swap(transparentFaceIndexBuilder.indices());
-            const TexturedIndexArrayMap& transparentRanges = transparentFaceIndexBuilder.ranges();
-
-            m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, opaqueIndices, opaqueRanges, m_faceColor);
-            m_transparentFaceRenderer = FaceRenderer(m_vertexArray, transparentIndices, transparentRanges, m_faceColor);
-
-            IndexArrayPtr edgeIndices = IndexHolder::swap(edgeIndexBuilder.indices());
-            const IndexArrayMap& edgeRanges = edgeIndexBuilder.ranges();
-            m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, edgeIndices, edgeRanges);
+            m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
+            m_transparentFaceRenderer = FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
+            m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
 
             m_valid = true;
         }
