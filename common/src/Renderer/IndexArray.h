@@ -107,8 +107,7 @@ namespace TrenchBroom {
             }
 
             void writeElements(const size_t offsetWithinBlock, const std::vector<T>& elements) {
-                assert(m_block != nullptr);
-                assert(offsetWithinBlock + m_snapshot.size() <= m_snapshot.size());
+                assert(offsetWithinBlock + elements.size() <= m_snapshot.size());
 
                 // apply update to memory
                 std::copy(elements.begin(), elements.end(), m_snapshot.begin() + offsetWithinBlock);

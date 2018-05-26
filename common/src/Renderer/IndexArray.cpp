@@ -132,19 +132,21 @@ namespace TrenchBroom {
 
         size_t BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements,
                                                 const Model::Brush* key) {
-            if (auto [success, index] = m_allocationTracker.allocate(elements.size()); success) {
+            const size_t insertedElementsCount = elements.size();
+
+            if (auto [success, index] = m_allocationTracker.allocate(insertedElementsCount); success) {
                 insertVerticesAtIndex(elements, index, key);
                 return index;
             }
 
             // retry
             const size_t newSize = std::max(2 * m_allocationTracker.capacity(),
-                                            m_allocationTracker.capacity() + elements.size());
+                                            m_allocationTracker.capacity() + insertedElementsCount);
             m_allocationTracker.expand(newSize);
             m_vertexHolder.resize(newSize);
 
             // insert again
-            auto [success, index] = m_allocationTracker.allocate(elements.size());
+            auto [success, index] = m_allocationTracker.allocate(insertedElementsCount);
             assert(success);
             insertVerticesAtIndex(elements, index, key);
             return index;
