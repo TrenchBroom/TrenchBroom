@@ -76,7 +76,9 @@ namespace TrenchBroom {
 
         AllocationTracker::AllocationTracker(Index initial_capacity)
                 : m_capacity(initial_capacity) {
-            insertFree(Block{0, initial_capacity});
+            if (initial_capacity > 0) {
+                insertFree(Block{0, initial_capacity});
+            }
         }
 
         AllocationTracker::AllocationTracker()

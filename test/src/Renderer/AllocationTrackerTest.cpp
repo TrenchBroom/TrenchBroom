@@ -39,6 +39,15 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.freeBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.usedBlocks());
         }
+
+        TEST(AllocationTrackerTest, constructWithZeroCapacity) {
+            AllocationTracker t(0);
+            EXPECT_EQ(0, t.capacity());
+            EXPECT_EQ(0, t.largestPossibleAllocation());
+            EXPECT_EQ(false, t.allocate(1).first);
+            EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.freeBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Block>{}), t.usedBlocks());
+        }
         
         TEST(AllocationTrackerTest, invalidFree) {
             AllocationTracker t(100);
