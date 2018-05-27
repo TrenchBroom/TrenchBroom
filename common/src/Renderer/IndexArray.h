@@ -123,6 +123,7 @@ namespace TrenchBroom {
 
             void prepare(Vbo& vbo) {
                 if (empty()) {
+                    assert(prepared());
                     return;
                 }
                 if (prepared()) {
@@ -132,6 +133,7 @@ namespace TrenchBroom {
                 // first ever upload?
                 if (m_block == nullptr) {
                     allocateBlock(vbo);
+                    assert(prepared());
                     return;
                 }
 
@@ -139,6 +141,7 @@ namespace TrenchBroom {
                 if (m_dirtyRanges.capacity() != (m_block->capacity() / sizeof(T))) {
                     freeBlock();
                     allocateBlock(vbo);
+                    assert(prepared());
                     return;
                 }
 
@@ -157,6 +160,9 @@ namespace TrenchBroom {
 
                     m_block->writeElements(range.pos, updatedElements);
                 });
+
+                m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
+                assert(prepared());
             }
 
             bool empty() const {

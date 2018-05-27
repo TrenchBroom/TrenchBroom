@@ -102,6 +102,8 @@ namespace TrenchBroom {
 
             auto range = m_allocationTracker.free(offset);
             m_indexHolder.zeroRange(range.pos, range.size);
+
+            m_brushToOffset.erase(it);
         }
 
         void BrushIndexHolder::render(const PrimType primType) const {
@@ -115,6 +117,7 @@ namespace TrenchBroom {
 
         void BrushIndexHolder::prepare(Vbo& vbo) {
             m_indexHolder.prepare(vbo);
+            assert(m_indexHolder.prepared());
         }
 
         // BrushVertexHolder
@@ -166,6 +169,8 @@ namespace TrenchBroom {
             // because we only ever do indexed drawing from it.
             // Marking the space free in m_allocationTracker will allow
             // us to re-use the space later
+
+            m_brushToOffset.erase(it);
         }
 
         bool BrushVertexHolder::setupVertices() {
@@ -182,6 +187,7 @@ namespace TrenchBroom {
 
         void BrushVertexHolder::prepare(Vbo& vbo) {
             m_vertexHolder.prepare(vbo);
+            assert(m_vertexHolder.prepared());
         }
     }
 }
