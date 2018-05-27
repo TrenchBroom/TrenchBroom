@@ -158,7 +158,8 @@ namespace TrenchBroom {
                               m_snapshot.cbegin() + range.pos + range.size,
                               updatedElements.begin());
 
-                    m_block->writeElements(range.pos, updatedElements);
+                    const size_t bytesFromStart = range.pos * sizeof(T);
+                    m_block->writeElements(bytesFromStart, updatedElements);
                 });
 
                 m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
