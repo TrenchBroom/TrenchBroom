@@ -112,6 +112,9 @@ namespace TrenchBroom {
         private:
             Filter* m_filter;
             // TODO: maybe have 2 std::set's instead of a map?
+            /**
+             * a brush is valid iff it's in the VBO.
+             */
             std::map<const Model::Brush*, bool> m_brushValid;
 
             VertexArrayPtr m_vertexArray;
@@ -195,6 +198,8 @@ namespace TrenchBroom {
             void validateBrush(const Model::Brush* brush);
             void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);
+
+            void removeBrushFromVbo(const Model::Brush* brush);
         private:
             BrushRenderer(const BrushRenderer& other);
             BrushRenderer& operator=(const BrushRenderer& other);

@@ -157,6 +157,9 @@ namespace TrenchBroom {
 
         void BrushRenderer::invalidate() {
             for (auto& [brush, valid] : m_brushValid) {
+                if (valid) {
+                    removeBrushFromVbo(brush);
+                }
                 valid = false;
             }
         }
@@ -433,10 +436,23 @@ namespace TrenchBroom {
 
         void BrushRenderer::removeBrush(const Model::Brush* brush) {
             // update m_brushValid
-            if (auto it = m_brushValid.find(brush); it != m_brushValid.end()) {
+            {
+                auto it = m_brushValid.find(brush);
+                assert(it != m_brushValid.end());
+
+                const bool wasValid = it->second;
                 m_brushValid.erase(it);
+
+                if (!wasValid) {
+                    // invalid brushes are not in the VBO, so we can return  now.
+                    return;
+                }
             }
 
+            removeBrushFromVbo(brush);
+        }
+
+        void BrushRenderer::removeBrushFromVbo(const Model::Brush* brush) {
             // update Vbo's
             m_vertexArray->deleteVerticesWithKey(brush);
             m_edgeIndices->zeroElementsWithKey(brush);
