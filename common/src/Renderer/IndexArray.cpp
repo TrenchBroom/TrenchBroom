@@ -68,6 +68,10 @@ namespace TrenchBroom {
         void BrushIndexHolder::insertElementsAtIndex(const std::vector<TrenchBroom::GLuint> &elements,
                                                      const TrenchBroom::Renderer::AllocationTracker::Index index,
                                                      const TrenchBroom::Model::Brush *key) {
+            if (m_brushToOffset.find(key) != m_brushToOffset.end()) {
+                throw std::invalid_argument("BrushVertexHolder: attempting to insert a brush that is already present");
+            }
+
             m_brushToOffset[key] = index;
             m_indexHolder.writeElements(index, elements);
         }
@@ -129,6 +133,9 @@ namespace TrenchBroom {
         void BrushVertexHolder::insertVerticesAtIndex(const std::vector<Vertex> &elements,
                                                      const TrenchBroom::Renderer::AllocationTracker::Index index,
                                                      const TrenchBroom::Model::Brush *key) {
+            if (m_brushToOffset.find(key) != m_brushToOffset.end()) {
+                throw std::invalid_argument("BrushVertexHolder: attempting to insert a brush that is already present");
+            }
             m_brushToOffset[key] = index;
             m_vertexHolder.writeElements(index, elements);
         }
