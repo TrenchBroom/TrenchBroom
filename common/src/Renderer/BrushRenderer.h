@@ -27,6 +27,7 @@
 #include "Model/Brush.h"
 
 #include <tuple>
+#include <map>
 
 namespace TrenchBroom {
     namespace Model {
@@ -110,7 +111,8 @@ namespace TrenchBroom {
             class CollectIndices;
         private:
             Filter* m_filter;
-            Model::BrushList m_brushes;
+            // TODO: maybe have 2 std::set's instead of a map?
+            std::map<const Model::Brush*, bool> m_brushValid;
 
             VertexArrayPtr m_vertexArray;
             IndexArrayPtr m_edgeIndices;
@@ -120,7 +122,6 @@ namespace TrenchBroom {
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             IndexedEdgeRenderer m_edgeRenderer;
-            bool m_valid;
             
             Color m_faceColor;
             bool m_showEdges;
@@ -137,24 +138,39 @@ namespace TrenchBroom {
             template <typename FilterT>
             BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
-            m_valid(true),
             m_showEdges(false),
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
             m_transparencyAlpha(1.0f),
-            m_showHiddenBrushes(false) {}
+            m_showHiddenBrushes(false) {
+                clear();
+            }
             
             BrushRenderer(bool transparent);
             
             ~BrushRenderer();
 
+            /**
+             * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
+             */
             void addBrushes(const Model::BrushList& brushes);
+            /**
+             * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
+             */
             void setBrushes(const Model::BrushList& brushes);
             void clear();
-            
+
+            /**
+             * Marks all of the brushes as invalid, meaning that next time one of the render() methods is called,
+             * - the Filter will be re-evaluated for each brush, possibly changing whether the brush is included/excluded
+             * - all brushes vertices will be re-fetched from the Brush object.
+             *
+             * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the Brush object for modification.
+             */
             void invalidate();
-            
+            bool valid() const;
+
             void setFaceColor(const Color& faceColor);
             void setShowEdges(bool showEdges);
             void setEdgeColor(const Color& edgeColor);
@@ -177,6 +193,7 @@ namespace TrenchBroom {
         public:
             void validate();
             void validateBrush(const Model::Brush* brush);
+            void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);
         private:
             BrushRenderer(const BrushRenderer& other);

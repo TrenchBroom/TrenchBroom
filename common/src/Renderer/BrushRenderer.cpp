@@ -113,13 +113,14 @@ namespace TrenchBroom {
 
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
-        m_valid(true),
         m_showEdges(false),
         m_grayscale(false),
         m_tint(false),
         m_showOccludedEdges(false),
         m_transparencyAlpha(1.0f),
-        m_showHiddenBrushes(false) {}
+        m_showHiddenBrushes(false) {
+            clear();
+        }
         
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
@@ -127,26 +128,60 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::addBrushes(const Model::BrushList& brushes) {
-            VectorUtils::append(m_brushes, brushes);
-            invalidate();
+            for (auto* brush : brushes) {
+                addBrush(brush);
+            }
         }
 
         void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
-            m_brushes = brushes;
-            invalidate();
+            // start with adding nothing, and removing everything
+            std::set<const Model::Brush*> toAdd;
+            std::map<const Model::Brush*, bool> toRemove = m_brushValid;
+
+            // update toAdd and toRemove using the input list
+            for (const auto* brush : brushes) {
+                if (auto it = toRemove.find(brush); it != toRemove.end()) {
+                    toRemove.erase(it);
+                } else {
+                    toAdd.insert(brush);
+                }
+            }
+
+            for (auto [brush, wasValid] : toRemove) {
+                removeBrush(brush);
+            }
+            for (auto brush : toAdd) {
+                addBrush(brush);
+            }
         }
 
         void BrushRenderer::invalidate() {
-            m_vertexArray = nullptr;
-            m_valid = false;
+            for (auto& [brush, valid] : m_brushValid) {
+                valid = false;
+            }
+        }
+
+        bool BrushRenderer::valid() const {
+            // TODO: probably worth caching in a variable and updating when needed
+            for (auto& [brush, valid] : m_brushValid) {
+                if (!valid) {
+                    return false;
+                }
+            }
+            return true;
         }
         
         void BrushRenderer::clear() {
-            m_brushes.clear();
-            m_transparentFaceRenderer = FaceRenderer();
-            m_opaqueFaceRenderer = FaceRenderer();
-            m_vertexArray = nullptr;
-            m_valid = true;
+            m_brushValid.clear();
+
+            m_vertexArray = std::make_shared<BrushVertexHolder>();
+            m_edgeIndices = std::make_shared<BrushIndexHolder>();
+            m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
+            m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
+
+            m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
+            m_transparentFaceRenderer = FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
+            m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
         }
 
         void BrushRenderer::setFaceColor(const Color& faceColor) {
@@ -198,8 +233,8 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_brushes.empty()) {
-                if (!m_valid)
+            if (!m_brushValid.empty()) {
+                if (!valid())
                     validate();
                 if (renderContext.showFaces())
                     renderOpaqueFaces(renderBatch);
@@ -209,8 +244,8 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_brushes.empty()) {
-                if (!m_valid)
+            if (!m_brushValid.empty()) {
+                if (!valid())
                     validate();
                 if (renderContext.showFaces())
                     renderTransparentFaces(renderBatch);
@@ -263,26 +298,27 @@ namespace TrenchBroom {
         };
 
         void BrushRenderer::validate() {
-            assert(!m_valid);
+            assert(!valid());
 
-            // FIXME: temporary until we persist the Vbo's between validate() calls
-            m_vertexArray = std::make_shared<BrushVertexHolder>();
-            m_edgeIndices = std::make_shared<BrushIndexHolder>();
-            m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
-            m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
-
-            for (const auto *brush : m_brushes) {
+            for (const auto [brush, valid] : m_brushValid) {
                 validateBrush(brush);
             }
 
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
             m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
-
-            m_valid = true;
         }
 
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
+            // early exit if the brush was already valid.
+            {
+                bool &wasValid = m_brushValid.at(brush);
+                if (wasValid) {
+                    return;
+                }
+                wasValid = true;
+            }
+
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
 
             // evaluate filter. only evaluate the filter once per brush.
@@ -302,6 +338,7 @@ namespace TrenchBroom {
                 VertexListBuilder<Model::Brush::Vertex::Spec> builder(vertexCount);
                 brush->getVertices(builder);
 
+                assert(m_vertexArray != nullptr);
                 const size_t vertOffset = m_vertexArray->insertVertices(builder.vertices(), brush);
                 brush->setBrushVerticesStartIndex(vertOffset);
             }
@@ -388,7 +425,19 @@ namespace TrenchBroom {
             }
         }
 
+        void BrushRenderer::addBrush(const Model::Brush* brush) {
+            // i.e. insert the brush as "invalid" if it's not already present.
+            // if it is present, its validity is unchanged.
+            [[maybe_unused]] auto result = m_brushValid.insert(std::make_pair(brush, false));
+        }
+
         void BrushRenderer::removeBrush(const Model::Brush* brush) {
+            // update m_brushValid
+            if (auto it = m_brushValid.find(brush); it != m_brushValid.end()) {
+                m_brushValid.erase(it);
+            }
+
+            // update Vbo's
             m_vertexArray->deleteVerticesWithKey(brush);
             m_edgeIndices->zeroElementsWithKey(brush);
 
