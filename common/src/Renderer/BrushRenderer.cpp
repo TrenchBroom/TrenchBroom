@@ -457,6 +457,7 @@ namespace TrenchBroom {
             m_vertexArray->deleteVerticesWithKey(brush);
             m_edgeIndices->zeroElementsWithKey(brush);
 
+            // NOTE: the brush may only use some of the textures in these maps
             for (const auto& [texture, brushIndexHolder] : *m_transparentFaces) {
                 brushIndexHolder->zeroElementsWithKey(brush);
             }

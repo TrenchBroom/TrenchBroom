@@ -98,7 +98,10 @@ namespace TrenchBroom {
 
         void BrushIndexHolder::zeroElementsWithKey(const Model::Brush* key) {
             auto it = m_brushToOffset.find(key);
-            assert(it != m_brushToOffset.end());
+            if (it == m_brushToOffset.end()) {
+                // happens for textured triangles when a brush doesn't use the texture
+                return;
+            }
 
             const auto offset = it->second;
 
