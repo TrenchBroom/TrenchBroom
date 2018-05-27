@@ -303,9 +303,18 @@ namespace TrenchBroom {
         void BrushRenderer::validate() {
             assert(!valid());
 
-            for (const auto [brush, valid] : m_brushValid) {
-                validateBrush(brush);
+            size_t validateCalls = 0;
+            for (auto& [brush, valid] : m_brushValid) {
+                if (!valid) {
+                    validateCalls++;
+
+                    validateBrush(brush);
+                    valid = true;
+                }
             }
+            std::cout << "validate " << validateCalls << " brushes\n";
+
+            assert(valid());
 
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
             m_transparentFaceRenderer = FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
@@ -313,14 +322,7 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
-            // early exit if the brush was already valid.
-            {
-                bool &wasValid = m_brushValid.at(brush);
-                if (wasValid) {
-                    return;
-                }
-                wasValid = true;
-            }
+            assert(!m_brushValid.at(brush));
 
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
 
