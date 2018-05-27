@@ -54,21 +54,51 @@ namespace TrenchBroom {
         }
 
         static constexpr size_t NumBrushes = 64'000;
-        static std::vector<Model::Brush*> makeBrushes() {
+        static constexpr size_t NumTextures = 256;
+
+        /**
+         * Both returned vectors need to be freed with VectorUtils::clearAndDelete
+         */
+        static std::pair<std::vector<Model::Brush*>, std::vector<Assets::Texture*>> makeBrushes() {
+            // make textures
+            std::vector<Assets::Texture*> textures;
+            for (size_t i = 0; i < NumTextures; ++i) {
+                const String textureName = "texture " + std::to_string(i);
+
+                textures.push_back(new Assets::Texture(textureName, 64, 64));
+            }
+
+            // make brushes, cycling through the textures for each face
             const BBox3 worldBounds(4096.0);
             Model::World world(Model::MapFormat::Standard, nullptr, worldBounds);
 
             Model::BrushBuilder builder(&world, worldBounds);
 
             std::vector<Model::Brush*> result;
+            size_t currentTextureIndex = 0;
             for (size_t i = 0; i < NumBrushes; ++i) {
-                result.push_back(builder.createCube(64.0, "texture"));
+                Model::Brush* brush = builder.createCube(64.0, "");
+                for (auto* face : brush->faces()) {
+                    face->setTexture(textures.at((currentTextureIndex++) % NumTextures));
+                }
+                result.push_back(brush);
             }
-            return result;
+
+            // ensure the brushes have their vertices cached.
+            // we're not benchmarking that, so we don't
+            // want it mixed into the timing
+
+            BrushRenderer tempRenderer(false);
+            tempRenderer.addBrushes(result);
+            tempRenderer.validate();
+            tempRenderer.clear();
+
+            return {result, textures};
         }
 
+        // the noinline is so you can see the timeLambda when profiling
         template<class L>
-        static void timeLambda(L&& lambda, const std::string& message) {
+        __attribute__ ((noinline)) static void timeLambda(L&& lambda, const std::string& message) {
             const auto start = std::chrono::high_resolution_clock::now();
             lambda();
             const auto end = std::chrono::high_resolution_clock::now();
@@ -78,65 +108,32 @@ namespace TrenchBroom {
         }
 
         TEST(TexturedIndexArrayBuilderTest, benchBrushRenderer) {
+            auto brushesTextures = makeBrushes();
+            std::vector<Model::Brush*> brushes = brushesTextures.first;
+            std::vector<Assets::Texture*> textures = brushesTextures.second;
 
+            BrushRenderer r(false);
 
-            std::vector<Model::Brush*> brushes = makeBrushes();
-            {
-                BrushRenderer r(false);
+            timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
+            timeLambda([&](){ r.validate(); }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
 
-                // ensure the brushes have their vertices cached.
-                // we're not benchmarking that, so we don't
-                // want it mixed into the timing
-                r.addBrushes(brushes);
-                r.validate();
-                r.clear();
-
-                r.addBrushes(brushes);
-                timeLambda([&](){ r.validate(); }, "validate");
-            }
-
-            timeLambda([&](){
-                std::vector<int> payloads;
-                payloads.reserve(1536000);
-
-                int edges = 0;
-                for (const auto* brush : brushes) {
-                    brush->visitEdges([&](const Model::BrushEdge* edge,
-                                          const Model::BrushFace* f1,
-                                          const Model::BrushFace* f2,
-                                          const Model::Brush* b){
-                        payloads.push_back(edge->firstVertex()->payload());
-                        payloads.push_back(edge->secondVertex()->payload());
-                        edges++;
-                    });
-                }
-                printf("visited %d edges of %d brushes\n", edges, (int)brushes.size());
-                }, "iter all edges");
-
-            // let's try an "efficient" version
-
-            std::vector<std::tuple<const Model::BrushEdge*, int, int, Model::BrushFace*, Model::BrushFace*, const Model::Brush*>> edges;
-            for (const Model::Brush* brush : brushes) {
-                for (const Model::BrushEdge* edge : brush->edges()) {
-                    edges.push_back(std::make_tuple(edge, edge->firstVertex()->payload(), edge->secondVertex()->payload(),
-                                                    edge->firstFace()->payload(), edge->secondFace()->payload(), brush));
+            // keep every second brush
+            Model::BrushList brushesToKeep;
+            for (size_t i = 0; i < brushes.size(); ++i) {
+                if ((i % 2) == 0) {
+                    brushesToKeep.push_back(brushes.at(i));
                 }
             }
 
-            timeLambda([&](){
-                std::vector<int> payloads;
-                payloads.reserve(1536000);
+            timeLambda([&](){ r.setBrushes(brushesToKeep); },
+                       "set brushes from " + std::to_string(brushes.size()) +
+                       " to " + std::to_string(brushesToKeep.size()));
 
-                int eCnt = 0;
-                for (const auto& edgePack : edges) {
-                    eCnt++;
-                    payloads.push_back(std::get<1>(edgePack));
-                    payloads.push_back(std::get<2>(edgePack));
-                }
-                printf("visited %d edges of %d brushes. got %d verts\n", eCnt, (int)brushes.size(), (int)payloads.size());
-            }, "iter efficient edges");
+            timeLambda([&](){ r.validate(); },
+                       "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
 
             VectorUtils::clearAndDelete(brushes);
+            VectorUtils::clearAndDelete(textures);
         }
     }
 }
