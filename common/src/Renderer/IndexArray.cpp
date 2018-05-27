@@ -58,28 +58,15 @@ namespace TrenchBroom {
         // BrushIndexHolder
 
         BrushIndexHolder::BrushIndexHolder() : m_indexHolder(),
-                                               m_allocationTracker(0),
-                                               m_brushToOffset() {}
+                                               m_allocationTracker(0) {}
 
         bool BrushIndexHolder::empty() const {
             return m_indexHolder.empty();
         }
 
-        void BrushIndexHolder::insertElementsAtIndex(const std::vector<TrenchBroom::GLuint> &elements,
-                                                     const TrenchBroom::Renderer::AllocationTracker::Index index,
-                                                     const TrenchBroom::Model::Brush *key) {
-            if (m_brushToOffset.find(key) != m_brushToOffset.end()) {
-                throw std::invalid_argument("BrushVertexHolder: attempting to insert a brush that is already present");
-            }
-
-            m_brushToOffset[key] = index;
-            m_indexHolder.writeElements(index, elements);
-        }
-
-        size_t BrushIndexHolder::insertElements(const std::vector<GLuint>& elements,
-                                                const Model::Brush* key) {
+        size_t BrushIndexHolder::insertElements(const std::vector<GLuint>& elements) {
             if (auto [success, index] = m_allocationTracker.allocate(elements.size()); success) {
-                insertElementsAtIndex(elements, index, key);
+                m_indexHolder.writeElements(index, elements);
                 return index;
             }
 
@@ -92,23 +79,13 @@ namespace TrenchBroom {
             // insert again
             auto [success, index] = m_allocationTracker.allocate(elements.size());
             assert(success);
-            insertElementsAtIndex(elements, index, key);
+            m_indexHolder.writeElements(index, elements);
             return index;
         }
 
-        void BrushIndexHolder::zeroElementsWithKey(const Model::Brush* key) {
-            auto it = m_brushToOffset.find(key);
-            if (it == m_brushToOffset.end()) {
-                // happens for textured triangles when a brush doesn't use the texture
-                return;
-            }
-
-            const auto offset = it->second;
-
-            auto range = m_allocationTracker.free(offset);
+        void BrushIndexHolder::zeroElementsWithKey(const size_t key) {
+            auto range = m_allocationTracker.free(key);
             m_indexHolder.zeroRange(range.pos, range.size);
-
-            m_brushToOffset.erase(it);
         }
 
         void BrushIndexHolder::render(const PrimType primType) const {
@@ -128,25 +105,13 @@ namespace TrenchBroom {
         // BrushVertexHolder
 
         BrushVertexHolder::BrushVertexHolder() : m_vertexHolder(),
-                                               m_allocationTracker(0),
-                                               m_brushToOffset() {}
+                                               m_allocationTracker(0) {}
 
-        void BrushVertexHolder::insertVerticesAtIndex(const std::vector<Vertex> &elements,
-                                                     const TrenchBroom::Renderer::AllocationTracker::Index index,
-                                                     const TrenchBroom::Model::Brush *key) {
-            if (m_brushToOffset.find(key) != m_brushToOffset.end()) {
-                throw std::invalid_argument("BrushVertexHolder: attempting to insert a brush that is already present");
-            }
-            m_brushToOffset[key] = index;
-            m_vertexHolder.writeElements(index, elements);
-        }
-
-        size_t BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements,
-                                                const Model::Brush* key) {
+        size_t BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements) {
             const size_t insertedElementsCount = elements.size();
 
             if (auto [success, index] = m_allocationTracker.allocate(insertedElementsCount); success) {
-                insertVerticesAtIndex(elements, index, key);
+                m_vertexHolder.writeElements(index, elements);
                 return index;
             }
 
@@ -159,24 +124,17 @@ namespace TrenchBroom {
             // insert again
             auto [success, index] = m_allocationTracker.allocate(insertedElementsCount);
             assert(success);
-            insertVerticesAtIndex(elements, index, key);
+            m_vertexHolder.writeElements(index, elements);
             return index;
         }
 
-        void BrushVertexHolder::deleteVerticesWithKey(const Model::Brush* key) {
-            auto it = m_brushToOffset.find(key);
-            assert(it != m_brushToOffset.end());
-
-            const auto offset = it->second;
-
-            auto range = m_allocationTracker.free(offset);
+        void BrushVertexHolder::deleteVerticesWithKey(const size_t key) {
+            auto range = m_allocationTracker.free(key);
 
             // there's no need to actually delete the vertices from the VBO.
             // because we only ever do indexed drawing from it.
             // Marking the space free in m_allocationTracker will allow
             // us to re-use the space later
-
-            m_brushToOffset.erase(it);
         }
 
         bool BrushVertexHolder::setupVertices() {

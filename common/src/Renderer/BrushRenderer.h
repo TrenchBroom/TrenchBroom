@@ -25,9 +25,11 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
 #include "Model/Brush.h"
+#include "Renderer/AllocationTracker.h"
 
 #include <tuple>
 #include <map>
+#include <unordered_map>
 
 namespace TrenchBroom {
     namespace Model {
@@ -111,6 +113,15 @@ namespace TrenchBroom {
             class CollectIndices;
         private:
             Filter* m_filter;
+
+            struct BrushInfo {
+                AllocationTracker::Index vertexHolderKey;
+                AllocationTracker::Index edgeIndicesKey;
+                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Index>> opaqueFaceIndicesKeys;
+                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Index>> transparentFaceIndicesKeys;
+            };
+            std::unordered_map<const Model::Brush*, BrushInfo> m_brushInfo;
+
             // TODO: maybe have 2 std::set's instead of a map?
             /**
              * a brush is valid iff it's in the VBO.

@@ -323,6 +323,9 @@ namespace TrenchBroom {
 
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
             assert(!m_brushValid.at(brush));
+            assert(m_brushInfo.find(brush) == m_brushInfo.end());
+
+            BrushInfo info;
 
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
 
@@ -344,8 +347,10 @@ namespace TrenchBroom {
                 brush->getVertices(builder);
 
                 assert(m_vertexArray != nullptr);
-                const size_t vertOffset = m_vertexArray->insertVertices(builder.vertices(), brush);
+                const size_t vertOffset = m_vertexArray->insertVertices(builder.vertices());
                 brush->setBrushVerticesStartIndex(vertOffset);
+
+                info.vertexHolderKey = vertOffset;
             }
 
             // count indices
@@ -388,7 +393,7 @@ namespace TrenchBroom {
             assert(edgeIndexBuilder.ranges().pointsRange().count == 0);
             assert(edgeIndexBuilder.ranges().trianglesRange().count == 0);
             assert(edgeIndexBuilder.ranges().linesRange().count == edgeIndexBuilder.indices().size());
-            m_edgeIndices->insertElements(edgeIndexBuilder.indices(), brush);
+            info.edgeIndicesKey = m_edgeIndices->insertElements(edgeIndexBuilder.indices());
 
             // the faces can only be tris
             for (const auto& [texture, range] : opaqueFaceIndexBuilder.ranges().ranges()) {
@@ -407,7 +412,8 @@ namespace TrenchBroom {
                 if ((*m_opaqueFaces)[texture] == nullptr) {
                     (*m_opaqueFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                (*m_opaqueFaces)[texture]->insertElements(textureTris, brush);
+                const size_t offset = (*m_opaqueFaces)[texture]->insertElements(textureTris);
+                info.opaqueFaceIndicesKeys.push_back({texture, offset});
             }
 
             for (const auto& [texture, range] : transparentFaceIndexBuilder.ranges().ranges()) {
@@ -426,8 +432,12 @@ namespace TrenchBroom {
                 if ((*m_transparentFaces)[texture] == nullptr) {
                     (*m_transparentFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                (*m_transparentFaces)[texture]->insertElements(textureTris, brush);
+                const size_t offset = (*m_transparentFaces)[texture]->insertElements(textureTris);
+                info.transparentFaceIndicesKeys.push_back({texture, offset});
             }
+
+            // FIXME: avoid copying
+            m_brushInfo[brush] = info;
         }
 
         void BrushRenderer::addBrush(const Model::Brush* brush) {
@@ -455,17 +465,25 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::removeBrushFromVbo(const Model::Brush* brush) {
-            // update Vbo's
-            m_vertexArray->deleteVerticesWithKey(brush);
-            m_edgeIndices->zeroElementsWithKey(brush);
+            auto it = m_brushInfo.find(brush);
+            assert(it != m_brushInfo.end());
 
-            // NOTE: the brush may only use some of the textures in these maps
-            for (const auto& [texture, brushIndexHolder] : *m_transparentFaces) {
-                brushIndexHolder->zeroElementsWithKey(brush);
+            const BrushInfo& info = it->second;
+
+            // update Vbo's
+            m_vertexArray->deleteVerticesWithKey(info.vertexHolderKey);
+            m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
+
+            for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys) {
+                std::shared_ptr<BrushIndexHolder> faceIndexHolder = (*m_opaqueFaces).at(texture);
+                faceIndexHolder->zeroElementsWithKey(opaqueKey);
             }
-            for (const auto& [texture, brushIndexHolder] : *m_opaqueFaces) {
-                brushIndexHolder->zeroElementsWithKey(brush);
+            for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys) {
+                std::shared_ptr<BrushIndexHolder> faceIndexHolder = (*m_opaqueFaces).at(texture);
+                faceIndexHolder->zeroElementsWithKey(transparentKey);
             }
+
+            m_brushInfo.erase(it);
         }
     }
 }

@@ -194,23 +194,17 @@ namespace TrenchBroom {
         private:
             IndexHolder m_indexHolder;
             AllocationTracker m_allocationTracker;
-            std::unordered_map<const Model::Brush*, AllocationTracker::Index> m_brushToOffset;
-
-            void insertElementsAtIndex(const std::vector<GLuint>& elements,
-                                       const AllocationTracker::Index index,
-                                       const Model::Brush* key);
         public:
             BrushIndexHolder();
 
             bool empty() const;
 
-            size_t insertElements(const std::vector<GLuint>& elements,
-                                  const Model::Brush* key);
+            size_t insertElements(const std::vector<GLuint>& elements);
 
             /**
              * Deletes indices for the given brush. No-op if the brush is not used.
              */
-            void zeroElementsWithKey(const Model::Brush* key);
+            void zeroElementsWithKey(size_t key);
 
             void render(const PrimType primType) const;
             bool prepared() const;
@@ -273,21 +267,12 @@ namespace TrenchBroom {
 
             VertexHolder<Vertex> m_vertexHolder;
             AllocationTracker m_allocationTracker;
-            std::unordered_map<const Model::Brush*, AllocationTracker::Index> m_brushToOffset;
-
-            void insertVerticesAtIndex(const std::vector<Vertex>& elements,
-                                       AllocationTracker::Index index,
-                                       const Model::Brush* key);
         public:
             BrushVertexHolder();
 
-            size_t insertVertices(const std::vector<Vertex>& elements,
-                                  const Model::Brush* key);
+            size_t insertVertices(const std::vector<Vertex>& elements);
 
-            /**
-             * No-op if `key` is not used.
-             */
-            void deleteVerticesWithKey(const Model::Brush* key);
+            void deleteVerticesWithKey(size_t key);
 
             // setting up GL attributes
             bool setupVertices();
