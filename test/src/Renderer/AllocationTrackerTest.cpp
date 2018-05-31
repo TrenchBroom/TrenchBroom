@@ -157,12 +157,25 @@ namespace TrenchBroom {
 
         static constexpr size_t NumBrushes = 64'000;
 
-        TEST(AllocationTrackerTest, benchmark) {
+        TEST(AllocationTrackerTest, benchmarkAllocOnly) {
             AllocationTracker t(100 * NumBrushes);
             for (size_t i = 0; i < NumBrushes; ++i) {
-                t.allocate(100);
+                EXPECT_TRUE(t.allocate(100).first);
             }
             EXPECT_EQ(0, t.largestPossibleAllocation());
+        }
+
+        TEST(AllocationTrackerTest, benchmarkAllocFreeAlloc) {
+            AllocationTracker t(100 * NumBrushes);
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                EXPECT_TRUE(t.allocate(100).first);
+            }
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                t.free(100 * i);
+            }
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                EXPECT_TRUE(t.allocate(100).first);
+            }
         }
     }
 }

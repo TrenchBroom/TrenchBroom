@@ -129,6 +129,25 @@ namespace TrenchBroom {
             t.markDirty(40, 10);
             EXPECT_EQ((std::vector<Range>{{0, 10}, {20, 10}, {40, 10}}), getDirtyRanges(t));
         }
+
+        TEST(DirtyRangeTrackerTest, benchmarkOneGrowingRange) {
+            const size_t Size = 256'000;
+            DirtyRangeTracker t(Size);
+
+            for (size_t i=0; i<Size; ++i) {
+                t.markDirty(i, 1);
+            }
+            EXPECT_EQ((std::vector<Range>{{0, Size}}), getDirtyRanges(t));
+        }
+
+        TEST(DirtyRangeTrackerTest, benchmarkManyRange) {
+            const size_t Size = 256'000;
+            DirtyRangeTracker t(Size);
+
+            for (size_t i = 0; i < (Size / 2); ++i) {
+                t.markDirty(i * 2, 1);
+            }
+        }
     }
 }
 
