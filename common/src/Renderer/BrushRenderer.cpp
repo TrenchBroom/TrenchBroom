@@ -475,11 +475,11 @@ namespace TrenchBroom {
             m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
 
             for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys) {
-                std::shared_ptr<BrushIndexHolder> faceIndexHolder = (*m_opaqueFaces).at(texture);
+                std::shared_ptr<BrushIndexHolder> faceIndexHolder = m_opaqueFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(opaqueKey);
             }
             for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys) {
-                std::shared_ptr<BrushIndexHolder> faceIndexHolder = (*m_opaqueFaces).at(texture);
+                std::shared_ptr<BrushIndexHolder> faceIndexHolder = m_transparentFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(transparentKey);
             }
 
