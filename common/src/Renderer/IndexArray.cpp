@@ -64,10 +64,10 @@ namespace TrenchBroom {
             return m_indexHolder.empty();
         }
 
-        size_t BrushIndexHolder::insertElements(const std::vector<GLuint>& elements) {
-            if (auto [success, index] = m_allocationTracker.allocate(elements.size()); success) {
-                m_indexHolder.writeElements(index, elements);
-                return index;
+        AllocationTracker::Block* BrushIndexHolder::insertElements(const std::vector<GLuint>& elements) {
+            if (auto block = m_allocationTracker.allocate(elements.size()); block != nullptr) {
+                m_indexHolder.writeElements(block->pos, elements);
+                return block;
             }
 
             // retry
@@ -77,15 +77,18 @@ namespace TrenchBroom {
             m_indexHolder.resize(newSize);
 
             // insert again
-            auto [success, index] = m_allocationTracker.allocate(elements.size());
-            assert(success);
-            m_indexHolder.writeElements(index, elements);
-            return index;
+            auto block = m_allocationTracker.allocate(elements.size());
+            assert(block != nullptr);
+            m_indexHolder.writeElements(block->pos, elements);
+            return block;
         }
 
-        void BrushIndexHolder::zeroElementsWithKey(const size_t key) {
-            auto range = m_allocationTracker.free(key);
-            m_indexHolder.zeroRange(range.pos, range.size);
+        void BrushIndexHolder::zeroElementsWithKey(AllocationTracker::Block* key) {
+            const auto pos = key->pos;
+            const auto size = key->size;
+            m_allocationTracker.free(key);
+
+            m_indexHolder.zeroRange(pos, size);
         }
 
         void BrushIndexHolder::render(const PrimType primType) const {
@@ -107,12 +110,12 @@ namespace TrenchBroom {
         BrushVertexHolder::BrushVertexHolder() : m_vertexHolder(),
                                                m_allocationTracker(0) {}
 
-        size_t BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements) {
+        AllocationTracker::Block* BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements) {
             const size_t insertedElementsCount = elements.size();
 
-            if (auto [success, index] = m_allocationTracker.allocate(insertedElementsCount); success) {
-                m_vertexHolder.writeElements(index, elements);
-                return index;
+            if (auto block = m_allocationTracker.allocate(insertedElementsCount); block != nullptr) {
+                m_vertexHolder.writeElements(block->pos, elements);
+                return block;
             }
 
             // retry
@@ -122,14 +125,14 @@ namespace TrenchBroom {
             m_vertexHolder.resize(newSize);
 
             // insert again
-            auto [success, index] = m_allocationTracker.allocate(insertedElementsCount);
-            assert(success);
-            m_vertexHolder.writeElements(index, elements);
-            return index;
+            auto block = m_allocationTracker.allocate(insertedElementsCount);
+            assert(block != nullptr);
+            m_vertexHolder.writeElements(block->pos, elements);
+            return block;
         }
 
-        void BrushVertexHolder::deleteVerticesWithKey(const size_t key) {
-            auto range = m_allocationTracker.free(key);
+        void BrushVertexHolder::deleteVerticesWithKey(AllocationTracker::Block* key) {
+            m_allocationTracker.free(key);
 
             // there's no need to actually delete the vertices from the VBO.
             // because we only ever do indexed drawing from it.

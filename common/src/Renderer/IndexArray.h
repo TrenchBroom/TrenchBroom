@@ -199,12 +199,12 @@ namespace TrenchBroom {
 
             bool empty() const;
 
-            size_t insertElements(const std::vector<GLuint>& elements);
+            AllocationTracker::Block* insertElements(const std::vector<GLuint>& elements);
 
             /**
              * Deletes indices for the given brush. No-op if the brush is not used.
              */
-            void zeroElementsWithKey(size_t key);
+            void zeroElementsWithKey(AllocationTracker::Block* key);
 
             void render(const PrimType primType) const;
             bool prepared() const;
@@ -270,9 +270,9 @@ namespace TrenchBroom {
         public:
             BrushVertexHolder();
 
-            size_t insertVertices(const std::vector<Vertex>& elements);
+            AllocationTracker::Block* insertVertices(const std::vector<Vertex>& elements);
 
-            void deleteVerticesWithKey(size_t key);
+            void deleteVerticesWithKey(AllocationTracker::Block* key);
 
             // setting up GL attributes
             bool setupVertices();

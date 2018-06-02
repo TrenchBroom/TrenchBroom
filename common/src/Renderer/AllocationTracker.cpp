@@ -24,22 +24,22 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        AllocationTracker::Block::Block(Index p, Index s)
+        AllocationTracker::Range::Range(Index p, Index s)
                 : pos(p), size(s) {}
 
-        bool AllocationTracker::Block::operator==(const Block &other) const {
+        bool AllocationTracker::Range::operator==(const Range &other) const {
             return pos == other.pos
                    && size == other.size;
         }
 
-        bool AllocationTracker::Block::operator<(const Block &other) const {
+        bool AllocationTracker::Range::operator<(const Range &other) const {
             if (pos < other.pos) return true;
             if (pos > other.pos) return false;
 
             return size < other.size;
         }
 
-        void AllocationTracker::eraseFree(Block b) {
+        void AllocationTracker::eraseFree(Range b) {
             // update m_sizeToFreePositions
             auto size_it = m_sizeToFreePositions.find(b.size);
             assert(size_it != m_sizeToFreePositions.end());
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             m_endPosToFreePos.erase(endpos_it);
         }
 
-        void AllocationTracker::insertFree(Block b) {
+        void AllocationTracker::insertFree(Range b) {
             assert(b.size > 0);
 
             m_sizeToFreePositions[b.size].insert(b.pos);
@@ -77,14 +77,14 @@ namespace TrenchBroom {
         AllocationTracker::AllocationTracker(Index initial_capacity)
                 : m_capacity(initial_capacity) {
             if (initial_capacity > 0) {
-                insertFree(Block{0, initial_capacity});
+                insertFree(Range{0, initial_capacity});
             }
         }
 
         AllocationTracker::AllocationTracker()
                 : m_capacity(0) {}
 
-        std::pair<bool, AllocationTracker::Index> AllocationTracker::allocate(const size_t bytesUnsigned) {
+        AllocationTracker::Block* AllocationTracker::allocate(const size_t bytesUnsigned) {
             const Index bytes = static_cast<Index>(bytesUnsigned);
 
             if (bytes <= 0)
@@ -93,12 +93,12 @@ namespace TrenchBroom {
             // find the smallest free block that will fit the allocation
             auto it = m_sizeToFreePositions.lower_bound(bytes);
             if (it == m_sizeToFreePositions.end()) {
-                return {false, 0};
+                return nullptr;
             }
-            const Block oldFree{*it->second.begin(), it->first};
+            const Range oldFree{*it->second.begin(), it->first};
 
             // chop off the start of the free block that will be in use now
-            Block newFree = oldFree;
+            Range newFree = oldFree;
             newFree.pos += bytes;
             newFree.size -= bytes;
             assert(newFree.size >= 0);
@@ -111,24 +111,37 @@ namespace TrenchBroom {
             // insert the used block
             m_posToUsedSize[oldFree.pos] = bytes;
 
-            return {true, oldFree.pos};
+            // temp: make a Block
+            Block* block = new Block();
+            block->size = bytes;
+            block->pos = oldFree.pos;
+            m_blocks.insert(block);
+            return block;
         }
 
-        AllocationTracker::Block AllocationTracker::free(Index pos) {
+        void AllocationTracker::free(Block* block) {
+            // temp: remove the block
+            if (m_blocks.find(block) == m_blocks.end())
+                throw std::runtime_error("free(): invalid address");
+            const Index pos = block->pos;
+            m_blocks.erase(block);
+            delete block;
+            // end temp
+
             // remove the used block
             auto it = m_posToUsedSize.find(pos);
             if (it == m_posToUsedSize.end())
                 throw std::runtime_error("free(): invalid address");
-            const Block oldUsedBlock{pos, it->second};
+            const Range oldUsedBlock{pos, it->second};
             m_posToUsedSize.erase(it);
 
-            Block newFree = oldUsedBlock;
+            Range newFree = oldUsedBlock;
 
             // check for an immediately following free block
             const Index oldUsedBlockEnd = oldUsedBlock.pos + oldUsedBlock.size;
             auto it2 = m_posToFreeSize.find(oldUsedBlockEnd);
             if (it2 != m_posToFreeSize.end()) {
-                const Block followingFree{oldUsedBlockEnd, it2->second};
+                const Range followingFree{oldUsedBlockEnd, it2->second};
                 eraseFree(followingFree);
 
                 newFree.size += followingFree.size;
@@ -137,7 +150,7 @@ namespace TrenchBroom {
             // check for an immediately preceeding free block
             auto it3 = m_endPosToFreePos.find(oldUsedBlock.pos);
             if (it3 != m_endPosToFreePos.end()) {
-                const Block preceedingFree{it3->second, oldUsedBlock.pos - it3->second};
+                const Range preceedingFree{it3->second, oldUsedBlock.pos - it3->second};
                 eraseFree(preceedingFree);
 
                 newFree.pos -= preceedingFree.size;
@@ -145,8 +158,6 @@ namespace TrenchBroom {
             }
 
             insertFree(newFree);
-
-            return oldUsedBlock;
         }
 
         size_t AllocationTracker::capacity() const {
@@ -170,16 +181,16 @@ namespace TrenchBroom {
             if (it != m_endPosToFreePos.end()) {
                 // the current buffer ends in a free block. we can just expand it.
 
-                const Block oldFree{it->second, m_capacity - it->second};
+                const Range oldFree{it->second, m_capacity - it->second};
                 eraseFree(oldFree);
 
-                const Block newFree{oldFree.pos, oldFree.size + increase};
+                const Range newFree{oldFree.pos, oldFree.size + increase};
                 insertFree(newFree);
             } else {
                 // the current buffer ends in a used block.
                 // create a new free block
 
-                const Block newFree{m_capacity, increase};
+                const Range newFree{m_capacity, increase};
                 insertFree(newFree);
             }
 
@@ -188,18 +199,18 @@ namespace TrenchBroom {
 
 // Testing / debugging
 
-        std::set<AllocationTracker::Block> AllocationTracker::freeBlocks() const {
-            std::set<Block> res;
+        std::set<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
+            std::set<Range> res;
             for (const auto &pr : m_posToFreeSize) {
-                res.insert(Block{pr.first, pr.second});
+                res.insert(Range{pr.first, pr.second});
             }
             return res;
         }
 
-        std::set<AllocationTracker::Block> AllocationTracker::usedBlocks() const {
-            std::set<Block> res;
+        std::set<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
+            std::set<Range> res;
             for (const auto &pr : m_posToUsedSize) {
-                res.insert(Block{pr.first, pr.second});
+                res.insert(Range{pr.first, pr.second});
             }
             return res;
         }

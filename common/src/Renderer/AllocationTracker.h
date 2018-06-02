@@ -33,17 +33,24 @@ namespace TrenchBroom {
         public:
             using Index = int64_t;
 
-            class Block {
+            class Range {
             public:
                 Index pos;
                 Index size;
 
-                Block(Index p, Index s);
+                Range(Index p, Index s);
 
-                bool operator==(const Block &other) const;
+                bool operator==(const Range &other) const;
 
-                bool operator<(const Block &other) const;
+                bool operator<(const Range &other) const;
             };
+
+            struct Block {
+                Index pos;
+                Index size;
+            };
+
+            std::set<Block*> m_blocks;
 
         private:
             Index m_capacity;
@@ -56,8 +63,8 @@ namespace TrenchBroom {
             // track used space
             std::map<Index, Index> m_posToUsedSize;
 
-            void eraseFree(Block b);
-            void insertFree(Block b);
+            void eraseFree(Range b);
+            void insertFree(Range b);
 
         public:
             explicit AllocationTracker(Index initial_capacity);
@@ -68,18 +75,18 @@ namespace TrenchBroom {
              * and {false, ?} on failure (the Index is meaningless if the
              * first element is false.)
              */
-            std::pair<bool, Index> allocate(size_t bytes);
+            Block* allocate(size_t bytes);
             /**
              * Returns the block that was freed.
              */
-            Block free(Index pos);
+            void free(Block* block);
             size_t capacity() const;
             void expand(Index newcap);
 
             // Testing / debugging
 
-            std::set<Block> freeBlocks() const;
-            std::set<Block> usedBlocks() const;
+            std::set<Range> freeBlocks() const;
+            std::set<Range> usedBlocks() const;
             Index largestPossibleAllocation() const;
         };
     }

@@ -347,10 +347,10 @@ namespace TrenchBroom {
                 brush->getVertices(builder);
 
                 assert(m_vertexArray != nullptr);
-                const size_t vertOffset = m_vertexArray->insertVertices(builder.vertices());
-                brush->setBrushVerticesStartIndex(vertOffset);
+                auto vertBlock = m_vertexArray->insertVertices(builder.vertices());
+                brush->setBrushVerticesStartIndex(vertBlock->pos);
 
-                info.vertexHolderKey = vertOffset;
+                info.vertexHolderKey = vertBlock;
             }
 
             // count indices
@@ -412,8 +412,8 @@ namespace TrenchBroom {
                 if ((*m_opaqueFaces)[texture] == nullptr) {
                     (*m_opaqueFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                const size_t offset = (*m_opaqueFaces)[texture]->insertElements(textureTris);
-                info.opaqueFaceIndicesKeys.push_back({texture, offset});
+                auto key = (*m_opaqueFaces)[texture]->insertElements(textureTris);
+                info.opaqueFaceIndicesKeys.push_back({texture, key});
             }
 
             for (const auto& [texture, range] : transparentFaceIndexBuilder.ranges().ranges()) {
@@ -432,8 +432,8 @@ namespace TrenchBroom {
                 if ((*m_transparentFaces)[texture] == nullptr) {
                     (*m_transparentFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                const size_t offset = (*m_transparentFaces)[texture]->insertElements(textureTris);
-                info.transparentFaceIndicesKeys.push_back({texture, offset});
+                auto key = (*m_transparentFaces)[texture]->insertElements(textureTris);
+                info.transparentFaceIndicesKeys.push_back({texture, key});
             }
 
             // FIXME: avoid copying

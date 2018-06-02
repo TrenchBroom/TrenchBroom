@@ -115,10 +115,10 @@ namespace TrenchBroom {
             Filter* m_filter;
 
             struct BrushInfo {
-                AllocationTracker::Index vertexHolderKey;
-                AllocationTracker::Index edgeIndicesKey;
-                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Index>> opaqueFaceIndicesKeys;
-                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Index>> transparentFaceIndicesKeys;
+                AllocationTracker::Block* vertexHolderKey;
+                AllocationTracker::Block* edgeIndicesKey;
+                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>> opaqueFaceIndicesKeys;
+                std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>> transparentFaceIndicesKeys;
             };
             std::unordered_map<const Model::Brush*, BrushInfo> m_brushInfo;
 
