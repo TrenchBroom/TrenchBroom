@@ -36,6 +36,11 @@ namespace TrenchBroom {
                 Block *newBlock = new Block();
                 newBlock->offset = m_blocksAllocated;
                 newBlock->next = nullptr;
+
+                // chain to the list of all blocks, for deleting them in the destructor
+                newBlock->allBlocksChain = m_allBlocksHead;
+                m_allBlocksHead = newBlock;
+
                 m_blocksAllocated++;
                 return newBlock;
             }
@@ -61,28 +66,26 @@ namespace TrenchBroom {
 
         MemoryPoolTracker::MemoryPoolTracker() :
                 m_freeHead(nullptr),
+                m_allBlocksHead(nullptr),
                 m_capacity(0),
                 m_blocksAllocated(0) {}
 
         MemoryPoolTracker::MemoryPoolTracker(int64_t size) :
                 m_freeHead(nullptr),
+                m_allBlocksHead(nullptr),
                 m_capacity(size),
                 m_blocksAllocated(0) {}
 
         MemoryPoolTracker::~MemoryPoolTracker() {
             int64_t numBlocksFreed = 0;
 
-            while (m_freeHead != nullptr) {
-                Block *blockToDelete = m_freeHead;
-                m_freeHead = blockToDelete->next;
+            while (m_allBlocksHead != nullptr) {
+                Block *blockToDelete = m_allBlocksHead;
+                m_allBlocksHead = blockToDelete->allBlocksChain;
                 delete blockToDelete;
                 numBlocksFreed++;
             }
 
-            // If this fails it means you forgot to free() all of the allocations.
-            // We could keep a doubly-linked list of the currently allocated
-            // blocks and free them here, to relieve users of the class from having
-            // to free everything. This would slow down allocate() and free() though.
             assert(numBlocksFreed == m_blocksAllocated);
         }
     }

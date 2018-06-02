@@ -24,15 +24,18 @@ namespace TrenchBroom {
 	namespace Renderer {
         /**
          * Tracks allocation metadata for fixed-size blocks.
-         *
-         * Note: you need to return all allocated blocks before
-         * the destructor runs, otherwise it leaks memory.
          */
         class MemoryPoolTracker {
         public:
             struct Block;
         private:
             Block* m_freeHead;
+
+            /**
+             * This could be removed if we require the user to free()
+             * every block before ~MemoryPoolTracker runs.
+             */
+            Block* m_allBlocksHead;
 
             int64_t m_capacity;
             int64_t m_blocksAllocated;
@@ -43,6 +46,7 @@ namespace TrenchBroom {
             private:
                 friend class MemoryPoolTracker;
                 Block* next;
+                Block* allBlocksChain;
             };
 
             Block* allocate();
