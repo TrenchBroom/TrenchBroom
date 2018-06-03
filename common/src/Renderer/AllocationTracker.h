@@ -33,6 +33,7 @@ namespace TrenchBroom {
         public:
             using Index = int64_t;
 
+            // TODO: remove
             class Range {
             public:
                 Index pos;
@@ -46,29 +47,49 @@ namespace TrenchBroom {
             };
 
             struct Block {
+            public:
                 Index pos;
                 Index size;
-            };
 
-            std::set<Block*> m_blocks;
+            private:
+                friend class AllocationTracker;
+                /**
+                 * If this is null it means we're the head of the list in the
+                 * m_sizeToFreeBlock map.
+                 */
+                Block* prevOfSameSize;
+                Block* nextOfSameSize;
+                /**
+                 * If this is null it means m_leftmostBlock points to us.
+                 * These are used for:
+                 *  - merging adjacent free blocks when an allocation is freed.
+                 *  - freeing the actual memory used for the Block objects
+                 *    in the AllocationTracker destructor.
+                 */
+                Block* left;
+                Block* right;
+
+                bool free;
+            };
 
         private:
             Index m_capacity;
 
-            // track free space by 3 indices
-            std::map<Index, std::set<Index>> m_sizeToFreePositions;
-            std::map<Index, Index> m_posToFreeSize;
-            std::map<Index, Index> m_endPosToFreePos;
+            /**
+             * Only used to free all of the blocks in the destructor
+             */
+            Block* m_leftmostBlock;
 
-            // track used space
-            std::map<Index, Index> m_posToUsedSize;
+            // TODO: benchmark against a vector + binary search
+            std::map<Index, Block*> m_sizeToFreeBlock;
 
-            void eraseFree(Range b);
-            void insertFree(Range b);
+            void unlinkFromBinList(Block* block);
+            void linkToBinList(Block* block);
 
         public:
             explicit AllocationTracker(Index initial_capacity);
             AllocationTracker();
+            ~AllocationTracker();
 
             /**
              * Tries to make an allocation. Returns {true, index} on success,
@@ -88,6 +109,7 @@ namespace TrenchBroom {
             std::set<Range> freeBlocks() const;
             std::set<Range> usedBlocks() const;
             Index largestPossibleAllocation() const;
+            void checkInvariants() const;
         };
     }
 }

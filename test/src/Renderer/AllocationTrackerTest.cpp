@@ -49,15 +49,9 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
         }
         
-        TEST(AllocationTrackerTest, invalidFree) {
-            AllocationTracker t(100);
-            EXPECT_ANY_THROW(t.free(nullptr));
-        }
-        
         TEST(AllocationTrackerTest, invalidAllocate) {
             AllocationTracker t(100);
-            
-            EXPECT_ANY_THROW(t.allocate(-1));
+
             EXPECT_ANY_THROW(t.allocate(0));
         }
         
@@ -115,6 +109,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 100}, {300, 100}}), t.freeBlocks());
             EXPECT_EQ(100, t.largestPossibleAllocation());
 
+            // this will cause a merge with the left and right free blocks
             t.free(blocks[2]);
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 300}}), t.freeBlocks());
@@ -128,6 +123,56 @@ namespace TrenchBroom {
             EXPECT_EQ(300, newBlock->size);
             EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {100, 300}, {400, 100}}), t.usedBlocks());
             EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.freeBlocks());
+        }
+
+        TEST(AllocationTrackerTest, freeMergeRight) {
+            AllocationTracker t(400);
+
+            // allocate all the memory
+            AllocationTracker::Block* blocks[4];
+
+            blocks[0] = t.allocate(100);
+            blocks[1] = t.allocate(100);
+            blocks[2] = t.allocate(100);
+            blocks[3] = t.allocate(100);
+            EXPECT_EQ(0, t.largestPossibleAllocation());
+
+            // now start freeing
+            t.free(blocks[2]);
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {100, 100}, {300, 100}}), t.usedBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{200, 100}}), t.freeBlocks());
+
+            // this will merge with the right free block
+            t.free(blocks[1]);
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {300, 100}}), t.usedBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 200}}), t.freeBlocks());
+
+            EXPECT_EQ(200, t.largestPossibleAllocation());
+        }
+
+        TEST(AllocationTrackerTest, freeMergeLeft) {
+            AllocationTracker t(400);
+
+            // allocate all the memory
+            AllocationTracker::Block* blocks[4];
+
+            blocks[0] = t.allocate(100);
+            blocks[1] = t.allocate(100);
+            blocks[2] = t.allocate(100);
+            blocks[3] = t.allocate(100);
+            EXPECT_EQ(0, t.largestPossibleAllocation());
+
+            // now start freeing
+            t.free(blocks[1]);
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {200, 100}, {300, 100}}), t.usedBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 100}}), t.freeBlocks());
+
+            // this will merge with the left free block
+            t.free(blocks[2]);
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 100}, {300, 100}}), t.usedBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{100, 200}}), t.freeBlocks());
+
+            EXPECT_EQ(200, t.largestPossibleAllocation());
         }
         
         TEST(AllocationTrackerTest, expandEmpty) {
