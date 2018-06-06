@@ -18,6 +18,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <random>
 
 #include "Renderer/AllocationTracker.h"
 
@@ -233,27 +234,41 @@ namespace TrenchBroom {
 
         static constexpr size_t NumBrushes = 64'000;
 
+        // between 12 and 140, inclusive.
+        static size_t getBrushSizeFromRandEngine(std::mt19937& engine) {
+            return 12 + (4 * (engine() % 33));
+        }
+
         TEST(AllocationTrackerTest, benchmarkAllocOnly) {
-            AllocationTracker t(100 * NumBrushes);
+            std::mt19937 randEngine;
+
+            AllocationTracker t(140 * NumBrushes);
             for (size_t i = 0; i < NumBrushes; ++i) {
-                EXPECT_NE(nullptr, t.allocate(100));
+                const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
+
+                EXPECT_NE(nullptr, t.allocate(brushSize));
             }
-            EXPECT_EQ(0, t.largestPossibleAllocation());
         }
 
         TEST(AllocationTrackerTest, benchmarkAllocFreeAlloc) {
-            AllocationTracker t(100 * NumBrushes);
+            std::mt19937 randEngine;
+
+            AllocationTracker t(140 * NumBrushes);
             AllocationTracker::Block **allocations = new AllocationTracker::Block*[NumBrushes];
 
             for (size_t i = 0; i < NumBrushes; ++i) {
-                allocations[i] = t.allocate(100);
+                const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
+
+                allocations[i] = t.allocate(brushSize);
                 EXPECT_NE(nullptr, allocations[i]);
             }
             for (size_t i = 0; i < NumBrushes; ++i) {
                 t.free(allocations[i]);
             }
             for (size_t i = 0; i < NumBrushes; ++i) {
-                allocations[i] = t.allocate(100);
+                const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
+
+                allocations[i] = t.allocate(brushSize);
                 EXPECT_NE(nullptr, allocations[i]);
             }
 
