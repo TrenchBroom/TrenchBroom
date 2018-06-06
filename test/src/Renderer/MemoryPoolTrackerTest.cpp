@@ -90,7 +90,19 @@ namespace TrenchBroom {
 
         static constexpr size_t NumBrushes = 64'000;
 
-        TEST(MemoryPoolTrackerTest, benchmark) {
+        TEST(MemoryPoolTrackerTest, benchmarkAlloc) {
+            MemoryPoolTracker t(NumBrushes);
+            MemoryPoolTracker::Block** allocations = new MemoryPoolTracker::Block*[NumBrushes];
+
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                allocations[i] = t.allocate();
+                EXPECT_NE(nullptr, allocations[i]);
+            }
+
+            delete[] allocations;
+        }
+
+        TEST(MemoryPoolTrackerTest, benchmarkAllocFreeAlloc) {
             MemoryPoolTracker t(NumBrushes);
             MemoryPoolTracker::Block** allocations = new MemoryPoolTracker::Block*[NumBrushes];
 
@@ -101,6 +113,12 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < NumBrushes; ++i) {
                 t.free(allocations[i]);
+            }
+
+
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                allocations[i] = t.allocate();
+                EXPECT_NE(nullptr, allocations[i]);
             }
 
             delete[] allocations;

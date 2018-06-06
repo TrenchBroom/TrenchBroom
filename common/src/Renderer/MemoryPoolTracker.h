@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef TrenchBroom_MemoryPoolTracker
+#define TrenchBroom_MemoryPoolTracker
 
 #include <cstdint>
 
@@ -60,3 +62,5 @@ namespace TrenchBroom {
         };
 	}
 }
+
+#endif
