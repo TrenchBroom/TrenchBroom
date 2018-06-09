@@ -24,6 +24,27 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+
+        struct FastDirtyRange {
+            size_t m_dirtyPos;
+            size_t m_dirtySize;
+            size_t m_capacity;
+
+            /**
+             * New trackers are initially clean.
+             */
+            explicit FastDirtyRange(size_t initial_capacity);
+            FastDirtyRange();
+
+            /**
+             * Expanding marks the new range as dirty.
+             */
+            void expand(size_t newcap);
+            size_t capacity() const;
+            void markDirty(size_t pos, size_t size);
+            bool clean() const;
+        };
+
         /**
          * Tracks dirty ranges of an array, automatically unioning overlapping ranges.
          * Used for syncing edits to two arrays.

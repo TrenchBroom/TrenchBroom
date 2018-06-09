@@ -45,7 +45,7 @@ namespace TrenchBroom {
         class VboBlockHolder {
         protected:
             std::vector<T> m_snapshot;
-            DirtyRangeTracker m_dirtyRanges;
+            FastDirtyRange m_dirtyRanges;
             VboBlock *m_block;
 
         private:
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 MapVboBlock map(m_block);
                 m_block->writeElements(0, m_snapshot);
 
-                m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
+                m_dirtyRanges = FastDirtyRange(m_snapshot.size());
                 assert(m_dirtyRanges.clean());
                 assert((m_block->capacity() / sizeof(T)) == m_dirtyRanges.capacity());
             }
@@ -149,20 +149,23 @@ namespace TrenchBroom {
                 ActivateVbo activate(vbo);
                 MapVboBlock map(m_block);
 
-                m_dirtyRanges.visitRanges([&](const DirtyRangeTracker::Range& range){
+                if (!m_dirtyRanges.clean()) {
+                    const size_t pos = m_dirtyRanges.m_dirtyPos;
+                    const size_t size = m_dirtyRanges.m_dirtySize;
+
                     // FIXME: Avoid this unnecessary copy
                     std::vector<T> updatedElements;
-                    updatedElements.resize(range.size);
+                    updatedElements.resize(size);
 
-                    std::copy(m_snapshot.cbegin() + range.pos,
-                              m_snapshot.cbegin() + range.pos + range.size,
+                    std::copy(m_snapshot.cbegin() + pos,
+                              m_snapshot.cbegin() + pos + size,
                               updatedElements.begin());
 
-                    const size_t bytesFromStart = range.pos * sizeof(T);
+                    const size_t bytesFromStart = pos * sizeof(T);
                     m_block->writeElements(bytesFromStart, updatedElements);
-                });
+                }
 
-                m_dirtyRanges = DirtyRangeTracker(m_snapshot.size());
+                m_dirtyRanges = FastDirtyRange(m_snapshot.size());
                 assert(prepared());
             }
 
