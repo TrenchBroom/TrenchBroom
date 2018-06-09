@@ -353,12 +353,10 @@ namespace TrenchBroom {
 
              // collect vertices
             {
-                const size_t vertexCount = brush->cachedVertexCount();
-                VertexListBuilder<Model::Brush::Vertex::Spec> builder(vertexCount);
-                brush->getVertices(builder);
+                const auto& cachedVertices = brush->cachedVertices();
 
                 assert(m_vertexArray != nullptr);
-                auto vertBlock = m_vertexArray->insertVertices(builder.vertices());
+                auto vertBlock = m_vertexArray->insertVertices(cachedVertices);
                 brush->setBrushVerticesStartIndex(vertBlock->pos);
 
                 info.vertexHolderKey = vertBlock;

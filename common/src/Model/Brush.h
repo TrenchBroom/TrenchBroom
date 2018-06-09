@@ -350,7 +350,7 @@ namespace TrenchBroom {
              * You must call setBrushVerticesStartIndex() after calling this to record the offset with the VBO
              * where the returned vertices were written.
              */
-            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
+            const std::vector<Vertex>& cachedVertices() const;
             void setBrushVerticesStartIndex(size_t offset) const;
 
             void countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const;

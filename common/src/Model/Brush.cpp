@@ -1486,9 +1486,9 @@ namespace TrenchBroom {
             return m_cachedVertices.size();
         }
 
-        void Brush::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
+        const std::vector<Brush::Vertex>& Brush::cachedVertices() const {
             validateVertexCache();
-            [[maybe_unused]] const size_t offsetWithinBuilder = builder.addPoints(m_cachedVertices).index;
+            return m_cachedVertices;
         }
 
         void Brush::setBrushVerticesStartIndex(const size_t offset) const {
