@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_AllocationTracker
 #define TrenchBroom_AllocationTracker
 
-#include <map>
+#include <vector>
 #include <set>
 #include <utility>
 
@@ -84,8 +84,10 @@ namespace TrenchBroom {
 
             Block* m_recycledBlockList;
 
-            // TODO: benchmark against a vector + binary search
-            std::map<Index, Block*> m_sizeToFreeBlock;
+            /**
+             * Sorted vector, benchmarks faster than std::map for this use case.
+             */
+            std::vector<Block*> m_freeBlockSizeBins;
 
             void unlinkFromBinList(Block* block);
             void linkToBinList(Block* block);

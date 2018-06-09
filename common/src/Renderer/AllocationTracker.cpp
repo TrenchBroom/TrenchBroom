@@ -21,6 +21,7 @@
 
 #include <exception>
 #include <cassert>
+#include <algorithm>
 
 //#define EXPENSIVE_CHECKS
 
@@ -41,6 +42,13 @@ namespace TrenchBroom {
             return size < other.size;
         }
 
+        static std::vector<AllocationTracker::Block*>::iterator findFirstLargerOrEqualBin(std::vector<AllocationTracker::Block*>& bins, const size_t desiredSize) {
+            return std::lower_bound(bins.begin(),
+                                    bins.end(),
+                                    desiredSize,
+                                    [](const AllocationTracker::Block* a, const size_t b){ return a->size < b; });
+        }
+
         void AllocationTracker::unlinkFromBinList(Block* block) {
             assert(block->free);
 
@@ -48,15 +56,16 @@ namespace TrenchBroom {
             // (m_sizeToFreeBlock has a pointer to us)
             if (block->prevOfSameSize == nullptr) {
                 // this means we must be in m_sizeToFreeBlock
-                auto it = m_sizeToFreeBlock.find(block->size);
-                assert(it != m_sizeToFreeBlock.end());
-                assert(it->second == block);
+                auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
+                assert(it != m_freeBlockSizeBins.end());
+                assert(*it == block);
 
                 // make sure we prune empty lists from the map!
                 if (block->nextOfSameSize == nullptr) {
-                    m_sizeToFreeBlock.erase(it);
+                    // NOTE: O(n) in the number of bins
+                    m_freeBlockSizeBins.erase(it);
                 } else {
-                    it->second = block->nextOfSameSize;
+                    *it = block->nextOfSameSize;
                     block->nextOfSameSize->prevOfSameSize = nullptr;
                     block->nextOfSameSize = nullptr;
                 }
@@ -84,12 +93,17 @@ namespace TrenchBroom {
             assert(block->prevOfSameSize == nullptr);
             assert(block->nextOfSameSize == nullptr);
 
-            Block*& dest = m_sizeToFreeBlock[block->size];
-            if (dest == nullptr) {
-                // NOTE: inserts into the map
-                dest = block;
-            } else {
-                Block* previousListHead = dest;
+            auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
+
+            // insert at end?
+            if (it == m_freeBlockSizeBins.end()) {
+                m_freeBlockSizeBins.insert(it, block);
+                return;
+            }
+
+            // Is there an existing exact match for the bin size? if so we don't need to resize the vector.
+            if ((*it)->size == block->size) {
+                Block* previousListHead = *it;
 
                 assert(previousListHead->size == block->size);
                 assert(previousListHead->prevOfSameSize == nullptr);
@@ -99,8 +113,12 @@ namespace TrenchBroom {
                 previousListHead->prevOfSameSize = block;
 
                 // NOTE: inserts into the map
-                dest = block;
+                *it = block;
+                return;
             }
+
+            // Slow case: insert a new bin, before `it`
+            m_freeBlockSizeBins.insert(it, block);
         }
 
         void AllocationTracker::recycle(Block* block) {
@@ -124,25 +142,25 @@ namespace TrenchBroom {
                 throw std::runtime_error("allocate() requires positive nonzero size");
 
             // find the smallest free block that will fit the allocation
-            auto it = m_sizeToFreeBlock.lower_bound(needed);
-            if (it == m_sizeToFreeBlock.end()) {
+            auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, needed);
+            if (it == m_freeBlockSizeBins.end()) {
                 checkInvariants();
                 return nullptr;
             }
 
             // unlink it from the size bin
-            Block* block = it->second;
+            // (this is a special case of unlinkFromBinList(), duplicated here
+            // to avoid doing a redundant binary search)
+            Block* block = *it;
             assert(block != nullptr);
             assert(block->free);
             assert(block->prevOfSameSize == nullptr);
-            assert(block->size == it->first);
             {
                 Block *blockAfter = block->nextOfSameSize;
                 if (blockAfter == nullptr) {
-                    m_sizeToFreeBlock.erase(it);
+                    m_freeBlockSizeBins.erase(it);
                 } else {
-                    assert(blockAfter->size == it->first);
-                    it->second = blockAfter;
+                    *it = blockAfter;
                     blockAfter->prevOfSameSize = nullptr;
                 }
             }
@@ -404,11 +422,11 @@ namespace TrenchBroom {
         }
 
         AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const {
-            auto it = m_sizeToFreeBlock.crbegin();
-            if (it == m_sizeToFreeBlock.crend())
+            auto it = m_freeBlockSizeBins.crbegin();
+            if (it == m_freeBlockSizeBins.crend())
                 return 0;
 
-            return it->first;
+            return (*it)->size;
         }
 
         void AllocationTracker::checkInvariants() const {
@@ -418,7 +436,7 @@ namespace TrenchBroom {
 
             if (m_capacity == 0) {
                 assert(m_leftmostBlock == nullptr);
-                assert(m_sizeToFreeBlock.empty());
+                assert(m_freeBlockSizeBins.empty());
                 return;
             }
 
@@ -446,19 +464,26 @@ namespace TrenchBroom {
             assert(m_capacity == totalSize);
 
             // check the size map
-            for (const auto& [size, headBlock] : m_sizeToFreeBlock) {
+            for (const auto& headBlock : m_freeBlockSizeBins) {
                 assert(headBlock != nullptr);
                 assert(headBlock->prevOfSameSize == nullptr);
 
                 // check they all have the correct size
                 for (Block* block = headBlock; block != nullptr; block = block->nextOfSameSize) {
-                    assert(block->size == size);
                     assert(block->free);
+                    assert(block->size == headBlock->size);
 
                     if (block->nextOfSameSize != nullptr) {
                         assert(block->nextOfSameSize->prevOfSameSize == block);
                     }
                 }
+            }
+
+            // ensure the size bins are sorted
+            for (size_t i = 0; (i + 1) < m_freeBlockSizeBins.size(); ++i) {
+                const auto& a = m_freeBlockSizeBins.at(i);
+                const auto& b = m_freeBlockSizeBins.at(i + 1);
+                assert(a->size < b->size);
             }
         }
     }
