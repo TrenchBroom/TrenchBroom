@@ -103,6 +103,20 @@ namespace TrenchBroom {
             }
         }
 
+        void AllocationTracker::recycle(Block* block) {
+            block->nextRecycledBlock = m_recycledBlockList;
+            m_recycledBlockList = block;
+        }
+
+        AllocationTracker::Block* AllocationTracker::obtainBlock() {
+            if (m_recycledBlockList != nullptr) {
+                Block* newBlock = m_recycledBlockList;
+                m_recycledBlockList = newBlock->nextRecycledBlock;
+                return newBlock;
+            }
+            return new Block();
+        }
+
         AllocationTracker::Block* AllocationTracker::allocate(size_t needed) {
             checkInvariants();
 
@@ -149,7 +163,7 @@ namespace TrenchBroom {
             assert(block->size > needed);
 
             // this will be the left section of `block`
-            Block* newBlock = new Block();
+            Block* newBlock = obtainBlock();
             newBlock->pos= block->pos;
             newBlock->size = needed;
             newBlock->prevOfSameSize = nullptr;
@@ -205,8 +219,8 @@ namespace TrenchBroom {
                     newRightNeighbour->left = left;
                 }
 
-                delete block;
-                delete right;
+                recycle(block);
+                recycle(right);
 
                 linkToBinList(left);
 
@@ -226,7 +240,7 @@ namespace TrenchBroom {
                     right->left = left;
                 }
 
-                delete block;
+                recycle(block);
 
                 linkToBinList(left);
 
@@ -247,7 +261,7 @@ namespace TrenchBroom {
                     newRightNeighbour->left = block;
                 }
 
-                delete right;
+                recycle(right);
 
                 linkToBinList(block);
                 block->free = true;
@@ -269,7 +283,8 @@ namespace TrenchBroom {
 
         AllocationTracker::AllocationTracker(Index initial_capacity)
                 : m_capacity(0),
-                  m_leftmostBlock(nullptr) {
+                  m_leftmostBlock(nullptr),
+                  m_recycledBlockList(nullptr) {
             if (initial_capacity > 0) {
                 expand(initial_capacity);
                 checkInvariants();
@@ -278,7 +293,8 @@ namespace TrenchBroom {
 
         AllocationTracker::AllocationTracker()
                 : m_capacity(0),
-                  m_leftmostBlock(nullptr) {}
+                  m_leftmostBlock(nullptr),
+                  m_recycledBlockList(nullptr) {}
 
         AllocationTracker::~AllocationTracker() {
             checkInvariants();
@@ -286,6 +302,11 @@ namespace TrenchBroom {
             Block* next;
             for (Block* block = m_leftmostBlock; block != nullptr; block = next) {
                 next = block->right;
+                delete block;
+            }
+
+            for (Block* block = m_recycledBlockList; block != nullptr; block = next) {
+                next = block->nextRecycledBlock;
                 delete block;
             }
         }
@@ -302,7 +323,7 @@ namespace TrenchBroom {
                 assert(newcap > 0);
                 m_capacity = newcap;
 
-                Block* newBlock = new Block();
+                Block* newBlock = obtainBlock();
                 newBlock->pos = 0;
                 newBlock->size = m_capacity;
                 newBlock->prevOfSameSize = nullptr;
@@ -341,7 +362,7 @@ namespace TrenchBroom {
                 // the current buffer ends in a used block.
                 // create a new free block
 
-                Block* newBlock = new Block();
+                Block* newBlock = obtainBlock();
                 newBlock->pos = lastBlock->pos + lastBlock->size;
                 newBlock->size = increase;
                 newBlock->prevOfSameSize = nullptr;

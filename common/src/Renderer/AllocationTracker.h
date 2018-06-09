@@ -70,6 +70,8 @@ namespace TrenchBroom {
                 Block* right;
 
                 bool free;
+
+                Block* nextRecycledBlock;
             };
 
         private:
@@ -80,11 +82,16 @@ namespace TrenchBroom {
              */
             Block* m_leftmostBlock;
 
+            Block* m_recycledBlockList;
+
             // TODO: benchmark against a vector + binary search
             std::map<Index, Block*> m_sizeToFreeBlock;
 
             void unlinkFromBinList(Block* block);
             void linkToBinList(Block* block);
+
+            void recycle(Block* block);
+            Block* obtainBlock();
 
         public:
             explicit AllocationTracker(Index initial_capacity);
