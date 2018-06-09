@@ -45,6 +45,8 @@
 #include "View/Selection.h"
 #include "View/MapDocument.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace Renderer {
         class MapRenderer::SelectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
@@ -444,6 +446,18 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
+        void MapRenderer::invalidateObjectsInRenderers(Renderer renderers, const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            if ((renderers & Renderer_Default) != 0) {
+                m_defaultRenderer->invalidateObjects(groups, entities, brushes);
+            }
+            if ((renderers & Renderer_Selection) != 0) {
+                m_selectionRenderer->invalidateObjects(groups, entities, brushes);
+            }
+            if ((renderers& Renderer_Locked) != 0) {
+                m_lockedRenderer->invalidateObjects(groups, entities, brushes);
+            }
+        }
+
         void MapRenderer::invalidateEntityLinkRenderer() {
             m_entityLinkRenderer->invalidate();
         }
@@ -549,6 +563,27 @@ namespace TrenchBroom {
         
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
             updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
+
+            // selecting faces needs to invalidate the brushes
+            if (!selection.selectedBrushFaces().empty()
+                || !selection.deselectedBrushFaces().empty()) {
+
+                std::set<Model::Brush*> brushes;
+                for (auto& face : selection.selectedBrushFaces()) {
+                    brushes.insert(face->brush());
+                }
+                for (auto& face : selection.deselectedBrushFaces()) {
+                    brushes.insert(face->brush());
+                }
+
+                std::vector<Model::Brush*> brushesVec;
+                brushesVec.reserve(brushes.size());
+                for (auto& brush : brushes) {
+                    brushesVec.push_back(brush);
+                }
+
+                invalidateObjectsInRenderers(Renderer_All, {}, {}, brushesVec);
+            }
         }
         
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {

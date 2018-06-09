@@ -65,6 +65,14 @@ namespace TrenchBroom {
         void GroupRenderer::invalidate() {
             invalidateBounds();
         }
+
+        void GroupRenderer::invalidateGroups(const Model::GroupList& groups) {
+            if (groups.empty()) {
+                return;
+            }
+            // TODO: implement partial invalidate
+            invalidate();
+        }
         
         void GroupRenderer::clear() {
             m_groups.clear();

@@ -183,6 +183,7 @@ namespace TrenchBroom {
              * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the Brush object for modification.
              */
             void invalidate();
+            void invalidateBrushes(const Model::BrushList& brushes);
             bool valid() const;
 
             void setFaceColor(const Color& faceColor);

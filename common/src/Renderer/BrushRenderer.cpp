@@ -164,6 +164,17 @@ namespace TrenchBroom {
             }
         }
 
+        void BrushRenderer::invalidateBrushes(const Model::BrushList& brushes) {
+            for (auto& brush : brushes) {
+                if (auto it = m_brushValid.find(brush); it != m_brushValid.end()) {
+                    if (it->second) {
+                        removeBrushFromVbo(brush);
+                        it->second = false;
+                    }
+                }
+            }
+        }
+
         bool BrushRenderer::valid() const {
             // TODO: probably worth caching in a variable and updating when needed
             for (auto& [brush, valid] : m_brushValid) {

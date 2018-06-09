@@ -57,6 +57,7 @@ namespace TrenchBroom {
 
             void setGroups(const Model::GroupList& groups);
             void invalidate();
+            void invalidateGroups(const Model::GroupList& groups);
             void clear();
 
             template <typename Iter>
