@@ -356,8 +356,8 @@ namespace TrenchBroom {
             void countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const;
             void getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const;
 
-            void countMarkedEdgeIndices(EdgeRenderPolicy policy, Renderer::IndexArrayMap::Size& size) const;
-            void getMarkedEdgeIndices(EdgeRenderPolicy policy, Renderer::IndexArrayMapBuilder& builder) const;
+            size_t countMarkedEdgeIndices(EdgeRenderPolicy policy) const;
+            void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint* dest) const;
 
             RenderSettings renderSettings() const;
             void setRenderSettings(const RenderSettings& settings) const;

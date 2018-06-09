@@ -365,10 +365,8 @@ namespace TrenchBroom {
             // count indices
             TexturedIndexArrayMap::Size opaqueIndexSize;
             TexturedIndexArrayMap::Size transparentIndexSize;
-            // TODO: These are only ever gl_lines, so get rid of the map.
-            IndexArrayMap::Size edgeIndexSize;
 
-            brush->countMarkedEdgeIndices(edgePolicy, edgeIndexSize);
+            const size_t edgeIndexCount = brush->countMarkedEdgeIndices(edgePolicy);
 
             switch (renderType) {
                 case Filter::RenderOpacity::Opaque:
@@ -383,9 +381,11 @@ namespace TrenchBroom {
 
             TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
             TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
-            IndexArrayMapBuilder edgeIndexBuilder(edgeIndexSize);
 
-            brush->getMarkedEdgeIndices(edgePolicy, edgeIndexBuilder);
+            // FIXME: get rid of intermediate vector
+            std::vector<GLuint> edgeIndexBuilder;
+            edgeIndexBuilder.resize(edgeIndexCount);
+            brush->getMarkedEdgeIndices(edgePolicy, edgeIndexBuilder.data());
 
             switch (renderType) {
                 case Filter::RenderOpacity::Opaque:
@@ -399,10 +399,8 @@ namespace TrenchBroom {
             // insert into Vbo's
 
             // the edges can only be lines.
-            assert(edgeIndexBuilder.ranges().pointsRange().count == 0);
-            assert(edgeIndexBuilder.ranges().trianglesRange().count == 0);
-            assert(edgeIndexBuilder.ranges().linesRange().count == edgeIndexBuilder.indices().size());
-            info.edgeIndicesKey = m_edgeIndices->insertElements(edgeIndexBuilder.indices());
+            assert(edgeIndexBuilder.size() == edgeIndexCount);
+            info.edgeIndicesKey = m_edgeIndices->insertElements(edgeIndexBuilder);
 
             // the faces can only be tris
             for (const auto& [texture, range] : opaqueFaceIndexBuilder.ranges().ranges()) {

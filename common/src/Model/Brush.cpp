@@ -1521,27 +1521,30 @@ namespace TrenchBroom {
             }
         }
 
-        void Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy, Renderer::IndexArrayMap::Size& size) const {
+        size_t Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy) const {
             if (policy == EdgeRenderPolicy::RenderNone) {
-                return;
+                return 0;
             }
 
+            size_t indexCount = 0;
             for (const CachedEdge& edge : m_cachedEdges) {
                 if (shouldRenderEdge(edge, policy)) {
-                    size.inc(GL_LINES, 2);
+                    indexCount += 2;
                 }
             }
+            return indexCount;
         }
 
-        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, Renderer::IndexArrayMapBuilder& builder) const {
+        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, GLuint* dest) const {
             if (policy == EdgeRenderPolicy::RenderNone) {
                 return;
             }
-            
+
+            size_t i = 0;
             for (const CachedEdge& edge : m_cachedEdges) {
                 if (shouldRenderEdge(edge, policy)) {
-                    builder.addLine(static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush),
-                                    static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush));
+                    dest[i++] = static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush);
                 }
             }
         }
