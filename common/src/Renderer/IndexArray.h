@@ -153,16 +153,10 @@ namespace TrenchBroom {
                     const size_t pos = m_dirtyRanges.m_dirtyPos;
                     const size_t size = m_dirtyRanges.m_dirtySize;
 
-                    // FIXME: Avoid this unnecessary copy
-                    std::vector<T> updatedElements;
-                    updatedElements.resize(size);
-
-                    std::copy(m_snapshot.cbegin() + pos,
-                              m_snapshot.cbegin() + pos + size,
-                              updatedElements.begin());
-
                     const size_t bytesFromStart = pos * sizeof(T);
-                    m_block->writeElements(bytesFromStart, updatedElements);
+                    m_block->writeArray(bytesFromStart,
+                                        m_snapshot.data() + pos,
+                                        size);
                 }
 
                 m_dirtyRanges = FastDirtyRange(m_snapshot.size());
