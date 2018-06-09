@@ -19,6 +19,8 @@
 
 #include <gtest/gtest.h>
 #include <random>
+#include <algorithm>
+#include <vector>
 
 #include "Renderer/AllocationTracker.h"
 
@@ -239,6 +241,41 @@ namespace TrenchBroom {
             return 12 + (4 * (engine() % 33));
         }
 
+        /**
+         * This doesn't use std::uniform_int_distribution or
+         * std::shuffle because we want the same results on all C++ implementations.
+         */
+        template <typename T>
+        static void shuffle(std::vector<T>& vec, std::mt19937& engine) {
+            // https://en.wikipedia.org/wiki/Fisher–Yates_shuffle
+            const size_t vecSize = vec.size();
+            if (vecSize < 2) {
+                return;
+            }
+
+            for (size_t i=0; i <= (vecSize - 2); ++i) {
+                // pick j to be a random integer in [i, vecSize)
+                const size_t rangeExclusive = (vecSize - i);
+                // Note, this has modulo bias, but it's good enough for generating test cases
+                const size_t j = (engine() % rangeExclusive);
+
+                std::swap(vec[i], vec[j]);
+            }
+
+        }
+
+        TEST(AllocationTrackerTest, testShuffle) {
+            std::vector<int> ints;
+            for (int i = 0; i < 10; ++i) {
+                ints.push_back(i);
+            }
+
+            std::mt19937 randEngine;
+            shuffle(ints, randEngine);
+
+            ASSERT_EQ((std::vector<int>{8, 0, 7, 6, 4, 3, 5, 1, 2, 9}), ints);
+        }
+
         TEST(AllocationTrackerTest, benchmarkAllocOnly) {
             std::mt19937 randEngine;
 
@@ -254,7 +291,9 @@ namespace TrenchBroom {
             std::mt19937 randEngine;
 
             AllocationTracker t(140 * NumBrushes);
-            AllocationTracker::Block **allocations = new AllocationTracker::Block*[NumBrushes];
+
+            std::vector<AllocationTracker::Block*> allocations;
+            allocations.resize(NumBrushes);
 
             for (size_t i = 0; i < NumBrushes; ++i) {
                 const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
@@ -262,17 +301,22 @@ namespace TrenchBroom {
                 allocations[i] = t.allocate(brushSize);
                 EXPECT_NE(nullptr, allocations[i]);
             }
+
+            shuffle(allocations, randEngine);
+
             for (size_t i = 0; i < NumBrushes; ++i) {
                 t.free(allocations[i]);
             }
+
+            EXPECT_EQ((std::set<AllocationTracker::Range>{}), t.usedBlocks());
+            EXPECT_EQ((std::set<AllocationTracker::Range>{{0, 140 * NumBrushes}}), t.freeBlocks());
+
             for (size_t i = 0; i < NumBrushes; ++i) {
                 const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
 
                 allocations[i] = t.allocate(brushSize);
                 EXPECT_NE(nullptr, allocations[i]);
             }
-
-            delete[] allocations;
         }
     }
 }

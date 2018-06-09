@@ -22,6 +22,8 @@
 #include <exception>
 #include <cassert>
 
+//#define EXPENSIVE_CHECKS
+
 namespace TrenchBroom {
     namespace Renderer {
         AllocationTracker::Range::Range(Index p, Index s)
@@ -42,7 +44,7 @@ namespace TrenchBroom {
         void AllocationTracker::unlinkFromBinList(Block* block) {
             assert(block->free);
 
-            // sepcial case: when we are the head of the list
+            // special case: when we are the head of the list
             // (m_sizeToFreeBlock has a pointer to us)
             if (block->prevOfSameSize == nullptr) {
                 // this means we must be in m_sizeToFreeBlock
@@ -62,19 +64,19 @@ namespace TrenchBroom {
             }
 
             // handle the "previous" side
+            assert(block->prevOfSameSize != nullptr);
             assert(block->size == block->prevOfSameSize->size);
-
             block->prevOfSameSize->nextOfSameSize = block->nextOfSameSize;
-            block->prevOfSameSize = nullptr;
-
 
             // handle the "next" side
             if (block->nextOfSameSize) {
                 assert(block->size == block->nextOfSameSize->size);
-
                 block->nextOfSameSize->prevOfSameSize = block->prevOfSameSize;
-                block->nextOfSameSize = nullptr;
             }
+
+            // clear the nextOfSameSize/prevOfSameSize pointers to mark the block as unlinked from the bin list
+            block->nextOfSameSize = nullptr;
+            block->prevOfSameSize = nullptr;
         }
 
         void AllocationTracker::linkToBinList(Block* block) {
