@@ -81,6 +81,10 @@ namespace TrenchBroom {
              * Only used to free all of the blocks in the destructor
              */
             Block* m_leftmostBlock;
+            /**
+             * Used when expanding.
+             */
+            Block* m_rightmostBlock;
 
             Block* m_recycledBlockList;
 

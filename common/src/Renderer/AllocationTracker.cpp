@@ -242,6 +242,11 @@ namespace TrenchBroom {
 
                 linkToBinList(left);
 
+                // update rightmost block
+                if (m_rightmostBlock == right) {
+                    m_rightmostBlock = left;
+                }
+
                 checkInvariants();
                 return;
             }
@@ -261,6 +266,11 @@ namespace TrenchBroom {
                 recycle(block);
 
                 linkToBinList(left);
+
+                // update rightmost block
+                if (m_rightmostBlock == block) {
+                    m_rightmostBlock = left;
+                }
 
                 checkInvariants();
                 return;
@@ -284,6 +294,11 @@ namespace TrenchBroom {
                 linkToBinList(block);
                 block->free = true;
 
+                // update rightmost block
+                if (m_rightmostBlock == right) {
+                    m_rightmostBlock = block;
+                }
+
                 checkInvariants();
                 return;
             }
@@ -302,6 +317,7 @@ namespace TrenchBroom {
         AllocationTracker::AllocationTracker(Index initial_capacity)
                 : m_capacity(0),
                   m_leftmostBlock(nullptr),
+                  m_rightmostBlock(nullptr),
                   m_recycledBlockList(nullptr) {
             if (initial_capacity > 0) {
                 expand(initial_capacity);
@@ -312,6 +328,7 @@ namespace TrenchBroom {
         AllocationTracker::AllocationTracker()
                 : m_capacity(0),
                   m_leftmostBlock(nullptr),
+                  m_rightmostBlock(nullptr),
                   m_recycledBlockList(nullptr) {}
 
         AllocationTracker::~AllocationTracker() {
@@ -351,6 +368,7 @@ namespace TrenchBroom {
                 newBlock->free = true;
 
                 m_leftmostBlock = newBlock;
+                m_rightmostBlock = newBlock;
 
                 linkToBinList(newBlock);
 
@@ -361,14 +379,8 @@ namespace TrenchBroom {
             const Index increase = newcap - m_capacity;
             assert(increase > 0);
 
-            // find the last block
-            Block* lastBlock = nullptr;
-            for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
-                lastBlock = block;
-            }
-            assert(lastBlock != nullptr);
-
             // 2 cases:
+            Block* lastBlock = m_rightmostBlock;
             if (lastBlock->free) {
                 // the current buffer ends in a free block. we can just expand it.
                 unlinkFromBinList(lastBlock);
@@ -392,6 +404,8 @@ namespace TrenchBroom {
                 linkToBinList(newBlock);
 
                 lastBlock->right = newBlock;
+
+                m_rightmostBlock = newBlock;
             }
 
             m_capacity += increase;
@@ -436,6 +450,7 @@ namespace TrenchBroom {
 
             if (m_capacity == 0) {
                 assert(m_leftmostBlock == nullptr);
+                assert(m_rightmostBlock == nullptr);
                 assert(m_freeBlockSizeBins.empty());
                 return;
             }
@@ -443,6 +458,9 @@ namespace TrenchBroom {
             assert(m_leftmostBlock != nullptr);
             assert(m_leftmostBlock->left == nullptr);
             assert(m_leftmostBlock->pos == 0);
+
+            assert(m_rightmostBlock != nullptr);
+            assert(m_rightmostBlock->right == nullptr);
 
             // check the left/right pointers, size, pos
             size_t totalSize = 0;
@@ -453,6 +471,9 @@ namespace TrenchBroom {
                 if (block->right != nullptr) {
                     assert(block->right->left == block);
                     assert(block->right->pos == block->pos + block->size);
+                } else {
+                    // rightmost block
+                    assert(block == m_rightmostBlock);
                 }
 
                 // used blocks aren't in the nextOfSameSize linked list

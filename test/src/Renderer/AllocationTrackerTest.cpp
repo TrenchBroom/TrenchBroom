@@ -318,6 +318,26 @@ namespace TrenchBroom {
                 EXPECT_NE(nullptr, allocations[i]);
             }
         }
+
+        TEST(AllocationTrackerTest, benchmarkAllocAndExpand) {
+            std::mt19937 randEngine;
+
+            AllocationTracker t;
+            for (size_t i = 0; i < NumBrushes; ++i) {
+                const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
+
+                auto key = t.allocate(brushSize);
+                if (key == nullptr) {
+                    const size_t newSize = t.capacity() + brushSize;
+                    t.expand(newSize);
+
+                    //std::cout << "expand to " << newSize << "\n";
+
+                    key = t.allocate(brushSize);
+                }
+                EXPECT_NE(nullptr, key);
+            }
+        }
     }
 }
 
