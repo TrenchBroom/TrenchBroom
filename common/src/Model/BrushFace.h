@@ -87,7 +87,6 @@ namespace TrenchBroom {
             
             mutable size_t m_indexOfFirstVertexRelativeToBrush;
             mutable bool m_markedToRenderFace;
-            mutable bool m_markedToRenderEdges;
         protected:
             BrushFaceAttributes m_attribs;
         public:
