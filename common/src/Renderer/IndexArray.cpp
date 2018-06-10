@@ -21,6 +21,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <cstring>
 
 namespace TrenchBroom {
     // BrushIndexHolder
@@ -35,11 +36,8 @@ namespace TrenchBroom {
                 : VboBlockHolder<Index>(elements) {}
 
         void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count) {
-            // TODO: It's wasteful to allocate a buffer of zeros. Try glMapBuffer and memset to 0?
-            std::vector<Index> zeros;
-            zeros.resize(count);
-
-            writeElements(offsetWithinBlock, zeros);
+            Index* dest = getPointerToWriteElementsTo(offsetWithinBlock, count);
+            std::memset(dest, 0, count * sizeof(Index));
         }
 
         void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const {
@@ -64,23 +62,23 @@ namespace TrenchBroom {
             return m_indexHolder.empty();
         }
 
-        AllocationTracker::Block* BrushIndexHolder::insertElements(const std::vector<GLuint>& elements) {
-            if (auto block = m_allocationTracker.allocate(elements.size()); block != nullptr) {
-                m_indexHolder.writeElements(block->pos, elements);
-                return block;
+        std::pair<AllocationTracker::Block*, GLuint*> BrushIndexHolder::getPointerToInsertElementsAt(const size_t elementCount) {
+            if (auto block = m_allocationTracker.allocate(elementCount); block != nullptr) {
+                GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
+                return {block, dest};
             }
 
             // retry
             const size_t newSize = std::max(2 * m_allocationTracker.capacity(),
-                                            m_allocationTracker.capacity() + elements.size());
+                                            m_allocationTracker.capacity() + elementCount);
             m_allocationTracker.expand(newSize);
             m_indexHolder.resize(newSize);
 
             // insert again
-            auto block = m_allocationTracker.allocate(elements.size());
+            auto block = m_allocationTracker.allocate(elementCount);
             assert(block != nullptr);
-            m_indexHolder.writeElements(block->pos, elements);
-            return block;
+            GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
+            return {block, dest};
         }
 
         void BrushIndexHolder::zeroElementsWithKey(AllocationTracker::Block* key) {
@@ -110,25 +108,24 @@ namespace TrenchBroom {
         BrushVertexHolder::BrushVertexHolder() : m_vertexHolder(),
                                                m_allocationTracker(0) {}
 
-        AllocationTracker::Block* BrushVertexHolder::insertVertices(const std::vector<Vertex>& elements) {
-            const size_t insertedElementsCount = elements.size();
-
-            if (auto block = m_allocationTracker.allocate(insertedElementsCount); block != nullptr) {
-                m_vertexHolder.writeElements(block->pos, elements);
-                return block;
+        std::pair<AllocationTracker::Block*, BrushVertexHolder::Vertex*> BrushVertexHolder::getPointerToInsertVerticesAt(const size_t vertexCount) {
+            if (auto block = m_allocationTracker.allocate(vertexCount); block != nullptr) {
+                Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+                return {block, dest};
             }
 
             // retry
             const size_t newSize = std::max(2 * m_allocationTracker.capacity(),
-                                            m_allocationTracker.capacity() + insertedElementsCount);
+                                            m_allocationTracker.capacity() + vertexCount);
             m_allocationTracker.expand(newSize);
             m_vertexHolder.resize(newSize);
 
             // insert again
-            auto block = m_allocationTracker.allocate(insertedElementsCount);
+            auto block = m_allocationTracker.allocate(vertexCount);
             assert(block != nullptr);
-            m_vertexHolder.writeElements(block->pos, elements);
-            return block;
+
+            Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+            return {block, dest};
         }
 
         void BrushVertexHolder::deleteVerticesWithKey(AllocationTracker::Block* key) {

@@ -356,7 +356,9 @@ namespace TrenchBroom {
                 const auto& cachedVertices = brush->cachedVertices();
 
                 assert(m_vertexArray != nullptr);
-                auto vertBlock = m_vertexArray->insertVertices(cachedVertices);
+                auto [vertBlock, dest] = m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
+                std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
+
                 brush->setBrushVerticesStartIndex(vertBlock->pos);
 
                 info.vertexHolderKey = vertBlock;
@@ -377,15 +379,17 @@ namespace TrenchBroom {
                     break;
             }
 
-            // collect indices
+            // insert edge indices into VBO
+            {
+                auto [key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
+                info.edgeIndicesKey = key;
+                brush->getMarkedEdgeIndices(edgePolicy, dest);
+            }
+
+            // collect face indices
 
             TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
             TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
-
-            // FIXME: get rid of intermediate vector
-            std::vector<GLuint> edgeIndexBuilder;
-            edgeIndexBuilder.resize(edgeIndexCount);
-            brush->getMarkedEdgeIndices(edgePolicy, edgeIndexBuilder.data());
 
             switch (renderType) {
                 case Filter::RenderOpacity::Opaque:
@@ -396,50 +400,32 @@ namespace TrenchBroom {
                     break;
             }
 
-            // insert into Vbo's
-
-            // the edges can only be lines.
-            assert(edgeIndexBuilder.size() == edgeIndexCount);
-            info.edgeIndicesKey = m_edgeIndices->insertElements(edgeIndexBuilder);
+            // insert face indices into Vbo's
 
             // the faces can only be tris
             for (const auto& [texture, range] : opaqueFaceIndexBuilder.ranges().ranges()) {
-                // FIXME: skip copy
-                std::vector<GLuint> textureTris;
-                textureTris.resize(range.count);
                 assert(range.count > 0);
-
-                std::copy(opaqueFaceIndexBuilder.indices().cbegin() + range.offset,
-                          opaqueFaceIndexBuilder.indices().cbegin() + range.offset + range.count,
-                          textureTris.begin());
-
-                assert(textureTris.size() == range.count);
 
                 // FIXME: consolidate map lookups
                 if ((*m_opaqueFaces)[texture] == nullptr) {
                     (*m_opaqueFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                auto key = (*m_opaqueFaces)[texture]->insertElements(textureTris);
+                auto [key, dest] = (*m_opaqueFaces)[texture]->getPointerToInsertElementsAt(range.count);
+                std::memcpy(dest, opaqueFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
+
                 info.opaqueFaceIndicesKeys.push_back({texture, key});
             }
 
             for (const auto& [texture, range] : transparentFaceIndexBuilder.ranges().ranges()) {
-                // FIXME: skip copy
-                std::vector<GLuint> textureTris;
-                textureTris.resize(range.count);
                 assert(range.count > 0);
-
-                std::copy(transparentFaceIndexBuilder.indices().cbegin() + range.offset,
-                          transparentFaceIndexBuilder.indices().cbegin() + range.offset + range.count,
-                          textureTris.begin());
-
-                assert(textureTris.size() == range.count);
 
                 // FIXME: consolidate map lookups
                 if ((*m_transparentFaces)[texture] == nullptr) {
                     (*m_transparentFaces)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                auto key = (*m_transparentFaces)[texture]->insertElements(textureTris);
+                auto [key, dest] = (*m_transparentFaces)[texture]->getPointerToInsertElementsAt(range.count);
+                std::memcpy(dest, transparentFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
+
                 info.transparentFaceIndicesKeys.push_back({texture, key});
             }
 

@@ -106,14 +106,13 @@ namespace TrenchBroom {
                 m_dirtyRanges.expand(newSize);
             }
 
-            void writeElements(const size_t offsetWithinBlock, const std::vector<T>& elements) {
-                assert(offsetWithinBlock + elements.size() <= m_snapshot.size());
-
-                // apply update to memory
-                std::copy(elements.begin(), elements.end(), m_snapshot.begin() + offsetWithinBlock);
+            T* getPointerToWriteElementsTo(const size_t offsetWithinBlock, const size_t elementCount) {
+                assert(offsetWithinBlock + elementCount <= m_snapshot.size());
 
                 // mark dirty range
-                m_dirtyRanges.markDirty(offsetWithinBlock, elements.size());
+                m_dirtyRanges.markDirty(offsetWithinBlock, elementCount);
+
+                return m_snapshot.data() + offsetWithinBlock;
             }
 
             bool prepared() const {
@@ -196,7 +195,7 @@ namespace TrenchBroom {
 
             bool empty() const;
 
-            AllocationTracker::Block* insertElements(const std::vector<GLuint>& elements);
+            std::pair<AllocationTracker::Block*, GLuint*> getPointerToInsertElementsAt(size_t elementCount);
 
             /**
              * Deletes indices for the given brush. No-op if the brush is not used.
@@ -267,7 +266,7 @@ namespace TrenchBroom {
         public:
             BrushVertexHolder();
 
-            AllocationTracker::Block* insertVertices(const std::vector<Vertex>& elements);
+            std::pair<AllocationTracker::Block*, Vertex*> getPointerToInsertVerticesAt(size_t vertexCount);
 
             void deleteVerticesWithKey(AllocationTracker::Block* key);
 
