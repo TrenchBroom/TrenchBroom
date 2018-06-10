@@ -332,6 +332,16 @@ namespace TrenchBroom {
             m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
         }
 
+        static void addPolygon(GLuint* dest, const GLuint baseIndex, const size_t vertexCount) {
+            const size_t indexCount = 3 * (vertexCount - 2);
+
+            for (size_t i = 0; i < vertexCount - 2; ++i) {
+                *(dest++) = baseIndex;
+                *(dest++) = baseIndex + static_cast<GLuint>(i + 1);
+                *(dest++) = baseIndex + static_cast<GLuint>(i + 2);
+            }
+        }
+
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
             assert(!m_brushValid.at(brush));
             assert(m_brushInfo.find(brush) == m_brushInfo.end());
@@ -364,70 +374,68 @@ namespace TrenchBroom {
                 info.vertexHolderKey = vertBlock;
             }
 
-            // count indices
-            TexturedIndexArrayMap::Size opaqueIndexSize;
-            TexturedIndexArrayMap::Size transparentIndexSize;
-
-            const size_t edgeIndexCount = brush->countMarkedEdgeIndices(edgePolicy);
-
-            switch (renderType) {
-                case Filter::RenderOpacity::Opaque:
-                    brush->countMarkedFaceIndices(facePolicy, opaqueIndexSize);
-                    break;
-                case Filter::RenderOpacity::Transparent:
-                    brush->countMarkedFaceIndices(facePolicy, transparentIndexSize);
-                    break;
-            }
-
             // insert edge indices into VBO
             {
+                const size_t edgeIndexCount = brush->countMarkedEdgeIndices(edgePolicy);
+
                 auto [key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
                 info.edgeIndicesKey = key;
                 brush->getMarkedEdgeIndices(edgePolicy, dest);
             }
 
-            // collect face indices
+            // insert face indices
 
-            TexturedIndexArrayBuilder opaqueFaceIndexBuilder(opaqueIndexSize);
-            TexturedIndexArrayBuilder transparentFaceIndexBuilder(transparentIndexSize);
+            auto texFacePairs = brush->markedFacesSortedByTexture();
+            const size_t texFacePairsSize = texFacePairs.size();
 
-            switch (renderType) {
-                case Filter::RenderOpacity::Opaque:
-                    brush->getMarkedFaceIndices(facePolicy, opaqueFaceIndexBuilder);
-                    break;
-                case Filter::RenderOpacity::Transparent:
-                    brush->getMarkedFaceIndices(facePolicy, transparentFaceIndexBuilder);
-                    break;
-            }
+            std::shared_ptr<TextureToBrushIndicesMap> faceVbo = \
+                (renderType == Filter::RenderOpacity::Opaque) ? m_opaqueFaces : m_transparentFaces;
 
-            // insert face indices into Vbo's
+            for (size_t i = 0; i < texFacePairsSize; ++i) {
+                Assets::Texture* texture = texFacePairs[i].first;
 
-            // the faces can only be tris
-            for (const auto& [texture, range] : opaqueFaceIndexBuilder.ranges().ranges()) {
-                assert(range.count > 0);
+                size_t indexCount = 0;
 
-                // FIXME: consolidate map lookups
-                if ((*m_opaqueFaces)[texture] == nullptr) {
-                    (*m_opaqueFaces)[texture] = std::make_shared<BrushIndexHolder>();
+                // process all faces with this texture (they'll be consecutive)
+                size_t j;
+                for (j = i; j < texFacePairsSize && texFacePairs[j].first == texture; ++j) {
+                    Model::BrushFace* face = texFacePairs[j].second;
+                    indexCount += 3 * (face->vertexCount() - 2);
                 }
-                auto [key, dest] = (*m_opaqueFaces)[texture]->getPointerToInsertElementsAt(range.count);
-                std::memcpy(dest, opaqueFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
 
-                info.opaqueFaceIndicesKeys.push_back({texture, key});
-            }
-
-            for (const auto& [texture, range] : transparentFaceIndexBuilder.ranges().ranges()) {
-                assert(range.count > 0);
-
-                // FIXME: consolidate map lookups
-                if ((*m_transparentFaces)[texture] == nullptr) {
-                    (*m_transparentFaces)[texture] = std::make_shared<BrushIndexHolder>();
+                // FIXME: just do 1 map lookup
+                if ((*faceVbo)[texture] == nullptr) {
+                    (*faceVbo)[texture] = std::make_shared<BrushIndexHolder>();
                 }
-                auto [key, dest] = (*m_transparentFaces)[texture]->getPointerToInsertElementsAt(range.count);
-                std::memcpy(dest, transparentFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
+                auto [key, dest] = (*faceVbo)[texture]->getPointerToInsertElementsAt(indexCount);
 
-                info.transparentFaceIndicesKeys.push_back({texture, key});
+                // update info
+                if (renderType == Filter::RenderOpacity::Opaque) {
+                    info.opaqueFaceIndicesKeys.push_back({texture, key});
+                } else {
+                    info.transparentFaceIndicesKeys.push_back({texture, key});
+                }
+
+                // process all faces with this texture (they'll be consecutive)
+                GLuint *currentDest = dest;
+                for (j = i; j < texFacePairsSize && texFacePairs[j].first == texture; ++j) {
+                    Model::BrushFace* face = texFacePairs[j].second;
+
+                    const size_t faceVertexCount = face->vertexCount();
+
+                    addPolygon(currentDest,
+                               static_cast<GLuint>(brush->brushVerticesStartIndex() + face->indexOfFirstVertexRelativeToBrush()),
+                               face->vertexCount());
+
+                    //std::memcpy(dest, opaqueFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
+
+                    currentDest += 3 * (faceVertexCount - 2);
+                }
+
+                // important!!!
+                i = j - 1;
             }
+
 
             // FIXME: avoid copying
             m_brushInfo[brush] = info;

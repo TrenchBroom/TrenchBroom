@@ -1521,6 +1521,31 @@ namespace TrenchBroom {
             }
         }
 
+        size_t Brush::brushVerticesStartIndex() const {
+            return m_brushVerticesStartIndex;
+        }
+
+        std::vector<std::pair<Assets::Texture*, BrushFace*>> Brush::markedFacesSortedByTexture() const {
+            std::vector<std::pair<Assets::Texture*, BrushFace*>> result;
+            result.reserve(faceCount());
+
+            using Texture = Assets::Texture;
+            auto cmp = [](const std::pair<Texture*, BrushFace*>& a, const Texture* b){
+                return a.first < b;
+            };
+
+            for (BrushFace* face : m_faces) {
+                if (face->isMarked()) {
+                    Texture* texture = face->texture();
+                    auto it = std::lower_bound(result.begin(), result.end(), texture, cmp);
+                    result.insert(it, {texture, face});
+                }
+            }
+
+            return result;
+        }
+
+
         size_t Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy) const {
             if (policy == EdgeRenderPolicy::RenderNone) {
                 return 0;

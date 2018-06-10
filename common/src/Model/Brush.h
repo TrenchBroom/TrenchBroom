@@ -359,6 +359,10 @@ namespace TrenchBroom {
             size_t countMarkedEdgeIndices(EdgeRenderPolicy policy) const;
             void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint* dest) const;
 
+            std::vector<std::pair<Assets::Texture*, BrushFace*>> markedFacesSortedByTexture() const;
+
+            size_t brushVerticesStartIndex() const;
+
             RenderSettings renderSettings() const;
             void setRenderSettings(const RenderSettings& settings) const;
         private:
