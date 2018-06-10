@@ -84,8 +84,8 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-            
-            mutable size_t m_indexOfFirstVertexRelativeToBrush;
+
+            // renderer cache
             mutable bool m_markedToRenderFace;
         protected:
             BrushFaceAttributes m_attribs;
@@ -205,9 +205,6 @@ namespace TrenchBroom {
             void invalidateVertexCache();
         public:
             // renderer
-            size_t indexOfFirstVertexRelativeToBrush() const;
-            void setIndexOfFirstVertexRelativeToBrush(size_t index) const;
-
             void setMarked(bool marked) const;
             bool isMarked() const;
         private:

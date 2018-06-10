@@ -1428,10 +1428,13 @@ namespace TrenchBroom {
 
             ensure(m_geometry != nullptr, "geometry is null");
 
-            // build vertex cache
+            // build vertex cache and face cache
 
             m_cachedVertices.clear();
             m_cachedVertices.reserve(vertexCount());
+
+            m_cachedFacesSortedByTexture.clear();
+            m_cachedFacesSortedByTexture.reserve(faceCount());
 
             for (BrushFace* face : m_faces) {
                 const size_t startIndex = m_cachedVertices.size();
@@ -1455,8 +1458,18 @@ namespace TrenchBroom {
                     current = current->previous();
                 } while (current != first);
 
-                face->setIndexOfFirstVertexRelativeToBrush(startIndex);
+                // face cache
+                CachedFace cachedFace;
+                cachedFace.texture = face->texture();
+                cachedFace.face = face;
+                cachedFace.vertexCount = face->vertexCount();
+                cachedFace.indexOfFirstVertexRelativeToBrush = startIndex;
+                m_cachedFacesSortedByTexture.push_back(cachedFace);
             }
+
+            std::sort(m_cachedFacesSortedByTexture.begin(),
+                      m_cachedFacesSortedByTexture.end(),
+                      [](const CachedFace& a, const CachedFace& b){ return a.texture < b.texture; });
 
             // build edge index cache
 
@@ -1495,56 +1508,14 @@ namespace TrenchBroom {
             m_brushVerticesStartIndex = offset;
         }
 
-        void Brush::countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const {
-            if (policy == FaceRenderPolicy::RenderNone) {
-                return;
-            }
-
-            for (const BrushFace* face : m_faces) {
-                if (face->isMarked()) {
-                    size.incTriangles(face->texture(), 3 * (face->vertexCount() - 2));
-                }
-            }
-        }
-
-        void Brush::getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const {
-            if (policy == FaceRenderPolicy::RenderNone) {
-                return;
-            }
-
-            for (const BrushFace* face : m_faces) {
-                if (face->isMarked()) {
-                    builder.addPolygon(face->texture(),
-                                       static_cast<GLuint>(m_brushVerticesStartIndex + face->indexOfFirstVertexRelativeToBrush()),
-                                       face->vertexCount());
-                }
-            }
-        }
 
         size_t Brush::brushVerticesStartIndex() const {
             return m_brushVerticesStartIndex;
         }
 
-        std::vector<std::pair<Assets::Texture*, BrushFace*>> Brush::markedFacesSortedByTexture() const {
-            std::vector<std::pair<Assets::Texture*, BrushFace*>> result;
-            result.reserve(faceCount());
-
-            using Texture = Assets::Texture;
-            auto cmp = [](const std::pair<Texture*, BrushFace*>& a, const Texture* b){
-                return a.first < b;
-            };
-
-            for (BrushFace* face : m_faces) {
-                if (face->isMarked()) {
-                    Texture* texture = face->texture();
-                    auto it = std::lower_bound(result.begin(), result.end(), texture, cmp);
-                    result.insert(it, {texture, face});
-                }
-            }
-
-            return result;
+        const std::vector<Brush::CachedFace>& Brush::cachedFacesSortedByTexture() const {
+            return m_cachedFacesSortedByTexture;
         }
-
 
         size_t Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy) const {
             if (policy == EdgeRenderPolicy::RenderNone) {

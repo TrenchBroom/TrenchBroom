@@ -103,6 +103,12 @@ namespace TrenchBroom {
 
             using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
 
+            struct CachedFace {
+                const Assets::Texture* texture;
+                BrushFace* face;
+                size_t vertexCount;
+                size_t indexOfFirstVertexRelativeToBrush;
+            };
         private:
             struct CachedEdge {
                 BrushFace* face1;
@@ -113,6 +119,7 @@ namespace TrenchBroom {
 
             mutable std::vector<Vertex> m_cachedVertices;
             mutable std::vector<CachedEdge> m_cachedEdges;
+            mutable std::vector<CachedFace> m_cachedFacesSortedByTexture;
             mutable bool m_rendererCacheValid;
             mutable size_t m_brushVerticesStartIndex;
             mutable RenderSettings m_renderSettings;
@@ -353,13 +360,10 @@ namespace TrenchBroom {
             const std::vector<Vertex>& cachedVertices() const;
             void setBrushVerticesStartIndex(size_t offset) const;
 
-            void countMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayMap::Size& size) const;
-            void getMarkedFaceIndices(FaceRenderPolicy policy, Renderer::TexturedIndexArrayBuilder& builder) const;
-
             size_t countMarkedEdgeIndices(EdgeRenderPolicy policy) const;
             void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint* dest) const;
 
-            std::vector<std::pair<Assets::Texture*, BrushFace*>> markedFacesSortedByTexture() const;
+            const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
 
             size_t brushVerticesStartIndex() const;
 

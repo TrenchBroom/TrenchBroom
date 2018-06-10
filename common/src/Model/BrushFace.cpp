@@ -48,7 +48,6 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(nullptr),
-        m_indexOfFirstVertexRelativeToBrush(0),
         m_attribs(attribs) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
@@ -658,14 +657,6 @@ namespace TrenchBroom {
             if (m_brush != nullptr) {
                 m_brush->invalidateVertexCache();
             }
-        }
-
-        size_t BrushFace::indexOfFirstVertexRelativeToBrush() const {
-            return m_indexOfFirstVertexRelativeToBrush;
-        }
-
-        void BrushFace::setIndexOfFirstVertexRelativeToBrush(size_t index) const {
-            m_indexOfFirstVertexRelativeToBrush = index;
         }
 
         void BrushFace::setMarked(bool marked) const {

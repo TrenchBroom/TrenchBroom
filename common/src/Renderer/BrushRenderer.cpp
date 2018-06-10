@@ -385,22 +385,34 @@ namespace TrenchBroom {
 
             // insert face indices
 
-            auto texFacePairs = brush->markedFacesSortedByTexture();
-            const size_t texFacePairsSize = texFacePairs.size();
+            auto& facesSortedByTex = brush->cachedFacesSortedByTexture();
+            const size_t facesSortedByTexSize = facesSortedByTex.size();
 
             std::shared_ptr<TextureToBrushIndicesMap> faceVbo = \
                 (renderType == Filter::RenderOpacity::Opaque) ? m_opaqueFaces : m_transparentFaces;
 
-            for (size_t i = 0; i < texFacePairsSize; ++i) {
-                Assets::Texture* texture = texFacePairs[i].first;
+            size_t nextI;
+            for (size_t i = 0; i < facesSortedByTexSize; i = nextI) {
+                const Assets::Texture* texture = facesSortedByTex[i].texture;
 
                 size_t indexCount = 0;
 
+                // find the i value for the next texture
+                for (nextI = i + 1; nextI < facesSortedByTexSize && facesSortedByTex[nextI].texture == texture; ++nextI) {
+                }
+
                 // process all faces with this texture (they'll be consecutive)
-                size_t j;
-                for (j = i; j < texFacePairsSize && texFacePairs[j].first == texture; ++j) {
-                    Model::BrushFace* face = texFacePairs[j].second;
-                    indexCount += 3 * (face->vertexCount() - 2);
+                for (size_t j = i; j < nextI; ++j) {
+                    const Model::Brush::CachedFace& cache = facesSortedByTex[j];
+                    if (cache.face->isMarked()) {
+                        assert(cache.texture == texture);
+                        indexCount += 3 * (cache.vertexCount - 2);
+                    }
+                }
+
+                // there may be no marked faces with this texture
+                if (indexCount == 0) {
+                    continue;
                 }
 
                 // FIXME: just do 1 map lookup
@@ -418,24 +430,20 @@ namespace TrenchBroom {
 
                 // process all faces with this texture (they'll be consecutive)
                 GLuint *currentDest = dest;
-                for (j = i; j < texFacePairsSize && texFacePairs[j].first == texture; ++j) {
-                    Model::BrushFace* face = texFacePairs[j].second;
+                for (size_t j = i; j < nextI; ++j) {
+                    const Model::Brush::CachedFace& cache = facesSortedByTex[j];
+                    if (cache.face->isMarked()) {
+                        addPolygon(currentDest,
+                                   static_cast<GLuint>(brush->brushVerticesStartIndex() +
+                                                       cache.indexOfFirstVertexRelativeToBrush),
+                                   cache.vertexCount);
 
-                    const size_t faceVertexCount = face->vertexCount();
-
-                    addPolygon(currentDest,
-                               static_cast<GLuint>(brush->brushVerticesStartIndex() + face->indexOfFirstVertexRelativeToBrush()),
-                               face->vertexCount());
-
-                    //std::memcpy(dest, opaqueFaceIndexBuilder.indices().data() + range.offset, range.count * sizeof(GLuint));
-
-                    currentDest += 3 * (faceVertexCount - 2);
+                        currentDest += 3 * (cache.vertexCount - 2);
+                    }
                 }
-
-                // important!!!
-                i = j - 1;
+                assert(indexCount > 0);
+                assert(currentDest == (dest + indexCount));
             }
-
 
             // FIXME: avoid copying
             m_brushInfo[brush] = info;
