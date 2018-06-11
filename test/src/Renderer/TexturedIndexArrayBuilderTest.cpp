@@ -34,6 +34,7 @@
 #include <string>
 #include <iostream>
 #include <tuple>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -117,7 +118,14 @@ namespace TrenchBroom {
             timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
             timeLambda([&](){ r.validate(); }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
 
-            // keep every second brush
+            // Tiny change: remove the last brush
+            std::vector<Model::Brush*> brushesMinusOne = brushes;
+            brushesMinusOne.resize(brushes.size() - 1);
+
+            timeLambda([&](){ r.setBrushes(brushesMinusOne); }, "setBrushes to " + std::to_string(brushesMinusOne.size()) + " (removing one)");
+            timeLambda([&](){ r.validate(); }, "validate after removing one brush");
+
+            // Large change: keep every second brush
             Model::BrushList brushesToKeep;
             for (size_t i = 0; i < brushes.size(); ++i) {
                 if ((i % 2) == 0) {
