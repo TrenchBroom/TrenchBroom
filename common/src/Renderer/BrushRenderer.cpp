@@ -388,7 +388,7 @@ namespace TrenchBroom {
             auto& facesSortedByTex = brush->cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
 
-            std::shared_ptr<TextureToBrushIndicesMap> faceVbo = \
+            std::shared_ptr<TextureToBrushIndicesMap> faceVboPtr = \
                 (renderType == Filter::RenderOpacity::Opaque) ? m_opaqueFaces : m_transparentFaces;
 
             size_t nextI;
@@ -415,11 +415,15 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                // FIXME: just do 1 map lookup
-                if ((*faceVbo)[texture] == nullptr) {
-                    (*faceVbo)[texture] = std::make_shared<BrushIndexHolder>();
+                TextureToBrushIndicesMap& faceVboMap = *faceVboPtr;
+                std::shared_ptr<BrushIndexHolder>& holderPtr = faceVboMap[texture];
+
+                if (holderPtr == nullptr) {
+                    // inserts into map!
+                    holderPtr = std::make_shared<BrushIndexHolder>();
                 }
-                auto [key, dest] = (*faceVbo)[texture]->getPointerToInsertElementsAt(indexCount);
+
+                auto [key, dest] = holderPtr->getPointerToInsertElementsAt(indexCount);
 
                 // update info
                 if (renderType == Filter::RenderOpacity::Opaque) {
