@@ -205,6 +205,13 @@ namespace TrenchBroom {
             void invalidateVertexCache();
         public:
             // renderer
+
+            /**
+             * This is used to cache results of evaluating the BrushRenderer Filter.
+             * It's only valid within a call to `BrushRenderer::validateBrush`.
+             *
+             * @param marked    whether the face is going to be rendered.
+             */
             void setMarked(bool marked) const;
             bool isMarked() const;
         private:

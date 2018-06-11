@@ -33,19 +33,6 @@ namespace TrenchBroom {
         public:
             using Index = int64_t;
 
-            // TODO: remove
-            class Range {
-            public:
-                Index pos;
-                Index size;
-
-                Range(Index p, Index s);
-
-                bool operator==(const Range &other) const;
-
-                bool operator<(const Range &other) const;
-            };
-
             struct Block {
             public:
                 Index pos;
@@ -54,8 +41,8 @@ namespace TrenchBroom {
             private:
                 friend class AllocationTracker;
                 /**
-                 * If this is null it means we're the head of the list in the
-                 * m_sizeToFreeBlock map.
+                 * If this is null, it means we're the head of the list in the
+                 * m_freeBlockSizeBins map.
                  */
                 Block* prevOfSameSize;
                 Block* nextOfSameSize;
@@ -67,6 +54,10 @@ namespace TrenchBroom {
                  *    in the AllocationTracker destructor.
                  */
                 Block* left;
+                /**
+                 * Null iff m_rightmostBlock points to this block.
+                 * Links to the Block at (pos + size).
+                 */
                 Block* right;
 
                 bool free;
@@ -75,24 +66,39 @@ namespace TrenchBroom {
             };
 
         private:
+            /**
+             * Size of memory managed by this AllocationTracker.
+             * Always equal to the sum of `size` of all Blocks.
+             */
             Index m_capacity;
 
             /**
-             * Only used to free all of the blocks in the destructor
+             * Points to the Block with pos 0. Used to free all of the blocks in the destructor
              */
             Block* m_leftmostBlock;
             /**
-             * Used when expanding.
+             * Points to the Block with the highest pos. Used when expanding.
              */
             Block* m_rightmostBlock;
 
+            /**
+             * Instead of always calling new/delete on Blocks when splitting/merging,
+             * we keep a singly-linked list of "recycled" blocks (using the nextRecycledBlock pointer).
+             * If the list is empty, then fall back to calling `new Block`.
+             */
             Block* m_recycledBlockList;
 
             /**
+             * A map from Block size to a linked list of Blocks of that exact size
+             * (the linked list is stored in the prevOfSameSize/nextOfSameSize pointers)
+             *
              * Sorted vector, benchmarks faster than std::map for this use case.
              */
             std::vector<Block*> m_freeBlockSizeBins;
 
+            /**
+             * Unlinks a Block from m_freeBlockSizeBins. Must be called before modifying Block::size.
+             */
             void unlinkFromBinList(Block* block);
             void linkToBinList(Block* block);
 
@@ -105,19 +111,25 @@ namespace TrenchBroom {
             ~AllocationTracker();
 
             /**
-             * Tries to make an allocation. Returns {true, index} on success,
-             * and {false, ?} on failure (the Index is meaningless if the
-             * first element is false.)
+             * Tries to make an allocation. Returns nullptr if there is no room for the requested allocation.
              */
-            Block* allocate(size_t bytes);
-            /**
-             * Returns the block that was freed.
-             */
+            Block* allocate(size_t size);
             void free(Block* block);
             size_t capacity() const;
-            void expand(Index newcap);
+            void expand(Index newCapacity);
 
             // Testing / debugging
+
+            class Range {
+            public:
+                Index pos;
+                Index size;
+
+                Range(Index p, Index s);
+
+                bool operator==(const Range &other) const;
+                bool operator<(const Range &other) const;
+            };
 
             std::set<Range> freeBlocks() const;
             std::set<Range> usedBlocks() const;

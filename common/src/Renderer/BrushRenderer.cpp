@@ -352,27 +352,22 @@ namespace TrenchBroom {
 
             // evaluate filter. only evaluate the filter once per brush.
             const auto settings = wrapper.markFaces(brush);
-            brush->setRenderSettings(settings);
-
-            const auto [renderType, facePolicy, edgePolicy] = brush->renderSettings();
+            const auto [renderType, facePolicy, edgePolicy] = settings;
 
             if (facePolicy == Filter::FaceRenderPolicy::RenderNone &&
                 edgePolicy == Filter::EdgeRenderPolicy::RenderNone) {
                 return;
             }
 
-             // collect vertices
-            {
-                const auto& cachedVertices = brush->cachedVertices();
+            // collect vertices
+            const auto& cachedVertices = brush->cachedVertices();
 
-                assert(m_vertexArray != nullptr);
-                auto [vertBlock, dest] = m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
-                std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
+            assert(m_vertexArray != nullptr);
+            auto [vertBlock, dest] = m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
+            std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
+            info.vertexHolderKey = vertBlock;
 
-                brush->setBrushVerticesStartIndex(vertBlock->pos);
-
-                info.vertexHolderKey = vertBlock;
-            }
+            const size_t brushVerticesStartIndex = vertBlock->pos;
 
             // insert edge indices into VBO
             {
@@ -380,7 +375,7 @@ namespace TrenchBroom {
 
                 auto [key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
                 info.edgeIndicesKey = key;
-                brush->getMarkedEdgeIndices(edgePolicy, dest);
+                brush->getMarkedEdgeIndices(edgePolicy, brushVerticesStartIndex, dest);
             }
 
             // insert face indices
@@ -438,7 +433,7 @@ namespace TrenchBroom {
                     const Model::Brush::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         addPolygon(currentDest,
-                                   static_cast<GLuint>(brush->brushVerticesStartIndex() +
+                                   static_cast<GLuint>(brushVerticesStartIndex +
                                                        cache.indexOfFirstVertexRelativeToBrush),
                                    cache.vertexCount);
 

@@ -121,8 +121,6 @@ namespace TrenchBroom {
             mutable std::vector<CachedEdge> m_cachedEdges;
             mutable std::vector<CachedFace> m_cachedFacesSortedByTexture;
             mutable bool m_rendererCacheValid;
-            mutable size_t m_brushVerticesStartIndex;
-            mutable RenderSettings m_renderSettings;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;
@@ -345,30 +343,19 @@ namespace TrenchBroom {
             void invalidateVertexCache();
             void validateVertexCache() const;
 
-            // reading from the cache
-
-            /**
-             * differs from vertexCount() because it includes each face's copy of each vert
-             */
-            size_t cachedVertexCount() const;
+            // reading from the render cache
 
             /**
              * Returns all vertices for all faces of the brush.
-             * You must call setBrushVerticesStartIndex() after calling this to record the offset with the VBO
-             * where the returned vertices were written.
+             * Caller is expected to copy these into a VBO, and then call `setBrushVerticesStartIndex()`
+             * to record the offset with the VBO where the returned vertices were written.
              */
             const std::vector<Vertex>& cachedVertices() const;
-            void setBrushVerticesStartIndex(size_t offset) const;
 
             size_t countMarkedEdgeIndices(EdgeRenderPolicy policy) const;
-            void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint* dest) const;
+            void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint brushVerticesStartIndex, GLuint* dest) const;
 
             const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
-
-            size_t brushVerticesStartIndex() const;
-
-            RenderSettings renderSettings() const;
-            void setRenderSettings(const RenderSettings& settings) const;
         private:
             static bool shouldRenderEdge(const Brush::CachedEdge& edge, Brush::EdgeRenderPolicy policy);
         };

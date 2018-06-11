@@ -370,9 +370,7 @@ namespace TrenchBroom {
         m_contentTypeBuilder(nullptr),
         m_contentType(0),
         m_transparent(false),
-        m_contentTypeValid(true),
-        // these values don't matter
-        m_renderSettings({RenderOpacity::Opaque, FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll}) {
+        m_contentTypeValid(true) {
             addFaces(faces);
             try {
                 rebuildGeometry(worldBounds);
@@ -1467,11 +1465,14 @@ namespace TrenchBroom {
                 m_cachedFacesSortedByTexture.push_back(cachedFace);
             }
 
+            // Sort by texture so BrushRenderer can efficiently step through the BrushFaces
+            // grouped by texture (via `Brush::cachedFacesSortedByTexture()`), without needing to build an std::map
+
             std::sort(m_cachedFacesSortedByTexture.begin(),
                       m_cachedFacesSortedByTexture.end(),
                       [](const CachedFace& a, const CachedFace& b){ return a.texture < b.texture; });
 
-            // build edge index cache
+            // Build edge index cache
 
             m_cachedEdges.clear();
             m_cachedEdges.reserve(edgeCount());
@@ -1494,23 +1495,9 @@ namespace TrenchBroom {
             m_rendererCacheValid = true;
         }
 
-        size_t Brush::cachedVertexCount() const {
-            validateVertexCache();
-            return m_cachedVertices.size();
-        }
-
         const std::vector<Brush::Vertex>& Brush::cachedVertices() const {
             validateVertexCache();
             return m_cachedVertices;
-        }
-
-        void Brush::setBrushVerticesStartIndex(const size_t offset) const {
-            m_brushVerticesStartIndex = offset;
-        }
-
-
-        size_t Brush::brushVerticesStartIndex() const {
-            return m_brushVerticesStartIndex;
         }
 
         const std::vector<Brush::CachedFace>& Brush::cachedFacesSortedByTexture() const {
@@ -1531,7 +1518,7 @@ namespace TrenchBroom {
             return indexCount;
         }
 
-        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, GLuint* dest) const {
+        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, const GLuint brushVerticesStartIndex, GLuint* dest) const {
             if (policy == EdgeRenderPolicy::RenderNone) {
                 return;
             }
@@ -1539,8 +1526,8 @@ namespace TrenchBroom {
             size_t i = 0;
             for (const CachedEdge& edge : m_cachedEdges) {
                 if (shouldRenderEdge(edge, policy)) {
-                    dest[i++] = static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush);
-                    dest[i++] = static_cast<GLuint>(m_brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush);
                 }
             }
         }
@@ -1556,13 +1543,6 @@ namespace TrenchBroom {
                 case EdgeRenderPolicy::RenderNone:
                     return false;
             }
-        }
-
-        Brush::RenderSettings Brush::renderSettings() const {
-            return m_renderSettings;
-        }
-        void Brush::setRenderSettings(const RenderSettings& settings) const {
-            m_renderSettings = settings;
         }
     }
 }
