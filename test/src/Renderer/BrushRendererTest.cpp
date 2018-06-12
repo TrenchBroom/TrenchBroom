@@ -25,8 +25,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/World.h"
 #include "Model/MapFormat.h"
-#include "Renderer/TexturedIndexArrayBuilder.h"
-#include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/BrushRenderer.h"
 
 #include <vector>
@@ -38,22 +36,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        static constexpr size_t NumFaces = 1'000'000;
-
-        TEST(TexturedIndexArrayBuilderTest, bench) {
-            Assets::Texture texture1("testTexture1", 64, 64);
-
-            TexturedIndexArrayMap::Size sizes;
-            for (size_t i = 0; i < NumFaces; ++i) {
-                sizes.incTriangles(&texture1, 6); // one quad = two tris
-            }
-
-            TexturedIndexArrayBuilder b(sizes);
-            for (size_t i = 0; i < NumFaces; ++i) {
-                b.addPolygon(&texture1, 0, 4); // one quad
-            }
-        }
-
         static constexpr size_t NumBrushes = 64'000;
         static constexpr size_t NumTextures = 256;
 
@@ -108,7 +90,7 @@ namespace TrenchBroom {
                    std::chrono::duration<double>(end - start).count() * 1000.0);
         }
 
-        TEST(TexturedIndexArrayBuilderTest, benchBrushRenderer) {
+        TEST(BrushRendererTest, benchBrushRenderer) {
             auto brushesTextures = makeBrushes();
             std::vector<Model::Brush*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;
