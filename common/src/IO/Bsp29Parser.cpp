@@ -241,7 +241,6 @@ namespace TrenchBroom {
                             face.addVertex(vertex, texCoords);
                             
                             if (!vertexMarks[vertexIndex]) {
-                                vertexMarks[vertexIndex];
                                 modelVertices.push_back(vertex);
                             }
                         }
