@@ -98,14 +98,22 @@ namespace TrenchBroom {
             BrushRenderer r(false);
 
             timeLambda([&](){ r.addBrushes(brushes); }, "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
-            timeLambda([&](){ r.validate(); }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
+            timeLambda([&](){
+                if (!r.valid()) {
+                    r.validate();
+                }
+            }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
 
             // Tiny change: remove the last brush
             std::vector<Model::Brush*> brushesMinusOne = brushes;
             brushesMinusOne.resize(brushes.size() - 1);
 
             timeLambda([&](){ r.setBrushes(brushesMinusOne); }, "setBrushes to " + std::to_string(brushesMinusOne.size()) + " (removing one)");
-            timeLambda([&](){ r.validate(); }, "validate after removing one brush");
+            timeLambda([&](){
+                if (!r.valid()) {
+                    r.validate();
+                }
+            }, "validate after removing one brush");
 
             // Large change: keep every second brush
             Model::BrushList brushesToKeep;
@@ -119,8 +127,11 @@ namespace TrenchBroom {
                        "set brushes from " + std::to_string(brushes.size()) +
                        " to " + std::to_string(brushesToKeep.size()));
 
-            timeLambda([&](){ r.validate(); },
-                       "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
+            timeLambda([&](){
+                           if (!r.valid()) {
+                               r.validate();
+                           }
+                       }, "validate with " + std::to_string(brushesToKeep.size()) + " brushes");
 
             VectorUtils::clearAndDelete(brushes);
             VectorUtils::clearAndDelete(textures);
