@@ -34,6 +34,7 @@
 #include "Renderer/VertexSpec.h"
 
 #include <algorithm>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -332,9 +333,14 @@ namespace TrenchBroom {
             m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
         }
 
-        static void addPolygon(GLuint* dest, const GLuint baseIndex, const size_t vertexCount) {
+        static size_t triIndicesCountForPolygon(const size_t vertexCount) {
+            assert(vertexCount >= 3);
             const size_t indexCount = 3 * (vertexCount - 2);
+            return indexCount;
+        }
 
+        static void addTriIndicesForPolygon(GLuint* dest, const GLuint baseIndex, const size_t vertexCount) {
+            assert(vertexCount >= 3);
             for (size_t i = 0; i < vertexCount - 2; ++i) {
                 *(dest++) = baseIndex;
                 *(dest++) = baseIndex + static_cast<GLuint>(i + 1);
@@ -367,7 +373,7 @@ namespace TrenchBroom {
             std::memcpy(dest, cachedVertices.data(), cachedVertices.size() * sizeof(*dest));
             info.vertexHolderKey = vertBlock;
 
-            const size_t brushVerticesStartIndex = vertBlock->pos;
+            const GLuint brushVerticesStartIndex = static_cast<GLuint>(vertBlock->pos);
 
             // insert edge indices into VBO
             {
@@ -401,7 +407,7 @@ namespace TrenchBroom {
                     const Model::Brush::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
-                        indexCount += 3 * (cache.vertexCount - 2);
+                        indexCount += triIndicesCountForPolygon(cache.vertexCount);
                     }
                 }
 
@@ -432,12 +438,12 @@ namespace TrenchBroom {
                 for (size_t j = i; j < nextI; ++j) {
                     const Model::Brush::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
-                        addPolygon(currentDest,
-                                   static_cast<GLuint>(brushVerticesStartIndex +
-                                                       cache.indexOfFirstVertexRelativeToBrush),
-                                   cache.vertexCount);
+                        addTriIndicesForPolygon(currentDest,
+                                                static_cast<GLuint>(brushVerticesStartIndex +
+                                                                    cache.indexOfFirstVertexRelativeToBrush),
+                                                cache.vertexCount);
 
-                        currentDest += 3 * (cache.vertexCount - 2);
+                        currentDest += triIndicesCountForPolygon(cache.vertexCount);
                     }
                 }
                 assert(indexCount > 0);

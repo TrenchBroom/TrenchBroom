@@ -31,7 +31,7 @@ namespace TrenchBroom {
          */
         class AllocationTracker {
         public:
-            using Index = int64_t;
+            using Index = size_t;
 
             struct Block {
             public:

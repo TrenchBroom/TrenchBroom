@@ -311,9 +311,6 @@ namespace TrenchBroom {
             checkInvariants();
         }
 
-
-        //old
-
         AllocationTracker::AllocationTracker(Index initial_capacity)
                 : m_capacity(0),
                   m_leftmostBlock(nullptr),
@@ -444,10 +441,7 @@ namespace TrenchBroom {
         }
 
         void AllocationTracker::checkInvariants() const {
-#ifndef EXPENSIVE_CHECKS
-            return;
-#endif
-
+#ifdef EXPENSIVE_CHECKS
             if (m_capacity == 0) {
                 assert(m_leftmostBlock == nullptr);
                 assert(m_rightmostBlock == nullptr);
@@ -506,6 +500,7 @@ namespace TrenchBroom {
                 const auto& b = m_freeBlockSizeBins.at(i + 1);
                 assert(a->size < b->size);
             }
+#endif
         }
     }
 }
