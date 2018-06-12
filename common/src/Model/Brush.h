@@ -113,8 +113,8 @@ namespace TrenchBroom {
             struct CachedEdge {
                 BrushFace* face1;
                 BrushFace* face2;
-                size_t m_vertexIndex1RelativeToBrush;
-                size_t m_vertexIndex2RelativeToBrush;
+                size_t vertexIndex1RelativeToBrush;
+                size_t vertexIndex2RelativeToBrush;
             };
 
             mutable std::vector<Vertex> m_cachedVertices;

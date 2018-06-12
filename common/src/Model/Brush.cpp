@@ -20,6 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -1484,8 +1485,8 @@ namespace TrenchBroom {
                     CachedEdge edge;
                     edge.face1 = currentEdge->firstFace()->payload();
                     edge.face2 = currentEdge->secondFace()->payload();
-                    edge.m_vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
-                    edge.m_vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
+                    edge.vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
+                    edge.vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
                     m_cachedEdges.push_back(edge);
 
                     currentEdge = currentEdge->next();
@@ -1526,8 +1527,8 @@ namespace TrenchBroom {
             size_t i = 0;
             for (const CachedEdge& edge : m_cachedEdges) {
                 if (shouldRenderEdge(edge, policy)) {
-                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.m_vertexIndex1RelativeToBrush);
-                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.m_vertexIndex2RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex1RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex2RelativeToBrush);
                 }
             }
         }
@@ -1538,10 +1539,11 @@ namespace TrenchBroom {
                     return true;
                 case EdgeRenderPolicy::RenderIfEitherFaceMarked:
                     return edge.face1->isMarked() || edge.face2->isMarked();
-                case EdgeRenderPolicy ::RenderIfBothFacesMarked:
+                case EdgeRenderPolicy::RenderIfBothFacesMarked:
                     return edge.face1->isMarked() && edge.face2->isMarked();
                 case EdgeRenderPolicy::RenderNone:
                     return false;
+                switchDefault()
             }
         }
     }
