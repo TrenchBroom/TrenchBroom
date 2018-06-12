@@ -28,6 +28,45 @@ namespace TrenchBroom {
 
     namespace Renderer {
 
+        // FastDirtyRange
+
+        FastDirtyRange::FastDirtyRange(size_t initial_capacity)
+                : m_dirtyPos(0), m_dirtySize(0), m_capacity(initial_capacity) {}
+
+        FastDirtyRange::FastDirtyRange()
+                : m_dirtyPos(0), m_dirtySize(0), m_capacity(0) {}
+
+        void FastDirtyRange::expand(size_t newcap) {
+            if (newcap <= m_capacity) {
+                throw std::invalid_argument("new capacity must be greater");
+            }
+
+            const size_t oldcap = m_capacity;
+            m_capacity = newcap;
+            markDirty(oldcap, newcap - oldcap);
+        }
+
+        size_t FastDirtyRange::capacity() const {
+            return m_capacity;
+        }
+
+        void FastDirtyRange::markDirty(size_t pos, size_t size) {
+            // bounds check
+            if (pos + size > m_capacity) {
+                throw std::invalid_argument("markDirty provided range out of bounds");
+            }
+
+            const size_t newPos = std::min(pos, m_dirtyPos);
+            const size_t newEnd = std::max(pos + size, m_dirtyPos + m_dirtySize);
+
+            m_dirtyPos = newPos;
+            m_dirtySize = newEnd - newPos;
+        }
+
+        bool FastDirtyRange::clean() const {
+            return m_dirtySize == 0;
+        }
+
         // IndexHolder
 
         IndexHolder::IndexHolder() : VboBlockHolder<Index>() {}

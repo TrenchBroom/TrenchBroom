@@ -23,7 +23,6 @@
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/AllocationTracker.h"
-#include "Renderer/DirtyRangeTracker.h"
 #include "Renderer/GL.h"
 #include "Renderer/VboBlock.h"
 
@@ -37,6 +36,25 @@ namespace TrenchBroom {
         class Brush;
     }
     namespace Renderer {
+        struct FastDirtyRange {
+            size_t m_dirtyPos;
+            size_t m_dirtySize;
+            size_t m_capacity;
+
+            /**
+             * New trackers are initially clean.
+             */
+            explicit FastDirtyRange(size_t initial_capacity);
+            FastDirtyRange();
+
+            /**
+             * Expanding marks the new range as dirty.
+             */
+            void expand(size_t newcap);
+            size_t capacity() const;
+            void markDirty(size_t pos, size_t size);
+            bool clean() const;
+        };
 
         /**
          * Wrapper around a std::vector<T> and VboBlock.
