@@ -19,7 +19,7 @@
 
 #include "IndexArrayMap.h"
 
-#include "Renderer/IndexArray.h"
+#include "Renderer/BrushRendererArrays.h"
 
 #include <stdexcept>
 #include <string>

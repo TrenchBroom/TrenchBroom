@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IndexArray_h
-#define IndexArray_h
+#ifndef BrushRendererArray_h
+#define BrushRendererArray_h
 
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vbo.h"
@@ -301,4 +301,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexArray_h */
+#endif /* BrushRenderer_h */

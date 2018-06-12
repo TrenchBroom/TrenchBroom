@@ -27,7 +27,7 @@
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
 #include "Renderer/IndexArrayMapBuilder.h"
-#include "Renderer/IndexArray.h"
+#include "Renderer/BrushRendererArrays.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
