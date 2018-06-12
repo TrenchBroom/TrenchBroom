@@ -79,9 +79,15 @@ namespace TrenchBroom {
             return {result, textures};
         }
 
+#ifdef __GNUC__
+#define TB_NOINLINE __attribute__((noinline))
+#else
+#define TB_NOINLINE
+#endif
+
         // the noinline is so you can see the timeLambda when profiling
         template<class L>
-        __attribute__ ((noinline)) static void timeLambda(L&& lambda, const std::string& message) {
+        TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message) {
             const auto start = std::chrono::high_resolution_clock::now();
             lambda();
             const auto end = std::chrono::high_resolution_clock::now();
