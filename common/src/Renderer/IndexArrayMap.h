@@ -20,57 +20,58 @@
 #ifndef IndexArrayMap_h
 #define IndexArrayMap_h
 
+#include "Reference.h"
+#include "SharedPointer.h"
 #include "Renderer/GL.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class IndexHolder;
-
-        struct IndexArrayRange {
-            size_t offset;
-            size_t capacity;
-            size_t count;
-
-            IndexArrayRange();
-            IndexArrayRange(size_t i_offset, size_t i_capacity);
-
-            size_t add(size_t count);
-        };
-
+        class IndexArray;
+        
         class IndexArrayMap {
         private:
-
+            struct IndexArrayRange {
+                size_t offset;
+                size_t capacity;
+                size_t count;
+                IndexArrayRange(size_t i_offset, size_t i_capacity);
+                
+                size_t add(size_t count);
+            };
+            
+            typedef std::map<PrimType, IndexArrayRange> PrimTypeToRangeMap;
+        private:
+            typedef std::shared_ptr<PrimTypeToRangeMap> PrimTypeToRangeMapPtr;
         public:
             class Size {
             private:
                 friend class IndexArrayMap;
 
-                size_t m_points;
-                size_t m_lines;
-                size_t m_triangles;
+                typedef std::map<PrimType, size_t> PrimTypeToSize;
+                PrimTypeToSize m_sizes;
+                size_t m_indexCount;
             public:
                 Size();
-                void inc(PrimType primType, size_t count);
+                void inc(const PrimType primType, size_t count);
                 size_t indexCount() const;
+            private:
+                void initialize(PrimTypeToRangeMap& ranges, size_t baseOffset) const;
             };
         private:
-            IndexArrayRange m_pointsRange;
-            IndexArrayRange m_linesRange;
-            IndexArrayRange m_trianglesRange;
-
-            void initialize(const Size& size, size_t baseOffset);
+            PrimTypeToRangeMapPtr m_ranges;
         public:
             IndexArrayMap();
-            explicit IndexArrayMap(const Size& size);
+            IndexArrayMap(const Size& size);
             IndexArrayMap(const Size& size, size_t baseOffset);
 
             size_t add(PrimType primType, size_t count);
 
-            void render(std::shared_ptr<IndexHolder> indexArray) const;
-
-            IndexArrayRange pointsRange() const;
-            IndexArrayRange linesRange() const;
-            IndexArrayRange trianglesRange() const;
+            void render(IndexArray& indexArray) const;
+        private:
+            IndexArrayRange& findRange(PrimType primType);
         };
     }
 }

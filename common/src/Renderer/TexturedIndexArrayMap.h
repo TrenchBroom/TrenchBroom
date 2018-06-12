@@ -20,10 +20,10 @@
 #ifndef TexturedIndexArrayMap_h
 #define TexturedIndexArrayMap_h
 
+#include "SharedPointer.h"
 #include "Renderer/IndexArrayMap.h"
 
-#include <unordered_map>
-#include <memory>
+#include <map>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -31,47 +31,48 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class IndexArray;
         class TextureRenderFunc;
-        class IndexHolder;
         
         class TexturedIndexArrayMap {
         public:
-            using Texture = Assets::Texture;
+            typedef Assets::Texture Texture;
         private:
-            class HashPtr {
-            public:
-                size_t operator()(const Texture* texture) const {
-                    return reinterpret_cast<size_t>(texture);
-                }
-            };
+            typedef std::map<const Texture*, IndexArrayMap> TextureToIndexArrayMap;
+            typedef std::shared_ptr<TextureToIndexArrayMap> TextureToIndexArrayMapPtr;
         public:
             class Size {
             private:
                 friend class TexturedIndexArrayMap;
                 
-                std::unordered_map<const Texture*, size_t, HashPtr> m_triangles;
-
+                typedef std::map<const Texture*, IndexArrayMap::Size> TextureToSize;
+                TextureToSize m_sizes;
+                TextureToSize::iterator m_current;
                 size_t m_indexCount;
             public:
                 Size();
                 size_t indexCount() const;
-                void incTriangles(const Texture* texture, size_t count);
+                void inc(const Texture* texture, PrimType primType, size_t count);
             private:
-                void initialize(TexturedIndexArrayMap& map) const;
+                IndexArrayMap::Size& findCurrent(const Texture* texture);
+                bool isCurrent(const Texture* texture) const;
+                
+                void initialize(TextureToIndexArrayMap& ranges) const;
             };
         private:
-            std::unordered_map<const Texture*, IndexArrayRange, HashPtr> m_ranges;
-
+            TextureToIndexArrayMapPtr m_ranges;
+            TextureToIndexArrayMap::iterator m_current;
         public:
             TexturedIndexArrayMap();
-            explicit TexturedIndexArrayMap(const Size& size);
+            TexturedIndexArrayMap(const Size& size);
 
-            size_t addTriangles(const Texture* texture, size_t count);
+            size_t add(const Texture* texture, PrimType primType, size_t count);
 
-            void render(std::shared_ptr<IndexHolder> vertexArray);
-            void render(std::shared_ptr<IndexHolder> vertexArray, TextureRenderFunc& func);
-
-            const std::unordered_map<const Texture*, IndexArrayRange, HashPtr>& ranges() const;
+            void render(IndexArray& vertexArray);
+            void render(IndexArray& vertexArray, TextureRenderFunc& func);
+        private:
+            IndexArrayMap& findCurrent(const Texture* texture);
+            bool isCurrent(const Texture* texture);
         };
     }
 }

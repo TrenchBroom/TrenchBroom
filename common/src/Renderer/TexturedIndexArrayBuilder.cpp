@@ -19,6 +19,8 @@
 
 #include "TexturedIndexArrayBuilder.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace Renderer {
         TexturedIndexArrayBuilder::TexturedIndexArrayBuilder(const TexturedIndexArrayMap::Size& size) :
@@ -36,22 +38,95 @@ namespace TrenchBroom {
         const TexturedIndexArrayMap& TexturedIndexArrayBuilder::ranges() const {
             return m_ranges;
         }
-
-        void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
-            const size_t indexCount = 3 * (vertexCount - 2);
-            Index* dest = addTriangles(texture, indexCount);
-
-            for (size_t i = 0; i < vertexCount - 2; ++i) {
-                *(dest++) = baseIndex;
-                *(dest++) = baseIndex + static_cast<Index>(i + 1);
-                *(dest++) = baseIndex + static_cast<Index>(i + 2);
-            }
+        
+        void TexturedIndexArrayBuilder::addPoint(const Texture* texture, const Index i) {
+            const size_t offset = m_ranges.add(texture, GL_POINTS, 1);
+            m_indices[offset] = i;
+        }
+        
+        void TexturedIndexArrayBuilder::addPoints(const Texture* texture, const IndexList& indices) {
+            add(texture, GL_POINTS, indices);
+        }
+        
+        void TexturedIndexArrayBuilder::addLine(const Texture* texture, const Index i1, const Index i2) {
+            const size_t offset = m_ranges.add(texture, GL_LINES, 2);
+            m_indices[offset + 0] = i1;
+            m_indices[offset + 1] = i2;
+        }
+        
+        void TexturedIndexArrayBuilder::addLines(const Texture* texture, const IndexList& indices) {
+            assert(indices.size() % 2 == 0);
+            add(texture, GL_LINES, indices);
+        }
+        
+        void TexturedIndexArrayBuilder::addTriangle(const Texture* texture, const Index i1, const Index i2, const Index i3) {
+            const size_t offset = m_ranges.add(texture, GL_TRIANGLES, 3);
+            m_indices[offset + 0] = i1;
+            m_indices[offset + 1] = i2;
+            m_indices[offset + 2] = i3;
+        }
+        
+        void TexturedIndexArrayBuilder::addTriangles(const Texture* texture, const IndexList& indices) {
+            assert(indices.size() % 3 == 0);
+            add(texture, GL_TRIANGLES, indices);
+        }
+        
+        void TexturedIndexArrayBuilder::addQuad(const Texture* texture, const Index, const Index i1, const Index i2, const Index i3, const Index i4) {
+            const size_t offset = m_ranges.add(texture, GL_QUADS, 4);
+            m_indices[offset + 0] = i1;
+            m_indices[offset + 1] = i2;
+            m_indices[offset + 2] = i3;
+            m_indices[offset + 3] = i4;
+        }
+        
+        void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const IndexList& indices) {
+            assert(indices.size() % 4 == 0);
+            add(texture, GL_QUADS, indices);
+        }
+        
+        void TexturedIndexArrayBuilder::addQuads(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
+            assert(vertexCount % 4 == 0);
+            IndexList indices(vertexCount);
+            
+            for (size_t i = 0; i < vertexCount; ++i)
+                indices[i] = baseIndex + static_cast<Index>(i);
+            
+            add(texture, GL_QUADS, indices);
         }
 
-        TexturedIndexArrayBuilder::Index* TexturedIndexArrayBuilder::addTriangles(const Texture* texture, size_t indexCount) {
-            const size_t offset = m_ranges.addTriangles(texture, indexCount);
+        void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const IndexList& indices) {
+            const size_t count = indices.size();
+            
+            IndexList polyIndices(0);
+            polyIndices.reserve(3 * (count - 2));
+            
+            for (size_t i = 0; i < count - 2; ++i) {
+                polyIndices.push_back(indices[0]);
+                polyIndices.push_back(indices[i + 1]);
+                polyIndices.push_back(indices[i + 2]);
+            }
+            
+            add(texture, GL_TRIANGLES, polyIndices);
+        }
 
-            return m_indices.data() + offset;
+        void TexturedIndexArrayBuilder::addPolygon(const Texture* texture, const Index baseIndex, const size_t vertexCount) {
+            IndexList polyIndices(0);
+            polyIndices.reserve(3 * (vertexCount - 2));
+            
+            for (size_t i = 0; i < vertexCount - 2; ++i) {
+                polyIndices.push_back(baseIndex);
+                polyIndices.push_back(baseIndex + static_cast<Index>(i + 1));
+                polyIndices.push_back(baseIndex + static_cast<Index>(i + 2));
+            }
+            
+            add(texture, GL_TRIANGLES, polyIndices);
+        }
+
+        void TexturedIndexArrayBuilder::add(const Texture* texture, const PrimType primType, const IndexList& indices) {
+            const size_t offset = m_ranges.add(texture, primType, indices.size());
+            IndexList::iterator dest = std::begin(m_indices);
+            std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
+            std::copy(std::begin(indices), std::end(indices), dest);
         }
     }
 }

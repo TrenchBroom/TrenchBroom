@@ -19,24 +19,17 @@
 
 #include "IndexArrayMap.h"
 
-#include "Renderer/BrushRendererArrays.h"
-
-#include <stdexcept>
-#include <string>
+#include "CollectionUtils.h"
+#include "Renderer/IndexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        IndexArrayRange::IndexArrayRange() :
-                offset(0),
-                capacity(0),
-                count(0) {}
+        IndexArrayMap::IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity) :
+        offset(i_offset),
+        capacity(i_capacity),
+        count(0) {}
 
-        IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity) :
-                offset(i_offset),
-                capacity(i_capacity),
-                count(0) {}
-
-        size_t IndexArrayRange::add(const size_t i_count) {
+        size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
             assert(capacity - count >= i_count);
             const size_t result = offset + count;
             count += i_count;
@@ -44,91 +37,57 @@ namespace TrenchBroom {
         }
 
         IndexArrayMap::Size::Size() :
-                m_points(0),
-                m_lines(0),
-                m_triangles(0){}
+        m_indexCount(0) {}
         
         void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
-            switch (primType) {
-                case GL_POINTS:
-                    m_points += count;
-                    break;
-                case GL_LINES:
-                    m_lines += count;
-                    break;
-                case GL_TRIANGLES:
-                    m_triangles += count;
-                    break;
-                default:
-                    throw std::invalid_argument("Unsupported primitive type " + std::to_string(primType));
-            }
+            PrimTypeToSize::iterator primIt = MapUtils::findOrInsert(m_sizes, primType, 0);
+            primIt->second += count;
+            m_indexCount += count;
         }
 
         size_t IndexArrayMap::Size::indexCount() const {
-            return m_points + m_lines + m_triangles;
+            return m_indexCount;
         }
 
-        void IndexArrayMap::initialize(const Size& size, const size_t baseOffset) {
+        void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
             size_t offset = baseOffset;
-
-            m_pointsRange = IndexArrayRange(offset, size.m_points);
-            offset += size.m_points;
-
-            m_linesRange = IndexArrayRange(offset, size.m_lines);
-            offset += size.m_lines;
-
-            m_trianglesRange = IndexArrayRange(offset, size.m_triangles);
-            offset += size.m_triangles;
+            for (const auto& entry : m_sizes) {
+                const PrimType primType = entry.first;
+                const size_t size = entry.second;
+                data.insert(std::make_pair(primType, IndexArrayRange(offset, size)));
+                offset += size;
+            }
         }
 
-        IndexArrayMap::IndexArrayMap() :
-                m_pointsRange(0,0),
-                m_linesRange(0,0),
-                m_trianglesRange(0,0){}
+        IndexArrayMap::IndexArrayMap() {}
 
-        IndexArrayMap::IndexArrayMap(const Size& size) {
-            initialize(size, 0);
+        IndexArrayMap::IndexArrayMap(const Size& size) :
+        m_ranges(new PrimTypeToRangeMap()) {
+            size.initialize(*m_ranges, 0);
         }
 
-        IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset) {
-            initialize(size, baseOffset);
+        IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset) :
+        m_ranges(new PrimTypeToRangeMap()) {
+            size.initialize(*m_ranges, baseOffset);
         }
 
         size_t IndexArrayMap::add(const PrimType primType, const size_t count) {
-            switch (primType) {
-                case GL_POINTS:
-                    return m_pointsRange.add(count);
-                case GL_LINES:
-                    return m_linesRange.add(count);
-                case GL_TRIANGLES:
-                    return m_trianglesRange.add(count);
-                default:
-                    throw std::invalid_argument("Unsupported primitive type " + std::to_string(primType));
+            IndexArrayRange& range = findRange(primType);
+            return range.add(count);
+        }
+
+        void IndexArrayMap::render(IndexArray& indexArray) const {
+            for (const auto& entry : *m_ranges) {
+                const PrimType primType = entry.first;
+                const IndexArrayRange& range = entry.second;
+                indexArray.render(primType, range.offset, range.count);
             }
         }
 
-        void IndexArrayMap::render(std::shared_ptr<IndexHolder> indexArray) const {
-            if (m_pointsRange.count > 0) {
-                indexArray->render(GL_POINTS, m_pointsRange.offset, m_pointsRange.count);
-            }
-            if (m_linesRange.count > 0) {
-                indexArray->render(GL_LINES, m_linesRange.offset, m_linesRange.count);
-            }
-            if (m_trianglesRange.count > 0) {
-                indexArray->render(GL_TRIANGLES, m_trianglesRange.offset, m_trianglesRange.count);
-            }
-        }
-
-        IndexArrayRange IndexArrayMap::pointsRange() const {
-            return m_pointsRange;
-        }
-
-        IndexArrayRange IndexArrayMap::linesRange() const {
-            return m_linesRange;
-        }
-
-        IndexArrayRange IndexArrayMap::trianglesRange() const {
-            return m_trianglesRange;
+        IndexArrayMap::IndexArrayRange& IndexArrayMap::findRange(const PrimType primType) {
+            PrimTypeToRangeMap::iterator it = m_ranges->find(primType);
+            assert(it != m_ranges->end());
+            return it->second;
         }
     }
 }

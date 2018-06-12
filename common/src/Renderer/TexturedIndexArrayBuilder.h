@@ -46,10 +46,24 @@ namespace TrenchBroom {
             IndexList& indices();
             
             const TexturedIndexArrayMap& ranges() const;
-
+            
+            void addPoint(const Texture* texture, Index i);
+            void addPoints(const Texture* texture, const IndexList& indices);
+            
+            void addLine(const Texture* texture, Index i1, Index i2);
+            void addLines(const Texture* texture, const IndexList& indices);
+            
+            void addTriangle(const Texture* texture, Index i1, Index i2, Index i3);
+            void addTriangles(const Texture* texture, const IndexList& indices);
+            
+            void addQuad(const Texture* texture, Index, Index i1, Index i2, Index i3, Index i4);
+            void addQuads(const Texture* texture, const IndexList& indices);
+            void addQuads(const Texture* texture, Index baseIndex, size_t vertexCount);
+            
+            void addPolygon(const Texture* texture, const IndexList& indices);
             void addPolygon(const Texture* texture, Index baseIndex, size_t vertexCount);
         private:
-            Index* addTriangles(const Texture* texture, size_t indexCount);
+            void add(const Texture* texture, PrimType primType, const IndexList& indices);
         };
     }
 }
