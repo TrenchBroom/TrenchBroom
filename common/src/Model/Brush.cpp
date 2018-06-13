@@ -371,7 +371,8 @@ namespace TrenchBroom {
         m_contentTypeBuilder(nullptr),
         m_contentType(0),
         m_transparent(false),
-        m_contentTypeValid(true) {
+        m_contentTypeValid(true),
+        m_rendererCacheValid(false) {
             addFaces(faces);
             try {
                 rebuildGeometry(worldBounds);
@@ -1419,6 +1420,8 @@ namespace TrenchBroom {
         void Brush::invalidateVertexCache() {
             m_rendererCacheValid = false;
             m_cachedVertices.clear();
+            m_cachedEdges.clear();
+            m_cachedFacesSortedByTexture.clear();
         }
 
         void Brush::validateVertexCache() const {
@@ -1497,15 +1500,18 @@ namespace TrenchBroom {
         }
 
         const std::vector<Brush::Vertex>& Brush::cachedVertices() const {
-            validateVertexCache();
+            assert(m_rendererCacheValid);
             return m_cachedVertices;
         }
 
         const std::vector<Brush::CachedFace>& Brush::cachedFacesSortedByTexture() const {
+            assert(m_rendererCacheValid);
             return m_cachedFacesSortedByTexture;
         }
 
         size_t Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy) const {
+            assert(m_rendererCacheValid);
+
             if (policy == EdgeRenderPolicy::RenderNone) {
                 return 0;
             }
@@ -1520,6 +1526,8 @@ namespace TrenchBroom {
         }
 
         void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, const GLuint brushVerticesStartIndex, GLuint* dest) const {
+            assert(m_rendererCacheValid);
+
             if (policy == EdgeRenderPolicy::RenderNone) {
                 return;
             }

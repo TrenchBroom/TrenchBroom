@@ -366,6 +366,7 @@ namespace TrenchBroom {
             }
 
             // collect vertices
+            brush->validateVertexCache();
             const auto& cachedVertices = brush->cachedVertices();
 
             assert(m_vertexArray != nullptr);
