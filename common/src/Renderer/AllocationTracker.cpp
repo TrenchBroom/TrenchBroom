@@ -89,6 +89,7 @@ namespace TrenchBroom {
         }
 
         void AllocationTracker::linkToBinList(Block* block) {
+            assert(block->free);
             assert(block->size > 0);
             assert(block->prevOfSameSize == nullptr);
             assert(block->nextOfSameSize == nullptr);
@@ -135,7 +136,7 @@ namespace TrenchBroom {
             return new Block();
         }
 
-        AllocationTracker::Block* AllocationTracker::allocate(size_t needed) {
+        AllocationTracker::Block* AllocationTracker::allocate(const size_t needed) {
             checkInvariants();
 
             if (needed == 0)
@@ -219,7 +220,7 @@ namespace TrenchBroom {
             Block* left = block->left;
             Block* right = block->right;
 
-            // 3 cases:
+            // 3 possible cases for merging blocks:
             // a) merge left, block, and right
             if (left != nullptr && left->free
                 && right != nullptr && right->free) {
@@ -291,8 +292,8 @@ namespace TrenchBroom {
 
                 recycle(right);
 
-                linkToBinList(block);
                 block->free = true;
+                linkToBinList(block);
 
                 // update rightmost block
                 if (m_rightmostBlock == right) {
@@ -305,13 +306,13 @@ namespace TrenchBroom {
 
             // no merging possible.
 
-            linkToBinList(block);
             block->free = true;
+            linkToBinList(block);
 
             checkInvariants();
         }
 
-        AllocationTracker::AllocationTracker(Index initial_capacity)
+        AllocationTracker::AllocationTracker(const Index initial_capacity)
                 : m_capacity(0),
                   m_leftmostBlock(nullptr),
                   m_rightmostBlock(nullptr),
@@ -347,13 +348,13 @@ namespace TrenchBroom {
             return static_cast<size_t>(m_capacity);
         }
 
-        void AllocationTracker::expand(Index newcap) {
+        void AllocationTracker::expand(const Index newCapacity) {
             checkInvariants();
 
             // special case: empty
             if (m_capacity == 0) {
-                assert(newcap > 0);
-                m_capacity = newcap;
+                assert(newCapacity > 0);
+                m_capacity = newCapacity;
 
                 Block* newBlock = obtainBlock();
                 newBlock->pos = 0;
@@ -373,7 +374,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const Index increase = newcap - m_capacity;
+            const Index increase = newCapacity - m_capacity;
             assert(increase > 0);
 
             // 2 cases:

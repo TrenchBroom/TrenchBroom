@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         /**
-         * Implements the bookkeeping part of a malloc()-like interface.
+         * Implements bookkeeping for dynamic memory allocation (like malloc).
          */
         class AllocationTracker {
         public:
@@ -112,6 +112,11 @@ namespace TrenchBroom {
 
             /**
              * Tries to make an allocation. Returns nullptr if there is no room for the requested allocation.
+             *
+             * If the allocation is successful, the returned block->size is guaranteed to equal `size`.
+             * The caller can read block->pos to find out where in the buffer the allocation was made.
+             *
+             * The AllocationTracker owns the Block object itself.
              */
             Block* allocate(size_t size);
             void free(Block* block);
