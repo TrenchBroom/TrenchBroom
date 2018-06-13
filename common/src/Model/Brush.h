@@ -205,30 +205,7 @@ namespace TrenchBroom {
             bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5) const;
             
             size_t edgeCount() const;
-            /**
-             * NOTE: Slow (allocates a list wrapper).
-             */
             EdgeList edges() const;
-
-            template <typename T>
-            void visitEdges(T&& visitor) const {
-                ensure(m_geometry != nullptr, "geometry is null");
-
-                const auto& edgeList = m_geometry->edges();
-
-                const Brush* brush = this;
-                const BrushEdge* firstEdge = edgeList.front();
-                const BrushEdge* currentEdge = firstEdge;
-                do {
-                    const BrushFace* firstFace = currentEdge->firstFace()->payload();
-                    const BrushFace* secondFace = currentEdge->secondFace()->payload();
-
-                    visitor(currentEdge, firstFace, secondFace, brush);
-
-                    currentEdge = currentEdge->next();
-                } while (currentEdge != firstEdge);
-            }
-
             bool containsPoint(const Vec3& point) const;
             
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
