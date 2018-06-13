@@ -24,6 +24,7 @@
 
 #include <cstring>
 #include <vector>
+#include <type_traits>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -83,7 +84,10 @@ namespace TrenchBroom {
                 
                 const size_t size = count * sizeof(T);
                 assert(address + size <= m_capacity);
-                
+
+                static_assert(std::is_trivially_copyable<T>::value);
+                static_assert(std::is_standard_layout<T>::value);
+
                 const GLvoid* ptr = static_cast<const GLvoid*>(array);
                 const GLintptr offset = static_cast<GLintptr>(m_offset + address);
                 const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
