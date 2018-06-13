@@ -40,21 +40,35 @@ namespace TrenchBroom {
         class RenderBatch;
         class RenderContext;
         class Vbo;
-        
+
         class BrushRenderer {
         public:
             class Filter {
             public:
+                enum class RenderOpacity {
+                    Opaque,
+                    Transparent
+                };
+
+                enum class FaceRenderPolicy {
+                    RenderMarked,
+                    RenderNone
+                };
+
+                enum class EdgeRenderPolicy {
+                    RenderAll,
+                    RenderIfEitherFaceMarked,
+                    RenderIfBothFacesMarked,
+                    RenderNone
+                };
+
+                using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
+
                 Filter();
                 Filter(const Filter& other);
                 virtual ~Filter();
                 
                 Filter& operator=(const Filter& other);
-
-                using RenderSettings = Model::Brush::RenderSettings;
-                using RenderOpacity = Model::Brush::RenderOpacity;
-                using FaceRenderPolicy = Model::Brush::FaceRenderPolicy;
-                using EdgeRenderPolicy = Model::Brush::EdgeRenderPolicy;
 
                 /**
                  * Classifies whether the brush will be rendered.

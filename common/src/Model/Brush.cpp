@@ -1509,50 +1509,9 @@ namespace TrenchBroom {
             return m_cachedFacesSortedByTexture;
         }
 
-        size_t Brush::countMarkedEdgeIndices(const EdgeRenderPolicy policy) const {
+        const std::vector<Brush::CachedEdge>& Brush::cachedEdges() const {
             assert(m_rendererCacheValid);
-
-            if (policy == EdgeRenderPolicy::RenderNone) {
-                return 0;
-            }
-
-            size_t indexCount = 0;
-            for (const CachedEdge& edge : m_cachedEdges) {
-                if (shouldRenderEdge(edge, policy)) {
-                    indexCount += 2;
-                }
-            }
-            return indexCount;
-        }
-
-        void Brush::getMarkedEdgeIndices(const EdgeRenderPolicy policy, const GLuint brushVerticesStartIndex, GLuint* dest) const {
-            assert(m_rendererCacheValid);
-
-            if (policy == EdgeRenderPolicy::RenderNone) {
-                return;
-            }
-
-            size_t i = 0;
-            for (const CachedEdge& edge : m_cachedEdges) {
-                if (shouldRenderEdge(edge, policy)) {
-                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex1RelativeToBrush);
-                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex2RelativeToBrush);
-                }
-            }
-        }
-
-        bool Brush::shouldRenderEdge(const CachedEdge& edge, const EdgeRenderPolicy policy) {
-            switch (policy) {
-                case EdgeRenderPolicy::RenderAll:
-                    return true;
-                case EdgeRenderPolicy::RenderIfEitherFaceMarked:
-                    return edge.face1->isMarked() || edge.face2->isMarked();
-                case EdgeRenderPolicy::RenderIfBothFacesMarked:
-                    return edge.face1->isMarked() && edge.face2->isMarked();
-                case EdgeRenderPolicy::RenderNone:
-                    return false;
-                switchDefault()
-            }
+            return m_cachedEdges;
         }
     }
 }

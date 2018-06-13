@@ -107,7 +107,7 @@ namespace TrenchBroom {
             }
             return std::make_tuple(m_transparent ? RenderOpacity::Transparent : RenderOpacity::Opaque,
                                    FaceRenderPolicy::RenderMarked,
-                                   Model::Brush::EdgeRenderPolicy::RenderAll);
+                                   EdgeRenderPolicy::RenderAll);
         }
 
         // BrushRenderer
@@ -348,6 +348,59 @@ namespace TrenchBroom {
             }
         }
 
+        static inline bool shouldRenderEdge(const Model::Brush::CachedEdge& edge,
+                                            const BrushRenderer::Filter::EdgeRenderPolicy policy) {
+            using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
+
+            switch (policy) {
+                case EdgeRenderPolicy::RenderAll:
+                    return true;
+                case EdgeRenderPolicy::RenderIfEitherFaceMarked:
+                    return edge.face1->isMarked() || edge.face2->isMarked();
+                case EdgeRenderPolicy::RenderIfBothFacesMarked:
+                    return edge.face1->isMarked() && edge.face2->isMarked();
+                case EdgeRenderPolicy::RenderNone:
+                    return false;
+                    switchDefault()
+            }
+        }
+
+        static size_t countMarkedEdgeIndices(const Model::Brush* brush, const BrushRenderer::Filter::EdgeRenderPolicy policy) {
+            using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
+
+            if (policy == EdgeRenderPolicy::RenderNone) {
+                return 0;
+            }
+
+            size_t indexCount = 0;
+            for (const auto& edge : brush->cachedEdges()) {
+                if (shouldRenderEdge(edge, policy)) {
+                    indexCount += 2;
+                }
+            }
+            return indexCount;
+        }
+
+        static void getMarkedEdgeIndices(const Model::Brush* brush,
+                                         const BrushRenderer::Filter::EdgeRenderPolicy policy,
+                                         const GLuint brushVerticesStartIndex,
+                                         GLuint* dest) {
+            using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
+
+            if (policy == EdgeRenderPolicy::RenderNone) {
+                return;
+            }
+
+            size_t i = 0;
+            for (const auto& edge : brush->cachedEdges()) {
+                if (shouldRenderEdge(edge, policy)) {
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex1RelativeToBrush);
+                    dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex2RelativeToBrush);
+                }
+            }
+        }
+
+
         void BrushRenderer::validateBrush(const Model::Brush* brush) {
             assert(!m_brushValid.at(brush));
             assert(m_brushInfo.find(brush) == m_brushInfo.end());
@@ -378,11 +431,11 @@ namespace TrenchBroom {
 
             // insert edge indices into VBO
             {
-                const size_t edgeIndexCount = brush->countMarkedEdgeIndices(edgePolicy);
+                const size_t edgeIndexCount = countMarkedEdgeIndices(brush, edgePolicy);
 
                 auto [key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
                 info.edgeIndicesKey = key;
-                brush->getMarkedEdgeIndices(edgePolicy, brushVerticesStartIndex, dest);
+                getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, dest);
             }
 
             // insert face indices

@@ -84,24 +84,6 @@ namespace TrenchBroom {
 
         public:
             // vertex and index cache
-            enum class RenderOpacity {
-                Opaque,
-                Transparent
-            };
-
-            enum class FaceRenderPolicy {
-                RenderMarked,
-                RenderNone
-            };
-
-            enum class EdgeRenderPolicy {
-                RenderAll,
-                RenderIfEitherFaceMarked,
-                RenderIfBothFacesMarked,
-                RenderNone
-            };
-
-            using RenderSettings = std::tuple<RenderOpacity, FaceRenderPolicy, EdgeRenderPolicy>;
 
             struct CachedFace {
                 const Assets::Texture* texture;
@@ -109,7 +91,7 @@ namespace TrenchBroom {
                 size_t vertexCount;
                 size_t indexOfFirstVertexRelativeToBrush;
             };
-        private:
+
             struct CachedEdge {
                 BrushFace* face1;
                 BrushFace* face2;
@@ -117,6 +99,7 @@ namespace TrenchBroom {
                 size_t vertexIndex2RelativeToBrush;
             };
 
+        private:
             mutable std::vector<Vertex> m_cachedVertices;
             mutable std::vector<CachedEdge> m_cachedEdges;
             mutable std::vector<CachedFace> m_cachedFacesSortedByTexture;
@@ -317,24 +300,27 @@ namespace TrenchBroom {
             Brush& operator=(const Brush&);
             
         public:
-            void invalidateVertexCache();
-            void validateVertexCache() const;
+            // render cache
 
-            // reading from the render cache
+            /**
+             * Only exposed to be called by BrushFace
+             */
+            void invalidateVertexCache();
+            /**
+             * Call this before cachedVertices()/cachedFacesSortedByTexture()/cachedEdges()
+             *
+             * TODO: this render cache should eventually be removed. The only point of having it is
+             * to save time when a Brush is re-uploaded to a different VBO when the brush hasn't changed.
+             * (This currently happens when moving brushes between the default/selected/locked MapRenderers).
+             */
+            void validateVertexCache() const;
 
             /**
              * Returns all vertices for all faces of the brush.
-             * Caller is expected to copy these into a VBO, and then call `setBrushVerticesStartIndex()`
-             * to record the offset with the VBO where the returned vertices were written.
              */
             const std::vector<Vertex>& cachedVertices() const;
-
-            size_t countMarkedEdgeIndices(EdgeRenderPolicy policy) const;
-            void getMarkedEdgeIndices(EdgeRenderPolicy policy, GLuint brushVerticesStartIndex, GLuint* dest) const;
-
             const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
-        private:
-            static bool shouldRenderEdge(const Brush::CachedEdge& edge, Brush::EdgeRenderPolicy policy);
+            const std::vector<CachedEdge>& cachedEdges() const;
         };
     }
 }
