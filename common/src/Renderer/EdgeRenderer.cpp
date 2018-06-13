@@ -163,7 +163,7 @@ namespace TrenchBroom {
 
         // IndexedEdgeRenderer::Render
 
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArrayPtr vertexArray, IndexArrayPtr indexArray) :
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
         RenderBase(params),
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
@@ -190,7 +190,7 @@ namespace TrenchBroom {
 
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
         
-        IndexedEdgeRenderer::IndexedEdgeRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray) :
+        IndexedEdgeRenderer::IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
         m_vertexArray(vertexArray),
         m_indexArray(indexArray) {}
         

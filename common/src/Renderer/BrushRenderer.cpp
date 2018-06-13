@@ -190,7 +190,7 @@ namespace TrenchBroom {
             m_brushValid.clear();
 
             m_vertexArray = std::make_shared<BrushVertexHolder>();
-            m_edgeIndices = std::make_shared<BrushIndexHolder>();
+            m_edgeIndices = std::make_shared<BrushIndexArray>();
             m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
             m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
 
@@ -417,11 +417,11 @@ namespace TrenchBroom {
                 }
 
                 TextureToBrushIndicesMap& faceVboMap = *faceVboPtr;
-                std::shared_ptr<BrushIndexHolder>& holderPtr = faceVboMap[texture];
+                std::shared_ptr<BrushIndexArray>& holderPtr = faceVboMap[texture];
 
                 if (holderPtr == nullptr) {
                     // inserts into map!
-                    holderPtr = std::make_shared<BrushIndexHolder>();
+                    holderPtr = std::make_shared<BrushIndexArray>();
                 }
 
                 auto [key, dest] = holderPtr->getPointerToInsertElementsAt(indexCount);
@@ -489,11 +489,11 @@ namespace TrenchBroom {
             m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
 
             for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys) {
-                std::shared_ptr<BrushIndexHolder> faceIndexHolder = m_opaqueFaces->at(texture);
+                std::shared_ptr<BrushIndexArray> faceIndexHolder = m_opaqueFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(opaqueKey);
             }
             for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys) {
-                std::shared_ptr<BrushIndexHolder> faceIndexHolder = m_transparentFaces->at(texture);
+                std::shared_ptr<BrushIndexArray> faceIndexHolder = m_transparentFaces->at(texture);
                 faceIndexHolder->zeroElementsWithKey(transparentKey);
             }
 

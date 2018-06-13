@@ -36,10 +36,10 @@ namespace TrenchBroom {
         class RenderContext;
         class Vbo;
         class BrushVertexHolder;
-        class BrushIndexHolder;
+        class BrushIndexArray;
 
-        using VertexArrayPtr = std::shared_ptr<BrushVertexHolder>;
-        using IndexArrayPtr = std::shared_ptr<BrushIndexHolder>;
+        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexHolder>;
+        using BrushIndexArrayPtr = std::shared_ptr<BrushIndexArray>;
 
         class EdgeRenderer {
         public:
@@ -112,21 +112,21 @@ namespace TrenchBroom {
         private:
             class Render : public RenderBase, public IndexedRenderable {
             private:
-                VertexArrayPtr m_vertexArray;
-                IndexArrayPtr m_indexArray;
+                BrushVertexArrayPtr m_vertexArray;
+                BrushIndexArrayPtr m_indexArray;
             public:
-                Render(const Params& params, VertexArrayPtr vertexArray, IndexArrayPtr indexArray);
+                Render(const Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray);
             private:
                 void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
                 void doRender(RenderContext& renderContext) override;
                 void doRenderVertices(RenderContext& renderContext) override;
             };
         private:
-            VertexArrayPtr m_vertexArray;
-            IndexArrayPtr m_indexArray;
+            BrushVertexArrayPtr m_vertexArray;
+            BrushIndexArrayPtr m_indexArray;
         public:
             IndexedEdgeRenderer();
-            IndexedEdgeRenderer(VertexArrayPtr vertexArray, IndexArrayPtr indexArray);
+            IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray);
 
             IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
             IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);

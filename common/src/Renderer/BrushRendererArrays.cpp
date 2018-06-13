@@ -24,19 +24,19 @@
 #include <cstring>
 
 namespace TrenchBroom {
-    // BrushIndexHolder
+    // BrushIndexArray
 
     namespace Renderer {
 
-        // FastDirtyRange
+        // DirtyRangeTracker
 
-        FastDirtyRange::FastDirtyRange(size_t initial_capacity)
+        DirtyRangeTracker::DirtyRangeTracker(size_t initial_capacity)
                 : m_dirtyPos(0), m_dirtySize(0), m_capacity(initial_capacity) {}
 
-        FastDirtyRange::FastDirtyRange()
+        DirtyRangeTracker::DirtyRangeTracker()
                 : m_dirtyPos(0), m_dirtySize(0), m_capacity(0) {}
 
-        void FastDirtyRange::expand(size_t newcap) {
+        void DirtyRangeTracker::expand(size_t newcap) {
             if (newcap <= m_capacity) {
                 throw std::invalid_argument("new capacity must be greater");
             }
@@ -46,11 +46,11 @@ namespace TrenchBroom {
             markDirty(oldcap, newcap - oldcap);
         }
 
-        size_t FastDirtyRange::capacity() const {
+        size_t DirtyRangeTracker::capacity() const {
             return m_capacity;
         }
 
-        void FastDirtyRange::markDirty(size_t pos, size_t size) {
+        void DirtyRangeTracker::markDirty(size_t pos, size_t size) {
             // bounds check
             if (pos + size > m_capacity) {
                 throw std::invalid_argument("markDirty provided range out of bounds");
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             m_dirtySize = newEnd - newPos;
         }
 
-        bool FastDirtyRange::clean() const {
+        bool DirtyRangeTracker::clean() const {
             return m_dirtySize == 0;
         }
 
@@ -92,16 +92,16 @@ namespace TrenchBroom {
 
         VertexArrayInterface::~VertexArrayInterface() {}
 
-        // BrushIndexHolder
+        // BrushIndexArray
 
-        BrushIndexHolder::BrushIndexHolder() : m_indexHolder(),
-                                               m_allocationTracker(0) {}
+        BrushIndexArray::BrushIndexArray() : m_indexHolder(),
+                                             m_allocationTracker(0) {}
 
-        bool BrushIndexHolder::empty() const {
+        bool BrushIndexArray::empty() const {
             return m_indexHolder.empty();
         }
 
-        std::pair<AllocationTracker::Block*, GLuint*> BrushIndexHolder::getPointerToInsertElementsAt(const size_t elementCount) {
+        std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::getPointerToInsertElementsAt(const size_t elementCount) {
             if (auto block = m_allocationTracker.allocate(elementCount); block != nullptr) {
                 GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
                 return {block, dest};
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             return {block, dest};
         }
 
-        void BrushIndexHolder::zeroElementsWithKey(AllocationTracker::Block* key) {
+        void BrushIndexArray::zeroElementsWithKey(AllocationTracker::Block* key) {
             const auto pos = key->pos;
             const auto size = key->size;
             m_allocationTracker.free(key);
@@ -128,16 +128,16 @@ namespace TrenchBroom {
             m_indexHolder.zeroRange(pos, size);
         }
 
-        void BrushIndexHolder::render(const PrimType primType) const {
+        void BrushIndexArray::render(const PrimType primType) const {
             assert(m_indexHolder.prepared());
             m_indexHolder.render(primType, 0, m_indexHolder.size());
         }
 
-        bool BrushIndexHolder::prepared() const {
+        bool BrushIndexArray::prepared() const {
             return m_indexHolder.prepared();
         }
 
-        void BrushIndexHolder::prepare(Vbo& vbo) {
+        void BrushIndexArray::prepare(Vbo& vbo) {
             m_indexHolder.prepare(vbo);
             assert(m_indexHolder.prepared());
         }

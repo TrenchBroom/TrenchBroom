@@ -128,8 +128,8 @@ namespace TrenchBroom {
              */
             std::map<const Model::Brush*, bool> m_brushValid;
 
-            VertexArrayPtr m_vertexArray;
-            IndexArrayPtr m_edgeIndices;
+            BrushVertexArrayPtr m_vertexArray;
+            BrushIndexArrayPtr m_edgeIndices;
             std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
             std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
 

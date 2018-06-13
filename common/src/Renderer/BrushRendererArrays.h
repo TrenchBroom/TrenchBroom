@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class Brush;
     }
     namespace Renderer {
-        struct FastDirtyRange {
+        struct DirtyRangeTracker {
             size_t m_dirtyPos;
             size_t m_dirtySize;
             size_t m_capacity;
@@ -44,8 +44,8 @@ namespace TrenchBroom {
             /**
              * New trackers are initially clean.
              */
-            explicit FastDirtyRange(size_t initial_capacity);
-            FastDirtyRange();
+            explicit DirtyRangeTracker(size_t initial_capacity);
+            DirtyRangeTracker();
 
             /**
              * Expanding marks the new range as dirty.
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         class VboBlockHolder {
         protected:
             std::vector<T> m_snapshot;
-            FastDirtyRange m_dirtyRanges;
+            DirtyRangeTracker m_dirtyRange;
             VboBlock *m_block;
 
         private:
@@ -84,14 +84,14 @@ namespace TrenchBroom {
                 MapVboBlock map(m_block);
                 m_block->writeElements(0, m_snapshot);
 
-                m_dirtyRanges = FastDirtyRange(m_snapshot.size());
-                assert(m_dirtyRanges.clean());
-                assert((m_block->capacity() / sizeof(T)) == m_dirtyRanges.capacity());
+                m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
+                assert(m_dirtyRange.clean());
+                assert((m_block->capacity() / sizeof(T)) == m_dirtyRange.capacity());
             }
 
         public:
             VboBlockHolder() : m_snapshot(),
-                               m_dirtyRanges(0),
+                               m_dirtyRange(0),
                                m_block(nullptr) {}
 
             /**
@@ -99,11 +99,11 @@ namespace TrenchBroom {
              */
             VboBlockHolder(std::vector<T> &elements)
                     : m_snapshot(),
-                      m_dirtyRanges(elements.size()),
+                      m_dirtyRange(elements.size()),
                       m_block(nullptr) {
 
                 const size_t elementsCount = elements.size();
-                m_dirtyRanges.markDirty(0, elementsCount);
+                m_dirtyRange.markDirty(0, elementsCount);
 
                 elements.swap(m_snapshot);
 
@@ -121,21 +121,21 @@ namespace TrenchBroom {
 
             void resize(size_t newSize) {
                 m_snapshot.resize(newSize);
-                m_dirtyRanges.expand(newSize);
+                m_dirtyRange.expand(newSize);
             }
 
             T* getPointerToWriteElementsTo(const size_t offsetWithinBlock, const size_t elementCount) {
                 assert(offsetWithinBlock + elementCount <= m_snapshot.size());
 
                 // mark dirty range
-                m_dirtyRanges.markDirty(offsetWithinBlock, elementCount);
+                m_dirtyRange.markDirty(offsetWithinBlock, elementCount);
 
                 return m_snapshot.data() + offsetWithinBlock;
             }
 
             bool prepared() const {
                 // NOTE: this returns true if the capacity is 0
-                return m_dirtyRanges.clean();
+                return m_dirtyRange.clean();
             }
 
             void prepare(Vbo& vbo) {
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                 }
 
                 // resize?
-                if (m_dirtyRanges.capacity() != (m_block->capacity() / sizeof(T))) {
+                if (m_dirtyRange.capacity() != (m_block->capacity() / sizeof(T))) {
                     freeBlock();
                     allocateBlock(vbo);
                     assert(prepared());
@@ -166,9 +166,9 @@ namespace TrenchBroom {
                 ActivateVbo activate(vbo);
                 MapVboBlock map(m_block);
 
-                if (!m_dirtyRanges.clean()) {
-                    const size_t pos = m_dirtyRanges.m_dirtyPos;
-                    const size_t size = m_dirtyRanges.m_dirtySize;
+                if (!m_dirtyRange.clean()) {
+                    const size_t pos = m_dirtyRange.m_dirtyPos;
+                    const size_t size = m_dirtyRange.m_dirtySize;
 
                     const size_t bytesFromStart = pos * sizeof(T);
                     m_block->writeArray(bytesFromStart,
@@ -176,7 +176,7 @@ namespace TrenchBroom {
                                         size);
                 }
 
-                m_dirtyRanges = FastDirtyRange(m_snapshot.size());
+                m_dirtyRange = DirtyRangeTracker(m_snapshot.size());
                 assert(prepared());
             }
 
@@ -204,12 +204,12 @@ namespace TrenchBroom {
             static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
         };
 
-        class BrushIndexHolder {
+        class BrushIndexArray {
         private:
             IndexHolder m_indexHolder;
             AllocationTracker m_allocationTracker;
         public:
-            BrushIndexHolder();
+            BrushIndexArray();
 
             bool empty() const;
 
@@ -235,9 +235,6 @@ namespace TrenchBroom {
          * Copying the IndexArray just increments the reference count,
          * the same underlying buffer is shared between the copies.
          */
-        //using IndexArrayPtr = std::shared_ptr<IndexHolder>;
-
-
         class VertexArrayInterface {
         public:
             virtual ~VertexArrayInterface() = 0;
@@ -272,9 +269,9 @@ namespace TrenchBroom {
             }
         };
 
-        // TODO: This is mostly copied/pasted from BrushIndexHolder.
+        // TODO: This is mostly copied/pasted from BrushIndexArray.
         // The only difference is deleteVerticesWithKey() doesn't need to zero out
-        // the deleted memory in the VBO, while BrushIndexHolder's does.
+        // the deleted memory in the VBO, while BrushIndexArray's does.
         class BrushVertexHolder {
         private:
             using Vertex = Renderer::VertexSpecs::P3NT2::Vertex;
@@ -296,8 +293,6 @@ namespace TrenchBroom {
             bool prepared() const;
             void prepare(Vbo& vbo);
         };
-
-        //using VertexArrayPtr = std::shared_ptr<VertexArrayInterface>;
     }
 }
 
