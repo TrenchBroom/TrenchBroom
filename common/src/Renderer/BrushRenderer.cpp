@@ -415,6 +415,7 @@ namespace TrenchBroom {
 
             if (facePolicy == Filter::FaceRenderPolicy::RenderNone &&
                 edgePolicy == Filter::EdgeRenderPolicy::RenderNone) {
+                // NOTE: this skips inserting the brush into m_brushInfo
                 return;
             }
 
@@ -534,7 +535,12 @@ namespace TrenchBroom {
 
         void BrushRenderer::removeBrushFromVbo(const Model::Brush* brush) {
             auto it = m_brushInfo.find(brush);
-            assert(it != m_brushInfo.end());
+
+            if (it == m_brushInfo.end()) {
+                // This means BrushRenderer::validateBrush skipped rendering the brush, so it was never
+                // uploaded to the VBO's
+                return;
+            }
 
             const BrushInfo& info = it->second;
 
