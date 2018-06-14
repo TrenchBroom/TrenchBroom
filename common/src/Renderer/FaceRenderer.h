@@ -34,12 +34,12 @@ namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
         class BrushIndexArray;
-        class BrushVertexHolder;
+        class BrushVertexArray;
         class RenderBatch;
         class RenderContext;
         class Vbo;
 
-        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexHolder>;
+        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
         using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
 
         class FaceRenderer : public IndexedRenderable {

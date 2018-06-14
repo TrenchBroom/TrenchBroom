@@ -189,7 +189,7 @@ namespace TrenchBroom {
         void BrushRenderer::clear() {
             m_brushValid.clear();
 
-            m_vertexArray = std::make_shared<BrushVertexHolder>();
+            m_vertexArray = std::make_shared<BrushVertexArray>();
             m_edgeIndices = std::make_shared<BrushIndexArray>();
             m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
             m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();

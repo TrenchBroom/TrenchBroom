@@ -58,6 +58,12 @@ namespace TrenchBroom {
 
         /**
          * Wrapper around a std::vector<T> and VboBlock.
+         *
+         * Non-copyable; meant to be held in a std::shared_ptr.
+         * Able to be resized, and handles copying edits made in the local std::vector to the VBO.
+         *
+         * Currently uses a single range to track the modified region which might upload much more than necessary;
+         * it might be worth mapping the VBO and editing it directly.
          */
         template<typename T>
         class VboBlockHolder {
@@ -204,6 +210,10 @@ namespace TrenchBroom {
             static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
         };
 
+        /**
+         * VboBlock handle that supports dynamically allocating ranges of indices, grows as needed, and also
+         * supports freeing allocations and zeroing the corresponding indicies so they become degenerate primitives.
+         */
         class BrushIndexArray {
         private:
             IndexHolder m_indexHolder;
@@ -213,10 +223,18 @@ namespace TrenchBroom {
 
             bool empty() const;
 
+            /**
+             * Call this to request writing the given number of indices.
+             *
+             * The VboBlock will be expanded if needed to accommodate the allocation.
+             *
+             * Returns a AllocationTracker::Block pointer which can be used later in a call to zeroElementsWithKey(),
+             * and also a GLuint pointer where the caller should write `elementCount` GLuint's.
+             */
             std::pair<AllocationTracker::Block*, GLuint*> getPointerToInsertElementsAt(size_t elementCount);
 
             /**
-             * Deletes indices for the given brush. No-op if the brush is not used.
+             * Deletes indices for the given brush and marks the allocation as free.
              */
             void zeroElementsWithKey(AllocationTracker::Block* key);
 
@@ -225,16 +243,6 @@ namespace TrenchBroom {
             void prepare(Vbo& vbo);
         };
 
-
-        /**
-         * A reference-counted handle to a VboBlock (which is a subset of a VBO).
-         *
-         * It maintains an in-memory copy of the data that was uploaded to the VBO.
-         * Support resizing.
-         *
-         * Copying the IndexArray just increments the reference count,
-         * the same underlying buffer is shared between the copies.
-         */
         class VertexArrayInterface {
         public:
             virtual ~VertexArrayInterface() = 0;
@@ -269,18 +277,28 @@ namespace TrenchBroom {
             }
         };
 
-        // TODO: This is mostly copied/pasted from BrushIndexArray.
-        // The only difference is deleteVerticesWithKey() doesn't need to zero out
-        // the deleted memory in the VBO, while BrushIndexArray's does.
-        class BrushVertexHolder {
+        /**
+         * Same as BrushIndexArray but for vertices instead of indices.
+         * The only difference is deleteVerticesWithKey() doesn't need to zero out
+         * the deleted memory in the VBO, while BrushIndexArray's does.
+         */
+        class BrushVertexArray {
         private:
             using Vertex = Renderer::VertexSpecs::P3NT2::Vertex;
 
             VertexHolder<Vertex> m_vertexHolder;
             AllocationTracker m_allocationTracker;
         public:
-            BrushVertexHolder();
+            BrushVertexArray();
 
+            /**
+             * Call this to request writing the given number of vertices.
+             *
+             * The VboBlock will be expanded if needed to accommodate the allocation.
+             *
+             * Returns a AllocationTracker::Block pointer which can be used later in a call to deleteVerticesWithKey(),
+             * and also a Vertex pointer where the caller should write `elementCount` Vertex objects.
+             */
             std::pair<AllocationTracker::Block*, Vertex*> getPointerToInsertVerticesAt(size_t vertexCount);
 
             void deleteVerticesWithKey(AllocationTracker::Block* key);

@@ -82,9 +82,7 @@ namespace TrenchBroom {
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
 
-        public:
-            // vertex and index cache
-
+        public: // renderer cache
             struct CachedFace {
                 const Assets::Texture* texture;
                 BrushFace* face;
@@ -299,9 +297,7 @@ namespace TrenchBroom {
             Brush(const Brush&);
             Brush& operator=(const Brush&);
             
-        public:
-            // render cache
-
+        public: // renderer cache
             /**
              * Only exposed to be called by BrushFace
              */
@@ -309,9 +305,10 @@ namespace TrenchBroom {
             /**
              * Call this before cachedVertices()/cachedFacesSortedByTexture()/cachedEdges()
              *
-             * TODO: this render cache should eventually be removed. The only point of having it is
-             * to save time when a Brush is re-uploaded to a different VBO when the brush hasn't changed.
-             * (This currently happens when moving brushes between the default/selected/locked MapRenderers).
+             * NOTE: The reason for having this cache is we often need to re-upload the brush to VBO's when the brush
+             * itself hasn't changed, but we're moving it between VBO's for different rendering styles
+             * (default/selected/locked), or need to re-evaluate the BrushRenderer::Filter to exclude certain
+             * faces/edges.
              */
             void validateVertexCache() const;
 

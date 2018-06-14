@@ -35,10 +35,10 @@ namespace TrenchBroom {
         class RenderBatch;
         class RenderContext;
         class Vbo;
-        class BrushVertexHolder;
+        class BrushVertexArray;
         class BrushIndexArray;
 
-        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexHolder>;
+        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
         using BrushIndexArrayPtr = std::shared_ptr<BrushIndexArray>;
 
         class EdgeRenderer {

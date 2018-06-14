@@ -85,7 +85,7 @@ namespace TrenchBroom {
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
 
-            // renderer cache
+            // brush renderer
             mutable bool m_markedToRenderFace;
         protected:
             BrushFaceAttributes m_attribs;
@@ -202,10 +202,9 @@ namespace TrenchBroom {
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
 
+            // renderer cache
             void invalidateVertexCache();
-        public:
-            // renderer
-
+        public: // brush renderer
             /**
              * This is used to cache results of evaluating the BrushRenderer Filter.
              * It's only valid within a call to `BrushRenderer::validateBrush`.

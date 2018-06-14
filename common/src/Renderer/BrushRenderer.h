@@ -71,10 +71,13 @@ namespace TrenchBroom {
                 Filter& operator=(const Filter& other);
 
                 /**
-                 * Classifies whether the brush will be rendered.
-                 * If RenderType::Invisible is returned, the brush is skipped (not added to the VBO).
-                 * Otherwise, markFaces() should mark the desired faces for rendering and return the
-                 * type of edge rendering.
+                 * Classifies whether the brush will be rendered, and which faces/edges and the render opacity.
+                 *
+                 * If both FaceRenderPolicy::RenderNone and EdgeRenderPolicy::RenderNone are returned, the brush is
+                 * skipped (not added to the vertex array or index arrays at all).
+                 *
+                 * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing true or false
+                 * as needed to select the faces to be rendered.
                  */
                 virtual RenderSettings markFaces(const Model::Brush* brush) const = 0;
 
@@ -121,10 +124,6 @@ namespace TrenchBroom {
             };
         private:
             class FilterWrapper;
-            class CountVertices;
-            class CollectVertices;
-            class CountIndices;
-            class CollectIndices;
         private:
             Filter* m_filter;
 
@@ -220,7 +219,11 @@ namespace TrenchBroom {
             void renderEdges(RenderBatch& renderBatch);
 
         public:
+            /**
+             * Only exposed for benchmarking.
+             */
             void validate();
+        private:
             void validateBrush(const Model::Brush* brush);
             void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);

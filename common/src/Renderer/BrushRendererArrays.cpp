@@ -142,12 +142,12 @@ namespace TrenchBroom {
             assert(m_indexHolder.prepared());
         }
 
-        // BrushVertexHolder
+        // BrushVertexArray
 
-        BrushVertexHolder::BrushVertexHolder() : m_vertexHolder(),
+        BrushVertexArray::BrushVertexArray() : m_vertexHolder(),
                                                m_allocationTracker(0) {}
 
-        std::pair<AllocationTracker::Block*, BrushVertexHolder::Vertex*> BrushVertexHolder::getPointerToInsertVerticesAt(const size_t vertexCount) {
+        std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray::getPointerToInsertVerticesAt(const size_t vertexCount) {
             if (auto block = m_allocationTracker.allocate(vertexCount); block != nullptr) {
                 Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
                 return {block, dest};
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             return {block, dest};
         }
 
-        void BrushVertexHolder::deleteVerticesWithKey(AllocationTracker::Block* key) {
+        void BrushVertexArray::deleteVerticesWithKey(AllocationTracker::Block* key) {
             m_allocationTracker.free(key);
 
             // there's no need to actually delete the vertices from the VBO.
@@ -176,19 +176,19 @@ namespace TrenchBroom {
             // us to re-use the space later
         }
 
-        bool BrushVertexHolder::setupVertices() {
+        bool BrushVertexArray::setupVertices() {
             return m_vertexHolder.setupVertices();
         }
 
-        void BrushVertexHolder::cleanupVertices() {
+        void BrushVertexArray::cleanupVertices() {
             m_vertexHolder.cleanupVertices();
         }
 
-        bool BrushVertexHolder::prepared() const {
+        bool BrushVertexArray::prepared() const {
             return m_vertexHolder.prepared();
         }
 
-        void BrushVertexHolder::prepare(Vbo& vbo) {
+        void BrushVertexArray::prepare(Vbo& vbo) {
             m_vertexHolder.prepare(vbo);
             assert(m_vertexHolder.prepared());
         }
