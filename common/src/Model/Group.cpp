@@ -100,8 +100,9 @@ namespace TrenchBroom {
         }
 
         const BBox3& Group::doGetBounds() const {
-            if (!m_boundsValid)
+            if (!m_boundsValid) {
                 validateBounds();
+            }
             return m_bounds;
         }
         
@@ -139,40 +140,32 @@ namespace TrenchBroom {
         }
 
         void Group::doChildWasAdded(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
         
         void Group::doChildWasRemoved(Node* node) {
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
-        void Group::doNodeBoundsDidChange() {
+        void Group::doNodeBoundsDidChange(const BBox3& oldBounds) {
             invalidateBounds();
         }
         
-        void Group::doChildBoundsDidChange(Node* node) {
-            nodeBoundsDidChange();
-        }
-
-        bool Group::doShouldPropagateDescendantEvents() const {
-            return false;
-        }
-
         bool Group::doSelectable() const {
             return true;
         }
 
         void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            if (!opened() && !hasOpenedDescendant()) {
+            // A group can only be picked if and only if the following conditions are met
+            // * it is closed or has no open descendant
+            // * it is top level or has an open parent
+            if ((!opened() && !hasOpenedDescendant()) && (group() == nullptr || group()->opened())) {
                 const FloatType distance = intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
             }
-            
-            for (const Node* child : Node::children())
-                child->pick(ray, pickResult);
         }
         
         void Group::doFindNodesContaining(const Vec3& point, NodeList& result) {

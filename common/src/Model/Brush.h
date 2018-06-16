@@ -207,6 +207,7 @@ namespace TrenchBroom {
             void updateFacesFromGeometry(const BBox3& worldBounds);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
+            void initializeGeometry(const BBox3& worldBounds);
             void rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:

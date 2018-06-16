@@ -373,7 +373,7 @@ namespace TrenchBroom {
         m_contentTypeValid(true) {
             addFaces(faces);
             try {
-                rebuildGeometry(worldBounds);
+                initializeGeometry(worldBounds);
             } catch (const GeometryException&) {
                 cleanup();
                 throw;
@@ -1069,6 +1069,8 @@ namespace TrenchBroom {
         }
 
         void Brush::doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
+            const BBox3 oldBounds = bounds();
+
             matcher.processRightFaces(FaceMatchingCallback());
 
             const NotifyNodeChange nodeChange(this);
@@ -1076,7 +1078,8 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
             assert(fullySpecified());
-            nodeBoundsDidChange();
+
+            nodeBoundsDidChange(oldBounds);
         }
 
         BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
@@ -1150,8 +1153,8 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds) {
-            delete m_geometry;
+        void Brush::initializeGeometry(const BBox3& worldBounds) {
+            assert(m_geometry == nullptr);
             m_geometry = new BrushGeometry(worldBounds.expanded(1.0));
 
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
@@ -1162,7 +1165,15 @@ namespace TrenchBroom {
                 throw GeometryException("Brush is invalid");
             if (!fullySpecified())
                 throw GeometryException("Brush is not fully specified");
-            nodeBoundsDidChange();
+        }
+
+        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+            const NotifyNodeBoundsChange notify(this);
+
+            delete m_geometry;
+            m_geometry = nullptr;
+
+            initializeGeometry(worldBounds);
         }
 
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {

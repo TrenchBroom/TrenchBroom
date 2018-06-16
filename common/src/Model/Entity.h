@@ -69,8 +69,8 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange() override;
-            void doChildBoundsDidChange(Node* node) override;
+            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
+            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
 
             bool doSelectable() const override;
             
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             
             NodeList nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange() override;
+            void doAttributesDidChange(const BBox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
             Vec3 doGetLinkSourceAnchor() const override;

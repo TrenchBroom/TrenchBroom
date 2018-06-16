@@ -21,14 +21,18 @@
 
 #include "TestUtils.h"
 #include "MathUtils.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
+#include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
+#include "Model/PickResult.h"
 #include "Model/TestGame.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
@@ -47,6 +51,12 @@ namespace TrenchBroom {
         void MapDocumentTest::SetUp() {
             document = MapDocumentCommandFacade::newMapDocument();
             document->newDocument(m_mapFormat, BBox3(8192.0), Model::GameSPtr(new Model::TestGame()));
+
+            // create two entity definitions
+            m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), BBox3(16.0), "this is a point entity", Assets::AttributeDefinitionList(), Assets::ModelDefinition());
+            m_brushEntityDef = new Assets::BrushEntityDefinition("point_entity", Color(), "this is a point entity", Assets::AttributeDefinitionList());
+
+            document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
         }
 
         Model::Brush* MapDocumentTest::createBrush(const String& textureName) {
@@ -354,6 +364,242 @@ namespace TrenchBroom {
             
             ASSERT_EQ((Model::NodeSet {}), SetUtils::makeSet(group1->children()));
             ASSERT_EQ((Model::NodeSet {ent1, ent2}), SetUtils::makeSet(group2->children()));
+        }
+
+        TEST_F(MapDocumentTest, pickSingleBrush) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, document->currentParent());
+
+            Model::PickResult pickResult;
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
+
+            auto hits = pickResult.query().all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::NegX), pickResult);
+            ASSERT_TRUE(pickResult.query().all().empty());
+        }
+
+        TEST_F(MapDocumentTest, pickSingleEntity) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::Entity* ent1 = new Model::Entity();
+            document->addNode(ent1, document->currentParent());
+
+            const auto origin = ent1->origin();
+            const auto bounds = ent1->bounds();
+
+            const auto rayOrigin = origin + Vec3(-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0);
+
+            Model::PickResult pickResult;
+            document->pick(Ray3(rayOrigin, Vec3::PosX), pickResult);
+
+            auto hits = pickResult.query().all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(ent1, hits.front().target<Model::Entity*>());
+            ASSERT_DOUBLE_EQ(32.0 - bounds.size().x() / 2.0, hits.front().distance());
+
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::NegX), pickResult);
+            ASSERT_TRUE(pickResult.query().all().empty());
+        }
+
+        TEST_F(MapDocumentTest, pickSimpleGroup) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            document->selectAllNodes();
+            auto* group = document->groupSelection("test");
+
+            Model::PickResult pickResult;
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
+
+            // picking a grouped object when the containing group is closed should return both the object and the group
+            auto hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(group, hits.front().target<Model::Group*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            // hitting both objects in the group should return the group only once
+            pickResult.clear();
+            document->pick(Ray3(Vec3(32, 32, -32), Vec3::PosZ), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(2u, hits.size());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            // hitting the group bounds doesn't count as a hit
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 96), Vec3::PosX), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_TRUE(hits.empty());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_TRUE(hits.empty());
+
+            // hitting a grouped object when the containing group is open should return the object only
+            document->openGroup(group);
+
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_TRUE(hits.empty());
+        }
+
+        TEST_F(MapDocumentTest, pickNestedGroup) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            document->selectAllNodes();
+            auto* inner = document->groupSelection("inner");
+
+            document->deselectAll();
+            auto* brush3 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 256)), "texture");
+            document->addNode(brush3, document->currentParent());
+
+            document->selectAllNodes();
+            auto* outer = document->groupSelection("outer");
+
+            Model::PickResult pickResult;
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
+
+            // hitting a grouped object when the containing group is open should return the object only
+            document->openGroup(outer);
+
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 256+32), Vec3::PosX), pickResult);
+
+            auto hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush3->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_TRUE(hits.empty());
+
+            // hitting the brush in the inner group should return the inner group and the brush
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 32), Vec3::PosX), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(inner, hits.front().target<Model::Group*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            // open the inner group, too
+            document->openGroup(inner);
+
+            // pick a brush in the outer group
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 256 + 32), Vec3::PosX), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush3->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_TRUE(hits.empty());
+
+            // pick a brush in the inner group
+            pickResult.clear();
+            document->pick(Ray3(Vec3(-32, 0, 32), Vec3::PosX), pickResult);
+
+            hits = pickResult.query().type(Model::Brush::BrushHit).all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+
+            hits = pickResult.query().type(Model::Group::GroupHit).all();
+            ASSERT_TRUE(hits.empty());
+        }
+
+        TEST_F(MapDocumentTest, pickBrushEntity) {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+
+            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            document->selectAllNodes();
+
+            document->createBrushEntity(m_brushEntityDef);
+            document->deselectAll();
+
+            Model::PickResult pickResult;
+
+            // picking entity brushes should only return the brushes and not the entity
+            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
+
+            auto hits = pickResult.query().all();
+            ASSERT_EQ(1u, hits.size());
+
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
         }
     }
 }

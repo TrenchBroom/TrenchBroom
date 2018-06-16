@@ -170,6 +170,15 @@ TEST(BBoxTest, containsBBox) {
     ASSERT_FALSE(bounds1.contains(bounds3));
 }
 
+TEST(BBoxTest, enclosesBBox) {
+    const BBox3f bounds1(Vec3f(-12.0f, -3.0f,  4.0f), Vec3f( 8.0f, 9.0f, 8.0f));
+    const BBox3f bounds2(Vec3f(-10.0f, -2.0f,  5.0f), Vec3f( 7.0f, 8.0f, 7.0f));
+    const BBox3f bounds3(Vec3f(-10.0f, -3.0f,  5.0f), Vec3f( 7.0f, 8.0f, 7.0f));
+    ASSERT_FALSE(bounds1.encloses(bounds1));
+    ASSERT_TRUE(bounds1.encloses(bounds2));
+    ASSERT_FALSE(bounds1.encloses(bounds3));
+}
+
 TEST(BBoxTest, intersectsBBox) {
     const BBox3f bounds1(Vec3f(-12.0f, -3.0f,  4.0f), Vec3f(  8.0f,  9.0f,  8.0f));
     const BBox3f bounds2(Vec3f(-10.0f, -2.0f,  5.0f), Vec3f(  7.0f,  8.0f,  7.0f));
