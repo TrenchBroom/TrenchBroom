@@ -105,7 +105,10 @@ namespace TrenchBroom {
             const char* base = cursor;
             for (size_t i = 0; i < textureCount; ++i) {
                 cursor = base + (i + 1)*sizeof(int32_t);
-                const size_t textureOffset = readSize<int32_t>(cursor);
+                const int textureOffset = readInt<int32_t>(cursor);
+                if (textureOffset < 0) {
+                    continue;
+                }
                 cursor = base + textureOffset;
                 readBytes(cursor, textureName, BspLayout::TextureNameLength);
                 const size_t width = readSize<int32_t>(cursor);
