@@ -82,9 +82,10 @@ namespace TrenchBroom {
                 virtual RenderSettings markFaces(const Model::Brush* brush) const = 0;
 
             protected:
-                static RenderSettings renderNothing() {
-                    return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
-                }
+                /**
+                 * Return this from your markFaces() implementation to skip rendering of the brush.
+                 */
+                static RenderSettings renderNothing();
             };
             
             class DefaultFilter : public Filter {

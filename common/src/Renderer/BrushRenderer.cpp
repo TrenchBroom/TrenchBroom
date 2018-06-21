@@ -48,6 +48,10 @@ namespace TrenchBroom {
         
         BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& other) { return *this; }
 
+        BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing() {
+            return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
+        }
+
         // DefaultFilter
 
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
