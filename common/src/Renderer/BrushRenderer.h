@@ -133,13 +133,18 @@ namespace TrenchBroom {
                 std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>> opaqueFaceIndicesKeys;
                 std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>> transparentFaceIndicesKeys;
             };
+            /**
+             * Tracks all brushes that are stored in the VBO, with the information necessary to remove them
+             * from the VBO later.
+             */
             std::unordered_map<const Model::Brush*, BrushInfo> m_brushInfo;
 
-            // TODO: maybe have 2 std::set's instead of a map?
             /**
-             * a brush is valid iff it's in the VBO.
+             * If a brush is in the VBO, it's always valid.
+             * If a brush is valid, it might not be in the VBO if it was hidden by the Filter.
              */
-            std::map<const Model::Brush*, bool> m_brushValid;
+            std::set<const Model::Brush*> m_allBrushes;
+            std::set<const Model::Brush*> m_invalidBrushes;
 
             BrushVertexArrayPtr m_vertexArray;
             BrushIndexArrayPtr m_edgeIndices;
@@ -228,6 +233,11 @@ namespace TrenchBroom {
             void addBrush(const Model::Brush* brush);
             void removeBrush(const Model::Brush* brush);
 
+            /**
+             * If the given brush is not currently in the VBO, it's silently ignored.
+             * Otherwise, it's removed from the VBO (having its indices zeroed out, causing it to no longer draw).
+             * The brush's "valid" state is not touched inside here, but the m_brushInfo is updated.
+             */
             void removeBrushFromVbo(const Model::Brush* brush);
         private:
             BrushRenderer(const BrushRenderer& other);
