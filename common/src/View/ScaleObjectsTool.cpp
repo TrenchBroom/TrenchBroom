@@ -765,6 +765,10 @@ namespace TrenchBroom {
 
             // hack for highlighting on mouseover
             m_dragStartHit = hit;
+
+            // TODO: extract the highlighted handle from the hit here, and only refresh views if it changed
+            // (see ResizeBrushesTool::updateDragFaces)
+            refreshViews();
         }
 
         void ScaleObjectsTool::setAnchorPos(const AnchorPos pos) {
