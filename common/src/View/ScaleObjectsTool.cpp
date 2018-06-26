@@ -496,7 +496,21 @@ namespace TrenchBroom {
 
             pickBackSides(pickRay, camera, localPickResult);
 
-            auto hit = localPickResult.query().first();
+            const Model::Hit::List& unsorted = localPickResult.all();
+            std::vector<Model::Hit> sortedHits(unsorted.begin(), unsorted.end());
+
+            std::sort(sortedHits.begin(), sortedHits.end(), [](const Model::Hit& a, const Model::Hit& b){ return a.distance() < b.distance(); });
+
+            // We allow picking through faces, so the priority is: corner, edge, face.
+            const auto order = std::array<Model::Hit::HitType, 3>{ ScaleToolCornerHit, ScaleToolEdgeHit, ScaleToolFaceHit };
+            for (const auto& pickType : order) {
+                for (const auto& hit : sortedHits) {
+                    if (hit.type() == pickType) {
+                        pickResult.addHit(hit);
+                        return;
+                    }
+                }
+            }
 
 #if 0
             if (hit.type() == ScaleToolFaceHit)
@@ -508,10 +522,6 @@ namespace TrenchBroom {
             else
                 printf("no hit\n");
 #endif
-
-            if (hit.isMatch()) {
-                pickResult.addHit(hit);
-            }
         }
 
 
