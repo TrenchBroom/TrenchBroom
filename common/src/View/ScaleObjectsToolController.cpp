@@ -186,11 +186,23 @@ namespace TrenchBroom {
             }
             
             if (m_tool->hasDragEdge()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
                 const auto line = m_tool->dragEdge();
-                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                renderService.setLineWidth(2.0);
-                renderService.renderLine(line.start(), line.end());
+                const auto& camera = renderContext.camera();
+
+                if (camera.orthographicProjection()
+                    && line.direction().parallelTo(camera.direction())) {
+                    // for the 2D view, for drag edges that are parallel to the camera,
+                    // render the highlight with a ring around the handle
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+                    renderService.renderHandleHighlight(line.start());
+                } else {
+                    // render as a thick line
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
+                    renderService.setLineWidth(2.0);
+                    renderService.renderLine(line.start(), line.end());
+                }
             }
             
             if (m_tool->hasDragCorner()) {
