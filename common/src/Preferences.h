@@ -91,7 +91,12 @@ namespace TrenchBroom {
         extern Preference<Color> ResizeHandleColor;
         extern Preference<float> RotateHandleRadius;
         extern Preference<Color> RotateHandleColor;
-        
+
+        extern Preference<Color> ScaleHandleColor;
+        extern Preference<Color> ScaleFillColor;
+        extern Preference<Color> ScaleOutlineColor;
+        extern Preference<Color> ShearOutlineColor;
+
         extern Preference<Color> MoveTraceColor;
         extern Preference<Color> OccludedMoveTraceColor;
 
