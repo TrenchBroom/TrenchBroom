@@ -95,11 +95,12 @@ namespace TrenchBroom {
                            AnchorPos anchor);
 
         class ScaleObjectsTool : public Tool {
-        private:
+        public:
             static const Model::Hit::HitType ScaleToolFaceHit;
             static const Model::Hit::HitType ScaleToolEdgeHit;
             static const Model::Hit::HitType ScaleToolCornerHit;
-            
+
+        private:
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
 

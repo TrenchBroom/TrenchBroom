@@ -751,6 +751,10 @@ namespace TrenchBroom {
         }
 
         Vec3::List ScaleObjectsTool::cornerHandles() const {
+            if (bounds().empty()) {
+                return {};
+            }
+
             Vec3::List result;
             result.reserve(8);
             auto op = [&](const Vec3& point) {

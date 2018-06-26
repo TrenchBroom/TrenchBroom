@@ -48,6 +48,12 @@ namespace TrenchBroom {
         Tool* ScaleObjectsToolController::doGetTool() {
             return m_tool;
         }
+
+        void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            if (handleInput(inputState)) {
+                pick(inputState.pickRay(), inputState.camera(), pickResult);
+            }
+        }
         
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
 
@@ -161,6 +167,18 @@ namespace TrenchBroom {
 
                 // corner handles
                 for (const Vec3 &corner : m_tool->cornerHandles()) {
+                    const auto ray = renderContext.camera().pickRay(corner);
+
+                    if (renderContext.camera().perspectiveProjection()) {
+                        Model::PickResult pr;
+                        pick(ray, renderContext.camera(), pr);
+
+                        if (pr.query().first().type() != ScaleObjectsTool::ScaleToolCornerHit) {
+                            // this corner is occluded => don't render it.
+                            continue;
+                        }
+                    }
+
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
                     renderService.renderHandle(corner);
@@ -248,19 +266,15 @@ namespace TrenchBroom {
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        void ScaleObjectsToolController2D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
-                m_tool->pick2D(inputState.pickRay(), inputState.camera(), pickResult);
-            }
+        void ScaleObjectsToolController2D::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            m_tool->pick2D(pickRay, camera, pickResult);
         }
         
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        void ScaleObjectsToolController3D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
-                m_tool->pick3D(inputState.pickRay(), inputState.camera(), pickResult);
-            }
+        void ScaleObjectsToolController3D::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            m_tool->pick3D(pickRay, camera, pickResult);
         }
     }
 }
