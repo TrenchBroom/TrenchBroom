@@ -67,6 +67,8 @@ namespace TrenchBroom {
             } else {
                 m_tool->setShearing(shear);
             }
+
+            m_tool->refreshViews();
         }
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
