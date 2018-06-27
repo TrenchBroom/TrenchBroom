@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
         void ScaleObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
-                pick(inputState.pickRay(), inputState.camera(), pickResult);
+                doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
         
@@ -171,7 +171,7 @@ namespace TrenchBroom {
 
                     if (renderContext.camera().perspectiveProjection()) {
                         Model::PickResult pr;
-                        pick(ray, renderContext.camera(), pr);
+                        doPick(ray, renderContext.camera(), pr);
 
                         if (pr.query().first().type() != ScaleObjectsTool::ScaleToolCornerHit) {
                             // this corner is occluded => don't render it.
@@ -266,14 +266,16 @@ namespace TrenchBroom {
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        void ScaleObjectsToolController2D::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsToolController2D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+                                                  Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
         
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
         ScaleObjectsToolController(tool) {}
         
-        void ScaleObjectsToolController3D::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsToolController3D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+                                                  Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);
         }
     }
