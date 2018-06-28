@@ -23,6 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Model/Hit.h"
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -42,7 +43,7 @@ namespace TrenchBroom {
         protected:
             ScaleObjectsTool* m_tool;
         public:
-            explicit ScaleObjectsToolController(ScaleObjectsTool* tool);
+            explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
             ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
@@ -76,14 +77,14 @@ namespace TrenchBroom {
         
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
         public:
-            explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool);
+            explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
             void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
         
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
-            explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool);
+            explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
             void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };

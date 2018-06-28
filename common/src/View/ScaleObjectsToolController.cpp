@@ -33,13 +33,15 @@
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
 #include "View/ScaleObjectsTool.h"
+#include "View/MapDocument.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool) :
-        m_tool(tool) {
+        ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        m_tool(tool),
+        m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
         }
         
@@ -263,16 +265,16 @@ namespace TrenchBroom {
             return m_tool->applies();
         }
         
-        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool) :
-        ScaleObjectsToolController(tool) {}
+        ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        ScaleObjectsToolController(tool, document) {}
         
         void ScaleObjectsToolController2D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
         
-        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool) :
-        ScaleObjectsToolController(tool) {}
+        ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
+        ScaleObjectsToolController(tool, document) {}
         
         void ScaleObjectsToolController3D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
