@@ -77,6 +77,18 @@ namespace TrenchBroom {
             Center
         };
 
+        std::vector<BBoxSide> AllSides();
+        Vec3 normalForBBoxSide(BBoxSide side);
+        std::vector<BBoxEdge> AllEdges();
+        std::vector<BBoxCorner> AllCorners();
+        Vec3 pointForBBoxCorner(const BBox3& box, BBoxCorner corner);
+        BBoxSide oppositeSide(BBoxSide side);
+        BBoxCorner oppositeCorner(BBoxCorner corner);
+        BBoxEdge oppositeEdge(BBoxEdge edge);
+        Edge3 pointsForBBoxEdge(const BBox3& box, BBoxEdge edge);
+        Polygon3 polygonForBBoxSide(const BBox3& box, BBoxSide side);
+        Vec3 centerForBBoxSide(const BBox3& box, BBoxSide side);
+
         BBox3 moveBBoxFace(const BBox3& in,
                            BBoxSide side,
                            Vec3 delta,

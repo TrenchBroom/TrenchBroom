@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
         }
 
-        static const std::vector<BBoxSide> AllSides() {
+        std::vector<BBoxSide> AllSides() {
             std::vector<BBoxSide> result;
             result.reserve(6);
             
@@ -106,11 +106,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        static Vec3 normalForBBoxSide(const BBoxSide side) {
+        Vec3 normalForBBoxSide(const BBoxSide side) {
             return side.normal;
         }
 
-        static std::vector<BBoxEdge> AllEdges() {
+        std::vector<BBoxEdge> AllEdges() {
             std::vector<BBoxEdge> result;
             result.reserve(12);
             
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        static std::vector<BBoxCorner> AllCorners() {
+        std::vector<BBoxCorner> AllCorners() {
             std::vector<BBoxCorner> result;
             result.reserve(8);
             
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        static Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner corner) {
+        Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner corner) {
             Vec3 res;
             for (size_t i = 0; i < 3; ++i) {
                 assert(corner.corner[i] == 1.0 || corner.corner[i] == -1.0);
@@ -148,27 +148,27 @@ namespace TrenchBroom {
             return res;
         }
         
-        static BBoxSide oppositeSide(const BBoxSide side) {
+        BBoxSide oppositeSide(const BBoxSide side) {
             return BBoxSide(side.normal * -1.0);
         }
         
-        static BBoxCorner oppositeCorner(const BBoxCorner corner) {
+        BBoxCorner oppositeCorner(const BBoxCorner corner) {
             return BBoxCorner(Vec3(-corner.corner.x(),
                                    -corner.corner.y(),
                                    -corner.corner.z()));
         }
         
-        static BBoxEdge oppositeEdge(const BBoxEdge edge) {
+        BBoxEdge oppositeEdge(const BBoxEdge edge) {
             return BBoxEdge(oppositeCorner(BBoxCorner(edge.point0)).corner,
                             oppositeCorner(BBoxCorner(edge.point1)).corner);
         }
         
-        static Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge edge) {
+        Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge edge) {
             return Edge3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
         }
 
-        static Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide side) {
+        Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide side) {
             const Vec3 wantedNormal = normalForBBoxSide(side);
             
             Polygon3 res;
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             return res;
         }
         
-        static Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide side) {
+        Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide side) {
             const Vec3 wantedNormal = normalForBBoxSide(side);
             
             Vec3 result;
