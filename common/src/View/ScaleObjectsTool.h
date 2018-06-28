@@ -106,6 +106,13 @@ namespace TrenchBroom {
                            bool proportional,
                            AnchorPos anchor);
 
+        Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit);
+        BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
+                             const Model::Hit& dragStartHit,
+                             Vec3 delta,
+                             bool proportional,
+                             AnchorPos anchor);
+
         class ScaleObjectsTool : public Tool {
         public:
             static const Model::Hit::HitType ScaleToolFaceHit;

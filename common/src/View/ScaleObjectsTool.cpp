@@ -341,7 +341,70 @@ namespace TrenchBroom {
                 return result;
             }
         }
-        
+
+        Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit) {
+            Line3 handleLine;
+
+            if (hit.type() == ScaleObjectsTool::ScaleToolFaceHit) {
+                const auto endSide = hit.target<BBoxSide>();
+                std::cout << "hit side " << endSide.normal << "\n";
+
+                const Vec3 handleLineStart = centerForBBoxSide(bboxAtDragStart, endSide);
+
+                handleLine = Line3(handleLineStart, endSide.normal);
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+                const auto endEdge = hit.target<BBoxEdge>();
+                const auto startEdge = oppositeEdge(endEdge);
+
+                const Edge3 endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
+                const Edge3 startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
+
+                const Vec3 handleLineStart = startEdgeActual.center();
+                const Vec3 handleLineEnd = endEdgeActual.center();
+
+                handleLine = Line3(handleLineStart, (handleLineEnd - handleLineStart).normalized());
+
+                std::cout << "ScaleObjectsTool::resize from edge " << handleLineStart << " to " << handleLineEnd << "\n";
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+                const auto endCorner = hit.target<BBoxCorner>();
+                const auto startCorner = oppositeCorner(endCorner);
+
+                const Vec3 handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
+                const Vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
+
+                handleLine = Line3(handleLineStart, (handleLineEnd - handleLineStart).normalized());
+
+                std::cout << "ScaleObjectsTool::resize from corner " << handleLineStart << " to " << handleLineEnd << "\n";
+            } else {
+                assert(0);
+            }
+
+            return handleLine;
+        }
+
+        BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
+                             const Model::Hit& dragStartHit,
+                             const Vec3 delta,
+                             const bool proportional,
+                             const AnchorPos anchor) {
+            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit) {
+                const auto endSide = dragStartHit.target<BBoxSide>();
+
+                return moveBBoxFace(bboxAtDragStart, endSide, delta, proportional, anchor);
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+                const auto endEdge = dragStartHit.target<BBoxEdge>();
+
+                return moveBBoxEdge(bboxAtDragStart, endEdge, delta, proportional, anchor);
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+                const auto endCorner = dragStartHit.target<BBoxCorner>();
+
+                return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
+            } else {
+                assert(0);
+                return BBox3();
+            }
+        }
+
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
