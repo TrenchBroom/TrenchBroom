@@ -108,7 +108,7 @@ namespace TrenchBroom {
             try {
                 const EL::Value result = m_expression.evaluate(context);
                 return convertToModel(result);
-            } catch (const EL::EvaluationError& e) {
+            } catch (const EL::EvaluationError&) {
                 return ModelSpecification();
             }
         }
