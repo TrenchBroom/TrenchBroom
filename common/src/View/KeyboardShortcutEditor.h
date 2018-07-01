@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class KeyboardShortcutEditor : public wxControl {
         private:
             wxPanel* m_panel;
-            wxStaticText* m_label;
+            wxStaticText* m_labelStaticText;
             int m_key;
             int m_modifiers[3];
             bool m_resetOnNextKey;
