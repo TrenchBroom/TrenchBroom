@@ -745,8 +745,6 @@ If you want to replace a particular texture with another one, you can choose #me
 
 Select the texture you wish to replace in the left texture browser. This browser by default only shows you the textures which are currently in use in the map. In the screenshot, the texture "b_pv_v1a1" has been selected for replacement and therefore has a red border. Then select the replacement texture in the right texture browser ("b_sr_20c" in the screenshot). Finally, hit the "Replace" button. The replacement is applied to all brush faces in the map if nothing is currently selected. Otherwise, it is applied to the selected brush faces only. If the replacement succeeded, the faces which have been replaced are subsequently selected. Otherwise, the selection remains unchanged.
 
-Note that the window is not modal - you can switch back to the main window to change your selection if you wish.
-
 ### Setting Face Attributes
 
 Face attributes control how textures are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a texture on a face, the scale factors stretch the texture, and by changing the angle you can rotate the texture. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
