@@ -104,7 +104,7 @@ namespace TrenchBroom {
         }
 
         bool SwitchableMapViewContainer::anyToolActive() const {
-            return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || scaleObjectsToolActive() ||  anyVertexToolActive();
+            return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || scaleObjectsToolActive() || shearObjectsToolActive() || anyVertexToolActive();
         }
 
         void SwitchableMapViewContainer::deactivateTool() {
@@ -157,6 +157,10 @@ namespace TrenchBroom {
         bool SwitchableMapViewContainer::scaleObjectsToolActive() const {
             return m_toolBox->scaleObjectsToolActive();
         }
+
+        bool SwitchableMapViewContainer::shearObjectsToolActive() const {
+            return m_toolBox->shearObjectsToolActive();
+        }
         
         bool SwitchableMapViewContainer::canToggleScaleObjectsTool() const {
             return scaleObjectsToolActive() || lock(m_document)->hasSelectedNodes();
@@ -165,6 +169,15 @@ namespace TrenchBroom {
         void SwitchableMapViewContainer::toggleScaleObjectsTool() {
             assert(canToggleScaleObjectsTool());
             m_toolBox->toggleScaleObjectsTool();
+        }
+
+        bool SwitchableMapViewContainer::canToggleShearObjectsTool() const {
+            return shearObjectsToolActive() || lock(m_document)->hasSelectedNodes();
+        }
+
+        void SwitchableMapViewContainer::toggleShearObjectsTool() {
+            assert(canToggleShearObjectsTool());
+            m_toolBox->toggleShearObjectsTool();
         }
         
         bool SwitchableMapViewContainer::canToggleVertexTools() const {

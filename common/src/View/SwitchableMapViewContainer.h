@@ -93,7 +93,11 @@ namespace TrenchBroom {
             bool scaleObjectsToolActive() const;
             bool canToggleScaleObjectsTool() const;
             void toggleScaleObjectsTool();
-            
+
+            bool shearObjectsToolActive() const;
+            bool canToggleShearObjectsTool() const;
+            void toggleShearObjectsTool();
+
             bool canToggleVertexTools() const;
             bool anyVertexToolActive() const;
             bool vertexToolActive() const;

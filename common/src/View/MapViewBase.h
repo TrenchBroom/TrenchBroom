@@ -143,6 +143,7 @@ namespace TrenchBroom {
             void moveRotationCenter(Math::Direction direction);
             
             void OnToggleScaleObjectsTool(wxCommandEvent& event);
+            void OnToggleShearObjectsTool(wxCommandEvent& event);
             
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);

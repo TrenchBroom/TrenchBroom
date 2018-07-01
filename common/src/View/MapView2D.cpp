@@ -59,6 +59,7 @@
 #include "View/ResizeBrushesToolController.h"
 #include "View/RotateObjectsToolController.h"
 #include "View/ScaleObjectsToolController.h"
+#include "View/ShearObjectsToolController.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
@@ -117,6 +118,7 @@ namespace TrenchBroom {
             addTool(new MoveObjectsToolController(toolBox.moveObjectsTool()));
             addTool(new RotateObjectsToolController2D(toolBox.rotateObjectsTool()));
             addTool(new ScaleObjectsToolController2D(toolBox.scaleObjectsTool(), m_document));
+            addTool(new ShearObjectsToolController2D(toolBox.shearObjectsTool(), m_document));
             addTool(new ResizeBrushesToolController2D(toolBox.resizeBrushesTool()));
             addTool(new ClipToolController2D(toolBox.clipTool()));
             addTool(new VertexToolController(toolBox.vertexTool()));

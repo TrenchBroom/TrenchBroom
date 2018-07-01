@@ -34,7 +34,8 @@ namespace TrenchBroom {
             ActionContext_NodeSelection   = 1 << 7,
             ActionContext_FaceSelection   = 1 << 8,
             ActionContext_ScaleTool       = 1 << 9,
-            ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_ScaleTool | ActionContext_CreateComplexBrushTool,
+            ActionContext_ShearTool       = 1 << 10,
+            ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_ScaleTool | ActionContext_ShearTool | ActionContext_CreateComplexBrushTool,
             ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_FlyMode | ActionContext_NodeSelection | ActionContext_FaceSelection
         } ActionContext;
 

@@ -463,6 +463,7 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleFaceTool, "Face Tool", IO::loadImageResource("FaceTool.png"), wxNullBitmap, "Face Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleScaleObjectsTool, "Scale Tool", IO::loadImageResource("ScaleTool.png"), wxNullBitmap, "Scale Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleShearObjectsTool, "Shear Tool", IO::loadImageResource("ShearTool.png"), wxNullBitmap, "Shear Tool");
             toolBar->AddSeparator();
             toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
@@ -717,6 +718,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleScaleObjectsTool, this, CommandIds::Menu::EditToggleScaleObjectsTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleShearObjectsTool, this, CommandIds::Menu::EditToggleShearObjectsTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleEdgeTool, this, CommandIds::Menu::EditToggleEdgeTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleFaceTool, this, CommandIds::Menu::EditToggleFaceTool);
@@ -1101,6 +1103,12 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
             
             m_mapView->toggleScaleObjectsTool();
+        }
+
+        void MapFrame::OnEditToggleShearObjectsTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_mapView->toggleShearObjectsTool();
         }
         
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
@@ -1578,6 +1586,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditToggleScaleObjectsTool:
                     event.Check(m_mapView->scaleObjectsToolActive());
                     event.Enable(m_mapView->canToggleScaleObjectsTool());
+                    break;
+                case CommandIds::Menu::EditToggleShearObjectsTool:
+                    event.Check(m_mapView->shearObjectsToolActive());
+                    event.Enable(m_mapView->canToggleShearObjectsTool());
                     break;
                 case CommandIds::Menu::EditToggleVertexTool:
                     event.Check(m_mapView->vertexToolActive());
