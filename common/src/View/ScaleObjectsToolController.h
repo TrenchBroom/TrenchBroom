@@ -55,6 +55,7 @@ namespace TrenchBroom {
             Vec3 m_dragCumulativeDelta;
 
 
+            bool m_isOrthoFree;
         public:
             explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
             ~ScaleObjectsToolController() override;
@@ -82,16 +83,12 @@ namespace TrenchBroom {
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            void renderShear(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel() override;
 
         protected:
             bool handleInput(const InputState& inputState) const;
-
-        private:
-            bool updateResize(const InputState& inputState);
         };
         
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {

@@ -72,10 +72,14 @@ namespace TrenchBroom {
             // - vertical (alt)
             
             if (thisToolDragging()) {
-                updateResize(inputState);
-            } else {
-                m_tool->setShearing(shear);
+                // FIXME: should manually "update drag" using RestrictedDragPolicy.currentHandlePosition()
+                // regresh view
+
+                //updateResize(inputState);
             }
+//            else {
+//                m_tool->setShearing(shear);
+//            }
 
             m_tool->refreshViews();
         }
@@ -85,6 +89,7 @@ namespace TrenchBroom {
                 m_tool->updateDragFaces(inputState.pickResult());
         }
 
+        #if 0
         bool ScaleObjectsToolController::updateResize(const InputState& inputState) {
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
@@ -93,7 +98,7 @@ namespace TrenchBroom {
                                   vertical);
         }
 
-#if 0
+
         bool ScaleObjectsToolController::doStartMouseDrag(const InputState& inputState) {
             if (!handleInput(inputState))
                 return false;
@@ -156,6 +161,26 @@ namespace TrenchBroom {
             m_debugInitialPoint = hit.hitPoint();
             m_dragStartHit = hit;
 
+            if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+                && inputState.camera().orthographicProjection()) {
+                std::cout << "ortho corner hit\n";
+
+                m_handleLineDebug = Line3();
+                m_dragCumulativeDelta = Vec3::Null;
+
+                const Plane3 plane(hit.hitPoint(), inputState.camera().direction() * -1.0);
+
+                auto restricter = new PlaneDragRestricter(plane);
+                auto snapper = new DeltaDragSnapper(document->grid());
+
+                // FIXME: rework hack
+                m_isOrthoFree = true;
+                return DragInfo(restricter, snapper, hit.hitPoint());
+            }  else {
+                // FIXME: rework hack
+                m_isOrthoFree = false;
+            }
+
             const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
 
             m_handleLineDebug = handleLine;
@@ -191,12 +216,21 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            const auto& hit = m_dragStartHit;
-            const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta, false, AnchorPos::Opposite);
+//            if (m_isOrthoFree) {
+//
+//
+//
+//            } else {
+                //const auto& hit = m_dragStartHit;
+                const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
+                                                   m_tool->scaleAllAxes(), m_tool->anchorPos());
 
-            std::cout << "resize to " << newBox << "\n";
+                std::cout << "resize to " << newBox << "\n";
 
-            document->scaleObjects(m_tool->bounds(), newBox);
+                if (!newBox.empty()) {
+                    document->scaleObjects(m_tool->bounds(), newBox);
+                }
+//            }
 
             return DR_Continue;
         }
@@ -221,36 +255,7 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->isShearing()) {
-                renderShear(inputState, renderContext, renderBatch);
-            } else {
-                renderScale(inputState, renderContext, renderBatch);
-            }
-        }
-
-        void ScaleObjectsToolController::renderShear(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // render sheared box
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                const auto mat = m_tool->bboxShearMatrix();
-                const auto op = [&](const Vec3 &start, const Vec3 &end) {
-                    renderService.renderLine(mat * start, mat * end);
-                };
-                eachBBoxEdge(m_tool->bboxAtDragStart(), op);
-            }
-
-            // render shear handle
-
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                const Polygon3f poly = m_tool->shearHandle();
-                if (poly.vertexCount() != 0) {
-                    renderService.setLineWidth(2.0);
-                    renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
-                    renderService.renderPolygonOutline(poly.vertices());
-                }
-            }
+            renderScale(inputState, renderContext, renderBatch);
         }
 
         void ScaleObjectsToolController::renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

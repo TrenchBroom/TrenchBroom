@@ -154,9 +154,9 @@ namespace TrenchBroom {
             void unbindObservers();
             void nodesDidChange(const Model::NodeList& nodes);
             void selectionDidChange(const Selection& selection);
-            
+
         private:
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            //wxWindow* doCreatePage(wxWindow* parent) override;
         };
     }
 }

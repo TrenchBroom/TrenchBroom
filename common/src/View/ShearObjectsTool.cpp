@@ -742,10 +742,10 @@ namespace TrenchBroom {
         void ShearObjectsTool::selectionDidChange(const Selection& selection) {
         }
 
-        wxWindow* ShearObjectsTool::doCreatePage(wxWindow* parent) {
-            assert(m_toolPage == nullptr);
-            m_toolPage = new ShearObjectsToolPage(parent, m_document);
-            return m_toolPage;
-        }
+//        wxWindow* ShearObjectsTool::doCreatePage(wxWindow* parent) {
+//            assert(m_toolPage == nullptr);
+//            m_toolPage = new ShearObjectsToolPage(parent, m_document);
+//            return m_toolPage;
+//        }
     }
 }

@@ -151,7 +151,6 @@ namespace TrenchBroom {
              * Only valid during a drag (when m_resizing is true).
              */
             BBox3 m_bboxAtDragStart;
-            bool m_isShearing;
             AnchorPos m_anchorPos;
             bool m_scaleAllAxes;
         public: // debug only
@@ -196,14 +195,6 @@ namespace TrenchBroom {
              */
             BBox3 bboxAtDragStart() const;
 
-            Mat4x4 bboxShearMatrix() const;
-            Polygon3f shearHandle() const;
-            /**
-             * This can only be called when a drag is not in progress
-             */
-            void setShearing(bool shearing);
-            bool isShearing() const;
-            
             // regular handles
             Vec3::List cornerHandles() const;
 

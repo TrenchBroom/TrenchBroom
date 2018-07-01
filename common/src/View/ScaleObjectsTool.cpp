@@ -295,52 +295,99 @@ namespace TrenchBroom {
                                 ? in.center()
                                 : oppositeEdgeMid;
 
-            const Vec3 edgeEdgeDir = (edgeMid - oppositeEdgeMid).normalized();
-            const size_t axis1 = edgeEdgeDir.firstComponent();
-            const size_t axis2 = edgeEdgeDir.secondComponent();
-            const size_t axis3 = edgeEdgeDir.thirdComponent();
-
-            // get the ratio
-            const FloatType oldEdgeAxis1 = edgeMid[axis1];
-            const FloatType newEdgeAxis1 = edgeMid[axis1] + delta[axis1];
-
-            const FloatType oppositeOldEdgeAxis1 = oppositeEdgeMid[axis1];
-            const FloatType oppositeNewEdgeAxis1 = (anchorType == AnchorPos::Center)
-                                                    ? oppositeEdgeMid[axis1] - delta[axis1]
-                                                    : oppositeEdgeMid[axis1];
-
-            const FloatType anchorAxis1 = anchor[axis1];
+            const Vec3 oldAnchorDist = edgeMid - anchor;
+            const Vec3 newAnchorDist = oldAnchorDist + delta;
 
             // check for crossing over the anchor
-            if ((oldEdgeAxis1 > anchorAxis1) != (newEdgeAxis1 > anchorAxis1)) {
-                return BBox3();
+            for (size_t i = 0; i < 3; ++i) {
+                if ((oldAnchorDist[i] > 0) != (newAnchorDist[i] > 0)) {
+                    return BBox3();
+                }
             }
 
-            const FloatType oldLength = std::abs(oldEdgeAxis1 - oppositeOldEdgeAxis1);
-            const FloatType newLength = std::abs(newEdgeAxis1 - oppositeNewEdgeAxis1);
-            if (newLength == 0.0) {
-                return BBox3();
-            }
+            const size_t nonMovingAxis = oldAnchorDist.thirdComponent();
+            const FloatType nonMovingAxisSize = in.size()[nonMovingAxis];
 
-            const FloatType ratio = newLength / oldLength;
+            const Vec3 corner1 = (anchorType == AnchorPos::Center)
+                                 ? anchor - newAnchorDist
+                                 : anchor;
+            const Vec3 corner2 = anchor + newAnchorDist;
 
-            Vec3 newSize = in.size();
-            newSize[axis1] *= ratio;
-            newSize[axis2] *= ratio;
+
+            BBox3 result(corner1, corner2);
+            result.repair();
+
+            // we just need to set nonMovingAxis of the bbox.
             if (proportional) {
-                newSize[axis3] *= ratio;
-            }
+                const size_t axis1 = oldAnchorDist.firstComponent();
+                const FloatType ratio = result.size()[axis1] / in.size()[axis1];
 
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
-
-            const BBox3 result(matrix * in.min, matrix * in.max);
-
-            if (result.empty()) {
-                return in;
+                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
+                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (in.size()[nonMovingAxis] * ratio * 0.5);
             } else {
-                return result;
+                result.min[nonMovingAxis] = in.min[nonMovingAxis];
+                result.max[nonMovingAxis] = in.max[nonMovingAxis];
             }
+
+            result.repair();
+
+            // check for zero size
+            for (size_t i = 0; i < 3; ++i) {
+                if (Math::zero(result.size()[i], Math::Constants<FloatType>::almostZero())) {
+                    return BBox3();
+                }
+            }
+
+            std::cout << "result size for edge drag: " <<  result.size() << "\n";
+
+
+            return result;
         }
+//            const Vec3 edgeEdgeDir = (edgeMid - oppositeEdgeMid).normalized();
+//            const size_t axis1 = edgeEdgeDir.firstComponent();
+//            const size_t axis2 = edgeEdgeDir.secondComponent();
+//            const size_t axis3 = edgeEdgeDir.thirdComponent();
+//
+//            // get the ratio
+//            const FloatType oldEdgeAxis1 = edgeMid[axis1];
+//            const FloatType newEdgeAxis1 = edgeMid[axis1] + delta[axis1];
+//
+//            const FloatType oppositeOldEdgeAxis1 = oppositeEdgeMid[axis1];
+//            const FloatType oppositeNewEdgeAxis1 = (anchorType == AnchorPos::Center)
+//                                                    ? oppositeEdgeMid[axis1] - delta[axis1]
+//                                                    : oppositeEdgeMid[axis1];
+//
+//            const FloatType anchorAxis1 = anchor[axis1];
+//
+//            // check for crossing over the anchor
+//            if ((oldEdgeAxis1 > anchorAxis1) != (newEdgeAxis1 > anchorAxis1)) {
+//                return BBox3();
+//            }
+//
+//            const FloatType oldLength = std::abs(oldEdgeAxis1 - oppositeOldEdgeAxis1);
+//            const FloatType newLength = std::abs(newEdgeAxis1 - oppositeNewEdgeAxis1);
+//            if (newLength == 0.0) {
+//                return BBox3();
+//            }
+//
+//            const FloatType ratio = newLength / oldLength;
+//
+//            Vec3 newSize = in.size();
+//            newSize[axis1] *= ratio;
+//            newSize[axis2] *= ratio;
+//            if (proportional) {
+//                newSize[axis3] *= ratio;
+//            }
+//
+//            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
+//
+//            const BBox3 result(matrix * in.min, matrix * in.max);
+//
+//            if (result.empty()) {
+//                return in;
+//            } else {
+//                return result;
+//            }
 
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit) {
             Line3 handleLine;
@@ -771,47 +818,6 @@ namespace TrenchBroom {
                 return bounds();
             }
         }
-        Mat4x4 ScaleObjectsTool::bboxShearMatrix() const {
-            assert(m_isShearing);
-
-            if (!m_resizing) {
-                return Mat4x4::Identity;
-            }
-
-            // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ScaleToolFaceHit) {
-                return Mat4x4::Identity;
-            }
-            
-            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            
-            return shearBBoxMatrix(m_bboxAtDragStart,
-                                   side.normal,
-                                   m_totalDelta);
-        }
-        Polygon3f ScaleObjectsTool::shearHandle() const {
-            assert(m_isShearing);
-            
-            // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ScaleToolFaceHit) {
-                return Polygon3f();
-            }
-            
-            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
-            const Polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
-            
-            const Polygon3 handle = polyAtDragStart.transformed(bboxShearMatrix());
-            return Polygon3f(handle);
-        }
-
-        void ScaleObjectsTool::setShearing(bool shearing) {
-            // FIXME: Ensure we are not dragging
-            m_isShearing = shearing;
-        }
-        bool ScaleObjectsTool::isShearing() const {
-            return m_isShearing;
-        }
 
         Vec3::List ScaleObjectsTool::cornerHandles() const {
             if (bounds().empty()) {
@@ -884,7 +890,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
            
-            if (!m_isShearing) {
+            {
                 const auto anchorPos = m_anchorPos;
 
                 // side dragging
@@ -1004,60 +1010,7 @@ namespace TrenchBroom {
                     }
                 }
                 return true;
-            } else {
-                // shear
-                if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-                    
-                    const auto poly = polygonForBBoxSide(bounds(), side);
-                    const Vec3 planeAnchor = poly.vertices().front();
-                    
-                    // get the point where the pick ray intersects the plane being dragged.
-                    Vec3 rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(side.normal, planeAnchor));
-                    if (rayHit.nan()) {
-                        // in 2D views the pick ray will be perpendicular to the face normal.
-                        // in that case, use a plane with a normal opposite the pickRay.
-                        rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(pickRay.direction * -1.0, planeAnchor));
-                    }
-                    assert(!rayHit.nan());
-                    
-                    std::cout << "make shear with rayHit: " << rayHit << "\n";
-
-                    //m_dragOrigin = rayHit;
-                    
-                    Vec3 delta = rayHit - m_dragOrigin;
-                    delta = grid.snap(delta);
-                    
-                    if (camera.perspectiveProjection()) {
-                        if (vertical) {
-                            delta[0] = 0;
-                            delta[1] = 0;
-                        } else {
-                            delta[2] = 0;
-                        }
-                    } else if (camera.orthographicProjection()) {
-                        const Plane3 cameraPlane(0.0, camera.direction());
-                        delta = cameraPlane.projectVector(delta);
-                    } else {
-                        assert(0);
-                    }
-
-                    if (!delta.null()) {
-                        std::cout << "make shear with m_dragOrigin: " << m_dragOrigin << "\n";
-
-                        std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
-                        if (document->shearObjects(bounds(), side.normal, delta)) {
-                            // only used to tell whether to commit the shear
-                            m_totalDelta += delta;
-                            
-                            // update the ref point for the next iteration
-                            m_dragOrigin = rayHit;
-                        }
-                    }
-                }
-                
             }
-            
             
             return true;
         }
