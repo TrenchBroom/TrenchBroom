@@ -105,7 +105,12 @@ namespace TrenchBroom {
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
             const EL::NullVariableStore store;
             const EL::EvaluationContext context(store);
-            return convertToModel(m_expression.evaluate(context));
+            try {
+                const EL::Value result = m_expression.evaluate(context);
+                return convertToModel(result);
+            } catch (const EL::EvaluationError& e) {
+                return ModelSpecification();
+            }
         }
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
