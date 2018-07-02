@@ -42,7 +42,10 @@ namespace TrenchBroom {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
         m_dragStartHit(Model::Hit::NoHit),
-        m_document(document) {
+        m_document(document),
+        m_centerAnchor(false),
+        m_scaleAllAxes(false)
+        {
             ensure(m_tool != nullptr, "tool is null");
         }
         
@@ -58,28 +61,95 @@ namespace TrenchBroom {
             }
         }
         
+        static std::tuple<DragRestricter*, DragSnapper*, Vec3>
+        makeDragRestricterSnapperInitialPoint(const Grid& grid, const BBox3& box, const InputState& inputState) {
+            const Model::PickResult& pickResult = inputState.pickResult();
+
+            // TODO: why did .pickable() break it?
+            const Model::Hit& hit = pickResult.query().type(
+                    ScaleObjectsTool::ScaleToolFaceHit
+                    | ScaleObjectsTool::ScaleToolEdgeHit
+                    | ScaleObjectsTool::ScaleToolCornerHit).occluded().first();
+            if (!hit.isMatch()) {
+                return {nullptr, nullptr, Vec3::Null};
+            }
+
+            const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
+
+            DragRestricter* restricter = nullptr;
+            DragSnapper* snapper = nullptr;
+
+            if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+                && inputState.camera().orthographicProjection()
+                && !scaleAllAxes) {
+                std::cout << "ortho corner hit\n";                
+
+                const Plane3 plane(hit.hitPoint(), inputState.camera().direction() * -1.0);
+
+                restricter = new PlaneDragRestricter(plane);
+                snapper = new DeltaDragSnapper(grid);
+
+                std::cout << "making a plane restricter for " << plane << "\n";
+            } else {
+                const Line3 handleLine = handleLineForHit(box, hit);
+
+                restricter = new LineDragRestricter(handleLine);
+                snapper = new LineDragSnapper(grid, handleLine);
+            }
+
+            // HACK: Snap the initial point
+            const Vec3 initialPoint = [&]() {
+                Vec3 p = hit.hitPoint();
+                restricter->hitPoint(inputState, p);
+                snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
+                return p;
+            }();
+
+            return {restricter, snapper, initialPoint};
+        }
+
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
 
-            const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+
+            //const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+
             const bool centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt);
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
-            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
-            m_tool->setScaleAllAxes(scaleAllAxes);
+            if ((centerAnchor != m_centerAnchor) || (scaleAllAxes != m_scaleAllAxes)) {
+                // this will only do the visuals
+                m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
+                m_tool->setScaleAllAxes(scaleAllAxes);
 
-            // Modifiers that can be enabled/disabled any time:
-            // - proportional (shift)
-            // - vertical (alt)
-            
-            if (thisToolDragging()) {
-                // FIXME: should manually "update drag" using RestrictedDragPolicy.currentHandlePosition()
-                // regresh view
+                if (thisToolDragging()) {
+                    const auto tuple = makeDragRestricterSnapperInitialPoint(m_document.lock()->grid(),
+                                                                             m_bboxAtDragStart, inputState);
 
-                //updateResize(inputState);
+                    setRestricter(inputState, std::get<0>(tuple), true);
+                    setSnapper(inputState, std::get<1>(tuple), true);
+                }
+
+                // update state
+                m_scaleAllAxes = scaleAllAxes;
+                m_centerAnchor = centerAnchor;
             }
-//            else {
-//                m_tool->setShearing(shear);
+
+//            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
+//            m_tool->setScaleAllAxes(scaleAllAxes);
+//
+//            // Modifiers that can be enabled/disabled any time:
+//            // - proportional (shift)
+//            // - vertical (alt)
+//
+//            if (thisToolDragging()) {
+//                // FIXME: should manually "update drag" using RestrictedDragPolicy.currentHandlePosition()
+//                // regresh view
+//
+//                //updateResize(inputState);
 //            }
+////            else {
+////                m_tool->setShearing(shear);
+////            }
 
             m_tool->refreshViews();
         }
@@ -160,44 +230,18 @@ namespace TrenchBroom {
             m_bboxAtDragStart = m_tool->bounds();
             m_debugInitialPoint = hit.hitPoint();
             m_dragStartHit = hit;
+            
+            // const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
 
-            if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit
-                && inputState.camera().orthographicProjection()) {
-                std::cout << "ortho corner hit\n";
+            // m_handleLineDebug = handleLine;
 
-                m_handleLineDebug = Line3();
-                m_dragCumulativeDelta = Vec3::Null;
+            m_dragCumulativeDelta = Vec3::Null;            
 
-                const Plane3 plane(hit.hitPoint(), inputState.camera().direction() * -1.0);
+            const auto tuple = makeDragRestricterSnapperInitialPoint(m_document.lock()->grid(), m_bboxAtDragStart, inputState);
 
-                auto restricter = new PlaneDragRestricter(plane);
-                auto snapper = new DeltaDragSnapper(document->grid());
-
-                // FIXME: rework hack
-                m_isOrthoFree = true;
-                return DragInfo(restricter, snapper, hit.hitPoint());
-            }  else {
-                // FIXME: rework hack
-                m_isOrthoFree = false;
-            }
-
-            const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
-
-            m_handleLineDebug = handleLine;
-            m_dragCumulativeDelta = Vec3::Null;
-
-            auto restricter = new LineDragRestricter(handleLine);
-            auto snapper = new LineDragSnapper(document->grid(), handleLine);
-
-            // HACK: Snap the initial point
-            const Vec3 initialPoint = [&]() {
-                Vec3 p = hit.hitPoint();
-                restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
-                return p;
-            }();
-
-            return DragInfo(restricter, snapper, initialPoint);
+            return DragInfo(std::get<0>(tuple),
+                            std::get<1>(tuple),
+                            std::get<2>(tuple));
         }
 
         RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {

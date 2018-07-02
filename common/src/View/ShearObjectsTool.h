@@ -42,13 +42,10 @@ namespace TrenchBroom {
     namespace View {
         class ShearObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ScaleToolFaceHit;
-            static const Model::Hit::HitType ScaleToolEdgeHit;
-            static const Model::Hit::HitType ScaleToolCornerHit;
+            static const Model::Hit::HitType ShearToolFaceHit;
 
         private:
             MapDocumentWPtr m_document;
-            ShearObjectsToolPage* m_toolPage;
 
             /**
              * Point on the initial pick ray that's closest to the handle being dragged.
@@ -78,9 +75,6 @@ namespace TrenchBroom {
              * Only valid during a drag (when m_resizing is true).
              */
             BBox3 m_bboxAtDragStart;
-            bool m_isShearing;
-            AnchorPos m_anchorPos;
-            bool m_scaleAllAxes;
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }
@@ -108,15 +102,6 @@ namespace TrenchBroom {
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;
             
-            bool hasDragEdge() const;
-            Edge3f dragEdge() const;
-            
-            bool hasDragCorner() const;
-            Vec3f dragCorner() const;
-
-            bool hasDragAnchor() const;
-            Vec3f dragAnchor() const;
-
             /**
              * If inside a drag, returns the bbox at the start of the drag.
              * Otherwise, returns the current bounds(). for rendering sheared bbox.
@@ -125,27 +110,12 @@ namespace TrenchBroom {
 
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
-            /**
-             * This can only be called when a drag is not in progress
-             */
-            void setShearing(bool shearing);
-            bool isShearing() const;
-            
-            // regular handles
-            Vec3::List cornerHandles() const;
 
             void updateDragFaces(const Model::PickResult& pickResult);
 
-            // persist the state of modifier keys
-            void setAnchorPos(AnchorPos pos);
-            AnchorPos anchorPos() const;
-
-            void setScaleAllAxes(bool allAxes);
-            bool scaleAllAxes() const;
-
         public:
             bool beginResize(const Model::PickResult& pickResult);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, bool vertical);
+//            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, bool vertical);
             
             void commitResize();
             void cancelResize();
@@ -154,9 +124,6 @@ namespace TrenchBroom {
             void unbindObservers();
             void nodesDidChange(const Model::NodeList& nodes);
             void selectionDidChange(const Selection& selection);
-
-        private:
-            //wxWindow* doCreatePage(wxWindow* parent) override;
         };
     }
 }

@@ -106,6 +106,12 @@ namespace TrenchBroom {
                            bool proportional,
                            AnchorPos anchor);
 
+        /**
+         * Only looks at the hit type (corner/edge/face), and which particular corner/edge/face.
+         *
+         * Returns the line through the bbox that an invisible handle should be dragged, assuming proportional
+         * dragging on all 3 axes.
+         */
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit);
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,

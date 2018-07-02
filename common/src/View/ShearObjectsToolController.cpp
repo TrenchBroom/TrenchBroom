@@ -59,28 +59,6 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
-
-            const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-            const bool centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-            const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
-
-            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
-            m_tool->setScaleAllAxes(scaleAllAxes);
-
-            // Modifiers that can be enabled/disabled any time:
-            // - proportional (shift)
-            // - vertical (alt)
-            
-            if (thisToolDragging()) {
-                // FIXME: should manually "update drag" using RestrictedDragPolicy.currentHandlePosition()
-                // regresh view
-
-                //updateResize(inputState);
-            } else {
-                m_tool->setShearing(shear);
-            }
-
-            m_tool->refreshViews();
         }
         
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
@@ -149,9 +127,7 @@ namespace TrenchBroom {
 
             // TODO: why did .pickable() break it?
             const Model::Hit& hit = pickResult.query().type(
-                    ShearObjectsTool::ScaleToolFaceHit
-                    | ShearObjectsTool::ScaleToolEdgeHit
-                    | ShearObjectsTool::ScaleToolCornerHit).occluded().first();
+                    ShearObjectsTool::ShearToolFaceHit).occluded().first();
             if (!hit.isMatch()) {
                 return DragInfo();
             }
@@ -159,21 +135,6 @@ namespace TrenchBroom {
             m_bboxAtDragStart = m_tool->bounds();
             m_debugInitialPoint = hit.hitPoint();
             m_dragStartHit = hit;
-
-            if (hit.type() == ShearObjectsTool::ScaleToolEdgeHit
-                && inputState.camera().orthographicProjection()) {
-                std::cout << "ortho corner hit\n";
-
-                m_handleLineDebug = Line3();
-                m_dragCumulativeDelta = Vec3::Null;
-
-                const Plane3 plane(hit.hitPoint(), inputState.camera().direction() * -1.0);
-
-                auto restricter = new PlaneDragRestricter(plane);
-                auto snapper = new DeltaDragSnapper(document->grid());
-
-                return DragInfo(restricter, snapper, hit.hitPoint());
-            }
 
             const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
 
@@ -211,11 +172,11 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const auto& hit = m_dragStartHit;
-            const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta, m_tool->scaleAllAxes(), m_tool->anchorPos());
 
-            std::cout << "resize to " << newBox << "\n";
-
-            document->scaleObjects(m_tool->bounds(), newBox);
+//
+//            std::cout << "resize to " << newBox << "\n";
+//
+//            document->scaleObjects(m_tool->bounds(), newBox);
 
             return DR_Continue;
         }
@@ -240,14 +201,6 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_tool->isShearing()) {
-                renderShear(inputState, renderContext, renderBatch);
-            } else {
-                renderScale(inputState, renderContext, renderBatch);
-            }
-        }
-
-        void ShearObjectsToolController::renderShear(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // render sheared box
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -270,125 +223,6 @@ namespace TrenchBroom {
                     renderService.renderPolygonOutline(poly.vertices());
                 }
             }
-        }
-
-        void ShearObjectsToolController::renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // debug
-
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
-                renderService.renderLine(m_handleLineDebug.point, m_handleLineDebug.point + (m_handleLineDebug.direction * 1024.0));
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 0, 0, 1.0f));
-                renderService.renderHandle(m_lastDragDebug);
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
-                renderService.renderHandle(m_currentDragDebug);
-            }
-
-            // bounds and corner handles
-
-            if (!m_tool->bounds().empty())  {
-                // bounds
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(m_tool->bounds());
-                }
-
-                // corner handles
-                for (const Vec3 &corner : m_tool->cornerHandles()) {
-                    const auto ray = renderContext.camera().pickRay(corner);
-
-                    if (renderContext.camera().perspectiveProjection()) {
-                        Model::PickResult pr;
-                        doPick(ray, renderContext.camera(), pr);
-
-                        if (pr.query().first().type() != ShearObjectsTool::ScaleToolCornerHit) {
-                            // this corner is occluded => don't render it.
-                            continue;
-                        }
-                    }
-
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
-                }
-            }
-            
-            // highlighted stuff
-            
-            // highlight the polygons that will be dragged
-            auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
-            for (const auto& poly : highlightedPolys) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setShowBackfaces();
-                renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
-                renderService.renderFilledPolygon(poly.vertices());
-            }
-            
-            if (m_tool->hasDragPolygon()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setLineWidth(2.0);
-                renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
-            }
-            
-            if (m_tool->hasDragEdge()) {
-                const auto line = m_tool->dragEdge();
-                const auto& camera = renderContext.camera();
-
-                if (camera.orthographicProjection()
-                    && line.direction().parallelTo(camera.direction())) {
-                    // for the 2D view, for drag edges that are parallel to the camera,
-                    // render the highlight with a ring around the handle
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(line.start());
-                } else {
-                    // render as a thick line
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                    renderService.setLineWidth(2.0);
-                    renderService.renderLine(line.start(), line.end());
-                }
-            }
-            
-            if (m_tool->hasDragCorner()) {
-                const auto corner = m_tool->dragCorner();
-
-                // the filled circular handle
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
-                }
-
-                // the ring around the handle
-                {
-                    Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderHandleHighlight(corner);
-                }
-            }
-
-#if 0
-            // draw anchor crosshair
-            if (m_tool->hasDragAnchor()) {
-                const float scale = renderContext.camera().perspectiveScalingFactor(m_tool->dragAnchor());
-                const float radius = 32.0f * scale;
-
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setShowOccludedObjects();
-
-                renderService.renderCoordinateSystem(BBox3f(radius).translated(m_tool->dragAnchor()));
-            }
-#endif
         }
         
         bool ShearObjectsToolController::doCancel() {

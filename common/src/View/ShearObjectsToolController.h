@@ -82,8 +82,6 @@ namespace TrenchBroom {
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            void renderShear(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel() override;
 

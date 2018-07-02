@@ -40,6 +40,11 @@ namespace TrenchBroom {
         class ScaleObjectsTool;
         
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
+        private:
+            enum class DragRestricterType {
+                Line, CameraPerpendicularPlane
+            };
+
         protected:
             ScaleObjectsTool* m_tool;
         private:
@@ -56,6 +61,12 @@ namespace TrenchBroom {
 
 
             bool m_isOrthoFree;
+
+            bool m_centerAnchor;
+            bool m_scaleAllAxes;
+
+
+
         public:
             explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
             ~ScaleObjectsToolController() override;
