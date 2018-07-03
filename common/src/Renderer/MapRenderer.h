@@ -110,7 +110,7 @@ namespace TrenchBroom {
              */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateObjectsInRenderers(Renderer renderers, const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
+            void invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification

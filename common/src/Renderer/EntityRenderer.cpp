@@ -86,15 +86,6 @@ namespace TrenchBroom {
             reloadModels();
         }
 
-        void EntityRenderer::invalidateEntities(const Model::EntityList& entities) {
-            if (entities.empty()) {
-                return;
-            }
-
-            // TODO: implement partial invalidate
-            invalidate();
-        }
-
         void EntityRenderer::clear() {
             m_entities.clear();
             m_wireframeBoundsRenderer = DirectEdgeRenderer();

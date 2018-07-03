@@ -446,15 +446,15 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
-        void MapRenderer::invalidateObjectsInRenderers(Renderer renderers, const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes) {
+        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes) {
             if ((renderers & Renderer_Default) != 0) {
-                m_defaultRenderer->invalidateObjects(groups, entities, brushes);
+                m_defaultRenderer->invalidateBrushes(brushes);
             }
             if ((renderers & Renderer_Selection) != 0) {
-                m_selectionRenderer->invalidateObjects(groups, entities, brushes);
+                m_selectionRenderer->invalidateBrushes(brushes);
             }
             if ((renderers& Renderer_Locked) != 0) {
-                m_lockedRenderer->invalidateObjects(groups, entities, brushes);
+                m_lockedRenderer->invalidateBrushes(brushes);
             }
         }
 
@@ -582,7 +582,7 @@ namespace TrenchBroom {
                     brushesVec.push_back(brush);
                 }
 
-                invalidateObjectsInRenderers(Renderer_All, {}, {}, brushesVec);
+                invalidateBrushesInRenderers(Renderer_All, brushesVec);
             }
         }
         

@@ -76,7 +76,6 @@ namespace TrenchBroom {
 
             void setEntities(const Model::EntityList& entities);
             void invalidate();
-            void invalidateEntities(const Model::EntityList& entities);
             void clear();
             void reloadModels();
             

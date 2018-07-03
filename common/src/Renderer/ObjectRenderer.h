@@ -49,7 +49,7 @@ namespace TrenchBroom {
         public: // object management
             void setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
             void invalidate();
-            void invalidateObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
+            void invalidateBrushes(const Model::BrushList& brushes);
             void clear();
             void reloadModels();
         public: // configuration
