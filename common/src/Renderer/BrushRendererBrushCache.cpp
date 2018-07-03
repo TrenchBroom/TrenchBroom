@@ -25,6 +25,22 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+
+        BrushRendererBrushCache::CachedFace::CachedFace(Model::BrushFace* face, size_t indexOfFirstVertexRelativeToBrush)
+                : texture(face->texture()),
+                  face(face),
+                  vertexCount(face->vertexCount()),
+                  indexOfFirstVertexRelativeToBrush(indexOfFirstVertexRelativeToBrush) {}
+
+        BrushRendererBrushCache::CachedEdge::CachedEdge(Model::BrushFace* face1,
+                                                        Model::BrushFace* face2,
+                                                        size_t vertexIndex1RelativeToBrush,
+                                                        size_t vertexIndex2RelativeToBrush)
+                : face1(face1),
+                  face2(face2),
+                  vertexIndex1RelativeToBrush(vertexIndex1RelativeToBrush),
+                  vertexIndex2RelativeToBrush(vertexIndex2RelativeToBrush) {}
+
         BrushRendererBrushCache::BrushRendererBrushCache()
                 : m_rendererCacheValid(false) {}
 
@@ -48,7 +64,7 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.reserve(brush->faceCount());
 
             for (Model::BrushFace* face : brush->faces()) {
-                const size_t startIndex = m_cachedVertices.size();
+                const size_t indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
                 const Model::BrushHalfEdge* first = face->geometry()->boundary().front();
                 const Model::BrushHalfEdge* current = first;
@@ -62,20 +78,15 @@ namespace TrenchBroom {
                     const size_t currentIndex = m_cachedVertices.size();
                     vertex->setPayload(static_cast<GLuint>(currentIndex));
 
-                    const Vec3 &position = vertex->position();
-                    m_cachedVertices.push_back(BrushRendererBrushCache::Vertex(position, face->boundary().normal, face->textureCoords(position)));
+                    const Vec3& position = vertex->position();
+                    m_cachedVertices.emplace_back(position, face->boundary().normal, face->textureCoords(position));
 
                     // The boundary is in CCW order, but the renderer expects CW order:
                     current = current->previous();
                 } while (current != first);
 
                 // face cache
-                CachedFace cachedFace;
-                cachedFace.texture = face->texture();
-                cachedFace.face = face;
-                cachedFace.vertexCount = face->vertexCount();
-                cachedFace.indexOfFirstVertexRelativeToBrush = startIndex;
-                m_cachedFacesSortedByTexture.push_back(cachedFace);
+                m_cachedFacesSortedByTexture.emplace_back(face, indexOfFirstVertexRelativeToBrush);
             }
 
             // Sort by texture so BrushRenderer can efficiently step through the BrushFaces
@@ -91,12 +102,12 @@ namespace TrenchBroom {
             m_cachedEdges.reserve(brush->edgeCount());
 
             for (const Model::BrushEdge* currentEdge : brush->edges()) {
-                CachedEdge edge;
-                edge.face1 = currentEdge->firstFace()->payload();
-                edge.face2 = currentEdge->secondFace()->payload();
-                edge.vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
-                edge.vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
-                m_cachedEdges.push_back(edge);
+                const auto face1 = currentEdge->firstFace()->payload();
+                const auto face2 = currentEdge->secondFace()->payload();
+                const auto vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
+                const auto vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
+
+                m_cachedEdges.emplace_back(face1, face2, vertexIndex1RelativeToBrush, vertexIndex2RelativeToBrush);
             }
 
             m_rendererCacheValid = true;

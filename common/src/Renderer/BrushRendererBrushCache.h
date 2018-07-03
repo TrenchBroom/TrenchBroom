@@ -45,6 +45,9 @@ namespace TrenchBroom {
                 Model::BrushFace* face;
                 size_t vertexCount;
                 size_t indexOfFirstVertexRelativeToBrush;
+
+                CachedFace(Model::BrushFace* face,
+                           size_t indexOfFirstVertexRelativeToBrush);
             };
 
             struct CachedEdge {
@@ -52,6 +55,11 @@ namespace TrenchBroom {
                 Model::BrushFace* face2;
                 size_t vertexIndex1RelativeToBrush;
                 size_t vertexIndex2RelativeToBrush;
+
+                CachedEdge(Model::BrushFace* face1,
+                           Model::BrushFace* face2,
+                           size_t vertexIndex1RelativeToBrush,
+                           size_t vertexIndex2RelativeToBrush);
             };
 
         private:
