@@ -103,7 +103,7 @@ namespace TrenchBroom {
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            VboBlockHolder(std::vector<T> &elements)
+            explicit VboBlockHolder(std::vector<T> &elements)
                     : m_snapshot(),
                       m_dirtyRange(elements.size()),
                       m_block(nullptr) {
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 freeBlock();
             }
 
-            void resize(size_t newSize) {
+            void resize(const size_t newSize) {
                 m_snapshot.resize(newSize);
                 m_dirtyRange.expand(newSize);
             }
@@ -203,9 +203,9 @@ namespace TrenchBroom {
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            IndexHolder(std::vector<Index>& elements);
-            void zeroRange(const size_t offsetWithinBlock, const size_t count);
-            void render(const PrimType primType, const size_t offset, size_t count) const;
+            explicit IndexHolder(std::vector<Index>& elements);
+            void zeroRange(size_t offsetWithinBlock, size_t count);
+            void render(PrimType primType, size_t offset, size_t count) const;
 
             static std::shared_ptr<IndexHolder> swap(std::vector<Index>& elements);
         };
@@ -257,7 +257,10 @@ namespace TrenchBroom {
             VertexHolder()
                     : VboBlockHolder<V>() {}
 
-            VertexHolder(std::vector<V>& elements)
+            /**
+             * NOTE: This destructively moves the contents of `elements` into the Holder.
+             */
+            explicit VertexHolder(std::vector<V>& elements)
                     : VboBlockHolder<V>(elements) {}
 
             bool setupVertices() override {
@@ -265,9 +268,11 @@ namespace TrenchBroom {
                 V::Spec::setup(VboBlockHolder<V>::m_block->offset());
                 return true;
             }
+
             void prepareVertices(Vbo& vbo) override {
                 VboBlockHolder<V>::prepare(vbo);
             }
+
             void cleanupVertices() override {
                 V::Spec::cleanup();
             }

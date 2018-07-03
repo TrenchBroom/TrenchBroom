@@ -30,13 +30,13 @@ namespace TrenchBroom {
 
         // DirtyRangeTracker
 
-        DirtyRangeTracker::DirtyRangeTracker(size_t initial_capacity)
+        DirtyRangeTracker::DirtyRangeTracker(const size_t initial_capacity)
                 : m_dirtyPos(0), m_dirtySize(0), m_capacity(initial_capacity) {}
 
         DirtyRangeTracker::DirtyRangeTracker()
                 : m_dirtyPos(0), m_dirtySize(0), m_capacity(0) {}
 
-        void DirtyRangeTracker::expand(size_t newcap) {
+        void DirtyRangeTracker::expand(const size_t newcap) {
             if (newcap <= m_capacity) {
                 throw std::invalid_argument("new capacity must be greater");
             }
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return m_capacity;
         }
 
-        void DirtyRangeTracker::markDirty(size_t pos, size_t size) {
+        void DirtyRangeTracker::markDirty(const size_t pos, const size_t size) {
             // bounds check
             if (pos + size > m_capacity) {
                 throw std::invalid_argument("markDirty provided range out of bounds");
