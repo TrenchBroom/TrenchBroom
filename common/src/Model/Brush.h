@@ -29,13 +29,14 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Renderer/VertexSpec.h"
+#include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/VertexListBuilder.h"
 #include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
 
 #include <vector>
+#include <Renderer/BrushRendererBrushCache.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -43,6 +44,7 @@ namespace TrenchBroom {
         class BrushContentTypeBuilder;
         class ModelFactory;
         class PickResult;
+        class BrushRendererBrushCache;
         
         class Brush : public Node, public Object {
         private:
@@ -70,8 +72,6 @@ namespace TrenchBroom {
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
-            using VertexSpec = Renderer::VertexSpecs::P3NT2;
-            using Vertex = VertexSpec::Vertex;
 
         private:
             BrushFaceList m_faces;
@@ -81,27 +81,7 @@ namespace TrenchBroom {
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
-
-        public: // renderer cache
-            struct CachedFace {
-                const Assets::Texture* texture;
-                BrushFace* face;
-                size_t vertexCount;
-                size_t indexOfFirstVertexRelativeToBrush;
-            };
-
-            struct CachedEdge {
-                BrushFace* face1;
-                BrushFace* face2;
-                size_t vertexIndex1RelativeToBrush;
-                size_t vertexIndex2RelativeToBrush;
-            };
-
-        private:
-            mutable std::vector<Vertex> m_cachedVertices;
-            mutable std::vector<CachedEdge> m_cachedEdges;
-            mutable std::vector<CachedFace> m_cachedFacesSortedByTexture;
-            mutable bool m_rendererCacheValid;
+            mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;
@@ -302,22 +282,7 @@ namespace TrenchBroom {
              * Only exposed to be called by BrushFace
              */
             void invalidateVertexCache();
-            /**
-             * Call this before cachedVertices()/cachedFacesSortedByTexture()/cachedEdges()
-             *
-             * NOTE: The reason for having this cache is we often need to re-upload the brush to VBO's when the brush
-             * itself hasn't changed, but we're moving it between VBO's for different rendering styles
-             * (default/selected/locked), or need to re-evaluate the BrushRenderer::Filter to exclude certain
-             * faces/edges.
-             */
-            void validateVertexCache() const;
-
-            /**
-             * Returns all vertices for all faces of the brush.
-             */
-            const std::vector<Vertex>& cachedVertices() const;
-            const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
-            const std::vector<CachedEdge>& cachedEdges() const;
+            Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
         };
     }
 }

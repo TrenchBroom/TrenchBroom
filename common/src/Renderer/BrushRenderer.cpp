@@ -350,7 +350,7 @@ namespace TrenchBroom {
             }
         }
 
-        static inline bool shouldRenderEdge(const Model::Brush::CachedEdge& edge,
+        static inline bool shouldRenderEdge(const BrushRendererBrushCache::CachedEdge& edge,
                                             const BrushRenderer::Filter::EdgeRenderPolicy policy) {
             using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
 
@@ -375,7 +375,7 @@ namespace TrenchBroom {
             }
 
             size_t indexCount = 0;
-            for (const auto& edge : brush->cachedEdges()) {
+            for (const auto& edge : brush->brushRendererBrushCache().cachedEdges()) {
                 if (shouldRenderEdge(edge, policy)) {
                     indexCount += 2;
                 }
@@ -394,7 +394,7 @@ namespace TrenchBroom {
             }
 
             size_t i = 0;
-            for (const auto& edge : brush->cachedEdges()) {
+            for (const auto& edge : brush->brushRendererBrushCache().cachedEdges()) {
                 if (shouldRenderEdge(edge, policy)) {
                     dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex1RelativeToBrush);
                     dest[i++] = static_cast<GLuint>(brushVerticesStartIndex + edge.vertexIndex2RelativeToBrush);
@@ -422,8 +422,9 @@ namespace TrenchBroom {
             }
 
             // collect vertices
-            brush->validateVertexCache();
-            const auto& cachedVertices = brush->cachedVertices();
+            auto& brushCache = brush->brushRendererBrushCache();
+            brushCache.validateVertexCache(brush);
+            const auto& cachedVertices = brushCache.cachedVertices();
 
             assert(m_vertexArray != nullptr);
             auto [vertBlock, dest] = m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
@@ -443,7 +444,7 @@ namespace TrenchBroom {
 
             // insert face indices
 
-            auto& facesSortedByTex = brush->cachedFacesSortedByTexture();
+            auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
             const size_t facesSortedByTexSize = facesSortedByTex.size();
 
             std::shared_ptr<TextureToBrushIndicesMap> faceVboPtr = \
@@ -461,7 +462,7 @@ namespace TrenchBroom {
 
                 // process all faces with this texture (they'll be consecutive)
                 for (size_t j = i; j < nextI; ++j) {
-                    const Model::Brush::CachedFace& cache = facesSortedByTex[j];
+                    const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
                         indexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -493,7 +494,7 @@ namespace TrenchBroom {
                 // process all faces with this texture (they'll be consecutive)
                 GLuint *currentDest = dest;
                 for (size_t j = i; j < nextI; ++j) {
-                    const Model::Brush::CachedFace& cache = facesSortedByTex[j];
+                    const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         addTriIndicesForPolygon(currentDest,
                                                 static_cast<GLuint>(brushVerticesStartIndex +

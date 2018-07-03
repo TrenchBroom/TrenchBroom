@@ -371,8 +371,7 @@ namespace TrenchBroom {
         m_contentTypeBuilder(nullptr),
         m_contentType(0),
         m_transparent(false),
-        m_contentTypeValid(true),
-        m_rendererCacheValid(false) {
+        m_contentTypeValid(true) {
             addFaces(faces);
             try {
                 rebuildGeometry(worldBounds);
@@ -1418,100 +1417,11 @@ namespace TrenchBroom {
         }
 
         void Brush::invalidateVertexCache() {
-            m_rendererCacheValid = false;
-            m_cachedVertices.clear();
-            m_cachedEdges.clear();
-            m_cachedFacesSortedByTexture.clear();
+            m_brushRendererBrushCache.invalidateVertexCache();
         }
 
-        void Brush::validateVertexCache() const {
-            if (m_rendererCacheValid)
-                return;
-
-            ensure(m_geometry != nullptr, "geometry is null");
-
-            // build vertex cache and face cache
-
-            m_cachedVertices.clear();
-            m_cachedVertices.reserve(vertexCount());
-
-            m_cachedFacesSortedByTexture.clear();
-            m_cachedFacesSortedByTexture.reserve(faceCount());
-
-            for (BrushFace* face : m_faces) {
-                const size_t startIndex = m_cachedVertices.size();
-
-                const BrushHalfEdge *first = face->geometry()->boundary().front();
-                const BrushHalfEdge *current = first;
-                do {
-                    BrushVertex* vertex = current->origin();
-
-                    // Set the vertex payload to the index, relative to the brush's first vertex being 0.
-                    // This is used below when building the edge cache.
-                    // NOTE: we'll overwrite the payload as we visit the same vertex several times while visiting
-                    // different faces, this is fine.
-                    const size_t currentIndex = m_cachedVertices.size();
-                    vertex->setPayload(static_cast<GLuint>(currentIndex));
-
-                    const Vec3 &position = vertex->position();
-                    m_cachedVertices.push_back(Brush::Vertex(position, face->boundary().normal, face->textureCoords(position)));
-
-                    // The boundary is in CCW order, but the renderer expects CW order:
-                    current = current->previous();
-                } while (current != first);
-
-                // face cache
-                CachedFace cachedFace;
-                cachedFace.texture = face->texture();
-                cachedFace.face = face;
-                cachedFace.vertexCount = face->vertexCount();
-                cachedFace.indexOfFirstVertexRelativeToBrush = startIndex;
-                m_cachedFacesSortedByTexture.push_back(cachedFace);
-            }
-
-            // Sort by texture so BrushRenderer can efficiently step through the BrushFaces
-            // grouped by texture (via `Brush::cachedFacesSortedByTexture()`), without needing to build an std::map
-
-            std::sort(m_cachedFacesSortedByTexture.begin(),
-                      m_cachedFacesSortedByTexture.end(),
-                      [](const CachedFace& a, const CachedFace& b){ return a.texture < b.texture; });
-
-            // Build edge index cache
-
-            m_cachedEdges.clear();
-            m_cachedEdges.reserve(edgeCount());
-
-            {
-                const BrushEdge *firstEdge = m_geometry->edges().front();
-                const BrushEdge *currentEdge = firstEdge;
-                do {
-                    CachedEdge edge;
-                    edge.face1 = currentEdge->firstFace()->payload();
-                    edge.face2 = currentEdge->secondFace()->payload();
-                    edge.vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
-                    edge.vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
-                    m_cachedEdges.push_back(edge);
-
-                    currentEdge = currentEdge->next();
-                } while (currentEdge != firstEdge);
-            }
-
-            m_rendererCacheValid = true;
-        }
-
-        const std::vector<Brush::Vertex>& Brush::cachedVertices() const {
-            assert(m_rendererCacheValid);
-            return m_cachedVertices;
-        }
-
-        const std::vector<Brush::CachedFace>& Brush::cachedFacesSortedByTexture() const {
-            assert(m_rendererCacheValid);
-            return m_cachedFacesSortedByTexture;
-        }
-
-        const std::vector<Brush::CachedEdge>& Brush::cachedEdges() const {
-            assert(m_rendererCacheValid);
-            return m_cachedEdges;
+        Renderer::BrushRendererBrushCache& Brush::brushRendererBrushCache() const {
+            return m_brushRendererBrushCache;
         }
     }
 }
