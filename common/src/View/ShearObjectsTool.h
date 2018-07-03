@@ -27,7 +27,6 @@
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/RotateObjectsHandle.h"
-#include "View/ShearObjectsToolPage.h"
 #include "BBox.h"
 
 namespace TrenchBroom {
