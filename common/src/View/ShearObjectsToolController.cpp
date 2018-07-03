@@ -61,15 +61,51 @@ namespace TrenchBroom {
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
+            if (!thisToolDragging()) {
+                return;
+            }
+
             // TODO: Only for perspective: move to 3D subclass.
             if (!inputState.camera().perspectiveProjection()) {
                 return;
             }
 
+            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+            const Vec3 sideCenter = centerForBBoxSide(m_bboxAtDragStart, side);
+
+            // Can't do vertical restraint on these
+            if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
+                return;
+            }
+
+            MapDocumentSPtr document = lock(m_document);
+
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
 
+                DragRestricter* restricter = nullptr;
+                DragSnapper* snapper = nullptr;
 
+                const auto& camera = inputState.camera();
+                if (!vertical) {
+                    // FIXME: deduplicate this from below?
+                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
+
+                    restricter = new LineDragRestricter(sideways);
+                    snapper = new LineDragSnapper(document->grid(), sideways);
+
+                    m_handleLineDebug = sideways;
+                } else {
+                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
+
+                    restricter = new LineDragRestricter(verticalLine);
+                    snapper = new LineDragSnapper(document->grid(), verticalLine);
+
+                    m_handleLineDebug = verticalLine;
+                }
+
+                setRestricter(inputState, restricter, true);
+                setSnapper(inputState, snapper, true);
             }
         }
         
