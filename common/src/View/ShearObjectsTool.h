@@ -75,6 +75,13 @@ namespace TrenchBroom {
              * Only valid during a drag (when m_resizing is true).
              */
             BBox3 m_bboxAtDragStart;
+
+            bool m_constrainVertical;
+        public:
+
+            bool constrainVertical() const;
+            void setConstrainVertical(bool constrainVertical);
+
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }

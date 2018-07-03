@@ -59,49 +59,24 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
+            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+
+            // TODO: Only for perspective: move to 3D subclass.
+            if (!inputState.camera().perspectiveProjection()) {
+                return;
+            }
+
+            if (vertical != m_tool->constrainVertical()) {
+                m_tool->setConstrainVertical(vertical);
+
+
+            }
         }
         
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState))
                 m_tool->updateDragFaces(inputState.pickResult());
         }
-
-        #if 0
-        bool ShearObjectsToolController::updateResize(const InputState& inputState) {
-            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-
-            return m_tool->resize(inputState.pickRay(),
-                                  inputState.camera(),
-                                  vertical);
-        }
-
-
-        bool ShearObjectsToolController::doStartMouseDrag(const InputState& inputState) {
-            if (!handleInput(inputState))
-                return false;
-            
-            m_tool->updateDragFaces(inputState.pickResult());
-
-            if (m_tool->beginResize(inputState.pickResult())) {
-                m_tool->updateDragFaces(inputState.pickResult());
-                return true;
-            }
-            return false;
-        }
-        
-        bool ShearObjectsToolController::doMouseDrag(const InputState& inputState) {
-            return updateResize(inputState);
-        }
-
-        void ShearObjectsToolController::doEndMouseDrag(const InputState& inputState) {
-            m_tool->commitResize();
-            m_tool->updateDragFaces(inputState.pickResult());
-        }
-        
-        void ShearObjectsToolController::doCancelMouseDrag() {
-            m_tool->cancelResize();
-        }
-#endif
 
         // RestrictedDragPolicy
 
@@ -136,13 +111,38 @@ namespace TrenchBroom {
             m_debugInitialPoint = hit.hitPoint();
             m_dragStartHit = hit;
 
-            const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
+            DragRestricter* restricter = nullptr;
+            DragSnapper* snapper = nullptr;
 
-            m_handleLineDebug = handleLine;
+            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+            const Vec3 sideCenter = centerForBBoxSide(m_bboxAtDragStart, side);
+
+            const auto& camera = inputState.camera();
+            if (camera.perspectiveProjection()) {
+                if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
+                    restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
+                    snapper = new DeltaDragSnapper(document->grid());
+
+                    m_handleLineDebug = Line3();
+                } else {
+                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
+                    restricter = new LineDragRestricter(sideways);
+                    snapper = new LineDragSnapper(document->grid(), sideways);
+
+                    m_handleLineDebug = sideways;
+                }
+            } else {
+                assert(camera.orthographicProjection());
+
+                const Line3 sideways(sideCenter, crossed(side.normal, Vec3(camera.direction())).normalized());
+                restricter = new LineDragRestricter(sideways);
+                snapper = new LineDragSnapper(document->grid(), sideways);
+
+                m_handleLineDebug = sideways;
+            }
+
+
             m_dragCumulativeDelta = Vec3::Null;
-
-            auto restricter = new LineDragRestricter(handleLine);
-            auto snapper = new LineDragSnapper(document->grid(), handleLine);
 
             // HACK: Snap the initial point
             const Vec3 initialPoint = [&]() {
@@ -178,6 +178,14 @@ namespace TrenchBroom {
 //
 //            document->scaleObjects(m_tool->bounds(), newBox);
 
+            if (!delta.null()) {
+                const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+
+                if (document->shearObjects(m_tool->bounds(), side.normal, delta)) {
+                    // ?
+                }
+            }
+
             return DR_Continue;
         }
 
@@ -201,6 +209,25 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            // debug
+
+            {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
+                renderService.renderLine(m_handleLineDebug.point, m_handleLineDebug.point + (m_handleLineDebug.direction * 1024.0));
+            }
+            {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(255, 0, 0, 1.0f));
+                renderService.renderHandle(m_lastDragDebug);
+            }
+            {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
+                renderService.renderHandle(m_currentDragDebug);
+            }
+
+
             // render sheared box
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);

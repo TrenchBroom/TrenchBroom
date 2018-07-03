@@ -47,7 +47,8 @@ namespace TrenchBroom {
         Tool(false),
         m_document(document),
         m_dragStartHit(Model::Hit::NoHit),
-        m_resizing(false)
+        m_resizing(false),
+        m_constrainVertical(false)
         {
             bindObservers();
         }
@@ -285,69 +286,6 @@ namespace TrenchBroom {
 
             return true;
         }
-
-#if 0
-        bool ShearObjectsTool::resize(const Ray3& pickRay, const Renderer::Camera& camera, const bool vertical) {
-            MapDocumentSPtr document = lock(m_document);
-            const View::Grid& grid = document->grid();
-           
-            {
-                // shear
-                if (m_dragStartHit.type() == ScaleToolFaceHit) {
-                    const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-                    
-                    const auto poly = polygonForBBoxSide(bounds(), side);
-                    const Vec3 planeAnchor = poly.vertices().front();
-                    
-                    // get the point where the pick ray intersects the plane being dragged.
-                    Vec3 rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(side.normal, planeAnchor));
-                    if (rayHit.nan()) {
-                        // in 2D views the pick ray will be perpendicular to the face normal.
-                        // in that case, use a plane with a normal opposite the pickRay.
-                        rayHit = pickRay.pointAtDistance(pickRay.intersectWithPlane(pickRay.direction * -1.0, planeAnchor));
-                    }
-                    assert(!rayHit.nan());
-                    
-                    std::cout << "make shear with rayHit: " << rayHit << "\n";
-
-                    //m_dragOrigin = rayHit;
-                    
-                    Vec3 delta = rayHit - m_dragOrigin;
-                    delta = grid.snap(delta);
-                    
-                    if (camera.perspectiveProjection()) {
-                        if (vertical) {
-                            delta[0] = 0;
-                            delta[1] = 0;
-                        } else {
-                            delta[2] = 0;
-                        }
-                    } else if (camera.orthographicProjection()) {
-                        const Plane3 cameraPlane(0.0, camera.direction());
-                        delta = cameraPlane.projectVector(delta);
-                    } else {
-                        assert(0);
-                    }
-
-                    if (!delta.null()) {
-                        std::cout << "make shear with m_dragOrigin: " << m_dragOrigin << "\n";
-
-                        std::cout << "make shear with delta: " << delta << "on side" << side.normal << "\n";
-                        if (document->shearObjects(bounds(), side.normal, delta)) {
-                            // only used to tell whether to commit the shear
-                            m_totalDelta += delta;
-                            
-                            // update the ref point for the next iteration
-                            m_dragOrigin = rayHit;
-                        }
-                    }
-                }
-                
-            }
-            
-            return true;
-        }
-#endif
         
         void ShearObjectsTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
@@ -387,6 +325,14 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::selectionDidChange(const Selection& selection) {
+        }
+
+        bool ShearObjectsTool::constrainVertical() const {
+            return m_constrainVertical;
+        }
+
+        void ShearObjectsTool::setConstrainVertical(const bool constrainVertical) {
+            m_constrainVertical = constrainVertical;
         }
     }
 }
