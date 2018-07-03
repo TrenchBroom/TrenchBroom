@@ -121,10 +121,13 @@ namespace TrenchBroom {
 
             printf("ShearObjectsTool::doStartDrag\n");
 
+            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical))
                 return DragInfo();
+
 
 //            if (!m_tool->applies()) {
 //                return DragInfo();
@@ -146,6 +149,7 @@ namespace TrenchBroom {
             m_bboxAtDragStart = m_tool->bounds();
             m_debugInitialPoint = hit.hitPoint();
             m_dragStartHit = hit;
+            m_tool->setConstrainVertical(vertical);
 
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
@@ -160,12 +164,21 @@ namespace TrenchBroom {
                     snapper = new DeltaDragSnapper(document->grid());
 
                     m_handleLineDebug = Line3();
-                } else {
+                } else if (!vertical) {
+                    // FIXME: deduplicate this from above?
                     const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
+
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(document->grid(), sideways);
 
                     m_handleLineDebug = sideways;
+                } else {
+                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
+
+                    restricter = new LineDragRestricter(verticalLine);
+                    snapper = new LineDragSnapper(document->grid(), verticalLine);
+
+                    m_handleLineDebug = verticalLine;
                 }
             } else {
                 assert(camera.orthographicProjection());
