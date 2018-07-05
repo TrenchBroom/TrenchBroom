@@ -659,7 +659,7 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushFace::setMarked(bool marked) const {
+        void BrushFace::setMarked(const bool marked) const {
             m_markedToRenderFace = marked;
         }
 
