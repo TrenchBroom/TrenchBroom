@@ -320,14 +320,10 @@ namespace TrenchBroom {
         void BrushRenderer::validate() {
             assert(!valid());
 
-            size_t validateCalls = 0;
             for (auto brush : m_invalidBrushes) {
                 validateBrush(brush);
-                validateCalls++;
             }
             m_invalidBrushes.clear();
-            std::cout << "validate " << validateCalls << " brushes\n";
-
             assert(valid());
 
             m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
