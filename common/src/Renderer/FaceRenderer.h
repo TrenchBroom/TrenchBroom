@@ -41,13 +41,14 @@ namespace TrenchBroom {
 
         using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
         using TextureToBrushIndicesMap = std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+        using TextureToBrushIndicesMapPtr = std::shared_ptr<const TextureToBrushIndicesMap>;
 
         class FaceRenderer : public IndexedRenderable {
         private:
             struct RenderFunc;
 
             BrushVertexArrayPtr m_vertexArray;
-            std::shared_ptr<const TextureToBrushIndicesMap> m_indexArrayMap;
+            TextureToBrushIndicesMapPtr m_indexArrayMap;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             float m_alpha;
         public:
             FaceRenderer();
-            FaceRenderer(BrushVertexArrayPtr vertexArray, std::shared_ptr<const TextureToBrushIndicesMap> indexArrayMap, const Color& faceColor);
+            FaceRenderer(BrushVertexArrayPtr vertexArray, TextureToBrushIndicesMapPtr indexArrayMap, const Color& faceColor);
             
             FaceRenderer(const FaceRenderer& other);
             FaceRenderer& operator=(FaceRenderer other);
