@@ -122,7 +122,8 @@ namespace TrenchBroom {
         void FaceRenderer::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
             m_vertexArray->prepare(vertexVbo);
 
-            for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap) {
+            for (const auto& pair : *m_indexArrayMap) {
+                const auto& brushIndexHolderPtr = pair.second;
                 brushIndexHolderPtr->prepare(indexVbo);
             }
         }
