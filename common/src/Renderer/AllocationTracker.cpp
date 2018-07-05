@@ -52,9 +52,10 @@ namespace TrenchBroom {
         void AllocationTracker::unlinkFromBinList(Block* block) {
             assert(block->free);
 
-            // special case: when we are the head of the list
-            // (m_sizeToFreeBlock has a pointer to us)
             if (block->prevOfSameSize == nullptr) {
+                // slow case: when we are the head of the list
+                // (m_sizeToFreeBlock has a pointer to us)
+
                 // this means we must be in m_sizeToFreeBlock
                 auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
                 assert(it != m_freeBlockSizeBins.end());
@@ -69,23 +70,24 @@ namespace TrenchBroom {
                     block->nextOfSameSize->prevOfSameSize = nullptr;
                     block->nextOfSameSize = nullptr;
                 }
-                return;
+            } else {
+                // "regular" case, not the head of a size bin list.
+
+                // handle the "previous" side
+                assert(block->prevOfSameSize != nullptr);
+                assert(block->size == block->prevOfSameSize->size);
+                block->prevOfSameSize->nextOfSameSize = block->nextOfSameSize;
+
+                // handle the "next" side
+                if (block->nextOfSameSize) {
+                    assert(block->size == block->nextOfSameSize->size);
+                    block->nextOfSameSize->prevOfSameSize = block->prevOfSameSize;
+                }
+
+                // clear the nextOfSameSize/prevOfSameSize pointers to mark the block as unlinked from the bin list
+                block->nextOfSameSize = nullptr;
+                block->prevOfSameSize = nullptr;
             }
-
-            // handle the "previous" side
-            assert(block->prevOfSameSize != nullptr);
-            assert(block->size == block->prevOfSameSize->size);
-            block->prevOfSameSize->nextOfSameSize = block->nextOfSameSize;
-
-            // handle the "next" side
-            if (block->nextOfSameSize) {
-                assert(block->size == block->nextOfSameSize->size);
-                block->nextOfSameSize->prevOfSameSize = block->prevOfSameSize;
-            }
-
-            // clear the nextOfSameSize/prevOfSameSize pointers to mark the block as unlinked from the bin list
-            block->nextOfSameSize = nullptr;
-            block->prevOfSameSize = nullptr;
         }
 
         void AllocationTracker::linkToBinList(Block* block) {
@@ -96,14 +98,11 @@ namespace TrenchBroom {
 
             auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, block->size);
 
-            // insert at end?
             if (it == m_freeBlockSizeBins.end()) {
+                // All existing bins too small; insert at end.
                 m_freeBlockSizeBins.insert(it, block);
-                return;
-            }
-
-            // Is there an existing exact match for the bin size? if so we don't need to resize the vector.
-            if ((*it)->size == block->size) {
+            } else if ((*it)->size == block->size) {
+                // There is an existing exact match for the bin size, so we don't need to resize the vector.
                 Block* previousListHead = *it;
 
                 assert(previousListHead->size == block->size);
@@ -115,11 +114,10 @@ namespace TrenchBroom {
 
                 // NOTE: inserts into the map
                 *it = block;
-                return;
+            } else {
+                // Slow case: insert a new bin, before `it`.
+                m_freeBlockSizeBins.insert(it, block);
             }
-
-            // Slow case: insert a new bin, before `it`
-            m_freeBlockSizeBins.insert(it, block);
         }
 
         void AllocationTracker::recycle(Block* block) {
