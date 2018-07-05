@@ -25,21 +25,21 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        BrushRendererBrushCache::CachedFace::CachedFace(Model::BrushFace* i_face,
+                                                        const size_t i_indexOfFirstVertexRelativeToBrush)
+                : texture(i_face->texture()),
+                  face(i_face),
+                  vertexCount(i_face->vertexCount()),
+                  indexOfFirstVertexRelativeToBrush(i_indexOfFirstVertexRelativeToBrush) {}
 
-        BrushRendererBrushCache::CachedFace::CachedFace(Model::BrushFace* face, size_t indexOfFirstVertexRelativeToBrush)
-                : texture(face->texture()),
-                  face(face),
-                  vertexCount(face->vertexCount()),
-                  indexOfFirstVertexRelativeToBrush(indexOfFirstVertexRelativeToBrush) {}
-
-        BrushRendererBrushCache::CachedEdge::CachedEdge(Model::BrushFace* face1,
-                                                        Model::BrushFace* face2,
-                                                        size_t vertexIndex1RelativeToBrush,
-                                                        size_t vertexIndex2RelativeToBrush)
-                : face1(face1),
-                  face2(face2),
-                  vertexIndex1RelativeToBrush(vertexIndex1RelativeToBrush),
-                  vertexIndex2RelativeToBrush(vertexIndex2RelativeToBrush) {}
+        BrushRendererBrushCache::CachedEdge::CachedEdge(Model::BrushFace* i_face1,
+                                                        Model::BrushFace* i_face2,
+                                                        const size_t i_vertexIndex1RelativeToBrush,
+                                                        const size_t i_vertexIndex2RelativeToBrush)
+                : face1(i_face1),
+                  face2(i_face2),
+                  vertexIndex1RelativeToBrush(i_vertexIndex1RelativeToBrush),
+                  vertexIndex2RelativeToBrush(i_vertexIndex2RelativeToBrush) {}
 
         BrushRendererBrushCache::BrushRendererBrushCache()
                 : m_rendererCacheValid(false) {}
@@ -52,8 +52,9 @@ namespace TrenchBroom {
         }
 
         void BrushRendererBrushCache::validateVertexCache(const Model::Brush* brush) {
-            if (m_rendererCacheValid)
+            if (m_rendererCacheValid) {
                 return;
+            }
 
             // build vertex cache and face cache
 
