@@ -101,9 +101,16 @@ namespace TrenchBroom {
             } Renderer;
             
             class CollectRenderableNodes;
-            
+
+            /**
+             * This moves nodes between default / selection / locked renderers as needed,
+             * but doesn't otherwise invalidate them.
+             * (in particular, brushes are not updated unless they move between renderers.)
+             * If brushes are modified, you need to call invalidateRenderers() or invalidateObjectsInRenderers()
+             */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
+            void invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification

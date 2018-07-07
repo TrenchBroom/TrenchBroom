@@ -251,8 +251,7 @@ namespace TrenchBroom {
                     Buffer<unsigned char> rgbImage(size * 3);
                     m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                     cursor += size;
-                    
-                    textureName.str();
+
                     textureName << m_name << "_" << i;
                     
                     Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
@@ -273,7 +272,6 @@ namespace TrenchBroom {
                         m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
                         cursor += size;
 
-                        textureName.str();
                         textureName << m_name << "_" << i << "_" << j;
 
                         textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);

@@ -31,9 +31,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
-#include "Renderer/TexturedIndexArrayMap.h"
-#include "Renderer/VertexListBuilder.h"
-#include "Renderer/VertexSpec.h"
 
 #include <vector>
 
@@ -65,9 +62,6 @@ namespace TrenchBroom {
              */
             typedef Vec3 Points[3];
         public:
-            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
-            typedef VertexSpec::Vertex Vertex;
-        public:
             static const String NoTextureName;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
@@ -90,10 +84,9 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-            
-            mutable size_t m_vertexIndex;
-            mutable Vertex::List m_cachedVertices;
-            mutable bool m_verticesValid;
+
+            // brush renderer
+            mutable bool m_markedToRenderFace;
         protected:
             BrushFaceAttributes m_attribs;
         public:
@@ -199,11 +192,6 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            void getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const;
-            
-            void countIndices(Renderer::TexturedIndexArrayMap::Size& size) const;
-            void getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const;
-            
             Vec2f textureCoords(const Vec3& point) const;
 
             bool containsPoint(const Vec3& point) const;
@@ -213,11 +201,19 @@ namespace TrenchBroom {
         private:
             void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
             void correctPoints();
-            
-            bool vertexCacheValid() const;
-            void invalidateVertexCache();
-            void validateVertexCache() const;
 
+            // renderer cache
+            void invalidateVertexCache();
+        public: // brush renderer
+            /**
+             * This is used to cache results of evaluating the BrushRenderer Filter.
+             * It's only valid within a call to `BrushRenderer::validateBrush`.
+             *
+             * @param marked    whether the face is going to be rendered.
+             */
+            void setMarked(bool marked) const;
+            bool isMarked() const;
+        private:
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
         };

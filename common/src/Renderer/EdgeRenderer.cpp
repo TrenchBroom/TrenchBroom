@@ -24,6 +24,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/BrushRendererArrays.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -159,44 +160,43 @@ namespace TrenchBroom {
         void DirectEdgeRenderer::doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) {
             renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexRanges));
         }
-        
-        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, VertexArray& vertexArray, IndexArray& indexArray, IndexArrayMap& indexRanges) :
+
+        // IndexedEdgeRenderer::Render
+
+        IndexedEdgeRenderer::Render::Render(const EdgeRenderer::Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
         RenderBase(params),
         m_vertexArray(vertexArray),
-        m_indexArray(indexArray),
-        m_indexRanges(indexRanges) {}
-        
-        void IndexedEdgeRenderer::Render::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
-        }
-        
-        void IndexedEdgeRenderer::Render::doPrepareIndices(Vbo& indexVbo) {
-            m_indexArray.prepare(indexVbo);
+        m_indexArray(indexArray) {}
+
+        void IndexedEdgeRenderer::Render::prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) {
+            m_vertexArray->prepare(vertexVbo);
+            m_indexArray->prepare(indexVbo);
         }
 
         void IndexedEdgeRenderer::Render::doRender(RenderContext& renderContext) {
-            if (m_vertexArray.vertexCount() == 0)
+            if (m_indexArray->empty()) {
                 return;
+            }
             renderEdges(renderContext);
         }
         
         void IndexedEdgeRenderer::Render::doRenderVertices(RenderContext& renderContext) {
-            m_vertexArray.setup();
-            m_indexRanges.render(m_indexArray);
-            m_vertexArray.cleanup();
+            m_vertexArray->setupVertices();
+            m_indexArray->render(GL_LINES);
+            m_vertexArray->cleanupVertices();
         }
-        
+
+        // IndexedEdgeRenderer
+
         IndexedEdgeRenderer::IndexedEdgeRenderer() {}
         
-        IndexedEdgeRenderer::IndexedEdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const IndexArrayMap& indexRanges) :
+        IndexedEdgeRenderer::IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray) :
         m_vertexArray(vertexArray),
-        m_indexArray(indexArray),
-        m_indexRanges(indexRanges) {}
+        m_indexArray(indexArray) {}
         
         IndexedEdgeRenderer::IndexedEdgeRenderer(const IndexedEdgeRenderer& other) :
         m_vertexArray(other.m_vertexArray),
-        m_indexArray(other.m_indexArray),
-        m_indexRanges(other.m_indexRanges) {}
+        m_indexArray(other.m_indexArray) {}
         
         IndexedEdgeRenderer& IndexedEdgeRenderer::operator=(IndexedEdgeRenderer other) {
             using std::swap;
@@ -208,11 +208,10 @@ namespace TrenchBroom {
             using std::swap;
             swap(left.m_vertexArray, right.m_vertexArray);
             swap(left.m_indexArray, right.m_indexArray);
-            swap(left.m_indexRanges, right.m_indexRanges);
         }
         
         void IndexedEdgeRenderer::doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) {
-            renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexArray, m_indexRanges));
+            renderBatch.addOneShot(new Render(params, m_vertexArray, m_indexArray));
         }
     }
 }

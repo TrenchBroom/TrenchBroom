@@ -36,13 +36,5 @@ namespace TrenchBroom {
         }
         
         IndexedRenderable::~IndexedRenderable() {}
-        
-        void IndexedRenderable::prepareVertices(Vbo& vertexVbo) {
-            doPrepareVertices(vertexVbo);
-        }
-        
-        void IndexedRenderable::prepareIndices(Vbo& indexVbo) {
-            doPrepareIndices(indexVbo);
-        }
     }
 }
