@@ -36,7 +36,7 @@ namespace TrenchBroom {
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
         for (const auto& entry : m_unsavedPreferences) {
-            PreferenceBase* pref = entry.first;
+            auto* pref = entry.first;
             
             pref->save(wxConfig::Get());
             preferenceDidChangeNotifier(pref->path());
@@ -51,17 +51,17 @@ namespace TrenchBroom {
     PreferenceBase::Set PreferenceManager::discardChanges() {
         PreferenceBase::Set changedPreferences;
         for (const auto& entry : m_unsavedPreferences) {
-            PreferenceBase* pref = entry.first;
-            ValueHolderBase* value = entry.second.get();
+            auto* pref = entry.first;
+            auto* value = entry.second.get();
 
             pref->setValue(value);
             changedPreferences.insert(pref);
         }
-        
+
         m_unsavedPreferences.clear();
         return changedPreferences;
     }
-    
+
     PreferenceManager::PreferenceManager() {
 #if defined __APPLE__
         m_saveInstantly = true;
