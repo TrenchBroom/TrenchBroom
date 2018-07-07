@@ -35,12 +35,12 @@ namespace TrenchBroom {
     
     class PreferenceManager {
     private:
-        typedef std::map<PreferenceBase*, ValueHolderBase::UPtr> UnsavedPreferences;
+        using UnsavedPreferences = std::set<PreferenceBase*>;
         
         bool m_saveInstantly;
         UnsavedPreferences m_unsavedPreferences;
         
-        void markAsUnsaved(PreferenceBase* preference, ValueHolderBase::UPtr valueHolder);
+        void markAsUnsaved(PreferenceBase* preference);
     public:
         static PreferenceManager& instance();
         
@@ -52,9 +52,10 @@ namespace TrenchBroom {
         
         template <typename T>
         const T& get(const Preference<T>& preference) const {
-            if (!preference.initialized())
+            if (!preference.initialized()) {
                 preference.load(wxConfig::Get());
-            
+            }
+
             return preference.value();
         }
         
@@ -74,7 +75,7 @@ namespace TrenchBroom {
                 preference.save(wxConfig::Get());
                 preferenceDidChangeNotifier(preference.path());
             } else {
-                markAsUnsaved(&preference, std::move(ValueHolderBase::UPtr(new ValueHolder<T>(previousValue))));
+                markAsUnsaved(&preference);
             }
             
             return true;

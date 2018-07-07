@@ -139,7 +139,7 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             if (IsBeingDeleted()) return;
 
-            auto bool wasReset = false;
+            auto wasReset = false;
             const auto oldKey = m_key;
             if (m_resetOnNextKey) {
                 wasReset = m_key != WXK_NONE || m_modifiers[0] != WXK_NONE || m_modifiers[1] != WXK_NONE || m_modifiers[2] != WXK_NONE;
