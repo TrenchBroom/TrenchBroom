@@ -403,8 +403,6 @@ namespace TrenchBroom {
             assert(m_invalidBrushes.find(brush) != m_invalidBrushes.end());
             assert(m_brushInfo.find(brush) == m_brushInfo.end());
 
-            BrushInfo info;
-
             const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
 
             // evaluate filter. only evaluate the filter once per brush.
@@ -417,10 +415,13 @@ namespace TrenchBroom {
                 return;
             }
 
+            BrushInfo& info = m_brushInfo[brush];
+
             // collect vertices
             auto& brushCache = brush->brushRendererBrushCache();
             brushCache.validateVertexCache(brush);
             const auto& cachedVertices = brushCache.cachedVertices();
+            ensure(!cachedVertices.empty(), "Brush must have cached vertices");
 
             assert(m_vertexArray != nullptr);
             auto [vertBlock, dest] = m_vertexArray->getPointerToInsertVerticesAt(cachedVertices.size());
@@ -432,10 +433,16 @@ namespace TrenchBroom {
             // insert edge indices into VBO
             {
                 const size_t edgeIndexCount = countMarkedEdgeIndices(brush, edgePolicy);
-
-                auto [key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
-                info.edgeIndicesKey = key;
-                getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, dest);
+                if (edgeIndexCount > 0) {
+                    auto[key, dest] = m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
+                    info.edgeIndicesKey = key;
+                    getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, dest);
+                } else {
+                    // it's possible to have no edges to render
+                    // e.g. select all faces of a brush, and the unselected brush renderer
+                    // will hit this branch.
+                    ensure(info.edgeIndicesKey == nullptr, "BrushInfo not initialized");
+                }
             }
 
             // insert face indices
@@ -503,9 +510,6 @@ namespace TrenchBroom {
                 assert(indexCount > 0);
                 assert(currentDest == (dest + indexCount));
             }
-
-            // FIXME: avoid copying
-            m_brushInfo[brush] = info;
         }
 
         void BrushRenderer::addBrush(const Model::Brush* brush) {
@@ -553,7 +557,9 @@ namespace TrenchBroom {
 
             // update Vbo's
             m_vertexArray->deleteVerticesWithKey(info.vertexHolderKey);
-            m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
+            if (info.edgeIndicesKey != nullptr) {
+                m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
+            }
 
             for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys) {
                 std::shared_ptr<BrushIndexArray> faceIndexHolder = m_opaqueFaces->at(texture);
