@@ -107,6 +107,7 @@ namespace TrenchBroom {
                             return Token(DefToken::Minus, c, c + 1, offset(c), startLine, startColumn);
                         }
                         // otherwise fallthrough, might be a negative number
+                        switchFallthrough();
                     default: { // integer, decimal or word
                         const char* e = readInteger(WordDelims);
                         if (e != nullptr)
