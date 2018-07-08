@@ -114,6 +114,10 @@ namespace TrenchBroom {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             if ((centerAnchor != m_centerAnchor) || (scaleAllAxes != m_scaleAllAxes)) {
+                // update state
+                m_scaleAllAxes = scaleAllAxes;
+                m_centerAnchor = centerAnchor;
+
                 // this will only do the visuals
                 m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
                 m_tool->setScaleAllAxes(scaleAllAxes);
@@ -123,11 +127,10 @@ namespace TrenchBroom {
 
                     setRestricter(inputState, std::get<0>(tuple), true);
                     setSnapper(inputState, std::get<1>(tuple), true);
-                }
 
-                // update state
-                m_scaleAllAxes = scaleAllAxes;
-                m_centerAnchor = centerAnchor;
+                    // Re-trigger the dragging logic with a delta of 0, so the new modifiers are applied right away.
+                    doDrag(inputState, currentHandlePosition(), currentHandlePosition());
+                }
             }
 
 //            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
