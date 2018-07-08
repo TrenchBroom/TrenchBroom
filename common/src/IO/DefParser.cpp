@@ -101,6 +101,13 @@ namespace TrenchBroom {
                         const char* e = readQuotedString();
                         return Token(DefToken::QuotedString, c, e, offset(c), startLine, startColumn);
                     }
+                    case '-':
+                        if (isWhitespace(lookAhead())) {
+                            advance();
+                            return Token(DefToken::Minus, c, c + 1, offset(c), startLine, startColumn);
+                        }
+                        // otherwise fallthrough, might be a negative number
+                        switchFallthrough();
                     default: { // integer, decimal or word
                         const char* e = readInteger(WordDelims);
                         if (e != nullptr)
@@ -144,6 +151,7 @@ namespace TrenchBroom {
             names[Newline]      = "newline";
             names[Comma]        = "','";
             names[Equality]     = "'='";
+            names[Minus]        = "'-'";
             names[Eof]          = "end of file";
             return names;
         }
@@ -188,16 +196,14 @@ namespace TrenchBroom {
                 
                 token = m_tokenizer.peekToken();
                 expect(status, DefToken::OParenthesis | DefToken::Word, token);
-                if (token.type() == DefToken::OParenthesis) {
+                if (token.hasType(DefToken::OParenthesis)) {
                     classInfo.setSize(parseBounds(status));
                 } else if (token.data() == "?") {
                     m_tokenizer.nextToken();
-                } else {
-                    expect(status, "question mark: ?", token);
                 }
                 
                 token = m_tokenizer.peekToken();
-                if (token.type() == DefToken::Word)
+                if (token.hasType(DefToken::Word | DefToken::Minus))
                     classInfo.addAttributeDefinition(parseSpawnflags(status));
             }
             
@@ -214,7 +220,7 @@ namespace TrenchBroom {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
                     return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
-                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
+                return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.hasColor() ? classInfo.color() : m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
             }
             
             // base definition
@@ -228,10 +234,10 @@ namespace TrenchBroom {
             
             try {
                 Token token = m_tokenizer.peekToken();
-                while (token.type() == DefToken::Word) {
+                while (token.hasType(DefToken::Word | DefToken::Minus)) {
                     token = m_tokenizer.nextToken();
-                    String name = token.data();
-                    int value = 1 << numOptions++;
+                    const auto name = token.hasType(DefToken::Word) ? token.data() : "";
+                    const auto value = 1 << numOptions++;
                     definition->addOption(value, name, "", false);
                     token = m_tokenizer.peekToken();
                 }

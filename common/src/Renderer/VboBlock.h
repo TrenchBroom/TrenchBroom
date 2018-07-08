@@ -24,6 +24,7 @@
 
 #include <cstring>
 #include <vector>
+#include <type_traits>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -60,18 +61,34 @@ namespace TrenchBroom {
             
             template <typename T>
             size_t writeElements(const size_t address, const std::vector<T>& elements) {
-                assert(mapped());
-                return writeBuffer(address, elements);
+                return writeArray(address, elements.data(), elements.size());
             }
-            
+
             template <typename T>
             size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+                return writeArray(address, buffer.data(), buffer.size());
+            }
+
+            /**
+             * Writes a C array to the VBO block.
+             *
+             * @tparam T        element type
+             * @param address   byte offset from the start of the block to write at
+             * @param array     elements to write
+             * @param count     number of elements to write
+             * @return          number of bytes written
+             */
+            template <typename T>
+            size_t writeArray(const size_t address, const T* array, const size_t count) {
                 assert(mapped());
                 
-                const size_t size = buffer.size() * sizeof(T);
+                const size_t size = count * sizeof(T);
                 assert(address + size <= m_capacity);
-                
-                const GLvoid* ptr = static_cast<const GLvoid*>(&(buffer[0]));
+
+                static_assert(std::is_trivially_copyable<T>::value);
+                static_assert(std::is_standard_layout<T>::value);
+
+                const GLvoid* ptr = static_cast<const GLvoid*>(array);
                 const GLintptr offset = static_cast<GLintptr>(m_offset + address);
                 const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
                 glAssert(glBufferSubData(m_vbo.type(), offset, sizei, ptr));

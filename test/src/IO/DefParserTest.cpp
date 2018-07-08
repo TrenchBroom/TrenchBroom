@@ -51,6 +51,24 @@ namespace TrenchBroom {
             }
         }
 
+        TEST(DefParserTest, parseExtraDefFiles) {
+            const Path basePath = Disk::getCurrentWorkingDir() + Path("data/IO/Def");
+            const Path::List cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
+                return !directory && StringUtils::caseInsensitiveEqual(path.extension(), "def");
+            });
+
+            for (const Path& path : cfgFiles) {
+                MappedFile::Ptr file = Disk::openFile(path);
+                const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+                DefParser parser(file->begin(), file->end(), defaultColor);
+
+                TestParserStatus status;
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
+                ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
+            }
+        }
+
         TEST(DefParserTest, parseEmptyFile) {
             const String file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -111,7 +129,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
-            ASSERT_VEC_EQ(defaultColor, definition->color());
+            ASSERT_VEC_EQ(Color(0.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(String("Only used for the world entity. "
                              "Set message to the level name. "
                              "Set sounds to the cd track to play. "
@@ -167,6 +185,111 @@ namespace TrenchBroom {
             ASSERT_FALSE(options[1].isDefault());
             
             
+            VectorUtils::clearAndDelete(definitions);
+        }
+
+        TEST(DefParserTest, parseSpawnflagWithSkip) {
+            const String file =
+                    "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
+                    "some desc\n"
+                    "*/\n";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            DefParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
+            ASSERT_EQ(String("item_health"), definition->name());
+            ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
+            ASSERT_EQ(String("some desc"), definition->description());
+
+            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
+            ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
+            ASSERT_VEC_EQ(Vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
+
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size()); // spawnflags
+
+            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+
+            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            ASSERT_TRUE(spawnflags != nullptr);
+            ASSERT_EQ(0, spawnflags->defaultValue());
+
+            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            ASSERT_EQ(5u, options.size());
+
+            ASSERT_EQ(String(""), options[0].shortDescription());
+            ASSERT_FALSE(options[0].isDefault());
+            ASSERT_EQ(1, options[0].value());
+            ASSERT_EQ(String("SUSPENDED"), options[1].shortDescription());
+            ASSERT_FALSE(options[1].isDefault());
+            ASSERT_EQ(2, options[1].value());
+            ASSERT_EQ(String("SPIN"), options[2].shortDescription());
+            ASSERT_FALSE(options[2].isDefault());
+            ASSERT_EQ(4, options[2].value());
+            ASSERT_EQ(String(""), options[3].shortDescription());
+            ASSERT_FALSE(options[3].isDefault());
+            ASSERT_EQ(8, options[3].value());
+            ASSERT_EQ(String("RESPAWN"), options[4].shortDescription());
+            ASSERT_FALSE(options[4].isDefault());
+            ASSERT_EQ(16, options[4].value());
+
+
+            VectorUtils::clearAndDelete(definitions);
+        }
+
+        TEST(DefParserTest, parseBrushEntityWithMissingBBoxAndNoQuestionMark) {
+            const String file =
+                    "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
+                    "some desc\n"
+                    "*/\n";
+
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            DefParser parser(file, defaultColor);
+
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, definitions.size());
+
+            Assets::EntityDefinition* definition = definitions[0];
+            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
+            ASSERT_EQ(String("item_health"), definition->name());
+            ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
+            ASSERT_EQ(String("some desc"), definition->description());
+
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size()); // spawnflags
+
+            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+
+            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            ASSERT_TRUE(spawnflags != nullptr);
+            ASSERT_EQ(0, spawnflags->defaultValue());
+
+            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            ASSERT_EQ(4u, options.size());
+
+            ASSERT_EQ(String("SUSPENDED"), options[0].shortDescription());
+            ASSERT_FALSE(options[0].isDefault());
+            ASSERT_EQ(1, options[0].value());
+            ASSERT_EQ(String("SPIN"), options[1].shortDescription());
+            ASSERT_FALSE(options[1].isDefault());
+            ASSERT_EQ(2, options[1].value());
+            ASSERT_EQ(String(""), options[2].shortDescription());
+            ASSERT_FALSE(options[2].isDefault());
+            ASSERT_EQ(4, options[2].value());
+            ASSERT_EQ(String("RESPAWN"), options[3].shortDescription());
+            ASSERT_FALSE(options[3].isDefault());
+            ASSERT_EQ(8, options[3].value());
+
+
             VectorUtils::clearAndDelete(definitions);
         }
         

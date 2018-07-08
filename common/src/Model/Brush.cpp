@@ -20,6 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -493,6 +494,7 @@ namespace TrenchBroom {
             m_faces.push_back(face);
             face->setBrush(this);
             invalidateContentType();
+            invalidateVertexCache();
             if (face->selected())
                 incChildSelectionCount(1);
         }
@@ -524,6 +526,7 @@ namespace TrenchBroom {
                 decChildSelectionCount(1);
             face->setBrush(nullptr);
             invalidateContentType();
+            invalidateVertexCache();
         }
 
         void Brush::cloneFaceAttributesFrom(const BrushList& brushes) {
@@ -1139,6 +1142,7 @@ namespace TrenchBroom {
             }
 
             invalidateContentType();
+            invalidateVertexCache();
         }
 
         void Brush::updatePointsFromVertices(const BBox3& worldBounds) {
@@ -1410,6 +1414,14 @@ namespace TrenchBroom {
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();
+        }
+
+        void Brush::invalidateVertexCache() {
+            m_brushRendererBrushCache.invalidateVertexCache();
+        }
+
+        Renderer::BrushRendererBrushCache& Brush::brushRendererBrushCache() const {
+            return m_brushRendererBrushCache;
         }
     }
 }
