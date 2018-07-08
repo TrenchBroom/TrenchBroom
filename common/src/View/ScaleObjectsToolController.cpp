@@ -61,37 +61,34 @@ namespace TrenchBroom {
             }
         }
         
-        static std::tuple<DragRestricter*, DragSnapper*, Vec3>
-        makeDragRestricterSnapperInitialPoint(const Grid& grid, const BBox3& box, const InputState& inputState) {
-            const Model::PickResult& pickResult = inputState.pickResult();
-
-            // TODO: why did .pickable() break it?
-            const Model::Hit& hit = pickResult.query().type(
-                    ScaleObjectsTool::ScaleToolFaceHit
-                    | ScaleObjectsTool::ScaleToolEdgeHit
-                    | ScaleObjectsTool::ScaleToolCornerHit).occluded().first();
-            if (!hit.isMatch()) {
-                return {nullptr, nullptr, Vec3::Null};
-            }
-
+        std::tuple<DragRestricter*, DragSnapper*, Vec3> ScaleObjectsToolController::getDragRestricterSnapperAndInitialPoint(const InputState& inputState) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+            const auto document = m_document.lock();
+            const auto& camera = inputState.camera();
+            const auto& grid = document->grid();
+
+            if (m_dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                 && inputState.camera().orthographicProjection()
-                && !scaleAllAxes) {
+                && !scaleAllAxes)
+            {
                 std::cout << "ortho corner hit\n";                
 
-                const Plane3 plane(hit.hitPoint(), inputState.camera().direction() * -1.0);
+                const Plane3 plane(m_dragStartHit.hitPoint(), inputState.camera().direction() * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
 
                 std::cout << "making a plane restricter for " << plane << "\n";
             } else {
-                const Line3 handleLine = handleLineForHit(box, hit);
+                assert(m_dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit
+                       || m_dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+                       || m_dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
+
+                const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, m_dragStartHit);
 
                 restricter = new LineDragRestricter(handleLine);
                 snapper = new LineDragSnapper(grid, handleLine);
@@ -99,7 +96,7 @@ namespace TrenchBroom {
 
             // HACK: Snap the initial point
             const Vec3 initialPoint = [&]() {
-                Vec3 p = hit.hitPoint();
+                Vec3 p = m_dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
                 snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
                 return p;
@@ -122,8 +119,7 @@ namespace TrenchBroom {
                 m_tool->setScaleAllAxes(scaleAllAxes);
 
                 if (thisToolDragging()) {
-                    const auto tuple = makeDragRestricterSnapperInitialPoint(m_document.lock()->grid(),
-                                                                             m_bboxAtDragStart, inputState);
+                    const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
 
                     setRestricter(inputState, std::get<0>(tuple), true);
                     setSnapper(inputState, std::get<1>(tuple), true);
@@ -205,8 +201,12 @@ namespace TrenchBroom {
 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-                return DragInfo();
+
+            // todo: reject if invalid modifier is pressed
+
+//            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+//                return DragInfo();
+
 
 //            if (!m_tool->applies()) {
 //                return DragInfo();
@@ -237,7 +237,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = Vec3::Null;            
 
-            const auto tuple = makeDragRestricterSnapperInitialPoint(m_document.lock()->grid(), m_bboxAtDragStart, inputState);
+            const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
 
             return DragInfo(std::get<0>(tuple),
                             std::get<1>(tuple),
