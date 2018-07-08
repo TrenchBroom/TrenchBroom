@@ -392,6 +392,10 @@ namespace TrenchBroom {
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit) {
             Line3 handleLine;
 
+            // NOTE: We don't need to check for the Alt modifier (moves the drag anchor to the center of the bbox)
+            // because all of these lines go through the center of the box anyway, so the resulting line would be the
+            // same.
+
             if (hit.type() == ScaleObjectsTool::ScaleToolFaceHit) {
                 const auto endSide = hit.target<BBoxSide>();
                 std::cout << "hit side " << endSide.normal << "\n";
