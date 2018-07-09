@@ -269,8 +269,13 @@ namespace TrenchBroom {
 //
 //            } else {
                 //const auto& hit = m_dragStartHit;
+
+                const bool scaleAllAxes = inputState.camera().orthographicProjection()
+                        ? false
+                        : inputState.modifierKeysDown(ModifierKeys::MKShift);
+
                 const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
-                                                   m_tool->scaleAllAxes(), m_tool->anchorPos());
+                                                   scaleAllAxes, m_tool->anchorPos());
 
                 std::cout << "resize to " << newBox << "\n";
 
