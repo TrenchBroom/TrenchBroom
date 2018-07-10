@@ -601,6 +601,7 @@ namespace VectorUtils {
 
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
+        vec1.reserve(vec1.size() + vec2.size());
         vec1.insert(std::end(vec1), std::begin(vec2), std::end(vec2));
     }
 
