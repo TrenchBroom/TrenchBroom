@@ -39,6 +39,7 @@
 #include <wx/sizer.h>
 #include <wx/settings.h>
 #include <wx/stattext.h>
+#include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -68,14 +69,14 @@ namespace TrenchBroom {
 
         void GamesPreferencePane::updateGamePath(const wxString& str) {
             const IO::Path gamePath(str.ToStdString());
-            const String gameName = m_gameListBox->selectedGameName();
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const auto gameName = m_gameListBox->selectedGameName();
+            auto& gameFactory = Model::GameFactory::instance();
             if (gameFactory.setGamePath(gameName, gamePath))
                 updateControls();
         }
 
         void GamesPreferencePane::OnConfigureenginesClicked(wxCommandEvent& event) {
-            const String gameName = m_gameListBox->selectedGameName();
+            const auto gameName = m_gameListBox->selectedGameName();
             GameEngineDialog dialog(this, gameName);
             dialog.ShowModal();
         }
@@ -89,12 +90,12 @@ namespace TrenchBroom {
             m_book->AddPage(createGamePreferencesPage(m_book), "Game");
             m_book->SetSelection(0);
             
-            wxSizer* prefMarginSizer = new wxBoxSizer(wxVERTICAL);
+            auto* prefMarginSizer = new wxBoxSizer(wxVERTICAL);
             prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
-            prefMarginSizer->Add(m_book, wxSizerFlags().Expand().Proportion(1));
+            prefMarginSizer->Add(m_book, wxSizerFlags().Expand());
             prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_gameListBox, wxSizerFlags().Expand());
             sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
             sizer->AddSpacer(LayoutConstants::WideVMargin);
@@ -107,25 +108,25 @@ namespace TrenchBroom {
         }
         
         wxWindow* GamesPreferencePane::createGamePreferencesPage(wxWindow* parent) {
-            wxPanel* containerPanel = new wxPanel(parent);
+            auto* containerPanel = new wxPanel(parent);
 
-            wxStaticText* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
-            m_gamePathText = new wxStaticText(containerPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_THEME | wxST_ELLIPSIZE_MIDDLE);
-            m_gamePathText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            auto* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
+			m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "");
+			m_gamePathText->SetEditable(false);
             m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
-            wxButton* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
+            auto* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
             
             m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
 
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
             configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
 
-            wxGridBagSizer* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
-            containerSizer->Add(gamePathLabel,           wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
-            containerSizer->Add(m_gamePathText,          wxGBPosition(0,1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxEXPAND);
-            containerSizer->Add(m_chooseGamePathButton,  wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-            containerSizer->Add(configureEnginesButton,  wxGBPosition(1,1), wxGBSpan(1,2));
+            auto* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
+            containerSizer->Add(gamePathLabel,						wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
+            containerSizer->Add(m_gamePathText,						wxGBPosition(0,1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxEXPAND);
+            containerSizer->Add(m_chooseGamePathButton,				wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
+            containerSizer->Add(configureEnginesButton,				wxGBPosition(1,1), wxGBSpan(1,2));
             containerSizer->AddGrowableCol(1);
             
             containerPanel->SetSizer(containerSizer);
@@ -143,9 +144,9 @@ namespace TrenchBroom {
                 m_book->SetSelection(0);
             } else {
                 m_book->SetSelection(1);
-                const String gameName = m_gameListBox->selectedGameName();
+                const auto gameName = m_gameListBox->selectedGameName();
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
-                const IO::Path gamePath = gameFactory.gamePath(gameName);
+                const auto gamePath = gameFactory.gamePath(gameName);
                 m_gamePathText->SetLabel(gamePath.asString());
                 m_gameListBox->reloadGameInfos();
             }
