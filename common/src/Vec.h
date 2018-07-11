@@ -77,68 +77,6 @@ public:
     static const Vec<T,S> Min;
     static const Vec<T,S> Max;
     
-    class LexicographicOrder {
-    private:
-        T m_epsilon;
-    public:
-        LexicographicOrder(const T epsilon = Math::Constants<T>::almostZero()) :
-        m_epsilon(epsilon) {}
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            for (size_t i = 0; i < S; ++i) {
-                if (Math::lt(lhs[i], rhs[i], m_epsilon))
-                    return true;
-                if (Math::gt(lhs[i], rhs[i], m_epsilon))
-                    return false;
-            }
-            return false;
-        }
-    };
-
-    class ErrorOrder {
-    public:
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            const T lErr = (lhs - lhs.rounded()).lengthSquared();
-            const T rErr = (rhs - rhs.rounded()).lengthSquared();
-            return lErr < rErr;
-        }
-    };
-    
-    class DotOrder {
-    private:
-        const Vec<T,S>& m_dir;
-    public:
-        DotOrder(const Vec<T,S>& dir) :
-        m_dir(dir) {
-            assert(!m_dir.null());
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.dot(m_dir) < rhs.dot(m_dir);
-        }
-    };
-    
-    class InverseDotOrder {
-    private:
-        const Vec<T,S>& m_dir;
-    public:
-        InverseDotOrder(const Vec<T,S>& dir) :
-        m_dir(dir) {
-            assert(!m_dir.null());
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.dot(m_dir) > rhs.dot(m_dir);
-        }
-    };
-    
-    class LengthOrder {
-    public:
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.squaredLength() < rhs.squaredLength();
-        }
-    };
-    
     using List = std::vector<Vec<T,S>>;
 
     static const List AllAxes;
