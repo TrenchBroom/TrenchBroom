@@ -1095,14 +1095,10 @@ namespace TrenchBroom {
 
             Brush* brushClone = brush->clone(worldBounds);
 
-            // These are returned in no particular order.. need to move into Vec3::Set for assertion
-            const Vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            const Vec3::List movedVertexPositions = VectorUtils::setCreate(brushClone->moveVertices(worldBounds, vertexPositions, delta));
+            const Vec3::List expectedVertexPositions = VectorUtils::setCreate(vertexPositions + delta);
 
-            const Vec3::Set movedVerticesSet(movedVertexPositions.begin(), movedVertexPositions.end());
-            const Vec3::List expectedList(vertexPositions + delta);
-            const Vec3::Set expectedSet(expectedList.begin(), expectedList.end());
-
-            ASSERT_EQ(expectedSet, movedVerticesSet);
+            ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
 
             delete brushClone;
         }

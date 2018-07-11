@@ -75,11 +75,6 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
 
-    PolyhedronMatcher(const P& left, const P& right, const typename V::Set& vertices, const V& delta) :
-    m_left(left),
-    m_right(right),
-    m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
-    
     PolyhedronMatcher(const P& left, const P& right, const typename V::Map& vertexMap) :
     m_left(left),
     m_right(right),
@@ -227,17 +222,14 @@ private:
         do {
             const auto& position = currentLeftVertex->position();
             auto* currentRightVertex = right.findVertexByPosition(position);
-            if (currentRightVertex != nullptr)
+            if (currentRightVertex != nullptr) {
                 result.insert(currentLeftVertex, currentRightVertex);
-            
+            }
+
             currentLeftVertex = currentLeftVertex->next();
         } while (currentLeftVertex != firstLeftVertex);
 
         return expandVertexRelation(left, right, result);
-    }
-    
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::List& vertices, const V& delta) {
-        return buildVertexRelation(left, right, typename V::Set(std::begin(vertices), std::end(vertices)), delta);
     }
 
     /**
@@ -254,23 +246,26 @@ private:
      * @param delta the move delta
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Set& vertices, const V& delta) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, typename V::List vertices, const V& delta) {
         typename V::Map vertexMap;
-        
+
+        VectorUtils::setCreate(vertices);
+
         auto* firstVertex = left.vertices().front();
         auto* currentVertex = firstVertex;
         do {
             const auto& position = currentVertex->position();
-            if (vertices.count(position) == 0) {
-                if (right.hasVertex(position))
+            if (VectorUtils::setContains(vertices, position)) {
+                if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));
+                }
             } else {
                 assert(right.hasVertex(position + delta));
                 vertexMap.insert(std::make_pair(position, position + delta));
             }
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);
-        
+
         return buildVertexRelation(left, right, vertexMap);
     }
 
