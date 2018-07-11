@@ -136,7 +136,8 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             VertexList vertices() const;
             const Vec3::List vertexPositions() const;
-            
+            Vec3 findClosestVertexPosition(const Vec3& position) const;
+
             bool hasVertex(const Vec3& position) const;
             bool hasVertices(const Vec3::List positions) const;
             bool hasEdge(const Edge3& edge) const;

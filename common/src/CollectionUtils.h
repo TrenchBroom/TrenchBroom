@@ -723,6 +723,13 @@ namespace VectorUtils {
         setCreate<T, std::less<T> >(vec);
     }
 
+    template <typename T>
+    std::vector<T> setCreate(const std::vector<T>& vec) {
+        std::vector<T> result = vec;
+        setCreate(result);
+        return std::move(result);
+    }
+
     template <typename T1, typename T2, typename Compare>
     bool setInsert(std::vector<T1>& vec, const T2& object, const Compare& cmp) {
         typename std::vector<T1>::iterator it = std::lower_bound(std::begin(vec), std::end(vec), object, cmp);
