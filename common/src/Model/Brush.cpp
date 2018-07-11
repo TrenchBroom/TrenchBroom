@@ -749,8 +749,9 @@ namespace TrenchBroom {
                     newGeometry.addPoint(position);
             }
 
+            using VecMap = std::map<Vec3, Vec3>;
             Vec3::List result;
-            Vec3::Map vertexMapping;
+            VecMap vertexMapping;
             for (BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& oldPosition = vertex->position();
                 const bool moved = VectorUtils::setContains(vertexSet, oldPosition);
@@ -848,12 +849,14 @@ namespace TrenchBroom {
                 newGeometry.addPoint(destination);
             }
 
-            Vec3::Map vertexMapping;
+            using VecMap = std::map<Vec3,Vec3>;
+            VecMap vertexMapping;
             for (const BrushVertex* vertex : m_geometry->vertices()) {
                 const Vec3& origin = vertex->position();
                 const Vec3 destination = snapToF * (origin / snapToF).rounded();
-                if (newGeometry.hasVertex(destination))
+                if (newGeometry.hasVertex(destination)) {
                     vertexMapping.insert(std::make_pair(origin, destination));
+                }
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);

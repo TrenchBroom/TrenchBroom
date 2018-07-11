@@ -25,6 +25,7 @@
 
 #include <limits>
 #include <list>
+#include <map>
 
 /**
  * This template is used to match the faces of two polyhedra. The two polyhedra are expected to have the majority of
@@ -52,12 +53,13 @@
 template <typename P>
 class PolyhedronMatcher {
 private:
-    typedef typename P::V V;
-    typedef typename P::Vertex Vertex;
-    typedef typename P::VertexList VertexList;
-    typedef typename P::Vertex::Set VertexSet;
-    typedef typename P::HalfEdge HalfEdge;
-    typedef typename P::Face Face;
+    using V = typename P::V;
+    using Vertex = typename P::Vertex;
+    using VertexList = typename P::VertexList;
+    using VertexSet = typename P::Vertex::Set;
+    using HalfEdge = typename P::HalfEdge;
+    using Face = typename P::Face;
+    using VMap = std::map<V,V>;
     
     typedef relation<Vertex*, Vertex*> VertexRelation;
     
@@ -75,7 +77,7 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
 
-    PolyhedronMatcher(const P& left, const P& right, const typename V::Map& vertexMap) :
+    PolyhedronMatcher(const P& left, const P& right, const VMap& vertexMap) :
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertexMap)) {}
@@ -247,7 +249,7 @@ private:
      * @return the vertex relation
      */
     static VertexRelation buildVertexRelation(const P& left, const P& right, typename V::List vertices, const V& delta) {
-        typename V::Map vertexMap;
+        VMap vertexMap;
 
         VectorUtils::setCreate(vertices);
 
@@ -277,7 +279,7 @@ private:
      * @param vertexMap a set of corresponding vertices for which to build the relation
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, const typename V::Map& vertexMap) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, const VMap& vertexMap) {
         VertexRelation result;
         
         for (const auto& entry : vertexMap) {

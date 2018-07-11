@@ -140,15 +140,12 @@ public:
     };
     
     using List = std::vector<Vec<T,S>>;
-    using Map = std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder>;
-    
+
     static const List AllAxes;
     static const List PosAxes;
     static const List NegAxes;
     
     static const List EmptyList;
-    static const Map EmptyMap;
-    
 public:
     static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
@@ -958,8 +955,6 @@ const typename Vec<T,S>::List Vec<T,S>::AllAxes = Vec<T,S>::List({ PosX, NegX, P
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
-template <typename T, size_t S>
-const typename Vec<T,S>::Map Vec<T,S>::EmptyMap = Vec<T,S>::Map();
 
 typedef Vec<float,1> Vec1f;
 typedef Vec<double,1> Vec1d;
