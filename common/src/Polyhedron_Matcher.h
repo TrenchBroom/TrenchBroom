@@ -257,6 +257,8 @@ private:
         auto* currentVertex = firstVertex;
         do {
             const auto& position = currentVertex->position();
+            // vertices are expected to be exact positions of vertices in left, whereas the vertex positions searched for
+            // in right allow an epsilon of Math::Constants<T>::almostZero()
             if (VectorUtils::setContains(vertices, position)) {
                 if (right.hasVertex(position)) {
                     vertexMap.insert(std::make_pair(position, position));
