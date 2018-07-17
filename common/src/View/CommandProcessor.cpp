@@ -126,29 +126,37 @@ namespace TrenchBroom {
         }
         
         const String& CommandProcessor::lastCommandName() const {
-            if (!hasLastCommand())
+            if (!hasLastCommand()) {
                 throw CommandProcessorException("Command stack is empty");
-            return m_lastCommandStack.back()->name();
+            } else {
+                return m_lastCommandStack.back()->name();
+            }
         }
         
         const String& CommandProcessor::nextCommandName() const {
-            if (!hasNextCommand())
+            if (!hasNextCommand()) {
                 throw CommandProcessorException("Undo stack is empty");
-            return m_nextCommandStack.back()->name();
+            } else {
+                return m_nextCommandStack.back()->name();
+            }
         }
         
         void CommandProcessor::beginGroup(const String& name) {
-            if (m_groupLevel == 0)
+            if (m_groupLevel == 0) {
                 m_groupName = name;
+            }
             ++m_groupLevel;
         }
         
         void CommandProcessor::endGroup() {
-            if (m_groupLevel == 0)
+            if (m_groupLevel == 0) {
                 throw CommandProcessorException("Group stack is empty");
-            --m_groupLevel;
-            if (m_groupLevel == 0)
-                createAndStoreCommandGroup();
+            } else {
+                --m_groupLevel;
+                if (m_groupLevel == 0) {
+                    createAndStoreCommandGroup();
+                }
+            }
         }
         
         void CommandProcessor::rollbackGroup() {
@@ -158,66 +166,76 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::submitCommand(Command::Ptr command) {
-            const bool success = doCommand(command);
-            if (!success)
+            const auto success = doCommand(command);
+            if (!success) {
                 return false;
-            
-            m_lastCommandStack.clear();
-            m_nextCommandStack.clear();
-            return true;
+            } else {
+                m_lastCommandStack.clear();
+                m_nextCommandStack.clear();
+                return true;
+            }
         }
         
         bool CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command) {
-            const SubmitAndStoreResult result = submitAndStoreCommand(command, true);
+            const auto result = submitAndStoreCommand(command, true);
             if (result.submitted) {
-                if (result.stored && m_groupLevel == 0)
+                if (result.stored && m_groupLevel == 0) {
                     pushRepeatableCommand(command);
+                }
                 return true;
+            } else {
+                return false;
             }
-            return false;
         }
         
         bool CommandProcessor::undoLastCommand() {
-            if (m_groupLevel > 0)
+            if (m_groupLevel > 0) {
                 throw CommandProcessorException("Cannot undo individual commands of a command group");
-            
-            UndoableCommand::Ptr command = popLastCommand();
-            if (undoCommand(command)) {
-                pushNextCommand(command);
-                popLastRepeatableCommand(command);
-                return true;
+            } else {
+                auto command = popLastCommand();
+                if (undoCommand(command)) {
+                    pushNextCommand(command);
+                    popLastRepeatableCommand(command);
+                    return true;
+                } else {
+                    return false;
+                }
             }
-            return false;
         }
         
         bool CommandProcessor::redoNextCommand() {
-            if (m_groupLevel > 0)
+            if (m_groupLevel > 0) {
                 throw CommandProcessorException("Cannot redo while in a command group");
-            
-            UndoableCommand::Ptr command = popNextCommand();
-            if (doCommand(command)) {
-                if (pushLastCommand(command, false) && m_groupLevel == 0)
-                    pushRepeatableCommand(command);
-                return true;
+            } else {
+                auto command = popNextCommand();
+                if (doCommand(command)) {
+                    if (pushLastCommand(command, false) && m_groupLevel == 0) {
+                        pushRepeatableCommand(command);
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
             }
-            return false;
         }
         
         bool CommandProcessor::repeatLastCommands() {
             CommandList commands;
             for (auto it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                if (command->isRepeatable(m_document))
+                auto command = *it;
+                if (command->isRepeatable(m_document)) {
                     commands.push_back(UndoableCommand::Ptr(command->repeat(m_document)));
+                }
             }
             
-            if (commands.empty())
+            if (commands.empty()) {
                 return false;
-            
+            }
+
             StringStream name;
             name << "Repeat " << commands.size() << " Commands";
             
-            UndoableCommand::Ptr repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
+            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
             return submitAndStoreCommand(repeatableCommand, false).submitted;
         }
         
@@ -238,12 +256,14 @@ namespace TrenchBroom {
         CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command, const bool collate) {
             SubmitAndStoreResult result;
             result.submitted = doCommand(command);
-            if (!result.submitted)
+            if (!result.submitted) {
                 return result;
-            
+            }
+
             result.stored = storeCommand(command, collate);
-            if (!m_nextCommandStack.empty())
+            if (!m_nextCommandStack.empty()) {
                 m_nextCommandStack.clear();
+            }
             return result;
         }
         
@@ -276,15 +296,17 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::storeCommand(UndoableCommand::Ptr command, const bool collate) {
-            if (m_groupLevel == 0)
+            if (m_groupLevel == 0) {
                 return pushLastCommand(command, collate);
-            return pushGroupedCommand(command, collate);
+            } else {
+                return pushGroupedCommand(command, collate);
+            }
         }
         
         bool CommandProcessor::pushGroupedCommand(UndoableCommand::Ptr command, const bool collate) {
             assert(m_groupLevel > 0);
             if (!m_groupedCommands.empty()) {
-                UndoableCommand::Ptr lastCommand = m_groupedCommands.back();
+                auto lastCommand = m_groupedCommands.back();
                 if (collate && !lastCommand->collateWith(command)) {
                     m_groupedCommands.push_back(command);
                     return false;
@@ -297,18 +319,21 @@ namespace TrenchBroom {
         
         UndoableCommand::Ptr CommandProcessor::popGroupedCommand() {
             assert(m_groupLevel > 0);
-            if (m_groupedCommands.empty())
+            if (m_groupedCommands.empty()) {
                 throw CommandProcessorException("Group command stack is empty");
-            UndoableCommand::Ptr groupedCommand = m_groupedCommands.back();
-            m_groupedCommands.pop_back();
-            return groupedCommand;
+            } else {
+                auto groupedCommand = m_groupedCommands.back();
+                m_groupedCommands.pop_back();
+                return groupedCommand;
+            }
         }
         
         void CommandProcessor::createAndStoreCommandGroup() {
             if (!m_groupedCommands.empty()) {
-                if (m_groupName.empty())
+                if (m_groupName.empty()) {
                     m_groupName = m_groupedCommands.front()->name();
-                UndoableCommand::Ptr group(createCommandGroup(m_groupName, m_groupedCommands));
+                }
+                auto group(createCommandGroup(m_groupName, m_groupedCommands));
                 m_groupedCommands.clear();
                 pushLastCommand(group, false);
                 pushRepeatableCommand(group);
@@ -327,13 +352,14 @@ namespace TrenchBroom {
         bool CommandProcessor::pushLastCommand(UndoableCommand::Ptr command, const bool collate) {
             assert(m_groupLevel == 0);
             
-            const wxLongLong timestamp = ::wxGetLocalTimeMillis();
+            const auto timestamp = ::wxGetLocalTimeMillis();
             const SetLate<wxLongLong> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
             
             if (collatable(collate, timestamp)) {
-                UndoableCommand::Ptr lastCommand = m_lastCommandStack.back();
-                if (lastCommand->collateWith(command))
+                auto lastCommand = m_lastCommandStack.back();
+                if (lastCommand->collateWith(command)) {
                     return false;
+                }
             }
             m_lastCommandStack.push_back(command);
             return true;
@@ -362,25 +388,30 @@ namespace TrenchBroom {
         
         UndoableCommand::Ptr CommandProcessor::popLastCommand() {
             assert(m_groupLevel == 0);
-            if (m_lastCommandStack.empty())
+            if (m_lastCommandStack.empty()) {
                 throw CommandProcessorException("Command stack is empty");
-            UndoableCommand::Ptr lastCommand = m_lastCommandStack.back();
-            m_lastCommandStack.pop_back();
-            return lastCommand;
+            } else {
+                auto lastCommand = m_lastCommandStack.back();
+                m_lastCommandStack.pop_back();
+                return lastCommand;
+            }
         }
         
         UndoableCommand::Ptr CommandProcessor::popNextCommand() {
             assert(m_groupLevel == 0);
-            if (m_nextCommandStack.empty())
+            if (m_nextCommandStack.empty()) {
                 throw CommandProcessorException("Command stack is empty");
-            UndoableCommand::Ptr nextCommand = m_nextCommandStack.back();
-            m_nextCommandStack.pop_back();
-            return nextCommand;
+            } else {
+                auto nextCommand = m_nextCommandStack.back();
+                m_nextCommandStack.pop_back();
+                return nextCommand;
+            }
         }
         
         void CommandProcessor::popLastRepeatableCommand(UndoableCommand::Ptr command) {
-            if (!m_repeatableCommandStack.empty() && m_repeatableCommandStack.back() == command)
+            if (!m_repeatableCommandStack.empty() && m_repeatableCommandStack.back() == command) {
                 m_repeatableCommandStack.pop_back();
+            }
         }
     }
 }
