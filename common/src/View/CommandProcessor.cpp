@@ -152,8 +152,9 @@ namespace TrenchBroom {
         }
         
         void CommandProcessor::rollbackGroup() {
-            while (!m_groupedCommands.empty())
-                popGroupedCommand()->performUndo(m_document);
+            while (!m_groupedCommands.empty()) {
+                undoCommand(popGroupedCommand());
+            }
         }
         
         bool CommandProcessor::submitCommand(Command::Ptr command) {
