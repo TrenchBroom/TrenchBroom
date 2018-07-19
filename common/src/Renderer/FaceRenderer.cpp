@@ -145,6 +145,7 @@ namespace TrenchBroom {
                 shader.set("RenderGrid", context.showGrid());
                 shader.set("GridSize", static_cast<float>(context.gridSize()));
                 shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
+                shader.set("ViewportHeight", static_cast<float>(context.camera().unzoomedViewport().height));
                 shader.set("ApplyTexture", applyTexture);
                 shader.set("Texture", 0);
                 shader.set("ApplyTinting", m_tint);
