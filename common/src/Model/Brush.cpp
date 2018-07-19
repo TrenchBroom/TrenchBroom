@@ -48,9 +48,11 @@ namespace TrenchBroom {
 
         class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
+            const BrushFaceList& m_allCurrentFaces;
             BrushFace* m_addedFace;
         public:
-            AddFaceToGeometryCallback(BrushFace* addedFace) :
+            AddFaceToGeometryCallback(const BrushFaceList& allCurrentFaces, BrushFace* addedFace) :
+            m_allCurrentFaces(allCurrentFaces),
             m_addedFace(addedFace) {
                 ensure(m_addedFace != nullptr, "addedFace is null");
             }
@@ -61,6 +63,13 @@ namespace TrenchBroom {
             }
 
             void faceWillBeDeleted(BrushFaceGeometry* face) override {
+                // Drop any reference from a BrushFace to this face being deleted
+                for (BrushFace* currentBrushFace : m_allCurrentFaces) {
+                    if (currentBrushFace->geometry() == face) {
+                        currentBrushFace->setGeometry(nullptr);
+                    }
+                }
+
                 BrushFace* brushFace = face->payload();
                 if (brushFace != nullptr) {
                     ensure(!brushFace->selected(), "brush face is selected");
@@ -111,7 +120,7 @@ namespace TrenchBroom {
                 BrushFaceList::const_iterator it, end;
                 for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty && m_brushValid; ++it) {
                     BrushFace* face = *it;
-                    AddFaceToGeometryCallback addCallback(face);
+                    AddFaceToGeometryCallback addCallback(facesToAdd, face);
                     const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), addCallback);
                     if (result.empty())
                         m_brushEmpty = true;
@@ -134,10 +143,12 @@ namespace TrenchBroom {
 
         class Brush::CanMoveBoundaryCallback : public BrushGeometry::Callback {
         private:
+            const BrushFaceList& m_allCurrentFaces;
             BrushFace* m_addedFace;
             bool m_hasDroppedFaces;
         public:
-            CanMoveBoundaryCallback(BrushFace* addedFace) :
+            CanMoveBoundaryCallback(const BrushFaceList& allCurrentFaces, BrushFace* addedFace) :
+            m_allCurrentFaces(allCurrentFaces),
             m_addedFace(addedFace),
             m_hasDroppedFaces(false) {
                 ensure(m_addedFace != nullptr, "addedFace is null");
@@ -149,6 +160,13 @@ namespace TrenchBroom {
             }
 
             void faceWillBeDeleted(BrushFaceGeometry* face) override {
+                // Drop any reference from a BrushFace to this face being deleted
+                for (BrushFace* brushFace : m_allCurrentFaces) {
+                    if (brushFace->geometry() == face) {
+                        brushFace->setGeometry(nullptr);
+                    }
+                }
+
                 if (face->payload() != nullptr)
                     m_hasDroppedFaces = true;
             }
@@ -173,7 +191,7 @@ namespace TrenchBroom {
                 BrushFaceList::const_iterator it, end;
                 for (it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty; ++it) {
                     BrushFace* face = *it;
-                    CanMoveBoundaryCallback callback(face);
+                    CanMoveBoundaryCallback callback(facesToAdd, face);
                     const BrushGeometry::ClipResult result = m_geometry.clip(face->boundary(), callback);
                     if (result.unchanged())
                         m_hasRedundandFaces = true;
