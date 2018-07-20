@@ -736,7 +736,10 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
     // Have we already visited this face?
     if (!visitedFaces.insert(face).second)
         return;
-    
+
+    // Callback must be called now when the face is still fully intact.
+    callback.faceWillBeDeleted(face);
+
     HalfEdge* current = first;
     do {
         Edge* edge = current->edge();
@@ -748,9 +751,10 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
             // Once the function returns, the neighbour is definitely deleted unless
             // we are in a recursive call where that neighbour is being deleted by one
             // of our callers. In that case, the call to deleteFaces returned immediately.
-            if (edge->fullySpecified())
+            if (edge->fullySpecified()) {
                 deleteFaces(edge->twin(current), visitedFaces, verticesToDelete, callback);
-            
+            }
+
             if (edge->fullySpecified()) {
                 // This indicates that we are in a recursive call and that the neighbour across
                 // the current edge is going to be deleted by one of our callers. We open the
@@ -769,7 +773,7 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
         
         Vertex* origin = current->origin();
         if (origin->leaving() == current) {
-            // We expact that the vertices on the seam have had a remaining edge
+            // We expect that the vertices on the seam have had a remaining edge
             // set as their leaving edge before the call to this function.
             callback.vertexWillBeDeleted(origin);
             m_vertices.remove(origin);
@@ -778,7 +782,6 @@ void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, Ve
         current = current->next();
     } while (current != first);
     
-    callback.faceWillBeDeleted(face);
     m_faces.remove(face);
     delete face;
 }
