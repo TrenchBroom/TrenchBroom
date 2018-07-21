@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 grid.decSize();
             }
         }
-        
+
         template <typename I>
         I findFirstSelected(I it, I end) {
             while (it != end) {
@@ -232,32 +232,52 @@ namespace TrenchBroom {
             }
             return it;
         }
-        
+
+        class NodeSelectable : public Model::NodeVisitor, public Model::NodeQuery<bool> {
+        private:
+            const Model::EditorContext& m_editorContext;
+        public:
+            NodeSelectable(const Model::EditorContext& editorContext) : m_editorContext(editorContext) {}
+        private:
+            void doVisit(Model::World* world) override   { setResult(m_editorContext.selectable(world)); }
+            void doVisit(Model::Layer* layer) override   { setResult(m_editorContext.selectable(layer)); }
+            void doVisit(Model::Group* group) override   { setResult(inOpenGroup(group)  && m_editorContext.selectable(group)); }
+            void doVisit(Model::Entity* entity) override { setResult(inOpenGroup(entity) && m_editorContext.selectable(entity)); }
+            void doVisit(Model::Brush* brush) override   { setResult(inOpenGroup(brush)  && m_editorContext.selectable(brush)); }
+
+            bool inOpenGroup(Model::Object* object) const {
+                return object->group() == nullptr || object->group()->opened();
+            }
+        };
+
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
             static Model::Node* const NullNode = nullptr;
-            
+
             const auto first = findFirstSelected(it, end);
             if (first == end) {
                 return std::make_pair(NullNode, NullNode);
             }
 
-            auto next = first; ++next;
+            auto next = std::next(first);
             while (next != end) {
                 auto* node = Model::hitToNode(*next);
-                if (editorContext.selectable(node)) {
+
+                NodeSelectable selectable(editorContext);
+                node->accept(selectable);
+                if (selectable.result()) {
                     break;
                 }
                 ++next;
             }
-            
+
             if (next == end) {
                 return std::make_pair(Model::hitToNode(*first), NullNode);
             } else {
                 return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
             }
         }
-        
+
         void SelectionTool::drillSelection(const InputState& inputState) {
             const auto hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
             
@@ -266,16 +286,17 @@ namespace TrenchBroom {
             
             const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
             const auto nodePair = forward ? findSelectionPair(std::begin(hits), std::end(hits), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
-            
+
             auto* selectedNode = nodePair.first;
             auto* nextNode = nodePair.second;
+
             if (nextNode != nullptr) {
                 Transaction transaction(document, "Drill Selection");
                 document->deselect(selectedNode);
                 document->select(nextNode);
             }
         }
-        
+
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             if (!handleClick(inputState) || !isMultiClick(inputState)) {
                 return false;

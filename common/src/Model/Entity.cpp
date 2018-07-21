@@ -259,7 +259,7 @@ namespace TrenchBroom {
         }
         
         Group* Entity::doGetGroup() const {
-            FindGroupVisitor visitor(false);
+            FindContainingGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }

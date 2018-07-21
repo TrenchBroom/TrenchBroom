@@ -246,7 +246,7 @@ namespace TrenchBroom {
             }
 
             for (Model::Node* node : nodes) {
-                Model::Group* nodeGroup = Model::findGroup(node);
+                Model::Group* nodeGroup = Model::findContainingGroup(node);
                 if (nodeGroup != nullptr) {
                     event.Enable(false);
                     return;

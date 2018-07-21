@@ -19,38 +19,63 @@
 
 #include "FindGroupVisitor.h"
 
+#include "Model/Group.h"
 #include "Model/Node.h"
 
 namespace TrenchBroom {
     namespace Model {
-        FindGroupVisitor::FindGroupVisitor(const bool findTopGroup) :
-        m_findTopGroup(findTopGroup) {}
+        FindGroupVisitor::~FindGroupVisitor() {}
 
         void FindGroupVisitor::doVisit(World* world) {}
         void FindGroupVisitor::doVisit(Layer* layer) {}
         
         void FindGroupVisitor::doVisit(Group* group) {
             setResult(group);
-            if (!m_findTopGroup)
+            if (!shouldContinue(group)) {
                 cancel();
+            }
         }
         
         void FindGroupVisitor::doVisit(Entity* entity) {}
         void FindGroupVisitor::doVisit(Brush* brush) {}
 
-        Model::Group* findGroup(Model::Node* node) {
-            FindGroupVisitor visitor(false);
+        bool FindContainingGroupVisitor::shouldContinue(const Group* group) const {
+            return false;
+        }
+
+        bool FindTopGroupVisitor::shouldContinue(const Group* group) const {
+            return true;
+        }
+
+        bool FindTopGroupWithOpenParentVisitor::shouldContinue(const Group* group) const {
+            const Group* container = group->group();
+            return container != nullptr && !container->opened();
+        }
+
+        Model::Group* findContainingGroup(Model::Node* node) {
+            FindContainingGroupVisitor visitor;
             node->escalate(visitor);
-            if (!visitor.hasResult())
+            if (!visitor.hasResult()) {
                 return nullptr;
+            }
             return visitor.result();
         }
 
-        Model::Group* findTopGroup(Model::Node* node) {
-            FindGroupVisitor visitor(true);
+        Model::Group* findTopContainingGroup(Model::Node* node) {
+            FindTopGroupVisitor visitor;
             node->escalate(visitor);
-            if (!visitor.hasResult())
+            if (!visitor.hasResult()) {
                 return nullptr;
+            }
+            return visitor.result();
+        }
+
+        Model::Group* findContainingGroupWithOpenParent(Model::Node* node) {
+            FindTopGroupWithOpenParentVisitor visitor;
+            node->escalate(visitor);
+            if (!visitor.hasResult()) {
+                return nullptr;
+            }
             return visitor.result();
         }
     }
