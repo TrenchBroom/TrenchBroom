@@ -29,7 +29,6 @@ uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
-uniform float ViewportHeight;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
@@ -38,7 +37,7 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
 
-float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
+float grid(vec3 coords, vec3 normal, float gridSize, float lineWidthFactor);
 
 void main() {
 	if (ApplyTexture)
@@ -87,15 +86,7 @@ void main() {
 	}
 
 	if (RenderGrid && GridAlpha > 0.0) {
-	    // The blend factor controls how grid lines are faded out by distance. The greater the distance,
-	    // the greater the blend factor, and the more grid lines are faded out.
-	    // The blend factor is corrected for the height of the viewport, since that controls the visual
-	    // density of objects.
-	    float viewportFactor = 800.0 / ViewportHeight / 3.0;
-	    float distanceFactor = (length(viewVector) - 128.0) / 1024.0;
-	    float angleFactor = 1.0 - clamp(abs(dot(normalize(viewVector.xyz), modelNormal.xyz)), 0.0, 1.0);
-        float blendFactor = clamp(viewportFactor * distanceFactor, 0.0, 1.0);
-        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, GridSize, blendFactor, 1.0);
+        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, GridSize, 1.0);
         gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
 	}
 }
