@@ -119,6 +119,7 @@ namespace TrenchBroom {
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
             const Plane3& boundary() const;
+            const Vec3& normal() const;
             Vec3 center() const;
             Vec3 boundsCenter() const;
             FloatType area(Math::Axis::Type axis) const;

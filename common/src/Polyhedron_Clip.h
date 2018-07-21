@@ -293,10 +293,11 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(
         // seam origin edge is above or below the plane.
         const Math::PointStatus::Type os = plane.pointStatus(seamOrigin->destination()->position());
         assert(os != Math::PointStatus::PSInside);
-        if (os == Math::PointStatus::PSBelow)
+        if (os == Math::PointStatus::PSBelow) {
             intersectWithPlane(seamOrigin, seamDestination, callback);
-        else
+        } else {
             intersectWithPlane(seamDestination, seamOrigin, callback);
+        }
     }
 
     return seamDestination->previous();
