@@ -116,29 +116,33 @@ namespace TrenchBroom {
                 
                 bool doMouseClick(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                        !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
+                        !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No)) {
                         return false;
-                    
-                    const Model::Hit::List hits = firstHits(inputState.pickResult());
-                    if (hits.empty())
+                    }
+
+                    const auto hits = firstHits(inputState.pickResult());
+                    if (hits.empty()) {
                         return m_tool->deselectAll();
-                    else
+                    } else {
                         return m_tool->select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
+                    }
                 }
 
                 DragInfo doStartDrag(const InputState& inputState) override {
                     if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                        !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
+                        !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No)) {
                         return DragInfo();
-                    
-                    const Model::Hit::List hits = firstHits(inputState.pickResult());
-                    if (!hits.empty())
+                    }
+
+                    const auto hits = firstHits(inputState.pickResult());
+                    if (!hits.empty()) {
                         return DragInfo();
-                    
-                    const Renderer::Camera& camera = inputState.camera();
-                    const FloatType distance = 64.0f;
-                    const Plane3 plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
-                    const Vec3 initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
+                    }
+
+                    const auto& camera = inputState.camera();
+                    const auto distance = 64.0f;
+                    const auto plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
+                    const auto initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
                     
                     m_lasso = new Lasso(camera, distance, initialPoint);
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
@@ -177,13 +181,14 @@ namespace TrenchBroom {
                         m_lasso->render(renderContext, renderBatch);
                     } else {
                         if (!anyToolDragging(inputState)) {
-                            const Model::Hit hit = findDraggableHandle(inputState);
+                            const auto hit = findDraggableHandle(inputState);
                             if (hit.hasType(m_hitType)) {
-                                const H& handle = m_tool->getHandlePosition(hit);
+                                const auto& handle = m_tool->getHandlePosition(hit);
                                 m_tool->renderHighlight(renderContext, renderBatch, handle);
                                 
-                                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                                if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                                     m_tool->renderGuide(renderContext, renderBatch, handle);
+                                }
                             }
                         }
                     }
@@ -244,17 +249,20 @@ namespace TrenchBroom {
                 }
 
                 MoveInfo doStartMove(const InputState& inputState) override {
-                    if (!shouldStartMove(inputState))
+                    if (!shouldStartMove(inputState)) {
                         return MoveInfo();
-                    
-                    const Model::Hit::List hits = findDraggableHandles(inputState);
-                    if (hits.empty())
-                        return MoveInfo();
+                    }
 
-                    if (!m_tool->startMove(hits))
+                    const Model::Hit::List hits = findDraggableHandles(inputState);
+                    if (hits.empty()) {
                         return MoveInfo();
-                    
-                    return MoveInfo(hits.front().hitPoint());
+                    }
+
+                    if (!m_tool->startMove(hits)) {
+                        return MoveInfo();
+                    } else {
+                        return MoveInfo(hits.front().hitPoint());
+                    }
                 }
 
                 // Overridden in vertex tool controller to handle special cases for vertex moving.
@@ -273,7 +281,7 @@ namespace TrenchBroom {
                             return DR_Deny;
                         case T::MR_Cancel:
                             return DR_Cancel;
-                            switchDefault()
+                        switchDefault()
                     }
                 }
                 

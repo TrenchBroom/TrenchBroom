@@ -100,9 +100,9 @@ namespace TrenchBroom {
             if (!VertexToolBase::startMove(hits)) {
                 m_mode = Mode_Move;
                 return false;
+            } else {
+                return true;
             }
-
-            return true;
         }
         
         VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
@@ -172,12 +172,13 @@ namespace TrenchBroom {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
             
-            if (hit.hasType(VertexHandleManager::HandleHit))
+            if (hit.hasType(VertexHandleManager::HandleHit)) {
                 return hit.target<Vec3>();
-            else if (hit.hasType(EdgeHandleManager::HandleHit))
+            } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
                 return std::get<1>(hit.target<EdgeHandleManager::HitType>());
-            else
+            } else {
                 return std::get<1>(hit.target<FaceHandleManager::HitType>());
+            }
         }
         
         String VertexTool::actionName() const {
@@ -266,8 +267,9 @@ namespace TrenchBroom {
         }
 
         void VertexTool::resetModeAfterDeselection() {
-            if (!m_vertexHandles.anySelected())
+            if (!m_vertexHandles.anySelected()) {
                 m_mode = Mode_Move;
+            }
         }
     }
 }
