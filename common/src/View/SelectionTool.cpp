@@ -233,23 +233,6 @@ namespace TrenchBroom {
             return it;
         }
 
-        class NodeSelectable : public Model::NodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            const Model::EditorContext& m_editorContext;
-        public:
-            NodeSelectable(const Model::EditorContext& editorContext) : m_editorContext(editorContext) {}
-        private:
-            void doVisit(Model::World* world) override   { setResult(m_editorContext.selectable(world)); }
-            void doVisit(Model::Layer* layer) override   { setResult(m_editorContext.selectable(layer)); }
-            void doVisit(Model::Group* group) override   { setResult(inOpenGroup(group)  && m_editorContext.selectable(group)); }
-            void doVisit(Model::Entity* entity) override { setResult(inOpenGroup(entity) && m_editorContext.selectable(entity)); }
-            void doVisit(Model::Brush* brush) override   { setResult(inOpenGroup(brush)  && m_editorContext.selectable(brush)); }
-
-            bool inOpenGroup(Model::Object* object) const {
-                return object->group() == nullptr || object->group()->opened();
-            }
-        };
-
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
             static Model::Node* const NullNode = nullptr;
@@ -262,10 +245,7 @@ namespace TrenchBroom {
             auto next = std::next(first);
             while (next != end) {
                 auto* node = Model::hitToNode(*next);
-
-                NodeSelectable selectable(editorContext);
-                node->accept(selectable);
-                if (selectable.result()) {
+                if (editorContext.selectable(node)) {
                     break;
                 }
                 ++next;

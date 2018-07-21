@@ -111,6 +111,7 @@ namespace TrenchBroom {
             bool selectable(const Model::BrushFace* face) const;
             
             bool canChangeSelection() const;
+            bool inOpenGroup(const Model::Object* object) const;
         private:
             EditorContext(const EditorContext&);
             EditorContext& operator=(const EditorContext&);

@@ -305,15 +305,15 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::selectable(const Model::Group* group) const {
-            return visible(group) && editable(group) && pickable(group);
+            return visible(group) && editable(group) && pickable(group) && inOpenGroup(group);
         }
         
         bool EditorContext::selectable(const Model::Entity* entity) const {
-            return visible(entity) && editable(entity) && pickable(entity);
+            return visible(entity) && editable(entity) && pickable(entity) && inOpenGroup(entity);
         }
         
         bool EditorContext::selectable(const Model::Brush* brush) const {
-            return visible(brush) && editable(brush) && pickable(brush);
+            return visible(brush) && editable(brush) && pickable(brush) && inOpenGroup(brush);
         }
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
@@ -322,6 +322,10 @@ namespace TrenchBroom {
 
         bool EditorContext::canChangeSelection() const {
             return !m_blockSelection;
+        }
+
+        bool EditorContext::inOpenGroup(const Model::Object* object) const {
+            return object->group() == nullptr || object->group()->opened();
         }
     }
 }
