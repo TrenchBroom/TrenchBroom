@@ -21,10 +21,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Group getContainingGroup(const Node* node) {
-            
-        }
-        
         NodeList collectParents(const NodeList& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }
