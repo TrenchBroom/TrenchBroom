@@ -99,11 +99,13 @@ namespace TrenchBroom {
             
         private:
             MoveType moveType(const InputState& inputState) const {
-                if (isVerticalMove(inputState))
+                if (isVerticalMove(inputState)) {
                     return MT_Vertical;
-                if (isRestrictedMove(inputState))
+                } else if (isRestrictedMove(inputState)) {
                     return MT_Restricted;
-                return MT_Default;
+                } else {
+                    return MT_Default;
+                }
             }
             
             virtual bool isVerticalMove(const InputState& inputState) const {
@@ -117,9 +119,10 @@ namespace TrenchBroom {
         protected:
             RestrictedDragPolicy::DragInfo doStartDrag(const InputState& inputState) override {
                 const MoveInfo info = doStartMove(inputState);
-                if (!info.move)
+                if (!info.move) {
                     return RestrictedDragPolicy::DragInfo();
-                
+                }
+
                 DragRestricter* restricter = nullptr;
                 if (isVerticalMove(inputState)) {
                     restricter = doCreateVerticalDragRestricter(inputState, info.initialPoint);
@@ -138,8 +141,9 @@ namespace TrenchBroom {
             
             RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
                 const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
-                if (result == RestrictedDragPolicy::DR_Continue)
+                if (result == RestrictedDragPolicy::DR_Continue) {
                     m_moveTraceCurPoint += (nextHandlePosition - lastHandlePosition);
+                }
                 return result;
             }
             
@@ -197,16 +201,20 @@ namespace TrenchBroom {
             
             virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
                 const Renderer::Camera& camera = inputState.camera();
-                if (camera.perspectiveProjection())
+                if (camera.perspectiveProjection()) {
                     return new PlaneDragRestricter(Plane3(curPoint, Vec3::PosZ));
-                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                } else {
+                    return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                }
             }
             
             virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const Vec3& curPoint) const {
                 const Renderer::Camera& camera = inputState.camera();
-                if (camera.perspectiveProjection())
+                if (camera.perspectiveProjection()) {
                     return new LineDragRestricter(Line3(curPoint, Vec3::PosZ));
-                return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                } else {
+                    return new PlaneDragRestricter(Plane3(curPoint, Vec3(camera.direction().firstAxis())));
+                }
             }
             
             virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const Vec3& initialPoint, const Vec3& curPoint) const {

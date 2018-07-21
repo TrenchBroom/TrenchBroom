@@ -335,10 +335,10 @@ namespace TrenchBroom {
                 wxTextCtrl *textCtrl = Text();
                 ensure(textCtrl != nullptr, "wxGridCellTextEditor::Create should have created control");
 
-                textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
-
                 const wxArrayString completions = m_table->getCompletions(row, col);
                 textCtrl->AutoComplete(completions);
+
+                textCtrl->Bind(wxEVT_CHAR_HOOK, &EntityAttributeCellEditor::OnCharHook, this);
             }
             
             bool EndEdit(int row, int col, const wxGrid* grid, const wxString& oldval, wxString *newval) override {

@@ -1837,7 +1837,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 ## Contact
 
-- [Discord]
+- [TrenchBroom Discord]
 
 # References and Links {#references_and_links}
 
@@ -1845,13 +1845,15 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 - [func_msgboard] - Quake Mapping Forum
 - [Quake Tools] - Quake tools by Joshua Skelton
 - [Tutorials by dumptruck_ds] - Video Tutorial Series
+- [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
 [TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
 [TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
+[TrenchBroom Discord]: https://discord.gg/n7K8Cps
 [func_msgboard]: http://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
-[Discord]: https://discord.gg/n7K8Cps
 [Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
+[Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM

@@ -32,17 +32,6 @@ namespace TrenchBroom {
         
         typedef Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload> BrushGeometry;
         
-        void restoreFaceLinks(BrushGeometry* geometry);
-        void restoreFaceLinks(BrushGeometry& geometry);
-        
-        class SetTempFaceLinks {
-        private:
-            Brush* m_brush;
-        public:
-            SetTempFaceLinks(Brush* brush, BrushGeometry& tempGeometry);
-            ~SetTempFaceLinks();
-        };
-        
         typedef BrushGeometry::Vertex BrushVertex;
         typedef BrushGeometry::Edge BrushEdge;
         typedef BrushGeometry::HalfEdge BrushHalfEdge;

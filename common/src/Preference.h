@@ -326,6 +326,7 @@ namespace TrenchBroom {
         
         virtual void load(wxConfigBase* config) const = 0;
         virtual void save(wxConfigBase* config) = 0;
+        virtual void resetToPrevious() = 0;
         virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
         bool operator==(const PreferenceBase& other) const {
@@ -346,14 +347,18 @@ namespace TrenchBroom {
         IO::Path m_path;
         T m_defaultValue;
         mutable T m_value;
+        mutable T m_previousValue;
         mutable bool m_initialized;
         bool m_modified;
         
         void setValue(const T& value) {
-            m_modified = true;
+            if (!m_modified) {
+                m_modified = true;
+                m_previousValue = m_value;
+            }
             m_value = value;
         }
-        
+
         void setValue(const ValueHolderBase* valueHolder) override {
             const ValueHolder<T>* actualValueHolder = static_cast<const ValueHolder<T>*>(valueHolder);
             setValue(actualValueHolder->value());
@@ -366,14 +371,24 @@ namespace TrenchBroom {
         void load(wxConfigBase* config) const override {
             using std::swap;
             T temp;
-            if (m_serializer.read(config, m_path, temp))
+            if (m_serializer.read(config, m_path, temp)) {
                 std::swap(m_value, temp);
+                m_previousValue = m_value;
+            }
             m_initialized = true;
         }
         
         void save(wxConfigBase* config) override {
             if (m_modified) {
                 assertResult(m_serializer.write(config, m_path, m_value));
+                m_modified = false;
+                m_previousValue = m_value;
+            }
+        }
+
+        void resetToPrevious() override {
+            if (m_modified) {
+                m_value = m_previousValue;
                 m_modified = false;
             }
         }
@@ -382,6 +397,7 @@ namespace TrenchBroom {
         m_path(path),
         m_defaultValue(defaultValue),
         m_value(m_defaultValue),
+        m_previousValue(m_value),
         m_initialized(false),
         m_modified(false) {
             m_modified = m_initialized;
@@ -392,6 +408,7 @@ namespace TrenchBroom {
         m_path(other.m_path),
         m_defaultValue(other.m_defaultValue),
         m_value(other.m_value),
+        m_previousValue(other.m_previousValue),
         m_initialized(other.m_initialized),
         m_modified(other.m_modified) {}
         
@@ -406,6 +423,7 @@ namespace TrenchBroom {
             swap(lhs.m_path, rhs.m_path);
             swap(lhs.m_defaultValue, rhs.m_defaultValue);
             swap(lhs.m_value, rhs.m_value);
+            swap(lhs.m_previousValue, rhs.m_previousValue);
             swap(lhs.m_initialized, rhs.m_initialized);
             swap(lhs.m_modified, rhs.m_modified);
         }

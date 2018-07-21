@@ -173,6 +173,10 @@ namespace TrenchBroom {
             return m_boundary;
         }
 
+        const Vec3& BrushFace::normal() const {
+            return boundary().normal;
+        }
+
         Vec3 BrushFace::center() const {
             ensure(m_geometry != nullptr, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
@@ -569,9 +573,13 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setGeometry(BrushFaceGeometry* geometry) {
-            if (m_geometry == geometry)
-                return;
+            if (m_geometry != nullptr) {
+                m_geometry->setPayload(nullptr);
+            }
             m_geometry = geometry;
+            if (m_geometry != nullptr) {
+                m_geometry->setPayload(this);
+            }
             invalidateVertexCache();
         }
 

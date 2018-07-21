@@ -164,17 +164,6 @@ Polyhedron<T,FP,VP>::Polyhedron(const typename V::List& positions, Callback& cal
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions) {
-    Callback c;
-    addPoints(std::begin(positions), std::end(positions), c);
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const typename V::Set& positions, Callback& callback) {
-    addPoints(std::begin(positions), std::end(positions), callback);
-}
-
-template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
     Copy copy(other.faces(), other.edges(), other.vertices(), *this);
 }
@@ -551,14 +540,6 @@ typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::vertexPositions() con
     typename V::List result;
     result.reserve(vertexCount());
     getVertexPositions(std::back_inserter(result));
-    return result;
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::Set Polyhedron<T,FP,VP>::vertexPositionSet(const T epsilon) const {
-    typename V::LexicographicOrder cmp(epsilon);
-    typename V::Set result(cmp);
-    getVertexPositions(std::inserter(result, result.end()));
     return result;
 }
 
