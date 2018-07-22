@@ -40,6 +40,7 @@ namespace TrenchBroom {
                 Viewport(int i_x, int i_y, int i_width, int i_height);
                 
                 bool operator==(const Viewport& other) const;
+                bool operator!=(const Viewport& other) const;
 
                 template <typename T>
                 bool contains(const T i_x, const T i_y, const T i_w, const T i_h) const {
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             
             void setNearPlane(float nearPlane);
             void setFarPlane(float farPlane);
-            void setViewport(const Viewport& viewport);
+            bool setViewport(const Viewport& viewport);
             void moveTo(const Vec3f& position);
             void moveBy(const Vec3f& delta);
             void lookAt(const Vec3f& point, const Vec3f& up);
