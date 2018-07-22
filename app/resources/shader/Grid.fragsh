@@ -85,22 +85,17 @@ float gridFloor(float size) {
  * @param coords the coordinates of the fragment in world space (same units as gridSize)
  * @param normal the normal vector of the fragment
  * @param gridSize the actual size of the grid (e.g. 16, 32, 64, etc.)
+ * @param minGridSize the minimal grid size to render (to fade out smaller grids to prevent moire etc.)
  * @param lineWidthFactor a factor for the line width of the grid
  *
  * @return opacity of the grid line to draw on this fragment, in [0..1]
  */
-float grid(vec3 coords, vec3 normal, float gridSize, float lineWidthFactor) {
+float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor) {
     float lineWidth = (gridSize < 1 ? (1.0 / 32.0)
                        : (gridSize < 4 ? 0.25 : 0.5)) * lineWidthFactor;
 
-    // get the maximum distance in world space between this and the neighbouring fragments
-    float maxWorldSpaceChange = max(length(dFdx(coords)), length(dFdy(coords)));
-
-    // apply the Nyquist theorem to get the smallest grid size that would make sense to render for this fragment
-    float minGridSizeToRender = 2.0 * maxWorldSpaceChange;
-
     // magic number to make the grid fade sooner, preventing aliasing
-    minGridSizeToRender = minGridSizeToRender * 2;
+    float minGridSizeToRender = minGridSize * 2;
 
     float baseGridSize = gridFloor(minGridSizeToRender);
     if (gridSize > baseGridSize) {
