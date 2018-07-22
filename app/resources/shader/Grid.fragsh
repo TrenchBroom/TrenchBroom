@@ -108,7 +108,7 @@ float grid(vec3 coords, vec3 normal, float gridSize, float lineWidthFactor) {
     }
     float nextGridSize = gridNextLarger(baseGridSize);
     
-    // This is 0 if we want to render just baseGridSizem, and 1 if we want to fully render at nextGridSize
+    // This is 0 if we want to render just baseGridSize, and 1 if we want to fully render at nextGridSize
     float gridBlend = smoothstep(baseGridSize, nextGridSize, minGridSizeToRender);
 
     float gridRatio = 1.0 / baseGridSize;
