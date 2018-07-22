@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 DefParser parser(file->begin(), file->end(), defaultColor);
 
                 TestParserStatus status;
-                ASSERT_NO_THROW(parser.parseDefinitions(status));
+                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
                 ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Warn));
                 ASSERT_EQ(0u, status.countStatus(Logger::LogLevel_Error));
             }
