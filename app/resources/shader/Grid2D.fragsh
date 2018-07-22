@@ -24,23 +24,18 @@ uniform vec4 GridColor;
 uniform float GridSize;
 uniform float GridAlpha;
 uniform float CameraZoom;
-uniform float ViewportMinDimension;
 
 uniform vec3 Normal;
 
 varying vec4 modelCoordinates;
 
-float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
+float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 
 void main() {
 	if (RenderGrid && GridAlpha > 0.0) {
-        float zoomBlendFactor = (CameraZoom - 0.1) / 4.0;
-        float viewportBlendFactor = 800.0 / ViewportMinDimension;
-        
-        float blendFactor = 1.0 - clamp(zoomBlendFactor * viewportBlendFactor, 0.0, 1.0);
-        
-        float lineWidthFactor = 1.0 / CameraZoom / 2.0;
-        float gridValue = grid(modelCoordinates.xyz, Normal.xyz, GridSize, blendFactor, lineWidthFactor);
+        float minGridSize = 5.0 / CameraZoom;
+        float lineWidthFactor = 2.0 / CameraZoom;
+        float gridValue = grid(modelCoordinates.xyz, Normal.xyz, GridSize, minGridSize, lineWidthFactor);
         gl_FragColor = vec4(GridColor.xyz, gridValue * GridAlpha);
 	}
 }

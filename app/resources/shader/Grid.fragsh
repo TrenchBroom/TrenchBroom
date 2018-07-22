@@ -21,7 +21,6 @@
 
 float getSoftStripes(float value, float gridSize, float stripeSize) {
     float mainVal = value * gridSize;
-    float triangle = abs(2.0 * fract(mainVal) - 1.0);
     float filterWidth = fwidth(value);
     float edge = filterWidth * gridSize * 2.0;
     
@@ -33,9 +32,20 @@ float getSoftStripes(float value, float gridSize, float stripeSize) {
     float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
     float sSize = stripeSize;
     
+    float triangle = abs(2.0 * fract(mainVal) - 1.0);
     return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
 }
 
+/**
+ * Draws two overlaid grids
+ * 
+ * @param inCoords fragment coordinates (TODO: document units)
+ * @param gridRatio the reciprocal of the first grid size, e.g. (1/16) for a 16 unit grid
+ * @param gridRatio2 the reciprocal of the second grid size, e.g. (1/16) for a 16 unit grid
+ * @param lineWidth the line width (TODO: document units)
+ * @param gridBlend the fraction of the two grids to draw, between 0 and 1, 
+ *                  where 0.0 means 100% of grid one, and 1.0 means 100% of grid two.
+ */
 float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float lineWidth, float gridBlend) {
     float stripeRatio = lineWidth * gridRatio;
     float stripeRatio2 = lineWidth * gridRatio2;
@@ -54,43 +64,47 @@ float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float line
     return theGrid * 0.5;
 }
 
-float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor) {
-    float lineWidth = (gridSize < 4 ? 0.25 : 0.5) * lineWidthFactor;
+/**
+ * Given a valid grid size, returns the next larger one.
+ */
+float gridNextLarger(float size) {
+    return 2.0 * size;
+}
 
-    float baseGridSize = gridSize;
-    float nextGridSize = baseGridSize;
-    float gridBlend = 0.0;
+/**
+ * Given any size, finds the next smaller size that is a proper grid size.
+ * Returns the input unmodified if it's already a grid size.
+ */
+float gridFloor(float size) {
+    return exp2(floor(log2(size)));
+}
 
-    if (blendFactor == 0.0) {
-        baseGridSize = gridSize;
-        nextGridSize = gridSize;
-        gridBlend = 0.0;
-    } else {
-        float magic = 7.0;
-        baseGridSize = max(gridSize, pow(2.0, floor(magic * blendFactor)));
-        nextGridSize = max(gridSize, pow(2.0, floor(magic * blendFactor) + 1.0));
-        gridBlend = magic * blendFactor - floor(magic * blendFactor);
-    }
-    
-    baseGridSize = min(baseGridSize, max(gridSize, 256.0));
-    nextGridSize = min(nextGridSize, max(gridSize, 256.0));
-    
 /*
-    float logDist = floor(log2(depth));
-    if (logDist < 6.0) { // if we are closer than 64 units, show the full grid
-        baseGridSize = gridSize;
-        nextGridSize = gridSize;
-        gridBlend = 0.0;
-    } else { // otherwise start fading out the grid lines
-        float distFactor = logDist - 6.0;
-        baseGridSize = max(gridSize, pow(2.0, max(0, distFactor)));
-        nextGridSize = max(gridSize, pow(2.0, distFactor + 1.0));
-        gridBlend = (depth - pow(2.0, logDist)) / pow(2.0, logDist);
-    }
-*/
+ * Computes the grid for the current fragment with the given parameters.
+ *
+ * @param coords the coordinates of the fragment in world space (same units as gridSize)
+ * @param normal the normal vector of the fragment
+ * @param gridSize the actual size of the grid (e.g. 16, 32, 64, etc.)
+ * @param minGridSize the minimal grid size to render (to fade out smaller grids to prevent moire etc.)
+ * @param lineWidthFactor a factor for the line width of the grid
+ *
+ * @return opacity of the grid line to draw on this fragment, in [0..1]
+ */
+float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor) {
+    float lineWidth = (gridSize < 1.0 ? (1.0 / 32.0)
+                       : (gridSize < 4.0 ? 0.25 : 0.5)) * lineWidthFactor;
 
-    float blendScale = 2.0; // sharpness of the grid falloff
-    gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);
+    // magic number to make the grid fade sooner, preventing aliasing
+    float minGridSizeToRender = minGridSize * 2.0;
+
+    float baseGridSize = gridFloor(minGridSizeToRender);
+    if (gridSize > baseGridSize) {
+        baseGridSize = gridSize;
+    }
+    float nextGridSize = gridNextLarger(baseGridSize);
+    
+    // This is 0 if we want to render just baseGridSize, and 1 if we want to fully render at nextGridSize
+    float gridBlend = smoothstep(baseGridSize, nextGridSize, minGridSizeToRender);
 
     float gridRatio = 1.0 / baseGridSize;
     float gridRatio2 = 1.0 / nextGridSize;
