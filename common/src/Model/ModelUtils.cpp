@@ -21,33 +21,33 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Model::NodeList collectParents(const Model::NodeList& nodes) {
+        NodeList collectParents(const NodeList& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }
         
-        Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) {
-            Model::CollectUniqueNodesVisitor visitor;
+        NodeList collectParents(const ParentChildrenMap& nodes) {
+            CollectUniqueNodesVisitor visitor;
             for (const auto& entry : nodes) {
-                Model::Node* parent = entry.first;
+                Node* parent = entry.first;
                 parent->acceptAndEscalate(visitor);
             }
             return visitor.nodes();
         }
         
-        Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) {
-            Model::NodeList result;
+        NodeList collectChildren(const ParentChildrenMap& nodes) {
+            NodeList result;
             for (const auto& entry : nodes) {
-                const Model::NodeList& children = entry.second;
+                const NodeList& children = entry.second;
                 VectorUtils::append(result, children);
             }
             return result;
         }
         
-        Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) {
-            Model::ParentChildrenMap result;
+        ParentChildrenMap parentChildrenMap(const NodeList& nodes) {
+            ParentChildrenMap result;
             
-            for (Model::Node* node : nodes) {
-                Model::Node* parent = node->parent();
+            for (Node* node : nodes) {
+                Node* parent = node->parent();
                 ensure(parent != nullptr, "parent is null");
                 result[parent].push_back(node);
             }
