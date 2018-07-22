@@ -186,7 +186,7 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group) override   {
                 assert(group->selected());
 
-                if (group->group() == nullptr) {
+                if (!group->grouped()) {
                     m_moveNodes.insert(group);
                     m_selectNodes.insert(group);
                 }
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* entity) override {
                 assert(entity->selected());
                 
-                if (entity->group() == nullptr) {
+                if (!entity->grouped()) {
                     m_moveNodes.insert(entity);
                     m_selectNodes.insert(entity);
                 }
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             
             void doVisit(Model::Brush* brush) override   {
                 assert(brush->selected());
-                if (brush->group() == nullptr) {
+                if (!brush->grouped()) {
                     Model::AttributableNode* entity = brush->entity();
                     if (entity == m_world) {
                         m_moveNodes.insert(brush);

@@ -1317,7 +1317,7 @@ namespace TrenchBroom {
         }
 
         Group* Brush::doGetGroup() const {
-            FindGroupVisitor visitor(false);
+            FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }

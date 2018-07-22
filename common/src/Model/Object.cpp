@@ -19,6 +19,8 @@
 
 #include "Object.h"
 
+#include "Model/Group.h"
+
 namespace TrenchBroom {
     namespace Model {
         Object::Object() {}
@@ -34,6 +36,15 @@ namespace TrenchBroom {
         
         Group* Object::group() const {
             return doGetGroup();
+        }
+
+        bool Object::grouped() const {
+            return group() != nullptr;
+        }
+
+        bool Object::groupOpened() const {
+            const auto* containingGroup = group();
+            return containingGroup == nullptr || containingGroup->opened();
         }
 
         void Object::transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {

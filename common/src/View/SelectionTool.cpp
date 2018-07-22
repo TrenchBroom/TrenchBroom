@@ -50,20 +50,21 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::doMouseClick(const InputState& inputState) {
-            if (!handleClick(inputState))
+            if (!handleClick(inputState)) {
                 return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+            }
+
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    Model::BrushFace* face = Model::hitToFace(hit);
+                    auto* face = Model::hitToFace(hit);
                     if (editorContext.selectable(face)) {
                         if (isMultiClick(inputState)) {
-                            const bool objects = document->hasSelectedNodes();
+                            const auto objects = document->hasSelectedNodes();
                             if (objects) {
-                                const Model::Brush* brush = face->brush();
+                                const auto* brush = face->brush();
                                 if (brush->selected()) {
                                     document->deselect(face);
                                 } else {
@@ -72,10 +73,11 @@ namespace TrenchBroom {
                                     document->select(face);
                                 }
                             } else {
-                                if (face->selected())
+                                if (face->selected()) {
                                     document->deselect(face);
-                                else
+                                } else {
                                     document->select(face);
+                                }
                             }
                         } else {
                             Transaction transaction(document, "Select Brush Face");
@@ -87,17 +89,18 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    Model::Node* node = Model::hitToNode(hit);
+                    auto* node = Model::hitToNode(hit);
                     if (editorContext.selectable(node)) {
                         if (isMultiClick(inputState)) {
                             if (node->selected()) {
                                 document->deselect(node);
                             } else {
                                 Transaction transaction(document, "Select Object");
-                                if (document->hasSelectedBrushFaces())
+                                if (document->hasSelectedBrushFaces()) {
                                     document->deselectAll();
+                                }
                                 document->select(node);
                             }
                         } else {
@@ -115,20 +118,22 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::doMouseDoubleClick(const InputState& inputState) {
-            if (!handleClick(inputState))
+            if (!handleClick(inputState)) {
                 return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+            }
+
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    Model::BrushFace* face = Model::hitToFace(hit);
+                    auto* face = Model::hitToFace(hit);
                     if (editorContext.selectable(face)) {
-                        const Model::Brush* brush = face->brush();
+                        const auto* brush = face->brush();
                         if (isMultiClick(inputState)) {
-                            if (document->hasSelectedNodes())
+                            if (document->hasSelectedNodes()) {
                                 document->convertToFaceSelection();
+                            }
                             document->select(brush->faces());
                         } else {
                             Transaction transaction(document, "Select Brush Faces");
@@ -138,20 +143,22 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
+                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit | Model::Entity::EntityHit);
                 if (hit.isMatch()) {
                     if (hit.type() == Model::Group::GroupHit) {
-                        Model::Group* group = Model::hitToGroup(hit);
-                        if (editorContext.selectable(group))
+                        auto* group = Model::hitToGroup(hit);
+                        if (editorContext.selectable(group)) {
                             document->openGroup(group);
+                        }
                     } else {
-                        const Model::Node* node = Model::hitToNode(hit);
+                        const auto* node = Model::hitToNode(hit);
                         if (editorContext.selectable(node)) {
-                            const Model::Node* container = node->parent();
-                            const Model::NodeList siblings = collectSelectableChildren(editorContext, container);
+                            const auto* container = node->parent();
+                            const auto siblings = collectSelectableChildren(editorContext, container);
                             if (isMultiClick(inputState)) {
-                                if (document->hasSelectedBrushFaces())
+                                if (document->hasSelectedBrushFaces()) {
                                     document->deselectAll();
+                                }
                                 document->select(siblings);
                             } else {
                                 Transaction transaction(document, "Select Brushes");
@@ -169,13 +176,12 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleClick(const InputState& inputState) const {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->editorContext().canChangeSelection())
-                return false;
-            return true;
+            }
+
+            auto document = lock(m_document);
+            return document->editorContext().canChangeSelection();
         }
         
         bool SelectionTool::isFaceClick(const InputState& inputState) const {
@@ -197,110 +203,121 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::doMouseScroll(const InputState& inputState) {
-            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
+            if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No)) {
                 adjustGrid(inputState);
-            else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No))
+            } else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No)) {
                 drillSelection(inputState);
+            }
         }
         
         void SelectionTool::adjustGrid(const InputState& inputState) {
-            const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
-            MapDocumentSPtr document = lock(m_document);
-            Grid& grid = document->grid();
-            if (factor * inputState.scrollY() < 0.0f)
+            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            auto document = lock(m_document);
+            auto& grid = document->grid();
+            if (factor * inputState.scrollY() < 0.0f) {
                 grid.incSize();
-            else if (factor * inputState.scrollY() > 0.0f)
+            } else if (factor * inputState.scrollY() > 0.0f) {
                 grid.decSize();
+            }
         }
-        
+
         template <typename I>
         I findFirstSelected(I it, I end) {
             while (it != end) {
-                Model::Node* node = Model::hitToNode(*it);
-                if (node->selected())
+                auto* node = Model::hitToNode(*it);
+                if (node->selected()) {
                     break;
+                }
                 ++it;
             }
             return it;
         }
-        
+
         template <typename I>
         std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end, const Model::EditorContext& editorContext) {
             static Model::Node* const NullNode = nullptr;
-            
-            const I first = findFirstSelected(it, end);
-            if (first == end)
+
+            const auto first = findFirstSelected(it, end);
+            if (first == end) {
                 return std::make_pair(NullNode, NullNode);
-            
-            I next = first; ++next;
+            }
+
+            auto next = std::next(first);
             while (next != end) {
-                Model::Node* node = Model::hitToNode(*next);
-                if (editorContext.selectable(node))
+                auto* node = Model::hitToNode(*next);
+                if (editorContext.selectable(node)) {
                     break;
+                }
                 ++next;
             }
-            
-            if (next == end)
+
+            if (next == end) {
                 return std::make_pair(Model::hitToNode(*first), NullNode);
-            return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
+            } else {
+                return std::make_pair(Model::hitToNode(*first), Model::hitToNode(*next));
+            }
         }
-        
+
         void SelectionTool::drillSelection(const InputState& inputState) {
-            const Model::Hit::List hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
+            const auto hits = inputState.pickResult().query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().all();
             
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
             
-            const bool forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-            const std::pair<Model::Node*, Model::Node*> nodePair = forward ? findSelectionPair(std::begin(hits), std::end(hits), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
-            
-            Model::Node* selectedNode = nodePair.first;
-            Model::Node* nextNode = nodePair.second;
+            const auto forward = (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
+            const auto nodePair = forward ? findSelectionPair(std::begin(hits), std::end(hits), editorContext) : findSelectionPair(hits.rbegin(), hits.rend(), editorContext);
+
+            auto* selectedNode = nodePair.first;
+            auto* nextNode = nodePair.second;
+
             if (nextNode != nullptr) {
                 Transaction transaction(document, "Drill Selection");
                 document->deselect(selectedNode);
                 document->select(nextNode);
             }
         }
-        
+
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
-            if (!handleClick(inputState) || !isMultiClick(inputState))
+            if (!handleClick(inputState) || !isMultiClick(inputState)) {
                 return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+            }
+
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
             
             if (isFaceClick(inputState)) {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
-                if (!hit.isMatch())
+                const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
+                if (!hit.isMatch()) {
                     return false;
-                
-                Model::BrushFace* face = Model::hitToFace(hit);
+                }
+
+                auto* face = Model::hitToFace(hit);
                 if (editorContext.selectable(face)) {
-                    
                     document->beginTransaction("Drag Select Brush Faces");
-                    if (document->hasSelection() && !document->hasSelectedBrushFaces())
+                    if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
                         document->deselectAll();
-                    
-                    if (!face->selected())
+                    }
+                    if (!face->selected()) {
                         document->select(face);
-                    
+                    }
+
                     return true;
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
-                if (!hit.isMatch())
+                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                if (!hit.isMatch()) {
                     return false;
-                
-                Model::Node* node = Model::hitToNode(hit);
+                }
+
+                auto* node = Model::hitToNode(hit);
                 if (editorContext.selectable(node)) {
                     document->beginTransaction("Drag Select Objects");
-                    if (document->hasSelection() && !document->hasSelectedNodes())
+                    if (document->hasSelection() && !document->hasSelectedNodes()) {
                         document->deselectAll();
-                    
-                    if (!node->selected())
+                    }
+                    if (!node->selected()) {
                         document->select(node);
-                    
+                    }
                     return true;
                 }
             }
@@ -309,42 +326,45 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::doMouseDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
             if (document->hasSelectedBrushFaces()) {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    Model::BrushFace* face = Model::hitToFace(hit);
-                    if (!face->selected() && editorContext.selectable(face))
+                    auto* face = Model::hitToFace(hit);
+                    if (!face->selected() && editorContext.selectable(face)) {
                         document->select(face);
+                    }
                 }
             } else {
                 assert(document->hasSelectedNodes());
-                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
-                    Model::Node* node = Model::hitToNode(hit);
-                    if (!node->selected() && editorContext.selectable(node))
+                    auto* node = Model::hitToNode(hit);
+                    if (!node->selected() && editorContext.selectable(node)) {
                         document->select(node);
+                    }
                 }
             }
             return true;
         }
         
         void SelectionTool::doEndMouseDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
         }
         
         void SelectionTool::doCancelMouseDrag() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
         
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
-            if (hit.isMatch() && Model::hitToNode(hit)->selected())
+            auto document = lock(m_document);
+            const auto& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+            if (hit.isMatch() && Model::hitToNode(hit)->selected()) {
                 renderContext.setShowSelectionGuide();
+            }
         }
         
         bool SelectionTool::doCancel() {
