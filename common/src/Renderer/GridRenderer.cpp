@@ -70,7 +70,6 @@ namespace TrenchBroom {
         void GridRenderer::doRender(RenderContext& renderContext) {
             if (renderContext.showGrid()) {
                 const Camera& camera = renderContext.camera();
-                const Camera::Viewport& viewport = camera.unzoomedViewport();
 
                 ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
                 shader.set("Normal", -camera.direction());
