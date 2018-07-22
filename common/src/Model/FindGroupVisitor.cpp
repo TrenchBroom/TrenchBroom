@@ -28,6 +28,7 @@ namespace TrenchBroom {
 
         void FindGroupVisitor::doVisit(Group* group) {
             setResult(group);
+            cancel();
         }
 
         void FindGroupVisitor::doVisit(Entity* entity) {}

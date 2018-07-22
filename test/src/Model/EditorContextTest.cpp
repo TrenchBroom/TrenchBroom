@@ -75,15 +75,10 @@ namespace TrenchBroom {
             }
             
             std::tuple<Group*, Group*> createNestedGroup() {
-                BrushBuilder builder(world, worldBounds);
-                auto* innerBrush = builder.createCube(32.0, "sometex");
-                auto* innerGroup = world->createGroup("inner");
-                auto* outerGroup = world->createGroup("outer");
-                
-                innerGroup->addChild(innerBrush);
-                outerGroup->addChild(innerGroup);
-                world->defaultLayer()->addChild(outerGroup);
-                
+                Group* outerGroup;
+                Group* innerGroup;
+                std::tie(outerGroup, innerGroup, std::ignore) = createdNestedGroupedBrush();
+
                 return std::make_tuple(outerGroup, innerGroup);
             }
 
@@ -120,6 +115,19 @@ namespace TrenchBroom {
                 world->defaultLayer()->addChild(group);
                 
                 return std::make_tuple(group, entity, brush);
+            }
+
+            std::tuple<Group*, Group*, Brush*> createdNestedGroupedBrush() {
+                BrushBuilder builder(world, worldBounds);
+                auto* innerBrush = builder.createCube(32.0, "sometex");
+                auto* innerGroup = world->createGroup("inner");
+                auto* outerGroup = world->createGroup("outer");
+
+                innerGroup->addChild(innerBrush);
+                outerGroup->addChild(innerGroup);
+                world->defaultLayer()->addChild(outerGroup);
+
+                return std::make_tuple(outerGroup, innerGroup, innerBrush);
             }
 
             void assertVisible(const bool expected, Node* node, const VisibilityState visibilityState, const LockState lockState) {
@@ -735,6 +743,70 @@ namespace TrenchBroom {
             assertSelectable(false, entity, Visibility_Shown, Lock_Locked);
             assertSelectable(true, brush, Visibility_Shown, Lock_Unlocked);
             assertSelectable(false, brush, Visibility_Shown, Lock_Locked);
+            context.popGroup();
+        }
+
+        /************* Special Case Tests *************/
+
+        TEST_F(EditorContextTest, testNestedGroupedBrushVisible) {
+            Group* outerGroup;
+            Group* innerGroup;
+            Brush* brush;
+            std::tie(outerGroup, innerGroup, brush) = createdNestedGroupedBrush();
+
+            assertVisible(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertVisible(true, brush, Visibility_Shown, Lock_Locked);
+            assertVisible(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertVisible(false, brush, Visibility_Hidden, Lock_Locked);
+
+            assertEditable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertEditable(false, brush, Visibility_Shown, Lock_Locked);
+            assertEditable(true, brush, Visibility_Hidden, Lock_Unlocked);
+            assertEditable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            assertPickable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertPickable(true, brush, Visibility_Shown, Lock_Locked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            assertSelectable(false, brush, Visibility_Shown, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Shown, Lock_Locked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            context.pushGroup(outerGroup);
+            assertVisible(true, brush, Visibility_Shown, Lock_Unlocked);
+
+            assertEditable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertEditable(false, brush, Visibility_Shown, Lock_Locked);
+
+            assertPickable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertPickable(true, brush, Visibility_Shown, Lock_Locked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            assertSelectable(false, brush, Visibility_Shown, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Shown, Lock_Locked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            context.pushGroup(innerGroup);
+            assertVisible(true, brush, Visibility_Shown, Lock_Unlocked);
+
+            assertEditable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertEditable(false, brush, Visibility_Shown, Lock_Locked);
+
+            assertPickable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertPickable(true, brush, Visibility_Shown, Lock_Locked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertPickable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            assertSelectable(true, brush, Visibility_Shown, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Shown, Lock_Locked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Unlocked);
+            assertSelectable(false, brush, Visibility_Hidden, Lock_Locked);
+
+            context.popGroup();
             context.popGroup();
         }
     }
