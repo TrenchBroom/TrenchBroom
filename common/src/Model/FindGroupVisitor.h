@@ -26,36 +26,15 @@
 namespace TrenchBroom {
     namespace Model {
         class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
-        public:
-            virtual ~FindGroupVisitor() override;
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(Brush* brush) override;
-
-            virtual bool shouldContinue(const Group* group) const = 0;
         };
 
-        class FindContainingGroupVisitor : public FindGroupVisitor {
-        private:
-            bool shouldContinue(const Group* group) const override;
-        };
-
-        class FindTopGroupVisitor : public FindGroupVisitor {
-        private:
-            bool shouldContinue(const Group* group) const override;
-        };
-
-        class FindTopGroupWithOpenParentVisitor : public FindGroupVisitor {
-        private:
-            bool shouldContinue(const Group* group) const override;
-        };
-
-        Model::Group* findContainingGroup(Model::Node* node);
-        Model::Group* findTopContainingGroup(Model::Node* node);
-        Model::Group* findContainingGroupWithOpenParent(Model::Node* node);
+        Model::Group* findGroup(Model::Node* node);
     }
 }
 

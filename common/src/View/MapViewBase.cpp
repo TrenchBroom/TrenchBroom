@@ -1072,7 +1072,7 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
                 
-                Model::Group* group = Model::findContainingGroup(lastNode);
+                Model::Group* group = Model::findGroup(lastNode);
                 if (group != nullptr)
                     return group;
                 
