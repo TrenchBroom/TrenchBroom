@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
         
         void Node::cloneAttributes(Node* node) const {
-            node->setVisiblityState(m_visibilityState);
+            node->setVisibilityState(m_visibilityState);
             node->setLockState(m_lockState);
         }
         
@@ -480,7 +480,7 @@ namespace TrenchBroom {
             return m_visibilityState;
         }
 
-        bool Node::setVisiblityState(const VisibilityState visibility) {
+        bool Node::setVisibilityState(const VisibilityState visibility) {
             if (visibility != m_visibilityState) {
                 m_visibilityState = visibility;
                 return true;
@@ -490,7 +490,7 @@ namespace TrenchBroom {
 
         bool Node::ensureVisible() {
             if (!visible())
-                return setVisiblityState(Visibility_Shown);
+                return setVisibilityState(Visibility_Shown);
             return false;
         }
 
@@ -502,7 +502,7 @@ namespace TrenchBroom {
                     return false;
                 case Lock_Unlocked:
                     return true;
-		switchDefault()
+		        switchDefault()
             }
         }
         

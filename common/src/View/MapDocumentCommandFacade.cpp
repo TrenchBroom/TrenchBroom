@@ -297,7 +297,7 @@ namespace TrenchBroom {
             
             for (Model::Node* node : nodes) {
                 const Model::VisibilityState oldState = node->visibilityState();
-                if (node->setVisiblityState(visibilityState)) {
+                if (node->setVisibilityState(visibilityState)) {
                     changedNodes.push_back(node);
                     result[node] = oldState;
                 }
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             for (const auto& entry : nodes) {
                 Model::Node* node = entry.first;
                 const Model::VisibilityState state = entry.second;
-                if (node->setVisiblityState(state))
+                if (node->setVisibilityState(state))
                     changedNodes.push_back(node);
             }
 

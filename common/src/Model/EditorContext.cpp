@@ -248,25 +248,23 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::pickable(const Model::Group* group) const {
-            // Removed visible check and hardwired that into HitQuery.
-            // Invisible objects should not be considered during picking, ever.
-            return group->groupOpened();
+            return visible(group) && !group->opened() && group->groupOpened();
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            // Removed visible check and hardwired that into HitQuery.
-            // Invisible objects should not be considered during picking, ever.
-            return !entity->hasChildren();
+            // Do not check whether this is an open group or not -- we must be able
+            // to pick objects within groups in order to draw on them etc.
+            return visible(entity) && !entity->hasChildren();
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            // Removed visible check and hardwired that into HitQuery.
-            // Invisible objects should not be considered during picking, ever.
-            return true;
+            // Do not check whether this is an open group or not -- we must be able
+            // to pick objects within groups in order to draw on them etc.
+            return visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            return true;
+            return pickable(face->brush());
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
