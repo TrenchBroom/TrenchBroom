@@ -33,13 +33,13 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
+cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$(pwd)/../wxWidgets/build-release/install || exit 1
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
 cpack || exit 1
 
 ./generate_checksum.sh
 
-./TrenchBroom-Test || exit 1
+./$BUILD_TYPE_VALUE/TrenchBroom-Test || exit 1
 
 echo "Shared libraries used:"
-otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./$BUILD_TYPE_VALUE/TrenchBroom.app/Contents/MacOS/TrenchBroom
