@@ -96,6 +96,7 @@ namespace TrenchBroom {
             class NodePickable;
         public:
             bool pickable(const Model::Node* node) const;
+            bool pickable(const Model::World* world) const;
             bool pickable(const Model::Layer* layer) const;
             bool pickable(const Model::Group* group) const;
             bool pickable(const Model::Entity* entity) const;

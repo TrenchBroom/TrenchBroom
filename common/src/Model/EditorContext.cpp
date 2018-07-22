@@ -226,7 +226,7 @@ namespace TrenchBroom {
         public:
             NodePickable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world) override   { setResult(false); }
+            void doVisit(const Model::World* world) override   { setResult(m_this.pickable(world)); }
             void doVisit(const Model::Layer* layer) override   { setResult(m_this.pickable(layer)); }
             void doVisit(const Model::Group* group) override   { setResult(m_this.pickable(group)); }
             void doVisit(const Model::Entity* entity) override { setResult(m_this.pickable(entity)); }
@@ -238,43 +238,35 @@ namespace TrenchBroom {
             node->accept(visitor);
             return visitor.result();
         }
-        
+
+        bool EditorContext::pickable(const Model::World* world) const {
+            return false;
+        }
+
         bool EditorContext::pickable(const Model::Layer* layer) const {
             return false;
         }
-        
+
         bool EditorContext::pickable(const Model::Group* group) const {
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-            
-            Model::Group* containingGroup = group->group();
-            return (containingGroup == nullptr || containingGroup->opened()) /* && visible(group) */;
+            // Removed visible check and hardwired that into HitQuery.
+            // Invisible objects should not be considered during picking, ever.
+            return group->groupOpened();
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            // Removed the group check to allow brushes to be picked if they are within groups.
-            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
-            // Might break other things though.
-            
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-
-            // Model::Group* containingGroup = entity->group();
-            return /*(containingGroup == nullptr || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
+            // Removed visible check and hardwired that into HitQuery.
+            // Invisible objects should not be considered during picking, ever.
+            return !entity->hasChildren();
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            // Removed the group check to allow brushes to be picked if they are within groups.
-            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
-            // Might break other things though.
-            
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-
-            // Model::Group* containingGroup = brush->group();
-            return /*(containingGroup == nullptr || containingGroup->opened()) && visible(brush) */ true;
+            // Removed visible check and hardwired that into HitQuery.
+            // Invisible objects should not be considered during picking, ever.
+            return true;
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-            return /* visible(face) */ true;
+            return true;
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -325,7 +317,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::inOpenGroup(const Model::Object* object) const {
-            return object->group() == nullptr || object->group()->opened();
+            return object->groupOpened();
         }
     }
 }
