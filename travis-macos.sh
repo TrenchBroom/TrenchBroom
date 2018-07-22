@@ -39,7 +39,8 @@ cpack || exit 1
 
 ./generate_checksum.sh
 
-./$BUILD_TYPE_VALUE/TrenchBroom-Test || exit 1
+cd "$BUILD_TYPE_VALUE" 
+./TrenchBroom-Test || exit 1
 
 echo "Shared libraries used:"
-otool -L ./$BUILD_TYPE_VALUE/TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom
