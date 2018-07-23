@@ -41,7 +41,6 @@ namespace TrenchBroom {
     namespace View {
         ShearObjectsToolController::ShearObjectsToolController(ShearObjectsTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
-        m_dragStartHit(Model::Hit::NoHit),
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
         }
@@ -70,8 +69,8 @@ namespace TrenchBroom {
                 return;
             }
 
-            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            const Vec3 sideCenter = centerForBBoxSide(m_bboxAtDragStart, side);
+            const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
+            const Vec3 sideCenter = centerForBBoxSide(m_tool->bboxAtDragStart(), side);
 
             // Can't do vertical restraint on these
             if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
@@ -146,16 +145,16 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            m_bboxAtDragStart = m_tool->bounds();
             m_debugInitialPoint = hit.hitPoint();
-            m_dragStartHit = hit;
+
+            m_tool->startShearWithHit(hit);
             m_tool->setConstrainVertical(vertical);
 
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-            const Vec3 sideCenter = centerForBBoxSide(m_bboxAtDragStart, side);
+            const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
+            const Vec3 sideCenter = centerForBBoxSide(m_tool->bboxAtDragStart(), side);
 
             const auto& camera = inputState.camera();
             if (camera.perspectiveProjection()) {
@@ -190,9 +189,6 @@ namespace TrenchBroom {
                 m_handleLineDebug = sideways;
             }
 
-
-            m_dragCumulativeDelta = Vec3::Null;
-
             // HACK: Snap the initial point
             const Vec3 initialPoint = [&]() {
                 Vec3 p = hit.hitPoint();
@@ -212,28 +208,7 @@ namespace TrenchBroom {
             m_currentDragDebug = nextHandlePosition;
 
             const auto delta = nextHandlePosition - lastHandlePosition;
-
-            m_dragCumulativeDelta += delta;
-
-            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
-
-
-            MapDocumentSPtr document = lock(m_document);
-
-            const auto& hit = m_dragStartHit;
-
-//
-//            std::cout << "resize to " << newBox << "\n";
-//
-//            document->scaleObjects(m_tool->bounds(), newBox);
-
-            if (!delta.null()) {
-                const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-                if (document->shearObjects(m_tool->bounds(), side.normal, delta)) {
-                    // ?
-                }
-            }
+            m_tool->dragShear(delta);
 
             return DR_Continue;
         }

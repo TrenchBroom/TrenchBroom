@@ -224,6 +224,39 @@ namespace TrenchBroom {
                 return bounds();
             }
         }
+
+        void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
+            m_bboxAtDragStart = bounds();
+            m_dragStartHit = hit;
+            m_dragCumulativeDelta = Vec3::Null;
+        }
+
+        void ShearObjectsTool::dragShear(const Vec3& delta) {
+            m_dragCumulativeDelta += delta;
+
+            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
+
+            MapDocumentSPtr document = lock(m_document);
+
+            const auto& hit = m_dragStartHit;
+
+//            std::cout << "resize to " << newBox << "\n";
+//
+//            document->scaleObjects(m_tool->bounds(), newBox);
+
+            if (!delta.null()) {
+                const BBoxSide side = m_dragStartHit.target<BBoxSide>();
+
+                if (document->shearObjects(bounds(), side.normal, delta)) {
+                    // ?
+                }
+            }
+        }
+
+        const Model::Hit& ShearObjectsTool::dragStartHit() const {
+            return m_dragStartHit;
+        }
+
         Mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
                 return Mat4x4::Identity;
@@ -334,5 +367,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::setConstrainVertical(const bool constrainVertical) {
             m_constrainVertical = constrainVertical;
         }
+
+
     }
 }

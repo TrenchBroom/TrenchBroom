@@ -44,8 +44,6 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ShearToolFaceHit;
 
         private:
-            MapDocumentWPtr m_document;
-
             /**
              * Point on the initial pick ray that's closest to the handle being dragged.
              * Note, when dragging "back faces" the mouse can start far from the bbox.
@@ -66,16 +64,17 @@ namespace TrenchBroom {
              */
             Vec3 m_handlePos;
 
-            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
             bool m_resizing;
 
-            /**
-             * bounds in beginResize()
-             * Only valid during a drag (when m_resizing is true).
-             */
-            BBox3 m_bboxAtDragStart;
-
             bool m_constrainVertical;
+
+        // moved from controller
+
+            BBox3 m_bboxAtDragStart;
+            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
+            MapDocumentWPtr m_document;
+            Vec3 m_dragCumulativeDelta;
+
         public:
 
             bool constrainVertical() const;
@@ -113,6 +112,11 @@ namespace TrenchBroom {
              * Otherwise, returns the current bounds(). for rendering sheared bbox.
              */
             BBox3 bboxAtDragStart() const;
+
+            void startShearWithHit(const Model::Hit& hit);
+            void dragShear(const Vec3& delta);
+
+            const Model::Hit& dragStartHit() const;
 
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
