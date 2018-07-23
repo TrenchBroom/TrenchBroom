@@ -112,9 +112,11 @@ namespace TrenchBroom {
             
             Model::BrushFace* face = m_helper.face();
             Vec2f newScale = face->scale();
-            for (size_t i = 0; i < 2; ++i)
-                if (m_selector[i])
+            for (size_t i = 0; i < 2; ++i) {
+                if (m_selector[i]) {
                     newScale[i] = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+                }
+            }
             newScale.correct(4, 0.0f);
 
             Model::ChangeBrushFaceAttributesRequest request;
@@ -145,7 +147,7 @@ namespace TrenchBroom {
         }
 
         Vec2f UVScaleTool::getScaledTranslatedHandlePos() const {
-            return Vec2f(m_handle * m_helper.stripeSize());
+            return Vec2f(m_handle) * Vec2f(m_helper.stripeSize());
         }
 
         Vec2f UVScaleTool::getHandlePos() const {
@@ -168,8 +170,9 @@ namespace TrenchBroom {
                                              });
             
             for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) > 4.0f / m_helper.cameraZoom())
+                if (Math::abs(distance[i]) > 4.0f / m_helper.cameraZoom()) {
                     distance[i] = 0.0f;
+                }
             }
             
             return position - distance;
