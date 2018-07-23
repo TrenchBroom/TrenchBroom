@@ -96,7 +96,7 @@ namespace TrenchBroom {
                    std::chrono::duration<double>(end - start).count() * 1000.0);
         }
 
-        TEST(BrushRendererTest, benchBrushRenderer) {
+        TEST(BrushRendererBenchmark, benchBrushRenderer) {
             auto brushesTextures = makeBrushes();
             std::vector<Model::Brush*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;
