@@ -63,8 +63,6 @@ namespace TrenchBroom {
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
-            class CanMoveBoundaryCallback;
-            class CanMoveBoundary;
             class MoveVerticesCallback;
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
@@ -100,7 +98,8 @@ namespace TrenchBroom {
             size_t faceCount() const;
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
-            
+
+            bool closed() const;
             bool fullySpecified() const;
             
             void faceDidChange();
@@ -153,7 +152,8 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             VertexList vertices() const;
             const Vec3::List vertexPositions() const;
-            
+            Vec3 findClosestVertexPosition(const Vec3& position) const;
+
             bool hasVertex(const Vec3& position) const;
             bool hasVertices(const Vec3::List positions) const;
             bool hasEdge(const Edge3& edge) const;
@@ -217,6 +217,7 @@ namespace TrenchBroom {
             void updateFacesFromGeometry(const BBox3& worldBounds);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
+            void deleteGeometry();
             void rebuildGeometry(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
         private:

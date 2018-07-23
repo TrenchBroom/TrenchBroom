@@ -21,8 +21,11 @@ deploy:
   file:
     - "build/*.deb"
     - "build/*.rpm"
-    - "build/*.dmg"
     - "build/*.md5"
+    - "build/Release/*.dmg"
+    - "build/Release/*.md5"
+    - "build/Debug/*.dmg"
+    - "build/Debug/*.md5"
   on:
     repo: kduske/TrenchBroom
     tags: true

@@ -48,6 +48,7 @@ namespace TrenchBroom {
         public:
             virtual ~RenderView();
         public:
+            void OnEraseBackground(wxEraseEvent& event);
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnSetFocus(wxFocusEvent& event);

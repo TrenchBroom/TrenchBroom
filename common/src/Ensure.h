@@ -30,6 +30,12 @@ namespace TrenchBroom {
 #define stringification(expression) #expression
 #define stringification2(expression) stringification(expression)
 
-#define ensure(condition, message) do { if (!(condition)) { TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message); } } while (false)
+#ifndef NDEBUG
+    // for debug builds, ensure is just an assertion
+    #define ensure(condition, message) assert(condition)
+#else
+    // for release builds, ensure generates an exception
+    #define ensure(condition, message) do { if (!(condition)) { TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message); } } while (false)
+#endif
 
 #endif /* defined(TrenchBroom_Ensure) */

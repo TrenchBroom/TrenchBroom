@@ -39,6 +39,9 @@ namespace TrenchBroom {
             Node* container() const;
             Layer* layer() const;
             Group* group() const;
+
+            bool grouped() const;
+            bool groupOpened() const;
         
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool contains(const Node* object) const;

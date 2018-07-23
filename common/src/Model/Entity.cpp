@@ -268,7 +268,7 @@ namespace TrenchBroom {
         }
         
         Group* Entity::doGetGroup() const {
-            FindGroupVisitor visitor(false);
+            FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
@@ -298,11 +298,10 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const Vec3 bottomCenter = Vec3(bounds().center().xy(), bounds().min.z());
-                const Vec3 delta = bottomCenter - origin();
-                const Vec3 transformedCenter = transformation * bottomCenter;
-                
-                setOrigin(transformedCenter - delta);
+                const Vec3 center = bounds().center();
+                const Vec3 offset = center - origin();
+                const Vec3 transformedCenter = transformation * center;
+                setOrigin(transformedCenter - offset);
                 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.

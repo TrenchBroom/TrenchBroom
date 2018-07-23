@@ -220,7 +220,6 @@ public:
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
-        typename V::Set vertexPositionSet(T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
         V normal() const;
@@ -299,9 +298,6 @@ public: // Constructors
     Polyhedron(const typename V::List& positions);
     Polyhedron(const typename V::List& positions, Callback& callback);
 
-    Polyhedron(const typename V::Set& positions);
-    Polyhedron(const typename V::Set& positions, Callback& callback);
-
     Polyhedron(const Polyhedron<T,FP,VP>& other);
     Polyhedron(Polyhedron<T,FP,VP>&& other);
 private: // Constructor helpers
@@ -332,7 +328,6 @@ public: // Accessors
     bool hasVertex(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     typename V::List vertexPositions() const;
-    typename V::Set vertexPositionSet(T epsilon = Math::Constants<T>::almostZero()) const;
     void printVertices() const;
     
     size_t edgeCount() const;
