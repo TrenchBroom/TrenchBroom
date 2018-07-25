@@ -1035,7 +1035,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
             assert(fullySpecified());
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
         BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
@@ -1135,7 +1135,7 @@ namespace TrenchBroom {
                 throw GeometryException("Brush is not fully specified");
             }
 
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
