@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_AABBTREE_H
 #define TRENCHBROOM_AABBTREE_H
 
+#include "NodeTree.h"
 #include "Exceptions.h"
 #include "BBox.h"
 #include "Ray.h"
@@ -33,12 +34,10 @@
 #include <memory>
 
 template <typename T, size_t S, typename U, int MaxBalance = 1, typename Cmp = std::less<U>>
-class AABBTree {
+class AABBTree : public NodeTree<T,S,U,Cmp> {
 public:
-    using Box = BBox<T,S>;
-    using DataType = U;
-    using FloatType = T;
-    static const size_t Components = S;
+    using List = typename NodeTree<T,S,U,Cmp>::List;
+    using Box = typename NodeTree<T,S,U,Cmp>::Box;
 private:
     class InnerNode;
     class Leaf;
@@ -565,33 +564,17 @@ private:
 private:
     Node* m_root;
 public:
-    using List = std::list<U>;
-public:
     AABBTree() : m_root(nullptr) {}
 
-    ~AABBTree() {
+    ~AABBTree() override {
         clear();
     }
 
-    /**
-     * Indicates whether a node with the given bounds and data exists in this tree.
-     *
-     * @param bounds the bounds to find
-     * @param data the data to find
-     * @return true if a node with the given bounds and data exists and false otherwise
-     */
-    bool contains(const Box& bounds, const U& data) {
+    bool contains(const Box& bounds, const U& data) const override {
         return (!empty() && m_root->find(bounds, data) != nullptr);
     }
 
-    /**
-     * Insert a node with the given bounds and data into this tree. If the given bounds are empty,
-     * nothing is inserted.
-     *
-     * @param bounds the bounds to insert
-     * @param data the data to insert
-     */
-    void insert(const Box& bounds, const U& data) {
+    void insert(const Box& bounds, const U& data) override {
         if (!bounds.empty()) {
             if (empty()) {
                 m_root = new Leaf(bounds, data);
@@ -602,15 +585,7 @@ public:
         }
     }
 
-    /**
-     * Removes the node with the given bounds and data into this tree. If the given bounds are empty,
-     * nothing is removed.
-     *
-     * @param bounds the bounds to remove
-     * @param data the data to remove
-     * @return true if a node with the given bounds and data was removed, and false otherwise
-     */
-    bool remove(const Box& bounds, const U& data) {
+    bool remove(const Box& bounds, const U& data) override {
         if (empty() || bounds.empty()) {
             return false;
         } else if (m_root->bounds().contains(bounds)) {
@@ -626,16 +601,7 @@ public:
         }
     }
 
-    /**
-     * Updates the node with the given bounds and data with the given new bounds.
-     *
-     * @param oldBounds the old bounds of the node to update
-     * @param newBounds the new bounds of the node
-     * @param data the node data
-     *
-     * @throws AABBException if no node with the given bounds and data can be found in this tree
-     */
-    void update(const Box& oldBounds, const Box& newBounds, const U& data) {
+    void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
         if (!oldBounds.empty() && !remove(oldBounds, data)) {
             AABBException ex;
             ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
@@ -644,33 +610,18 @@ public:
         insert(newBounds, data);
     }
 
-    /**
-     * Clears this node tree.
-     */
-    void clear() {
+    void clear() override {
         if (!empty()) {
             delete m_root;
             m_root = nullptr;
         }
     }
     
-    /**
-     * Indicates whether this tree is empty.
-     *
-     * @return true if this tree is empty and false otherwise
-     */
-    bool empty() const {
+    bool empty() const override {
         return m_root == nullptr;
     }
 
-    /**
-     * Returns the height of this tree.
-     *
-     * The height of an AABB tree is the length of the longest path from the root to a leaf.
-     *
-     * @return the height of this tree
-     */
-    size_t height() const {
+    size_t height() const override {
         if (empty()) {
             return 0;
         } else {
@@ -687,12 +638,7 @@ public:
         return empty() || m_root->balanced();
     }
 
-    /**
-     * Returns the bounds of all nodes in this tree.
-     *
-     * @return the bounds of all nodes in this tree, or a bounding box made up of NaN values if this tree is empty
-     */
-    const Box& bounds() const {
+    const Box& bounds() const override {
         static const auto EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
 
         assert(!empty());
@@ -703,13 +649,7 @@ public:
         }
     }
 
-    /**
-     * Finds every data item in this tree whose bounding box intersects with the given ray and retuns a list of those items.
-     *
-     * @param ray the ray to test
-     * @return a list containing all found data items
-     */
-    List findIntersectors(const Ray<T,S>& ray) const {
+    List findIntersectors(const Ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
         return std::move(result);
@@ -740,13 +680,7 @@ public:
         }
     }
 
-    /**
-     * Finds every data item in this tree whose bounding box contains the given point and returns a list of those items.
-     *
-     * @param point the point to test
-     * @return a list containing all found data items
-     */
-     List findContainers(const Vec<T,S>& point) const {
+     List findContainers(const Vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
          return std::move(result);
