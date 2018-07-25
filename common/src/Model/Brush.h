@@ -217,11 +217,13 @@ namespace TrenchBroom {
             void updateFacesFromGeometry(const BBox3& worldBounds);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
-            void deleteGeometry();
             void rebuildGeometry(const BBox3& worldBounds);
-            void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
+            void buildGeometry(const BBox3& worldBounds);
+            void deleteGeometry();
             bool checkGeometry() const;
+        public:
+            void findIntegerPlanePoints(const BBox3& worldBounds);
         public: // content type
             bool transparent() const;
             bool hasContentType(const BrushContentType& contentType) const;

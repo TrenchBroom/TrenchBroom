@@ -50,12 +50,16 @@ namespace TrenchBroom {
             return !brushEntity();
         }
         
+        bool Entity::hasEntityDefinition() const {
+            return m_definition != nullptr;
+        }
+
         bool Entity::hasBrushEntityDefinition() const {
-            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_BrushEntity;
         }
 
         bool Entity::hasPointEntityDefinition() const {
-            return m_definition != nullptr && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+            return hasEntityDefinition() && definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
         bool Entity::hasPointEntityModel() const {

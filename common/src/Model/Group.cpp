@@ -156,10 +156,10 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            // A group can only be picked if and only if the following conditions are met
+            // A group can only be picked if and only if all of the following conditions are met
             // * it is closed or has no open descendant
             // * it is top level or has an open parent
-            if ((!opened() && !hasOpenedDescendant()) && (group() == nullptr || group()->opened())) {
+            if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
                 const FloatType distance = intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
@@ -191,11 +191,11 @@ namespace TrenchBroom {
         void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
-        
+
         void Group::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
-        
+
         void Group::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
         }

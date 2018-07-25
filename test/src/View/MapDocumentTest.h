@@ -47,6 +47,7 @@ namespace TrenchBroom {
             MapDocumentTest(Model::MapFormat::Type mapFormat);
             
             void SetUp() override;
+            void TearDown() override;
             
             Model::Brush* createBrush(const String& textureName = "texture");
         };

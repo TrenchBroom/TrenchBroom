@@ -46,7 +46,9 @@ namespace TrenchBroom {
         
         MapDocumentTest::MapDocumentTest(const Model::MapFormat::Type mapFormat) :
         ::testing::Test(),
-        m_mapFormat(mapFormat) {}
+        m_mapFormat(mapFormat),
+        m_pointEntityDef(nullptr),
+        m_brushEntityDef(nullptr) {}
 
         void MapDocumentTest::SetUp() {
             document = MapDocumentCommandFacade::newMapDocument();
@@ -57,6 +59,11 @@ namespace TrenchBroom {
             m_brushEntityDef = new Assets::BrushEntityDefinition("point_entity", Color(), "this is a point entity", Assets::AttributeDefinitionList());
 
             document->setEntityDefinitions(Assets::EntityDefinitionList { m_pointEntityDef, m_brushEntityDef });
+        }
+
+        void MapDocumentTest::TearDown() {
+            m_pointEntityDef = nullptr;
+            m_brushEntityDef = nullptr;
         }
 
         Model::Brush* MapDocumentTest::createBrush(const String& textureName) {
