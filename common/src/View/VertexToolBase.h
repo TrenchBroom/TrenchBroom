@@ -253,10 +253,12 @@ namespace TrenchBroom {
         public: // rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
-                if (!handleManager().allSelected())
+                if (!handleManager().allSelected()) {
                     renderHandles(handleManager().unselectedHandles(), renderService, pref(Preferences::HandleColor));
-                if (handleManager().anySelected())
+                }
+                if (handleManager().anySelected()) {
                     renderHandles(handleManager().selectedHandles(), renderService, pref(Preferences::SelectedHandleColor));
+                }
             }
             
             void renderDragHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
@@ -388,7 +390,7 @@ namespace TrenchBroom {
             
             void commandDoOrUndo(Command::Ptr command) {
                 if (isVertexCommand(command)) {
-                    VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
                     deselectHandles();
                     removeHandles(vertexCommand);
                     m_ignoreChangeNotifications.pushLiteral();
@@ -397,7 +399,7 @@ namespace TrenchBroom {
             
             void commandDoneOrUndoFailed(Command::Ptr command) {
                 if (isVertexCommand(command)) {
-                    VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
 
@@ -409,12 +411,13 @@ namespace TrenchBroom {
             
             void commandDoFailedOrUndone(Command::Ptr command) {
                 if (isVertexCommand(command)) {
-                    VertexCommand* vertexCommand = static_cast<VertexCommand*>(command.get());
+                    auto* vertexCommand = static_cast<VertexCommand*>(command.get());
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
 
-                    if (!m_dragging)
+                    if (!m_dragging) {
                         rebuildBrushGeometry();
+                    }
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }

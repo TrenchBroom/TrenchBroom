@@ -51,10 +51,10 @@ namespace TrenchBroom {
         }
         
         void EditorContext::setShowPointEntities(const bool showPointEntities) {
-            if (showPointEntities == m_showPointEntities)
-                return;
-            m_showPointEntities = showPointEntities;
-            editorContextDidChangeNotifier();
+            if (showPointEntities != m_showPointEntities) {
+                m_showPointEntities = showPointEntities;
+                editorContextDidChangeNotifier();
+            }
         }
         
         bool EditorContext::showBrushes() const {
@@ -62,10 +62,10 @@ namespace TrenchBroom {
         }
         
         void EditorContext::setShowBrushes(const bool showBrushes) {
-            if (showBrushes == m_showBrushes)
-                return;
-            m_showBrushes = showBrushes;
-            editorContextDidChangeNotifier();
+            if (showBrushes != m_showBrushes) {
+                m_showBrushes = showBrushes;
+                editorContextDidChangeNotifier();
+            }
         }
         
         Model::BrushContentType::FlagType EditorContext::hiddenBrushContentTypes() const {
@@ -73,29 +73,25 @@ namespace TrenchBroom {
         }
         
         void EditorContext::setHiddenBrushContentTypes(Model::BrushContentType::FlagType brushContentTypes) {
-            if (brushContentTypes == m_hiddenBrushContentTypes)
-                return;
-            m_hiddenBrushContentTypes = brushContentTypes;
-            editorContextDidChangeNotifier();
+            if (brushContentTypes != m_hiddenBrushContentTypes) {
+                m_hiddenBrushContentTypes = brushContentTypes;
+                editorContextDidChangeNotifier();
+            }
         }
         
         bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
-            if (entity == nullptr)
-                return false;
-            return entityDefinitionHidden(entity->definition());
+            return entity != nullptr && entityDefinitionHidden(entity->definition());
         }
 
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
-            if (definition == nullptr)
-                return false;
-            return m_hiddenEntityDefinitions[definition->index()];
+            return definition != nullptr && m_hiddenEntityDefinitions[definition->index()];
         }
         
         void EditorContext::setEntityDefinitionHidden(const Assets::EntityDefinition* definition, const bool hidden) {
-            if (definition == nullptr || entityDefinitionHidden(definition) == hidden)
-                return;
-            m_hiddenEntityDefinitions[definition->index()] = hidden;
-            editorContextDidChangeNotifier();
+            if (definition != nullptr && entityDefinitionHidden(definition) != hidden) {
+                m_hiddenEntityDefinitions[definition->index()] = hidden;
+                editorContextDidChangeNotifier();
+            }
         }
         
         EditorContext::EntityLinkMode EditorContext::entityLinkMode() const {
@@ -103,10 +99,10 @@ namespace TrenchBroom {
         }
         
         void EditorContext::setEntityLinkMode(const EntityLinkMode entityLinkMode) {
-            if (entityLinkMode == m_entityLinkMode)
-                return;
-            m_entityLinkMode = entityLinkMode;
-            editorContextDidChangeNotifier();
+            if (entityLinkMode != m_entityLinkMode) {
+                m_entityLinkMode = entityLinkMode;
+                editorContextDidChangeNotifier();
+            }
         }
 
         bool EditorContext::blockSelection() const {
@@ -114,8 +110,10 @@ namespace TrenchBroom {
         }
         
         void EditorContext::setBlockSelection(const bool blockSelection) {
-            m_blockSelection = blockSelection;
-            editorContextDidChangeNotifier();
+            if (m_blockSelection != blockSelection) {
+                m_blockSelection = blockSelection;
+                editorContextDidChangeNotifier();
+            }
         }
 
         Model::Group* EditorContext::currentGroup() const {
@@ -126,8 +124,9 @@ namespace TrenchBroom {
             ensure(group != nullptr, "group is null");
             assert(m_currentGroup == nullptr || group->group() == m_currentGroup);
             
-            if (m_currentGroup != nullptr)
+            if (m_currentGroup != nullptr) {
                 m_currentGroup->close();
+            }
             m_currentGroup = group;
             m_currentGroup->open();
         }
@@ -136,8 +135,9 @@ namespace TrenchBroom {
             ensure(m_currentGroup != nullptr, "currentGroup is null");
             m_currentGroup->close();
             m_currentGroup = m_currentGroup->group();
-            if (m_currentGroup != nullptr)
+            if (m_currentGroup != nullptr) {
                 m_currentGroup->open();
+            }
         }
 
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -168,8 +168,10 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Group* group) const {
-            if (group->selected())
+            if (group->selected()) {
                 return true;
+            }
+
             return group->visible();
         }
         
@@ -177,30 +179,46 @@ namespace TrenchBroom {
             if (entity->selected()) {
                 return true;
             }
+
             if (entity->brushEntity()) {
-                return anyChildVisible(entity);
+                if (!anyChildVisible(entity)) {
+                    return false;
+                }
+                return true;
             }
+
             if (!entity->visible()) {
                 return false;
             }
+
             if (entity->pointEntity() && !m_showPointEntities) {
                 return false;
             }
+
             if (entityDefinitionHidden(entity)) {
                 return false;
             }
+
             return true;
         }
         
         bool EditorContext::visible(const Model::Brush* brush) const {
-            if (brush->selected())
+            if (brush->selected()) {
                 return true;
-            if (!m_showBrushes)
+            }
+
+            if (!m_showBrushes) {
                 return false;
-            if (brush->hasContentType(m_hiddenBrushContentTypes))
+            }
+
+            if (brush->hasContentType(m_hiddenBrushContentTypes)) {
                 return false;
-            if (entityDefinitionHidden(brush->entity()))
+            }
+
+            if (entityDefinitionHidden(brush->entity())) {
                 return false;
+            }
+
             return brush->visible();
         }
         
@@ -210,7 +228,7 @@ namespace TrenchBroom {
 
         
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
-            const Model::NodeList& children = node->children();
+            const auto& children = node->children();
             return std::any_of(std::begin(children), std::end(children), [this](const Node* child) { return visible(child); });
         }
         
@@ -228,7 +246,7 @@ namespace TrenchBroom {
         public:
             NodePickable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world) override   { setResult(false); }
+            void doVisit(const Model::World* world) override   { setResult(m_this.pickable(world)); }
             void doVisit(const Model::Layer* layer) override   { setResult(m_this.pickable(layer)); }
             void doVisit(const Model::Group* group) override   { setResult(m_this.pickable(group)); }
             void doVisit(const Model::Entity* entity) override { setResult(m_this.pickable(entity)); }
@@ -240,43 +258,33 @@ namespace TrenchBroom {
             node->accept(visitor);
             return visitor.result();
         }
-        
+
+        bool EditorContext::pickable(const Model::World* world) const {
+            return false;
+        }
+
         bool EditorContext::pickable(const Model::Layer* layer) const {
             return false;
         }
-        
+
         bool EditorContext::pickable(const Model::Group* group) const {
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-            
-            Model::Group* containingGroup = group->group();
-            return (containingGroup == nullptr || containingGroup->opened()) /* && visible(group) */;
+            return visible(group) && !group->opened() && group->groupOpened();
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            // Removed the group check to allow brushes to be picked if they are within groups.
-            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
-            // Might break other things though.
-            
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-
-            // Model::Group* containingGroup = entity->group();
-            return /*(containingGroup == nullptr || containingGroup->opened()) &&*/ !entity->hasChildren() /* && visible(entity) */;
+            // Do not check whether this is an open group or not -- we must be able
+            // to pick objects within groups in order to draw on them etc.
+            return visible(entity) && !entity->hasChildren();
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            // Removed the group check to allow brushes to be picked if they are within groups.
-            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
-            // Might break other things though.
-            
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-
-            // Model::Group* containingGroup = brush->group();
-            return /*(containingGroup == nullptr || containingGroup->opened()) && visible(brush) */ true;
+            // Do not check whether this is an open group or not -- we must be able
+            // to pick objects within groups in order to draw on them etc.
+            return visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            // Removed visible check and hardwired that into HitQuery. Invisible objects should not be considered during picking, ever.
-            return /* visible(face) */ true;
+            return pickable(face->brush());
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -307,15 +315,15 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::selectable(const Model::Group* group) const {
-            return visible(group) && editable(group) && pickable(group);
+            return visible(group) && editable(group) && pickable(group) && inOpenGroup(group);
         }
         
         bool EditorContext::selectable(const Model::Entity* entity) const {
-            return visible(entity) && editable(entity) && pickable(entity);
+            return visible(entity) && editable(entity) && pickable(entity) && inOpenGroup(entity);
         }
         
         bool EditorContext::selectable(const Model::Brush* brush) const {
-            return visible(brush) && editable(brush) && pickable(brush);
+            return visible(brush) && editable(brush) && pickable(brush) && inOpenGroup(brush);
         }
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
@@ -324,6 +332,10 @@ namespace TrenchBroom {
 
         bool EditorContext::canChangeSelection() const {
             return !m_blockSelection;
+        }
+
+        bool EditorContext::inOpenGroup(const Model::Object* object) const {
+            return object->groupOpened();
         }
     }
 }

@@ -243,7 +243,7 @@ namespace TrenchBroom {
             bool shown() const;
             bool hidden() const;
             VisibilityState visibilityState() const;
-            bool setVisiblityState(VisibilityState visibility);
+            bool setVisibilityState(VisibilityState visibility);
             bool ensureVisible();
 
             bool editable() const;

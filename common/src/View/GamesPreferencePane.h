@@ -27,7 +27,7 @@
 class wxSimplebook;
 class wxButton;
 class wxListBox;
-class wxStaticText;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         private:
             GameListBox* m_gameListBox;
             wxSimplebook* m_book;
-            wxStaticText* m_gamePathText;
+            wxTextCtrl* m_gamePathText;
             wxButton* m_chooseGamePathButton;
         public:
             GamesPreferencePane(wxWindow* parent);

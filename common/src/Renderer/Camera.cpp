@@ -40,6 +40,10 @@ namespace TrenchBroom {
             return x == other.x && y == other.y && width == other.width && height == other.height;
         }
 
+        bool Camera::Viewport::operator!=(const Viewport& other) const {
+            return !(*this == other);
+        }
+
         const float Camera::DefaultPointDistance = 256.0f;
         
         Camera::~Camera() {}
@@ -233,12 +237,14 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        void Camera::setViewport(const Viewport& viewport) {
-            if (viewport == m_unzoomedViewport)
-                return;
+        bool Camera::setViewport(const Viewport& viewport) {
+            if (viewport == m_unzoomedViewport) {
+                return false;
+            }
             m_unzoomedViewport = viewport;
             updateZoomedViewport();
             m_valid = false;
+            return true;
         }
 
         void Camera::moveTo(const Vec3f& position) {

@@ -48,9 +48,6 @@ namespace TrenchBroom {
         m_selected(false),
         m_texCoordSystem(texCoordSystem),
         m_geometry(nullptr),
-        m_vertexIndex(0),
-        m_cachedVertices(0),
-        m_verticesValid(false),
         m_attribs(attribs) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
@@ -174,6 +171,10 @@ namespace TrenchBroom {
 
         const Plane3& BrushFace::boundary() const {
             return m_boundary;
+        }
+
+        const Vec3& BrushFace::normal() const {
+            return boundary().normal;
         }
 
         Vec3 BrushFace::center() const {
@@ -530,7 +531,7 @@ namespace TrenchBroom {
         }
 
         size_t BrushFace::vertexCount() const {
-            ensure(m_geometry != nullptr, "geometry is null");
+            assert(m_geometry != nullptr);
             return m_geometry->boundary().size();
         }
 
@@ -572,9 +573,13 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setGeometry(BrushFaceGeometry* geometry) {
-            if (m_geometry == geometry)
-                return;
+            if (m_geometry != nullptr) {
+                m_geometry->setPayload(nullptr);
+            }
             m_geometry = geometry;
+            if (m_geometry != nullptr) {
+                m_geometry->setPayload(this);
+            }
             invalidateVertexCache();
         }
 
@@ -603,37 +608,6 @@ namespace TrenchBroom {
             m_selected = false;
             if (m_brush != nullptr)
                 m_brush->childWasDeselected();
-        }
-
-        void BrushFace::getVertices(Renderer::VertexListBuilder<VertexSpec>& builder) const {
-            validateVertexCache();
-            m_vertexIndex = builder.addPolygon(m_cachedVertices).index;
-
-            GLuint index = static_cast<GLuint>(m_vertexIndex);
-            // set the vertex indices
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
-            do {
-                BrushVertex* vertex = current->origin();
-                vertex->setPayload(index++);
-                
-                // The boundary is in CCW order, but the renderer expects CW order:
-                current = current->previous();
-            } while (current != first);
-        }
-        
-        void BrushFace::countIndices(Renderer::TexturedIndexArrayMap::Size& size) const {
-            if (vertexCount() == 4)
-                size.inc(texture(), GL_QUADS, 4);
-            else
-                size.inc(texture(), GL_TRIANGLES, 3 * (vertexCount() - 2));
-        }
-
-        void BrushFace::getFaceIndices(Renderer::TexturedIndexArrayBuilder& builder) const {
-            if (vertexCount() == 4)
-                builder.addQuads(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
-            else
-                builder.addPolygon(texture(), static_cast<GLuint>(m_vertexIndex), vertexCount());
         }
 
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
@@ -687,31 +661,18 @@ namespace TrenchBroom {
                 m_points[i].correct();
         }
 
-        bool BrushFace::vertexCacheValid() const {
-            return m_verticesValid;
-        }
-        
         void BrushFace::invalidateVertexCache() {
-            m_verticesValid = false;
-        }
-        
-        void BrushFace::validateVertexCache() const {
-            if (!m_verticesValid) {
-                m_cachedVertices.clear();
-                m_cachedVertices.reserve(vertexCount());
-                
-                const BrushHalfEdge* first = m_geometry->boundary().front();
-                const BrushHalfEdge* current = first;
-                do {
-                    const Vec3& position = current->origin()->position();
-                    m_cachedVertices.push_back(Vertex(position, m_boundary.normal, textureCoords(position)));
-                    
-                    // The boundary is in CCW order, but the renderer expects CW order:
-                    current = current->previous();
-                } while (current != first);
-                
-                m_verticesValid = true;
+            if (m_brush != nullptr) {
+                m_brush->invalidateVertexCache();
             }
+        }
+
+        void BrushFace::setMarked(const bool marked) const {
+            m_markedToRenderFace = marked;
+        }
+
+        bool BrushFace::isMarked() const {
+            return m_markedToRenderFace;
         }
     }
 }

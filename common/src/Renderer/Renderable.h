@@ -45,12 +45,8 @@ namespace TrenchBroom {
 
         class IndexedRenderable : public Renderable {
         public:
-            virtual ~IndexedRenderable();
-            void prepareVertices(Vbo& vertexVbo);
-            void prepareIndices(Vbo& indexVbo);
-        private:
-            virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
-            virtual void doPrepareIndices(Vbo& indexVbo) = 0;
+            ~IndexedRenderable() override;
+            virtual void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) = 0;
         };
     }
 }

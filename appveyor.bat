@@ -15,6 +15,8 @@ call generate_checksum.bat
 
 Release\TrenchBroom-Test.exe
 
+Release\TrenchBroom-Benchmark.exe
+
 GOTO END
 
 :ERROR

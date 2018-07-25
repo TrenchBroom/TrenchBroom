@@ -47,7 +47,10 @@ namespace TrenchBroom {
         }
         
         RenderView::~RenderView() {}
-        
+
+        // to prevent flickering, see https://wiki.wxwidgets.org/Flicker-Free_Drawing
+        void RenderView::OnEraseBackground(wxEraseEvent& event) {}
+
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (IsBeingDeleted()) return;
             if (TrenchBroom::View::isReportingCrash()) return;
@@ -108,6 +111,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::bindEvents() {
+            Bind(wxEVT_ERASE_BACKGROUND, &RenderView::OnEraseBackground, this);
             Bind(wxEVT_PAINT, &RenderView::OnPaint, this);
             Bind(wxEVT_SIZE, &RenderView::OnSize, this);
             Bind(wxEVT_SET_FOCUS, &RenderView::OnSetFocus, this);

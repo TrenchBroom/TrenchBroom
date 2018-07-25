@@ -67,9 +67,7 @@ namespace TrenchBroom {
             void doAdd(Renderable* renderable);
             
             void prepareRenderables();
-            void prepareVertices();
-            void prepareIndices();
-            
+
             void renderRenderables(RenderContext& renderContext);
         };
     }

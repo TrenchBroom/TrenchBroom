@@ -22,19 +22,24 @@
 
 #include "Color.h"
 #include "Reference.h"
-#include "Renderer/IndexArray.h"
 #include "Renderer/IndexArrayMap.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
 #include <vector>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
         class Vbo;
+        class BrushVertexArray;
+        class BrushIndexArray;
+
+        using BrushVertexArrayPtr = std::shared_ptr<BrushVertexArray>;
+        using BrushIndexArrayPtr = std::shared_ptr<BrushIndexArray>;
 
         class EdgeRenderer {
         public:
@@ -107,24 +112,21 @@ namespace TrenchBroom {
         private:
             class Render : public RenderBase, public IndexedRenderable {
             private:
-                VertexArray m_vertexArray;
-                IndexArray m_indexArray;
-                IndexArrayMap m_indexRanges;
+                BrushVertexArrayPtr m_vertexArray;
+                BrushIndexArrayPtr m_indexArray;
             public:
-                Render(const Params& params, VertexArray& vertexArray, IndexArray& indexArray, IndexArrayMap& indexRanges);
+                Render(const Params& params, BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray);
             private:
-                void doPrepareVertices(Vbo& vertexVbo) override;
-                void doPrepareIndices(Vbo& indexVbo) override;
+                void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) override;
                 void doRender(RenderContext& renderContext) override;
                 void doRenderVertices(RenderContext& renderContext) override;
             };
         private:
-            VertexArray m_vertexArray;
-            IndexArray m_indexArray;
-            IndexArrayMap m_indexRanges;
+            BrushVertexArrayPtr m_vertexArray;
+            BrushIndexArrayPtr m_indexArray;
         public:
             IndexedEdgeRenderer();
-            IndexedEdgeRenderer(const VertexArray& vertexArray, const IndexArray& indexArray, const IndexArrayMap& indexRanges);
+            IndexedEdgeRenderer(BrushVertexArrayPtr vertexArray, BrushIndexArrayPtr indexArray);
 
             IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
             IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);

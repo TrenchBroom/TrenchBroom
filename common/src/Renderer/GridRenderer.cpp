@@ -70,9 +70,7 @@ namespace TrenchBroom {
         void GridRenderer::doRender(RenderContext& renderContext) {
             if (renderContext.showGrid()) {
                 const Camera& camera = renderContext.camera();
-                const Camera::Viewport& viewport = camera.unzoomedViewport();
-                const float minDimension = static_cast<float>(viewport.minDimension());
-                
+
                 ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
                 shader.set("Normal", -camera.direction());
                 shader.set("RenderGrid", renderContext.showGrid());
@@ -80,8 +78,7 @@ namespace TrenchBroom {
                 shader.set("GridAlpha", pref(Preferences::GridAlpha));
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", camera.zoom());
-                shader.set("ViewportMinDimension", minDimension);
-                
+
                 m_vertexArray.render(GL_QUADS);
             }
         }

@@ -745,8 +745,6 @@ If you want to replace a particular texture with another one, you can choose #me
 
 Select the texture you wish to replace in the left texture browser. This browser by default only shows you the textures which are currently in use in the map. In the screenshot, the texture "b_pv_v1a1" has been selected for replacement and therefore has a red border. Then select the replacement texture in the right texture browser ("b_sr_20c" in the screenshot). Finally, hit the "Replace" button. The replacement is applied to all brush faces in the map if nothing is currently selected. Otherwise, it is applied to the selected brush faces only. If the replacement succeeded, the faces which have been replaced are subsequently selected. Otherwise, the selection remains unchanged.
 
-Note that the window is not modal - you can switch back to the main window to change your selection if you wish.
-
 ### Setting Face Attributes
 
 Face attributes control how textures are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a texture on a face, the scale factors stretch the texture, and by changing the angle you can rotate the texture. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
@@ -757,7 +755,7 @@ The face attribute editor is located in the face inspector, right between the UV
 
 ![Face Attribute Editor (Mac OS X)](FaceAttribsEditor.png)
 
-Two types of controls are visible in the screenshot above. Numerical input controls consist of a text field and small buttons to increase or decrease the value in the field. The text field will show the value of the respective face attribute, such as "1" for the X Scale in the screenshot. If more than one brush face is selected, the text field will also show the value if all faces have the same value for the respective attribute, or it will show the placeholder word "multi" otherwise. In the screenshot above, the X Offsets of the selected brush faces differ, hence the text field shows "multi". All other values are identical for all selected brush faces, so all other attribute editors show concrete values instead of the placeholder. By entering a number into the text field, the attribute value of all selected brush faces can be set to that value. Consequently, if you were to enter the value "32" into the X Offset editor in our example above, all selected brush faces would have this value as their X Offset afterwards.
+Two types of controls are visible in the screenshot above. Numerical input controls consist of a text field and small buttons to increase or decrease the value in the field. The text field will show the value of the respective face attribute, such as "1" for the X Scale in the screenshot. If more than one brush face is selected, the text field will also show the value if all faces have the same value for the respective attribute, or it will show the placeholder word "multi" otherwise (not supported on Windows). In the screenshot above, the X Offsets of the selected brush faces differ, hence the text field shows "multi". All other values are identical for all selected brush faces, so all other attribute editors show concrete values instead of the placeholder. By entering a number into the text field, the attribute value of all selected brush faces can be set to that value. Consequently, if you were to enter the value "32" into the X Offset editor in our example above, all selected brush faces would have this value as their X Offset afterwards.
 
 The spin button however works differently. By clicking the up- or down arrow button, you can increase or decrease the value of the respective face attribute by a certain delta value, which depends on the grid settings and the currently pressed modifier keys. The following table explains which delta value is chosen in each case.
 
@@ -1839,19 +1837,23 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 ## Contact
 
-- [Discord]
+- [TrenchBroom Discord]
 
 # References and Links {#references_and_links}
 
 - [TrenchBroom on github] - TrenchBroom's github page
 - [func_msgboard] - Quake Mapping Forum
+- [Quake Tools] - Quake tools by Joshua Skelton
 - [Tutorials by dumptruck_ds] - Video Tutorial Series
+- [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
 [TrenchBroom on github]: http://github.com/kduske/TrenchBroom/
 [TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
+[TrenchBroom Discord]: https://discord.gg/n7K8Cps
 [func_msgboard]: http://celephais.net/board/
+[Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
 [FGD File Format]: http://developer.valvesoftware.com/wiki/FGD
-[Discord]: https://discord.gg/n7K8Cps
 [Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
+[Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM

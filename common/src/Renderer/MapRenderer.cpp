@@ -45,41 +45,25 @@
 #include "View/Selection.h"
 #include "View/MapDocument.h"
 
+#include <set>
+
 namespace TrenchBroom {
     namespace Renderer {
         class MapRenderer::SelectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
         public:
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushSelected = selected(brush);
-                
-                if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushFace* face : brush->faces()) {
-                        if (brushSelected || selected(face))
-                            faceAcceptor.accept(face);
-                    }
+
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                if (!(visible(brush) && editable(brush))) {
+                    return renderNothing();
                 }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
+
                 const bool brushSelected = selected(brush);
-                
-                if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushEdge* edge : brush->edges()) {
-                        const Model::BrushFace* first = edge->firstFace()->payload();
-                        const Model::BrushFace* second = edge->secondFace()->payload();
-                        assert(second->brush() == brush);
-                        
-                        if (brushSelected || selected(first) || selected(second))
-                            edgeAcceptor.accept(edge);
-                    }
+                for (Model::BrushFace* face : brush->faces()) {
+                    face->setMarked(brushSelected || selected(face));
                 }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return false;
+                return std::make_tuple(RenderOpacity::Opaque, FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
         };
         
@@ -87,29 +71,19 @@ namespace TrenchBroom {
         public:
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                
-                if (brushVisible) {
+
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                if (!visible(brush)) {
+                    return renderNothing();
+                }
+
+                for (Model::BrushFace* face : brush->faces()) {
                     // collect all faces
-                    for (const Model::BrushFace* face : brush->faces())
-                         faceAcceptor.accept(face);
+                    face->setMarked(true);
                 }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                const bool brushVisible = visible(brush);
-                
-                if (brushVisible) {
-                    // collect all edges
-                    for (const Model::BrushEdge* edge : brush->edges())
-                         edgeAcceptor.accept(edge);
-                }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return brush->transparent();
+                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
+                                       FaceRenderPolicy::RenderMarked,
+                                       EdgeRenderPolicy::RenderAll);
             }
         };
         
@@ -117,31 +91,24 @@ namespace TrenchBroom {
         public:
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-        private:
-            void doProvideFaces(const Model::Brush* brush, BrushRenderer::FaceAcceptor&  faceAcceptor) const override {
-                if (visible(brush) && editable(brush)) {
-                    for (const Model::BrushFace* face : brush->faces()) {
-                        if (!selected(face))
-                            faceAcceptor.accept(face);
-                    }
+
+            RenderSettings markFaces(const Model::Brush* brush) const override {
+                const bool brushVisible = visible(brush);
+                const bool brushEditable = editable(brush);
+
+                const bool renderFaces = (brushVisible && brushEditable);
+                const bool renderEdges = (brushVisible && !selected(brush));
+
+                if (!(renderFaces || renderEdges)) {
+                    return renderNothing();
                 }
-            }
-            
-            void doProvideEdges(const Model::Brush* brush, BrushRenderer::EdgeAcceptor&  edgeAcceptor) const override {
-                if (visible(brush) && !selected(brush)) {
-                    for (const Model::BrushEdge* edge : brush->edges()) {
-                        const Model::BrushFace* first = edge->firstFace()->payload();
-                        const Model::BrushFace* second = edge->secondFace()->payload();
-                        assert(second->brush() == brush);
-                        
-                        if (!selected(first) && !selected(second))
-                            edgeAcceptor.accept(edge);
-                    }
+
+                for (Model::BrushFace* face : brush->faces()) {
+                    face->setMarked(!selected(face));
                 }
-            }
-            
-            bool doIsTransparent(const Model::Brush* brush) const override {
-                return brush->transparent();
+                return std::make_tuple(brush->transparent() ? RenderOpacity::Transparent : RenderOpacity::Opaque,
+                                       renderFaces ? FaceRenderPolicy::RenderMarked : FaceRenderPolicy::RenderNone,
+                                       renderEdges ? EdgeRenderPolicy::RenderIfBothFacesMarked : EdgeRenderPolicy::RenderNone);
             }
         };
         
@@ -479,6 +446,18 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
+        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes) {
+            if ((renderers & Renderer_Default) != 0) {
+                m_defaultRenderer->invalidateBrushes(brushes);
+            }
+            if ((renderers & Renderer_Selection) != 0) {
+                m_selectionRenderer->invalidateBrushes(brushes);
+            }
+            if ((renderers& Renderer_Locked) != 0) {
+                m_lockedRenderer->invalidateBrushes(brushes);
+            }
+        }
+
         void MapRenderer::invalidateEntityLinkRenderer() {
             m_entityLinkRenderer->invalidate();
         }
@@ -563,7 +542,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
-            updateRenderers(Renderer_All);
+            invalidateRenderers(Renderer_All);
         }
         
         void MapRenderer::nodeLockingDidChange(const Model::NodeList& nodes) {
@@ -584,6 +563,27 @@ namespace TrenchBroom {
         
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
             updateRenderers(Renderer_All); // need to update locked objects also because a selected object may have been reparented into a locked layer before deselection
+
+            // selecting faces needs to invalidate the brushes
+            if (!selection.selectedBrushFaces().empty()
+                || !selection.deselectedBrushFaces().empty()) {
+
+                std::set<Model::Brush*> brushes;
+                for (auto& face : selection.selectedBrushFaces()) {
+                    brushes.insert(face->brush());
+                }
+                for (auto& face : selection.deselectedBrushFaces()) {
+                    brushes.insert(face->brush());
+                }
+
+                std::vector<Model::Brush*> brushesVec;
+                brushesVec.reserve(brushes.size());
+                for (auto& brush : brushes) {
+                    brushesVec.push_back(brush);
+                }
+
+                invalidateBrushesInRenderers(Renderer_All, brushesVec);
+            }
         }
         
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {

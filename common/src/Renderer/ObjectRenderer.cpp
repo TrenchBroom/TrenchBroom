@@ -37,6 +37,10 @@ namespace TrenchBroom {
             m_brushRenderer.invalidate();
         }
 
+        void ObjectRenderer::invalidateBrushes(const Model::BrushList& brushes) {
+            m_brushRenderer.invalidateBrushes(brushes);
+        }
+
         void ObjectRenderer::clear() {
             m_groupRenderer.clear();
             m_entityRenderer.clear();
