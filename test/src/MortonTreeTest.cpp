@@ -23,6 +23,7 @@
 #include "Ray.h"
 #include "MortonTree.h"
 
+/*
 using TREE = MortonTree<double, 3, size_t>;
 using BOX = TREE::Box;
 using RAY = Ray<TREE::FloatType, TREE::Components>;
@@ -34,3 +35,4 @@ TEST(MortonTreeTest, createEmptyTree) {
     ASSERT_TRUE(tree.empty());
     ASSERT_EQ(0u, tree.height());
 }
+*/

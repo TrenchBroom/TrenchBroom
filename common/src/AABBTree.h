@@ -38,22 +38,26 @@ class AABBTree : public NodeTree<T,S,U,Cmp> {
 public:
     using List = typename NodeTree<T,S,U,Cmp>::List;
     using Box = typename NodeTree<T,S,U,Cmp>::Box;
+    using DataType = typename NodeTree<T,S,U,Cmp>::DataType;
+    using Pair = typename NodeTree<T,S,U,Cmp>::Pair;
+    using PairList = typename NodeTree<T,S,U,Cmp>::PairList;
+    using FloatType = typename NodeTree<T,S,U,Cmp>::FloatType;
 private:
     class InnerNode;
-    class Leaf;
+    class LeafNode;
 
     class Visitor {
     public:
         virtual ~Visitor() = default;
 
         virtual bool visit(const InnerNode* innerNode) = 0;
-        virtual void visit(const Leaf* leaf) = 0;
+        virtual void visit(const LeafNode* leaf) = 0;
     };
 
     class LambdaVisitor : public Visitor {
     public:
         using InnerNodeVisitor = std::function<bool(const InnerNode*)>;
-        using LeafVisitor = std::function<void(const Leaf*)>;
+        using LeafVisitor = std::function<void(const LeafNode*)>;
     private:
         const InnerNodeVisitor m_innerNodeVisitor;
         const LeafVisitor m_leafVisitor;
@@ -63,7 +67,7 @@ private:
                 m_leafVisitor(leafVisitor) {}
 
         bool visit(const InnerNode* innerNode) override { return m_innerNodeVisitor(innerNode); }
-        void visit(const Leaf* leaf)           override { m_leafVisitor(leaf); }
+        void visit(const LeafNode* leaf)           override { m_leafVisitor(leaf); }
     };
 
     class Node {
@@ -133,7 +137,7 @@ private:
          * @param data the data to find
          * @return the leaf that contains the given bounds and data
          */
-        virtual const Leaf* find(const Box& bounds, const U& data) const = 0;
+        virtual const LeafNode* find(const Box& bounds, const U& data) const = 0;
 
         /**
          * Inserts a new node with the given parameters into the subtree of which this node is the root. Returns the new
@@ -161,7 +165,7 @@ private:
          * @param bounds the bounds to test
          * @return the leaf of this node's subtree that increases the given bounds the least
          */
-        virtual Leaf* findRebalanceCandidate(const Box& bounds) = 0;
+        virtual LeafNode* findRebalanceCandidate(const Box& bounds) = 0;
 
         /**
          * Accepts the given visitor.
@@ -251,8 +255,8 @@ private:
             return r - l;
         }
 
-        const Leaf* find(const Box& bounds, const U& data) const override {
-            const Leaf* result = nullptr;
+        const LeafNode* find(const Box& bounds, const U& data) const override {
+            const LeafNode* result = nullptr;
             if (this->bounds().contains(bounds)) {
                 result = m_left->find(bounds, data);
                 if (result == nullptr) {
@@ -368,10 +372,10 @@ private:
         }
 
     public:
-        Leaf* findRebalanceCandidate(const Box& bounds) override {
+        LeafNode* findRebalanceCandidate(const Box& bounds) override {
             return selectLeastIncreaser(m_left, m_right, bounds)->findRebalanceCandidate(bounds);
-            // Leaf* leftCandidate = m_left->findRebalanceCandidate(bounds);
-            // Leaf* rightCandidate = m_right->findRebalanceCandidate(bounds);
+            // LeafNode* leftCandidate = m_left->findRebalanceCandidate(bounds);
+            // LeafNode* rightCandidate = m_right->findRebalanceCandidate(bounds);
             // return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
         }
     private:
@@ -445,11 +449,11 @@ private:
      * A leaf node represents actual data. It does not have any children. Its bounds equals the bounds supplied when
      * the node was inserted into the tree. A leaf has a height of 1 and a balance of 0.
      */
-    class Leaf : public Node {
+    class LeafNode : public Node {
     private:
         U m_data;
     public:
-        Leaf(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
+        LeafNode(const Box& bounds, const U& data) : Node(bounds), m_data(data) {}
 
         /**
          * Returns the data associated with this node.
@@ -491,7 +495,7 @@ private:
             return 0;
         }
 
-        const Leaf* find(const Box& bounds, const U& data) const override {
+        const LeafNode* find(const Box& bounds, const U& data) const override {
             if (this->hasBounds(bounds) && hasData(data)) {
                 return this;
             } else {
@@ -507,7 +511,7 @@ private:
          * @return the newly created inner node which should replace this leaf in the parent
          */
         Node* insert(const Box& bounds, const U& data) override {
-            return new InnerNode(this, new Leaf(bounds, data));
+            return new InnerNode(this, new LeafNode(bounds, data));
         }
 
         /**
@@ -544,7 +548,7 @@ private:
          * @param bounds ignored
          * @return a pointer to this node
          */
-        Leaf* findRebalanceCandidate(const Box& bounds) override {
+        LeafNode* findRebalanceCandidate(const Box& bounds) override {
             return this;
         }
 
@@ -577,7 +581,7 @@ public:
     void insert(const Box& bounds, const U& data) override {
         if (!bounds.empty()) {
             if (empty()) {
-                m_root = new Leaf(bounds, data);
+                m_root = new LeafNode(bounds, data);
             } else {
                 m_root = m_root->insert(bounds, data);
             }
@@ -670,7 +674,7 @@ public:
                     [&](const InnerNode* innerNode) {
                         return innerNode->bounds().contains(ray.origin) || !Math::isnan(innerNode->bounds().intersectWithRay(ray));
                     },
-                    [&](const Leaf* leaf) {
+                    [&](const LeafNode* leaf) {
                         if (leaf->bounds().contains(ray.origin) || !Math::isnan(leaf->bounds().intersectWithRay(ray))) {
                             out = leaf->data();
                         }
@@ -701,7 +705,7 @@ public:
                     [&](const InnerNode* innerNode) {
                         return innerNode->bounds().contains(point);
                     },
-                    [&](const Leaf* leaf) {
+                    [&](const LeafNode* leaf) {
                         if (leaf->bounds().contains(point)) {
                             out = leaf->data();
                         }

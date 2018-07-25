@@ -24,6 +24,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <type_traits>
 
 namespace Math {
     template <typename T>
@@ -341,7 +342,49 @@ namespace Math {
         n = n << 1;
         return n;
     }
-    
+
+    /**
+     * Finds the highest set bit in the given value. The search starts at the given
+     * index, which is 1-based from the right.
+     *
+     * @tparam T the type of the argument
+     * @param x the value
+     * @param i the index of the bit to start the search at
+     * @return the index of the highest set bit, at most index i, and 1-based
+     */
+    template <typename T>
+    size_t findHighestOrderBit(T x, size_t i = sizeof(T)*8) {
+        static_assert(std::is_integral<T>::value, "x is integral");
+
+        i = max(sizeof(T)*8, i);
+
+        // unset the last i bits
+        const T mask = (1 << i) - 1;
+        x &= mask;
+
+        size_t result = 0;
+        while (x > 0) {
+            x >>= 1;
+            ++result;
+        }
+        return result;
+    }
+
+    /**
+     * Finds the highest bit in which the two given values differ.
+     *
+     * @tparam T the type of the arguments
+     * @param x the first value
+     * @param y the second value
+     * @param n the number of most significant bits which should be ignored
+     * @return the index of the highest bit except for the most significant n bits in which the given values differ
+     */
+    template <typename T>
+    size_t findHighestDifferingBit(const T x, const T y, size_t n = 0) {
+        static_assert(std::is_integral<T>::value, "x and y are integral");
+        return findHighestSetBit(x ^ y, n);
+    }
+
     template <typename T>
     T normalizeRadians(T angle) {
         static const T z = static_cast<T>(0.0);
