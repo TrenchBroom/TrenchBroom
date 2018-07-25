@@ -31,6 +31,8 @@ public:
     using List = std::list<U>;
     using Box = BBox<T,S>;
     using DataType = U;
+    using Pair = std::tuple<Box&&, DataType&&>;
+    using PairList = std::list<Pair>;
     using FloatType = T;
     static const size_t Components = S;
 public:
@@ -44,6 +46,19 @@ public:
      * @return true if a node with the given bounds and data exists and false otherwise
      */
     virtual bool contains(const Box& bounds, const U& data) const = 0;
+
+    /**
+     * Clears this tree and rebuilds it by inserting all pairs of bounds and data
+     * in the given list.
+     *
+     * @param pairs the list of pairs to insert
+     */
+    virtual void clearAndBuild(const PairList& pairs) {
+        clear();
+        for (const auto& pair : pairs) {
+            insert(std::get<0>(pair), std::get<1>(pair));
+        }
+    }
 
     /**
      * Insert a node with the given bounds and data into this tree. If the given bounds are empty,

@@ -17,21 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MortonTree_h
-#define MortonTree_h
+#include <gtest/gtest.h>
 
-#include "NodeTree.h"
+#include "Vec.h"
+#include "Ray.h"
+#include "MortonTree.h"
 
-template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
-class MortonTree : public NodeTree<T,S,U,Cmp> {
-public:
-    MortonTree() {};
+using TREE = MortonTree<double, 3, size_t>;
+using BOX = TREE::Box;
+using RAY = Ray<TREE::FloatType, TREE::Components>;
+using VEC = Vec<TREE::FloatType, TREE::Components>;
 
-    ~MortonTree() override {
-        clear();
-    }
+TEST(MortonTreeTest, createEmptyTree) {
+    TREE tree;
 
-
-};
-
-#endif /* MortonTree_h */
+    ASSERT_TRUE(tree.empty());
+    ASSERT_EQ(0u, tree.height());
+}
