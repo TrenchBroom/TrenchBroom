@@ -21,6 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TrenchBroom_MathUtils_h
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <limits>
