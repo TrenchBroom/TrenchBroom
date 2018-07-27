@@ -28,8 +28,10 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Edge {
     public:
-        typedef Edge<float, S> FloatType;
-        typedef std::vector<Edge<T,S> > List;
+        using Type = T;
+        static const size_t Size = S;
+        using List = std::vector<Edge<T,S>>;
+        using FloatType = Edge<float, S>;
     private:
         Vec<T,S> m_start;
         Vec<T,S> m_end;
@@ -59,7 +61,16 @@ namespace TrenchBroom {
         bool operator<(const Edge<T,S>& other) const {
             return compare(other) < 0;
         }
-        
+
+        int compareSnapped(const Edge<T,S>& other, const T precision) const {
+            const int startCmp = m_start.compareSnapped(other.m_start, precision);
+            if (startCmp < 0)
+                return -1;
+            if (startCmp > 0)
+                return 1;
+            return m_end.compareSnapped(other.m_end, precision);
+        }
+
         int compare(const Edge<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
             const int startCmp = m_start.compare(other.m_start, epsilon);
             if (startCmp < 0)

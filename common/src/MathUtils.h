@@ -199,6 +199,12 @@ namespace Math {
     }
 
     template <typename T>
+    T snap(const T v, const T grid) {
+        assert(grid > 0.0);
+        return grid * Math::round(v / grid);
+    }
+
+    template <typename T>
     T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
