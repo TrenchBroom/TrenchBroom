@@ -103,15 +103,6 @@ public:
     virtual bool empty() const  = 0;
 
     /**
-     * Returns the height of this tree.
-     *
-     * The height of an AABB tree is the length of the longest path from the root to a leaf.
-     *
-     * @return the height of this tree
-     */
-    virtual size_t height() const = 0;
-
-    /**
      * Returns the bounds of all nodes in this tree.
      *
      * @return the bounds of all nodes in this tree, or a bounding box made up of NaN values if this tree is empty

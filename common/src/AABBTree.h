@@ -245,6 +245,13 @@ private:
             return false;
         }
 
+        /**
+         * Returns the height of this tree.
+         *
+         * The height of an AABB tree is the length of the longest path from the root to a leaf.
+         *
+         * @return the height of this tree
+         */
         size_t height() const override {
             return m_height;
         }
@@ -625,7 +632,7 @@ public:
         return m_root == nullptr;
     }
 
-    size_t height() const override {
+    size_t height() const {
         if (empty()) {
             return 0;
         } else {
