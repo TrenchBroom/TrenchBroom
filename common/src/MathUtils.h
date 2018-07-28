@@ -345,44 +345,58 @@ namespace Math {
 
     /**
      * Finds the highest set bit in the given value. The search starts at the given
-     * index, which is 1-based from the right.
+     * index, which is 0-based from the right. The function returns the index of the
+     * highest set bit which is not higher than the given index, or the number of bits
+     * of type T if no such bit is found.
+     *
+     * If the given start index is greater than the number of bits in T, the search will
+     * start at the highest bit of T regardless.
      *
      * @tparam T the type of the argument
      * @param x the value
-     * @param i the index of the bit to start the search at
-     * @return the index of the highest set bit, at most index i, and 1-based
+     * @param i the 0-based index of the bit to start the search at
+     * @return the 0-based index of the highest set bit or the number of bits of T of no such bit is found
      */
     template <typename T>
-    size_t findHighestOrderBit(T x, size_t i = sizeof(T)*8) {
+    size_t findHighestOrderBit(T x, size_t i = sizeof(T)*8 - 1) {
         static_assert(std::is_integral<T>::value, "x is integral");
 
-        i = max(sizeof(T)*8, i);
+        i = min(sizeof(T)*8 - 1, i);
 
-        // unset the last i bits
-        const T mask = (1 << i) - 1;
-        x &= mask;
-
-        size_t result = 0;
-        while (x > 0) {
-            x >>= 1;
-            ++result;
+        while (true) {
+            const T test = static_cast<T>(1) << static_cast<T>(i);
+            if (x & test) {
+                return i;
+            }
+            if (i == 0) {
+                break;
+            }
+            --i;
         }
-        return result;
+
+        return sizeof(T)*8;
     }
 
     /**
-     * Finds the highest bit in which the two given values differ.
+     * Finds the highest bit in which the given values differ. The search starts at the given
+     * index, which is 0-based from the right. The function returns the index of the
+     * highest differing bit which is not higher than the given index, or the number of bits
+     * of type T if no such bit is found.
+     *
+     * If the given start index is greater than the number of bits in T, the search will
+     * start at the highest bit of T regardless.
+     *
      *
      * @tparam T the type of the arguments
      * @param x the first value
      * @param y the second value
-     * @param n the number of most significant bits which should be ignored
-     * @return the index of the highest bit except for the most significant n bits in which the given values differ
+     * @param i the 0-based index of the bit to start the search at
+     * @return the 0-based index of the highest set in which x and y differ or the number of bits of T of no such bit is found
      */
     template <typename T>
-    size_t findHighestDifferingBit(const T x, const T y, size_t n = 0) {
+    size_t findHighestDifferingBit(const T x, const T y, size_t i = sizeof(T)*8 - 1) {
         static_assert(std::is_integral<T>::value, "x and y are integral");
-        return findHighestSetBit(x ^ y, n);
+        return findHighestSetBit(x ^ y, i);
     }
 
     template <typename T>
