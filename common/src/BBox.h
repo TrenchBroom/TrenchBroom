@@ -63,6 +63,20 @@ public:
     min(Vec<T,S>::Null),
     max(Vec<T,S>::Null) {}
     
+    // Copy and move constructors
+    BBox(const BBox<T,S>& other) = default;
+    BBox(BBox<T,S>&& other) = default;
+    
+    // Assignment operators
+    BBox<T,S>& operator=(const BBox<T,S>& other) = default;
+    BBox<T,S>& operator=(BBox<T,S>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    BBox(const BBox<U,S>& other) :
+    min(other.min),
+    max(other.max) {}
+    
     BBox(const Vec<T,S>& i_min, const Vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {}
@@ -98,11 +112,6 @@ public:
         while (cur != end)
             mergeWith(get(*cur++));
     }
-
-    template <typename U>
-    BBox(const BBox<U,S>& other) :
-    min(other.min),
-    max(other.max) {}
 
     bool operator==(const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
@@ -221,7 +230,12 @@ public:
     BBox<T,S> rounded() const {
         return BBox<T,S>(min.rounded(), max.rounded());
     }
-    
+
+    template <typename U>
+    BBox<U,S> makeIntegral() const {
+        return BBox<U,S>(min.template makeIntegral<U>(), max.template makeIntegral<U>());
+    }
+
     bool contains(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(point[i], min[i], epsilon) ||
@@ -271,6 +285,20 @@ public:
             }
         }
         return true;
+    }
+
+    /**
+     * Constrains the given point to the volume covered by this bounding box.
+     *
+     * @param point the point to constrain
+     * @return the constrained point
+     */
+    Vec<T,S> constrain(const Vec<T,S>& point) const {
+        Vec<T,S> result(point);
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = Math::min(max[i], Math::max(min[i], result[i]));
+        }
+        return result;
     }
 
     bool intersects(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {

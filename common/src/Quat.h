@@ -35,6 +35,20 @@ public:
     r(static_cast<float>(0.0)),
     v(Vec<T,3>::Null) {}
     
+    // Copy and move constructors
+    Quat(const Quat<T>& other) = default;
+    Quat(Quat<T>&& other) = default;
+    
+    // Assignment operators
+    Quat<T>& operator=(const Quat<T>& other) = default;
+    Quat<T>& operator=(Quat<T>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    Quat(const Quat<U>& other) :
+    r(static_cast<T>(other.r)),
+    v(other.v) {}
+
     Quat(const T i_r, const Vec<T,3>& i_v) :
     r(i_r),
     v(i_v) {}
@@ -64,11 +78,6 @@ public:
             setRotation(axis, angle);
         }
     }
-    
-    template <typename U>
-    Quat(const Quat<U>& other) :
-    r(static_cast<T>(other.r)),
-    v(other.v) {}
 
     const Quat<T> operator-() const {
         return Quat(-r, v);

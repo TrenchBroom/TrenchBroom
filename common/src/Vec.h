@@ -28,7 +28,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <map>
 #include <ostream>
-#include <set>
+#include <type_traits>
 #include <vector>
 
 template <typename T, size_t S>
@@ -211,7 +211,26 @@ public:
     Vec() {
         setNull();
     }
-            
+    
+    // Copy and move constructors
+    Vec(const Vec<T,S>& other) = default;
+    Vec(Vec<T,S>&& other) = default;
+    
+    // Assignment operators
+    Vec<T,S>& operator=(const Vec<T,S>& other) = default;
+    Vec<T,S>& operator=(Vec<T,S>&& other) = default;
+
+    // Conversion constructor
+    template <typename U, size_t V>
+    Vec(const Vec<U,V>& other) {
+        for (size_t i = 0; i < std::min(S,V); ++i) {
+            v[i] = static_cast<T>(other[i]);
+        }
+        for (size_t i = std::min(S,V); i < S; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
+    }
+    
     template <typename U1, typename U2>
     Vec(const U1 i_x, const U2 i_y) {
         if (S > 0) {
@@ -251,16 +270,6 @@ public:
             }
         }
         for (size_t i = 4; i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-    }
-
-    // We want this constructor to be non-explicit because it allows for quick conversions.
-    // cppcheck-suppress noExplicitConstructor
-    template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = static_cast<T>(vec[i]);
-        for (size_t i = std::min(S,O); i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
@@ -317,15 +326,6 @@ public:
         return compare(right) >= 0;
     }
 
-    template <size_t O>
-    Vec<T,S>& operator=(const Vec<T,O>& right) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = right[i];
-        for (size_t i = std::min(S,O); i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-        return *this;
-    }
-    
     const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -759,6 +759,16 @@ public:
             if (std::abs(v[i] - Math::round(v[i])) > epsilon)
                 return false;
         return true;
+    }
+
+    template <typename U>
+    Vec<U,S> makeIntegral() const {
+        static_assert(std::is_integral<U>::value, "integral result type required");
+        Vec<U,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = static_cast<U>(v[i]);
+        }
+        return result;
     }
     
     Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
