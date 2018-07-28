@@ -237,3 +237,15 @@ TEST(BBoxTest, translated) {
     const BBox3f translated(Vec3f(-10.0f, -4.0f,  1.0f), Vec3f(10.0f, 8.0f, 5.0f));
     ASSERT_EQ(translated, bounds.translated(Vec3f(2.0f, -1.0f, -3.0f)));
 }
+
+TEST(BBoxTest, constrain) {
+    const BBox3d bounds (1024.0);
+    ASSERT_VEC_EQ(Vec3d::Null, bounds.constrain(Vec3d::Null));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegX));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegY));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegZ));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosX));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosY));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosZ));
+}
