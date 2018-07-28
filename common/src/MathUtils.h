@@ -396,7 +396,7 @@ namespace Math {
     template <typename T>
     size_t findHighestDifferingBit(const T x, const T y, size_t i = sizeof(T)*8 - 1) {
         static_assert(std::is_integral<T>::value, "x and y are integral");
-        return findHighestSetBit(x ^ y, i);
+        return findHighestOrderBit(x ^ y, i);
     }
 
     template <typename T>
