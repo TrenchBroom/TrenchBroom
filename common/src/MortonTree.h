@@ -80,6 +80,17 @@ private:
  * A spacial data structure that uses morton codes to order the bounding boxes by the Z curve
  * of their center points.
  *
+ * The nodes are structured as a binary tree with the following properties:
+ * - The tree structure is defined by split nodes. Each split node represents a common prefix
+ *   of the morton codes of all its children, i.e., all leafs of a split node have the same
+ *   prefix of their morton codes. The length of this prefix is stored in the split node, and
+ *   is called the split index.
+ *   The split index indicates the highest bit in which the morton codes of its two subtrees
+ *   differ. Thereby, the leafs in the left subtree have the bit set to 0, and the leafs in the
+ *   right subtree have it set to 1.
+ * - Nodes with identical morton codes are grouped under special set nodes. These nodes do not
+ *   have any particular structure.
+ *
  * @tparam T the floating point type
  * @tparam S the number of components of vectors
  * @tparam U the type of the data stored in this tree
@@ -126,6 +137,9 @@ private:
         void visit(const LeafNode* leaf)       override { m_leafVisitor(leaf); }
     };
 
+    /**
+     * Base class for any node in this tree.
+     */
     class Node {
     protected:
         Box m_bounds;
@@ -182,6 +196,11 @@ private:
         virtual bool doCheckSplitIndex(const size_t parentIndex) const = 0;
     };
 
+    /**
+     * Base class for all inner nodes of this tree. There are two types of inner nodes: split nodes
+     * and set nodes. Split nodes structure the leafs according to their split index, while set nodes
+     * simply group leafs with identical codes.
+     */
     class InnerNode : public Node {
     protected:
         /**
@@ -222,6 +241,9 @@ private:
         virtual ~InnerNode() {}
     };
 
+    /**
+     * Split nodes structure the tree into a binary search tree.
+     */
     class SplitNode : public InnerNode {
     private:
         using InnerNode::m_identicalPrefix;
@@ -320,6 +342,10 @@ private:
         }
     };
 
+    /**
+     * Set nodes group nodes with identical morton codes, since those cannot be structured any further by
+     * split nodes.
+     */
     class SetNode : public InnerNode {
     private:
         using Node::m_bounds;
@@ -394,6 +420,10 @@ private:
         }
     };
 
+    /**
+     * A coded node has a morton code. This class has been extracted for reuse as a parameter
+     * in standard algorithms, e.g. std::lower_bound.
+     */
     class CodedNode {
     private:
         CodeType m_code;
@@ -405,6 +435,9 @@ private:
         }
     };
 
+    /**
+     * Leaf nodes contain the actual data stored in the tree.
+     */
     class LeafNode : public Node, public CodedNode {
     private:
         U m_data;
@@ -497,6 +530,13 @@ public:
         build(objects, getBounds);
     }
 private:
+    /**
+     * Builds the tree by creating leaf nodes for all objects, sorting the leaf nodes according to their
+     * morton codes, and building the tree on top of this sorted array.
+     *
+     * @param objects the objects to insert into the tree
+     * @param getBounds a function to obtain the bounds from each object
+     */
     void build(const List& objects, const GetBounds& getBounds) {
         assert(empty());
 
@@ -520,10 +560,21 @@ private:
         assert(check());
     }
 
+    /**
+     * Recursively builds a tree from the given range of leaf nodes. The given parent index is
+     * the split index of the parent node of this node.
+     *
+     * @tparam I the type of the range interators
+     * @param first the start of the range of leafs
+     * @param end the end of the range of leafs
+     * @param parentIndex the split index of the parent node
+     * @return the newly created tree
+     */
     template <typename I>
     Node* buildTree(I first, I end, const size_t parentIndex) {
         auto* firstNode = *first;
 
+        // if the range contains only one item, return that
         const auto last = std::prev(end);
         if (first == last) {
             return firstNode;
@@ -543,9 +594,11 @@ private:
             const CodedNode testNode(testValue);
             const auto midPoint = std::lower_bound(first, end, &testNode, [&testMask](const CodedNode* lhs, const CodedNode* rhs){ return (lhs->code() & testMask) < (rhs->code() & testMask); });
 
+            // recursively create the two subtrees
             auto* leftNode  = buildTree(first, midPoint, splitIndex);
             auto* rightNode = buildTree(midPoint, end,   splitIndex);
 
+            // compute the identical prefix of all nodes in the new tree
             const auto identicalPrefix = Math::bitPrefix(firstNode->code(), splitIndex + 1);
             return new SplitNode(leftNode, rightNode, splitIndex, identicalPrefix);
         }
