@@ -502,11 +502,11 @@ public:
         const T cos = dot(cd);
         return l / cos;
     }
-    
+
     T length() const {
         return std::sqrt(squaredLength());
     }
-    
+
     T squaredLength() const {
         return dot(*this);
     }
@@ -518,18 +518,18 @@ public:
     T squaredDistanceTo(const Vec<T,S>& other) const {
         return (*this - other).squaredLength();
     }
-    
+
     Vec<T,S>& normalize() {
         *this /= length();
         return *this;
     }
-    
+
     const Vec<T,S> normalized() const {
         return Vec<T,S>(*this).normalize();
     }
-    
+
     bool isNormalized() const {
-        return equals(normalized());
+        return Math::one(length());
     }
     
     Vec<T,S> normalizeRadians() const {
