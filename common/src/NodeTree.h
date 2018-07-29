@@ -31,10 +31,14 @@ public:
     using List = std::list<U>;
     using Box = BBox<T,S>;
     using DataType = U;
-    using Pair = std::tuple<Box&&, DataType&&>;
-    using PairList = std::list<Pair>;
     using FloatType = T;
     static const size_t Components = S;
+    
+    class GetBounds {
+    public:
+        virtual ~GetBounds() {}
+        virtual const Box& operator()(const U& data) const = 0;
+    };
 public:
     virtual ~NodeTree() {}
 
@@ -48,15 +52,15 @@ public:
     virtual bool contains(const Box& bounds, const U& data) const = 0;
 
     /**
-     * Clears this tree and rebuilds it by inserting all pairs of bounds and data
-     * in the given list.
+     * Clears this tree and rebuilds it by inserting given objects.
      *
-     * @param pairs the list of pairs to insert
+     * @param objects the objects to insert
+     * @param getBounds a function to compute the bounds from each object
      */
-    virtual void clearAndBuild(const PairList& pairs) {
+    virtual void clearAndBuild(const List& objects, const GetBounds& getBounds) {
         clear();
-        for (const auto& pair : pairs) {
-            insert(std::get<0>(pair), std::get<1>(pair));
+        for (const auto& object : objects) {
+            insert(getBounds(object), object);
         }
     }
 

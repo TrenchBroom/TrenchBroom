@@ -39,8 +39,6 @@ public:
     using List = typename NodeTree<T,S,U,Cmp>::List;
     using Box = typename NodeTree<T,S,U,Cmp>::Box;
     using DataType = typename NodeTree<T,S,U,Cmp>::DataType;
-    using Pair = typename NodeTree<T,S,U,Cmp>::Pair;
-    using PairList = typename NodeTree<T,S,U,Cmp>::PairList;
     using FloatType = typename NodeTree<T,S,U,Cmp>::FloatType;
 private:
     class InnerNode;

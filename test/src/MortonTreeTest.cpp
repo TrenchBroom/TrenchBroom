@@ -20,9 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "Vec.h"
-#include "Ray.h"
 #include "MortonTree.h"
-#include "TestUtils.h"
 
 TEST(MortonTreeTest, testMortonCodeComputer) {
     VecCodeComputer<Vec3d> comp(BBox3d(2048.0));
@@ -41,6 +39,32 @@ using BOX = TREE::Box;
 using RAY = Ray<TREE::FloatType, TREE::Components>;
 using VEC = Vec<TREE::FloatType, TREE::Components>;
 
+class GetBounds : public TREE::GetBounds {
+public:
+    using Map = std::map<TREE::DataType, BOX>;
+    using List = std::list<TREE::DataType>;
+private:
+    Map m_objects;
+public:
+    GetBounds(std::initializer_list<Map::value_type> init) : m_objects(init) {}
+    
+    List objects() const {
+        List result;
+        for (const auto& pair : m_objects) {
+            result.push_back(pair.first);
+        }
+        return result;
+    }
+    
+    const BOX& operator()(const TREE::DataType& object) const {
+        const auto it = m_objects.find(object);
+        assert(it != std::end(m_objects));
+        return it->second;
+    }
+};
+
+void assertIntersectors(const TREE& tree, const Ray<TREE::FloatType, TREE::Components>& ray, std::initializer_list<TREE::DataType> items);
+
 TEST(MortonTreeTest, createEmptyTree) {
     TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
     ASSERT_TRUE(tree.empty());
@@ -49,11 +73,13 @@ TEST(MortonTreeTest, createEmptyTree) {
 TEST(MortonTreeTest, buildTreeWithOneNode) {
     TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
     
-    TREE::PairList list;
-    list.push_back(std::make_tuple(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), 1u));
+    GetBounds getBounds({
+        { 1u, BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)) }
+    });
     
-    tree.clearAndBuild(list);
+    tree.clearAndBuild(getBounds.objects(), getBounds);
     ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), 1u));
     ASSERT_EQ(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), tree.bounds());
 }
 
@@ -61,11 +87,103 @@ TEST(MortonTreeTest, buildTreeWithOneNode) {
 TEST(MortonTreeTest, buildTreeWithTwoNodes) {
     TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
     
-    TREE::PairList list;
-    list.push_back(std::make_tuple(BBox3d(Vec3d( 0.0,  0.0,  0.0), Vec3d(16.0,  8.0,  8.0)), 1u));
-    list.push_back(std::make_tuple(BBox3d(Vec3d(32.0, 32.0, 32.0), Vec3d(48.0, 48.0, 48.0)), 2u));
+    GetBounds getBounds({
+        { 1u, BBox3d(Vec3d( 0.0,  0.0,  0.0), Vec3d(16.0,  8.0,  8.0)) },
+        { 2u, BBox3d(Vec3d(32.0, 32.0, 32.0), Vec3d(48.0, 48.0, 48.0)) }
+    });
     
-    tree.clearAndBuild(list);
+    tree.clearAndBuild(getBounds.objects(), getBounds);
     ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(BBox3d(Vec3d( 0.0,  0.0,  0.0), Vec3d(16.0,  8.0,  8.0)), 1u));
+    ASSERT_TRUE(tree.contains(BBox3d(Vec3d(32.0, 32.0, 32.0), Vec3d(48.0, 48.0, 48.0)), 2u));
     ASSERT_EQ(BBox3d(Vec3d(0.0, 0.0, 0.0), Vec3d(48.0, 48.0, 48.0)), tree.bounds());
+}
+
+TEST(MortonTreeTest, buildTreeWithTwoNodesHavingIdenticalCodes) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+    
+    // These bounds have the same centers and will yield identical codes.
+    GetBounds getBounds({
+        { 1u, BBox3d(32.0) },
+        { 2u, BBox3d(16.0) }
+    });
+    
+    tree.clearAndBuild(getBounds.objects(), getBounds);
+    ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(BBox3d(32.0), 1u));
+    ASSERT_TRUE(tree.contains(BBox3d(16.0), 2u));
+    ASSERT_EQ(BBox3d(32.0), tree.bounds());
+}
+
+TEST(MortonTreeTest, findIntersectorsOfEmptyTree) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+    assertIntersectors(tree, RAY(VEC::Null, VEC::PosX), {});
+}
+
+TEST(MortonTreeTest, findIntersectorsOfTreeWithOneNode) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    GetBounds getBounds({
+        { 1u, BOX(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0)) }
+    });
+
+    tree.clearAndBuild(getBounds.objects(), getBounds);
+
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::NegX), {});
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::PosX), { 1u });
+}
+
+TEST(MortonTreeTest, findIntersectorsOfTreeWithTwoNodes) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    GetBounds getBounds({
+        { 1u, BOX(VEC(-2.0, -1.0, -1.0), VEC(-1.0, +1.0, +1.0)) },
+        { 2u, BOX(VEC(+1.0, -1.0, -1.0), VEC(+2.0, +1.0, +1.0)) },
+    });
+
+    tree.clearAndBuild(getBounds.objects(), getBounds);
+
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::PosX), {});
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::NegX), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosZ), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosX), { 2u });
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::NegX), { 1u });
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::PosX), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::NegX), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(-1.5, -2.0,  0.0), VEC::PosY), { 1u });
+    assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::PosY), { 2u });
+}
+
+TEST(MortonTreeTest, findIntersectorFromInside) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    GetBounds getBounds({
+        { 1u, BOX(VEC(-4.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)) },
+    });
+
+    tree.clearAndBuild(getBounds.objects(), getBounds);
+
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 1u });
+}
+
+TEST(MortonTreeTest, findIntersectorsFromInsideRootBBox) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    GetBounds getBounds({
+        { 1u, BOX(VEC(-4.0, -1.0, -1.0), VEC(-2.0, +1.0, +1.0)) },
+        { 2u, BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)) },
+    });
+
+    tree.clearAndBuild(getBounds.objects(), getBounds);
+
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 2u });
+}
+
+void assertIntersectors(const TREE& tree, const Ray<TREE::FloatType, TREE::Components>& ray, std::initializer_list<TREE::DataType> items) {
+    const std::set<TREE::DataType> expected(items);
+    std::set<TREE::DataType> actual;
+
+    tree.findIntersectors(ray, std::inserter(actual, std::end(actual)));
+
+    ASSERT_EQ(expected, actual);
 }
