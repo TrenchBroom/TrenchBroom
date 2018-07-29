@@ -26,14 +26,9 @@
 #include "Ray.h"
 
 struct Identity {
-    template <typename T>
-    const T& operator()(const T& t) const {
-        return t;
-    }
-
-    template <typename T>
-    T& operator()(T& t) const {
-        return t;
+    template<typename U>
+    constexpr auto operator()(U&& v) const noexcept -> decltype(std::forward<U>(v)) {
+        return std::forward<U>(v);
     }
 };
 

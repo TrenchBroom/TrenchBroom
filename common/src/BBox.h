@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
+#include "Algorithms.h"
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"
@@ -156,7 +157,7 @@ public:
         Corner c[] = { x, y, z };
         return vertex(c);
     }
-    
+
     BBox<T,S>& mergeWith(const BBox<T,S>& right) {
         for (size_t i = 0; i < S; ++i) {
             min[i] = std::min(min[i], right.min[i]);
@@ -526,6 +527,15 @@ BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
     return transformator.bbox;
 }
 
+template <typename I, typename Get = Identity>
+auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
+    assert(cur != end);
+    auto result = getBounds(*cur); ++cur;
+    while (cur != end) {
+        result.mergeWith(getBounds(*cur)); ++cur;
+    };
+    return result;
+}
 
 typedef BBox<float,1> BBox1f;
 typedef BBox<double,1> BBox1d;

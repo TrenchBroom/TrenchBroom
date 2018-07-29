@@ -83,7 +83,6 @@ TEST(MortonTreeTest, buildTreeWithOneNode) {
     ASSERT_EQ(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), tree.bounds());
 }
 
-
 TEST(MortonTreeTest, buildTreeWithTwoNodes) {
     TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
     
@@ -113,6 +112,96 @@ TEST(MortonTreeTest, buildTreeWithTwoNodesHavingIdenticalCodes) {
     ASSERT_TRUE(tree.contains(BBox3d(32.0), 1u));
     ASSERT_TRUE(tree.contains(BBox3d(16.0), 2u));
     ASSERT_EQ(BBox3d(32.0), tree.bounds());
+}
+
+TEST(MortonTreeTest, insertNodesIntoEmptyTree) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    const auto box1 = BOX(32.0);
+    const auto box2 = BOX(16.0).translate(VEC(64.0, 0.0, 0.0));
+
+    tree.insert(box1, 1u);
+    ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_EQ(box1, tree.bounds());
+
+    tree.insert(box2, 2u);
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+    ASSERT_EQ(box1.mergedWith(box2), tree.bounds());
+}
+
+TEST(MortonTreeTest, insertNodeWithHigherSplitIndex) {
+    const VecCodeComputer<Vec3d> computeMortonCode(BBox3d(4096.0));
+    TREE tree(computeMortonCode);
+
+    const auto box1 = BOX(16.0).translate(VEC(  0.0, 0.0, 0.0));
+    const auto box2 = BOX(16.0).translate(VEC( 64.0, 0.0, 0.0));
+    const auto box3 = BOX(16.0).translate(VEC(-64.0, 0.0, 0.0));
+
+    const auto code1 = computeMortonCode(box1.center());
+    const auto code2 = computeMortonCode(box2.center());
+    const auto code3 = computeMortonCode(box3.center());
+
+    // assert that the third node will be inserted into the gap before the root (the inner node created
+    // when the second node was inserted)
+    const auto split12 = Math::findHighestDifferingBit(code1, code2);
+    const auto split23 = Math::findHighestDifferingBit(code2, code3);
+    ASSERT_TRUE(split23 > split12);
+
+    tree.insert(box1, 1u);
+    ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_EQ(box1, tree.bounds());
+
+    tree.insert(box2, 2u);
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+    ASSERT_EQ(box1.mergedWith(box2), tree.bounds());
+
+    tree.insert(box3, 3u);
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+    ASSERT_TRUE(tree.contains(box3, 3u));
+    ASSERT_EQ(box1.mergedWith(box2).mergedWith(box3), tree.bounds());
+}
+
+TEST(MortonTreeTest, insertNodesWithIdenticalCodeAndNodeWithHigherSplitIndex) {
+    const VecCodeComputer<Vec3d> computeMortonCode(BBox3d(4096.0));
+    TREE tree(computeMortonCode);
+
+    const auto box1 = BOX(16.0).translate(VEC(  0.0, 0.0, 0.0));
+    const auto box2 = BOX(16.0).translate(VEC(  0.0, 0.0, 0.0));
+    const auto box3 = BOX(16.0).translate(VEC(-64.0, 0.0, 0.0));
+
+    const auto code1 = computeMortonCode(box1.center());
+    const auto code2 = computeMortonCode(box2.center());
+    const auto code3 = computeMortonCode(box3.center());
+
+    // assert that the third node will be inserted into the gap before the root (the inner node created
+    // when the second node was inserted)
+    const auto split12 = Math::findHighestDifferingBit(code1, code2);
+    const auto split23 = Math::findHighestDifferingBit(code2, code3);
+    ASSERT_EQ(sizeof(TREE::CodeType)*8, split12);
+    ASSERT_NE(sizeof(TREE::CodeType)*8, split23);
+
+    // inserting the first two nodes will create a set node
+    tree.insert(box1, 1u);
+    ASSERT_FALSE(tree.empty());
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_EQ(box1, tree.bounds());
+
+    tree.insert(box2, 2u);
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+    ASSERT_EQ(box1.mergedWith(box2), tree.bounds());
+
+    // this should be inserted above of the set node
+    tree.insert(box3, 3u);
+    ASSERT_TRUE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+    ASSERT_TRUE(tree.contains(box3, 3u));
+    ASSERT_EQ(box1.mergedWith(box2).mergedWith(box3), tree.bounds());
 }
 
 TEST(MortonTreeTest, findIntersectorsOfEmptyTree) {
