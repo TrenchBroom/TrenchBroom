@@ -37,7 +37,7 @@ public:
             return true;
         if (lDist > rDist)
             return false;
-        return lhs->position().compare(rhs->position()) < 0;
+        return lhs->position() < rhs->position();
     }
 };
 

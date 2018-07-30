@@ -282,39 +282,25 @@ public:
         v[S-2] = static_cast<T>(oneButLast);
         v[S-1] = static_cast<T>(last);
     }
-    
-    int compare(const Vec<T,S>& right, const T epsilon = static_cast<T>(0.0)) const {
-        for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(v[i], right[i], epsilon))
-                return -1;
-            if (Math::gt(v[i], right[i], epsilon))
-                return 1;
-        }
-        return 0;
-    }
-    
-    bool operator==(const Vec<T,S>& right) const {
-        return compare(right) == 0;
-    }
-    
+
     bool operator!= (const Vec<T,S>& right) const {
-        return compare(right) != 0;
+        return compare(*this, right) != 0;
     }
     
     bool operator<(const Vec<T,S>& right) const {
-        return compare(right) < 0;
+        return compare(*this, right) < 0;
     }
     
     bool operator<= (const Vec<T,S>& right) const {
-        return compare(right) <= 0;
+        return compare(*this, right) <= 0;
     }
 
     bool operator>(const Vec<T,S>& right) const {
-        return compare(right) > 0;
+        return compare(*this, right) > 0;
     }
     
     bool operator>= (const Vec<T,S>& right) const {
-        return compare(right) >= 0;
+        return compare(*this, right) >= 0;
     }
 
     template <size_t O>
@@ -917,6 +903,39 @@ typedef Vec<int,4> Vec4i;
 typedef Vec<long,4> Vec4l;
 typedef Vec<size_t,4> Vec4s;
 typedef Vec<bool,4> Vec4b;
+
+template <typename T, size_t S>
+int compare(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+    for (size_t i = 0; i < S; ++i) {
+        if (Math::lt(lhs[i], rhs[i], epsilon))
+            return -1;
+        if (Math::gt(lhs[i], rhs[i], epsilon))
+            return 1;
+    }
+    return 0;
+}
+
+template <typename I>
+int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type::Type epsilon = static_cast<typename I::value_type::Type>(0.0)) {
+    while (lhsCur != lhsEnd && rhsCur != rhsEnd) {
+        const auto cmp = compare(*lhsCur, *rhsCur, epsilon);
+        if (cmp < 0) {
+            return -1;
+        } else if (cmp > 0) {
+            return 1;
+        }
+        ++lhsCur;
+        ++rhsCur;
+    }
+
+    assert(lhsCur == lhsEnd && rhsCur == rhsEnd);
+    return 0;
+}
+
+template <typename T, size_t S>
+bool operator==(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) == 0;
+}
 
 template <typename T, size_t S>
 typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {

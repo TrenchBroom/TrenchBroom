@@ -19,6 +19,7 @@
 
 #include "FaceToolController.h"
 
+#include "Polygon.h"
 #include "View/FaceTool.h"
 #include "View/Lasso.h"
 #include "View/VertexHandleManager.h"
@@ -31,7 +32,7 @@ namespace TrenchBroom {
             SelectPartBase(tool, FaceHandleManager::HandleHit) {}
         private:
             bool equalHandles(const Polygon3& lhs, const Polygon3& rhs) const override {
-                return lhs.compareUnoriented(rhs, MaxHandleDistance) == 0;
+                return compareUnoriented(lhs, rhs, MaxHandleDistance) == 0;
             }
         };
         
