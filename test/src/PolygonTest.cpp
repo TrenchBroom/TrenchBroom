@@ -21,39 +21,37 @@
 
 #include "Polygon.h"
 
-namespace TrenchBroom {
-    TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
-        Polygon3d p1{};
-        ASSERT_EQ(p1.compareUnoriented(Polygon3d{}), 0);
-        ASSERT_EQ(p1.compareUnoriented(Polygon3d{Vec3d::Null}), -1);
+TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
+    Polygon3d p1{};
+    ASSERT_EQ(compareUnoriented(p1, Polygon3d{}), 0);
+    ASSERT_EQ(compareUnoriented(p1, Polygon3d{Vec3d::Null}), -1);
 
-        Polygon3d p2{Vec3d::Null};
-        ASSERT_EQ(p2.compareUnoriented(p1), +1);
-        ASSERT_EQ(p2.compareUnoriented(Polygon3d{Vec3d::Null}), 0);
-    }
+    Polygon3d p2{Vec3d::Null};
+    ASSERT_EQ(compareUnoriented(p2, p1), +1);
+    ASSERT_EQ(compareUnoriented(p2, Polygon3d{Vec3d::Null}), 0);
+}
 
-    TEST(PolygonTest, testBackwardComparePolygonWithOneVertex) {
-        Polygon3d p2{Vec3d::Null};
-        ASSERT_EQ(p2.compareUnoriented(Polygon3d{Vec3d::Null}), 0);
-        ASSERT_EQ(p2.compareUnoriented(Polygon3d{Vec3d::Null, Vec3d::Null}), -1);
-    }
+TEST(PolygonTest, testBackwardComparePolygonWithOneVertex) {
+    Polygon3d p2{Vec3d::Null};
+    ASSERT_EQ(compareUnoriented(p2, Polygon3d{Vec3d::Null}), 0);
+    ASSERT_EQ(compareUnoriented(p2, Polygon3d{Vec3d::Null, Vec3d::Null}), -1);
+}
 
-    TEST(PolygonTest, testBackwardCompare) {
-        Polygon3d p1{
-                Vec3d(-1.0, -1.0, 0.0),
-                Vec3d(+1.0, -1.0, 0.0),
-                Vec3d(+1.0, +1.0, 0.0),
-                Vec3d(-1.0, +1.0, 0.0),
-        };
-        Polygon3d p2{
-                Vec3d(-1.0, +1.0, 0.0),
-                Vec3d(+1.0, +1.0, 0.0),
-                Vec3d(+1.0, -1.0, 0.0),
-                Vec3d(-1.0, -1.0, 0.0),
-        };
-        ASSERT_EQ(p1.compareUnoriented(p1), 0);
-        ASSERT_EQ(p1.compareUnoriented(p2), 0);
-        ASSERT_EQ(p2.compareUnoriented(p1), 0);
-        ASSERT_EQ(p2.compareUnoriented(p2), 0);
-    }
+TEST(PolygonTest, testBackwardCompare) {
+    Polygon3d p1{
+            Vec3d(-1.0, -1.0, 0.0),
+            Vec3d(+1.0, -1.0, 0.0),
+            Vec3d(+1.0, +1.0, 0.0),
+            Vec3d(-1.0, +1.0, 0.0),
+    };
+    Polygon3d p2{
+            Vec3d(-1.0, +1.0, 0.0),
+            Vec3d(+1.0, +1.0, 0.0),
+            Vec3d(+1.0, -1.0, 0.0),
+            Vec3d(-1.0, -1.0, 0.0),
+    };
+    ASSERT_EQ(compareUnoriented(p1, p1), 0);
+    ASSERT_EQ(compareUnoriented(p1,p2), 0);
+    ASSERT_EQ(compareUnoriented(p2, p1), 0);
+    ASSERT_EQ(compareUnoriented(p2, p2), 0);
 }

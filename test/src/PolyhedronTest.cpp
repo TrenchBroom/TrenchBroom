@@ -27,13 +27,11 @@
 #include "TestUtils.h"
 
 typedef Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3d;
-typedef Polyhedron3d::Vertex Vertex;
+typedef Polyhedron3d::Vertex PVertex;
 typedef Polyhedron3d::VertexList VertexList;
-typedef Polyhedron3d::Edge Edge;
-typedef Polyhedron3d::HalfEdge HalfEdge;
-typedef Polyhedron3d::EdgeList EdgeList;
-typedef Polyhedron3d::Face Face;
-typedef Polyhedron3d::FaceList FaceList;
+typedef Polyhedron3d::Edge PEdge;
+typedef Polyhedron3d::HalfEdge PHalfEdge;
+typedef Polyhedron3d::Face PFace;
 
 typedef std::pair<Vec3d, Vec3d> EdgeInfo;
 typedef std::vector<EdgeInfo> EdgeInfoList;
@@ -1404,7 +1402,7 @@ TEST(PolyhedronTest, removeVertexFromPoint) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p1);
+    PVertex* v = p.findVertexByPosition(p1);
     p.removeVertex(v);
     
     ASSERT_TRUE(p.empty());
@@ -1420,7 +1418,7 @@ TEST(PolyhedronTest, removeVertexFromEdge) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p2);
+    PVertex* v = p.findVertexByPosition(p2);
     p.removeVertex(v);
     
     ASSERT_TRUE(p.point());
@@ -1440,7 +1438,7 @@ TEST(PolyhedronTest, removeVertexFromTriangle) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p3);
+    PVertex* v = p.findVertexByPosition(p3);
     p.removeVertex(v);
     
     ASSERT_TRUE(p.edge());
@@ -1463,7 +1461,7 @@ TEST(PolyhedronTest, removeVertexFromSquare) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p3);
+    PVertex* v = p.findVertexByPosition(p3);
     p.removeVertex(v);
     
     ASSERT_TRUE(p.polygon());
@@ -1485,7 +1483,7 @@ TEST(PolyhedronTest, removeVertexFromTetrahedron) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p4);
+    PVertex* v = p.findVertexByPosition(p4);
     p.removeVertex(v);
     
     ASSERT_TRUE(p.polygon());
@@ -1514,7 +1512,7 @@ TEST(PolyhedronTest, removeVertexFromCube) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p8);
+    PVertex* v = p.findVertexByPosition(p8);
     p.removeVertex(v);
     
     ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
@@ -1550,7 +1548,7 @@ TEST(PolyhedronTest, removeVertexFromCubeWithRoof) {
     
     Polyhedron3d p(positions);
     
-    Vertex* v = p.findVertexByPosition(p9);
+    PVertex* v = p.findVertexByPosition(p9);
     p.removeVertex(v);
     
     ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
@@ -1583,7 +1581,7 @@ TEST(PolyhedronTest, removeVertexFromClippedCube) {
     
     Polyhedron3d p(positions);
 
-    Vertex* v = p.findVertexByPosition(p8);
+    PVertex* v = p.findVertexByPosition(p8);
     p.removeVertex(v);
     
     ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2)); // front
@@ -1597,14 +1595,14 @@ TEST(PolyhedronTest, removeVertexFromClippedCube) {
 
 class ClipCallback : public Polyhedron3d::Callback {
 private:
-    typedef std::set<Face*> FaceSet;
+    typedef std::set<PFace*> FaceSet;
     FaceSet m_originals;
 public:
-    void faceWillBeDeleted(Face* face) override {
+    void faceWillBeDeleted(PFace* face) override {
         ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
     }
 
-    void faceWasSplit(Face* original, Face* clone) override {
+    void faceWasSplit(PFace* original, PFace* clone) override {
         m_originals.insert(original);
     }
 };
