@@ -471,7 +471,7 @@ namespace TrenchBroom {
             
             // jump back
             m_camera.moveTo(oldPosition);
-            return newPosition - m_camera.direction() * offset.offset();
+            return newPosition - Vec3(m_camera.direction() * offset.offset());
         }
         
         void MapView3D::doMoveCameraToPosition(const Vec3& position, const bool animate) {

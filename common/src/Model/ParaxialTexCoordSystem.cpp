@@ -139,9 +139,10 @@ namespace TrenchBroom {
             const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
             // project the texture axes onto the boundary plane along the texture Z axis
+            const Vec2 scale(attribs.scale());
             const Vec3 boundaryOffset     = oldBoundary.projectPoint(Vec3::Null, getZAxis());
-            const Vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * attribs.xScale(), getZAxis()) - boundaryOffset;
-            const Vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * attribs.yScale(), getZAxis()) - boundaryOffset;
+            const Vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
+            const Vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
 
             // transform the projected texture axes and compensate the translational component
             const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;

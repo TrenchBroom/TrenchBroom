@@ -49,15 +49,19 @@ namespace TrenchBroom {
             static const float speed = 256.0f / 1000.0f; // 64 units per second
             const float dist  = speed * time;
             
-            Vec3 delta;
-            if (forward)
+            Vec3f delta;
+            if (forward) {
                 delta += m_camera.direction() * dist;
-            if (backward)
+            }
+            if (backward) {
                 delta -= m_camera.direction() * dist;
-            if (left)
+            }
+            if (left) {
                 delta -= m_camera.right() * dist;
-            if (right)
+            }
+            if (right) {
                 delta += m_camera.right() * dist;
+            }
             m_camera.moveBy(delta);
             
             const float hAngle = static_cast<float>(dx) * lookSpeedH();

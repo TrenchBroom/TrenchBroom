@@ -283,35 +283,6 @@ public:
         v[S-1] = static_cast<T>(last);
     }
 
-    bool operator!= (const Vec<T,S>& right) const {
-        return compare(*this, right) != 0;
-    }
-    
-    bool operator<(const Vec<T,S>& right) const {
-        return compare(*this, right) < 0;
-    }
-    
-    bool operator<= (const Vec<T,S>& right) const {
-        return compare(*this, right) <= 0;
-    }
-
-    bool operator>(const Vec<T,S>& right) const {
-        return compare(*this, right) > 0;
-    }
-    
-    bool operator>= (const Vec<T,S>& right) const {
-        return compare(*this, right) >= 0;
-    }
-
-    template <size_t O>
-    Vec<T,S>& operator=(const Vec<T,O>& right) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = right[i];
-        for (size_t i = std::min(S,O); i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-        return *this;
-    }
-    
     const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -319,90 +290,12 @@ public:
         return result;
     }
 
-    const Vec<T,S> operator+(const Vec<T,S>& right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] + right[i];
-        return result;
-    }
-    
-    Vec<T,S>& operator+= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] += right[i];
-        return *this;
-    }
-
-    const Vec<T,S> operator-(const Vec<T,S>& right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] - right[i];
-        return result;
-    }
-    
-    Vec<T,S>& operator-= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] -= right[i];
-        return *this;
-    }
-    
-    const Vec<T,S> operator*(const T right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] * right;
-        return result;
-    }
-    
-    Vec<T,S>& operator*= (const T right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] *= right;
-        return *this;
-    }
-    
-    const Vec<T,S> operator*(const Vec<T,S>& right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] * right[i];
-        return result;
-    }
-    
-    Vec<T,S>& operator*= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] *= right[i];
-        return *this;
-    }
-
-    const Vec<T,S> operator/(const T right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] / right;
-        return result;
-    }
-    
-    Vec<T,S>& operator/= (const T right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] /= right;
-        return *this;
-    }
-    
-    const Vec<T,S> operator/(const Vec<T,S>& right) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = v[i] / right[i];
-        return result;
-    }
-    
-    Vec<T,S>& operator/= (const Vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] /= right[i];
-        return *this;
-    }
-    
-    T& operator[] (const size_t index) {
+    T& operator[](const size_t index) {
         assert(index < S);
         return v[index];
     }
     
-    const T& operator[] (const size_t index) const {
+    const T& operator[](const size_t index) const {
         assert(index < S);
         return v[index];
     }
@@ -446,7 +339,7 @@ public:
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
     }
-            
+
     Vec<T,S-1> overLast() const {
         Vec<T,S-1> result;
         for (size_t i = 0; i < S-1; ++i)
@@ -938,6 +831,120 @@ bool operator==(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
 }
 
 template <typename T, size_t S>
+bool operator!=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) != 0;
+}
+
+template <typename T, size_t S>
+bool operator<(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) < 0;
+}
+
+template <typename T, size_t S>
+bool operator<= (const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) <= 0;
+}
+
+template <typename T, size_t S>
+bool operator>(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) > 0;
+}
+
+template <typename T, size_t S>
+bool operator>= (const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return compare(lhs, rhs) >= 0;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator+(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result(lhs);
+    return result += rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator+=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] += rhs[i];
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator-(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result(lhs);
+    return result -= rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator-=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] -= rhs[i];
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator*(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result(lhs);
+    return result *= rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator*(const Vec<T,S>& lhs, const T rhs) {
+    Vec<T,S> result(lhs);
+    return result *= rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator*(const T lhs, const Vec<T,S>& rhs) {
+    return Vec<T,S>(rhs) * lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator*=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] *= rhs[i];
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator*=(Vec<T,S>& lhs, const T rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] *= rhs;
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator/(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result(lhs);
+    return result /= rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S> operator/(const Vec<T,S>& lhs, const T rhs) {
+    Vec<T,S> result(lhs);
+    return result /= rhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator/=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] /= rhs[i];
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
+Vec<T,S>& operator/=(Vec<T,S>& lhs, const T rhs) {
+    for (size_t i = 0; i < S; ++i) {
+        lhs[i] /= rhs;
+    }
+    return lhs;
+}
+
+template <typename T, size_t S>
 typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {
     typename Vec<T,S>::List result(left.size());
     for (size_t i = 0; i < left.size(); ++i)
@@ -948,11 +955,6 @@ typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec
 template <typename T, size_t S>
 typename Vec<T,S>::List operator+(const Vec<T,S>& left, const typename Vec<T,S>::List& right) {
     return right + left;
-}
-
-template <typename T, size_t S>
-Vec<T,S> operator*(const T left, const Vec<T,S>& right) {
-    return Vec<T,S>(right) * left;
 }
 
 template <typename T, size_t S>
@@ -979,6 +981,8 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
     stream << ")";
     return stream;
 }
+
+
 
 template <typename T>
 Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {

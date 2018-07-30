@@ -175,13 +175,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < stringVertices.size() / 2; ++i) {
                 const Vec2f& position2 = stringVertices[2 * i];
                 const Vec2f& texCoords = stringVertices[2 * i + 1];
-                textVertices.push_back(TextVertex(Vec3f(position2 + offset, -offset.z()), texCoords, textColor));
+                textVertices.push_back(TextVertex(Vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor));
             }
 
             const Vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
             for (size_t i = 0; i < rect.size(); ++i) {
                 const Vec2f& vertex = rect[i];
-                rectVertices.push_back(RectVertex(Vec3f(vertex + offset + stringSize / 2.0f, -offset.z()), rectColor));
+                rectVertices.push_back(RectVertex(Vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor));
             }
         }
 

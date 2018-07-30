@@ -118,7 +118,7 @@ namespace TrenchBroom {
             
             template <typename T1, typename T2>
             Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
-                return axis / safeScale(factor);
+                return axis / safeScale(T1(factor));
             }
         private:
             TexCoordSystem(const TexCoordSystem& other);
