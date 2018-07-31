@@ -797,6 +797,18 @@ typedef Vec<long,4> Vec4l;
 typedef Vec<size_t,4> Vec4s;
 typedef Vec<bool,4> Vec4b;
 
+/* ========== comparison operators ========== */
+
+/**
+ * Lexicographically compares the given components of the vectors using the given epsilon.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @param epsilon the epsilon for component wise comparison
+ * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
+ */
 template <typename T, size_t S>
 int compare(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
     for (size_t i = 0; i < S; ++i) {
@@ -808,6 +820,18 @@ int compare(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = static_c
     return 0;
 }
 
+/**
+ * Performs a pairwise lexicographical comparison of the pairs of vectors given by the two ranges. This function iterates over
+ * both ranges in a parallel fashion, and compares the two current elements lexicagraphically until one range ends.
+ *
+ * @tparam I the range iterator type
+ * @param lhsCur the beginning of the left hand range
+ * @param lhsEnd the end of the left hand range
+ * @param rhsCur the beginning of the right hand range
+ * @param rhsEnd the end of the right hand range
+ * @param epsilon the epsilon value for component wise comparison
+ * @return -1 if the left hand range is less than the right hand range, +1 if the left hand range is greater than the right hand range, and 0 if both ranges are equal
+ */
 template <typename I>
 int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type::Type epsilon = static_cast<typename I::value_type::Type>(0.0)) {
     while (lhsCur != lhsEnd && rhsCur != rhsEnd) {
@@ -825,42 +849,116 @@ int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type
     return 0;
 }
 
+/**
+ * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given vectors have equal values for each component, and false otherwise
+ */
 template <typename T, size_t S>
 bool operator==(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) == 0;
 }
 
+/**
+ * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) != 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given vectors do not have equal values for each component, and false otherwise
+ */
 template <typename T, size_t S>
 bool operator!=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) != 0;
 }
 
+/**
+ * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) < 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given left hand vector is less than the given right hand vector
+ */
 template <typename T, size_t S>
 bool operator<(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) < 0;
 }
 
+/**
+ * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) <= 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given left hand vector is less than or equal to the given right hand vector
+ */
 template <typename T, size_t S>
 bool operator<= (const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) <= 0;
 }
 
+/**
+ * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) > 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given left hand vector is greater than than the given right hand vector
+ */
 template <typename T, size_t S>
 bool operator>(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) > 0;
 }
 
+/**
+ * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) >= 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return true if the given left hand vector is greater than or equal to than the given right hand vector
+ */
 template <typename T, size_t S>
-bool operator>= (const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator>=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) >= 0;
 }
 
+/* ========== arithmetic operators ========== */
+
+/**
+ * Returns the sum of the given vectors, which is computed by adding all of their components.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the sum of the given two vectors
+ */
 template <typename T, size_t S>
 Vec<T,S> operator+(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     Vec<T,S> result(lhs);
     return result += rhs;
 }
 
+/**
+ * Adds the given right hand side to the given left hand side and returns a reference to the left hand side.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return a reference to the left hand vector after adding the right hand vector to it
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator+=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -869,12 +967,31 @@ Vec<T,S>& operator+=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return lhs;
 }
 
+/**
+ * Returns the difference of the given vectors, which is computed by subtracting the corresponding components
+ * of the right hand vector from the components of the left hand vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the difference of the given two vectors
+ */
 template <typename T, size_t S>
 Vec<T,S> operator-(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     Vec<T,S> result(lhs);
     return result -= rhs;
 }
 
+/**
+ * Subtracts the given right hand side from the given left hand side and returns a reference to the left hand side.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return a reference to the left hand vector after subtracting the right hand vector from it
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator-=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -883,23 +1000,65 @@ Vec<T,S>& operator-=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return lhs;
 }
 
+/**
+ * Returns the product of the given vectors, which is computed by multiplying the corresponding components
+ * of the right hand vector with the components of the left hand vector. Note that this does not compute
+ * either the inner (or dot) product or the outer (or cross) product.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the product of the given two vectors
+ */
 template <typename T, size_t S>
 Vec<T,S> operator*(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     Vec<T,S> result(lhs);
     return result *= rhs;
 }
 
+/**
+ * Returns the product of the given vector and scalar factor, which is computed by multiplying each component of the
+ * vector with the factor.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the vector
+ * @param rhs the scalar
+ * @return the scalar product of the given vector with the given factor
+ */
 template <typename T, size_t S>
 Vec<T,S> operator*(const Vec<T,S>& lhs, const T rhs) {
     Vec<T,S> result(lhs);
     return result *= rhs;
 }
 
+
+/**
+ * Returns the product of the given vector and scalar factor, which is computed by multiplying each component of the
+ * vector with the factor.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the scalar
+ * @param rhs the vector
+ * @return the scalar product of the given vector with the given factor
+ */
 template <typename T, size_t S>
 Vec<T,S> operator*(const T lhs, const Vec<T,S>& rhs) {
     return Vec<T,S>(rhs) * lhs;
 }
 
+/**
+ * Multiplies each component of the given left hand vector with the corresponding component of the given right hand
+ * vector, stores the result in the left hand vector, and returns a reference to the left hand vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return a reference to the left hand vector after multiplying it with the right hand vector in a component wise fashion
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator*=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -908,6 +1067,16 @@ Vec<T,S>& operator*=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return lhs;
 }
 
+/**
+ * Computes the scalar product of the vector with the scalar factor, stores the result in the vector, and returns a
+ * reference to the vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the hand vector
+ * @param rhs the scalar factor
+ * @return a reference to the left hand vector after multiplying each of its components with the given scalar
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator*=(Vec<T,S>& lhs, const T rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -916,18 +1085,48 @@ Vec<T,S>& operator*=(Vec<T,S>& lhs, const T rhs) {
     return lhs;
 }
 
+/**
+ * Returns the division of the given vectors, which is computed by dividing the corresponding components
+ * of the left hand vector by the components of the right hand vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the division of the given two vectors
+ */
 template <typename T, size_t S>
 Vec<T,S> operator/(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     Vec<T,S> result(lhs);
     return result /= rhs;
 }
 
+/**
+ * Returns the division of the given vector and scalar factor, which is computed by dividing each component of the
+ * vector by the factor.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the vector
+ * @param rhs the scalar
+ * @return the scalar division of the given vector with the given factor
+ */
 template <typename T, size_t S>
 Vec<T,S> operator/(const Vec<T,S>& lhs, const T rhs) {
     Vec<T,S> result(lhs);
     return result /= rhs;
 }
 
+/**
+ * Computes the component wise division of the left hand vector by the right hand vector,
+ * stores the result in the vector, and returns a reference to the vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the vector
+ * @param rhs the scalar factor
+ * @return a reference to the left hand vector after dividing each of its components by corresponding component of the right hand vector
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator/=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -936,6 +1135,16 @@ Vec<T,S>& operator/=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return lhs;
 }
 
+/**
+ * Computes the scalar division of the vector by the scalar factor, stores the result in the vector, and returns a
+ * reference to the vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the vector
+ * @param rhs the scalar factor
+ * @return a reference to the left hand vector after dividing each of its components by the given scalar
+ */
 template <typename T, size_t S>
 Vec<T,S>& operator/=(Vec<T,S>& lhs, const T rhs) {
     for (size_t i = 0; i < S; ++i) {
@@ -944,39 +1153,82 @@ Vec<T,S>& operator/=(Vec<T,S>& lhs, const T rhs) {
     return lhs;
 }
 
+/**
+ * Adds the given vector to each of the vectors in the given range.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the range of vectors
+ * @param rhs the right hand vector
+ * @return a range containing the sum of each of the vectors in the given range with the right hand vector
+ */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {
-    typename Vec<T,S>::List result(left.size());
-    for (size_t i = 0; i < left.size(); ++i)
-        result[i] = left[i] + right;
+typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& lhs, const Vec<T,S>& rhs) {
+    typename Vec<T,S>::List result;
+    result.reserve(lhs.size());
+    for (const auto& vec : lhs) {
+        result.push_back(vec + rhs);
+    }
     return result;
 }
 
+/**
+ * Adds the given vector to each of the vectors in the given range.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the range of vectors
+ * @return a range containing the sum of each of the vectors in the given range with the left hand vector
+ */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const Vec<T,S>& left, const typename Vec<T,S>::List& right) {
-    return right + left;
+typename Vec<T,S>::List operator+(const Vec<T,S>& lhs, const typename Vec<T,S>::List& rhs) {
+    return rhs + lhs;
 }
 
+/**
+ * Multiplies each vector in the given range by the given scalar.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the range of vectors
+ * @param rhs the scalar factor
+ * @return a range containing the scalar product of each vector in the given range with the given scalar
+ */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& left, const T right) {
-    typename Vec<T,S>::List result(left.size());
-    for (size_t i = 0; i < left.size(); ++i)
-        result[i] = left[i] * right;
+typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& lhs, const T rhs) {
+    typename Vec<T,S>::List result;
+    result.reserve(lhs.size());
+    for (const auto& vec : lhs) {
+        result.push_back(vec + rhs);
+    }
     return result;
 }
 
+/**
+ * Multiplies each vector in the given range by the given scalar.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the scalar factor
+ * @param rhs the range of vectors
+ * @return a range containing the scalar product of each vector in the given range with the given scalar
+ */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const T left, const typename Vec<T,S>::List& right) {
-    return right * left;
+typename Vec<T,S>::List operator*(const T lhs, const typename Vec<T,S>::List& rhs) {
+    return rhs * lhs;
 }
+
+/* ========== stream operators ========== */
 
 template <typename T, size_t S>
 std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
     stream << "(";
     if (S > 0) {
         stream << vec[0];
-        for (size_t i = 1; i < S; ++i)
+        for (size_t i = 1; i < S; ++i) {
             stream << ", " << vec[i];
+        }
     }
     stream << ")";
     return stream;
