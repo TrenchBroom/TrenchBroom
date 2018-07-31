@@ -72,16 +72,16 @@ namespace TrenchBroom {
             const Vec3f center = position() + direction() * nearPlane();
             
             Vec3f d = center + up() * frustum.y() - position();
-            topPlane = Plane3f(position(), crossed(right(), d).normalized());
+            topPlane = Plane3f(position(), cross(right(), d).normalized());
             
             d = center + right() * frustum.x() - position();
-            rightPlane = Plane3f(position(), crossed(d, up()).normalized());
+            rightPlane = Plane3f(position(), cross(d, up()).normalized());
             
             d = center - up() * frustum.y() - position();
-            bottomPlane = Plane3f(position(), crossed(d, right()).normalized());
+            bottomPlane = Plane3f(position(), cross(d, right()).normalized());
             
             d = center - right() * frustum.x() - position();
-            leftPlane = Plane3f(position(), crossed(up(), d).normalized());
+            leftPlane = Plane3f(position(), cross(up(), d).normalized());
         }
         
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {

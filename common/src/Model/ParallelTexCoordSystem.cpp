@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            const Vec3 normal = cross(point2 - point0, point1 - point0).normalized();
             computeInitialAxes(normal, m_xAxis, m_yAxis);
             applyRotation(normal, attribs.rotation());
         }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
         
         Vec3 ParallelTexCoordSystem::getZAxis() const {
-            return crossed(m_xAxis, m_yAxis).normalized();
+            return cross(m_xAxis, m_yAxis).normalized();
         }
 
         void ParallelTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
@@ -196,11 +196,11 @@ namespace TrenchBroom {
             
             if (oldNormal.equals(-newNormal)) {
                 const Vec3 minorAxis = oldNormal.majorAxis(2);
-                const Vec3 axis = crossed(oldNormal, minorAxis).normalized();
+                const Vec3 axis = cross(oldNormal, minorAxis).normalized();
                 return rotationMatrix(axis, Math::C::pi());
             }
             
-            const Vec3 axis = crossed(newNormal, oldNormal).normalized();
+            const Vec3 axis = cross(newNormal, oldNormal).normalized();
             const FloatType angle = angleBetween(newNormal, oldNormal, axis);
             return rotationMatrix(axis, angle);
         }
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             
             std::vector<Vec3> possibleTexAxesNormals;
             for (const auto& axes : possibleTexAxes) {
-                const Vec3 texNormal = crossed(axes.first, axes.second).normalized();
+                const Vec3 texNormal = cross(axes.first, axes.second).normalized();
                 possibleTexAxesNormals.push_back(texNormal);
             }
             assert(possibleTexAxesNormals.size() == 6);
@@ -260,14 +260,13 @@ namespace TrenchBroom {
         
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
-            const Vec3 cross = crossed(oldNormal, newNormal);
-            Vec3 axis;
-            if (cross.null()) {
+            Vec3 axis = cross(oldNormal, newNormal);
+            if (axis.null()) {
                 // oldNormal and newNormal are either the same or opposite.
                 // in this case, no need to update the texture axes.
                 return;
             } else {
-                axis = cross.normalized();
+                axis = axis.normalized();
             }
             
             const FloatType angle = angleBetween(newNormal, oldNormal, axis);
@@ -308,14 +307,14 @@ namespace TrenchBroom {
             switch (first) {
                 case Math::Axis::AX:
                 case Math::Axis::AY:
-                    xAxis = crossed(Vec3::PosZ, normal).normalized();
+                    xAxis = cross(Vec3::PosZ, normal).normalized();
                     break;
                 case Math::Axis::AZ:
-                    xAxis = crossed(Vec3::PosY, normal).normalized();
+                    xAxis = cross(Vec3::PosY, normal).normalized();
                     break;
             }
             
-            yAxis = crossed(m_xAxis, normal).normalized();
+            yAxis = cross(m_xAxis, normal).normalized();
         }
     }
 }

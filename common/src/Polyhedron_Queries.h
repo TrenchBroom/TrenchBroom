@@ -378,7 +378,7 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
         const Edge* rhsCurrentEdge = rhsFirstEdge;
         do {
             const V rhsEdgeVec = rhsCurrentEdge->vector();
-            const V direction = crossed(lhsEdgeVec, rhsEdgeVec);
+            const V direction = cross(lhsEdgeVec, rhsEdgeVec);
             
             if (!direction.null()) {                
                 const Plane<T,3> plane(lhsEdgeOrigin, direction);

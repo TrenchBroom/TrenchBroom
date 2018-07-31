@@ -482,8 +482,8 @@ Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const 
 template <typename T>
 Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
     const Vec<T,3>& f = direction;
-    const Vec<T,3> s = crossed(f, up);
-    const Vec<T,3> u = crossed(s, f);
+    const Vec<T,3> s = cross(f, up);
+    const Vec<T,3> u = cross(s, f);
     
     static const T zero = static_cast<T>(0.0);
     static const T one  = static_cast<T>(1.0);
@@ -687,13 +687,13 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const
     
     switch (normal.firstComponent()) {
         case Math::Axis::AX:
-            xAxis = crossed(normal, Vec<T,3>::PosZ).normalized();
+            xAxis = cross(normal, Vec<T, 3>::PosZ).normalized();
             break;
         default:
-            xAxis = crossed(normal, Vec<T,3>::PosX).normalized();
+            xAxis = cross(normal, Vec<T, 3>::PosX).normalized();
             break;
     }
-    const Vec<T,3>  yAxis = crossed(normal, xAxis).normalized();
+    const Vec<T,3>  yAxis = cross(normal, xAxis).normalized();
     const Vec<T,3>& zAxis = direction;
     
     assert(Math::eq(xAxis.length(), 1.0));

@@ -519,7 +519,7 @@ namespace TrenchBroom {
                 case Math::Direction_Right: {
                     Vec3 dir = m_camera.right().firstAxis();
                     if (dir == doGetMoveDirection(Math::Direction_Forward))
-                        dir = crossed(dir, Vec3::PosZ);
+                        dir = cross(dir, Vec3::PosZ);
                     return dir;
                 }
                 case Math::Direction_Up:

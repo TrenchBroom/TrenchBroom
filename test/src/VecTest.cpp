@@ -313,17 +313,17 @@ TEST(VecTest, multiplyScalarWithVec3f) {
 }
 
 TEST(VecTest, vec3fCrossProduct) {
-    ASSERT_EQ(Vec3f::Null, crossed(Vec3f::Null, Vec3f::Null));
-    ASSERT_EQ(Vec3f::Null, crossed(Vec3f::Null, Vec3f(2.0f, 34.233f, -10003.0002f)));
-    ASSERT_EQ(Vec3f::PosZ, crossed(Vec3f::PosX, Vec3f::PosY));
-    ASSERT_VEC_EQ(Vec3f(-2735141.499f, 282853.508f, 421.138f), crossed(Vec3f(12.302f, -0.0017f, 79898.3f),
-                                                                       Vec3f(2.0f, 34.233f, -10003.0002f)));
+    ASSERT_EQ(Vec3f::Null, cross(Vec3f::Null, Vec3f::Null));
+    ASSERT_EQ(Vec3f::Null, cross(Vec3f::Null, Vec3f(2.0f, 34.233f, -10003.0002f)));
+    ASSERT_EQ(Vec3f::PosZ, cross(Vec3f::PosX, Vec3f::PosY));
+    ASSERT_VEC_EQ(Vec3f(-2735141.499f, 282853.508f, 421.138f), cross(Vec3f(12.302f, -0.0017f, 79898.3f),
+                                                                     Vec3f(2.0f, 34.233f, -10003.0002f)));
 
     const Vec3f t1(7.0f, 4.0f, 0.0f);
     const Vec3f t2(-2.0f, 22.0f, 0.0f);
 
-    const Vec3f c1 = crossed(t1, t2).normalized();
-    const Vec3f c2 = crossed(t1.normalized(), t2.normalized()).normalized();
+    const Vec3f c1 = cross(t1, t2).normalized();
+    const Vec3f c2 = cross(t1.normalized(), t2.normalized()).normalized();
     ASSERT_VEC_EQ(c1, c2);
 }
 

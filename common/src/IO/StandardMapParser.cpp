@@ -399,7 +399,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Vec3 normal = crossed(p3 - p1, p2 - p1).normalized();
+            const Vec3 normal = cross(p3 - p1, p2 - p1).normalized();
             if (!normal.null())
                 brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
             else

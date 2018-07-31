@@ -125,7 +125,7 @@ namespace TrenchBroom {
             Vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbUp = m_up;
-            bbRight = crossed(bbUp, bbLook);
+            bbRight = cross(bbUp, bbLook);
             
             return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
                            bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             }
             bbLook.normalize();
             bbUp = Vec3f::PosZ;
-            bbRight = crossed(bbUp, bbLook);
+            bbRight = cross(bbUp, bbLook);
             
             return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
                            bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
@@ -272,14 +272,14 @@ namespace TrenchBroom {
                 return;
             m_direction = direction;
             
-            const Vec3f rightUnnormalized = crossed(m_direction, up);
+            const Vec3f rightUnnormalized = cross(m_direction, up);
             if (rightUnnormalized.null()) {
                 // `direction` and `up` were colinear.
                 m_right = m_direction.makePerpendicular();
             } else {
                 m_right = rightUnnormalized.normalized();
             }
-            m_up = crossed(m_right, m_direction);
+            m_up = cross(m_right, m_direction);
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
@@ -325,7 +325,7 @@ namespace TrenchBroom {
                 const float cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const float angle = acosf(cos);
                 if (!Math::zero(angle)) {
-                    const Vec3f axis = crossed(m_direction, newDirection).normalized();
+                    const Vec3f axis = cross(m_direction, newDirection).normalized();
                     rotation = Quatf(axis, angle);
                     offset = rotation * offset;
                     newUp = rotation * newUp;

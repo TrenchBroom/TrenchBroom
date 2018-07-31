@@ -451,7 +451,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
 
-            if (dot(crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
+            if (dot(cross(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
             }
 

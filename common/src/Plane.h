@@ -123,7 +123,7 @@ public:
     }
     
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
-        const Vec<T,S> lineDirection = crossed(normal, other.normal).normalized();
+        const Vec<T,S> lineDirection = cross(normal, other.normal).normalized();
         
         if (lineDirection.nan()) {
             // the planes are parallel
@@ -330,8 +330,8 @@ Plane<T,3> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& 
 template <typename T>
 Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal, const Vec<T,3>& cameraPosition) {
     const Vec<T,3> fromCamera = (position - cameraPosition).normalized();
-    const Vec<T,3> vertical = crossed(normal, fromCamera);
-    return Plane<T,3>(position, crossed(normal, vertical));
+    const Vec<T,3> vertical = cross(normal, fromCamera);
+    return Plane<T,3>(position, cross(normal, vertical));
 }
 
 typedef Plane<float,3> Plane3f;

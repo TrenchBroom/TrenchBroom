@@ -144,13 +144,13 @@ const TT intersectLineWithTriangle(const Line<TT,3>& L, const Vec<TT,3>& V0, con
     const Vec<TT,3>& D  = L.direction;
     const Vec<TT,3>  E1 = V1 - V0;
     const Vec<TT,3>  E2 = V2 - V0;
-    const Vec<TT,3>  P  = crossed(D, E2);
+    const Vec<TT,3>  P  = cross(D, E2);
     const TT         a  = P.dot(E1);
     if (Math::zero(a))
         return Math::nan<TT>();
     
     const Vec<TT,3>  T  = O - V0;
-    const Vec<TT,3>  Q  = crossed(T, E1);
+    const Vec<TT,3>  Q  = cross(T, E1);
     
     const TT t = Q.dot(E2) / a;
     const TT u = P.dot(T) / a;

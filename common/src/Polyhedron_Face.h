@@ -188,18 +188,18 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
     const auto* first = m_boundary.front();
     const auto* current = first;
-    V cross;
+    V normal;
     do {
         const auto& p1 = current->origin()->position();
         const auto& p2 = current->next()->origin()->position();
         const auto& p3 = current->next()->next()->origin()->position();
-        cross = crossed(p2 - p1, p3 - p1);
-        if (!cross.null()) {
-            return cross.normalized();
+        normal = cross(p2 - p1, p3 - p1);
+        if (!normal.null()) {
+            return normal.normalized();
         }
         current = current->next();
     } while (first != current);
-    return cross;
+    return normal;
 }
 
 template <typename T, typename FP, typename VP>

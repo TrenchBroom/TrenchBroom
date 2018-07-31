@@ -228,11 +228,11 @@ namespace TrenchBroom {
             Vec3 right;
             
             if (Math::lt(Math::abs(dot(Vec3::PosZ, normal)), 1.0)) {
-                right = crossed(Vec3::PosZ, normal).normalized();
+                right = cross(Vec3::PosZ, normal).normalized();
             } else {
                 right = Vec3::PosX;
             }
-            const Vec3 up = crossed(normal, right).normalized();
+            const Vec3 up = cross(normal, right).normalized();
             
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);

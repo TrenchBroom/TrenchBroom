@@ -185,11 +185,12 @@ namespace TrenchBroom {
             
             FloatType multiplier = 10.0;
             GridSearchCursor cursor(swizzledPlane, frequency);
-            if (numPoints == 0)
+            if (numPoints == 0) {
                 points[0] = cursor.findMinimum(swizzledPlane.anchor());
-            else if (!points[0].isInteger())
+            } else if (!points[0].isInteger()) {
                 points[0] = cursor.findMinimum(points[0]);
-            
+            }
+
             Vec3 v1, v2;
             FloatType cos;
             size_t count = 0;
@@ -206,12 +207,14 @@ namespace TrenchBroom {
                 ++count;
             } while (Math::isnan(cos) || std::abs(cos) > 0.9);
             
-            cross(v1, v2);
-            if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0))
+            v1 = cross(v1, v2);
+            if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0)) {
                 swap(points[0], points[2]);
-            
-            for (size_t i = 0; i < 3; ++i)
+            }
+
+            for (size_t i = 0; i < 3; ++i) {
                 points[i] = unswizzle(points[i], axis);
+            }
         }
     }
 }

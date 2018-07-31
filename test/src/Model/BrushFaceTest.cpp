@@ -509,7 +509,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Vec3::NegZ, negXFace->textureYAxis());
 
             // This face's texture normal is in the same direction as the face normal
-            const Vec3f textureNormal = crossed(negXFace->textureXAxis(), negXFace->textureYAxis()).normalized();
+            const Vec3f textureNormal = cross(negXFace->textureXAxis(), negXFace->textureYAxis()).normalized();
             ASSERT_GT(dot(textureNormal, Vec3f(negXFace->boundary().normal)), 0.0f);
 
             const Quat3 rot45(textureNormal, Math::radians(45.0f));

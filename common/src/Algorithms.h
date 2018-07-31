@@ -263,7 +263,7 @@ private:
     }
     
     Math::Axis::Type computeAxis(const size_t thirdPointIndex) const {
-        const Vec<T,3> ortho = crossed(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
+        const Vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
         return ortho.firstComponent();
     }
     

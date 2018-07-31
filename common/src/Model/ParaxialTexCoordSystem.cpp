@@ -97,7 +97,7 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            const Vec3 normal = cross(point2 - point0, point1 - point0).normalized();
             setRotation(normal, 0.0f, attribs.rotation());
         }
 
@@ -180,11 +180,11 @@ namespace TrenchBroom {
             assert(!Math::isnan(cosY));
 
             float radX = std::acos(cosX);
-            if (dot(crossed(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
+            if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
                 radX *= -1.0f;
             
             float radY = std::acos(cosY);
-            if (dot(crossed(newBaseYAxis, normalizedYAxis), newProjectionAxis) < 0.0)
+            if (dot(cross(newBaseYAxis, normalizedYAxis), newProjectionAxis) < 0.0)
                 radY *= -1.0f;
             
             // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
@@ -253,7 +253,7 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
-            const Vec3 rotAxis = crossed(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
+            const Vec3 rotAxis = cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
             const Quat3 rot(rotAxis, angleInRadians);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;

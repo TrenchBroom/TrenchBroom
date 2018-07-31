@@ -573,7 +573,7 @@ public:
         // get an axis that this vector has the least weight towards.
         const Vec<T,S> leastAxis = majorAxis(S-1);
         
-        return crossed(*this, leastAxis).normalized();
+        return cross(*this, leastAxis).normalized();
     }
     
     void write(std::ostream& str, const size_t components = S) const {
@@ -1248,16 +1248,19 @@ T dot(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return result;
 }
 
+/**
+ * Returns the cross product (also called outer product) of the two given 3d vectors.
+ *
+ * @tparam T the component type
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the cross product of the given vectors
+ */
 template <typename T>
-Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
-    return left = crossed(left, right);
-}
-
-template <typename T>
-const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
-    return Vec<T,3>(left[1] * right[2] - left[2] * right[1],
-                    left[2] * right[0] - left[0] * right[2],
-                    left[0] * right[1] - left[1] * right[0]);
+const Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
+    return Vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
+                    lhs[2] * rhs[0] - lhs[0] * rhs[2],
+                    lhs[0] * rhs[1] - lhs[1] * rhs[0]);
 }
 
 /*
@@ -1274,7 +1277,7 @@ template <typename T>
 bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
-    normal = crossed(v1, v2);
+    normal = cross(v1, v2);
     
     // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
     // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
@@ -1299,8 +1302,8 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
         return static_cast<T>(0.0);
     if (Math::one(-cos))
         return Math::Constants<T>::pi();
-    const Vec<T,3> cross = crossed(axis, vec);
-    if (!Math::neg(dot(cross, up)))
+    const Vec<T,3> perp = cross(axis, vec);
+    if (!Math::neg(dot(perp, up)))
         return std::acos(cos);
     return Math::Constants<T>::twoPi() - std::acos(cos);
 }
@@ -1308,7 +1311,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
-    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1).normalized();
+    const Vec<T,3> normal = cross(p3 - p1, p2 - p1).normalized();
     const T offset = dot(p1, normal);
     const T dist = dot(p4, normal) - offset;
     return Math::abs(dist) < epsilon;
@@ -1350,7 +1353,7 @@ template <typename T>
 Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
-    return crossed(v1, v2);
+    return cross(v1, v2);
 }
 
 template <typename T, size_t S>

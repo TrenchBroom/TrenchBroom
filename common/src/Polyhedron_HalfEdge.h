@@ -141,7 +141,7 @@ String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
 
 template <typename T, typename FP, typename VP>
 Math::PointStatus::Type Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
-    const V normal = crossed(vector().normalized(), faceNormal).normalized();
+    const V normal = cross(vector().normalized(), faceNormal).normalized();
     const Plane<T,3> plane(origin()->position(), normal);
     return plane.pointStatus(point);
 }
