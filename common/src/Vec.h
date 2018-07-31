@@ -368,10 +368,6 @@ public:
         return result;
     }
 
-    T distanceTo(const Vec<T,S>& other) const {
-        return length(*this - other);
-    }
-    
     T squaredDistanceTo(const Vec<T,S>& other) const {
         return squaredLength(*this - other);
     }

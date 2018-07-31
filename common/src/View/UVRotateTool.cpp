@@ -68,17 +68,18 @@ namespace TrenchBroom {
             const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
 
             const Ray3& pickRay = inputState.pickRay();
-            const FloatType distance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
-            assert(!Math::isnan(distance));
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const FloatType distanceToFace = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
+            assert(!Math::isnan(distanceToFace));
+            const Vec3 hitPoint = pickRay.pointAtDistance(distanceToFace);
             
             const Vec3 originOnPlane   = toPlane * fromFace * Vec3(m_helper.originInFaceCoords());
             const Vec3 hitPointOnPlane = toPlane * hitPoint;
 
             const float zoom = m_helper.cameraZoom();
-            const FloatType error = std::abs(RotateHandleRadius / zoom - hitPointOnPlane.distanceTo(originOnPlane));
-            if (error <= RotateHandleWidth / zoom)
-                pickResult.addHit(Model::Hit(AngleHandleHit, distance, hitPoint, 0, error));
+            const FloatType error = Math::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+            if (error <= RotateHandleWidth / zoom) {
+                pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+            }
         }
         
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {

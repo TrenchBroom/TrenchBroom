@@ -214,9 +214,9 @@ TEST(VecTest, vec3fLengthSquared) {
 TEST(VecTest, vec3fDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
-    ASSERT_FLOAT_EQ(0.0f, v1.distanceTo(v1));
-    ASSERT_FLOAT_EQ(length(v1), v1.distanceTo(Vec3f::Null));
-    ASSERT_FLOAT_EQ(length(v1 - v2), v1.distanceTo(v2));
+    ASSERT_FLOAT_EQ(0.0f, distance(v1, v1));
+    ASSERT_FLOAT_EQ(length(v1), distance(v1, Vec3f::Null));
+    ASSERT_FLOAT_EQ(length(v1 - v2), distance(v1, v2));
 }
 
 TEST(VecTest, vec3fSquaredDistanceTo) {
