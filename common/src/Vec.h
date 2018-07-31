@@ -368,13 +368,6 @@ public:
         return result;
     }
 
-    // projects the given distance along this (normalized) vector onto the given vector along the orthogonal of this vector
-    // unlike the dot product which projects orthogonally to the other vector
-    T inverseDot(const T l, const Vec<T,S>& cd) const {
-        const T cos = dot(*this, cd);
-        return l / cos;
-    }
-    
     T length() const {
         return std::sqrt(squaredLength());
     }

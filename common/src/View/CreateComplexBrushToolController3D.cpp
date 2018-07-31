@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 const Vec3 rayAxis              = m_dragDir.firstAxis();
                 const FloatType axisDistance    = dot(rayDelta, rayAxis);
                 const FloatType snappedDistance = grid.snap(axisDistance);
-                const FloatType snappedRayDist  = rayAxis.inverseDot(snappedDistance, m_dragDir);
+                const FloatType snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
                 const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
                 
                 const Polyhedron3::Face* face = m_oldPolyhedron.faces().front();
