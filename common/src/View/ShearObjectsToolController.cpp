@@ -218,14 +218,16 @@ namespace TrenchBroom {
         void ShearObjectsToolController::doEndDrag(const InputState& inputState) {
             printf("ShearObjectsTool::doEndDrag\n");
 
-//            m_tool->commitResize();
-//            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->commitShear();
+
+            // FIXME: why?
+            //m_tool->updateDragFaces(inputState.pickResult());
         }
 
         void ShearObjectsToolController::doCancelDrag() {
             printf("ShearObjectsTool::doCancelDrag\n");
 
-            //m_tool->cancelResize();
+            m_tool->cancelShear();
         }
 
 

@@ -226,12 +226,49 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
+            ensure(hit.isMatch(), "must start with matching hit");
+            ensure(hit.type() == ShearToolFaceHit, "wrong hit type");
+            ensure(!m_resizing, "must not be resizing already");
+
+            std::cerr << "ShearObjectsTool::startShearWithHit\n";
+
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
             m_dragCumulativeDelta = Vec3::Null;
+
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Resize Brushes");
+            m_resizing = true;
+        }
+
+        void ShearObjectsTool::commitShear() {
+            ensure(m_resizing, "must be resizing already");
+
+            std::cerr << "ShearObjectsTool::commitShear\n";
+
+            MapDocumentSPtr document = lock(m_document);
+            if (m_dragCumulativeDelta.null()) {
+                document->cancelTransaction();
+            } else {
+                document->commitTransaction();
+            }
+            m_resizing = false;
+        }
+
+        void ShearObjectsTool::cancelShear() {
+            ensure(m_resizing, "must be resizing already");
+
+            std::cerr << "ShearObjectsTool::cancelShear\n";
+
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+
+            m_resizing = false;
         }
 
         void ShearObjectsTool::dragShear(const Vec3& delta) {
+            ensure(m_resizing, "must be resizing already");
+
             m_dragCumulativeDelta += delta;
 
             std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
@@ -271,7 +308,7 @@ namespace TrenchBroom {
             
             return shearBBoxMatrix(m_bboxAtDragStart,
                                    side.normal,
-                                   m_totalDelta);
+                                   m_dragCumulativeDelta);
         }
         Polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
@@ -297,45 +334,7 @@ namespace TrenchBroom {
             // (see ResizeBrushesTool::updateDragFaces)
             refreshViews();
         }
-        
-        bool ShearObjectsTool::beginResize(const Model::PickResult& pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ShearToolFaceHit).occluded().first();
-            if (!hit.isMatch())
-                return false;
-            
-            m_dragStartHit = hit;
-            m_bboxAtDragStart = bounds();
-            m_dragOrigin = hit.hitPoint();
-            m_totalDelta = Vec3::Null;
-            
-            if (hit.type() == ShearToolFaceHit)
-                printf("start face\n");
-            else
-                assert(0);
 
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Resize Brushes");
-            m_resizing = true;
-
-            return true;
-        }
-        
-        void ShearObjectsTool::commitResize() {
-            MapDocumentSPtr document = lock(m_document);
-            if (m_totalDelta.null()) {
-                document->cancelTransaction();
-            } else {
-                document->commitTransaction();
-            }
-            m_resizing = false;
-        }
-        
-        void ShearObjectsTool::cancelResize() {
-            MapDocumentSPtr document = lock(m_document);
-            document->cancelTransaction();
-            m_resizing = false;
-        }
-        
         void ShearObjectsTool::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &ShearObjectsTool::nodesDidChange);

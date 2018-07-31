@@ -44,26 +44,6 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ShearToolFaceHit;
 
         private:
-            /**
-             * Point on the initial pick ray that's closest to the handle being dragged.
-             * Note, when dragging "back faces" the mouse can start far from the bbox.
-             * In this case the m_dragOrigin can be far from the bbox being resized, and close to the camera instead.
-             *
-             */
-            Vec3 m_dragOrigin;
-            /**
-             * Total amount of drag accumulated since beginResize()
-             *
-             * Only used to decide whether to commit the change at the end of the drag
-             * in ShearObjectsTool::commitResize
-             */
-            Vec3 m_totalDelta;
-
-            /**
-             * debug temporary
-             */
-            Vec3 m_handlePos;
-
             bool m_resizing;
 
             bool m_constrainVertical;
@@ -80,10 +60,6 @@ namespace TrenchBroom {
             bool constrainVertical() const;
             void setConstrainVertical(bool constrainVertical);
 
-        public: // debug only
-            
-            Vec3 dragOrigin() const { return m_dragOrigin; }
-            
         public:
             explicit ShearObjectsTool(MapDocumentWPtr document);
             ~ShearObjectsTool() override;
@@ -100,10 +76,6 @@ namespace TrenchBroom {
             // getting highlighted handles
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
-            Vec3 handlePos() const {
-                return m_handlePos;
-            }
-
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;
             
@@ -114,6 +86,10 @@ namespace TrenchBroom {
             BBox3 bboxAtDragStart() const;
 
             void startShearWithHit(const Model::Hit& hit);
+            void commitShear();
+            void cancelShear();
+
+
             void dragShear(const Vec3& delta);
 
             const Model::Hit& dragStartHit() const;
@@ -123,12 +99,6 @@ namespace TrenchBroom {
 
             void updateDragFaces(const Model::PickResult& pickResult);
 
-        public:
-            bool beginResize(const Model::PickResult& pickResult);
-//            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, bool vertical);
-            
-            void commitResize();
-            void cancelResize();
         private:
             void bindObservers();
             void unbindObservers();
