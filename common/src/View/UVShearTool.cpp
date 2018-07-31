@@ -126,8 +126,8 @@ namespace TrenchBroom {
             const Vec3 hitPoint = pickRay.pointAtDistance(hitPointDist);
             const Vec3 hitVec = hitPoint - m_helper.origin();
             
-            return Vec2f(hitVec.dot(m_xAxis),
-                         hitVec.dot(m_yAxis));
+            return Vec2f(dot(hitVec, m_xAxis),
+                         dot(hitVec, m_yAxis));
         }
         
         bool UVShearTool::doCancel() {

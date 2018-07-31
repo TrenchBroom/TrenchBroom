@@ -234,7 +234,7 @@ namespace TrenchBroom {
                 if (toCam.squaredLength() > maxDistance2)
                     continue;
 
-                Vec3f onPlane = toCam - toCam.dot(direction) * direction;
+                Vec3f onPlane = toCam - dot(toCam, direction) * direction;
                 if (onPlane.null())
                     continue;
                 

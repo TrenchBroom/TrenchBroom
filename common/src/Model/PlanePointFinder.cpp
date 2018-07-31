@@ -121,10 +121,10 @@ namespace TrenchBroom {
             static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
             const Vec3& axis = plane.normal.firstAxis();
-            const FloatType d = plane.normal.dot(axis);
-            assert(d != 0.0);
+            const FloatType cos = dot(plane.normal, axis);
+            assert(cos != 0.0);
             
-            return (1.0 - d) / c;
+            return (1.0 - cos) / c;
         }
         
         void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points) {
@@ -201,7 +201,7 @@ namespace TrenchBroom {
                 v2 = points[1] - points[0];
                 v1.normalize();
                 v2.normalize();
-                cos = v1.dot(v2);
+                cos = dot(v1, v2);
                 multiplier *= 1.5f;
                 ++count;
             } while (Math::isnan(cos) || std::abs(cos) > 0.9);

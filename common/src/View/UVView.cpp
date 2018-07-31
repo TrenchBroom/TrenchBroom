@@ -302,8 +302,8 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             const Vec3& normal = face->boundary().normal;
             
-            const Vec3 xAxis = face->textureXAxis() - face->textureXAxis().dot(normal) * normal;
-            const Vec3 yAxis = face->textureYAxis() - face->textureYAxis().dot(normal) * normal;
+            const Vec3 xAxis = face->textureXAxis() - dot(face->textureXAxis(), normal) * normal;
+            const Vec3 yAxis = face->textureYAxis() - dot(face->textureYAxis(), normal) * normal;
             const Vec3 center = face->boundsCenter();
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;

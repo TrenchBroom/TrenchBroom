@@ -192,11 +192,11 @@ TEST(VecTest, vec2RoundToMultiple) {
 }
 
 TEST(VecTest, vec3fDot) {
-    ASSERT_FLOAT_EQ(-748013.6097f, Vec3f(2.3f, 8.7878f, -2323.0f).dot(Vec3f(4.333f, -2.0f, 322.0f)));
+    ASSERT_FLOAT_EQ(-748013.6097f, dot(Vec3f(2.3f, 8.7878f, -2323.0f), Vec3f(4.333f, -2.0f, 322.0f)));
 }
 
 TEST(VecTest, vec3fDotNull) {
-    ASSERT_FLOAT_EQ(0.0f, Vec3f(2.3f, 8.7878f, -2323.0f).dot(Vec3f::Null));
+    ASSERT_FLOAT_EQ(0.0f, dot(Vec3f(2.3f, 8.7878f, -2323.0f), Vec3f::Null));
 }
 
 TEST(VecTest, vec3fLength) {
@@ -405,7 +405,7 @@ TEST(VecTest, makePerpendicular) {
     ASSERT_DOUBLE_EQ(1.0, n1.length());
     ASSERT_DOUBLE_EQ(1.0, n2.length());
     
-    ASSERT_DOUBLE_EQ(0.0, n1.dot(n2));
+    ASSERT_DOUBLE_EQ(0.0, dot(n1, n2));
 }
 
 TEST(VecTest, makePerpendicular2) {
@@ -418,6 +418,6 @@ TEST(VecTest, makePerpendicular2) {
     for (const Vec3d &v : vecs) {
         const Vec3d p = v.makePerpendicular();
         ASSERT_DOUBLE_EQ(1.0, p.length());
-        ASSERT_DOUBLE_EQ(0.0, v.dot(p));
+        ASSERT_DOUBLE_EQ(0.0, dot(v, p));
     }
 }

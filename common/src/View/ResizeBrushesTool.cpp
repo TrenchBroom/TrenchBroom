@@ -99,8 +99,8 @@ namespace TrenchBroom {
             void visitEdge(Model::BrushEdge* edge) {
                 Model::BrushFace* left = edge->firstFace()->payload();
                 Model::BrushFace* right = edge->secondFace()->payload();
-                const double leftDot = left->boundary().normal.dot(m_pickRay.direction);
-                const double rightDot = right->boundary().normal.dot(m_pickRay.direction);
+                const double leftDot  = dot(left->boundary().normal,  m_pickRay.direction);
+                const double rightDot = dot(right->boundary().normal, m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->firstVertex()->position(), edge->secondVertex()->position());
@@ -293,7 +293,7 @@ namespace TrenchBroom {
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-                            [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
+                            [&delta](const Model::BrushFace* face) { return Math::pos(dot(face->boundary().normal, delta)); }))
                 return false;
 
             Model::BrushList newBrushes;

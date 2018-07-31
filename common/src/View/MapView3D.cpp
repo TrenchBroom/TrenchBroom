@@ -398,7 +398,7 @@ namespace TrenchBroom {
             
             void addPoint(const Vec3& point) {
                 const Vec3 toPosition = point - m_cameraPosition;
-                m_minDist = std::min(m_minDist, toPosition.dot(m_cameraDirection));
+                m_minDist = Math::min(m_minDist, dot(toPosition, m_cameraDirection));
                 m_center += point;
                 ++m_count;
             }

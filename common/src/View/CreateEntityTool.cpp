@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
             const Vec3 toMin = m_referenceBounds.min - pickRay.origin;
             const Vec3 toMax = m_referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
+            const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
             const Plane3 dragPlane(anchor, -pickRay.direction);
             
             const FloatType distance = dragPlane.intersectWithRay(pickRay);

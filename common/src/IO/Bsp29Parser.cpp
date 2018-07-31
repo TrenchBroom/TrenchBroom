@@ -262,8 +262,8 @@ namespace TrenchBroom {
         }
         
         Vec2f Bsp29Parser::textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return Vec2f::create((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                                 (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+            return Vec2f::create((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
+                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
         }
     }
 }

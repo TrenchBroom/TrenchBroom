@@ -166,7 +166,7 @@ namespace TrenchBroom {
                 
                 const Vec3 rayDelta             = nextHandlePosition - initialHandlePosition();
                 const Vec3 rayAxis              = m_dragDir.firstAxis();
-                const FloatType axisDistance    = rayDelta.dot(rayAxis);
+                const FloatType axisDistance    = dot(rayDelta, rayAxis);
                 const FloatType snappedDistance = grid.snap(axisDistance);
                 const FloatType snappedRayDist  = rayAxis.inverseDot(snappedDistance, m_dragDir);
                 const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;

@@ -47,9 +47,9 @@ namespace TrenchBroom {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
-                const FloatType dot = normal.dot(BaseAxes[i * 3]);
-                if (dot > bestDot) { // no need to use -altaxis for qbsp, but -oldaxis is necessary
-                    bestDot = dot;
+                const FloatType curDot = dot(normal, BaseAxes[i * 3]);
+                if (curDot > bestDot) { // no need to use -altaxis for qbsp, but -oldaxis is necessary
+                    bestDot = curDot;
                     bestIndex = i;
                 }
             }
@@ -174,17 +174,17 @@ namespace TrenchBroom {
             const Vec3 normalizedYAxis = projectedTransformedYAxis.normalized();
             
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
-            float cosX = static_cast<float>(newBaseXAxis.dot(normalizedXAxis.normalized()));
-            float cosY = static_cast<float>(newBaseYAxis.dot(normalizedYAxis.normalized()));
+            float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis.normalized()));
+            float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis.normalized()));
             assert(!Math::isnan(cosX));
             assert(!Math::isnan(cosY));
 
             float radX = std::acos(cosX);
-            if (crossed(newBaseXAxis, normalizedXAxis).dot(newProjectionAxis) < 0.0)
+            if (dot(crossed(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
                 radX *= -1.0f;
             
             float radY = std::acos(cosY);
-            if (crossed(newBaseYAxis, normalizedYAxis).dot(newProjectionAxis) < 0.0)
+            if (dot(crossed(newBaseYAxis, normalizedYAxis), newProjectionAxis) < 0.0)
                 radY *= -1.0f;
             
             // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
@@ -204,9 +204,9 @@ namespace TrenchBroom {
                                    projectedTransformedYAxis.length()).corrected(4);
 
             // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
-            if (m_xAxis.dot(normalizedXAxis) < 0.0)
+            if (dot(m_xAxis, normalizedXAxis) < 0.0)
                 newScale[0] *= -1.0f;
-            if (m_yAxis.dot(normalizedYAxis) < 0.0)
+            if (dot(m_yAxis, normalizedYAxis) < 0.0)
                 newScale[1] *= -1.0f;
             
             // compute the parameters of the transformed texture coordinate system

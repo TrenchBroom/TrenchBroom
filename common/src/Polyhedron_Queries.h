@@ -216,7 +216,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const 
     const V& lhsEnd = lhsEdge->secondVertex()->position();
 
     const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
-    const T rayLen = (lhsEnd - lhsStart).dot(lhsRay.direction);
+    const T rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
     
     bool frontHit = false;
     bool backHit  = false;
@@ -251,7 +251,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     if (Math::isnan(dist)) {
         const V& edgeDir = lhsRay.direction;
         const V faceNorm = rhsFace->normal();
-        if (Math::zero(faceNorm.dot(edgeDir))) {
+        if (Math::zero(dot(faceNorm, edgeDir))) {
             // ray and face are parallel, intersect with edges
 
             static const T MaxDistance = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
@@ -269,7 +269,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
         return false;
     }
     
-    const T rayLen = (lhsEnd - lhsStart).dot(lhsRay.direction);
+    const T rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
     return dist <= rayLen;
 }
 

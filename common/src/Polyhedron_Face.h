@@ -228,7 +228,7 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::S
 template <typename T, typename FP, typename VP>
 Math::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
     const auto norm = normal();
-    const auto distance = (point - origin()).dot(norm);
+    const auto distance = dot(point - origin(), norm);
     if (distance > epsilon) {
         return Math::PointStatus::PSAbove;
     } else if (distance < -epsilon) {
@@ -483,16 +483,16 @@ public:
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray) const {
     const Plane<T,3> plane(origin(), normal());
-    const auto dot = plane.normal.dot(ray.direction);
+    const auto cos = dot(plane.normal, ray.direction);
     
-    if (Math::zero(dot)) {
+    if (Math::zero(cos)) {
         return RayIntersection::None();
     }
 
     const auto distance = intersectPolygonWithRay(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
     if (Math::isnan(distance)) {
         return RayIntersection::None();
-    } else if (dot < 0.0) {
+    } else if (cos < 0.0) {
         return RayIntersection::Front(distance);
     } else {
         return RayIntersection::Back(distance);

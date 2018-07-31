@@ -160,13 +160,13 @@ namespace TrenchBroom {
                 // both texture axes have the same absolute angle towards the XY plane, prefer the one that is closer
                 // to the right view axis for horizontal movement
                 
-                if (Math::gt(std::abs(right.dot(texX)), std::abs(right.dot(texY)))) {
+                if (Math::gt(std::abs(dot(right, texX)), std::abs(dot(right, texY)))) {
                     // the right view axis is closer to the X texture axis
                     hAxis = texX;
                     vAxis = texY;
                     xIndex = 0;
                     yIndex = 1;
-                } else if (Math::gt(std::abs(right.dot(texY)), std::abs(right.dot(texX)))) {
+                } else if (Math::gt(std::abs(dot(right, texY)), std::abs(dot(right, texX)))) {
                     // the right view axis is closer to the Y texture axis
                     hAxis = texY;
                     vAxis = texX;
@@ -175,13 +175,13 @@ namespace TrenchBroom {
                 } else {
                     // the right axis is as close to the X texture axis as to the Y texture axis
                     // test the up axis
-                    if (Math::gt(std::abs(up.dot(texY)), std::abs(up.dot(texX)))) {
+                    if (Math::gt(std::abs(dot(up, texY)), std::abs(dot(up, texX)))) {
                         // the up view axis is closer to the Y texture axis
                         hAxis = texX;
                         vAxis = texY;
                         xIndex = 0;
                         yIndex = 1;
-                    } else if (Math::gt(std::abs(up.dot(texX)), std::abs(up.dot(texY)))) {
+                    } else if (Math::gt(std::abs(dot(up, texX)), std::abs(dot(up, texY)))) {
                         // the up view axis is closer to the X texture axis
                         hAxis = texY;
                         vAxis = texX;
@@ -195,11 +195,11 @@ namespace TrenchBroom {
             }
             
             Vec2f actualOffset;
-            if (right.dot(hAxis) >= 0.0)
+            if (dot(right, hAxis) >= 0.0)
                 actualOffset[xIndex] = -offset.x();
             else
                 actualOffset[xIndex] = +offset.x();
-            if (up.dot(vAxis) >= 0.0)
+            if (dot(up, vAxis) >= 0.0)
                 actualOffset[yIndex] = -offset.y();
             else
                 actualOffset[yIndex] = +offset.y();
@@ -245,8 +245,8 @@ namespace TrenchBroom {
         }
 
         Vec2f TexCoordSystem::computeTexCoords(const Vec3& point, const Vec2f& scale) const {
-            return Vec2f(point.dot(safeScaleAxis(getXAxis(), scale.x())),
-                         point.dot(safeScaleAxis(getYAxis(), scale.y())));
+            return Vec2f(dot(point, safeScaleAxis(getXAxis(), scale.x())),
+                         dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }
         
     }

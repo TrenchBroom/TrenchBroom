@@ -176,7 +176,7 @@ namespace TrenchBroom {
         }
 
         float Camera::perpendicularDistanceTo(const Vec3f& point) const {
-            return (point - m_position).dot(m_direction);
+            return dot(point - m_position, m_direction);
         }
 
         Vec3f Camera::defaultPoint(const float distance) const {
@@ -322,7 +322,7 @@ namespace TrenchBroom {
                 newDirection.normalize();
                 
                 // correct rounding errors
-                const float cos = (std::max)(-1.0f, (std::min)(1.0f, m_direction.dot(newDirection)));
+                const float cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const float angle = acosf(cos);
                 if (!Math::zero(angle)) {
                     const Vec3f axis = crossed(m_direction, newDirection).normalized();

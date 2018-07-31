@@ -368,17 +368,10 @@ public:
         return result;
     }
 
-    T dot(const Vec<T,S>& right) const {
-        T result = static_cast<T>(0.0);
-        for (size_t i = 0; i < S; ++i)
-            result += (v[i] * right[i]);
-        return result;
-    }
-
     // projects the given distance along this (normalized) vector onto the given vector along the orthogonal of this vector
     // unlike the dot product which projects orthogonally to the other vector
     T inverseDot(const T l, const Vec<T,S>& cd) const {
-        const T cos = dot(cd);
+        const T cos = dot(*this, cd);
         return l / cos;
     }
     
@@ -387,7 +380,7 @@ public:
     }
     
     T squaredLength() const {
-        return dot(*this);
+        return dot(*this, *this);
     }
     
     T distanceTo(const Vec<T,S>& other) const {
@@ -478,12 +471,12 @@ public:
     }
     
     bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        const T d = normalized().dot(other.normalized());
-        return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
+        const T d = dot(normalized(), other.normalized());
+        return Math::eq(Math::abs(d), static_cast<T>(1.0), epsilon);
     }
     
     bool colinearTo(const Vec<T,3>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        return 1.0 - dot(other) < epsilon;
+        return 1.0 - dot(*this, other) < epsilon;
     }
     
     int weight() const {
@@ -675,16 +668,17 @@ public:
     EdgeDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
         const Vec<T,S> edgeVec = end - start;
         const Vec<T,S> edgeDir = edgeVec.normalized();
-        const T dot = (*this - start).dot(edgeDir);
+        const T scale = dot(*this - start, edgeDir);
         
         // determine the closest point on the edge
         Vec<T,S> closestPoint;
-        if (dot < 0.0)
+        if (scale < 0.0) {
             closestPoint = start;
-        else if ((dot * dot) > edgeVec.squaredLength())
+        } else if ((scale * scale) > edgeVec.squaredLength()) {
             closestPoint = end;
-        else
-            closestPoint = start + edgeDir * dot;
+        } else {
+            closestPoint = start + edgeDir * scale;
+        }
 
         const T distance = (*this - closestPoint).length();
         return EdgeDistance(closestPoint, distance);
@@ -703,7 +697,7 @@ public:
         const Vec<T,S> toStart = start - *this;
         const Vec<T,S> toEnd   =   end - *this;
 
-        const T d = toEnd.dot(toStart.normalized());
+        const T d = dot(toEnd, toStart.normalized());
         return !Math::pos(d);
     }
 
@@ -901,7 +895,7 @@ bool operator<(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given left hand vector is less than or equal to the given right hand vector
  */
 template <typename T, size_t S>
-bool operator<= (const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator<=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return compare(lhs, rhs) <= 0;
 }
 
@@ -1234,7 +1228,25 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
     return stream;
 }
 
+/* ========== arithmetic functions ========== */
 
+/**
+ * Returns the dot product (also called inner product) of the two given vectors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @return the dot product of the given vectors
+ */
+template <typename T, size_t S>
+T dot(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    T result = static_cast<T>(0.0);
+    for (size_t i = 0; i < S; ++i) {
+        result += (lhs[i] * rhs[i]);
+    }
+    return result;
+}
 
 template <typename T>
 Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
@@ -1282,13 +1294,13 @@ bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point
  */
 template <typename T>
 T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
-    const T cos = vec.dot(axis);
+    const T cos = dot(vec, axis);
     if (Math::one(+cos))
         return static_cast<T>(0.0);
     if (Math::one(-cos))
         return Math::Constants<T>::pi();
     const Vec<T,3> cross = crossed(axis, vec);
-    if (!Math::neg(cross.dot(up)))
+    if (!Math::neg(dot(cross, up)))
         return std::acos(cos);
     return Math::Constants<T>::twoPi() - std::acos(cos);
 }
@@ -1297,8 +1309,8 @@ template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
     const Vec<T,3> normal = crossed(p3 - p1, p2 - p1).normalized();
-    const T offset = p1.dot(normal);
-    const T dist = p4.dot(normal) - offset;
+    const T offset = dot(p1, normal);
+    const T dist = dot(p4, normal) - offset;
     return Math::abs(dist) < epsilon;
 }
 

@@ -53,7 +53,7 @@ namespace TrenchBroom {
         
         Ray3f OrthographicCamera::doGetPickRay(const Vec3f& point) const {
             const Vec3f v = point - position();
-            const float d = v.dot(direction());
+            const float d = dot(v, direction());
             const Vec3f o = point - d * direction();
             return Ray3f(o, direction());
         }

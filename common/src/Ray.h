@@ -57,68 +57,70 @@ public:
     }
 
     Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
-        const T dot = direction.dot(point - origin);
-        if (dot >  Math::Constants<T>::pointStatusEpsilon())
+        const T scale = dot(direction, point - origin);
+        if (scale >  Math::Constants<T>::pointStatusEpsilon()) {
             return Math::PointStatus::PSAbove;
-        if (dot < -Math::Constants<T>::pointStatusEpsilon())
+        } else if (scale < -Math::Constants<T>::pointStatusEpsilon()) {
             return Math::PointStatus::PSBelow;
-        return Math::PointStatus::PSInside;
-    }
+        } else {
+            return Math::PointStatus::PSInside;
+        }
+}
 
-    const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
-        const T d = direction.dot(normal);
-        if (Math::zero(d))
-            return Math::nan<T>();
-        
-        const T s = ((anchor - origin).dot(normal)) / d;
-        if (Math::neg(s))
-            return Math::nan<T>();
-        return s;
-    }
+const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
+    const T d = dot(direction, normal);
+    if (Math::zero(d))
+        return Math::nan<T>();
 
-    const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
-        const Vec<T,S> diff = origin - position;
-        
-        const T p = static_cast<T>(2.0) * diff.dot(direction);
-        const T q = diff.squaredLength() - radius * radius;
+    const T s = dot(anchor - origin, normal) / d;
+    if (Math::neg(s))
+        return Math::nan<T>();
+    return s;
+}
 
-        const T d = p * p - static_cast<T>(4.0) * q;
-        if (d < static_cast<T>(0.0))
-            return Math::nan<T>();
-        
-        const T s = std::sqrt(d);
-        const T t0 = (-p + s) / static_cast<T>(2.0);
-        const T t1 = (-p - s) / static_cast<T>(2.0);
-        
-        if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0))
-            return Math::nan<T>();
-        if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0))
-            return std::min(t0, t1);
-        return std::max(t0, t1);
-    }
-    
-    const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
-        const T distanceToCenter = (position - origin).squaredLength();
-        if (distanceToCenter > maxDistance * maxDistance)
-            return Math::nan<T>();
-            
-        return intersectWithSphere(position, radius * distanceToCenter);
-    }
-    
-    const T distanceToPointOnRay(const Vec<T,S>& point) const {
-        const Vec<T,S> originToPoint = point - origin;
-        return originToPoint.dot(direction);
-    }
-    
-    struct PointDistance {
-        T rayDistance;
-        T distance;
-    };
-    
-    const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
-        const Vec<T,S> originToPoint = point - origin;
-        PointDistance result;
-        result.rayDistance = std::max(originToPoint.dot(direction), static_cast<T>(0.0));
+const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
+    const Vec<T,S> diff = origin - position;
+
+    const T p = static_cast<T>(2.0) * dot(diff, direction);
+    const T q = diff.squaredLength() - radius * radius;
+
+    const T d = p * p - static_cast<T>(4.0) * q;
+    if (d < static_cast<T>(0.0))
+        return Math::nan<T>();
+
+    const T s = std::sqrt(d);
+    const T t0 = (-p + s) / static_cast<T>(2.0);
+    const T t1 = (-p - s) / static_cast<T>(2.0);
+
+    if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0))
+        return Math::nan<T>();
+    if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0))
+        return std::min(t0, t1);
+    return std::max(t0, t1);
+}
+
+const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
+    const T distanceToCenter = (position - origin).squaredLength();
+    if (distanceToCenter > maxDistance * maxDistance)
+        return Math::nan<T>();
+
+    return intersectWithSphere(position, radius * distanceToCenter);
+}
+
+const T distanceToPointOnRay(const Vec<T,S>& point) const {
+    const Vec<T,S> originToPoint = point - origin;
+    return dot(originToPoint, direction);
+}
+
+struct PointDistance {
+    T rayDistance;
+    T distance;
+};
+
+const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
+    const Vec<T,S> originToPoint = point - origin;
+    PointDistance result;
+    result.rayDistance = Math::max(dot(originToPoint, direction), static_cast<T>(0.0));
         if (result.rayDistance == static_cast<T>(0.0))
             result.distance = originToPoint.squaredLength();
         else
@@ -175,15 +177,15 @@ public:
         Vec<T,S> v = direction;
         Vec<T,S> w = start - origin;
         
-        const T a = u.dot(u); // squared length of u
-        const T b = u.dot(v);
-        const T c = v.dot(v);
-        const T d = u.dot(w);
-        const T e = v.dot(w);
+        const T a = dot(u, u); // squared length of u
+        const T b = dot(u, v);
+        const T c = dot(v, v);
+        const T d = dot(u, w);
+        const T e = dot(v, w);
         const T D = a * c - b * b;
 
         if (Math::zero(D)) {
-            const T f = w.dot(v);
+            const T f = dot(w, v);
             const Vec<T,S> z = w - f * v;
             return LineDistance::Parallel(z.squaredLength());
         }
@@ -262,15 +264,15 @@ public:
     
     const LineDistance squaredDistanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
         const Vec<T,S> w0 = origin - lineAnchor;
-        const T a = direction.dot(direction);
-        const T b = direction.dot(lineDir);
-        const T c = lineDir.dot(lineDir);
-        const T d = direction.dot(w0);
-        const T e = lineDir.dot(w0);
+        const T a = dot(direction, direction);
+        const T b = dot(direction, lineDir);
+        const T c = dot(lineDir, lineDir);
+        const T d = dot(direction, w0);
+        const T e = dot(lineDir, w0);
         
         const T D = a * c - b * b;
         if (Math::zero(D)) {
-            const T f = w0.dot(lineDir);
+            const T f = dot(w0, lineDir);
             const Vec<T,S> z = w0 - f * lineDir;
             return LineDistance::Parallel(z.squaredLength());
         }
@@ -299,22 +301,22 @@ const TT intersectRayWithTriangle(const Ray<TT, 3>& R, const Vec<TT,3>& V0, cons
     const Vec<TT,3>  E1 = V1 - V0;
     const Vec<TT,3>  E2 = V2 - V0;
     const Vec<TT,3>  P  = crossed(D, E2);
-    const TT         a  = P.dot(E1);
+    const TT         a  = dot(P, E1);
     if (Math::zero(a))
         return Math::nan<TT>();
     
     const Vec<TT,3>  T  = O - V0;
     const Vec<TT,3>  Q  = crossed(T, E1);
     
-    const TT t = Q.dot(E2) / a;
+    const TT t = dot(Q, E2) / a;
     if (Math::neg(t))
         return Math::nan<TT>();
     
-    const TT u = P.dot(T) / a;
+    const TT u = dot(P, T) / a;
     if (Math::neg(u))
         return Math::nan<TT>();
     
-    const TT v = Q.dot(D) / a;
+    const TT v = dot(Q, D) / a;
     if (Math::neg(v))
         return Math::nan<TT>();
     

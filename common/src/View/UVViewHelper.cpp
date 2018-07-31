@@ -227,10 +227,11 @@ namespace TrenchBroom {
             const Vec3& normal = m_face->boundary().normal;
             Vec3 right;
             
-            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
+            if (Math::lt(Math::abs(dot(Vec3::PosZ, normal)), 1.0)) {
                 right = crossed(Vec3::PosZ, normal).normalized();
-            else
+            } else {
                 right = Vec3::PosX;
+            }
             const Vec3 up = crossed(normal, right).normalized();
             
             m_camera.setNearPlane(-1.0);

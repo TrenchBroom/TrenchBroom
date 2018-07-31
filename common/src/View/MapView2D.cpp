@@ -165,7 +165,7 @@ namespace TrenchBroom {
             
             const Vec3 toMin = referenceBounds.min - pickRay.origin;
             const Vec3 toMax = referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
             const Plane3 dragPlane(anchor, -pickRay.direction);
             
             const FloatType distance = dragPlane.intersectWithRay(pickRay);
@@ -184,8 +184,8 @@ namespace TrenchBroom {
             const MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             
-            const FloatType min = worldBounds.min.dot(m_camera.direction());
-            const FloatType max = worldBounds.max.dot(m_camera.direction());
+            const FloatType min = dot(worldBounds.min, Vec3(m_camera.direction()));
+            const FloatType max = dot(worldBounds.max, Vec3(m_camera.direction()));
             
             const Plane3 minPlane(min, Vec3(m_camera.direction()));
             const Plane3 maxPlane(max, Vec3(m_camera.direction()));
@@ -236,7 +236,7 @@ namespace TrenchBroom {
         }
         
         void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            const Vec3f actualPosition = position.dot(m_camera.up()) * m_camera.up() + position.dot(m_camera.right()) * m_camera.right() + m_camera.position().dot(m_camera.direction()) * m_camera.direction();
+            const Vec3f actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
             CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
             m_animationManager->runAnimation(animation, true);
         }
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                 
                 const Vec3 toMin = referenceBounds.min - pickRay.origin;
                 const Vec3 toMax = referenceBounds.max - pickRay.origin;
-                const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+                const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
                 const Plane3 dragPlane(anchor, -pickRay.direction);
                 
                 const FloatType distance = dragPlane.intersectWithRay(pickRay);

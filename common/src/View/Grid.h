@@ -253,7 +253,7 @@ namespace TrenchBroom {
                 const Vec<T,3> dir = vec / length;
                 
                 const Vec<T,3> snapped = snap(p, Line<T,3>(orig, dir));
-                const T dist = dir.dot(snapped - orig);
+                const T dist = dot(dir, snapped - orig);
                 if (dist < 0.0 || dist > length)
                     return Vec<T,3>::NaN;
                 

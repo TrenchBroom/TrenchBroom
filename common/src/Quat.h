@@ -55,7 +55,7 @@ public:
         assert(from.isNormalized());
         assert(to.isNormalized());
         
-        const T cos = from.dot(to);
+        const T cos = dot(from, to);
         if (Math::eq(std::abs(cos), static_cast<T>(1.0))) {
             setRotation(Vec<T,3>::PosZ, static_cast<T>(0.0));
         } else {
@@ -88,7 +88,7 @@ public:
         return result *= right;
     }
     
-    Quat<T>& operator*= (const Quat<T>& right) {
+    Quat<T>& operator*=(const Quat<T>& right) {
         const T& t = right.r;
         const Vec<T,3>& w = right.v;
         
@@ -96,7 +96,7 @@ public:
         const T ny = r * w.y() + t * v.y() + v.z() * w.x() - v.x() * w.z();
         const T nz = r * w.z() + t * v.z() + v.x() * w.y() - v.y() * w.x();
         
-        r = r * t - v.dot(w);
+        r = r * t - dot(v, w);
         v[0] = nx;
         v[1] = ny;
         v[2] = nz;

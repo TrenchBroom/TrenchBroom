@@ -188,7 +188,7 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::moveDelta(const Model::BrushFace* face, const Vec3& delta) const {
-            const FloatType dist = delta.dot(face->boundary().normal);
+            const FloatType dist = dot(delta, face->boundary().normal);
             if (Math::zero(dist))
                 return Vec3::Null;
             
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                     
                     // depending on the direction of the drag vector, the rays must be inverted to reflect the
                     // actual movement of the vertices
-                    if (delta.dot(ray.direction) < 0.0)
+                    if (dot(delta, ray.direction) < 0.0)
                         ray.direction = -ray.direction;
                     
                     edgeRays.push_back(ray);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
             /**
              * Scalar projection of normDelta onto the nearest axial normal vector.
              */
-            const FloatType normDeltaScalarProj = normDelta.dot(normDelta.firstAxis());
+            const FloatType normDeltaScalarProj = dot(normDelta, normDelta.firstAxis());
             
             size_t gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
             if (gridSkip > 0)
@@ -265,9 +265,9 @@ namespace TrenchBroom {
                     const Ray3& ray = edgeRays[i];
                     const FloatType vertexDist = intersectWithRay(ray, gridSkip);
                     const Vec3 vertexDelta = ray.direction * vertexDist;
-                    const FloatType vertexNormDist = vertexDelta.dot(face->boundary().normal);
+                    const FloatType vertexNormDist = dot(vertexDelta, face->boundary().normal);
                     
-                    const FloatType normDistDelta = std::abs(vertexNormDist - dist);
+                    const FloatType normDistDelta = Math::abs(vertexNormDist - dist);
                     if (normDistDelta < minDistDelta) {
                         actualDist = vertexNormDist;
                         minDistDelta = normDistDelta;
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             
             normDelta = face->boundary().normal * actualDist;
             const Vec3 deltaNormalized = delta.normalized();
-            return deltaNormalized * normDelta.dot(deltaNormalized);
+            return deltaNormalized * dot(normDelta, deltaNormalized);
         }
         
         Vec3 Grid::combineDeltas(const Vec3& delta1, const Vec3& delta2) const {

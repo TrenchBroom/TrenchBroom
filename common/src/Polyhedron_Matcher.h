@@ -120,15 +120,15 @@ private:
         auto it = std::begin(matchingFaces);
         
         auto* result = *it++;
-        auto bestDot = rightFace->normal().dot(result->normal());
+        auto bestDot = dot(rightFace->normal(), result->normal());
 
         // exit early if we find a face with an identical normal
         while (it != std::end(matchingFaces) && bestDot < 1.0) {
             auto* currentFace = *it;
-            const auto dot = rightFace->normal().dot(currentFace->normal());
-            if (dot > bestDot) {
+            const auto currentDot = dot(rightFace->normal(), currentFace->normal());
+            if (currentDot > bestDot) {
                 result = currentFace;
-                bestDot = dot;
+                bestDot = currentDot;
             }
             ++it;
         }

@@ -42,7 +42,7 @@ TEST(PlaneTest, constructWithAnchorAndNormal) {
     const Vec3f a = Vec3f(-2038.034f, 0.0023f, 32.0f);
     const Vec3f n = Vec3f(9.734f, -3.393f, 2.033f).normalized();
     const Plane3f p(a, n);
-    ASSERT_FLOAT_EQ(a.dot(n), p.distance);
+    ASSERT_FLOAT_EQ(dot(a, n), p.distance);
     ASSERT_VEC_EQ(n, p.normal);
 }
 
@@ -127,7 +127,7 @@ TEST(PlaneTest, pointDistance) {
     const Vec3f n = Vec3f(9.734f, -3.393f, 2.033f).normalized();
     const Plane3f p(a, n);
     const Vec3f point(1.0f, -32.37873f, 32.0f);
-    ASSERT_EQ(point.dot(p.normal) - p.distance, p.pointDistance(point));
+    ASSERT_EQ(dot(point, p.normal) - p.distance, p.pointDistance(point));
 }
 
 TEST(PlaneTest, valueAtParallelPlanes) {

@@ -150,7 +150,7 @@ private:
         if (bestIt == end)
             return end;
 
-        if (Math::abs(bestIt->normal.dot(axis)) < 0.5)
+        if (Math::abs(dot(bestIt->normal, axis)) < 0.5)
             return begin;
         
         assert(bestIt != end);
@@ -159,8 +159,8 @@ private:
         
         bestIt = end;
         for (auto it = begin; it != end; ++it) {
-            const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
-            const T curDot  = it->normal.dot(axis);
+            const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
+            const T curDot  = dot(it->normal, axis);
             
             if (curDot > bestDot)
                 bestIt = it;
@@ -174,13 +174,13 @@ private:
     }
     
     static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const Vec<T,3>& axis) {
-        const T curDot = curIt->normal.dot(axis);
+        const T curDot = dot(curIt->normal, axis);
         if (curDot == 0.0)
             return bestIt;
         if (curDot == 1.0)
             return curIt;
 
-        const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
+        const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
         if (Math::abs(curDot) > Math::abs(bestDot))
             return curIt;
         

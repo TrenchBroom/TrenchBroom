@@ -451,7 +451,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
 
-            if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0) {
+            if (dot(crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
             }
 
@@ -616,7 +616,7 @@ namespace TrenchBroom {
 
         bool BrushFace::containsPoint(const Vec3& point) const {
             const Vec3 toPoint = point - m_boundary.anchor();
-            if (!Math::zero(toPoint.dot(m_boundary.normal)))
+            if (!Math::zero(dot(toPoint, m_boundary.normal)))
                 return false;
 
             const Ray3 ray(point + m_boundary.normal, -m_boundary.normal);
@@ -626,8 +626,8 @@ namespace TrenchBroom {
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
             ensure(m_geometry != nullptr, "geometry is null");
 
-            const FloatType dot = m_boundary.normal.dot(ray.direction);
-            if (!Math::neg(dot))
+            const FloatType cos = dot(m_boundary.normal, ray.direction);
+            if (!Math::neg(cos))
                 return Math::nan<FloatType>();
             
             return intersectPolygonWithRay(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());

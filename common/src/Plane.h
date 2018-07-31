@@ -60,7 +60,7 @@ public:
     normal(i_normal) {}
     
     Plane(const Vec<T,S>& i_anchor, const Vec<T,S>& i_normal) :
-    distance(i_anchor.dot(i_normal)),
+    distance(dot(i_anchor, i_normal)),
     normal(i_normal) {}
             
     template <typename U>
@@ -116,10 +116,10 @@ public:
     }
     
     T intersectWithLine(const Line<T,S>& line) const {
-        const T f = line.direction.dot(normal);
+        const T f = dot(line.direction, normal);
         if (Math::zero(f))
             return Math::nan<T>();
-        return ((distance * normal - line.point).dot(normal)) / f;
+        return dot(distance * normal - line.point, normal) / f;
     }
     
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
@@ -157,7 +157,7 @@ public:
     }
     
     T pointDistance(const Vec<T,S>& point) const {
-        return point.dot(normal) - distance;
+        return dot(point, normal) - distance;
     }
     
     T at(const Vec<T,S-1>& point, const Math::Axis::Type axis) const {
@@ -166,9 +166,11 @@ public:
         
         T t = static_cast<T>(0.0);
         size_t index = 0;
-        for (size_t i = 0; i < S; i++)
-            if (i != axis)
+        for (size_t i = 0; i < S; i++) {
+            if (i != axis) {
                 t += normal[i] * point[index++];
+            }
+        }
         return (distance - t) / normal[axis];
     }
             
@@ -202,7 +204,7 @@ public:
         const Vec<T,3> oldAnchor = anchor();
         normal = stripTranslation(transform) * normal;
         normal.normalize();
-        distance = (transform * oldAnchor).dot(normal);
+        distance = dot(transform * oldAnchor, normal);
         return *this;
     }
             
@@ -225,14 +227,14 @@ public:
              */
     
     Vec<T,S> projectPoint(const Vec<T,S>& point) const {
-        return point - point.dot(normal) * normal + distance * normal;
+        return point - dot(point, normal) * normal + distance * normal;
     }
 
     Vec<T,S> projectPoint(const Vec<T,S>& point, const Vec<T,S>& direction) const {
-        const T f = direction.dot(normal);
-        if (Math::zero(f))
+        const T cos = dot(direction, normal);
+        if (Math::zero(cos))
             return Vec<T,S>::NaN;
-        const T d = ((distance * normal - point).dot(normal)) / f;
+        const T d = dot(distance * normal - point, normal) / cos;
         return point + direction * d;
     }
     
@@ -292,7 +294,7 @@ template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
     if (!planeNormal(plane.normal, point0, point1, point2))
         return false;
-    plane.distance = point0.dot(plane.normal);
+    plane.distance = dot(point0, plane.normal);
     return true;
 }
 

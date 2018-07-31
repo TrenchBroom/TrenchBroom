@@ -97,7 +97,7 @@ namespace TrenchBroom {
                         curPoint = Vec3f::parse(line);
                         
                         const Vec3f dir = (curPoint - lastPoint).normalized();
-                        if (std::acos(dir.dot(refDir)) > Threshold) {
+                        if (std::acos(dot(dir, refDir)) > Threshold) {
                             points.push_back(lastPoint);
                             refDir = dir;
                         }
