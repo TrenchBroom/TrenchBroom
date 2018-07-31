@@ -61,13 +61,7 @@ namespace TrenchBroom {
             virtual void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
             
             void doModifierKeyChange(const InputState& inputState) override;
-            
             void doMouseMove(const InputState& inputState) override;
-
-//            bool doStartMouseDrag(const InputState& inputState) override;
-//            bool doMouseDrag(const InputState& inputState) override;
-//            void doEndMouseDrag(const InputState& inputState) override;
-//            void doCancelMouseDrag() override;
 
             // RestrictedDragPolicy
             DragInfo doStartDrag(const InputState& inputState) override;
@@ -80,9 +74,6 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
             bool doCancel() override;
-
-        protected:
-            bool handleInput(const InputState& inputState) const;
         };
         
         class ShearObjectsToolController2D : public ShearObjectsToolController {

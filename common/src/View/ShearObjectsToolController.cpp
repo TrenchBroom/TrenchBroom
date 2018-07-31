@@ -52,7 +52,8 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            if (handleInput(inputState)) {
+            if (m_tool->applies()) {
+                // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
@@ -109,8 +110,9 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState))
+            if (m_tool->applies() && !anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
+            }
         }
 
         // RestrictedDragPolicy
@@ -279,11 +281,9 @@ namespace TrenchBroom {
         bool ShearObjectsToolController::doCancel() {
             return false;
         }
-        
-        bool ShearObjectsToolController::handleInput(const InputState& inputState) const {
-            return m_tool->applies();
-        }
-        
+
+        // ShearObjectsToolController2D
+
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
@@ -291,7 +291,9 @@ namespace TrenchBroom {
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
-        
+
+        // ShearObjectsToolController3D
+
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
