@@ -220,8 +220,8 @@ namespace TrenchBroom {
 
             m_tool->commitShear();
 
-            // FIXME: why?
-            //m_tool->updateDragFaces(inputState.pickResult());
+            // The mouse is in a different place now so update the highlighted face
+            m_tool->updateDragFaces(inputState.pickResult());
         }
 
         void ShearObjectsToolController::doCancelDrag() {
