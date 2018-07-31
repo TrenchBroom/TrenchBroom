@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 Vec3 curPoint = originalCurPoint;
                 if (delegate->snap(inputState, initialPoint, lastPoint, curPoint)) {
                     if (anySnapped) {
-                        if (curPoint.squaredDistanceTo(originalCurPoint) < bestPoint.squaredDistanceTo(originalCurPoint)) {
+                        if (squaredDistance(curPoint, originalCurPoint) < squaredDistance(bestPoint, originalCurPoint)) {
                             bestPoint = curPoint;
                         }
                     } else {

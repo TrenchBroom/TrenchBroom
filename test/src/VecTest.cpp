@@ -222,9 +222,9 @@ TEST(VecTest, vec3fDistanceTo) {
 TEST(VecTest, vec3fSquaredDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
-    ASSERT_FLOAT_EQ(0.0f, v1.squaredDistanceTo(v1));
-    ASSERT_FLOAT_EQ(squaredLength(v1), v1.squaredDistanceTo(Vec3f::Null));
-    ASSERT_FLOAT_EQ(squaredLength(v1 - v2), v1.squaredDistanceTo(v2));
+    ASSERT_FLOAT_EQ(0.0f, squaredDistance(v1, v1));
+    ASSERT_FLOAT_EQ(squaredLength(v1), squaredDistance(v1, Vec3f::Null));
+    ASSERT_FLOAT_EQ(squaredLength(v1 - v2), squaredDistance(v1, v2));
 }
 
 TEST(VecTest, vec3fNormalize) {

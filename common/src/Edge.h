@@ -60,8 +60,8 @@ public:
     }
 
     T squaredDistanceTo(const Edge<T,S>& other) const {
-        const T startDistance = m_start.squaredDistanceTo(other.m_start);
-        const T endDistance = m_end.squaredDistanceTo(other.m_end);
+        const T startDistance = squaredDistance(m_start, other.m_start);
+        const T endDistance = squaredDistance(m_end, other.m_end);
         return Math::max(startDistance, endDistance);
     }
 

@@ -31,8 +31,8 @@ public:
     m_anchor(anchor) {}
     
     bool operator()(const Vertex* lhs, const Vertex* rhs) const {
-        const T lDist = m_anchor.squaredDistanceTo(lhs->position());
-        const T rDist = m_anchor.squaredDistanceTo(rhs->position());
+        const T lDist = squaredDistance(m_anchor, lhs->position());
+        const T rDist = squaredDistance(m_anchor, rhs->position());
         if (lDist < rDist)
             return true;
         if (lDist > rDist)
@@ -672,7 +672,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(con
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
     do {
-        const T distance = position.squaredDistanceTo(currentVertex->position());
+        const T distance = squaredDistance(position, currentVertex->position());
         if (distance < closestDistance) {
             closestDistance = distance;
             closestVertex = currentVertex;

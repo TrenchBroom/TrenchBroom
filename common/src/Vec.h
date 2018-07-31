@@ -368,10 +368,6 @@ public:
         return result;
     }
 
-    T squaredDistanceTo(const Vec<T,S>& other) const {
-        return squaredLength(*this - other);
-    }
-    
     Vec<T,S>& normalize() {
         *this /= length(*this);
         return *this;
@@ -1256,6 +1252,20 @@ Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
 template <typename T, size_t S>
 T distance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return length(lhs - rhs);
+}
+
+/**
+ * Computes the squared distance between two given points.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first point
+ * @param rhs the second point
+ * @return the squared distance between the given points
+ */
+template <typename T, size_t S>
+T squaredDistance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return squaredLength(lhs - rhs);
 }
 
 /* ========== computing properties of single vectors ========== */
