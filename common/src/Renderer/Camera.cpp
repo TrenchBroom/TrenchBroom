@@ -172,7 +172,7 @@ namespace TrenchBroom {
         }
         
         float Camera::squaredDistanceTo(const Vec3f& point) const {
-            return (point - m_position).squaredLength();
+            return squaredLength(point - m_position);
         }
 
         float Camera::perpendicularDistanceTo(const Vec3f& point) const {

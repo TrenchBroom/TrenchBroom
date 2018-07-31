@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 
                 const Plane<T,3> plane(polygon.vertices().front(), normal);
                 Vec<T,3> ps = snap(p, plane);
-                T err = (p - ps).squaredLength();
+                T err = squaredLength(p - ps);
                 
                 if (!polygon.contains(ps, plane.normal)) {
                     ps = Vec<T,3>::NaN;
@@ -280,7 +280,7 @@ namespace TrenchBroom {
                 while (cur != end) {
                     const Vec<T,3> cand = snap(p, Edge<T,3>(*last, *cur));
                     if (!cand.nan()) {
-                        const T cerr = (p - cand).squaredLength();
+                        const T cerr = squaredLength(p - cand);
                         if (cerr < err) {
                             err = cerr;
                             ps = cand;

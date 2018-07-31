@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 const Vec3f center(entity->bounds().center());
                 
                 const Vec3f toCam = renderContext.camera().position() - center;
-                if (toCam.squaredLength() > maxDistance2)
+                if (squaredLength(toCam) > maxDistance2)
                     continue;
 
                 Vec3f onPlane = toCam - dot(toCam, direction) * direction;

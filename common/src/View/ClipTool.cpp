@@ -756,12 +756,12 @@ namespace TrenchBroom {
                 
                 const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
                 const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
-                if (frontDiff.squaredLength() < bestFrontDiff.squaredLength())
+                if (squaredLength(frontDiff) < squaredLength(bestFrontDiff))
                     bestFrontFace = face;
                 
                 const auto bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
                 const auto backDiff = face->boundary().normal - backFace->boundary().normal;
-                if (backDiff.squaredLength() < bestBackDiff.squaredLength())
+                if (squaredLength(backDiff) < squaredLength(bestBackDiff))
                     bestBackFace = face;
                 ++faceIt;
             }

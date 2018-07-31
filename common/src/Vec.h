@@ -368,16 +368,12 @@ public:
         return result;
     }
 
-    T squaredLength() const {
-        return dot(*this, *this);
-    }
-    
     T distanceTo(const Vec<T,S>& other) const {
         return length(*this - other);
     }
     
     T squaredDistanceTo(const Vec<T,S>& other) const {
-        return (*this - other).squaredLength();
+        return squaredLength(*this - other);
     }
     
     Vec<T,S>& normalize() {
@@ -663,7 +659,7 @@ public:
         Vec<T,S> closestPoint;
         if (scale < 0.0) {
             closestPoint = start;
-        } else if ((scale * scale) > edgeVec.squaredLength()) {
+        } else if ((scale * scale) > squaredLength(edgeVec)) {
             closestPoint = end;
         } else {
             closestPoint = start + edgeDir * scale;
@@ -1250,6 +1246,20 @@ Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return Vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
                     lhs[2] * rhs[0] - lhs[0] * rhs[2],
                     lhs[0] * rhs[1] - lhs[1] * rhs[0]);
+}
+
+/**
+ * Computes the distance between two given points.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first point
+ * @param rhs the second point
+ * @return the distance between the given points
+ */
+template <typename T, size_t S>
+T distance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    return length(lhs - rhs);
 }
 
 /* ========== computing properties of single vectors ========== */

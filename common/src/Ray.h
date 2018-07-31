@@ -82,7 +82,7 @@ const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
     const Vec<T,S> diff = origin - position;
 
     const T p = static_cast<T>(2.0) * dot(diff, direction);
-    const T q = diff.squaredLength() - radius * radius;
+    const T q = squaredLength(diff) - radius * radius;
 
     const T d = p * p - static_cast<T>(4.0) * q;
     if (d < static_cast<T>(0.0))
@@ -100,7 +100,7 @@ const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
 }
 
 const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
-    const T distanceToCenter = (position - origin).squaredLength();
+    const T distanceToCenter = squaredLength(position - origin);
     if (distanceToCenter > maxDistance * maxDistance)
         return Math::nan<T>();
 
@@ -122,9 +122,9 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
     PointDistance result;
     result.rayDistance = Math::max(dot(originToPoint, direction), static_cast<T>(0.0));
         if (result.rayDistance == static_cast<T>(0.0))
-            result.distance = originToPoint.squaredLength();
+            result.distance = squaredLength(originToPoint);
         else
-            result.distance = (pointAtDistance(result.rayDistance) - point).squaredLength();
+            result.distance = squaredLength(pointAtDistance(result.rayDistance) - point);
         return result;
     }
     
@@ -187,7 +187,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         if (Math::zero(D)) {
             const T f = dot(w, v);
             const Vec<T,S> z = w - f * v;
-            return LineDistance::Parallel(z.squaredLength());
+            return LineDistance::Parallel(squaredLength(z));
         }
         
         T sN, sD = D;
@@ -213,7 +213,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         w = w + u;
         const Vec<T,S> dP = w - v;
         
-        return LineDistance::NonParallel(tc, dP.squaredLength(), sc * std::sqrt(a));
+        return LineDistance::NonParallel(tc, squaredLength(dP), sc * std::sqrt(a));
     }
     
     const LineDistance distanceToRay(const Ray<T,3>& ray) const {
@@ -240,7 +240,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         if (Math::zero(D)) {
             const T f = w.dot(v);
             const Vec<T,S> z = w - f * v;
-            return LineDistance::Parallel(z.squaredLength());
+            return LineDistance::Parallel(squaredLength(z));
         }
         
         sN = (b * e - c * d);
@@ -259,7 +259,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         w = w + u;
         const Vec<T,S> dP = w - v;
         
-        return LineDistance::NonParallel(tc, dP.squaredLength(), sc);
+        return LineDistance::NonParallel(tc, squaredLength(dP), sc);
     }
     
     const LineDistance squaredDistanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
@@ -274,7 +274,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         if (Math::zero(D)) {
             const T f = dot(w0, lineDir);
             const Vec<T,S> z = w0 - f * lineDir;
-            return LineDistance::Parallel(z.squaredLength());
+            return LineDistance::Parallel(squaredLength(z));
         }
         
         const T sc = std::max((b * e - c * d) / D, static_cast<T>(0.0));
@@ -282,7 +282,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         
         const Vec<T,S> rp = origin + sc * direction; // point on ray
         const Vec<T,S> lp = lineAnchor + tc * lineDir; // point on line
-        return LineDistance::NonParallel(sc, (rp - lp).squaredLength(), tc);
+        return LineDistance::NonParallel(sc, squaredLength(rp - lp), tc);
     }
     
     const LineDistance distanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {

@@ -206,9 +206,9 @@ TEST(VecTest, vec3fLength) {
 }
 
 TEST(VecTest, vec3fLengthSquared) {
-    ASSERT_FLOAT_EQ(0.0f, Vec3f::Null.squaredLength());
-    ASSERT_FLOAT_EQ(1.0f, Vec3f::PosX.squaredLength());
-    ASSERT_FLOAT_EQ(5396411.51542884f, Vec3f(2.3f, 8.7878f, -2323.0f).squaredLength());
+    ASSERT_FLOAT_EQ(0.0f, squaredLength(Vec3f::Null));
+    ASSERT_FLOAT_EQ(1.0f, squaredLength(Vec3f::PosX));
+    ASSERT_FLOAT_EQ(5396411.51542884f, squaredLength(Vec3f(2.3f, 8.7878f, -2323.0f)));
 }
 
 TEST(VecTest, vec3fDistanceTo) {
@@ -223,8 +223,8 @@ TEST(VecTest, vec3fSquaredDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
     ASSERT_FLOAT_EQ(0.0f, v1.squaredDistanceTo(v1));
-    ASSERT_FLOAT_EQ(v1.squaredLength(), v1.squaredDistanceTo(Vec3f::Null));
-    ASSERT_FLOAT_EQ((v1 - v2).squaredLength(), v1.squaredDistanceTo(v2));
+    ASSERT_FLOAT_EQ(squaredLength(v1), v1.squaredDistanceTo(Vec3f::Null));
+    ASSERT_FLOAT_EQ(squaredLength(v1 - v2), v1.squaredDistanceTo(v2));
 }
 
 TEST(VecTest, vec3fNormalize) {

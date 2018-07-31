@@ -72,7 +72,7 @@ T Polyhedron<T,FP,VP>::HalfEdge::length() const {
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::HalfEdge::squaredLength() const {
-    return vector().squaredLength();
+    return ::squaredLength(vector());
 }
 
 template <typename T, typename FP, typename VP>

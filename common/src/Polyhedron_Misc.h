@@ -1036,7 +1036,7 @@ bool Polyhedron<T,FP,VP>::checkEdgeLengths(const T minLength) const {
     const Edge* firstEdge = m_edges.front();
     const Edge* currentEdge = firstEdge;
     do {
-        const T length2 = currentEdge->vector().squaredLength();
+        const T length2 = squaredLength(currentEdge->vector());
         if (length2 < minLength2)
             return false;
         currentEdge = currentEdge->next();
@@ -1103,7 +1103,7 @@ bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
     while (examined < static_cast<long>(m_edges.size()) && polyhedron()) {
         const size_t oldSize = m_edges.size();
         
-        const T length2 = currentEdge->vector().squaredLength();
+        const T length2 = squaredLength(currentEdge->vector());
         if (length2 < minLength2)
             currentEdge = removeEdge(currentEdge, callback);
         else

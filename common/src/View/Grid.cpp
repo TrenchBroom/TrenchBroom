@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 }
             }
             
-            if (delta.squaredLength() < (delta - actualDelta).squaredLength())
+            if (squaredLength(delta) < squaredLength(delta - actualDelta))
                 actualDelta = Vec3::Null;
             return actualDelta;
         }
@@ -169,7 +169,7 @@ namespace TrenchBroom {
                 if (!Math::zero(delta[i]))
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
             
-            if (delta.squaredLength() < (delta - actualDelta).squaredLength())
+            if (squaredLength(delta) < squaredLength(delta - actualDelta))
                 actualDelta = Vec3::Null;
             
             return actualDelta;
@@ -181,7 +181,7 @@ namespace TrenchBroom {
                 if (!Math::zero(delta[i]))
                     actualDelta[i] = snap(delta[i]);
             
-            if (delta.squaredLength() < (delta - actualDelta).squaredLength())
+            if (squaredLength(delta) < squaredLength(delta - actualDelta))
                 actualDelta = Vec3::Null;
             
             return actualDelta;
@@ -282,7 +282,7 @@ namespace TrenchBroom {
         }
         
         Vec3 Grid::combineDeltas(const Vec3& delta1, const Vec3& delta2) const {
-            if (delta1.squaredLength() < delta2.squaredLength())
+            if (squaredLength(delta1) < squaredLength(delta2))
                 return delta1;
             return delta2;
         }

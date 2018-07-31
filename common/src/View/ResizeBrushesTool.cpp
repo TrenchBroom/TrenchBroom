@@ -262,8 +262,8 @@ namespace TrenchBroom {
         Vec3 ResizeBrushesTool::selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const FloatType mouseDistance2 = mouseDistance * mouseDistance;
-            return (std::abs(relativeDelta.squaredLength() - mouseDistance2) <
-                    std::abs(absoluteDelta.squaredLength() - mouseDistance2) ?
+            return (Math::abs(squaredLength(relativeDelta) - mouseDistance2) <
+                    Math::abs(squaredLength(absoluteDelta) - mouseDistance2) ?
                     relativeDelta :
                     absoluteDelta);
         }
