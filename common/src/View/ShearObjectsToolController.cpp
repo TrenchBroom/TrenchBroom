@@ -111,7 +111,7 @@ namespace TrenchBroom {
         
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
             if (m_tool->applies() && !anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updatePickedSide(inputState.pickResult());
             }
         }
 
@@ -142,7 +142,7 @@ namespace TrenchBroom {
 
             // TODO: why did .pickable() break it?
             const Model::Hit& hit = pickResult.query().type(
-                    ShearObjectsTool::ShearToolFaceHit).occluded().first();
+                    ShearObjectsTool::ShearToolSideHit).occluded().first();
             if (!hit.isMatch()) {
                 return DragInfo();
             }
@@ -220,8 +220,8 @@ namespace TrenchBroom {
 
             m_tool->commitShear();
 
-            // The mouse is in a different place now so update the highlighted face
-            m_tool->updateDragFaces(inputState.pickResult());
+            // The mouse is in a different place now so update the highlighted side
+            m_tool->updatePickedSide(inputState.pickResult());
         }
 
         void ShearObjectsToolController::doCancelDrag() {
@@ -233,7 +233,7 @@ namespace TrenchBroom {
 
         void ShearObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
-            // TODO: force rendering of all other map views if the input applies and the tool has drag faces
+            // TODO: force rendering of all other map views if the input applies and the tool has drag sides
         }
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

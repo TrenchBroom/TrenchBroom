@@ -41,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ShearObjectsTool::ShearToolFaceHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType ShearObjectsTool::ShearToolSideHit = Model::Hit::freeHitType();
 
         ShearObjectsTool::ShearObjectsTool(MapDocumentWPtr document) :
         Tool(false),
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const BBox3& myBounds = bounds();
 
-            // select back faces. Used for both 2D and 3D.
+            // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
 
                 FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(bestNormal != Vec3::Null);
-                pickResult.addHit(Model::Hit(ShearToolFaceHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
+                pickResult.addHit(Model::Hit(ShearToolSideHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
 
                 //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             auto hit = localPickResult.query().first();
 
 #if 0
-            if (hit.type() == ScaleToolFaceHit)
+            if (hit.type() == ScaleToolSideHit)
                 std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
             else if (hit.type() == ScaleToolEdgeHit)
                 printf("hit edge\n");
@@ -143,13 +143,13 @@ namespace TrenchBroom {
             // these handles only work in 3D.
             assert(camera.perspectiveProjection());
 
-            // faces
+            // sides
             for (const BBoxSide& side : AllSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
                 if (!Math::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ShearToolFaceHit, dist, pickRay.pointAtDistance(dist), side));
+                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }
 
@@ -193,7 +193,7 @@ namespace TrenchBroom {
         std::vector<Polygon3f> ShearObjectsTool::polygonsHighlightedByDrag() const {
             std::vector<BBoxSide> sides;
 
-            if (m_dragStartHit.type() == ShearToolFaceHit) {
+            if (m_dragStartHit.type() == ShearToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 sides = {side};
             } else {
@@ -208,7 +208,7 @@ namespace TrenchBroom {
         }
 
         Polygon3f ShearObjectsTool::dragPolygon() const {
-            if (m_dragStartHit.type() == ShearToolFaceHit) {
+            if (m_dragStartHit.type() == ShearToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return Polygon3f(polygonForBBoxSide(bounds(), side));
             }
@@ -227,7 +227,7 @@ namespace TrenchBroom {
 
         void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
             ensure(hit.isMatch(), "must start with matching hit");
-            ensure(hit.type() == ShearToolFaceHit, "wrong hit type");
+            ensure(hit.type() == ShearToolSideHit, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
             std::cerr << "ShearObjectsTool::startShearWithHit\n";
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             }
 
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolFaceHit) {
+            if (m_dragStartHit.type() != ShearToolSideHit) {
                 return Mat4x4::Identity;
             }
             
@@ -312,7 +312,7 @@ namespace TrenchBroom {
         }
         Polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolFaceHit) {
+            if (m_dragStartHit.type() != ShearToolSideHit) {
                 return Polygon3f();
             }
             
@@ -324,14 +324,14 @@ namespace TrenchBroom {
             return Polygon3f(handle);
         }
 
-        void ShearObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ShearToolFaceHit).occluded().first();
+        void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {
+            const Model::Hit& hit = pickResult.query().type(ShearToolSideHit).occluded().first();
 
             // hack for highlighting on mouseover
             m_dragStartHit = hit;
 
             // TODO: extract the highlighted handle from the hit here, and only refresh views if it changed
-            // (see ResizeBrushesTool::updateDragFaces)
+            // (see ResizeBrushesTool::updatePickedSide)
             refreshViews();
         }
 

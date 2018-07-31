@@ -41,7 +41,7 @@ namespace TrenchBroom {
     namespace View {
         class ShearObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ShearToolFaceHit;
+            static const Model::Hit::HitType ShearToolSideHit;
 
         private:
             bool m_resizing;
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         // moved from controller
 
             BBox3 m_bboxAtDragStart;
-            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
+            Model::Hit m_dragStartHit;
             MapDocumentWPtr m_document;
             Vec3 m_dragCumulativeDelta;
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
 
-            void updateDragFaces(const Model::PickResult& pickResult);
+            void updatePickedSide(const Model::PickResult &pickResult);
 
         private:
             void bindObservers();
