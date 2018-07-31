@@ -115,17 +115,6 @@ namespace TrenchBroom {
 
             auto hit = localPickResult.query().first();
 
-#if 0
-            if (hit.type() == ScaleToolSideHit)
-                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
-            else if (hit.type() == ScaleToolEdgeHit)
-                printf("hit edge\n");
-            else if (hit.type() == ScaleToolCornerHit)
-                printf("hit corner\n");
-            else
-                printf("no hit\n");
-#endif
-
             if (hit.isMatch()) {
                 pickResult.addHit(hit);
             }
@@ -156,17 +145,6 @@ namespace TrenchBroom {
             pickBackSides(pickRay, camera, localPickResult);
 
             auto hit = localPickResult.query().first();
-
-#if 0
-            if (hit.type() == ScaleToolFaceHit)
-                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
-            else if (hit.type() == ScaleToolEdgeHit)
-                printf("hit edge\n");
-            else if (hit.type() == ScaleToolCornerHit)
-                printf("hit corner\n");
-            else
-                printf("no hit\n");
-#endif
 
             if (hit.isMatch()) {
                 pickResult.addHit(hit);
@@ -277,10 +255,6 @@ namespace TrenchBroom {
 
             const auto& hit = m_dragStartHit;
 
-//            std::cout << "resize to " << newBox << "\n";
-//
-//            document->scaleObjects(m_tool->bounds(), newBox);
-
             if (!delta.null()) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
@@ -366,7 +340,5 @@ namespace TrenchBroom {
         void ShearObjectsTool::setConstrainVertical(const bool constrainVertical) {
             m_constrainVertical = constrainVertical;
         }
-
-
     }
 }
