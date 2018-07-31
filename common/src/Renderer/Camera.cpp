@@ -168,7 +168,7 @@ namespace TrenchBroom {
         }
 
         float Camera::distanceTo(const Vec3f& point) const {
-            return (point - m_position).length();
+            return length(point - m_position);
         }
         
         float Camera::squaredDistanceTo(const Vec3f& point) const {
@@ -380,8 +380,8 @@ namespace TrenchBroom {
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
             assert(m_farPlane > m_nearPlane);
-            assert(Math::eq(direction.length(), 1.0f));
-            assert(Math::eq(up.length(), 1.0f));
+            assert(Math::one(length(direction)));
+            assert(Math::one(length(up)));
             setDirection(direction, up);
             updateZoomedViewport();
         }

@@ -368,16 +368,12 @@ public:
         return result;
     }
 
-    T length() const {
-        return std::sqrt(squaredLength());
-    }
-    
     T squaredLength() const {
         return dot(*this, *this);
     }
     
     T distanceTo(const Vec<T,S>& other) const {
-        return (*this - other).length();
+        return length(*this - other);
     }
     
     T squaredDistanceTo(const Vec<T,S>& other) const {
@@ -385,7 +381,7 @@ public:
     }
     
     Vec<T,S>& normalize() {
-        *this /= length();
+        *this /= length(*this);
         return *this;
     }
     
@@ -673,7 +669,7 @@ public:
             closestPoint = start + edgeDir * scale;
         }
 
-        const T distance = (*this - closestPoint).length();
+        const T distance = length(*this - closestPoint);
         return EdgeDistance(closestPoint, distance);
     }
 
@@ -1250,10 +1246,38 @@ T dot(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the cross product of the given vectors
  */
 template <typename T>
-const Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
+Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return Vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
                     lhs[2] * rhs[0] - lhs[0] * rhs[2],
                     lhs[0] * rhs[1] - lhs[1] * rhs[0]);
+}
+
+/* ========== computing properties of single vectors ========== */
+
+/**
+ * Returns the length of the given vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to return the length of
+ * @return the length of the given vector
+ */
+template <typename T, size_t S>
+T length(const Vec<T,S>& vec) {
+    return std::sqrt(squaredLength(vec));
+}
+
+/**
+ * Returns the squared length of the given vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to return the squared length of
+ * @return the squared length of the given vector
+ */
+template <typename T, size_t S>
+T squaredLength(const Vec<T,S>& vec) {
+    return dot(vec, vec);
 }
 
 /*
@@ -1274,7 +1298,7 @@ bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point
     
     // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
     // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
-    const T sin_theta = Math::abs(normal.length() / (v1.length() * v2.length()));
+    const T sin_theta = Math::abs(length(normal) / (length(v1) * length(v2)));
     if (Math::isnan(sin_theta) ||
         Math::isinf(sin_theta) ||
         sin_theta < epsilon)
@@ -1373,9 +1397,9 @@ template <typename T, size_t S>
 bool linearlyDependent2(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
     // A,B,C are colinear if and only if the largest of the lenghts of AB,AC,BC is equal to the sum of the other two.
     
-    const T ac = (c - a).length();
-    const T bc = (c - b).length();
-    const T ab = (b - a).length();
+    const T ac = length(c - a);
+    const T bc = length(c - b);
+    const T ab = length(b - a);
     
     if (ac > bc) {
         if (ac > ab) // ac > ab, bc

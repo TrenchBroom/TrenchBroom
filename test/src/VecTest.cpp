@@ -200,9 +200,9 @@ TEST(VecTest, vec3fDotNull) {
 }
 
 TEST(VecTest, vec3fLength) {
-    ASSERT_FLOAT_EQ(0.0f, Vec3f::Null.length());
-    ASSERT_FLOAT_EQ(1.0f, Vec3f::PosX.length());
-    ASSERT_FLOAT_EQ(std::sqrt(5396411.51542884f), Vec3f(2.3f, 8.7878f, -2323.0f).length());
+    ASSERT_FLOAT_EQ(0.0f, length(Vec3f::Null));
+    ASSERT_FLOAT_EQ(1.0f, length(Vec3f::PosX));
+    ASSERT_FLOAT_EQ(std::sqrt(5396411.51542884f), length(Vec3f(2.3f, 8.7878f, -2323.0f)));
 }
 
 TEST(VecTest, vec3fLengthSquared) {
@@ -215,8 +215,8 @@ TEST(VecTest, vec3fDistanceTo) {
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
     ASSERT_FLOAT_EQ(0.0f, v1.distanceTo(v1));
-    ASSERT_FLOAT_EQ(v1.length(), v1.distanceTo(Vec3f::Null));
-    ASSERT_FLOAT_EQ((v1 - v2).length(), v1.distanceTo(v2));
+    ASSERT_FLOAT_EQ(length(v1), v1.distanceTo(Vec3f::Null));
+    ASSERT_FLOAT_EQ(length(v1 - v2), v1.distanceTo(v2));
 }
 
 TEST(VecTest, vec3fSquaredDistanceTo) {
@@ -233,8 +233,8 @@ TEST(VecTest, vec3fNormalize) {
     
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
-    ASSERT_VEC_EQ((v1 / v1.length()), v1.normalized());
-    ASSERT_VEC_EQ((v2 / v2.length()), v2.normalized());
+    ASSERT_VEC_EQ((v1 / length(v1)), v1.normalized());
+    ASSERT_VEC_EQ((v2 / length(v2)), v2.normalized());
 }
 
 TEST(VecTest, vec3fNull) {
@@ -402,8 +402,8 @@ TEST(VecTest, makePerpendicular) {
     const Vec3d n1(-0.44721359549995793, -0, -0.89442719099991586);
     const Vec3d n2 = n1.makePerpendicular();
     
-    ASSERT_DOUBLE_EQ(1.0, n1.length());
-    ASSERT_DOUBLE_EQ(1.0, n2.length());
+    ASSERT_DOUBLE_EQ(1.0, length(n1));
+    ASSERT_DOUBLE_EQ(1.0, length(n2));
     
     ASSERT_DOUBLE_EQ(0.0, dot(n1, n2));
 }
@@ -417,7 +417,7 @@ TEST(VecTest, makePerpendicular2) {
                              Vec3d(0,0,-1) };
     for (const Vec3d &v : vecs) {
         const Vec3d p = v.makePerpendicular();
-        ASSERT_DOUBLE_EQ(1.0, p.length());
+        ASSERT_DOUBLE_EQ(1.0, length(p));
         ASSERT_DOUBLE_EQ(0.0, dot(v, p));
     }
 }

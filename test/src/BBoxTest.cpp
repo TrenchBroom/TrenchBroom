@@ -200,7 +200,7 @@ TEST(BBoxTest, intersectWithRay) {
     const Vec3f dir = diff.normalized();
     distance = bounds.intersectWithRay(Ray3f(origin, dir), &normal);
     ASSERT_FALSE(Math::isnan(distance));
-    ASSERT_FLOAT_EQ(diff.length(), distance);
+    ASSERT_FLOAT_EQ(length(diff), distance);
     ASSERT_VEC_EQ(Vec3f::PosZ, normal);
     
 }

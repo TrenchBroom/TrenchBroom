@@ -114,7 +114,7 @@ namespace TrenchBroom {
                     const Vec3f dir = (nextPoint - curPoint).normalized();
                     
                     m_points.push_back(curPoint);
-                    const float dist = (nextPoint - curPoint).length();
+                    const float dist = length(nextPoint - curPoint);
                     size_t segments = static_cast<size_t>(dist / 64.0f);
                     for (unsigned int j = 1; j < segments; ++j)
                         m_points.push_back(curPoint + dir * static_cast<float>(j) * 64.0f);

@@ -67,7 +67,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::HalfEdge::destination
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::HalfEdge::length() const {
-    return vector().length();
+    return ::length(vector());
 }
 
 template <typename T, typename FP, typename VP>

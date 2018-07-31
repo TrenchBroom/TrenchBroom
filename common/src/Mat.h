@@ -696,9 +696,9 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const
     const Vec<T,3>  yAxis = cross(normal, xAxis).normalized();
     const Vec<T,3>& zAxis = direction;
     
-    assert(Math::eq(xAxis.length(), 1.0));
-    assert(Math::eq(yAxis.length(), 1.0));
-    assert(Math::eq(zAxis.length(), 1.0));
+    assert(Math::eq(length(xAxis), 1.0));
+    assert(Math::eq(length(yAxis), 1.0));
+    assert(Math::eq(length(zAxis), 1.0));
     
     return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
 }

@@ -124,7 +124,7 @@ namespace TrenchBroom {
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
                   Vec3 newNormal  = newBoundary.normal;
-            assert(Math::eq(newNormal.length(), 1.0));
+            assert(Math::one(length(newNormal)));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))
@@ -200,8 +200,8 @@ namespace TrenchBroom {
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            Vec2f newScale = Vec2f(projectedTransformedXAxis.length(),
-                                   projectedTransformedYAxis.length()).corrected(4);
+            Vec2f newScale = Vec2f(length(projectedTransformedXAxis),
+                                   length(projectedTransformedYAxis)).corrected(4);
 
             // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
             if (dot(m_xAxis, normalizedXAxis) < 0.0)

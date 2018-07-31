@@ -218,7 +218,7 @@ namespace TrenchBroom {
             assert(segments > 2);
             
             const Vec3f vec = end - start;
-            const float len = vec.length();
+            const float len = length(vec);
             const Vec3f dir = vec / len;
             
             const Mat4x4f translation = translationMatrix(start);

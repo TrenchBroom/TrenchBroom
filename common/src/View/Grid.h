@@ -247,14 +247,14 @@ namespace TrenchBroom {
             template <typename T>
             Vec<T,3> snap(const Vec<T,3>& p, const Edge<T,3> edge) const {
                 const Vec<T,3> vec = edge.end() - edge.start();
-                const T length = vec.length();
+                const T len = length(vec);
                 
                 const Vec<T,3> orig = edge.start();
-                const Vec<T,3> dir = vec / length;
+                const Vec<T,3> dir = vec / len;
                 
                 const Vec<T,3> snapped = snap(p, Line<T,3>(orig, dir));
                 const T dist = dot(dir, snapped - orig);
-                if (dist < 0.0 || dist > length)
+                if (dist < 0.0 || dist > len)
                     return Vec<T,3>::NaN;
                 
                 return snapped;
