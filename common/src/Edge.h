@@ -78,7 +78,7 @@ public:
     }
 
     Vec<T,S> direction() const {
-        return (m_end - m_start).normalized();
+        return normalize(m_end - m_start);
     }
 
     Vec<T,S> pointAtDistance(const T distance) const {

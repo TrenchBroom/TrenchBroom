@@ -174,7 +174,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
     const V& rhsStart = rhsEdge->firstVertex()->position();
     const V& rhsEnd = rhsEdge->secondVertex()->position();
     
-    const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
+    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
     const typename Ray<T,3>::LineDistance dist = lhsRay.squaredDistanceToSegment(rhsStart, rhsEnd);
 
     const T rayLen = lhsRay.distanceToPointOnRay(lhsEnd);
@@ -215,7 +215,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const 
     const V& lhsStart = lhsEdge->firstVertex()->position();
     const V& lhsEnd = lhsEdge->secondVertex()->position();
 
-    const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
+    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
     const T rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
     
     bool frontHit = false;
@@ -245,7 +245,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rhsFace) {
     const V& lhsStart = lhsEdge->firstVertex()->position();
     const V& lhsEnd = lhsEdge->secondVertex()->position();
-    const Ray<T,3> lhsRay(lhsStart, (lhsEnd - lhsStart).normalized());
+    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
     
     const T dist = rhsFace->intersectWithRay(lhsRay, Math::Side_Both);
     if (Math::isnan(dist)) {

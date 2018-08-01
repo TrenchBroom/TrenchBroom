@@ -687,13 +687,13 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const
     
     switch (normal.firstComponent()) {
         case Math::Axis::AX:
-            xAxis = cross(normal, Vec<T, 3>::PosZ).normalized();
+            xAxis = normalize(cross(normal, Vec<T, 3>::PosZ));
             break;
         default:
-            xAxis = cross(normal, Vec<T, 3>::PosX).normalized();
+            xAxis = normalize(cross(normal, Vec<T, 3>::PosX));
             break;
     }
-    const Vec<T,3>  yAxis = cross(normal, xAxis).normalized();
+    const Vec<T,3>  yAxis = normalize(cross(normal, xAxis));
     const Vec<T,3>& zAxis = direction;
     
     assert(Math::eq(length(xAxis), 1.0));

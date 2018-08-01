@@ -179,7 +179,7 @@ namespace TrenchBroom {
         void Compass::renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassShader);
             shader.set("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
-            shader.set("LightDirection", Vec3f(0.0f, 0.5f, 1.0f).normalized());
+            shader.set("LightDirection", normalize(Vec3f(0.0f, 0.5f, 1.0f)));
             shader.set("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
             shader.set("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
             shader.set("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));

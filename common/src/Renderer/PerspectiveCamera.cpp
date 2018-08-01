@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         Ray3f PerspectiveCamera::doGetPickRay(const Vec3f& point) const {
-            const Vec3f direction = (point - position()).normalized();
+            const Vec3f direction = normalize(point - position());
             return Ray3f(position(), direction);
         }
         
@@ -72,16 +72,16 @@ namespace TrenchBroom {
             const Vec3f center = position() + direction() * nearPlane();
             
             Vec3f d = center + up() * frustum.y() - position();
-            topPlane = Plane3f(position(), cross(right(), d).normalized());
+            topPlane = Plane3f(position(), normalize(cross(right(), d)));
             
             d = center + right() * frustum.x() - position();
-            rightPlane = Plane3f(position(), cross(d, up()).normalized());
+            rightPlane = Plane3f(position(), normalize(cross(d, up())));
             
             d = center - up() * frustum.y() - position();
-            bottomPlane = Plane3f(position(), cross(d, right()).normalized());
+            bottomPlane = Plane3f(position(), normalize(cross(d, right())));
             
             d = center - right() * frustum.x() - position();
-            leftPlane = Plane3f(position(), cross(up(), d).normalized());
+            leftPlane = Plane3f(position(), normalize(cross(up(), d)));
         }
         
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {

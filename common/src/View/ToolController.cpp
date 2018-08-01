@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 return false;
             
             const Vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
-            const Vec3 direction = (hitPoint - m_center).normalized();
+            const Vec3 direction = normalize(hitPoint - m_center);
             point = m_center + m_radius * direction;
             return true;
         }
@@ -225,8 +225,8 @@ namespace TrenchBroom {
             if (curPoint == m_center)
                 return false;
             
-            const Vec3 ref = (m_start - m_center).normalized();
-            const Vec3 vec = (curPoint - m_center).normalized();
+            const Vec3 ref = normalize(m_start - m_center);
+            const Vec3 vec = normalize(curPoint - m_center);
             const FloatType angle = angleBetween(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
             const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());

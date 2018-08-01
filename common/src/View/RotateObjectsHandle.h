@@ -71,7 +71,7 @@ namespace TrenchBroom {
         private:
             template <typename T>
             void computeAxes(const Vec<T,3>& cameraPos, Vec<T,3>& xAxis, Vec<T,3>& yAxis, Vec<T,3>& zAxis) const {
-                const Vec<T,3> viewDir = (m_position - Vec3(cameraPos)).normalized();
+                const Vec<T,3> viewDir = normalize(m_position - Vec3(cameraPos));
                 if (Math::eq(std::abs(viewDir.z()), static_cast<T>(1.0))) {
                     xAxis = Vec<T,3>::PosX;
                     yAxis = Vec<T,3>::PosY;

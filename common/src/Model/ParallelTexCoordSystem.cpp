@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = cross(point2 - point0, point1 - point0).normalized();
+            const Vec3 normal = normalize(cross(point2 - point0, point1 - point0));
             computeInitialAxes(normal, m_xAxis, m_yAxis);
             applyRotation(normal, attribs.rotation());
         }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
         
         Vec3 ParallelTexCoordSystem::getZAxis() const {
-            return cross(m_xAxis, m_yAxis).normalized();
+            return normalize(cross(m_xAxis, m_yAxis));
         }
 
         void ParallelTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
@@ -184,8 +184,8 @@ namespace TrenchBroom {
             const Vec3  newNormal = rotation * oldNormal;
 
             const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotation);
-            const Vec3 newXAxis = (rotation * m_xAxis).normalized();
-            const Vec3 nonXAxis = (nonRotation * m_xAxis).normalized();
+            const Vec3 newXAxis = normalize(rotation * m_xAxis);
+            const Vec3 nonXAxis = normalize(nonRotation * m_xAxis);
             const FloatType angle = Math::degrees(angleBetween(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
         }
@@ -196,11 +196,11 @@ namespace TrenchBroom {
             
             if (oldNormal.equals(-newNormal)) {
                 const Vec3 minorAxis = oldNormal.majorAxis(2);
-                const Vec3 axis = cross(oldNormal, minorAxis).normalized();
+                const Vec3 axis = normalize(cross(oldNormal, minorAxis));
                 return rotationMatrix(axis, Math::C::pi());
             }
             
-            const Vec3 axis = cross(newNormal, oldNormal).normalized();
+            const Vec3 axis = normalize(cross(newNormal, oldNormal));
             const FloatType angle = angleBetween(newNormal, oldNormal, axis);
             return rotationMatrix(axis, angle);
         }
@@ -220,10 +220,10 @@ namespace TrenchBroom {
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
             const std::vector<Quat3> rotations {
-                Quat3(m_xAxis.normalized(), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                Quat3(m_xAxis.normalized(), Math::radians(-90.0)), // possibleTexAxes[3] = top
-                Quat3(m_yAxis.normalized(), Math::radians(90.0)),  // possibleTexAxes[4] = left
-                Quat3(m_yAxis.normalized(), Math::radians(-90.0)), // possibleTexAxes[5] = right
+                Quat3(normalize(m_xAxis), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                Quat3(normalize(m_xAxis), Math::radians(-90.0)), // possibleTexAxes[3] = top
+                Quat3(normalize(m_yAxis), Math::radians(90.0)),  // possibleTexAxes[4] = left
+                Quat3(normalize(m_yAxis), Math::radians(-90.0)), // possibleTexAxes[5] = right
             };
             for (const Quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             
             std::vector<Vec3> possibleTexAxesNormals;
             for (const auto& axes : possibleTexAxes) {
-                const Vec3 texNormal = cross(axes.first, axes.second).normalized();
+                const Vec3 texNormal = normalize(cross(axes.first, axes.second));
                 possibleTexAxesNormals.push_back(texNormal);
             }
             assert(possibleTexAxesNormals.size() == 6);
@@ -266,7 +266,7 @@ namespace TrenchBroom {
                 // in this case, no need to update the texture axes.
                 return;
             } else {
-                axis = axis.normalized();
+                axis = normalize(axis);
             }
             
             const FloatType angle = angleBetween(newNormal, oldNormal, axis);
@@ -297,7 +297,7 @@ namespace TrenchBroom {
          */
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Vec3 vec(point - center);
-            const FloatType angleInRadians = angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
+            const FloatType angleInRadians = angleBetween(normalize(vec), Vec3::PosX, Vec3::PosZ);
             return static_cast<float>(currentAngle + Math::degrees(angleInRadians));
         }
 
@@ -307,14 +307,14 @@ namespace TrenchBroom {
             switch (first) {
                 case Math::Axis::AX:
                 case Math::Axis::AY:
-                    xAxis = cross(Vec3::PosZ, normal).normalized();
+                    xAxis = normalize(cross(Vec3::PosZ, normal));
                     break;
                 case Math::Axis::AZ:
-                    xAxis = cross(Vec3::PosY, normal).normalized();
+                    xAxis = normalize(cross(Vec3::PosY, normal));
                     break;
             }
             
-            yAxis = cross(m_xAxis, normal).normalized();
+            yAxis = normalize(cross(m_xAxis, normal));
         }
     }
 }

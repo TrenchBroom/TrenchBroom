@@ -97,7 +97,7 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = cross(point2 - point0, point1 - point0).normalized();
+            const Vec3 normal = normalize(cross(point2 - point0, point1 - point0));
             setRotation(normal, 0.0f, attribs.rotation());
         }
 
@@ -151,12 +151,6 @@ namespace TrenchBroom {
             const Vec2f textureSize = attribs.textureSize();
             const bool preferX = textureSize.x() >= textureSize.y();
 
-            /*
-            const FloatType dotX = transformedXAxis.normalized().dot(oldXAxisOnBoundary.normalized());
-            const FloatType dotY = transformedYAxis.normalized().dot(oldYAxisOnBoundary.normalized());
-            const bool preferX = Math::abs(dotX) < Math::abs(dotY);
-            */
-            
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
             const size_t newIndex = planeNormalIndex(newNormal);
@@ -170,12 +164,12 @@ namespace TrenchBroom {
             assert(!projectedTransformedXAxis.nan() &&
                    !projectedTransformedYAxis.nan());
 
-            const Vec3 normalizedXAxis = projectedTransformedXAxis.normalized();
-            const Vec3 normalizedYAxis = projectedTransformedYAxis.normalized();
+            const Vec3 normalizedXAxis = normalize(projectedTransformedXAxis);
+            const Vec3 normalizedYAxis = normalize(projectedTransformedYAxis);
             
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
-            float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis.normalized()));
-            float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis.normalized()));
+            float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
+            float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis));
             assert(!Math::isnan(cosX));
             assert(!Math::isnan(cosY));
 
@@ -248,7 +242,7 @@ namespace TrenchBroom {
             const Quat3 rot(zAxis, -Math::radians(currentAngle));
             const Vec3 vec = rot * (point - center);
 
-            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
+            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), Vec3::PosX, zAxis);
             return static_cast<float>(Math::degrees(angleInRadians));
         }
 

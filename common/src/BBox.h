@@ -253,7 +253,7 @@ public:
         if (contains(start) || contains(end))
             return true;
 
-        const Ray<T,S> ray(start, (end-start).normalized());
+        const Ray<T,S> ray(start, normalize(end - start));
         return !Math::isnan(intersectWithRay(ray));
     }
     

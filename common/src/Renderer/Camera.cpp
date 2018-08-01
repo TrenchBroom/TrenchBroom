@@ -141,7 +141,7 @@ namespace TrenchBroom {
                 bbLook = -m_up;
                 bbLook[2] = 0.0f;
             }
-            bbLook.normalize();
+            bbLook = normalize(bbLook);
             bbUp = Vec3f::PosZ;
             bbRight = cross(bbUp, bbLook);
             
@@ -264,7 +264,7 @@ namespace TrenchBroom {
         }
         
         void Camera::lookAt(const Vec3f& point, const Vec3f& up) {
-            setDirection((point - m_position).normalized(), up);
+            setDirection(normalize(point - m_position), up);
         }
         
         void Camera::setDirection(const Vec3f& direction, const Vec3f& up) {
@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 // `direction` and `up` were colinear.
                 m_right = m_direction.makePerpendicular();
             } else {
-                m_right = rightUnnormalized.normalized();
+                m_right = normalize(rightUnnormalized);
             }
             m_up = cross(m_right, m_direction);
             m_valid = false;
@@ -297,8 +297,8 @@ namespace TrenchBroom {
                 newDirection[0] = 0.0f;
                 newDirection[1] = 0.0f;
                 
-                newUp.normalize();
-                newDirection.normalize();
+                newUp = normalize(newUp);
+                newDirection = normalize(newDirection);
             }
             
             setDirection(newDirection, newUp);
@@ -317,15 +317,15 @@ namespace TrenchBroom {
                 newUp[2] = 0.0f;
                 newDirection[0] = 0.0f;
                 newDirection[1] = 0.0f;
-                
-                newUp.normalize();
-                newDirection.normalize();
-                
+
+                newUp = normalize(newUp);
+                newDirection = normalize(newDirection);
+
                 // correct rounding errors
                 const float cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const float angle = acosf(cos);
                 if (!Math::zero(angle)) {
-                    const Vec3f axis = cross(m_direction, newDirection).normalized();
+                    const Vec3f axis = normalize(cross(m_direction, newDirection));
                     rotation = Quatf(axis, angle);
                     offset = rotation * offset;
                     newUp = rotation * newUp;

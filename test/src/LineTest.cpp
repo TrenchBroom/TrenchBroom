@@ -31,7 +31,7 @@ TEST(LineTest, constructDefault) {
 
 TEST(LineTest, constructWithPointAndDirection) {
     const Vec3f p(10,20,30);
-    const Vec3f n = Vec3f(1.0f, 2.0f, 3.0f).normalized();
+    const Vec3f n = normalize(Vec3f(1.0f, 2.0f, 3.0f));
     const Line3f l(p, n);
     ASSERT_VEC_EQ(p, l.point);
     ASSERT_VEC_EQ(n, l.direction);

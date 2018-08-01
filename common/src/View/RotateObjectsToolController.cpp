@@ -93,8 +93,8 @@ namespace TrenchBroom {
             }
             
             DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
-                const Vec3 ref = (m_start - m_center).normalized();
-                const Vec3 vec = (nextHandlePosition - m_center).normalized();
+                const Vec3 ref = normalize(m_start - m_center);
+                const Vec3 vec = normalize(nextHandlePosition - m_center);
                 m_angle = angleBetween(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-                const Vec3 startAxis = (m_start - m_center).normalized();
+                const Vec3 startAxis = normalize(m_start - m_center);
                 const Vec3 endAxis = Quat3(m_axis, m_angle) * startAxis;
                 
                 renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, m_axis.firstComponent(), startAxis, endAxis));

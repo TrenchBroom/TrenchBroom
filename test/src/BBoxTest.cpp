@@ -197,7 +197,7 @@ TEST(BBoxTest, intersectWithRay) {
     
     const Vec3f origin = Vec3f(-10.0f, -7.0f, 14.0f);
     const Vec3f diff = Vec3f(-2.0f, 3.0f, 8.0f) - origin;
-    const Vec3f dir = diff.normalized();
+    const Vec3f dir = normalize(diff);
     distance = bounds.intersectWithRay(Ray3f(origin, dir), &normal);
     ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(length(diff), distance);

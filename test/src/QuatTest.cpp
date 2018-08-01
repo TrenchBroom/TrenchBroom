@@ -32,7 +32,7 @@ TEST(QuatTest, defaultConstructor) {
 
 TEST(QuatTest, rotationConstructor) {
     const float angle(Math::radians(15.0f));
-    const Vec3f axis(Vec<float,3>(1.0f, 2.0f, 3.0f).normalized());
+    const Vec3f axis(normalize(Vec<float,3>(1.0f, 2.0f, 3.0f)));
     const Quatf q(axis, angle);
     
     ASSERT_FLOAT_EQ(std::cos(angle / 2.0f), q.r);

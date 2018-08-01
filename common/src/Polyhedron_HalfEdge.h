@@ -141,7 +141,7 @@ String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
 
 template <typename T, typename FP, typename VP>
 Math::PointStatus::Type Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
-    const V normal = cross(vector().normalized(), faceNormal).normalized();
+    const V normal = normalize(cross(normalize(vector()), faceNormal));
     const Plane<T,3> plane(origin()->position(), normal);
     return plane.pointStatus(point);
 }
@@ -162,19 +162,6 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
     const V& p2 = other->destination()->position();
     
     return linearlyDependent(p0, p1, p2) && dot(vector(), other->vector()) > 0.0;
-
-    /*
-    const V dir = vector().normalized();
-    const V otherDir = other->vector().normalized();
-    return dir.colinearTo(otherDir);
-
-    const Face* myLeft = face();
-    const Face* theirLeft = other->face();
-    const Face* myRight = twin()->face();
-    const Face* theirRight = other->twin()->face();
-    
-    return myLeft->coplanar(theirLeft) && myRight->coplanar(theirRight);
-     */
 }
 
 template <typename T, typename FP, typename VP>

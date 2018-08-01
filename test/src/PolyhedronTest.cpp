@@ -1786,7 +1786,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
 TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
     
-    const Plane3d plane(Vec3d(64.0, 64.0, 0.0), Vec3d(1.0, 1.0, 1.0).normalized());
+    const Plane3d plane(Vec3d(64.0, 64.0, 0.0), normalize(Vec3d(1.0, 1.0, 1.0)));
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1844,7 +1844,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
 TEST(PolyhedronTest, clipCubeDiagonally) {
     Polyhedron3d p(BBox3d(64.0));
     
-    const Plane3d plane(Vec3d::Null, Vec3d(1.0, 1.0, 0.0).normalized());
+    const Plane3d plane(Vec3d::Null, normalize(Vec3d(1.0, 1.0, 0.0)));
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1886,7 +1886,7 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
 TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
     
-    const Plane3d plane(Vec3d(  0.0, -64.0, 0.0), Vec3d(2.0, 1.0, 0.0).normalized());
+    const Plane3d plane(Vec3d(  0.0, -64.0, 0.0), normalize(Vec3d(2.0, 1.0, 0.0)));
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());

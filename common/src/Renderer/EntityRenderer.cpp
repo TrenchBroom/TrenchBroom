@@ -223,29 +223,33 @@ namespace TrenchBroom {
             
             Vec3f::List vertices(3);
             for (const Model::Entity* entity : m_entities) {
-                if (!m_showHiddenEntities && !m_editorContext.visible(entity))
+                if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
-                
+                }
+
                 const Mat4x4f rotation(entity->rotation());
                 const Vec3f direction = rotation * Vec3f::PosX;
                 const Vec3f center(entity->bounds().center());
                 
                 const Vec3f toCam = renderContext.camera().position() - center;
-                if (squaredLength(toCam) > maxDistance2)
+                if (squaredLength(toCam) > maxDistance2) {
                     continue;
+                }
 
                 Vec3f onPlane = toCam - dot(toCam, direction) * direction;
-                if (onPlane.null())
+                if (onPlane.null()) {
                     continue;
-                
-                onPlane.normalize();
-                
+                }
+
+                onPlane = normalize(onPlane);
+
                 const Vec3f rotZ = rotation * Vec3f::PosZ;
                 const float angle = -angleBetween(rotZ, onPlane, direction);
                 const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
                 
-                for (size_t i = 0; i < 3; ++i)
+                for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];
+                }
                 renderService.renderPolygonOutline(vertices);
             }
         }

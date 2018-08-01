@@ -827,7 +827,7 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
         Vec3d axis;
         for (size_t j = 0; j < 3; ++j)
             axis[j] = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
-        axis.normalize();
+        axis = normalize(axis);
         const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*Math::Cd::pi();
         ASSERT_MAT_EQ(rotationMatrix(axis, angle), rotationMatrix(Quatd(axis, angle)));
     }

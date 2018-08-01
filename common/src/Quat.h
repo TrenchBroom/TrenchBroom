@@ -59,7 +59,7 @@ public:
         if (Math::eq(std::abs(cos), static_cast<T>(1.0))) {
             setRotation(Vec<T,3>::PosZ, static_cast<T>(0.0));
         } else {
-            const Vec<T,3> axis = cross(from, to).normalized();
+            const Vec<T,3> axis = normalize(cross(from, to));
             const T angle = std::acos(cos);
             setRotation(axis, angle);
         }

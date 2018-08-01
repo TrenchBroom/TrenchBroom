@@ -1015,7 +1015,7 @@ namespace TrenchBroom {
                 for (const auto* face : remaining.faces()) {
                     if (face->pointStatus(oldPos) == Math::PointStatus::PSBelow &&
                         face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
-                        const Ray3 ray(oldPos, (newPos - oldPos).normalized());
+                        const Ray3 ray(oldPos, normalize(newPos - oldPos));
                         const auto distance = face->intersectWithRay(ray, Math::Side_Back);
                         if (!Math::isnan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();

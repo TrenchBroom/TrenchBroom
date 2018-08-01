@@ -55,11 +55,13 @@ namespace TrenchBroom {
         }
         
         const Vec3f PointFile::currentDirection() const {
-            if (m_points.size() <= 1)
+            if (m_points.size() <= 1) {
                 return Vec3f::PosX;
-            if (m_current >= m_points.size() - 1)
-                return (m_points[m_points.size() - 1] - m_points[m_points.size() - 2]).normalized();
-            return (m_points[m_current + 1] - m_points[m_current]).normalized();
+            } else if (m_current >= m_points.size() - 1) {
+                return normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
+            } else {
+                return normalize(m_points[m_current + 1] - m_points[m_current]);
+            }
         }
         
         void PointFile::advance() {
@@ -89,14 +91,14 @@ namespace TrenchBroom {
                 if (!stream.eof()) {
                     std::getline(stream, line);
                     Vec3f curPoint = Vec3f::parse(line);
-                    Vec3f refDir = (curPoint - lastPoint).normalized();
+                    Vec3f refDir = normalize(curPoint - lastPoint);
                     
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
                         curPoint = Vec3f::parse(line);
                         
-                        const Vec3f dir = (curPoint - lastPoint).normalized();
+                        const Vec3f dir = normalize(curPoint - lastPoint);
                         if (std::acos(dot(dir, refDir)) > Threshold) {
                             points.push_back(lastPoint);
                             refDir = dir;
@@ -111,8 +113,8 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < points.size() - 1; ++i) {
                     const Vec3f& curPoint = points[i];
                     const Vec3f& nextPoint = points[i + 1];
-                    const Vec3f dir = (nextPoint - curPoint).normalized();
-                    
+                    const Vec3f dir = normalize(nextPoint - curPoint);
+
                     m_points.push_back(curPoint);
                     const float dist = length(nextPoint - curPoint);
                     size_t segments = static_cast<size_t>(dist / 64.0f);

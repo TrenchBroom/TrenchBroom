@@ -228,13 +228,13 @@ TEST(VecTest, vec3fSquaredDistanceTo) {
 }
 
 TEST(VecTest, vec3fNormalize) {
-    ASSERT_EQ(Vec3f::PosX, Vec3f::PosX.normalized());
-    ASSERT_EQ(Vec3f::NegX, Vec3f::NegX.normalized());
+    ASSERT_EQ(Vec3f::PosX, normalize(Vec3f::PosX));
+    ASSERT_EQ(Vec3f::NegX, normalize(Vec3f::NegX));
     
     const Vec3f v1(2.3f, 8.7878f, -2323.0f);
     const Vec3f v2(4.333f, -2.0f, 322.0f);
-    ASSERT_VEC_EQ((v1 / length(v1)), v1.normalized());
-    ASSERT_VEC_EQ((v2 / length(v2)), v2.normalized());
+    ASSERT_VEC_EQ((v1 / length(v1)), normalize(v1));
+    ASSERT_VEC_EQ((v2 / length(v2)), normalize(v2));
 }
 
 TEST(VecTest, vec3fNull) {
@@ -322,8 +322,8 @@ TEST(VecTest, vec3fCrossProduct) {
     const Vec3f t1(7.0f, 4.0f, 0.0f);
     const Vec3f t2(-2.0f, 22.0f, 0.0f);
 
-    const Vec3f c1 = cross(t1, t2).normalized();
-    const Vec3f c2 = cross(t1.normalized(), t2.normalized()).normalized();
+    const Vec3f c1 = normalize(cross(t1, t2));
+    const Vec3f c2 = normalize(cross(normalize(t1), normalize(t2)));
     ASSERT_VEC_EQ(c1, c2);
 }
 

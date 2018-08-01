@@ -293,7 +293,7 @@ namespace TrenchBroom {
                     const Vec3f& vertex1 = vertices[index1];
                     const Vec3f& vertex2 = vertices[index2];
                     Vec3f midPoint = (vertex1 + vertex2) / 2.0f;
-                    vertices.push_back(midPoint.normalize());
+                    vertices.push_back(normalize(midPoint));
                     size_t midPointIndex = vertices.size() - 1;
                     cache[MidPointIndex(index1, index2)] = midPointIndex;
                     cache[MidPointIndex(index2, index1)] = midPointIndex;
@@ -314,20 +314,20 @@ namespace TrenchBroom {
             
             // build initial icosahedron
             const float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
-            vertices.push_back(Vec3f(-1.0f,     t,  0.0f).normalize());
-            vertices.push_back(Vec3f( 1.0f,     t,  0.0f).normalize());
-            vertices.push_back(Vec3f(-1.0f,    -t,  0.0f).normalize());
-            vertices.push_back(Vec3f( 1.0f,    -t,  0.0f).normalize());
+            vertices.push_back(normalize(Vec3f(-1.0f,     t,  0.0f)));
+            vertices.push_back(normalize(Vec3f( 1.0f,     t,  0.0f)));
+            vertices.push_back(normalize(Vec3f(-1.0f,    -t,  0.0f)));
+            vertices.push_back(normalize(Vec3f( 1.0f,    -t,  0.0f)));
             
-            vertices.push_back(Vec3f( 0.0f, -1.0f,     t).normalize());
-            vertices.push_back(Vec3f( 0.0f,  1.0f,     t).normalize());
-            vertices.push_back(Vec3f( 0.0f, -1.0f,    -t).normalize());
-            vertices.push_back(Vec3f( 0.0f,  1.0f,    -t).normalize());
+            vertices.push_back(normalize(Vec3f( 0.0f, -1.0f,     t)));
+            vertices.push_back(normalize(Vec3f( 0.0f,  1.0f,     t)));
+            vertices.push_back(normalize(Vec3f( 0.0f, -1.0f,    -t)));
+            vertices.push_back(normalize(Vec3f( 0.0f,  1.0f,    -t)));
             
-            vertices.push_back(Vec3f(    t,  0.0f, -1.0f).normalize());
-            vertices.push_back(Vec3f(    t,  0.0f,  1.0f).normalize());
-            vertices.push_back(Vec3f(   -t,  0.0f, -1.0f).normalize());
-            vertices.push_back(Vec3f(   -t,  0.0f,  1.0f).normalize());
+            vertices.push_back(normalize(Vec3f(    t,  0.0f, -1.0f)));
+            vertices.push_back(normalize(Vec3f(    t,  0.0f,  1.0f)));
+            vertices.push_back(normalize(Vec3f(   -t,  0.0f, -1.0f)));
+            vertices.push_back(normalize(Vec3f(   -t,  0.0f,  1.0f)));
             
             // 5 triangles around point 0
             triangles.push_back(SphereBuilder::Triangle( 0,  5, 11));
@@ -450,9 +450,9 @@ namespace TrenchBroom {
                 result.vertices[3*i+1] = Vec3f(radius * lastS, radius * lastC, 0.0f);
                 result.vertices[3*i+2] = Vec3f(radius * s, radius * c, 0.0f);
                 
-                result.normals[3*i+0] = Vec3f(std::sin(a - d / 2.0f), std::cos(a - d / 2.0f), n).normalize();
-                result.normals[3*i+1] = Vec3f(lastS, lastC, n).normalize();
-                result.normals[3*i+2] = Vec3f(s, c, n).normalize();
+                result.normals[3*i+0] = normalize(Vec3f(std::sin(a - d / 2.0f), std::cos(a - d / 2.0f), n));
+                result.normals[3*i+1] = normalize(Vec3f(lastS, lastC, n));
+                result.normals[3*i+2] = normalize(Vec3f(s, c, n));
                 
                 lastS = s;
                 lastC = c;

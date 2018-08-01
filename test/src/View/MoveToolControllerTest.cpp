@@ -89,7 +89,7 @@ namespace TrenchBroom {
             controller.startMouseDrag(inputState);
             
             inputState.mouseMove(9, 0, 9, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, (Vec3(9.0, 0.0, 0.0) - origin).normalized()), camera));
+            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(Vec3(9.0, 0.0, 0.0) - origin)), camera));
             
             EXPECT_CALL(controller, mockDoMove(Ref(inputState), Vec3(0.0, 0.0, 0.0), Vec3(16.0, 0.0, 0.0))).Times(1).WillOnce(Return(MockMoveToolController::DR_Continue));
             controller.mouseDrag(inputState);
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             // nothing will happen due to grid snapping
             EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
             inputState.mouseMove(1, 0, 1, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, (Vec3(1.0, 0.0, 0.0) - origin).normalized()), camera));
+            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(Vec3(1.0, 0.0, 0.0) - origin)), camera));
             controller.mouseDrag(inputState);
             
             // trigger switch to vertical move mode
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             
             // must not trigger an actual move
             inputState.mouseMove(2, 0, 1, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, (Vec3(2.0, 0.0, 0.0) - origin).normalized()), camera));
+            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(Vec3(2.0, 0.0, 0.0) - origin)), camera));
             controller.mouseDrag(inputState);
             
             inputState.mouseUp(MouseButtons::MBLeft);
@@ -155,8 +155,8 @@ namespace TrenchBroom {
             
             const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, Vec3f(0.0f, 0.0f, 100.0f),
-                                               (Vec3f::NegX + Vec3f::NegY + Vec3f::NegZ).normalized(),
-                                               (Vec3f::NegX + Vec3f::NegY + Vec3f::PosZ).normalized());
+                                               normalize(Vec3f::NegX + Vec3f::NegY + Vec3f::NegZ),
+                                               normalize(Vec3f::NegX + Vec3f::NegY + Vec3f::PosZ));
             
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);

@@ -198,10 +198,8 @@ namespace TrenchBroom {
                 if (numPoints < 2 || !points[1].isInteger())
                     points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * Vec3::PosX);
                 points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3::PosY - pointDistance / 2.0 * Vec3::PosX));
-                v1 = points[2] - points[0];
-                v2 = points[1] - points[0];
-                v1.normalize();
-                v2.normalize();
+                v1 = normalize(points[2] - points[0]);
+                v2 = normalize(points[1] - points[0]);
                 cos = dot(v1, v2);
                 multiplier *= 1.5f;
                 ++count;

@@ -368,17 +368,8 @@ public:
         return result;
     }
 
-    Vec<T,S>& normalize() {
-        *this /= length(*this);
-        return *this;
-    }
-    
-    const Vec<T,S> normalized() const {
-        return Vec<T,S>(*this).normalize();
-    }
-    
     bool isNormalized() const {
-        return equals(normalized());
+        return equals(normalize(*this));
     }
     
     Vec<T,S> normalizeRadians() const {
@@ -448,7 +439,7 @@ public:
     }
     
     bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        const T d = dot(normalized(), other.normalized());
+        const T d = dot(normalize(*this), normalize(other));
         return Math::eq(Math::abs(d), static_cast<T>(1.0), epsilon);
     }
     
@@ -550,7 +541,7 @@ public:
         // get an axis that this vector has the least weight towards.
         const Vec<T,S> leastAxis = majorAxis(S-1);
         
-        return cross(*this, leastAxis).normalized();
+        return normalize(cross(*this, leastAxis));
     }
     
     void write(std::ostream& str, const size_t components = S) const {
@@ -644,7 +635,7 @@ public:
     
     EdgeDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
         const Vec<T,S> edgeVec = end - start;
-        const Vec<T,S> edgeDir = edgeVec.normalized();
+        const Vec<T,S> edgeDir = normalize(edgeVec);
         const T scale = dot(*this - start, edgeDir);
         
         // determine the closest point on the edge
@@ -674,7 +665,7 @@ public:
         const Vec<T,S> toStart = start - *this;
         const Vec<T,S> toEnd   =   end - *this;
 
-        const T d = dot(toEnd, toStart.normalized());
+        const T d = dot(toEnd, normalize(toStart));
         return !Math::pos(d);
     }
 
@@ -1296,6 +1287,11 @@ T squaredLength(const Vec<T,S>& vec) {
     return dot(vec, vec);
 }
 
+template <typename T, size_t S>
+Vec<T,S> normalize(const Vec<T,S>& vec) {
+    return vec / length(vec);
+}
+
 /*
  * The normal will be pointing towards the reader when the points are oriented like this:
  *
@@ -1320,7 +1316,7 @@ bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point
         sin_theta < epsilon)
         return false;
     
-    normal.normalize();
+    normal = normalize(normal);
     return true;
 }
 
@@ -1344,7 +1340,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
-    const Vec<T,3> normal = cross(p3 - p1, p2 - p1).normalized();
+    const Vec<T,3> normal = normalize(cross(p3 - p1, p2 - p1));
     const T offset = dot(p1, normal);
     const T dist = dot(p4, normal) - offset;
     return Math::abs(dist) < epsilon;

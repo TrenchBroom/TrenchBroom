@@ -103,12 +103,12 @@ namespace TrenchBroom {
             
             switch (info.type) {
                 case RotationType_Angle: {
-                    const Vec3 direction = (transformation * rotation * Vec3::PosX).normalized();
+                    const Vec3 direction = normalize(transformation * rotation * Vec3::PosX);
                     setAngle(entity, info.attribute, direction);
                     break;
                 }
                 case RotationType_AngleUpDown: {
-                    const Vec3 direction = (transformation * rotation * Vec3::PosX).normalized();
+                    const Vec3 direction = normalize(transformation * rotation * Vec3::PosX);
                     if (direction.z() > 0.9)
                         entity->addOrUpdateAttribute(info.attribute, 1.0);
                     else if (direction.z() < -0.9)
@@ -216,8 +216,8 @@ namespace TrenchBroom {
 
         FloatType EntityRotationPolicy::getAngle(Vec3 direction) {
             direction[2] = 0.0;
-            direction.normalize();
-            
+            direction = normalize(direction);
+
             FloatType angle = Math::round(Math::degrees(std::acos(direction.x())));
             if (Math::neg(direction.y()))
                 angle = 360.0 - angle;
@@ -234,10 +234,10 @@ namespace TrenchBroom {
             newY = transformation * rotation * Vec3::PosY;
             
             if (std::abs(newX.z()) < std::abs(newY.z())) {
-                newX = Vec3(newX.x(), newX.y(), 0.0).normalized();
+                newX = normalize(Vec3(newX.x(), newX.y(), 0.0));
                 yaw = angleBetween(newX, Vec3::PosX, Vec3::PosZ); // CCW yaw angle in radians
             } else {
-                newY = Vec3(newY.x(), newY.y(), 0.0).normalized();
+                newY = normalize(Vec3(newY.x(), newY.y(), 0.0));
                 yaw = angleBetween(newY, Vec3::PosY, Vec3::PosZ);
             }
             
@@ -247,10 +247,10 @@ namespace TrenchBroom {
             newZ = invYaw * transformation * rotation * Vec3::PosZ;
             
             if (std::abs(newX.y()) < std::abs(newZ.y())) {
-                newX = Vec3(newX.x(), 0.0, newX.z()).normalized();
+                newX = normalize(Vec3(newX.x(), 0.0, newX.z()));
                 pitch = angleBetween(newX, Vec3::PosX, Vec3::PosY);
             } else {
-                newZ = Vec3(newZ.x(), 0.0, newZ.z()).normalized();
+                newZ = normalize(Vec3(newZ.x(), 0.0, newZ.z()));
                 pitch = angleBetween(newZ, Vec3::PosZ, Vec3::PosY);
             }
             
@@ -260,10 +260,10 @@ namespace TrenchBroom {
             newZ = invPitch * invYaw * transformation * rotation * Vec3::PosZ;
             
             if (std::abs(newY.x()) < std::abs(newY.x())) {
-                newY = Vec3(0.0, newY.y(), newY.z()).normalized();
+                newY = normalize(Vec3(0.0, newY.y(), newY.z()));
                 roll = angleBetween(newY, Vec3::PosY, Vec3::PosX);
             } else {
-                newZ = Vec3(0.0, newZ.y(), newZ.z()).normalized();
+                newZ = normalize(Vec3(0.0, newZ.y(), newZ.z()));
                 roll = angleBetween(newZ, Vec3::PosZ, Vec3::PosX);
             }
             

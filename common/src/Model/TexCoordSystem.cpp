@@ -95,51 +95,11 @@ namespace TrenchBroom {
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const {
-            
-            /*
-            const Vec3 direction  = crossed(up, right);
-            const Mat4x4 toPlane  = Mat4x4::ZerZ * planeProjectionMatrix(0.0, direction);
-            const Vec3 upPlane    = (toPlane * up).normalized();
-            const Vec3 rightPlane = (toPlane * right).normalized();
-            const Vec3 xPlane     = (toPlane * xAxis()).normalized();
-            const Vec3 yPlane     = (toPlane * yAxis()).normalized();
-            
-            size_t hIndex, vIndex;
-            float hFactor, vFactor;
-            if (rightPlane.firstComponent() == xPlane.firstComponent()) {
-                hIndex = 0;
-                vIndex = 1;
-                if (rightPlane.dot(xPlane) > 0.0f)
-                    hFactor = -1.0f;
-                else
-                    hFactor = +1.0f;
-                if (upPlane.dot(yPlane) > 0.0f)
-                    vFactor = -1.0f;
-                else
-                    vFactor = +1.0f;
-            } else {
-                hIndex = 1;
-                vIndex = 0;
-                if (rightPlane.dot(yPlane) > 0.0f)
-                    hFactor = +1.0f;
-                else
-                    hFactor = -1.0f;
-                if (upPlane.dot(xPlane) > 0.0f)
-                    vFactor = +1.0f;
-                else
-                    vFactor = -1.0f;
-            }
-            
-            Vec2f actualOffset;
-            actualOffset[hIndex] = hFactor * offset.x();
-            actualOffset[vIndex] = vFactor * offset.y();
-             */
-
             const Mat4x4 toPlane = planeProjectionMatrix(0.0, normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
             const Mat4x4 transform = fromPlane * Mat4x4::ZerZ * toPlane;
-            const Vec3 texX = (transform * getXAxis()).normalized();
-            const Vec3 texY = (transform * getYAxis()).normalized();
+            const Vec3 texX = normalize(transform * getXAxis());
+            const Vec3 texY = normalize(transform * getYAxis());
             
             Vec3 vAxis, hAxis;
             size_t xIndex = 0;

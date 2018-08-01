@@ -97,7 +97,7 @@ namespace TrenchBroom {
             const Vec3 origin = m_helper.originInFaceCoords();
             xHandle.point = yHandle.point = toWorld * origin;
             
-            xHandle.direction = (toWorld * (origin + Vec3::PosY) - xHandle.point).normalized();
+            xHandle.direction = normalize(toWorld * (origin + Vec3::PosY) - xHandle.point);
             yHandle.direction = (toWorld * (origin + Vec3::PosX) - yHandle.point);
         }
 

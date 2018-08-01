@@ -71,7 +71,7 @@ public:
     static const Plane<T,S> planeContainingVector(const Vec<T,S>& position, const Vec<T,S>& normalizedVector, const Vec<T,S>& viewPoint) {
         const Vec<T,S> diff = viewPoint - position;
         const Vec<T,S> point = position + normalizedVector * diff.dot(normalizedVector);
-        const Vec<T,S> normal = (viewPoint - point).normalize();
+        const Vec<T,S> normal = normalize(viewPoint - point);
         return Plane(normal, position);
     }
 
@@ -123,7 +123,7 @@ public:
     }
     
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
-        const Vec<T,S> lineDirection = cross(normal, other.normal).normalized();
+        const Vec<T,S> lineDirection = normalize(cross(normal, other.normal));
         
         if (lineDirection.nan()) {
             // the planes are parallel
@@ -137,7 +137,7 @@ public:
         // This will give us a line direction from this plane's anchor that
         // intersects the other plane.
         
-        const Line<T,S> lineToOtherPlane{anchor(), projectVector(other.normal).normalized()};
+        const Line<T,S> lineToOtherPlane{anchor(), normalize(projectVector(other.normal))};
         const T dist = other.intersectWithLine(lineToOtherPlane);
         const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
@@ -202,8 +202,7 @@ public:
     
     Plane<T,S>& transform(const Mat<T,S+1,S+1>& transform) {
         const Vec<T,3> oldAnchor = anchor();
-        normal = stripTranslation(transform) * normal;
-        normal.normalize();
+        normal = normalize(stripTranslation(transform) * normal);
         distance = dot(transform * oldAnchor, normal);
         return *this;
     }
@@ -319,7 +318,7 @@ Plane<T,3> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction
 
 template <typename T>
 Plane<T,3> orthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
-    return Plane<T,3>(position, direction.normalized());
+    return Plane<T,3>(position, normalize(direction));
 }
 
 template <typename T>
@@ -329,7 +328,7 @@ Plane<T,3> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& 
 
 template <typename T>
 Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal, const Vec<T,3>& cameraPosition) {
-    const Vec<T,3> fromCamera = (position - cameraPosition).normalized();
+    const Vec<T,3> fromCamera = normalize(position - cameraPosition);
     const Vec<T,3> vertical = cross(normal, fromCamera);
     return Plane<T,3>(position, cross(normal, vertical));
 }

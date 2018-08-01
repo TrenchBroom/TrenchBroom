@@ -224,10 +224,10 @@ namespace TrenchBroom {
                     Ray3 ray;
                     if (originAtStart) {
                         ray.origin = edge->firstVertex()->position();
-                        ray.direction = edge->vector().normalized();
+                        ray.direction = normalize(edge->vector());
                     } else {
                         ray.origin = edge->secondVertex()->position();
-                        ray.direction = -edge->vector().normalized();
+                        ray.direction = normalize(-edge->vector());
                     }
                     
                     // depending on the direction of the drag vector, the rays must be inverted to reflect the
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             } while (actualDist == std::numeric_limits<FloatType>::max());
             
             normDelta = face->boundary().normal * actualDist;
-            const Vec3 deltaNormalized = delta.normalized();
+            const Vec3 deltaNormalized = normalize(delta);
             return deltaNormalized * dot(normDelta, deltaNormalized);
         }
         
