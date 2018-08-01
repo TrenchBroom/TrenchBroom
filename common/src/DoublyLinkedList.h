@@ -177,8 +177,8 @@ public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef ItemType value_type;
 		typedef std::ptrdiff_t distance_type;
-		typedef typename ItemType* pointer;
-		typedef typename ItemType& reference;
+		typedef ItemType* pointer;
+		typedef ItemType& reference;
 	private:
         friend class DoublyLinkedList<Item, GetLink>;
         
