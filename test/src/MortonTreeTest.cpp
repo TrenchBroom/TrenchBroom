@@ -204,6 +204,51 @@ TEST(MortonTreeTest, insertNodesWithIdenticalCodeAndNodeWithHigherSplitIndex) {
     ASSERT_EQ(box1.mergedWith(box2).mergedWith(box3), tree.bounds());
 }
 
+TEST(MortonTreeTest, removeNonExistingNode) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+
+    const auto box1 = BOX(32.0);
+    const auto box2 = BOX(16.0);
+
+    ASSERT_FALSE(tree.remove(box1, 1u));
+
+    tree.insert(box1, 1u);
+
+    ASSERT_FALSE(tree.remove(box2, 2u));
+}
+
+TEST(MortonTreeTest, removeSingleNode) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    const auto box1 = BOX(32.0);
+
+    tree.insert(box1, 1u);
+
+    ASSERT_TRUE(tree.remove(box1, 1u));
+    ASSERT_TRUE(tree.empty());
+    ASSERT_FALSE(tree.contains(box1, 1u));
+}
+
+TEST(MortonTreeTest, removeNodeFromSingleSetNode) {
+    TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
+
+    const auto box1 = BOX(32.0);
+    const auto box2 = BOX(16.0);
+
+    tree.insert(box1, 1u);
+    tree.insert(box2, 2u);
+
+    ASSERT_TRUE(tree.remove(box1, 1u));
+    ASSERT_FALSE(tree.empty());
+    ASSERT_FALSE(tree.contains(box1, 1u));
+    ASSERT_TRUE(tree.contains(box2, 2u));
+
+    ASSERT_TRUE(tree.remove(box2, 2u));
+    ASSERT_TRUE(tree.empty());
+    ASSERT_FALSE(tree.contains(box2, 2u));
+}
+
 TEST(MortonTreeTest, findIntersectorsOfEmptyTree) {
     TREE tree(VecCodeComputer<Vec3d>(BBox3d(4096.0)));
     assertIntersectors(tree, RAY(VEC::Null, VEC::PosX), {});

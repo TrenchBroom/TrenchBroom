@@ -164,6 +164,16 @@ private:
         virtual InnerNode* insert(const Box& bounds, const CodeType code, const U& data, const size_t parentIndex = CodeTypeWidth) = 0;
 
         /**
+         * Attempts to remove the node with the given bounds, code, and data from this subtree.
+         *
+         * @param bounds the bounds of the node to remove
+         * @param code the code of the node to remove
+         * @param data the data of the node to remove
+         * @return a pair of the replacement node of this node and a boolean indicating whether the node to remove was found in this subtree
+         */
+        virtual std::tuple<Node*, bool> remove(const Box& bounds, const CodeType code, const U& data) = 0;
+
+        /**
          * Find a leaf containing the given bounds and data in this subtree.
          *
          * @param bounds the bounds to find
@@ -312,6 +322,31 @@ private:
             return this;
         }
 
+        std::tuple<Node*, bool> remove(const Box& bounds, const CodeType code, const U& data) override {
+            // test whether the bit at which this node splits the range of its subtree
+            // is set or not
+            if (!Math::testBit(code, m_splitIndex)) {
+                return doRemove(m_left, m_right, bounds, code, data);
+            } else {
+                return doRemove(m_right, m_left, bounds, code, data);
+            }
+        }
+
+        std::tuple<Node*, bool> doRemove(Node*& child, Node*& other, const Box& bounds, const CodeType code, const U& data) {
+            Node* newChild;
+            bool result;
+            std::tie(newChild, result) = child->remove(bounds, data, code);
+
+            if (newChild != nullptr) {
+                child = newChild;
+                return std::make_tuple(this, result);
+            } else {
+                delete child;
+                child = nullptr;
+                return std::make_tuple(other, result);
+            }
+        }
+
         LeafNode* findLeaf(const Box& bounds, const CodeType code, const U& data) override {
             // test whether the bit at which this node splits the range of its subtree
             // is set or not
@@ -377,6 +412,13 @@ private:
         InnerNode(child1->bounds().mergedWith(child2->bounds()), identicalPrefix),
         m_children( { child1, child2 } ){}
 
+        ~SetNode() override {
+            for (LeafNode* leaf : m_children) {
+                delete leaf;
+            }
+            m_children.clear();
+        }
+
         InnerNode* insert(const Box& bounds, const CodeType code, const U& data, const size_t parentIndex) override {
             // check whether this node needs a new parent
             if (parentIndex > 1) {
@@ -392,7 +434,36 @@ private:
             m_bounds.mergeWith(bounds);
             return this;
         }
-    public:
+
+        std::tuple<Node*, bool> remove(const Box& bounds, const CodeType code, const U& data) override {
+            if (code != m_identicalPrefix) {
+                return std::make_tuple(this, false);
+            } else {
+                const auto it = std::find_if(std::begin(m_children), std::end(m_children), [&](LeafNode* leaf) {
+                    Node* newChild;
+                    bool result;
+                    std::tie(newChild, result) = leaf->remove(bounds, code, data);
+                    if (newChild == nullptr) {
+                        assert(result);
+                        delete leaf;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                if (it == std::end(m_children)) {
+                    return std::make_tuple(this, false);
+                } else {
+                    m_children.erase(it);
+                    if (m_children.empty()) {
+                        return std::make_tuple(nullptr, true);
+                    } else {
+                        return std::make_tuple(this, true);
+                    }
+                }
+            }
+        }
+
         LeafNode* findLeaf(const Box& bounds, const CodeType code, const U& data) override {
             LeafNode* result = nullptr;
             for (auto* leaf : m_children) {
@@ -483,6 +554,14 @@ private:
                 }
             }
             return result;
+        }
+
+        std::tuple<Node*, bool> remove(const Box& bounds, const CodeType code, const U& data) override {
+            if (data == m_data) {
+                return std::make_tuple(nullptr, true);
+            } else {
+                return std::make_tuple(this, false);
+            }
         }
 
         LeafNode* findLeaf(const Box& bounds, const CodeType code, const U& data) override {
@@ -616,10 +695,25 @@ public:
 
     bool remove(const Box& bounds, const U& data) override {
         assert(check());
+        if (empty()) {
+            return false;
+        } else {
+            const auto code = computeMortonCode(bounds.center());
+
+            Node* newRoot;
+            bool result;
+            std::tie(newRoot, result) = m_root->remove(bounds, code, data);
+            if (newRoot == nullptr) {
+                delete m_root;
+            }
+            m_root = newRoot;
+            return result;
+        }
     }
 
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
-        assert(check());
+        remove(oldBounds, data);
+        insert(newBounds, data);
     }
 
     void clear() override {
