@@ -34,10 +34,10 @@ struct ProjectingSequenceIterators {
     class iterator {
 	public:
 		using iterator_category = typename C::iterator::iterator_category;
-		using value_type = typename P::Type;
-		using distance_type = std::ptrdiff_t;
-		using pointer = typename P::Type*;
-		using reference = typename P::Type&;
+		using value_type = typename C::iterator::value_type;
+        using difference_type = typename C::iterator::difference_type;
+		using pointer = typename C::iterator::pointer;
+		using reference = typename C::iterator::reference;
 	private:
         using I = typename C::iterator;
         I m_iterator;
@@ -65,10 +65,10 @@ struct ProjectingSequenceIterators {
     class const_iterator {
 	public:
         using iterator_category = typename C::const_iterator::iterator_category;
-        using value_type = typename P::Type;
-        using distance_type = std::ptrdiff_t;
-        using pointer = typename P::Type*;
-        using reference = typename P::Type&;
+        using value_type = typename C::const_iterator::value_type;
+        using difference_type = typename C::const_iterator::difference_type;
+        using pointer = typename C::const_iterator::pointer;
+        using reference = typename C::const_iterator::reference;
     private:
         using I = typename C::const_iterator;
         I m_iterator;
