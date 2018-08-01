@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_ProjectingSequence_h
 #define TrenchBroom_ProjectingSequence_h
 
+#include <iterator>
+
 template <typename T, typename R>
 struct ProjectingSequenceProjector {
     typedef R Type;
@@ -31,13 +33,13 @@ template <typename C, typename P>
 struct ProjectingSequenceIterators {
     class iterator {
 	public:
-		typedef typename C::iterator::iterator_category iterator_category;
-		typedef typename P::Type value_type;
-		typedef std::ptrdiff_t distance_type;
-		typedef typename P::Type* pointer;
-		typedef typename P::Type& reference;
+		using iterator_category = typename C::iterator::iterator_category;
+		using value_type = typename P::Type;
+		using distance_type = std::ptrdiff_t;
+		using pointer = typename P::Type*;
+		using reference = typename P::Type&;
 	private:
-        typedef typename C::iterator I;
+        using I = typename C::iterator;
         I m_iterator;
     public:
         iterator() : m_iterator() {}
@@ -62,13 +64,13 @@ struct ProjectingSequenceIterators {
     
     class const_iterator {
 	public:
-		typedef typename C::const_iterator::iterator_category iterator_category;
-		typedef typename P::Type value_type;
-		typedef std::ptrdiff_t distance_type;
-		typedef typename P::Type* pointer;
-		typedef typename P::Type& reference;
+        using iterator_category = typename C::const_iterator::iterator_category;
+        using value_type = typename P::Type;
+        using distance_type = std::ptrdiff_t;
+        using pointer = typename P::Type*;
+        using reference = typename P::Type&;
     private:
-        typedef typename C::const_iterator I;
+        using I = typename C::const_iterator;
         I m_iterator;
     public:
         const_iterator() : m_iterator() {}
