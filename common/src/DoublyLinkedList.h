@@ -175,6 +175,7 @@ public:
     class iterator_base {
 	public:
         using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
 		using value_type = ItemType;
 		using pointer = ItemType*;
 		using reference = ItemType&;
