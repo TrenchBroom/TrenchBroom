@@ -172,8 +172,14 @@ private:
     };
 public:
     template <typename ListType, typename ItemType, typename LinkType>
-    class iterator_base : public std::iterator<std::forward_iterator_tag, ItemType> {
-    private:
+    class iterator_base {
+	public:
+		typedef std::forward_iterator_tag iterator_category;
+		typedef ItemType value_type;
+		typedef std::ptrdiff_t distance_type;
+		typedef typename ItemType* pointer;
+		typedef typename ItemType& reference;
+	private:
         friend class DoublyLinkedList<Item, GetLink>;
         
         typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
