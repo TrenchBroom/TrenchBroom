@@ -29,10 +29,14 @@ struct ProjectingSequenceProjector {
 
 template <typename C, typename P>
 struct ProjectingSequenceIterators {
-    class iterator : public std::iterator<
-        typename C::iterator::iterator_category,
-        typename P::Type> {
-    private:
+    class iterator {
+	public:
+		typedef typename C::iterator::iterator_category iterator_category;
+		typedef typename P::Type value_type;
+		typedef std::ptrdiff_t distance_type;
+		typedef typename P::Type* pointer;
+		typedef typename P::Type& reference;
+	private:
         typedef typename C::iterator I;
         I m_iterator;
     public:
@@ -56,9 +60,13 @@ struct ProjectingSequenceIterators {
         typename P::Type operator->() const { return P::project(*m_iterator); }
     };
     
-    class const_iterator : public std::iterator<
-        typename C::const_iterator::iterator_category,
-        typename P::Type> {
+    class const_iterator {
+	public:
+		typedef typename C::const_iterator::iterator_category iterator_category;
+		typedef typename P::Type value_type;
+		typedef std::ptrdiff_t distance_type;
+		typedef typename P::Type* pointer;
+		typedef typename P::Type& reference;
     private:
         typedef typename C::const_iterator I;
         I m_iterator;

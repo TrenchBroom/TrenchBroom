@@ -8,7 +8,7 @@
 
 - Generally, the cmake scripts don't handle paths with spaces very well, so make sure that you check out the TrenchBroom source repository somewhere on a path without any spaces.
 - For Visual Studio:
-    - VS2017 is supported.
+    - VS2017 is required. The community edition works fine.
     - For VS2017, in the Visual Studio Installer, in the "Individual Components" tab, under the "Compilers, Build Tools, and Runtimes" heading, select the following components:
       - VC++ 2017 v141 toolset for desktop (x86,x64)
       - Windows XP support for C++
