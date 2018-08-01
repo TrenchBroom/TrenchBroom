@@ -46,6 +46,7 @@ private:
     class iterator_base {
     public:
         using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
         using value_type = pair_type;
         using pointer = pair_type*;
         using reference = pair_type&;
