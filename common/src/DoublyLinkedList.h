@@ -117,7 +117,7 @@ private:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_item : public iterator_delegate_base<ListType, ItemType, LinkType> {
     private:
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> base;
+		using base = iterator_delegate_base<ListType, ItemType, LinkType>;
         ItemType m_item;
         size_t m_index;
     public:
@@ -150,7 +150,7 @@ private:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_end : public iterator_delegate_base<ListType, ItemType, LinkType> {
     private:
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> base;
+		using base = iterator_delegate_base<ListType, ItemType, LinkType>;
     public:
         iterator_delegate_end(ListType& list) :
         base(list) {}
@@ -181,7 +181,7 @@ public:
 	private:
         friend class DoublyLinkedList<Item, GetLink>;
         
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
+		using delegate = iterator_delegate_base<ListType, ItemType, LinkType>;
         delegate* m_delegate;
     public:
         iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
@@ -239,8 +239,8 @@ public:
         }
     };
     
-    typedef iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link> iterator;
-    typedef iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link> const_iterator;
+    using iterator       = iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link>;
+    using const_iterator = iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link>;
 private:
     friend class ListIterator;
     
