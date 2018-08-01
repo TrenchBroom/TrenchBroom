@@ -42,7 +42,13 @@ public:
     using pair_type = std::pair<L, R>;
 private:
     template <typename left_iter, typename right_iter>
-    class iterator_base : public std::iterator<std::forward_iterator_tag, pair_type> {
+    class iterator_base {
+    public:
+        typedef std::forward_iterator_tag iterator_category;
+        typedef pair_type value_type;
+        typedef std::ptrdiff_t distance_type;
+        typedef pair_type* pointer;
+        typedef pair_type& reference;
     private:
         left_iter m_left;
         left_iter m_left_end;
