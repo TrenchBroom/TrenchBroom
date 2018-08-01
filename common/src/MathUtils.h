@@ -386,8 +386,6 @@ namespace Math {
     template <typename T>
     T bitMask(const size_t index) {
         static_assert(std::is_integral<T>::value, "type must be integral");
-        assert(index < sizeof(T)*8);
-
         return static_cast<T>(1) << index;
     }
 
