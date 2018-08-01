@@ -200,7 +200,7 @@ namespace TrenchBroom {
             Model::Brush* cube = makeCube128();
             Model::BrushFace* topFace = cube->findFace(Vec3::PosZ);
             
-            ASSERT_FLOAT_EQ(64.0, topFace->boundsCenter().z());
+            ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
     
             // try to move almost 4 grid increments up -> snaps to 3
             ASSERT_EQ(Vec3(0,0,48), grid16.moveDelta(topFace, Vec3(0, 0, 63)));
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             Model::Brush* cube = makeCube128();
             Model::BrushFace* topFace = cube->findFace(Vec3::PosZ);
             
-            ASSERT_FLOAT_EQ(64.0, topFace->boundsCenter().z());
+			ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
             
             // try to move almost 4 grid increments up -> snaps to 3
             ASSERT_EQ(Vec3(0,0,1.5), grid05.moveDelta(topFace, Vec3(0, 0, 1.9)));
