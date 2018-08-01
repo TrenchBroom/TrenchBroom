@@ -97,8 +97,8 @@ struct ProjectingSequenceIterators {
 template <typename C, typename P>
 class ProjectingSequence {
 public:
-    typedef typename ProjectingSequenceIterators<C,P>::iterator iterator;
-    typedef typename ProjectingSequenceIterators<C,P>::const_iterator const_iterator;
+    using iterator = typename ProjectingSequenceIterators<C,P>::iterator;
+    using const_iterator = typename ProjectingSequenceIterators<C,P>::const_iterator;
 private:
     C& m_container;
 public:
@@ -128,7 +128,7 @@ public:
 template <typename C, typename P>
 class ConstProjectingSequence {
 public:
-    typedef typename ProjectingSequenceIterators<C,P>::const_iterator const_iterator;
+    using const_iterator = typename ProjectingSequenceIterators<C,P>::const_iterator;
 private:
     const C& m_container;
 public:
