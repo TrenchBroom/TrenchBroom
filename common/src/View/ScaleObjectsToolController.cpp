@@ -58,17 +58,17 @@ namespace TrenchBroom {
             }
         }
 
-        std::tuple<DragRestricter*, DragSnapper*, Vec3> ScaleObjectsToolController::getDragRestricterSnapperAndInitialPoint(const InputState& inputState) {
+        static std::tuple<DragRestricter*, DragSnapper*, Vec3>
+        getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
+                                                const Grid& grid,
+                                                const Model::Hit& dragStartHit,
+                                                const BBox3& bboxAtDragStart) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            const auto document = m_document.lock();
             const auto& camera = inputState.camera();
-            const auto& grid = document->grid();
-            const auto& dragStartHit = m_tool->dragStartHit();
-            const auto& bboxAtDragStart = m_tool->bboxAtDragStart();
 
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                 && inputState.camera().orthographicProjection()
@@ -132,12 +132,14 @@ namespace TrenchBroom {
                 m_tool->setAnchorPos(centerAnchor);
 
                 if (thisToolDragging()) {
-                    const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
+                    const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState, m_document.lock()->grid(), m_tool->dragStartHit(), m_tool->bboxAtDragStart());
 
-                    setRestricter(inputState, std::get<0>(tuple), true);
-                    setSnapper(inputState, std::get<1>(tuple), true);
+                    // false to keep the initial point. This is necessary to get the right behaviour when switching proportional scaling on and off.
+                    setRestricter(inputState, std::get<0>(tuple), false);
+                    setSnapper(inputState, std::get<1>(tuple), false);
 
                     // Re-trigger the dragging logic with a delta of 0, so the new modifiers are applied right away.
+                    // TODO: Feels like there should be a clearer API for this
                     doDrag(inputState, currentHandlePosition(), currentHandlePosition());
                 }
             }
@@ -196,7 +198,7 @@ namespace TrenchBroom {
             m_tool->setAnchorPos(centerAnchor);
             m_tool->setProportionalAxes(scaleAllAxes);
 
-            const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
+            const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState, m_document.lock()->grid(), m_tool->dragStartHit(), m_tool->bboxAtDragStart());
 
             return DragInfo(std::get<0>(tuple),
                             std::get<1>(tuple),
@@ -263,6 +265,11 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
                 renderService.renderHandle(m_currentDragDebug);
+            }
+            {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
+                renderService.renderBounds(m_tool->bboxAtDragStart());
             }
 
             // bounds and corner handles

@@ -65,8 +65,6 @@ namespace TrenchBroom {
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             virtual void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
-            std::tuple<DragRestricter*, DragSnapper*, Vec3> getDragRestricterSnapperAndInitialPoint(const InputState& inputState);
-
             void doModifierKeyChange(const InputState& inputState) override;
             
             void doMouseMove(const InputState& inputState) override;
