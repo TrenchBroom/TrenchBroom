@@ -382,11 +382,6 @@ public:
             v[i] = value;
     }
 
-    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        const T d = dot(normalize(*this), normalize(other));
-        return Math::eq(Math::abs(d), static_cast<T>(1.0), epsilon);
-    }
-
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }

@@ -254,20 +254,6 @@ TEST(VecTest, vec3fSetSingleValue) {
     ASSERT_VEC_EQ(Vec3f(7.0f, 7.0f, 7.0f), v);
 }
 
-TEST(VecTest, vec3fParallelTo) {
-    ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::PosX));
-    ASSERT_TRUE(Vec3f::PosX.parallelTo(Vec3f::NegX));
-    ASSERT_FALSE(Vec3f::PosX.parallelTo(Vec3f::PosY));
-    ASSERT_TRUE(Vec3f::PosZ.parallelTo(Vec3f(0.1f, -0.02f, 100.0f)));
-    ASSERT_TRUE(Vec3d(-1.0, 0.0, 0.0).parallelTo(Vec3d(3.0, 0.0, 0.0)));
-    ASSERT_TRUE(Vec3d(-1.0, 2.0, 42.0).parallelTo(-3.2253 * Vec3d(-1.0, 2.0, 42.0)));
-    ASSERT_FALSE(Vec3d(-1.0, 2.0, 21.0).parallelTo(Vec3d(-1.0, 5.0, 21.0)));
-    ASSERT_FALSE(Vec3d(0.0, 256.0, 0.0).parallelTo(Vec3d(0.0, 256.0, 32.0)));
-    
-    // precision problems
-    // ASSERT_FALSE(Vec3d(0.0, -288.0, 32.0).parallelTo(Vec3d(0.0, 448.0, -32.0)));
-}
-
 TEST(VecTest, vec3fMajorComponent) {
     ASSERT_EQ(Math::Axis::AX, Vec3f::PosX.majorComponent(0));
     ASSERT_EQ(Math::Axis::AX, Vec3f::NegX.majorComponent(0));
