@@ -223,8 +223,8 @@ namespace TrenchBroom {
 
             m_tool->commitScale();
 
-            // FIXME: Re-enable
-//            m_tool->updateDragFaces(inputState.pickResult());
+            // The mouse is in a different place now so update the highlighted side
+            m_tool->updateDragFaces(inputState.pickResult());
         }
 
         void ScaleObjectsToolController::doCancelDrag() {
