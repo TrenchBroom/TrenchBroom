@@ -213,11 +213,6 @@ namespace TrenchBroom {
             m_currentDragDebug = nextHandlePosition;
 
             const auto delta = nextHandlePosition - lastHandlePosition;
-
-            const bool scaleAllAxes = inputState.camera().orthographicProjection()
-                                      ? false
-                                      : inputState.modifierKeysDown(ModifierKeys::MKShift);
-
             m_tool->dragScale(delta);
 
             return DR_Continue;
@@ -249,8 +244,8 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // debug
-
+            // debug visualizations
+#if 0
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
@@ -271,6 +266,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
                 renderService.renderBounds(m_tool->bboxAtDragStart());
             }
+#endif
 
             // bounds and corner handles
 

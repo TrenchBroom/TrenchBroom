@@ -137,46 +137,13 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             ScaleObjectsToolPage* m_toolPage;
-
-            /**
-             * Point on the initial pick ray that's closest to the handle being dragged.
-             * Note, when dragging "back faces" the mouse can start far from the bbox.
-             * In this case the m_dragOrigin can be far from the bbox being resized, and close to the camera instead.
-             *
-             */
-            Vec3 m_dragOrigin;
-            /**
-             * Total amount of drag accumulated since beginResize()
-             *
-             * Only used to decide whether to commit the change at the end of the drag
-             * in ScaleObjectsTool::commitResize
-             */
-            Vec3 m_totalDelta;
-
-            /**
-             * debug temporary
-             */
-            Vec3 m_handlePos;
-
             bool m_resizing;
-
             AnchorPos m_anchorPos;
-
-            // moved from controller:
-
             BBox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
-
             Vec3 m_dragCumulativeDelta;
-
-            bool m_centerAnchor;
             ProportionalAxes m_proportionalAxes;
 
-
-        public: // debug only
-            
-            Vec3 dragOrigin() const { return m_dragOrigin; }
-            
         public:
             explicit ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool() override;
@@ -189,16 +156,10 @@ namespace TrenchBroom {
             void pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
         public:
             BBox3 bounds() const;
+
         public:
-
-
-
             // getting highlighted handles
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
-
-            Vec3 handlePos() const {
-                return m_handlePos;
-            }
 
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;

@@ -40,11 +40,6 @@ namespace TrenchBroom {
         class ScaleObjectsTool;
         
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
-        private:
-            enum class DragRestricterType {
-                Line, CameraPerpendicularPlane
-            };
-
         protected:
             ScaleObjectsTool* m_tool;
         private:

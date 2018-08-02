@@ -432,7 +432,6 @@ namespace TrenchBroom {
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
         m_dragCumulativeDelta(Vec3::Null),
-        m_centerAnchor(false),
         m_proportionalAxes()
         {
             bindObservers();
