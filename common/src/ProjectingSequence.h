@@ -32,38 +32,38 @@ struct ProjectingSequenceProjector {
 template <typename C, typename P>
 struct ProjectingSequenceIterators {
     class iterator {
-	public:
-		using iterator_category = typename C::iterator::iterator_category;
-		using value_type = typename C::iterator::value_type;
+    public:
+        using iterator_category = typename C::iterator::iterator_category;
+        using value_type = typename C::iterator::value_type;
         using difference_type = typename C::iterator::difference_type;
-		using pointer = typename C::iterator::pointer;
-		using reference = typename C::iterator::reference;
-	private:
+        using pointer = typename C::iterator::pointer;
+        using reference = typename C::iterator::reference;
+    private:
         using I = typename C::iterator;
         I m_iterator;
     public:
         iterator() : m_iterator() {}
         iterator(I iterator) : m_iterator(iterator) {}
-        
+
         bool operator<(const iterator& other) const { return m_iterator <  other.m_iterator; }
         bool operator>(const iterator& other) const { return m_iterator >  other.m_iterator; }
         bool operator==(const iterator& other) const { return m_iterator == other.m_iterator; }
         bool operator!=(const iterator& other) const { return m_iterator != other.m_iterator; }
-        
+
         // prefix
         iterator& operator++() { ++m_iterator; return *this; }
         iterator& operator--() { --m_iterator; return *this; }
-        
+
         // postfix
         iterator operator++(int) { iterator result(*this); ++m_iterator; return result; }
         iterator operator--(int) { iterator result(*this); --m_iterator; return result; }
-        
+
         typename P::Type operator*()  const { return P::project(*m_iterator); }
         typename P::Type operator->() const { return P::project(*m_iterator); }
     };
-    
+
     class const_iterator {
-	public:
+    public:
         using iterator_category = typename C::const_iterator::iterator_category;
         using value_type = typename C::const_iterator::value_type;
         using difference_type = typename C::const_iterator::difference_type;
@@ -75,20 +75,20 @@ struct ProjectingSequenceIterators {
     public:
         const_iterator() : m_iterator() {}
         const_iterator(I iterator) : m_iterator(iterator) {}
-        
+
         bool operator<(const const_iterator& other) const { return m_iterator <  other.m_iterator; }
         bool operator>(const const_iterator& other) const { return m_iterator >  other.m_iterator; }
         bool operator==(const const_iterator& other) const { return m_iterator == other.m_iterator; }
         bool operator!=(const const_iterator& other) const { return m_iterator != other.m_iterator; }
-        
+
         // prefix
         const_iterator& operator++() { ++m_iterator; return *this; }
         const_iterator& operator--() { --m_iterator; return *this; }
-        
+
         // postfix
         const_iterator operator++(int) { const_iterator result(*this); ++m_iterator; return result; }
         const_iterator operator--(int) { const_iterator result(*this); --m_iterator; return result; }
-        
+
         typename P::Type operator*()  const { return P::project(*m_iterator); }
         typename P::Type operator->() const { return P::project(*m_iterator); }
     };
@@ -103,15 +103,15 @@ private:
     C& m_container;
 public:
     ProjectingSequence(C& container) : m_container(container) {}
-    
+
     size_t size() const {
         return m_container.size();
     }
-    
+
     iterator begin() {
         return iterator(std::begin(m_container));
     }
-    
+
     iterator end() {
         return iterator(std::end(m_container));
     }
@@ -119,7 +119,7 @@ public:
     const_iterator begin() const {
         return const_iterator(m_container.cbegin());
     }
-    
+
     const_iterator end() const {
         return const_iterator(m_container.cend());
     }
@@ -133,19 +133,19 @@ private:
     const C& m_container;
 public:
     ConstProjectingSequence(const C& container) : m_container(container) {}
-    
+
     bool empty() const {
         return size() == 0;
     }
-    
+
     size_t size() const {
         return m_container.size();
     }
-    
+
     const_iterator begin() const {
         return const_iterator(std::begin(m_container));
     }
-    
+
     const_iterator end() const {
         return const_iterator(std::end(m_container));
     }
