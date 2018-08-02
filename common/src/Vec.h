@@ -1131,6 +1131,7 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
     return stream;
 }
 
+
 /* ========== arithmetic functions ========== */
 
 /**
@@ -1192,6 +1193,48 @@ T distance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
 template <typename T, size_t S>
 T squaredDistance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return squaredLength(lhs - rhs);
+}
+
+/**
+ * Normalizes the given vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to return the squared length of
+ * @return the normalized vector
+ */
+template <typename T, size_t S>
+Vec<T,S> normalize(const Vec<T,S>& vec) {
+    return vec / length(vec);
+}
+
+/**
+ * Checks whether the given three points are colinear.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param a the first point
+ * @param b the second point
+ * @param c the third point
+ * @param epsilon the epsilon value
+ * @return true if the given three points are colinear, and false otherwise
+ */
+template <typename T, size_t S>
+bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    // see http://math.stackexchange.com/a/1778739
+
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
+    for (size_t i = 0; i < S; ++i) {
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+
+    return Math::zero(j * j - k * l, epsilon);
 }
 
 /* ========== computing properties of single vectors ========== */
@@ -1268,51 +1311,7 @@ bool isNaN(const Vec<T,S>& vec) {
     return false;
 }
 
-/* ========== operations on single vectors ========== */
 
-/**
- * Normalizes the given vector.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to return the squared length of
- * @return the normalized vector
- */
-template <typename T, size_t S>
-Vec<T,S> normalize(const Vec<T,S>& vec) {
-    return vec / length(vec);
-}
-
-/* ========== operations on multiple vectors ========== */
-
-/**
- * Checks whether the given three points are colinear.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param a the first point
- * @param b the second point
- * @param c the third point
- * @param epsilon the epsilon value
- * @return true if the given three points are colinear, and false otherwise
- */
-template <typename T, size_t S>
-bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-    // see http://math.stackexchange.com/a/1778739
-
-    T j = 0.0;
-    T k = 0.0;
-    T l = 0.0;
-    for (size_t i = 0; i < S; ++i) {
-        const T ac = a[i] - c[i];
-        const T ba = b[i] - a[i];
-        j += ac * ba;
-        k += ac * ac;
-        l += ba * ba;
-    }
-
-    return Math::zero(j * j - k * l, epsilon);
-}
 
 /*
  * The normal will be pointing towards the reader when the points are oriented like this:
