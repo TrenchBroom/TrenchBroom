@@ -238,8 +238,8 @@ TEST(VecTest, vec3fNormalize) {
 }
 
 TEST(VecTest, vec3fNull) {
-    ASSERT_TRUE(Vec3f::Null.null());
-    ASSERT_FALSE(Vec3f::PosX.null());
+    ASSERT_TRUE(isNull(Vec3f::Null));
+    ASSERT_FALSE(isNull(Vec3f::PosX));
 }
 
 TEST(VecTest, vec3fSetNull) {

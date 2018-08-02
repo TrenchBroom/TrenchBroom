@@ -237,7 +237,7 @@ namespace TrenchBroom {
                 }
 
                 Vec3f onPlane = toCam - dot(toCam, direction) * direction;
-                if (onPlane.null()) {
+                if (isNull(onPlane)) {
                     continue;
                 }
 

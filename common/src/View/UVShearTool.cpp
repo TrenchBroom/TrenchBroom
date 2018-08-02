@@ -90,11 +90,11 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (m_selector[0]) {
                 const Vec2f factors = Vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                if (!factors.null())
+                if (!isNull(factors))
                     document->shearTextures(factors);
             } else if (m_selector[1]) {
                 const Vec2f factors = Vec2f(0.0f, -delta.x() / m_initialHit.y());
-                if (!factors.null())
+                if (!isNull(factors))
                     document->shearTextures(factors);
             }
             

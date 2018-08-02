@@ -123,9 +123,11 @@ public:
     }
     
     Vec<T,3> axis() const {
-        if (v.null())
+        if (isNull(v)) {
             return v;
-        return v / std::sin(angle() / static_cast<T>(2.0));
+        } else {
+            return v / std::sin(angle() / static_cast<T>(2.0));
+        }
     }
     
     Quat<T>& conjugate() {

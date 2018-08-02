@@ -134,13 +134,14 @@ namespace TrenchBroom {
             const Vec2f delta = curPoint - m_lastPoint;
             
             const Vec2f snapped = snapDelta(delta * m_selector);
-            if (snapped.null())
+            if (isNull(snapped)) {
                 return true;
-            
-            m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
-            m_lastPoint += snapped;
-            
-            return true;
+            } else {
+                m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
+                m_lastPoint += snapped;
+
+                return true;
+            }
         }
         
         Vec2f UVOriginTool::computeHitPoint(const Ray3& ray) const {
@@ -154,9 +155,10 @@ namespace TrenchBroom {
         }
 
         Vec2f UVOriginTool::snapDelta(const Vec2f& delta) const {
-            if (delta.null())
+            if (isNull(delta)) {
                 return delta;
-            
+            }
+
             const Model::BrushFace* face = m_helper.face();
             ensure(face != nullptr, "face is null");
             

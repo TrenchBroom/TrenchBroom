@@ -220,7 +220,7 @@ namespace TrenchBroom {
                 const Vec3f delta = moveDelta();
                 const Vec2f angles = lookDelta();
 
-                if (!delta.null() || !angles.null()) {
+                if (!isNull(delta) || !isNull(angles)) {
                     if (!TestDestroy() && wxTheApp != nullptr) {
                         CameraEvent* event = new CameraEvent(*this, m_camera);
                         event->setMoveDelta(delta);

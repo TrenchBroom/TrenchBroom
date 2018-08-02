@@ -217,7 +217,7 @@ namespace TrenchBroom {
         m_normal(normal),
         m_radius(radius) {
             assert(m_start != m_center);
-            assert(m_normal.isNormalized());
+            assert(isUnit(m_normal));
             assert(m_radius > 0.0);
         }
 

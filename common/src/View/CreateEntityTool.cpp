@@ -104,10 +104,9 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
             const Vec3 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
             
-            if (delta.null())
-                return;
-            
-            document->translateObjects(delta);
+            if (!isNull(delta)) {
+                document->translateObjects(delta);
+            }
         }
 
         void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
@@ -128,10 +127,9 @@ namespace TrenchBroom {
                 delta = grid.moveDeltaForPoint(center, document->worldBounds(), newPosition - center);
             }
             
-            if (delta.null())
-                return;
-            
-            document->translateObjects(delta);
+            if (!isNull(delta)) {
+                document->translateObjects(delta);
+            }
         }
     }
 }

@@ -940,7 +940,7 @@ namespace TrenchBroom {
          */
         Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
-            if (vertices.empty() || delta.null()) {
+            if (vertices.empty() || isNull(delta)) {
                 return CanMoveVerticesResult::rejectVertexMove();
             }
 

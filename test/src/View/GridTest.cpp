@@ -123,7 +123,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 0.0), X));
             ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 2.0), X));
 
-            const Line3d L(Vec3d::Null, Vec3d(1.0, 2.0, 0.0).normalized());
+            const Line3d L(Vec3d::Null, normalize(Vec3d(1.0, 2.0, 0.0)));
             ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, L));
             ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), L));
             ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), L));

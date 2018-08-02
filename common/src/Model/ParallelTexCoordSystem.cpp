@@ -261,7 +261,7 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
             Vec3 axis = cross(oldNormal, newNormal);
-            if (axis.null()) {
+            if (isNull(axis)) {
                 // oldNormal and newNormal are either the same or opposite.
                 // in this case, no need to update the texture axes.
                 return;

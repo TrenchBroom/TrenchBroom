@@ -387,14 +387,6 @@ public:
     }
     
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
-        for (size_t i = 0; i < S; ++i)
-            if (std::abs(v[i] - other[i]) > epsilon)
-                return false;
-        return true;
-    }
-    
-    bool null() const {
-        return equals(Null, Math::Constants<T>::almostZero());
     }
 
     void setNull() {
@@ -1287,6 +1279,31 @@ T squaredLength(const Vec<T,S>& vec) {
     return dot(vec, vec);
 }
 
+
+/**
+ * Checks whether the given vector has a length of 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to check
+ * @param epsilon the epsilon value
+ * @return true if the given vector has a length of 0 and false otherwise
+ */
+template <typename T, size_t S>
+bool isNull(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZero()) {
+    return Math::zero(length(vec), epsilon);
+}
+
+/* ========== operations on single vectors ========== */
+
+/**
+ * Normalizes the given vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to return the squared length of
+ * @return the normalized vector
+ */
 template <typename T, size_t S>
 Vec<T,S> normalize(const Vec<T,S>& vec) {
     return vec / length(vec);

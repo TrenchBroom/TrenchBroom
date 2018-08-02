@@ -240,7 +240,7 @@ namespace TrenchBroom {
             const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
             
             const Vec3 faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (faceDelta.null())
+            if (isNull(faceDelta))
                 return true;
             
             if (m_splitBrushes) {
@@ -270,10 +270,11 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
-            if (m_totalDelta.null())
+            if (isNull(m_totalDelta)) {
                 document->cancelTransaction();
-            else
+            } else {
                 document->commitTransaction();
+            }
             m_dragFaces.clear();
             m_resizing = false;
         }
