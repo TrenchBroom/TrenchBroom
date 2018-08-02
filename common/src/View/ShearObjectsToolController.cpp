@@ -238,7 +238,7 @@ namespace TrenchBroom {
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // debug
-
+#if 0
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
@@ -254,7 +254,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
                 renderService.renderHandle(m_currentDragDebug);
             }
-
+#endif
 
             // render sheared box
             {
