@@ -1399,11 +1399,4 @@ Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     return result;
 }
 
-template <typename T>
-Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> v1 = point2 - point0;
-    const Vec<T,3> v2 = point1 - point0;
-    return cross(v1, v2);
-}
-
 #endif
