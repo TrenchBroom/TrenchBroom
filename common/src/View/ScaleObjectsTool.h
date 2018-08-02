@@ -149,16 +149,21 @@ namespace TrenchBroom {
              */
             Vec3 m_handlePos;
 
-            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
             bool m_resizing;
 
-            /**
-             * bounds in beginResize()
-             * Only valid during a drag (when m_resizing is true).
-             */
-            BBox3 m_bboxAtDragStart;
             AnchorPos m_anchorPos;
+
+            // moved from controller:
+
+            BBox3 m_bboxAtDragStart;
+            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
+
+            Vec3 m_dragCumulativeDelta;
+
+            bool m_centerAnchor;
             bool m_scaleAllAxes;
+
+
         public: // debug only
             
             Vec3 dragOrigin() const { return m_dragOrigin; }
@@ -166,7 +171,8 @@ namespace TrenchBroom {
         public:
             explicit ScaleObjectsTool(MapDocumentWPtr document);
             ~ScaleObjectsTool() override;
-            
+
+            const Model::Hit& dragStartHit() const;
             bool applies() const;
 
             void pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
@@ -175,7 +181,9 @@ namespace TrenchBroom {
         public:
             BBox3 bounds() const;
         public:
-        
+
+
+
             // getting highlighted handles
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
@@ -219,6 +227,11 @@ namespace TrenchBroom {
             
             void commitResize();
             void cancelResize();
+
+            void startScaleWithHit(const Model::Hit& hit);
+            void dragScale(const Vec3& delta, bool scaleAllAxes);
+            void commitScale();
+            void cancelScale();
         private:
             void bindObservers();
             void unbindObservers();

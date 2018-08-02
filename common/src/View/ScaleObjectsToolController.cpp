@@ -41,10 +41,7 @@ namespace TrenchBroom {
     namespace View {
         ScaleObjectsToolController::ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         m_tool(tool),
-        m_dragStartHit(Model::Hit::NoHit),
-        m_document(document),
-        m_centerAnchor(false),
-        m_scaleAllAxes(false)
+        m_document(document)
         {
             ensure(m_tool != nullptr, "tool is null");
         }
@@ -60,7 +57,7 @@ namespace TrenchBroom {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
-        
+
         std::tuple<DragRestricter*, DragSnapper*, Vec3> ScaleObjectsToolController::getDragRestricterSnapperAndInitialPoint(const InputState& inputState) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
@@ -70,25 +67,27 @@ namespace TrenchBroom {
             const auto document = m_document.lock();
             const auto& camera = inputState.camera();
             const auto& grid = document->grid();
+            const auto& dragStartHit = m_tool->dragStartHit();
+            const auto& bboxAtDragStart = m_tool->bboxAtDragStart();
 
-            if (m_dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                std::cout << "ortho corner hit\n";                
+                std::cout << "ortho corner hit\n";
 
-                const Plane3 plane(m_dragStartHit.hitPoint(), inputState.camera().direction() * -1.0);
+                const Plane3 plane(dragStartHit.hitPoint(), inputState.camera().direction() * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
 
                 std::cout << "making a plane restricter for " << plane << "\n";
             } else {
-                assert(m_dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit
-                       || m_dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
-                       || m_dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
+                assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit
+                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
 
-                const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, m_dragStartHit);
+                const Line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
                 restricter = new LineDragRestricter(handleLine);
                 snapper = new LineDragSnapper(grid, handleLine);
@@ -96,7 +95,7 @@ namespace TrenchBroom {
 
             // HACK: Snap the initial point
             const Vec3 initialPoint = [&]() {
-                Vec3 p = m_dragStartHit.hitPoint();
+                Vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
                 snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
                 return p;
@@ -106,21 +105,13 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
-
-
-            //const bool shear = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-
-            const bool centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+            const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? AnchorPos::Center : AnchorPos::Opposite;
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
-            if ((centerAnchor != m_centerAnchor) || (scaleAllAxes != m_scaleAllAxes)) {
+            if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->scaleAllAxes())) {
                 // update state
-                m_scaleAllAxes = scaleAllAxes;
-                m_centerAnchor = centerAnchor;
-
-                // this will only do the visuals
-                m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
                 m_tool->setScaleAllAxes(scaleAllAxes);
+                m_tool->setAnchorPos(centerAnchor);
 
                 if (thisToolDragging()) {
                     const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
@@ -133,67 +124,15 @@ namespace TrenchBroom {
                 }
             }
 
-//            m_tool->setAnchorPos(centerAnchor  ? AnchorPos::Center : AnchorPos::Opposite);
-//            m_tool->setScaleAllAxes(scaleAllAxes);
-//
-//            // Modifiers that can be enabled/disabled any time:
-//            // - proportional (shift)
-//            // - vertical (alt)
-//
-//            if (thisToolDragging()) {
-//                // FIXME: should manually "update drag" using RestrictedDragPolicy.currentHandlePosition()
-//                // regresh view
-//
-//                //updateResize(inputState);
-//            }
-////            else {
-////                m_tool->setShearing(shear);
-////            }
-
+            // FIXME: Why?
             m_tool->refreshViews();
         }
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState))
+            if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
-        }
-
-        #if 0
-        bool ScaleObjectsToolController::updateResize(const InputState& inputState) {
-            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-
-            return m_tool->resize(inputState.pickRay(),
-                                  inputState.camera(),
-                                  vertical);
-        }
-
-
-        bool ScaleObjectsToolController::doStartMouseDrag(const InputState& inputState) {
-            if (!handleInput(inputState))
-                return false;
-            
-            m_tool->updateDragFaces(inputState.pickResult());
-
-            if (m_tool->beginResize(inputState.pickResult())) {
-                m_tool->updateDragFaces(inputState.pickResult());
-                return true;
             }
-            return false;
         }
-        
-        bool ScaleObjectsToolController::doMouseDrag(const InputState& inputState) {
-            return updateResize(inputState);
-        }
-
-        void ScaleObjectsToolController::doEndMouseDrag(const InputState& inputState) {
-            m_tool->commitResize();
-            m_tool->updateDragFaces(inputState.pickResult());
-        }
-        
-        void ScaleObjectsToolController::doCancelMouseDrag() {
-            m_tool->cancelResize();
-        }
-#endif
 
         // RestrictedDragPolicy
 
@@ -230,15 +169,7 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            m_bboxAtDragStart = m_tool->bounds();
-            m_debugInitialPoint = hit.hitPoint();
-            m_dragStartHit = hit;
-            
-            // const Line3 handleLine = handleLineForHit(m_bboxAtDragStart, hit);
-
-            // m_handleLineDebug = handleLine;
-
-            m_dragCumulativeDelta = Vec3::Null;            
+            m_tool->startScaleWithHit(hit);
 
             const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
 
@@ -256,33 +187,11 @@ namespace TrenchBroom {
 
             const auto delta = nextHandlePosition - lastHandlePosition;
 
-            m_dragCumulativeDelta += delta;
+            const bool scaleAllAxes = inputState.camera().orthographicProjection()
+                                      ? false
+                                      : inputState.modifierKeysDown(ModifierKeys::MKShift);
 
-            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
-
-
-            MapDocumentSPtr document = lock(m_document);
-
-//            if (m_isOrthoFree) {
-//
-//
-//
-//            } else {
-                //const auto& hit = m_dragStartHit;
-
-                const bool scaleAllAxes = inputState.camera().orthographicProjection()
-                        ? false
-                        : inputState.modifierKeysDown(ModifierKeys::MKShift);
-
-                const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
-                                                   scaleAllAxes, m_tool->anchorPos());
-
-                std::cout << "resize to " << newBox << "\n";
-
-                if (!newBox.empty()) {
-                    document->scaleObjects(m_tool->bounds(), newBox);
-                }
-//            }
+            m_tool->dragScale(delta, scaleAllAxes);
 
             return DR_Continue;
         }
@@ -290,14 +199,16 @@ namespace TrenchBroom {
         void ScaleObjectsToolController::doEndDrag(const InputState& inputState) {
             printf("ScaleObjectsTool::doEndDrag\n");
 
-//            m_tool->commitResize();
+            m_tool->commitScale();
+
+            // FIXME: Re-enable
 //            m_tool->updateDragFaces(inputState.pickResult());
         }
 
         void ScaleObjectsToolController::doCancelDrag() {
             printf("ScaleObjectsTool::doCancelDrag\n");
 
-            //m_tool->cancelResize();
+            m_tool->cancelScale();
         }
 
 
@@ -414,19 +325,6 @@ namespace TrenchBroom {
                     renderService.renderHandleHighlight(corner);
                 }
             }
-
-#if 0
-            // draw anchor crosshair
-            if (m_tool->hasDragAnchor()) {
-                const float scale = renderContext.camera().perspectiveScalingFactor(m_tool->dragAnchor());
-                const float radius = 32.0f * scale;
-
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setShowOccludedObjects();
-
-                renderService.renderCoordinateSystem(BBox3f(radius).translated(m_tool->dragAnchor()));
-            }
-#endif
         }
         
         bool ScaleObjectsToolController::doCancel() {

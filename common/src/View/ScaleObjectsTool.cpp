@@ -456,13 +456,18 @@ namespace TrenchBroom {
             }
         }
 
+        // ScaleObjectsTool
+
         ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),
-        m_dragStartHit(Model::Hit::NoHit),
         m_resizing(false),
         m_anchorPos(AnchorPos::Opposite),
+        m_bboxAtDragStart(),
+        m_dragStartHit(Model::Hit::NoHit),
+        m_dragCumulativeDelta(Vec3::Null),
+        m_centerAnchor(false),
         m_scaleAllAxes(false)
         {
             bindObservers();
@@ -470,6 +475,10 @@ namespace TrenchBroom {
         
         ScaleObjectsTool::~ScaleObjectsTool() {
             unbindObservers();
+        }
+
+        const Model::Hit& ScaleObjectsTool::dragStartHit() const {
+            return m_dragStartHit;
         }
         
         bool ScaleObjectsTool::applies() const {
@@ -1034,7 +1043,60 @@ namespace TrenchBroom {
             document->cancelTransaction();
             m_resizing = false;
         }
-        
+
+        void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit) {
+            ensure(hit.isMatch(), "must start with matching hit");
+            ensure(hit.type() == ScaleToolCornerHit
+                   || hit.type() == ScaleToolEdgeHit
+                   || hit.type() == ScaleToolFaceHit, "wrong hit type");
+            ensure(!m_resizing, "must not be resizing already");
+
+            std::cerr << "ScaleObjectsTool::startScaleWithHit\n";
+
+            m_bboxAtDragStart = bounds();
+            m_dragStartHit = hit;
+            m_dragCumulativeDelta = Vec3::Null;
+
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Scale Brushes");
+            m_resizing = true;
+        }
+
+        void ScaleObjectsTool::dragScale(const Vec3& delta, const bool scaleAllAxes) {
+            ensure(m_resizing, "must be resizing already");
+
+            m_dragCumulativeDelta += delta;
+
+            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
+
+            MapDocumentSPtr document = lock(m_document);
+
+            const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
+                                               scaleAllAxes, anchorPos());
+
+            std::cout << "resize to " << newBox << "\n";
+
+            if (!newBox.empty()) {
+                document->scaleObjects(bounds(), newBox);
+            }
+        }
+
+        void ScaleObjectsTool::commitScale() {
+            MapDocumentSPtr document = lock(m_document);
+            if (m_dragCumulativeDelta.null()) {
+                document->cancelTransaction();
+            } else {
+                document->commitTransaction();
+            }
+            m_resizing = false;
+        }
+
+        void ScaleObjectsTool::cancelScale() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+            m_resizing = false;
+        }
+
         void ScaleObjectsTool::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &ScaleObjectsTool::nodesDidChange);

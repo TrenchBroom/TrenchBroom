@@ -48,24 +48,13 @@ namespace TrenchBroom {
         protected:
             ScaleObjectsTool* m_tool;
         private:
-            Vec3 m_debugInitialPoint;
-            BBox3 m_bboxAtDragStart;
-            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
             MapDocumentWPtr m_document;
+
+            // debug visuals
 
             Vec3 m_lastDragDebug;
             Vec3 m_currentDragDebug;
             Line3 m_handleLineDebug;
-
-            Vec3 m_dragCumulativeDelta;
-
-
-            bool m_isOrthoFree;
-
-            bool m_centerAnchor;
-            bool m_scaleAllAxes;
-
-
 
         public:
             explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
@@ -81,11 +70,6 @@ namespace TrenchBroom {
             void doModifierKeyChange(const InputState& inputState) override;
             
             void doMouseMove(const InputState& inputState) override;
-            
-//            bool doStartMouseDrag(const InputState& inputState) override;
-//            bool doMouseDrag(const InputState& inputState) override;
-//            void doEndMouseDrag(const InputState& inputState) override;
-//            void doCancelMouseDrag() override;
 
             // RestrictedDragPolicy
             DragInfo doStartDrag(const InputState& inputState) override;
