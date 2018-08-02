@@ -215,7 +215,7 @@ namespace TrenchBroom {
             m_dragCumulativeDelta = Vec3::Null;
 
             MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Resize Brushes");
+            document->beginTransaction("Shear Objects");
             m_resizing = true;
         }
 
