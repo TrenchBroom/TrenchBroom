@@ -369,6 +369,7 @@ public:
     }
 
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
+        return compare(*this, other, epsilon) == 0;
     }
 
     void setNull() {
@@ -379,13 +380,6 @@ public:
     void set(const T value) {
         for (size_t i = 0; i < S; ++i)
             v[i] = value;
-    }
-    
-    bool nan() const {
-        for (size_t i = 0; i < S; ++i)
-            if (!Math::isnan(v[i]))
-                return false;
-        return true;
     }
 
     static bool colinear(const typename Vec<T,S>::List& points) {
@@ -1287,6 +1281,24 @@ bool isUnit(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZer
 template <typename T, size_t S>
 bool isNull(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZero()) {
     return Math::zero(length(vec), epsilon);
+}
+
+/**
+ * Checks whether the given vector NaN as any component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to check
+ * @return true if the given vector has NaN as any component
+ */
+template <typename T, size_t S>
+bool isNaN(const Vec<T,S>& vec) {
+    for (size_t i = 0; i < S; ++i) {
+        if (Math::isnan(vec[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /* ========== operations on single vectors ========== */

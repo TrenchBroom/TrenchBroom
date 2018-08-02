@@ -125,7 +125,7 @@ public:
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
         const Vec<T,S> lineDirection = normalize(cross(normal, other.normal));
         
-        if (lineDirection.nan()) {
+        if (isNaN(lineDirection)) {
             // the planes are parallel
             return Line<T,S>();
         }
@@ -141,7 +141,7 @@ public:
         const T dist = other.intersectWithLine(lineToOtherPlane);
         const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
-        if (point.nan()) {
+        if (isNaN(point)) {
             return Line<T,S>();
         }
         return Line<T,S>(point, lineDirection);

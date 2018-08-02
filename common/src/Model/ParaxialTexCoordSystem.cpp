@@ -161,8 +161,8 @@ namespace TrenchBroom {
             // project the transformed texture axes onto the new texture projection plane
             const Vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
             const Vec3 projectedTransformedYAxis = newTexturePlane.projectPoint(transformedYAxis);
-            assert(!projectedTransformedXAxis.nan() &&
-                   !projectedTransformedYAxis.nan());
+            assert(!isNaN(projectedTransformedXAxis) &&
+                   !isNaN(projectedTransformedYAxis));
 
             const Vec3 normalizedXAxis = normalize(projectedTransformedXAxis);
             const Vec3 normalizedYAxis = normalize(projectedTransformedYAxis);
@@ -213,8 +213,8 @@ namespace TrenchBroom {
             // the original texture coordiknates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords).corrected(4);
             
-            assert(!newOffset.nan());
-            assert(!newScale.nan());
+            assert(!isNaN(newOffset));
+            assert(!isNaN(newScale));
             assert(!Math::isnan(newRotation));
             assert(!Math::zero(newScale.x()));
             assert(!Math::zero(newScale.y()));

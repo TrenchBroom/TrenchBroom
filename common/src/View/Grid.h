@@ -279,7 +279,7 @@ namespace TrenchBroom {
                 
                 while (cur != end) {
                     const Vec<T,3> cand = snap(p, Edge<T,3>(*last, *cur));
-                    if (!cand.nan()) {
+                    if (!isNaN(cand)) {
                         const T cerr = squaredLength(p - cand);
                         if (cerr < err) {
                             err = cerr;

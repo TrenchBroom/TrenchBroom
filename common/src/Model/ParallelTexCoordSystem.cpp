@@ -158,14 +158,14 @@ namespace TrenchBroom {
 
             // calculate the current texture coordinates of the face's center
             const Vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
-            assert(!oldInvariantTechCoords.nan());
+            assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
             const Vec3 offset = effectiveTransformation * Vec3::Null;
             m_xAxis           = effectiveTransformation * m_xAxis - offset;
             m_yAxis           = effectiveTransformation * m_yAxis - offset;
-            assert(!m_xAxis.nan());
-            assert(!m_yAxis.nan());
+            assert(!isNaN(m_xAxis));
+            assert(!isNaN(m_yAxis));
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = effectiveTransformation * oldInvariant;
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
-            assert(!newOffset.nan());
+            assert(!isNaN(newOffset));
             attribs.setOffset(newOffset);
         }
 
