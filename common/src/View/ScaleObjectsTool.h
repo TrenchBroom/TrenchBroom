@@ -222,12 +222,6 @@ namespace TrenchBroom {
             bool scaleAllAxes() const;
 
         public:
-            bool beginResize(const Model::PickResult& pickResult);
-            bool resize(const Ray3& pickRay, const Renderer::Camera& camera, bool vertical);
-            
-            void commitResize();
-            void cancelResize();
-
             void startScaleWithHit(const Model::Hit& hit);
             void dragScale(const Vec3& delta, bool scaleAllAxes);
             void commitScale();
