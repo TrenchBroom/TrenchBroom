@@ -382,39 +382,11 @@ public:
             v[i] = value;
     }
 
-    static bool colinear(const typename Vec<T,S>::List& points) {
-        assert(points.size() == 3);
-        return colinear(points[0], points[1], points[2]);
-    }
-    
-    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        return colinear(*this, p2, p3, epsilon);
-    }
-
-    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-        const Vec<T,S> p1p2 = p2 - p1;
-        const Vec<T,S> p2p3 = p3 - p2;
-        const Vec<T,S> p1p3 = p3 - p1;
-        
-        return p1p3.equals(p1p2 + p2p3, epsilon);
-        
-        /*
-        const Vec<T,S> v1 = p2 - p1;
-        const Vec<T,S> v2 = p3 - p2;
-        const Vec<T,S> v3 = p1 - p3;
-        return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
-        */
-    }
-    
     bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
         const T d = dot(normalize(*this), normalize(other));
         return Math::eq(Math::abs(d), static_cast<T>(1.0), epsilon);
     }
-    
-    bool colinearTo(const Vec<T,3>& other, const T epsilon = Math::Constants<T>::colinearEpsilon()) const {
-        return 1.0 - dot(*this, other) < epsilon;
-    }
-    
+
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
@@ -629,7 +601,7 @@ public:
     }
 
     bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        assert(linearlyDependent(*this, start, end));
+        assert(colinear(*this, start, end));
         const Vec<T,S> toStart = start - *this;
         const Vec<T,S> toEnd   =   end - *this;
 
@@ -1316,6 +1288,37 @@ Vec<T,S> normalize(const Vec<T,S>& vec) {
     return vec / length(vec);
 }
 
+/* ========== operations on multiple vectors ========== */
+
+/**
+ * Checks whether the given three points are colinear.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param a the first point
+ * @param b the second point
+ * @param c the third point
+ * @param epsilon the epsilon value
+ * @return true if the given three points are colinear, and false otherwise
+ */
+template <typename T, size_t S>
+bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    // see http://math.stackexchange.com/a/1778739
+
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
+    for (size_t i = 0; i < S; ++i) {
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+
+    return Math::zero(j * j - k * l, epsilon);
+}
+
 /*
  * The normal will be pointing towards the reader when the points are oriented like this:
  *
@@ -1363,7 +1366,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
-    assert(!p1.colinear(p2, p3, epsilon));
+    assert(!colinear(p1, p2, p3, epsilon));
     const Vec<T,3> normal = normalize(cross(p3 - p1, p2 - p1));
     const T offset = dot(p1, normal);
     const T dist = dot(p4, normal) - offset;
@@ -1407,61 +1410,6 @@ Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>&
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
     return cross(v1, v2);
-}
-
-template <typename T, size_t S>
-bool linearlyDependent1(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
-    // see http://math.stackexchange.com/a/1778739
-    // advantage over linearlyDependent2 is that no square root is required here
-    
-    T j = 0.0;
-    T k = 0.0;
-    T l = 0.0;
-    for (size_t i = 0; i < S; ++i) {
-        const T ac = a[i] - c[i];
-        const T ba = b[i] - a[i];
-        j += ac * ba;
-        k += ac * ac;
-        l += ba * ba;
-    }
-    
-    return Math::zero(j * j - k * l, Math::Constants<T>::colinearEpsilon());
-}
-
-
-template <typename T, size_t S>
-bool linearlyDependent2(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
-    // A,B,C are colinear if and only if the largest of the lenghts of AB,AC,BC is equal to the sum of the other two.
-    
-    const T ac = length(c - a);
-    const T bc = length(c - b);
-    const T ab = length(b - a);
-    
-    if (ac > bc) {
-        if (ac > ab) // ac > ab, bc
-            return ac == bc + ab;
-        else if (ab > ac) // ab > ac > bc
-            return ab == ac + bc;
-        else // ac == ab > bc
-            return ac == ab + bc; // bc could be 0
-    } else if (bc > ac) {
-        if (bc > ab) // bc > ac, ab
-            return bc == ac + ab;
-        else if (ab > bc) // ab > bc > ac
-            return ab == bc + ac;
-        else // ab == bc > ac
-            return ab == bc + ac; // ac could be 0
-    } else { // ac == bc
-        if (ab > ac) // ab > ac == bc
-            return ab == ac + bc;
-        else // bc == ac >= ab // ab could be 0
-            return bc == ac + ab;
-    }
-}
-
-template <typename T, size_t S>
-bool linearlyDependent(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c) {
-    return linearlyDependent1(a, b, c);
 }
 
 #endif

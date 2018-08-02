@@ -415,8 +415,8 @@ private:
     Vertex* addSecondPoint(const V& position, Callback& callback);
     
     Vertex* addThirdPoint(const V& position, Callback& callback);
-    Vertex* addLinearlyDependentThirdPoint(const V& position, Callback& callback);
-    Vertex* addLinearlyIndependentThirdPoint(const V& position, Callback& callback);
+    Vertex* addColinearThirdPoint(const V& position, Callback& callback);
+    Vertex* addNonColinearThirdPoint(const V& position, Callback& callback);
     
     Vertex* addFurtherPoint(const V& position, Callback& callback);
     Vertex* addFurtherPointToPolygon(const V& position, Callback& callback);

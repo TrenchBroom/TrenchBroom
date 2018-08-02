@@ -165,7 +165,7 @@ namespace TrenchBroom {
             bool doComputeThirdPoint(Vec3& point) const override {
                 ensure(m_numPoints == 2, "invalid numPoints");
                 point = m_points[1].point + 128.0 * computeHelpVector();
-                return !linearlyDependent(m_points[0].point, m_points[1].point, point);
+                return !colinear(m_points[0].point, m_points[1].point, point);
             }
 
             Vec3 computeHelpVector() const {
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 if (m_numPoints == 3)
                     return false;
                 
-                if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, point))
+                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, point))
                     return false;
                 return true;
             }
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) override {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
-                if (m_numPoints == 2 && linearlyDependent(m_points[0].point, m_points[1].point, newPosition))
+                if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition))
                     return false;
 
                 if (m_numPoints == 3) {
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                             break;
                     }
                     
-                    if (linearlyDependent(m_points[index0].point, m_points[index1].point, newPosition))
+                    if (colinear(m_points[index0].point, m_points[index1].point, newPosition))
                         return false;
                 }
                 

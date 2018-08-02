@@ -257,7 +257,7 @@ public:
 private:
     size_t findLinearlyIndependentPoint() const {
         size_t index = 2;
-        while (index < m_points.size() && linearlyDependent(m_points[0], m_points[1], m_points[index]))
+        while (index < m_points.size() && colinear(m_points[0], m_points[1], m_points[index]))
             ++index;
         return index;
     }

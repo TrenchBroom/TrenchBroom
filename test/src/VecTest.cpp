@@ -421,3 +421,11 @@ TEST(VecTest, makePerpendicular2) {
         ASSERT_DOUBLE_EQ(0.0, dot(v, p));
     }
 }
+
+TEST(VecTest, colinear) {
+    ASSERT_TRUE(colinear(Vec3d::Null, Vec3d::Null, Vec3d::Null));
+    ASSERT_TRUE(colinear(Vec3d::One,  Vec3d::One,  Vec3d::One));
+    ASSERT_TRUE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(0.0, 0.0, 1.0), Vec3d(0.0, 0.0, 2.0)));
+    ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
+    ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(10.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
+}

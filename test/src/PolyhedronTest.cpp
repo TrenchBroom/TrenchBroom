@@ -321,7 +321,7 @@ TEST(PolyhedronTest, convexHullWithFailingPoints8) {
     p.addPoint( p1);
     p.addPoint( p2);
     p.addPoint( p3);
-    p.addPoint( p4); // assertion failure here, fixed by using an epsilon value in method linearlyDependent
+    p.addPoint( p4); // assertion failure here, fixed by using an epsilon value in method colinear
     p.addPoint( p5);
     p.addPoint( p6);
     p.addPoint( p7);

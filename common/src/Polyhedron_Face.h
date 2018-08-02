@@ -263,7 +263,9 @@ typename Polyhedron<T,FP,VP>::Vertex::Set Polyhedron<T,FP,VP>::Face::vertexSet()
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     ensure(other != nullptr, "other is null");
-    if (!normal().colinearTo(other->normal())) {
+
+    // Test if the normals are colinear by checking their enclosed angle.
+    if (1.0 - dot(normal(), other->normal()) >= Math::Constants<T>::colinearEpsilon()) {
         return false;
     }
 

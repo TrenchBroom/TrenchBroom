@@ -161,7 +161,7 @@ bool Polyhedron<T,FP,VP>::HalfEdge::colinear(const HalfEdge* other) const {
     const V& p1 = destination()->position();
     const V& p2 = other->destination()->position();
     
-    return linearlyDependent(p0, p1, p2) && dot(vector(), other->vector()) > 0.0;
+    return ::colinear(p0, p1, p2) && dot(vector(), other->vector()) > 0.0;
 }
 
 template <typename T, typename FP, typename VP>

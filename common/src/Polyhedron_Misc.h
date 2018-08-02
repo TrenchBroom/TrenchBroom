@@ -1179,8 +1179,9 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, 
             HalfEdge* nextEdge = currentEdge->nextIncident();
             Face* currentFace = firstEdge->face();
             Face* neighbour = firstEdge->twin()->face();
-            if (currentFace->coplanar(neighbour))
+            if (currentFace->coplanar(neighbour)) {
                 mergeNeighbours(currentEdge, callback);
+            }
             currentEdge = nextEdge;
         } while (currentEdge != firstEdge);
     }

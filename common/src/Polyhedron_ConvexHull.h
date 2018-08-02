@@ -304,19 +304,20 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const V
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
     
-    if (linearlyDependent(v1->position(), v2->position(), position))
-        return addLinearlyDependentThirdPoint(position, callback);
-    else
-        return addLinearlyIndependentThirdPoint(position, callback);
+    if (colinear(v1->position(), v2->position(), position)) {
+        return addColinearThirdPoint(position, callback);
+    } else {
+        return addNonColinearThirdPoint(position, callback);
+    }
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyDependentThirdPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
-    assert(linearlyDependent(v1->position(), v2->position(), position));
+    assert(colinear(v1->position(), v2->position(), position));
     
     if (position.containedWithinSegment(v1->position(), v2->position()))
         return nullptr;
@@ -332,12 +333,12 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyDependentT
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyIndependentThirdPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPoint(const V& position, Callback& callback) {
     assert(edge());
 
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
-    assert(!linearlyDependent(v1->position(), v2->position(), position));
+    assert(!colinear(v1->position(), v2->position(), position));
     
     HalfEdge* h1 = v1->leaving();
     HalfEdge* h2 = v2->leaving();
