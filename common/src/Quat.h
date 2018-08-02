@@ -52,8 +52,8 @@ public:
      * expected to be normalized.
      */
     Quat(const Vec<T,3>& from, const Vec<T,3>& to) {
-        assert(from.isNormalized());
-        assert(to.isNormalized());
+        assert(isUnit(from));
+        assert(isUnit(to));
         
         const T cos = dot(from, to);
         if (Math::eq(std::abs(cos), static_cast<T>(1.0))) {
@@ -112,7 +112,7 @@ public:
     }
     
     Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
-        assert(axis.isNormalized());
+        assert(isUnit(axis));
         r = std::cos(angle / static_cast<T>(2.0));
         v = axis * std::sin(angle / static_cast<T>(2.0));
         return *this;

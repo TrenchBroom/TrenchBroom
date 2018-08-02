@@ -124,7 +124,7 @@ namespace TrenchBroom {
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
                   Vec3 newNormal  = newBoundary.normal;
-            assert(Math::one(length(newNormal)));
+            assert(isUnit(newNormal));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))

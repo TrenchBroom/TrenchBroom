@@ -368,24 +368,6 @@ public:
         return result;
     }
 
-    bool isNormalized() const {
-        return equals(normalize(*this));
-    }
-    
-    Vec<T,S> normalizeRadians() const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = Math::normalizeRadians(v[i]);
-        return result;
-    }
-    
-    Vec<T,S> normalizeDegrees() const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = Math::normalizeDegrees(v[i]);
-        return result;
-    }
-    
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
     }
 
@@ -1271,7 +1253,7 @@ T length(const Vec<T,S>& vec) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to return the squared length of
+ * @param vec the vector to normalize
  * @return the squared length of the given vector
  */
 template <typename T, size_t S>
@@ -1279,6 +1261,19 @@ T squaredLength(const Vec<T,S>& vec) {
     return dot(vec, vec);
 }
 
+/**
+ * Checks whether the given vector has unit length (1).
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to check
+ * @param epsilon the epsilon value
+ * @return true if the given vector has a length of 1 and false otherwise
+ */
+template <typename T, size_t S>
+bool isUnit(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZero()) {
+    return Math::one(length(vec), epsilon);
+}
 
 /**
  * Checks whether the given vector has a length of 0.

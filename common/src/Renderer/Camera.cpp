@@ -380,8 +380,8 @@ namespace TrenchBroom {
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
             assert(m_farPlane > m_nearPlane);
-            assert(Math::one(length(direction)));
-            assert(Math::one(length(up)));
+            assert(isUnit(direction));
+            assert(isUnit(up));
             setDirection(direction, up);
             updateZoomedViewport();
         }
