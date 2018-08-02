@@ -29,6 +29,8 @@
 #include "View/ScaleObjectsToolPage.h"
 #include "BBox.h"
 
+#include <bitset>
+
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
@@ -77,6 +79,12 @@ namespace TrenchBroom {
             Center
         };
 
+        /**
+         * If the ith bit is set, it means axis i should be scaled proportionally
+         * with whatever is being dragged.
+         */
+        using ProportionalAxes = std::bitset<3>;
+
         std::vector<BBoxSide> AllSides();
         Vec3 normalForBBoxSide(BBoxSide side);
         std::vector<BBoxEdge> AllEdges();
@@ -92,7 +100,7 @@ namespace TrenchBroom {
         BBox3 moveBBoxFace(const BBox3& in,
                            BBoxSide side,
                            Vec3 delta,
-                           bool proportional,
+                           ProportionalAxes proportional,
                            AnchorPos anchor);
 
         BBox3 moveBBoxCorner(const BBox3& in,
@@ -103,7 +111,7 @@ namespace TrenchBroom {
         BBox3 moveBBoxEdge(const BBox3& in,
                            BBoxEdge edge,
                            Vec3 delta,
-                           bool proportional,
+                           ProportionalAxes proportional,
                            AnchorPos anchor);
 
         /**
@@ -113,10 +121,11 @@ namespace TrenchBroom {
          * dragging on all 3 axes.
          */
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit);
+
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
-                             Vec3 delta,
-                             bool proportional,
+                             const Vec3& delta,
+                             ProportionalAxes proportional,
                              AnchorPos anchor);
 
         class ScaleObjectsTool : public Tool {
@@ -161,7 +170,7 @@ namespace TrenchBroom {
             Vec3 m_dragCumulativeDelta;
 
             bool m_centerAnchor;
-            bool m_scaleAllAxes;
+            ProportionalAxes m_proportionalAxes;
 
 
         public: // debug only
@@ -218,12 +227,12 @@ namespace TrenchBroom {
             void setAnchorPos(AnchorPos pos);
             AnchorPos anchorPos() const;
 
-            void setScaleAllAxes(bool allAxes);
-            bool scaleAllAxes() const;
+            void setProportionalAxes(ProportionalAxes proportionalAxes);
+            ProportionalAxes proportionalAxes() const;
 
         public:
             void startScaleWithHit(const Model::Hit& hit);
-            void dragScale(const Vec3& delta, bool scaleAllAxes);
+            void dragScale(const Vec3& delta);
             void commitScale();
             void cancelScale();
         private:

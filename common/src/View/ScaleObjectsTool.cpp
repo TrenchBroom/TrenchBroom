@@ -208,7 +208,7 @@ namespace TrenchBroom {
         BBox3 moveBBoxFace(const BBox3& in,
                            const BBoxSide side,
                            const Vec3 delta,
-                           const bool proportional,
+                           const ProportionalAxes proportional,
                            const AnchorPos anchorType) {
             FloatType sideLengthDelta = side.normal.dot(delta);
 
@@ -235,9 +235,13 @@ namespace TrenchBroom {
             Vec3 newSize = in.size();
 
             newSize[axis1] = sideLength;
-            if (proportional) {
-                const FloatType ratio = sideLength / in.size()[axis1];
+
+            // optionally apply proportional scaling to axis2/axis3
+            const FloatType ratio = sideLength / in.size()[axis1];
+            if (proportional.test(axis2)) {
                 newSize[axis2] *= ratio;
+            }
+            if (proportional.test(axis3)) {
                 newSize[axis3] *= ratio;
             }
 
@@ -286,7 +290,7 @@ namespace TrenchBroom {
         BBox3 moveBBoxEdge(const BBox3& in,
                            const BBoxEdge edge,
                            const Vec3 delta,
-                           const bool proportional,
+                           const ProportionalAxes proportional,
                            const AnchorPos anchorType) {
 
             const BBoxEdge opposite = oppositeEdge(edge);
@@ -319,8 +323,9 @@ namespace TrenchBroom {
             BBox3 result(corner1, corner2);
             result.repair();
 
-            // we just need to set nonMovingAxis of the bbox.
-            if (proportional) {
+            // the only type of proportional scaling we support is optionally
+            // scaling the nonMovingAxis.
+            if (proportional.test(nonMovingAxis)) {
                 const size_t axis1 = oldAnchorDist.firstComponent();
                 const FloatType ratio = result.size()[axis1] / in.size()[axis1];
 
@@ -392,8 +397,8 @@ namespace TrenchBroom {
 
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
-                             const Vec3 delta,
-                             const bool proportional,
+                             const Vec3& delta,
+                             const ProportionalAxes proportional,
                              const AnchorPos anchor) {
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit) {
                 const auto endSide = dragStartHit.target<BBoxSide>();
@@ -425,7 +430,7 @@ namespace TrenchBroom {
         m_dragStartHit(Model::Hit::NoHit),
         m_dragCumulativeDelta(Vec3::Null),
         m_centerAnchor(false),
-        m_scaleAllAxes(false)
+        m_proportionalAxes()
         {
             bindObservers();
         }
@@ -695,7 +700,7 @@ namespace TrenchBroom {
             }
 
             // When dragging all axes, change the highlighted sides to "all except the opposites"
-            if (m_scaleAllAxes) {
+            if (m_proportionalAxes.all()) {
                 sides = allSidesExcept(oppositeSides(sides));
             }
 
@@ -822,12 +827,12 @@ namespace TrenchBroom {
             return m_anchorPos;
         }
 
-        void ScaleObjectsTool::setScaleAllAxes(bool allAxes) {
-            m_scaleAllAxes = allAxes;
+        void ScaleObjectsTool::setProportionalAxes(ProportionalAxes proportionalAxes) {
+            m_proportionalAxes = proportionalAxes;
         }
 
-        bool ScaleObjectsTool::scaleAllAxes() const {
-            return m_scaleAllAxes;
+        ProportionalAxes ScaleObjectsTool::proportionalAxes() const {
+            return m_proportionalAxes;
         }
 
         void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit) {
@@ -848,7 +853,7 @@ namespace TrenchBroom {
             m_resizing = true;
         }
 
-        void ScaleObjectsTool::dragScale(const Vec3& delta, const bool scaleAllAxes) {
+        void ScaleObjectsTool::dragScale(const Vec3& delta) {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;
@@ -858,7 +863,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
-                                               scaleAllAxes, anchorPos());
+                                               m_proportionalAxes, m_anchorPos);
 
             std::cout << "resize to " << newBox << "\n";
 

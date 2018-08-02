@@ -106,11 +106,11 @@ namespace TrenchBroom {
 
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
             const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? AnchorPos::Center : AnchorPos::Opposite;
-            const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
+            const auto scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift) ? ProportionalAxes("111") : ProportionalAxes("000");
 
-            if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->scaleAllAxes())) {
+            if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->proportionalAxes())) {
                 // update state
-                m_tool->setScaleAllAxes(scaleAllAxes);
+                m_tool->setProportionalAxes(scaleAllAxes);
                 m_tool->setAnchorPos(centerAnchor);
 
                 if (thisToolDragging()) {
@@ -169,6 +169,8 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
+            // FIXME: Start the drag with the correct proportional axes
+
             m_tool->startScaleWithHit(hit);
 
             const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
@@ -191,7 +193,7 @@ namespace TrenchBroom {
                                       ? false
                                       : inputState.modifierKeysDown(ModifierKeys::MKShift);
 
-            m_tool->dragScale(delta, scaleAllAxes);
+            m_tool->dragScale(delta);
 
             return DR_Continue;
         }
