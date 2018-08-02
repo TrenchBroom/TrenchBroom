@@ -306,7 +306,10 @@ namespace TrenchBroom {
 
             // check for crossing over the anchor
             for (size_t i = 0; i < 3; ++i) {
-                if ((oldAnchorDist[i] > 0) != (newAnchorDist[i] > 0)) {
+                if ((oldAnchorDist[i] > 0) && (newAnchorDist[i] < 0)) {
+                    return BBox3();
+                }
+                if ((oldAnchorDist[i] < 0) && (newAnchorDist[i] > 0)) {
                     return BBox3();
                 }
             }
