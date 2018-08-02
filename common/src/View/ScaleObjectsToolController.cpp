@@ -104,9 +104,27 @@ namespace TrenchBroom {
             return {restricter, snapper, initialPoint};
         }
 
-        void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
+        static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(const InputState& inputState) {
             const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? AnchorPos::Center : AnchorPos::Opposite;
-            const auto scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift) ? ProportionalAxes("111") : ProportionalAxes("000");
+
+            ProportionalAxes scaleAllAxes("000");
+            if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
+                scaleAllAxes = ProportionalAxes("111");
+
+                const auto& camera = inputState.camera();
+                if (camera.orthographicProjection()) {
+                    // special case for 2D: don't scale along the axis of the camea
+                    const size_t cameraComponent = camera.direction().firstComponent();
+                    scaleAllAxes.set(cameraComponent, false);
+                }
+            }
+
+            return {centerAnchor, scaleAllAxes};
+        }
+
+
+        void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
+            const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
 
             if ((centerAnchor != m_tool->anchorPos()) || (scaleAllAxes != m_tool->proportionalAxes())) {
                 // update state
@@ -172,6 +190,11 @@ namespace TrenchBroom {
             // FIXME: Start the drag with the correct proportional axes
 
             m_tool->startScaleWithHit(hit);
+
+            // update modifier settings
+            const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
+            m_tool->setAnchorPos(centerAnchor);
+            m_tool->setProportionalAxes(scaleAllAxes);
 
             const auto tuple = getDragRestricterSnapperAndInitialPoint(inputState);
 
