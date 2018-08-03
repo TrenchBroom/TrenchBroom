@@ -132,7 +132,7 @@ namespace TrenchBroom {
             assert(camera.perspectiveProjection());
 
             // sides
-            for (const BBoxSide& side : AllSides()) {
+            for (const BBoxSide& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());

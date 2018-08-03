@@ -85,10 +85,10 @@ namespace TrenchBroom {
          */
         using ProportionalAxes = std::bitset<3>;
 
-        std::vector<BBoxSide> AllSides();
+        std::vector<BBoxSide> allSides();
         Vec3 normalForBBoxSide(BBoxSide side);
-        std::vector<BBoxEdge> AllEdges();
-        std::vector<BBoxCorner> AllCorners();
+        std::vector<BBoxEdge> allEdges();
+        std::vector<BBoxCorner> allCorners();
         Vec3 pointForBBoxCorner(const BBox3& box, BBoxCorner corner);
         BBoxSide oppositeSide(BBoxSide side);
         BBoxCorner oppositeCorner(BBoxCorner corner);

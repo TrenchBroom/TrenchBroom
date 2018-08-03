@@ -94,7 +94,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<BBoxSide> AllSides() {
+        std::vector<BBoxSide> allSides() {
             std::vector<BBoxSide> result;
             result.reserve(6);
             
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             return side.normal;
         }
 
-        std::vector<BBoxEdge> AllEdges() {
+        std::vector<BBoxEdge> allEdges() {
             std::vector<BBoxEdge> result;
             result.reserve(12);
             
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        std::vector<BBoxCorner> AllCorners() {
+        std::vector<BBoxCorner> allCorners() {
             std::vector<BBoxCorner> result;
             result.reserve(8);
             
@@ -500,7 +500,7 @@ namespace TrenchBroom {
 
             // bbox corners in 2d views
             assert(camera.orthographicProjection());
-            for (const BBoxEdge& edge : AllEdges()) {
+            for (const BBoxEdge& edge : allEdges()) {
                 const Edge3 points = pointsForBBoxEdge(myBounds, edge);
 
                 // in 2d views, only use edges that are parallel to the camera
@@ -548,7 +548,7 @@ namespace TrenchBroom {
             assert(camera.perspectiveProjection());
 
             // corners
-            for (const BBoxCorner& corner : AllCorners()) {
+            for (const BBoxCorner& corner : allCorners()) {
                 const Vec3 point = pointForBBoxCorner(myBounds, corner);
 
                 // make the spheres for the corner handles slightly larger than the
@@ -561,7 +561,7 @@ namespace TrenchBroom {
             }
 
             // edges
-            for (const BBoxEdge& edge : AllEdges()) {
+            for (const BBoxEdge& edge : allEdges()) {
                 const Edge3 points = pointsForBBoxEdge(myBounds, edge);
 
                 const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
@@ -571,7 +571,7 @@ namespace TrenchBroom {
             }
 
             // faces
-            for (const BBoxSide& side : AllSides()) {
+            for (const BBoxSide& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
@@ -677,7 +677,7 @@ namespace TrenchBroom {
         }
 
         static std::vector<BBoxSide> allSidesExcept(const std::vector<BBoxSide>& sides) {
-            std::set<BBoxSide> result = SetUtils::makeSet(AllSides());
+            std::set<BBoxSide> result = SetUtils::makeSet(allSides());
             for (const auto& side : sides) {
                 result.erase(side);
             }

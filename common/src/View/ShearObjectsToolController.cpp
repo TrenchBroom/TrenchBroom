@@ -146,8 +146,6 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            m_debugInitialPoint = hit.hitPoint();
-
             m_tool->startShearWithHit(hit);
             m_tool->setConstrainVertical(vertical);
 

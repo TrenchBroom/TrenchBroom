@@ -1,4 +1,4 @@
-#/*
+/*
 Copyright (C) 2010-2017 Kristian Duske
 
 This file is part of TrenchBroom.
@@ -46,7 +46,6 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
 
             // debug visuals
-            Vec3 m_debugInitialPoint;
             Vec3 m_lastDragDebug;
             Vec3 m_currentDragDebug;
             Line3 m_handleLineDebug;
