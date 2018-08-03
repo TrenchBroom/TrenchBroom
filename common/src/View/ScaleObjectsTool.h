@@ -21,15 +21,13 @@
 #define TrenchBroom_ScaleObjectsTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
 #include "View/Tool.h"
-#include "View/RotateObjectsHandle.h"
 #include "View/ScaleObjectsToolPage.h"
 #include "BBox.h"
 
 #include <bitset>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,8 +39,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class Selection;
-        
+        /**
+         * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
+         */
         class BBoxSide {
         public:
             Vec3 normal;
@@ -54,7 +53,8 @@ namespace TrenchBroom {
         };
         
         /**
-         * BBox corner, normalized to a +/- 1 unit box
+         * Identifies a bbox corner, using a point on a bbox whose corners are at +/- 1.0
+         * (i.e. a 2x2x2 box centered at 0, 0, 0).
          */
         class BBoxCorner {
         public:
@@ -67,7 +67,8 @@ namespace TrenchBroom {
         };
         
         /**
-         * BBox edge, normalized to a +/- 1 unit box
+         * Identifies a directed edge of a bbox, using points on a bbox whose corners are at +/- 1.0
+         * (i.e. a 2x2x2 box centered at 0, 0, 0).
          */
         class BBoxEdge {
         public:
@@ -84,6 +85,10 @@ namespace TrenchBroom {
             Center
         };
 
+        /**
+         * A set containing a subset of (X, Y, Z). Identifies which axes will be scaled.
+         * Used for recording which axes the Shift key affects in 2D views.
+         */
         class ProportionalAxes {
         private:
             std::bitset<3> m_bits;
@@ -101,36 +106,36 @@ namespace TrenchBroom {
         };
 
         std::vector<BBoxSide> allSides();
-        Vec3 normalForBBoxSide(BBoxSide side);
+        Vec3 normalForBBoxSide(const BBoxSide& side);
         std::vector<BBoxEdge> allEdges();
         std::vector<BBoxCorner> allCorners();
-        Vec3 pointForBBoxCorner(const BBox3& box, BBoxCorner corner);
-        BBoxSide oppositeSide(BBoxSide side);
-        BBoxCorner oppositeCorner(BBoxCorner corner);
-        BBoxEdge oppositeEdge(BBoxEdge edge);
-        Edge3 pointsForBBoxEdge(const BBox3& box, BBoxEdge edge);
-        Polygon3 polygonForBBoxSide(const BBox3& box, BBoxSide side);
-        Vec3 centerForBBoxSide(const BBox3& box, BBoxSide side);
+        Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner);
+        BBoxSide oppositeSide(const BBoxSide& side);
+        BBoxCorner oppositeCorner(const BBoxCorner& corner);
+        BBoxEdge oppositeEdge(const BBoxEdge& edge);
+        Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge& edge);
+        Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide& side);
+        Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side);
 
         BBox3 moveBBoxFace(const BBox3& in,
-                           BBoxSide side,
-                           Vec3 delta,
+                           const BBoxSide& side,
+                           const Vec3& delta,
                            ProportionalAxes proportional,
                            AnchorPos anchor);
 
         BBox3 moveBBoxCorner(const BBox3& in,
-                             BBoxCorner corner,
-                             Vec3 delta,
+                             const BBoxCorner& corner,
+                             const Vec3& delta,
                              AnchorPos anchor);
 
         BBox3 moveBBoxEdge(const BBox3& in,
-                           BBoxEdge edge,
-                           Vec3 delta,
+                           const BBoxEdge& edge,
+                           const Vec3& delta,
                            ProportionalAxes proportional,
                            AnchorPos anchor);
 
         /**
-         * Only looks at the hit type (corner/edge/face), and which particular corner/edge/face.
+         * Only looks at the hit type (corner/edge/side), and which particular corner/edge/face.
          *
          * Returns the line through the bbox that an invisible handle should be dragged, assuming proportional
          * dragging on all 3 axes.
@@ -145,7 +150,7 @@ namespace TrenchBroom {
 
         class ScaleObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ScaleToolFaceHit;
+            static const Model::Hit::HitType ScaleToolSideHit;
             static const Model::Hit::HitType ScaleToolEdgeHit;
             static const Model::Hit::HitType ScaleToolCornerHit;
 

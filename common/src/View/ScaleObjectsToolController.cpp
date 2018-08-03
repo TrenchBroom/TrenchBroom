@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
             } else {
-                assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit
+                assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
 
@@ -166,7 +166,7 @@ namespace TrenchBroom {
 
             // TODO: why did .pickable() break it?
             const Model::Hit& hit = pickResult.query().type(
-                    ScaleObjectsTool::ScaleToolFaceHit
+                    ScaleObjectsTool::ScaleToolSideHit
                     | ScaleObjectsTool::ScaleToolEdgeHit
                     | ScaleObjectsTool::ScaleToolCornerHit).occluded().first();
             if (!hit.isMatch()) {
