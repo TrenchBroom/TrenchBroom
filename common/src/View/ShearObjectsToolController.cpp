@@ -55,7 +55,40 @@ namespace TrenchBroom {
                 doPick(inputState.pickRay(), inputState.camera(), pickResult);
             }
         }
-        
+
+        static std::tuple<DragRestricter*, DragSnapper*>
+        getDragRestricterAndSnapper(const BBoxSide& side, const BBox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
+            DragRestricter* restricter = nullptr;
+            DragSnapper* snapper = nullptr;
+
+            const Vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
+
+            if (camera.perspectiveProjection()) {
+                if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
+                    restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
+                    snapper = new DeltaDragSnapper(grid);
+                } else if (!vertical) {
+                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
+
+                    restricter = new LineDragRestricter(sideways);
+                    snapper = new LineDragSnapper(grid, sideways);
+                } else {
+                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
+
+                    restricter = new LineDragRestricter(verticalLine);
+                    snapper = new LineDragSnapper(grid, verticalLine);
+                }
+            } else {
+                assert(camera.orthographicProjection());
+
+                const Line3 sideways(sideCenter, crossed(side.normal, Vec3(camera.direction())).normalized());
+                restricter = new LineDragRestricter(sideways);
+                snapper = new LineDragSnapper(grid, sideways);
+            }
+
+            return {restricter, snapper};
+        }
+
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
             // Modifiers are only used for the perspective camera
             if (!inputState.camera().perspectiveProjection()) {
@@ -69,7 +102,6 @@ namespace TrenchBroom {
             }
 
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
-            const Vec3 sideCenter = centerForBBoxSide(m_tool->bboxAtDragStart(), side);
 
             // Can't do vertical restraint on these
             if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
@@ -81,21 +113,7 @@ namespace TrenchBroom {
             if (vertical != m_tool->constrainVertical()) {
                 m_tool->setConstrainVertical(vertical);
 
-                DragRestricter* restricter = nullptr;
-                DragSnapper* snapper = nullptr;
-
-                if (!vertical) {
-                    // FIXME: deduplicate this from below?
-                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
-
-                    restricter = new LineDragRestricter(sideways);
-                    snapper = new LineDragSnapper(document->grid(), sideways);
-                } else {
-                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
-
-                    restricter = new LineDragRestricter(verticalLine);
-                    snapper = new LineDragSnapper(document->grid(), verticalLine);
-                }
+                auto [restricter, snapper] = getDragRestricterAndSnapper(side, m_tool->bboxAtDragStart(), inputState.camera(), document->grid(), vertical);
 
                 setRestricter(inputState, restricter, true);
                 setSnapper(inputState, snapper, true);
@@ -139,38 +157,12 @@ namespace TrenchBroom {
             m_tool->startShearWithHit(hit);
             m_tool->setConstrainVertical(vertical);
 
-            DragRestricter* restricter = nullptr;
-            DragSnapper* snapper = nullptr;
-
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
-            const Vec3 sideCenter = centerForBBoxSide(m_tool->bboxAtDragStart(), side);
 
-            const auto& camera = inputState.camera();
-            if (camera.perspectiveProjection()) {
-                if (side.normal == Vec3::PosZ || side.normal == Vec3::NegZ) {
-                    restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
-                    snapper = new DeltaDragSnapper(document->grid());
+            DragRestricter* restricter;
+            DragSnapper* snapper;
 
-                    //m_handleLineDebug = Line3();
-                } else if (!vertical) {
-                    // FIXME: deduplicate this from above?
-                    const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
-
-                    restricter = new LineDragRestricter(sideways);
-                    snapper = new LineDragSnapper(document->grid(), sideways);
-                } else {
-                    const Line3 verticalLine(sideCenter, Vec3::PosZ);
-
-                    restricter = new LineDragRestricter(verticalLine);
-                    snapper = new LineDragSnapper(document->grid(), verticalLine);
-                }
-            } else {
-                assert(camera.orthographicProjection());
-
-                const Line3 sideways(sideCenter, crossed(side.normal, Vec3(camera.direction())).normalized());
-                restricter = new LineDragRestricter(sideways);
-                snapper = new LineDragSnapper(document->grid(), sideways);
-            }
+            std::tie(restricter, snapper) = getDragRestricterAndSnapper(side, m_tool->bboxAtDragStart(), inputState.camera(), document->grid(), vertical);
 
             // Snap the initial point
             const Vec3 initialPoint = [&]() {
