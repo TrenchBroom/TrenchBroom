@@ -256,12 +256,23 @@ namespace TrenchBroom {
             // render shear handle
 
             {
-                Renderer::RenderService renderService(renderContext, renderBatch);
                 const Polygon3f poly = m_tool->shearHandle();
                 if (poly.vertexCount() != 0) {
-                    renderService.setLineWidth(2.0);
-                    renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
-                    renderService.renderPolygonOutline(poly.vertices());
+                    // fill
+                    {
+                        Renderer::RenderService renderService(renderContext, renderBatch);
+                        renderService.setShowBackfaces();
+                        renderService.setForegroundColor(pref(Preferences::ShearFillColor));
+                        renderService.renderFilledPolygon(poly.vertices());
+                    }
+
+                    // outline
+                    {
+                        Renderer::RenderService renderService(renderContext, renderBatch);
+                        renderService.setLineWidth(2.0);
+                        renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
+                        renderService.renderPolygonOutline(poly.vertices());
+                    }
                 }
             }
         }

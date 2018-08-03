@@ -95,6 +95,7 @@ namespace TrenchBroom {
         extern Preference<Color> ScaleHandleColor;
         extern Preference<Color> ScaleFillColor;
         extern Preference<Color> ScaleOutlineColor;
+        extern Preference<Color> ShearFillColor;
         extern Preference<Color> ShearOutlineColor;
 
         extern Preference<Color> MoveTraceColor;
