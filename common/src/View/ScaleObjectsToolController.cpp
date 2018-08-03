@@ -101,15 +101,15 @@ namespace TrenchBroom {
         static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(const InputState& inputState) {
             const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? AnchorPos::Center : AnchorPos::Opposite;
 
-            ProportionalAxes scaleAllAxes("000");
+            ProportionalAxes scaleAllAxes = ProportionalAxes::None();
             if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
-                scaleAllAxes = ProportionalAxes("111");
+                scaleAllAxes = ProportionalAxes::All();
 
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
                     // special case for 2D: don't scale along the axis of the camea
                     const size_t cameraComponent = camera.direction().firstComponent();
-                    scaleAllAxes.set(cameraComponent, false);
+                    scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
             }
 

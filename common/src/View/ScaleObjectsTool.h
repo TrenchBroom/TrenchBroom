@@ -84,11 +84,21 @@ namespace TrenchBroom {
             Center
         };
 
-        /**
-         * If the ith bit is set, it means axis i should be scaled proportionally
-         * with whatever is being dragged.
-         */
-        using ProportionalAxes = std::bitset<3>;
+        class ProportionalAxes {
+        private:
+            std::bitset<3> m_bits;
+            ProportionalAxes(bool xProportional, bool yProportional, bool zProportional);
+        public:
+            static ProportionalAxes All();
+            static ProportionalAxes None();
+
+            void setAxisProportional(size_t axis, bool proportional);
+            bool isAxisProportional(size_t axis) const;
+            bool allAxesProportional() const;
+
+            bool operator==(const ProportionalAxes& other) const;
+            bool operator!=(const ProportionalAxes& other) const;
+        };
 
         std::vector<BBoxSide> allSides();
         Vec3 normalForBBoxSide(BBoxSide side);

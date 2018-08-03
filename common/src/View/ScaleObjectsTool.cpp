@@ -111,6 +111,42 @@ namespace TrenchBroom {
                 && point1 == other.point1;
         }
 
+        // ProportionalAxes
+
+        ProportionalAxes::ProportionalAxes(const bool xProportional, const bool yProportional, const bool zProportional) {
+            m_bits.set(0, xProportional);
+            m_bits.set(1, yProportional);
+            m_bits.set(2, zProportional);
+        }
+
+        ProportionalAxes ProportionalAxes::All() {
+            return ProportionalAxes(true, true, true);
+        }
+
+        ProportionalAxes ProportionalAxes::None() {
+            return ProportionalAxes(false, false, false);
+        }
+
+        void ProportionalAxes::setAxisProportional(const size_t axis, const bool proportional) {
+            m_bits.set(axis, proportional);
+        }
+
+        bool ProportionalAxes::isAxisProportional(const size_t axis) const {
+            return m_bits.test(axis);
+        }
+
+        bool ProportionalAxes::allAxesProportional() const {
+            return m_bits.all();
+        }
+
+        bool ProportionalAxes::operator==(const ProportionalAxes& other) const {
+            return m_bits == other.m_bits;
+        }
+
+        bool ProportionalAxes::operator!=(const ProportionalAxes& other) const {
+            return m_bits != other.m_bits;
+        }
+
         //
 
         std::vector<BBoxSide> allSides() {
@@ -257,10 +293,10 @@ namespace TrenchBroom {
 
             // optionally apply proportional scaling to axis2/axis3
             const FloatType ratio = sideLength / in.size()[axis1];
-            if (proportional.test(axis2)) {
+            if (proportional.isAxisProportional(axis2)) {
                 newSize[axis2] *= ratio;
             }
-            if (proportional.test(axis3)) {
+            if (proportional.isAxisProportional(axis3)) {
                 newSize[axis3] *= ratio;
             }
 
@@ -346,7 +382,7 @@ namespace TrenchBroom {
 
             // the only type of proportional scaling we support is optionally
             // scaling the nonMovingAxis.
-            if (proportional.test(nonMovingAxis)) {
+            if (proportional.isAxisProportional(nonMovingAxis)) {
                 const size_t axis1 = oldAnchorDist.firstComponent();
                 const FloatType ratio = result.size()[axis1] / in.size()[axis1];
 
@@ -450,7 +486,7 @@ namespace TrenchBroom {
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
         m_dragCumulativeDelta(Vec3::Null),
-        m_proportionalAxes() {}
+        m_proportionalAxes(ProportionalAxes::None()) {}
         
         ScaleObjectsTool::~ScaleObjectsTool() = default;
 
@@ -715,7 +751,7 @@ namespace TrenchBroom {
             }
 
             // When dragging all axes, change the highlighted sides to "all except the opposites"
-            if (m_proportionalAxes.all()) {
+            if (m_proportionalAxes.allAxesProportional()) {
                 sides = allSidesExcept(oppositeSides(sides));
             }
 
