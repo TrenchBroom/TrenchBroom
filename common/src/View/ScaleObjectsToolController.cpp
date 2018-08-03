@@ -184,16 +184,8 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-            //std::cout << "ScaleObjectsToolController::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
-
-            // debug visualizations
-#if 0
-            m_lastDragDebug = lastHandlePosition;
-            m_currentDragDebug = nextHandlePosition;
-#endif
-
             const auto delta = nextHandlePosition - lastHandlePosition;
-            m_tool->dragScale(delta);
+            m_tool->scaleByDelta(delta);
 
             return DR_Continue;
         }
@@ -214,30 +206,6 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // debug visualizations
-#if 0
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
-                renderService.renderLine(m_handleLineDebug.point, m_handleLineDebug.point + (m_handleLineDebug.direction * 1024.0));
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 0, 0, 1.0f));
-                renderService.renderHandle(m_lastDragDebug);
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
-                renderService.renderHandle(m_currentDragDebug);
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
-                renderService.renderBounds(m_tool->bboxAtDragStart());
-            }
-#endif
-
             // bounds and corner handles
 
             if (!m_tool->bounds().empty())  {

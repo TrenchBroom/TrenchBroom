@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void startShearWithHit(const Model::Hit& hit);
             void commitShear();
             void cancelShear();
-            void dragShear(const Vec3& delta);
+            void shearByDelta(const Vec3 &delta);
 
             const Model::Hit& dragStartHit() const;
 

@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2018 Eric Wasylishen
  
  This file is part of TrenchBroom.
  
@@ -89,15 +90,11 @@ namespace TrenchBroom {
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(document->grid(), sideways);
-
-                    //m_handleLineDebug = sideways;
                 } else {
                     const Line3 verticalLine(sideCenter, Vec3::PosZ);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(document->grid(), verticalLine);
-
-                    //m_handleLineDebug = verticalLine;
                 }
 
                 setRestricter(inputState, restricter, true);
@@ -161,15 +158,11 @@ namespace TrenchBroom {
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(document->grid(), sideways);
-
-                    //m_handleLineDebug = sideways;
                 } else {
                     const Line3 verticalLine(sideCenter, Vec3::PosZ);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(document->grid(), verticalLine);
-
-                    //m_handleLineDebug = verticalLine;
                 }
             } else {
                 assert(camera.orthographicProjection());
@@ -177,8 +170,6 @@ namespace TrenchBroom {
                 const Line3 sideways(sideCenter, crossed(side.normal, Vec3(camera.direction())).normalized());
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(document->grid(), sideways);
-
-                //m_handleLineDebug = sideways;
             }
 
             // Snap the initial point
@@ -193,15 +184,8 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-            //std::cout << "ShearObjectsTool::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
-
-#if 0
-            m_lastDragDebug = lastHandlePosition;
-            m_currentDragDebug = nextHandlePosition;
-#endif
-
             const auto delta = nextHandlePosition - lastHandlePosition;
-            m_tool->dragShear(delta);
+            m_tool->shearByDelta(delta);
 
             return DR_Continue;
         }
@@ -223,25 +207,6 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // debug visualization
-#if 0
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 255, 0, 1.0f));
-                renderService.renderLine(m_handleLineDebug.point, m_handleLineDebug.point + (m_handleLineDebug.direction * 1024.0));
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(255, 0, 0, 1.0f));
-                renderService.renderHandle(m_lastDragDebug);
-            }
-            {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(Color(0, 255, 0, 1.0f));
-                renderService.renderHandle(m_currentDragDebug);
-            }
-#endif
-
             // render sheared box
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
@@ -254,7 +219,6 @@ namespace TrenchBroom {
             }
 
             // render shear handle
-
             {
                 const Polygon3f poly = m_tool->shearHandle();
                 if (poly.vertexCount() != 0) {

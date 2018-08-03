@@ -268,7 +268,6 @@ namespace TrenchBroom {
             const FloatType sideLength = inSideLenth + sideLengthDelta;
 
             if (sideLength <= 0) {
-                //std::cerr << "moveBBoxSide: given invalid side length " << sideLength << "\n";
                 return BBox3();
             }
 
@@ -391,8 +390,6 @@ namespace TrenchBroom {
                     return BBox3();
                 }
             }
-
-            //std::cout << "result size for edge drag: " <<  result.size() << "\n";
 
             return result;
         }
@@ -518,8 +515,6 @@ namespace TrenchBroom {
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(bestNormal != Vec3::Null);
                 pickResult.addHit(Model::Hit(ScaleToolSideHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
-
-                //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
         }
 
@@ -875,18 +870,15 @@ namespace TrenchBroom {
             m_resizing = true;
         }
 
-        void ScaleObjectsTool::dragScale(const Vec3& delta) {
+        void ScaleObjectsTool::scaleByDelta(const Vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;
-            //std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
 
             MapDocumentSPtr document = lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
-
-            //std::cout << "resize to " << newBox << "\n";
 
             if (!newBox.empty()) {
                 document->scaleObjects(bounds(), newBox);

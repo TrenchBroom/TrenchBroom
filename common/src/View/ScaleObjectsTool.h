@@ -194,7 +194,7 @@ namespace TrenchBroom {
             bool m_resizing;
             AnchorPos m_anchorPos;
             BBox3 m_bboxAtDragStart;
-            Model::Hit m_dragStartHit; // contains the drag type (face/edge/corner)
+            Model::Hit m_dragStartHit; // contains the drag type (side/edge/corner)
             Vec3 m_dragCumulativeDelta;
             ProportionalAxes m_proportionalAxes;
 
@@ -243,7 +243,7 @@ namespace TrenchBroom {
 
         public:
             void startScaleWithHit(const Model::Hit& hit);
-            void dragScale(const Vec3& delta);
+            void scaleByDelta(const Vec3& delta);
             void commitScale();
             void cancelScale();
 

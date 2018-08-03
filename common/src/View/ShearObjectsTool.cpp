@@ -91,8 +91,6 @@ namespace TrenchBroom {
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(bestNormal != Vec3::Null);
                 pickResult.addHit(Model::Hit(ShearToolSideHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
-
-                //std::cout << "closest: " << pickRay.pointAtDistance(bestDistAlongRay) << "\n";
             }
         }
 
@@ -212,12 +210,10 @@ namespace TrenchBroom {
             m_resizing = false;
         }
 
-        void ShearObjectsTool::dragShear(const Vec3& delta) {
+        void ShearObjectsTool::shearByDelta(const Vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;
-
-            //std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
 
             MapDocumentSPtr document = lock(m_document);
 
