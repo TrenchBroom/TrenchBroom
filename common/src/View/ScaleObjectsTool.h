@@ -92,8 +92,9 @@ namespace TrenchBroom {
         class ProportionalAxes {
         private:
             std::bitset<3> m_bits;
-            ProportionalAxes(bool xProportional, bool yProportional, bool zProportional);
         public:
+            ProportionalAxes(bool xProportional, bool yProportional, bool zProportional);
+
             static ProportionalAxes All();
             static ProportionalAxes None();
 
@@ -128,6 +129,15 @@ namespace TrenchBroom {
                              const Vec3& delta,
                              AnchorPos anchor);
 
+        /**
+         * Computes a new bbox after moving the specified edge by the specified delta.
+         *
+         * If `edge` points along an axis i, the ith component of `delta` is ignored.
+         * `proportional` only controls whether the bbox grows along axis `i`.
+         *
+         * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
+         * because the specified delta either collapses the bbox, or inverts it.
+         */
         BBox3 moveBBoxEdge(const BBox3& in,
                            const BBoxEdge& edge,
                            const Vec3& delta,

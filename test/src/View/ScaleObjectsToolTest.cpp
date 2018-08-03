@@ -156,5 +156,18 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-100,-100,0), ProportionalAxes::All(), AnchorPos::Center).empty());
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,-1), Vec3(1,1,1)), Vec3(-125,-125,0), ProportionalAxes::All(), AnchorPos::Center).empty());
         }
+
+        TEST(ScaleObjectsToolTest, moveBBoxEdge) {
+            const auto input1 = BBox3(Vec3(-64,-64,-16),
+                                      Vec3( 64, 64, 16));
+
+            const auto exp1 = BBox3(Vec3(-64, -64, -16),
+                                    Vec3( 128, 64, 48));
+
+            // NOTE: the Y=64 part of the delta is ignored because the edge we are moving points along the Y axis
+            const auto delta = Vec3(64, 64, 32);
+
+            EXPECT_EQ(exp1, moveBBoxEdge(input1, BBoxEdge(Vec3(1,1,1), Vec3(1,-1,1)), delta, ProportionalAxes(true, false, true), AnchorPos::Opposite));
+        }
     }
 }
