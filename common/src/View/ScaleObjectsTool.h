@@ -196,12 +196,7 @@ namespace TrenchBroom {
             void dragScale(const Vec3& delta);
             void commitScale();
             void cancelScale();
-        private:
-            void bindObservers();
-            void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
-            void selectionDidChange(const Selection& selection);
-            
+
         private:
             wxWindow* doCreatePage(wxWindow* parent) override;
         };

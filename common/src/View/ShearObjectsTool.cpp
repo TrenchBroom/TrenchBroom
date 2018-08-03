@@ -48,13 +48,9 @@ namespace TrenchBroom {
         m_document(document),
         m_resizing(false),
         m_constrainVertical(false),
-        m_dragStartHit(Model::Hit::NoHit) {
-            bindObservers();
-        }
+        m_dragStartHit(Model::Hit::NoHit) {}
         
-        ShearObjectsTool::~ShearObjectsTool() {
-            unbindObservers();
-        }
+        ShearObjectsTool::~ShearObjectsTool() = default;
         
         bool ShearObjectsTool::applies() const {
             MapDocumentSPtr document = lock(m_document);
@@ -162,7 +158,7 @@ namespace TrenchBroom {
                                                     const std::vector<BBoxSide>& sides) {
             std::vector<Polygon3f> result;
             for (const auto& side : sides) {
-                result.push_back(Polygon3f(polygonForBBoxSide(box, side)));
+                result.emplace_back(polygonForBBoxSide(box, side));
             }
             return result;
         }
@@ -304,30 +300,6 @@ namespace TrenchBroom {
             // TODO: extract the highlighted handle from the hit here, and only refresh views if it changed
             // (see ResizeBrushesTool::updatePickedSide)
             refreshViews();
-        }
-
-        void ShearObjectsTool::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
-            document->nodesWereAddedNotifier.addObserver(this, &ShearObjectsTool::nodesDidChange);
-            document->nodesWillChangeNotifier.addObserver(this, &ShearObjectsTool::nodesDidChange);
-            document->nodesWillBeRemovedNotifier.addObserver(this, &ShearObjectsTool::nodesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &ShearObjectsTool::selectionDidChange);
-        }
-        
-        void ShearObjectsTool::unbindObservers() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->nodesWereAddedNotifier.removeObserver(this, &ShearObjectsTool::nodesDidChange);
-                document->nodesWillChangeNotifier.removeObserver(this, &ShearObjectsTool::nodesDidChange);
-                document->nodesWillBeRemovedNotifier.removeObserver(this, &ShearObjectsTool::nodesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &ShearObjectsTool::selectionDidChange);
-            }
-        }
-        
-        void ShearObjectsTool::nodesDidChange(const Model::NodeList& nodes) {
-        }
-
-        void ShearObjectsTool::selectionDidChange(const Selection& selection) {
         }
 
         bool ShearObjectsTool::constrainVertical() const {

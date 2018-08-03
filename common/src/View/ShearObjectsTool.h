@@ -94,12 +94,6 @@ namespace TrenchBroom {
             Polygon3f shearHandle() const;
 
             void updatePickedSide(const Model::PickResult &pickResult);
-
-        private:
-            void bindObservers();
-            void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
-            void selectionDidChange(const Selection& selection);
         };
     }
 }

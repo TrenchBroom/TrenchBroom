@@ -238,10 +238,6 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderScale(inputState, renderContext, renderBatch);
-        }
-
-        void ScaleObjectsToolController::renderScale(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             // debug visualizations
 #if 0
             {

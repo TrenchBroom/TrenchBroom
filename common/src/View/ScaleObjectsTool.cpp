@@ -431,14 +431,9 @@ namespace TrenchBroom {
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
         m_dragCumulativeDelta(Vec3::Null),
-        m_proportionalAxes()
-        {
-            bindObservers();
-        }
+        m_proportionalAxes() {}
         
-        ScaleObjectsTool::~ScaleObjectsTool() {
-            unbindObservers();
-        }
+        ScaleObjectsTool::~ScaleObjectsTool() = default;
 
         const Model::Hit& ScaleObjectsTool::dragStartHit() const {
             return m_dragStartHit;
@@ -887,30 +882,6 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
             m_resizing = false;
-        }
-
-        void ScaleObjectsTool::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
-            document->nodesWereAddedNotifier.addObserver(this, &ScaleObjectsTool::nodesDidChange);
-            document->nodesWillChangeNotifier.addObserver(this, &ScaleObjectsTool::nodesDidChange);
-            document->nodesWillBeRemovedNotifier.addObserver(this, &ScaleObjectsTool::nodesDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &ScaleObjectsTool::selectionDidChange);
-        }
-        
-        void ScaleObjectsTool::unbindObservers() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->nodesWereAddedNotifier.removeObserver(this, &ScaleObjectsTool::nodesDidChange);
-                document->nodesWillChangeNotifier.removeObserver(this, &ScaleObjectsTool::nodesDidChange);
-                document->nodesWillBeRemovedNotifier.removeObserver(this, &ScaleObjectsTool::nodesDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &ScaleObjectsTool::selectionDidChange);
-            }
-        }
-        
-        void ScaleObjectsTool::nodesDidChange(const Model::NodeList& nodes) {
-        }
-        
-        void ScaleObjectsTool::selectionDidChange(const Selection& selection) {
         }
 
         wxWindow* ScaleObjectsTool::doCreatePage(wxWindow* parent) {
