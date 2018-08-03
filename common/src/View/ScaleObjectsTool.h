@@ -50,6 +50,7 @@ namespace TrenchBroom {
             static bool validSideNormal(const Vec3& n);
             explicit BBoxSide(const Vec3& n);
             bool operator<(const BBoxSide& other) const;
+            bool operator==(const BBoxSide& other) const;
         };
         
         /**
@@ -61,6 +62,8 @@ namespace TrenchBroom {
 
             static bool validCorner(const Vec3& c);
             explicit BBoxCorner(const Vec3& c);
+
+            bool operator==(const BBoxCorner& other) const;
         };
         
         /**
@@ -72,6 +75,8 @@ namespace TrenchBroom {
             Vec3 point1;
             
             explicit BBoxEdge(const Vec3 &p0, const Vec3& p1);
+
+            bool operator==(const BBoxEdge& other) const;
         };
 
         enum class AnchorPos {

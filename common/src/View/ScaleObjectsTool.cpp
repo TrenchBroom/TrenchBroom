@@ -69,6 +69,12 @@ namespace TrenchBroom {
             return normal < other.normal;
         }
 
+        bool BBoxSide::operator==(const BBoxSide& other) const {
+            return normal == other.normal;
+        }
+
+        // BBoxCorner
+
         bool BBoxCorner::validCorner(const Vec3& c) {
             // all components must be either +1 or -1
             for (size_t i = 0; i < 3; ++i) {
@@ -85,6 +91,12 @@ namespace TrenchBroom {
             }
         }
 
+        bool BBoxCorner::operator==(const BBoxCorner& other) const {
+            return corner == other.corner;
+        }
+
+        // BBoxEdge
+
         BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
                 throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
@@ -93,6 +105,13 @@ namespace TrenchBroom {
                 throw std::invalid_argument("BBoxEdge created with invalid corner " + p1.asString());
             }
         }
+
+        bool BBoxEdge::operator==(const BBoxEdge& other) const {
+            return point0 == other.point0
+                && point1 == other.point1;
+        }
+
+        //
 
         std::vector<BBoxSide> allSides() {
             std::vector<BBoxSide> result;
@@ -807,11 +826,24 @@ namespace TrenchBroom {
         void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
             const Model::Hit& hit = pickResult.query().type(ScaleToolFaceHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
 
+            // extract the highlighted handle from the hit here, and only refresh views if it changed
+            if (hit.type() == ScaleToolFaceHit && m_dragStartHit.type() == ScaleToolFaceHit) {
+                if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
+                    return;
+                }
+            } else if (hit.type() == ScaleToolEdgeHit && m_dragStartHit.type() == ScaleToolEdgeHit) {
+                if (hit.target<BBoxEdge>() == m_dragStartHit.target<BBoxEdge>()) {
+                    return;
+                }
+            } else if (hit.type() == ScaleToolCornerHit && m_dragStartHit.type() == ScaleToolCornerHit) {
+                if (hit.target<BBoxCorner>() == m_dragStartHit.target<BBoxCorner>()) {
+                    return;
+                }
+            }
+
             // hack for highlighting on mouseover
             m_dragStartHit = hit;
 
-            // TODO: extract the highlighted handle from the hit here, and only refresh views if it changed
-            // (see ResizeBrushesTool::updateDragFaces)
             refreshViews();
         }
 
@@ -838,8 +870,6 @@ namespace TrenchBroom {
                    || hit.type() == ScaleToolFaceHit, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
-            std::cerr << "ScaleObjectsTool::startScaleWithHit\n";
-
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
             m_dragCumulativeDelta = Vec3::Null;
@@ -853,15 +883,14 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;
-
-            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
+            //std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
 
             MapDocumentSPtr document = lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
 
-            std::cout << "resize to " << newBox << "\n";
+            //std::cout << "resize to " << newBox << "\n";
 
             if (!newBox.empty()) {
                 document->scaleObjects(bounds(), newBox);

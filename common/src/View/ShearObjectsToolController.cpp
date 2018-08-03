@@ -106,6 +106,9 @@ namespace TrenchBroom {
                 setRestricter(inputState, restricter, true);
                 setSnapper(inputState, snapper, true);
             }
+
+            // Mouse might be over a different handle now
+            m_tool->refreshViews();
         }
         
         void ShearObjectsToolController::doMouseMove(const InputState& inputState) {
@@ -123,19 +126,17 @@ namespace TrenchBroom {
 
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return DragInfo();
-            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical))
-                return DragInfo();
-
-
-//            if (!m_tool->applies()) {
-//                return DragInfo();
-//            }
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelection()) {
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
             }
+            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical)) {
+                return DragInfo();
+            }
+            if (!m_tool->applies()) {
+                return DragInfo();
+            }
+
+            MapDocumentSPtr document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
 

@@ -72,14 +72,10 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                std::cout << "ortho corner hit\n";
-
                 const Plane3 plane(dragStartHit.hitPoint(), inputState.camera().direction() * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
-
-                std::cout << "making a plane restricter for " << plane << "\n";
             } else {
                 assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolFaceHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
@@ -142,7 +138,7 @@ namespace TrenchBroom {
                 }
             }
 
-            // FIXME: Why?
+            // Mouse might be over a different handle now
             m_tool->refreshViews();
         }
         
@@ -157,24 +153,14 @@ namespace TrenchBroom {
         RestrictedDragPolicy::DragInfo ScaleObjectsToolController::doStartDrag(const InputState& inputState) {
             // based on CreateSimpleBrushToolController3D::doStartDrag
 
-            printf("ScaleObjectsTool::doStartDrag\n");
-
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
-                return DragInfo();
-
-            // todo: reject if invalid modifier is pressed
-
-//            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
-//                return DragInfo();
-
-
-//            if (!m_tool->applies()) {
-//                return DragInfo();
-//            }
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelection()) {
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
             }
+            if (!m_tool->applies()) {
+                return DragInfo();
+            }
+
+            MapDocumentSPtr document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
 
@@ -186,8 +172,6 @@ namespace TrenchBroom {
             if (!hit.isMatch()) {
                 return DragInfo();
             }
-
-            // FIXME: Start the drag with the correct proportional axes
 
             m_tool->startScaleWithHit(hit);
 
@@ -204,8 +188,7 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-
-            std::cout << "ScaleObjectsTool::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
+            //std::cout << "ScaleObjectsToolController::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
 
             m_lastDragDebug = lastHandlePosition;
             m_currentDragDebug = nextHandlePosition;
@@ -217,8 +200,6 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doEndDrag(const InputState& inputState) {
-            printf("ScaleObjectsTool::doEndDrag\n");
-
             m_tool->commitScale();
 
             // The mouse is in a different place now so update the highlighted side
@@ -226,15 +207,11 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsToolController::doCancelDrag() {
-            printf("ScaleObjectsTool::doCancelDrag\n");
-
             m_tool->cancelScale();
         }
 
-
         void ScaleObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
-            // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

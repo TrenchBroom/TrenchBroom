@@ -275,9 +275,7 @@ namespace TrenchBroom {
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
             if (hit.type() == ShearToolSideHit && m_dragStartHit.type() == ShearToolSideHit) {
-                const BBoxSide prevSide = m_dragStartHit.target<BBoxSide>();
-                const BBoxSide side = hit.target<BBoxSide>();
-                if (prevSide.normal == side.normal) {
+                if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
                     return;
                 }
             }
