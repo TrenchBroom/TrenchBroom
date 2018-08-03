@@ -1,5 +1,6 @@
-#/*
+/*
 Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2018 Eric Wasylishen
 
 This file is part of TrenchBroom.
 
@@ -45,12 +46,6 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
 
-            // debug visuals
-
-            Vec3 m_lastDragDebug;
-            Vec3 m_currentDragDebug;
-            Line3 m_handleLineDebug;
-
         public:
             explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
             ~ScaleObjectsToolController() override;
@@ -84,14 +79,14 @@ namespace TrenchBroom {
         public:
             explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
+            void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
         
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
             explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
+            void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
     }
 }

@@ -1,6 +1,7 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+ Copyright (C) 2018 Eric Wasylishen
+
  This file is part of TrenchBroom.
  
  TrenchBroom is free software: you can redistribute it and/or modify
@@ -23,10 +24,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Hit.h"
-#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
-#include "View/RotateObjectsHandle.h"
 #include "BBox.h"
 
 namespace TrenchBroom {
@@ -83,7 +82,7 @@ namespace TrenchBroom {
             Mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
 
-            void updatePickedSide(const Model::PickResult &pickResult);
+            void updatePickedSide(const Model::PickResult& pickResult);
 
             bool constrainVertical() const;
             void setConstrainVertical(bool constrainVertical);

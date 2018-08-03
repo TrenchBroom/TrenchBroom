@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2018 Eric Wasylishen
  
  This file is part of TrenchBroom.
  
@@ -107,7 +108,6 @@ namespace TrenchBroom {
         };
 
         std::vector<BBoxSide> allSides();
-        Vec3 normalForBBoxSide(const BBoxSide& side);
         std::vector<BBoxEdge> allEdges();
         std::vector<BBoxCorner> allCorners();
         Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner);
@@ -118,12 +118,30 @@ namespace TrenchBroom {
         Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide& side);
         Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side);
 
-        BBox3 moveBBoxFace(const BBox3& in,
-                           const BBoxSide& side,
-                           const Vec3& delta,
+        /**
+         * Computes a new bbox after moving the given side by the given delta.
+         *
+         * Only the component of `delta` matching the axis of `side` is used.
+         *
+         * `proportional` controls which other axes are scaled.
+         *
+         * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
+         * because the specified delta either collapses the bbox, or inverts it.
+         */
+        BBox3 moveBBoxSide(const BBox3 &in,
+                           const BBoxSide &side,
+                           const Vec3 &delta,
                            ProportionalAxes proportional,
                            AnchorPos anchor);
 
+        /**
+         * Computes a new bbox after moving the given corner by the given delta.
+         *
+         * All components of the `delta` are used.
+         *
+         * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
+         * because the specified delta either collapses the bbox, or inverts it.
+         */
         BBox3 moveBBoxCorner(const BBox3& in,
                              const BBoxCorner& corner,
                              const Vec3& delta,
@@ -145,13 +163,19 @@ namespace TrenchBroom {
                            AnchorPos anchor);
 
         /**
-         * Only looks at the hit type (corner/edge/side), and which particular corner/edge/face.
-         *
          * Returns the line through the bbox that an invisible handle should be dragged, assuming proportional
          * dragging on all 3 axes.
+         *
+         * Only looks at the hit type (corner/edge/side), and which particular corner/edge/side.
          */
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit);
 
+        /**
+         * Wrapper around moveBBoxSide/moveBBoxEdge/moveBBoxCorner.
+         *
+         * Looks in the `dragStartHit` and calls the appropriate move function based on whether a side, edge, or corner
+         * handle was grabbed.
+         */
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
                              const Vec3& delta,
@@ -188,7 +212,6 @@ namespace TrenchBroom {
             BBox3 bounds() const;
 
         public:
-            // getting highlighted handles
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
             bool hasDragPolygon() const;
@@ -204,17 +227,14 @@ namespace TrenchBroom {
             Vec3f dragAnchor() const;
 
             /**
-             * If inside a drag, returns the bbox at the start of the drag.
-             * Otherwise, returns the current bounds(). for rendering sheared bbox.
+             * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is true.
              */
             BBox3 bboxAtDragStart() const;
 
-            // regular handles
             Vec3::List cornerHandles() const;
 
-            void updateDragFaces(const Model::PickResult& pickResult);
+            void updatePickedHandle(const Model::PickResult &pickResult);
 
-            // persist the state of modifier keys
             void setAnchorPos(AnchorPos pos);
             AnchorPos anchorPos() const;
 

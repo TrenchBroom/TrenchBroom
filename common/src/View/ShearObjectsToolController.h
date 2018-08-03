@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2018 Eric Wasylishen
 
 This file is part of TrenchBroom.
 
@@ -44,11 +45,6 @@ namespace TrenchBroom {
             ShearObjectsTool* m_tool;
         private:
             MapDocumentWPtr m_document;
-
-            // debug visuals
-            Vec3 m_lastDragDebug;
-            Vec3 m_currentDragDebug;
-            Line3 m_handleLineDebug;
 
         public:
             explicit ShearObjectsToolController(ShearObjectsTool* tool, MapDocumentWPtr document);

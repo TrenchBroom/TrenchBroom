@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2018 Eric Wasylishen
  
  This file is part of TrenchBroom.
  
@@ -21,14 +22,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
-#include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/FindMatchingBrushFaceVisitor.h"
-#include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -162,10 +156,6 @@ namespace TrenchBroom {
             assert(result.size() == 6);
             return result;
         }
-        
-        Vec3 normalForBBoxSide(const BBoxSide& side) {
-            return side.normal;
-        }
 
         std::vector<BBoxEdge> allEdges() {
             std::vector<BBoxEdge> result;
@@ -226,7 +216,7 @@ namespace TrenchBroom {
         }
 
         Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide& side) {
-            const Vec3 wantedNormal = normalForBBoxSide(side);
+            const auto wantedNormal = side.normal;
             
             Polygon3 res;
             auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
@@ -242,7 +232,7 @@ namespace TrenchBroom {
         }
         
         Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side) {
-            const Vec3 wantedNormal = normalForBBoxSide(side);
+            const auto wantedNormal = side.normal;
             
             Vec3 result;
             bool setResult = false;
@@ -260,11 +250,11 @@ namespace TrenchBroom {
 
         // manipulating bboxes
 
-        BBox3 moveBBoxFace(const BBox3& in,
-                           const BBoxSide& side,
-                           const Vec3& delta,
-                           const ProportionalAxes proportional,
-                           const AnchorPos anchorType) {
+        BBox3 moveBBoxSide(const BBox3 &in,
+                           const BBoxSide &side,
+                           const Vec3 &delta,
+                           ProportionalAxes proportional,
+                           AnchorPos anchorType) {
             FloatType sideLengthDelta = side.normal.dot(delta);
 
             // when using a center anchor, we're stretching both sides
@@ -278,7 +268,7 @@ namespace TrenchBroom {
             const FloatType sideLength = inSideLenth + sideLengthDelta;
 
             if (sideLength <= 0) {
-                std::cerr << "moveBBoxFace: given invalid side length " << sideLength << "\n";
+                //std::cerr << "moveBBoxSide: given invalid side length " << sideLength << "\n";
                 return BBox3();
             }
 
@@ -402,8 +392,7 @@ namespace TrenchBroom {
                 }
             }
 
-            std::cout << "result size for edge drag: " <<  result.size() << "\n";
-
+            //std::cout << "result size for edge drag: " <<  result.size() << "\n";
 
             return result;
         }
@@ -417,7 +406,6 @@ namespace TrenchBroom {
 
             if (hit.type() == ScaleObjectsTool::ScaleToolSideHit) {
                 const auto endSide = hit.target<BBoxSide>();
-                std::cout << "hit side " << endSide.normal << "\n";
 
                 const Vec3 handleLineStart = centerForBBoxSide(bboxAtDragStart, endSide);
 
@@ -433,8 +421,6 @@ namespace TrenchBroom {
                 const Vec3 handleLineEnd = endEdgeActual.center();
 
                 handleLine = Line3(handleLineStart, (handleLineEnd - handleLineStart).normalized());
-
-                std::cout << "ScaleObjectsTool::resize from edge " << handleLineStart << " to " << handleLineEnd << "\n";
             } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
                 const auto endCorner = hit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
@@ -443,8 +429,6 @@ namespace TrenchBroom {
                 const Vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
 
                 handleLine = Line3(handleLineStart, (handleLineEnd - handleLineStart).normalized());
-
-                std::cout << "ScaleObjectsTool::resize from corner " << handleLineStart << " to " << handleLineEnd << "\n";
             } else {
                 assert(0);
             }
@@ -460,7 +444,7 @@ namespace TrenchBroom {
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit) {
                 const auto endSide = dragStartHit.target<BBoxSide>();
 
-                return moveBBoxFace(bboxAtDragStart, endSide, delta, proportional, anchor);
+                return moveBBoxSide(bboxAtDragStart, endSide, delta, proportional, anchor);
             } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
                 const auto endEdge = dragStartHit.target<BBoxEdge>();
 
@@ -543,8 +527,9 @@ namespace TrenchBroom {
             const BBox3& myBounds = bounds();
 
             // origin in bbox
-            if (myBounds.contains(pickRay.origin))
+            if (myBounds.contains(pickRay.origin)) {
                 return;
+            }
 
             Model::PickResult localPickResult;
 
@@ -569,17 +554,6 @@ namespace TrenchBroom {
 
             auto hit = localPickResult.query().first();
 
-#if 0
-            if (hit.type() == ScaleToolSideHit)
-                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
-            else if (hit.type() == ScaleToolEdgeHit)
-                printf("hit edge\n");
-            else if (hit.type() == ScaleToolCornerHit)
-                printf("hit corner\n");
-            else
-                printf("no hit\n");
-#endif
-
             if (hit.isMatch()) {
                 pickResult.addHit(hit);
             }
@@ -589,8 +563,9 @@ namespace TrenchBroom {
             const BBox3& myBounds = bounds();
 
             // origin in bbox
-            if (myBounds.contains(pickRay.origin))
+            if (myBounds.contains(pickRay.origin)) {
                 return;
+            }
 
             Model::PickResult localPickResult;
 
@@ -620,7 +595,7 @@ namespace TrenchBroom {
                 }
             }
 
-            // faces
+            // sides
             for (const BBoxSide& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
@@ -633,17 +608,6 @@ namespace TrenchBroom {
             pickBackSides(pickRay, camera, localPickResult);
 
             auto hit = localPickResult.query().first();
-
-#if 0
-            if (hit.type() == ScaleToolSideHit)
-                std::cout << "hit face " << normalForBBoxSide(hit.target<BBoxSide>()) << "\n";
-            else if (hit.type() == ScaleToolEdgeHit)
-                printf("hit edge\n");
-            else if (hit.type() == ScaleToolCornerHit)
-                printf("hit corner\n");
-            else
-                printf("no hit\n");
-#endif
 
             if (hit.isMatch()) {
                 pickResult.addHit(hit);
@@ -836,13 +800,9 @@ namespace TrenchBroom {
             return Vec3f::Null;
         }
 
-        // for rendering sheared bbox
         BBox3 ScaleObjectsTool::bboxAtDragStart() const {
-            if (m_resizing) {
-                return m_bboxAtDragStart;
-            } else {
-                return bounds();
-            }
+            ensure(m_resizing, "bboxAtDragStart() can only be called while resizing");
+            return m_bboxAtDragStart;
         }
 
         Vec3::List ScaleObjectsTool::cornerHandles() const {
@@ -859,7 +819,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ScaleObjectsTool::updateDragFaces(const Model::PickResult& pickResult) {
+        void ScaleObjectsTool::updatePickedHandle(const Model::PickResult &pickResult) {
             const Model::Hit& hit = pickResult.query().type(ScaleToolSideHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed

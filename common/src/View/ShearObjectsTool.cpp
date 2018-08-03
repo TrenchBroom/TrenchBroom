@@ -1,6 +1,7 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
- 
+ Copyright (C) 2018 Eric Wasylishen
+
  This file is part of TrenchBroom.
  
  TrenchBroom is free software: you can redistribute it and/or modify
@@ -181,8 +182,6 @@ namespace TrenchBroom {
             ensure(hit.type() == ShearToolSideHit, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
-            std::cerr << "ShearObjectsTool::startShearWithHit\n";
-
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
             m_dragCumulativeDelta = Vec3::Null;
@@ -194,8 +193,6 @@ namespace TrenchBroom {
 
         void ShearObjectsTool::commitShear() {
             ensure(m_resizing, "must be resizing already");
-
-            std::cerr << "ShearObjectsTool::commitShear\n";
 
             MapDocumentSPtr document = lock(m_document);
             if (m_dragCumulativeDelta.null()) {
@@ -209,8 +206,6 @@ namespace TrenchBroom {
         void ShearObjectsTool::cancelShear() {
             ensure(m_resizing, "must be resizing already");
 
-            std::cerr << "ShearObjectsTool::cancelShear\n";
-
             MapDocumentSPtr document = lock(m_document);
             document->cancelTransaction();
 
@@ -222,7 +217,7 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta += delta;
 
-            std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
+            //std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
 
             MapDocumentSPtr document = lock(m_document);
 

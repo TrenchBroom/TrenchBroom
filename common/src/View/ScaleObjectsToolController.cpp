@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2018 Eric Wasylishen
  
  This file is part of TrenchBroom.
  
@@ -22,13 +23,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Reference.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
@@ -87,7 +85,7 @@ namespace TrenchBroom {
                 snapper = new LineDragSnapper(grid, handleLine);
             }
 
-            // HACK: Snap the initial point
+            // Snap the initial point
             const Vec3 initialPoint = [&]() {
                 Vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
@@ -107,7 +105,7 @@ namespace TrenchBroom {
 
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
-                    // special case for 2D: don't scale along the axis of the camea
+                    // special case for 2D: don't scale along the axis of the camera
                     const size_t cameraComponent = camera.direction().firstComponent();
                     scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
@@ -115,7 +113,6 @@ namespace TrenchBroom {
 
             return {centerAnchor, scaleAllAxes};
         }
-
 
         void ScaleObjectsToolController::doModifierKeyChange(const InputState& inputState) {
             const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
@@ -144,7 +141,7 @@ namespace TrenchBroom {
         
         void ScaleObjectsToolController::doMouseMove(const InputState& inputState) {
             if (handleInput(inputState) && !anyToolDragging(inputState)) {
-                m_tool->updateDragFaces(inputState.pickResult());
+                m_tool->updatePickedHandle(inputState.pickResult());
             }
         }
 
@@ -164,7 +161,6 @@ namespace TrenchBroom {
 
             const Model::PickResult& pickResult = inputState.pickResult();
 
-            // TODO: why did .pickable() break it?
             const Model::Hit& hit = pickResult.query().type(
                     ScaleObjectsTool::ScaleToolSideHit
                     | ScaleObjectsTool::ScaleToolEdgeHit
@@ -190,8 +186,11 @@ namespace TrenchBroom {
         RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
             //std::cout << "ScaleObjectsToolController::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
 
+            // debug visualizations
+#if 0
             m_lastDragDebug = lastHandlePosition;
             m_currentDragDebug = nextHandlePosition;
+#endif
 
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->dragScale(delta);
@@ -203,7 +202,7 @@ namespace TrenchBroom {
             m_tool->commitScale();
 
             // The mouse is in a different place now so update the highlighted side
-            m_tool->updateDragFaces(inputState.pickResult());
+            m_tool->updatePickedHandle(inputState.pickResult());
         }
 
         void ScaleObjectsToolController::doCancelDrag() {
@@ -333,7 +332,9 @@ namespace TrenchBroom {
         bool ScaleObjectsToolController::handleInput(const InputState& inputState) const {
             return m_tool->applies();
         }
-        
+
+        // ScaleObjectsToolController2D
+
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
@@ -341,7 +342,9 @@ namespace TrenchBroom {
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
-        
+
+        // ScaleObjectsToolController3D
+
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
@@ -351,4 +354,3 @@ namespace TrenchBroom {
         }
     }
 }
-

@@ -22,13 +22,10 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Reference.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Camera.h"
 #include "View/InputState.h"
@@ -59,14 +56,14 @@ namespace TrenchBroom {
         }
         
         void ShearObjectsToolController::doModifierKeyChange(const InputState& inputState) {
-            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-
-            if (!thisToolDragging()) {
+            // Modifiers are only used for the perspective camera
+            if (!inputState.camera().perspectiveProjection()) {
                 return;
             }
 
-            // TODO: Only for perspective: move to 3D subclass.
-            if (!inputState.camera().perspectiveProjection()) {
+            const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+
+            if (!thisToolDragging()) {
                 return;
             }
 
@@ -93,14 +90,14 @@ namespace TrenchBroom {
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(document->grid(), sideways);
 
-                    m_handleLineDebug = sideways;
+                    //m_handleLineDebug = sideways;
                 } else {
                     const Line3 verticalLine(sideCenter, Vec3::PosZ);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(document->grid(), verticalLine);
 
-                    m_handleLineDebug = verticalLine;
+                    //m_handleLineDebug = verticalLine;
                 }
 
                 setRestricter(inputState, restricter, true);
@@ -122,8 +119,6 @@ namespace TrenchBroom {
         RestrictedDragPolicy::DragInfo ShearObjectsToolController::doStartDrag(const InputState& inputState) {
             // based on CreateSimpleBrushToolController3D::doStartDrag
 
-            printf("ShearObjectsTool::doStartDrag\n");
-
             const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
@@ -139,10 +134,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
-
-            // TODO: why did .pickable() break it?
-            const Model::Hit& hit = pickResult.query().type(
-                    ShearObjectsTool::ShearToolSideHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();
             if (!hit.isMatch()) {
                 return DragInfo();
             }
@@ -162,7 +154,7 @@ namespace TrenchBroom {
                     restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(document->grid());
 
-                    m_handleLineDebug = Line3();
+                    //m_handleLineDebug = Line3();
                 } else if (!vertical) {
                     // FIXME: deduplicate this from above?
                     const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());
@@ -170,14 +162,14 @@ namespace TrenchBroom {
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(document->grid(), sideways);
 
-                    m_handleLineDebug = sideways;
+                    //m_handleLineDebug = sideways;
                 } else {
                     const Line3 verticalLine(sideCenter, Vec3::PosZ);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(document->grid(), verticalLine);
 
-                    m_handleLineDebug = verticalLine;
+                    //m_handleLineDebug = verticalLine;
                 }
             } else {
                 assert(camera.orthographicProjection());
@@ -186,10 +178,10 @@ namespace TrenchBroom {
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(document->grid(), sideways);
 
-                m_handleLineDebug = sideways;
+                //m_handleLineDebug = sideways;
             }
 
-            // HACK: Snap the initial point
+            // Snap the initial point
             const Vec3 initialPoint = [&]() {
                 Vec3 p = hit.hitPoint();
                 restricter->hitPoint(inputState, p);
@@ -201,11 +193,12 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+            //std::cout << "ShearObjectsTool::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
 
-            std::cout << "ShearObjectsTool::doDrag: last " << lastHandlePosition << " next " << nextHandlePosition << "\n";
-
+#if 0
             m_lastDragDebug = lastHandlePosition;
             m_currentDragDebug = nextHandlePosition;
+#endif
 
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->dragShear(delta);
@@ -214,8 +207,6 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsToolController::doEndDrag(const InputState& inputState) {
-            printf("ShearObjectsTool::doEndDrag\n");
-
             m_tool->commitShear();
 
             // The mouse is in a different place now so update the highlighted side
@@ -223,19 +214,16 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsToolController::doCancelDrag() {
-            printf("ShearObjectsTool::doCancelDrag\n");
-
             m_tool->cancelShear();
         }
 
 
         void ShearObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             renderContext.setForceHideSelectionGuide();
-            // TODO: force rendering of all other map views if the input applies and the tool has drag sides
         }
         
         void ShearObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            // debug
+            // debug visualization
 #if 0
             {
                 Renderer::RenderService renderService(renderContext, renderBatch);
