@@ -46,10 +46,9 @@ namespace TrenchBroom {
         ShearObjectsTool::ShearObjectsTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
-        m_dragStartHit(Model::Hit::NoHit),
         m_resizing(false),
-        m_constrainVertical(false)
-        {
+        m_constrainVertical(false),
+        m_dragStartHit(Model::Hit::NoHit) {
             bindObservers();
         }
         
@@ -252,8 +251,6 @@ namespace TrenchBroom {
             std::cout << "total: " << m_dragCumulativeDelta << " ( added " << delta << ")\n";
 
             MapDocumentSPtr document = lock(m_document);
-
-            const auto& hit = m_dragStartHit;
 
             if (!delta.null()) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();

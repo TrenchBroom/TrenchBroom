@@ -44,15 +44,11 @@ namespace TrenchBroom {
             static const Model::Hit::HitType ShearToolSideHit;
 
         private:
+            MapDocumentWPtr m_document;
             bool m_resizing;
-
             bool m_constrainVertical;
-
-        // moved from controller
-
             BBox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit;
-            MapDocumentWPtr m_document;
             Vec3 m_dragCumulativeDelta;
 
         public:

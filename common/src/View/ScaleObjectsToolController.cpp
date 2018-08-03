@@ -68,8 +68,6 @@ namespace TrenchBroom {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            const auto& camera = inputState.camera();
-
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)

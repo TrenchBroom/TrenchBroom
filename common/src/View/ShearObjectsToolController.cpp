@@ -86,7 +86,6 @@ namespace TrenchBroom {
                 DragRestricter* restricter = nullptr;
                 DragSnapper* snapper = nullptr;
 
-                const auto& camera = inputState.camera();
                 if (!vertical) {
                     // FIXME: deduplicate this from below?
                     const Line3 sideways(sideCenter, crossed(side.normal, Vec3::PosZ).normalized());

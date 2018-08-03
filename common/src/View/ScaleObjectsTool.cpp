@@ -315,7 +315,6 @@ namespace TrenchBroom {
             }
 
             const size_t nonMovingAxis = oldAnchorDist.thirdComponent();
-            const FloatType nonMovingAxisSize = in.size()[nonMovingAxis];
 
             const Vec3 corner1 = (anchorType == AnchorPos::Center)
                                  ? anchor - newAnchorDist
