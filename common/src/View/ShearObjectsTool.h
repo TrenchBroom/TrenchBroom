@@ -52,11 +52,6 @@ namespace TrenchBroom {
             Vec3 m_dragCumulativeDelta;
 
         public:
-
-            bool constrainVertical() const;
-            void setConstrainVertical(bool constrainVertical);
-
-        public:
             explicit ShearObjectsTool(MapDocumentWPtr document);
             ~ShearObjectsTool() override;
             
@@ -65,12 +60,9 @@ namespace TrenchBroom {
             void pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             void pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             void pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+
         public:
             BBox3 bounds() const;
-        public:
-        
-            // getting highlighted handles
-            std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
             bool hasDragPolygon() const;
             Polygon3f dragPolygon() const;
@@ -84,8 +76,6 @@ namespace TrenchBroom {
             void startShearWithHit(const Model::Hit& hit);
             void commitShear();
             void cancelShear();
-
-
             void dragShear(const Vec3& delta);
 
             const Model::Hit& dragStartHit() const;
@@ -94,6 +84,9 @@ namespace TrenchBroom {
             Polygon3f shearHandle() const;
 
             void updatePickedSide(const Model::PickResult &pickResult);
+
+            bool constrainVertical() const;
+            void setConstrainVertical(bool constrainVertical);
         };
     }
 }

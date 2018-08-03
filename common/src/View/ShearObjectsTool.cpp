@@ -37,7 +37,6 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
-#include <set>
 
 namespace TrenchBroom {
     namespace View {
@@ -62,7 +61,6 @@ namespace TrenchBroom {
 
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
-
                 FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
                 FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
                 Vec3 bestNormal;
@@ -101,8 +99,9 @@ namespace TrenchBroom {
             const BBox3& myBounds = bounds();
 
             // origin in bbox
-            if (myBounds.contains(pickRay.origin))
+            if (myBounds.contains(pickRay.origin)) {
                 return;
+            }
 
             Model::PickResult localPickResult;
 
@@ -119,8 +118,9 @@ namespace TrenchBroom {
             const BBox3& myBounds = bounds();
 
             // origin in bbox
-            if (myBounds.contains(pickRay.origin))
+            if (myBounds.contains(pickRay.origin)) {
                 return;
+            }
 
             Model::PickResult localPickResult;
 
@@ -153,28 +153,6 @@ namespace TrenchBroom {
         }
         
         // used for rendering
-        
-        static std::vector<Polygon3f> polysForSides(const BBox3& box,
-                                                    const std::vector<BBoxSide>& sides) {
-            std::vector<Polygon3f> result;
-            for (const auto& side : sides) {
-                result.emplace_back(polygonForBBoxSide(box, side));
-            }
-            return result;
-        }
-
-        std::vector<Polygon3f> ShearObjectsTool::polygonsHighlightedByDrag() const {
-            std::vector<BBoxSide> sides;
-
-            if (m_dragStartHit.type() == ShearToolSideHit) {
-                const auto side = m_dragStartHit.target<BBoxSide>();
-                sides = {side};
-            } else {
-                // ???
-            }
-
-            return polysForSides(bounds(), sides);
-        }
         
         bool ShearObjectsTool::hasDragPolygon() const {
             return dragPolygon().vertexCount() > 0;
@@ -252,7 +230,7 @@ namespace TrenchBroom {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
                 if (document->shearObjects(bounds(), side.normal, delta)) {
-                    // ?
+                    // FIXME: What are we supposed to do if this returns false?
                 }
             }
         }
@@ -277,6 +255,7 @@ namespace TrenchBroom {
                                    side.normal,
                                    m_dragCumulativeDelta);
         }
+
         Polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
@@ -294,11 +273,18 @@ namespace TrenchBroom {
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {
             const Model::Hit& hit = pickResult.query().type(ShearToolSideHit).occluded().first();
 
+            // extract the highlighted handle from the hit here, and only refresh views if it changed
+            if (hit.type() == ShearToolSideHit && m_dragStartHit.type() == ShearToolSideHit) {
+                const BBoxSide prevSide = m_dragStartHit.target<BBoxSide>();
+                const BBoxSide side = hit.target<BBoxSide>();
+                if (prevSide.normal == side.normal) {
+                    return;
+                }
+            }
+
             // hack for highlighting on mouseover
             m_dragStartHit = hit;
 
-            // TODO: extract the highlighted handle from the hit here, and only refresh views if it changed
-            // (see ResizeBrushesTool::updatePickedSide)
             refreshViews();
         }
 
