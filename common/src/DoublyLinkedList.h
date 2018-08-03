@@ -35,15 +35,15 @@ public:
         Item* m_next;
     public:
         Link(Item* item):
-        m_previous(item),
-        m_next(item) {
+                m_previous(item),
+                m_next(item) {
             ensure(item != nullptr, "item is null");
         }
-        
+
         Item* previous() const {
             return m_previous;
         }
-        
+
         Item* next() const {
             return m_next;
         }
@@ -52,7 +52,7 @@ public:
             ensure(previous != nullptr, "previous is null");
             m_previous = previous;
         }
-        
+
         void setNext(Item* next) {
             ensure(next != nullptr, "next is null");
             m_next = next;
@@ -61,11 +61,11 @@ public:
         bool selfLoop(Item* item) const {
             return m_previous == item && m_next == item;
         }
-        
+
         void unlink(Item* item) {
             m_previous = m_next = item;
         }
-        
+
         void flip() {
             using std::swap;
             swap(m_previous, m_next);
@@ -74,7 +74,7 @@ public:
 private:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_item;
-    
+
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_end;
 
@@ -86,13 +86,13 @@ private:
         size_t m_listVersion;
     protected:
         iterator_delegate_base(ListType& list) :
-        m_list(&list),
-        m_listVersion(m_list->m_version) {}
+                m_list(&list),
+                m_listVersion(m_list->m_version) {}
     public:
         virtual ~iterator_delegate_base() {}
     public:
         iterator_delegate_base* clone() const { return doClone(); }
-        
+
         int compare(const iterator_delegate_base& other) const {
             if (index() < other.index())
                 return -1;
@@ -100,7 +100,7 @@ private:
                 return 1;
             return 0;
         }
-        
+
         void increment()      { assert(checkListVersion()); doIncrement(); }
         size_t index() const  { assert(checkListVersion()); return doGetIndex(); }
         ItemType& reference() { assert(checkListVersion()); return doGetItem(); }
@@ -117,19 +117,19 @@ private:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_item : public iterator_delegate_base<ListType, ItemType, LinkType> {
     private:
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> base;
+        using base = iterator_delegate_base<ListType, ItemType, LinkType>;
         ItemType m_item;
         size_t m_index;
     public:
         iterator_delegate_item(ListType& list, ItemType item, const size_t index) :
-        base(list),
-        m_item(item),
-        m_index(index) {}
+                base(list),
+                m_item(item),
+                m_index(index) {}
     private:
         base* doClone() const override {
             return new iterator_delegate_item(*base::m_list, m_item, m_index);
         }
-        
+
         void doIncrement() override {
             ++m_index;
 
@@ -140,7 +140,7 @@ private:
         size_t doGetIndex() const override {
             return m_index;
         }
-        
+
         ItemType& doGetItem() override {
             assert(m_index < base::m_list->size());
             return m_item;
@@ -150,21 +150,21 @@ private:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_delegate_end : public iterator_delegate_base<ListType, ItemType, LinkType> {
     private:
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> base;
+        using base = iterator_delegate_base<ListType, ItemType, LinkType>;
     public:
         iterator_delegate_end(ListType& list) :
-        base(list) {}
+                base(list) {}
     private:
         base* doClone() const override {
             return new iterator_delegate_end(*base::m_list);
         }
-        
+
         void doIncrement() override {}
-        
+
         size_t doGetIndex() const override {
             return base::m_list->size();
         }
-        
+
         ItemType& doGetItem() override {
             static ItemType null = nullptr;
             return null;
@@ -172,11 +172,17 @@ private:
     };
 public:
     template <typename ListType, typename ItemType, typename LinkType>
-    class iterator_base : public std::iterator<std::forward_iterator_tag, ItemType> {
+    class iterator_base {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = ItemType;
+        using pointer = ItemType*;
+        using reference = ItemType&;
     private:
         friend class DoublyLinkedList<Item, GetLink>;
-        
-        typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
+
+        using delegate = iterator_delegate_base<ListType, ItemType, LinkType>;
         delegate* m_delegate;
     public:
         iterator_base(delegate* delegate = nullptr) : m_delegate(delegate) {}
@@ -190,35 +196,35 @@ public:
         static iterator_base item(ListType& list, Item* item, const size_t index) {
             return iterator_base(new iterator_delegate_item<ListType, ItemType, LinkType>(list, item, index));
         }
-        
+
         static iterator_base end(ListType& list) {
             return iterator_base(new iterator_delegate_end<ListType, ItemType, LinkType>(list));
         }
-        
+
         iterator_base& operator=(const iterator_base& other) {
             delete m_delegate;
             m_delegate = other.m_delegate->clone();
             return *this;
         }
-        
+
         bool operator<(const iterator_base& other) const  { return compare(other) <  0; }
         bool operator>(const iterator_base& other) const  { return compare(other) >  0; }
         bool operator==(const iterator_base& other) const { return compare(other) == 0; }
         bool operator!=(const iterator_base& other) const { return compare(other) != 0; }
-        
+
         // prefix increment
         iterator_base& operator++() {
             m_delegate->increment();
             return *this;
         }
-        
+
         // postfix increment
         iterator_base operator++(int) {
             iterator_base result(*this);
             m_delegate->increment();
             return result;
         }
-        
+
         ItemType& operator*() const { return m_delegate->reference(); }
         ItemType operator->() const { return m_delegate->item(); }
     private:
@@ -227,43 +233,43 @@ public:
             ensure(other.m_delegate != nullptr, "other delegate is null");
             return m_delegate->compare(*other.m_delegate);
         }
-        
+
         size_t index() const {
             ensure(m_delegate != nullptr, "delegate is null");
             return m_delegate->index();
         }
     };
-    
-    typedef iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link> iterator;
-    typedef iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link> const_iterator;
+
+    using iterator       = iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link>;
+    using const_iterator = iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link>;
 private:
     friend class ListIterator;
-    
+
     GetLink m_getLink;
     Item* m_head;
     size_t m_size;
     size_t m_version;
 public:
     DoublyLinkedList() :
-    m_getLink(),
-    m_head(nullptr),
-    m_size(0),
-    m_version(0) {}
-    
+            m_getLink(),
+            m_head(nullptr),
+            m_size(0),
+            m_version(0) {}
+
     DoublyLinkedList(DoublyLinkedList&& other) :
-    m_getLink(std::move(other.m_getLink)),
-    m_head(other.m_head),
-    m_size(other.m_size),
-    m_version(other.m_version) {
+            m_getLink(std::move(other.m_getLink)),
+            m_head(other.m_head),
+            m_size(other.m_size),
+            m_version(other.m_version) {
         other.m_head = nullptr;
         other.m_size = 0;
         other.m_version += 1;
     }
-    
+
     virtual ~DoublyLinkedList() {
         clear();
     }
-    
+
     // FIXME iterators may report version change after swapping since they store a reference to their list!
     friend void swap(DoublyLinkedList& first, DoublyLinkedList& second) {
         using std::swap;
@@ -271,7 +277,7 @@ public:
         swap(first.m_size, second.m_size);
         swap(first.m_version, second.m_version);
     }
-    
+
     DoublyLinkedList& operator=(DoublyLinkedList&& other) {
         clear();
         m_head = other.m_head;
@@ -289,31 +295,31 @@ public:
     bool empty() const {
         return m_size == 0;
     }
-    
+
     size_t size() const {
         return m_size;
     }
-    
+
     iterator begin() {
         return iterator::begin(*this);
     }
-    
+
     iterator end() {
         return iterator::end(*this);
     }
-    
+
     const_iterator begin() const {
         return cbegin();
     }
-    
+
     const_iterator end() const {
         return cend();
     }
-    
+
     const_iterator cbegin() const {
         return const_iterator::begin(*this);
     }
-    
+
     const_iterator cend() const {
         return const_iterator::end(*this);
     }
@@ -322,17 +328,17 @@ public:
         Item* item = *it;
         Item* newItem = next(item);
         const size_t index = it.index();
-        
+
         remove(item);
         return iterator::item(*this, newItem, index);
     }
-    
+
     bool contains(const Item* item) const {
         ensure(item != nullptr, "item is null");
-        
+
         if (m_head == nullptr)
             return false;
-        
+
         Item* curItem = m_head;
         do {
             if (curItem == item)
@@ -341,20 +347,20 @@ public:
         } while (curItem != m_head);
         return false;
     }
-    
+
     Item* front() const {
         assert(!empty());
         return m_head;
     }
-    
+
     Item* back() const {
         assert(!empty());
         return getTail();
     }
-    
+
     void append(Item* item, const size_t count) {
         ensure(item != nullptr, "item is null");
-        
+
         if (m_head == nullptr) {
             m_head = item;
             m_size += count;
@@ -365,16 +371,16 @@ public:
 
         assert(check());
     }
-    
+
     void insertBefore(Item* succ, Item* items, const size_t count) {
         ensure(succ != nullptr, "successor is null");
         ensure(items != nullptr, "items is null");
         ensure(m_head != nullptr, "head is null");
         assert(contains(succ));
-        
+
         insertAfter(succ->previous(), items, count);
     }
-    
+
     void insertAfter(Item* pred, Item* items, const size_t count) {
         ensure(pred != nullptr, "predecessor is null");
         ensure(items != nullptr, "items is null");
@@ -385,69 +391,69 @@ public:
         Link& firstLink = getLink(first);
         Item* last = firstLink.previous();
         Link& lastLink = getLink(last);
-        
+
         Link& predLink = getLink(pred);
         Item* succ = predLink.next();
         Link& succLink = getLink(succ);
-        
+
         predLink.setNext(first);
         firstLink.setPrevious(pred);
         lastLink.setNext(succ);
         succLink.setPrevious(last);
-        
+
         m_size += count;
         ++m_version;
 
         assert(check());
     }
-    
+
     void replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
         insertAfter(to, with, insertCount);
         remove(from, to, removeCount);
     }
-    
+
     void remove(Item* item) {
         assert(!empty());
         assert(contains(item));
         remove(item, item, 1);
     }
-    
+
     void remove(Item* from, Item* to, const size_t count) {
         assert(!empty());
-        
+
         Link& fromLink = getLink(from);
         Link& toLink = getLink(to);
-        
+
         Item* pred = fromLink.previous();
         Link& predLink = getLink(pred);
-        
+
         Item* succ = toLink.next();
         Link& succLink = getLink(succ);
-        
+
         predLink.setNext(succ);
         succLink.setPrevious(pred);
-        
+
         fromLink.setPrevious(to);
         toLink.setNext(from);
-        
+
         if (succ == from)
             m_head = nullptr;
         else
             m_head = succ;
-        
+
         m_size -= count;
         ++m_version;
 
         assert(check());
     }
-    
+
     void reverse() {
         if (!empty()) {
             Item* cur = m_head;
             do {
                 Link& link = getLink(cur);
                 Item* next = link.next();
-                
+
                 link.flip();
                 cur = next;
             } while (cur != m_head);
@@ -481,37 +487,37 @@ private:
         Link& link = getLink(item);
         return link.next();
     }
-    
+
     Item* previous(Item* item) const {
         ensure(item != nullptr, "item is null");
         Link& link = getLink(item);
         return link.previous();
     }
-    
+
     Item* getTail() const {
         if (m_head == nullptr)
             return nullptr;
         return previous(m_head);
     }
-    
+
     Link& getLink(Item* item) const {
         ensure(item != nullptr, "item is null");
         return m_getLink(item);
     }
-    
+
     const Link& getLink(const Item* item) const {
         ensure(item != nullptr, "item is null");
         return m_getLink(item);
     }
-    
+
     bool check() const {
         return checkLinks() && checkSize();
     }
-    
+
     bool checkLinks() const {
         if (m_head == nullptr)
             return true;
-        
+
         const Item* item = m_head;
         do {
             const Link& link = getLink(item);
@@ -525,7 +531,7 @@ private:
         } while (item != m_head);
         return true;
     }
-    
+
     bool checkSize() const {
         if (m_head == nullptr)
             return m_size == 0;

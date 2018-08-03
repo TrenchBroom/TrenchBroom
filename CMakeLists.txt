@@ -1,4 +1,9 @@
-cmake_minimum_required (VERSION 3.1)
+IF(MSVC EQUAL 1)
+    cmake_minimum_required (VERSION 3.10)
+ELSE()
+    cmake_minimum_required (VERSION 3.1)
+ENDIF()
+
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 INCLUDE(cmake/Utils.cmake)

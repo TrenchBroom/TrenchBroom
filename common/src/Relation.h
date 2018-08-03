@@ -21,6 +21,7 @@
 #define Relation_h
 
 #include <cassert>
+#include <iterator>
 #include <map>
 #include <set>
 
@@ -42,7 +43,13 @@ public:
     using pair_type = std::pair<L, R>;
 private:
     template <typename left_iter, typename right_iter>
-    class iterator_base : public std::iterator<std::forward_iterator_tag, pair_type> {
+    class iterator_base {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = pair_type;
+        using pointer = pair_type*;
+        using reference = pair_type&;
     private:
         left_iter m_left;
         left_iter m_left_end;
