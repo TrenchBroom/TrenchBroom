@@ -321,10 +321,6 @@ public:
         return !Math::isnan(intersectWithRay(ray));
     }
 
-    bool testRay(const Ray<T,S>& ray) const {
-
-    }
-    
     T intersectWithRay(const Ray<T,S>& ray) const {
         // Compute candidate planes
         std::array<T, S> origins;

@@ -33,7 +33,7 @@
 #include <list>
 #include <memory>
 
-template <typename T, size_t S, typename U, int MaxBalance = 1, typename Cmp = std::less<U>>
+template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
 class AABBTree : public NodeTree<T,S,U,Cmp> {
 public:
     using List = typename NodeTree<T,S,U,Cmp>::List;
@@ -112,23 +112,6 @@ private:
         virtual size_t height() const = 0;
 
         /**
-         * Return the balance of this node. A leaf always has a balance of 0, and for an inner node, the balance is the
-         * difference between the heights of its left and its right subtrees.
-         *
-         * @return the balance
-         */
-        virtual int balance() const = 0;
-
-        /**
-         * Indicates whether this node is balanced.
-         *
-         * @return true if this node is balanced and false otherwise
-         */
-        bool balanced() const {
-            return std::abs(balance()) <= MaxBalance;
-        }
-
-        /**
          * Find a leaf containing the given bounds and data in this subtree.
          *
          * @param bounds the bounds to find
@@ -156,14 +139,6 @@ private:
          * @return the new root
          */
         virtual Node* remove(const Box& bounds, const U& data) = 0;
-
-        /**
-         * Finds the leaf of this node's subtree such that it increases the given bounds the least.
-         *
-         * @param bounds the bounds to test
-         * @return the leaf of this node's subtree that increases the given bounds the least
-         */
-        virtual LeafNode* findRebalanceCandidate(const Box& bounds) = 0;
 
         /**
          * Accepts the given visitor.
@@ -243,21 +218,8 @@ private:
             return false;
         }
 
-        /**
-         * Returns the height of this tree.
-         *
-         * The height of an AABB tree is the length of the longest path from the root to a leaf.
-         *
-         * @return the height of this tree
-         */
         size_t height() const override {
             return m_height;
-        }
-
-        int balance() const override {
-            const auto l = static_cast<int>(m_left->height());
-            const auto r = static_cast<int>(m_right->height());
-            return r - l;
         }
 
         const LeafNode* find(const Box& bounds, const U& data) const override {
@@ -280,7 +242,6 @@ private:
             // Update our data and rebalance if necessary.
             updateBounds();
             updateHeight();
-            rebalance();
 
             return this;
         }
@@ -327,61 +288,12 @@ private:
                     // Update our data and rebalance if necessary.
                     updateBounds();
                     updateHeight();
-                    rebalance();
 
                     result = this;
                 }
             }
 
             return result;
-        }
-
-        /**
-         * If this node is out of balance, we rebalance it. A node is out of balance if and only if the height of its
-         * left and the height of its right subtrees differ by more than 1.
-         *
-         * Sometimes, multiple rebalancing operations are necessary because the node being removed from the higher
-         * subtree neither reduces that tree's height, nor does it increase the height of the lower subtree, therefore
-         * not rebalancing the tree. Repeating the rebalancing operation will yield a balanced tree, however.
-         */
-        void rebalance() {
-            while (!this->balanced()) {
-                if (balance() < 0) {
-                    rebalance(m_left, m_right);
-                } else if (balance() > 0) {
-                    rebalance(m_right, m_left);
-                }
-            }
-        }
-
-        /**
-         * Rebalance this subtree by removing a leaf from the higher subtree and inserting that leaf (or rather, the
-         * data associated with it) into the lower subtree. Thereby, we select the leaf which would increase the bounds
-         * of the lower subtree the least.
-         *
-         * Note that we pass the pointers to the higher and lower nodes by reference so that we can update them.
-         *
-         * @param higher the higher subtree of this node
-         * @param lower the lower subtree of this node
-         */
-        void rebalance(Node*& higher, Node*& lower) {
-            auto* toRemove = higher->findRebalanceCandidate(lower->bounds());
-            const auto bounds = toRemove->bounds();
-            const auto data = toRemove->data();
-
-            higher = higher->remove(bounds, data);
-            lower = lower->insert(bounds, data);
-
-            updateBounds();
-            updateHeight();
-        }
-
-    public:
-        LeafNode* findRebalanceCandidate(const Box& bounds) override {
-            return selectLeastIncreaser(m_left, m_right, bounds)->findRebalanceCandidate(bounds);
-            // LeafNode* leftCandidate = m_left->findRebalanceCandidate(bounds);
-            // LeafNode* rightCandidate = m_right->findRebalanceCandidate(bounds);
-            // return selectLeastIncreaser(leftCandidate, rightCandidate, bounds);
         }
     private:
         /**
@@ -482,22 +394,8 @@ private:
             return true;
         }
 
-        /**
-         * Returns the height of this node, which is always 1.
-         *
-         * @return the height of this node
-         */
         size_t height() const override {
             return 1;
-        }
-
-        /**
-         * Returns the balance of this node, which is always 0.
-         *
-         * @return the balance of this node
-         */
-        int balance() const override {
-            return 0;
         }
 
         const LeafNode* find(const Box& bounds, const U& data) const override {
@@ -547,16 +445,6 @@ private:
             return !cmp(data, m_data) && !cmp(m_data, data);
         }
 
-        /**
-         * Always returns this node.
-         *
-         * @param bounds ignored
-         * @return a pointer to this node
-         */
-        LeafNode* findRebalanceCandidate(const Box& bounds) override {
-            return this;
-        }
-
         void accept(Visitor& visitor) const override {
             visitor.visit(this);
         }
@@ -590,12 +478,13 @@ public:
             } else {
                 m_root = m_root->insert(bounds, data);
             }
-            assert(balanced());
         }
     }
 
     bool remove(const Box& bounds, const U& data) override {
-        if (empty() || bounds.empty()) {
+        if (bounds.empty()) {
+            return true;
+        } else if (empty()) {
             return false;
         } else if (m_root->bounds().contains(bounds)) {
             auto* newRoot = m_root->remove(bounds, data);
@@ -603,7 +492,6 @@ public:
                 delete m_root;
                 m_root = newRoot;
             }
-            assert(balanced());
             return true; // this is wrong, we cannot know this!
         } else {
             return false;
@@ -628,23 +516,6 @@ public:
     
     bool empty() const override {
         return m_root == nullptr;
-    }
-
-    size_t height() const {
-        if (empty()) {
-            return 0;
-        } else {
-            return m_root->height();
-        }
-    }
-
-    /**
-     * Checks whether this tree is balanced.
-     *
-     * @return true if this tree is balanced and false otherwise
-     */
-    bool balanced() const {
-        return empty() || m_root->balanced();
     }
 
     const Box& bounds() const override {
