@@ -40,6 +40,7 @@ namespace TrenchBroom {
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(nullptr),
+        // m_nodeTree(VecCodeComputer<Vec3>(worldBounds)),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
@@ -107,17 +108,23 @@ namespace TrenchBroom {
         class World::RemoveNodeFromNodeTree : public NodeVisitor {
         private:
             NodeTree& m_nodeTree;
-            const BBox3 m_oldBounds;
         public:
-            RemoveNodeFromNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
-            m_nodeTree(nodeTree),
-            m_oldBounds(oldBounds) {}
+            RemoveNodeFromNodeTree(NodeTree& nodeTree) :
+            m_nodeTree(nodeTree) {}
         private:
             void doVisit(World* world) override   {}
             void doVisit(Layer* layer) override   {}
-            void doVisit(Group* group) override   { m_nodeTree.remove(m_oldBounds, group); }
-            void doVisit(Entity* entity) override { m_nodeTree.remove(m_oldBounds, entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.remove(m_oldBounds, brush); }
+            void doVisit(Group* group) override   { doRemove(group, group->bounds()); }
+            void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
+            void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
+            
+            void doRemove(Node* node, const BBox3& bounds) {
+                if (!m_nodeTree.remove(bounds, node)) {
+                    NodeTreeException ex;
+                    ex << "Node not found with bounds [ (" << bounds.min.asString(3) << ") (" << bounds.max.asString(3) << ") ]: " << node;
+                    throw ex;
+                }
+            }
         };
         
         class World::UpdateNodeInNodeTree : public NodeVisitor {
@@ -135,6 +142,15 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
             void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
         };
+        
+        class World::MatchTreeNodes {
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true; }
+            bool operator()(const Model::Entity* entity) const { return true; }
+            bool operator()(const Model::Brush* brush) const   { return true; }
+        };
 
         void World::disableNodeTreeUpdates() {
             m_updateNodeTree = false;
@@ -145,9 +161,12 @@ namespace TrenchBroom {
         }
         
         void World::rebuildNodeTree() {
-            m_nodeTree.clear();
-            AddNodeToNodeTree visitor(m_nodeTree);
-            acceptAndRecurse(visitor);
+            using CollectTreeNodes = CollectMatchingNodesVisitor<MatchTreeNodes>;
+            
+            CollectTreeNodes collect;
+            acceptAndRecurse(collect);
+
+            m_nodeTree.clearAndBuild(collect.nodes(), [](const auto* node){ return node->bounds(); });
         }
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
@@ -245,7 +264,7 @@ namespace TrenchBroom {
 
         void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
             if (m_updateNodeTree && depth > 1) { // ignore layers
-                RemoveNodeFromNodeTree visitor(m_nodeTree, node->bounds());
+                RemoveNodeFromNodeTree visitor(m_nodeTree);
                 node->acceptAndRecurse(visitor);
             }
         }

@@ -38,12 +38,15 @@ namespace TrenchBroom {
         
         Model::World* WorldReader::read(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
+            m_world->rebuildNodeTree();
+            m_world->enableNodeTreeUpdates();
             return m_world;
         }
 
         Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format, const BBox3& worldBounds) {
             assert(m_world == nullptr);
             m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
+            m_world->disableNodeTreeUpdates();
             return m_world;
         }
         

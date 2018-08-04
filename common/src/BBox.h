@@ -27,6 +27,7 @@
 #include "Vec.h"
 
 #include <algorithm>
+#include <array>
 
 template <typename T, size_t S>
 class BBox {
@@ -319,39 +320,81 @@ public:
         const Ray<T,S> ray(start, (end-start).normalized());
         return !Math::isnan(intersectWithRay(ray));
     }
+
+    bool testRay(const Ray<T,S>& ray) const {
+
+    }
     
-    T intersectWithRay(const Ray<T,S>& ray, Vec<T,S>* sideNormal = nullptr) const {
-        const bool inside = contains(ray.origin);
-        
+    T intersectWithRay(const Ray<T,S>& ray) const {
+        // Compute candidate planes
+        std::array<T, S> origins;
+        std::array<bool, S> inside;
+        bool allInside = true;
         for (size_t i = 0; i < S; ++i) {
-            if (ray.direction[i] == static_cast<T>(0.0))
-                continue;
-            
-            Vec<T,S> normal, position;
-            normal[i] = ray.direction[i] < static_cast<T>(0.0) ? static_cast<T>(1.0) : static_cast<T>(-1.0);
-            if (inside)
-                position = ray.direction[i] < static_cast<T>(0.0) ? min : max;
-            else
-                position = ray.direction[i] < static_cast<T>(0.0) ? max : min;
-            
-            const Plane<T,S> plane(position, normal);
-            const T distance = plane.intersectWithRay(ray);
-            if (Math::isnan(distance))
-                continue;
-            
-            const Vec<T,S> point = ray.pointAtDistance(distance);
-            for (size_t j = 0; j < S; ++j)
-                if (i != j && !Math::between(point[j], min[j], max[j]))
-                    goto cont;
-            
-            if (sideNormal != nullptr)
-                *sideNormal = inside ? -normal : normal;
-            return distance;
-            
-        cont:;
+            if (ray.origin[i] < min[i]) {
+                origins[i] = min[i];
+                allInside = inside[i] = false;
+            } else if (ray.origin[i] > max[i]) {
+                origins[i] = max[i];
+                allInside = inside[i] = false;
+            } else {
+                if (ray.direction[i] < static_cast<T>(0.0)) {
+                    origins[i] = min[i];
+                } else {
+                    origins[i] = max[i];
+                }
+                inside[i] = true;
+            }
         }
-        
-        return std::numeric_limits<T>::quiet_NaN();
+
+        // Intersect candidate planes with ray
+        std::array<T, S> distances;
+        for (size_t i = 0; i < S; ++i) {
+            if (ray.direction[i] != static_cast<T>(0.0)) {
+                distances[i] = (origins[i] - ray.origin[i]) / ray.direction[i];
+            } else {
+                distances[i] = static_cast<T>(-1.0);
+            }
+        }
+
+        size_t bestPlane = 0;
+        if (allInside) {
+            // find the closest plane that was hit
+            for (size_t i = 1; i < S; ++i) {
+                if (distances[i] < distances[bestPlane]) {
+                    bestPlane = i;
+                }
+            }
+        } else {
+            // find the farthest plane that was hit
+            for (size_t i = 0; i < S; ++i) {
+                if (!inside[i]) {
+                    bestPlane = i;
+                    break;
+                }
+            }
+            for (size_t i = bestPlane + 1; i < S; ++i) {
+                if (!inside[i] && distances[i] > distances[bestPlane]) {
+                    bestPlane = i;
+                }
+            }
+        }
+
+        // Check if the final candidate actually hits the box
+        if (distances[bestPlane] < static_cast<T>(0.0)) {
+            return std::numeric_limits<T>::quiet_NaN();
+        }
+
+        for (size_t i = 0; i < S; ++i) {
+            if (bestPlane != i) {
+                const T coord = ray.origin[i] + distances[bestPlane] * ray.direction[i];
+                if (coord < min[i] || coord > max[i]) {
+                    return std::numeric_limits<T>::quiet_NaN();
+                }
+            }
+        }
+
+        return distances[bestPlane];
     }
     
     BBox<T,S>& expand(const T f) {

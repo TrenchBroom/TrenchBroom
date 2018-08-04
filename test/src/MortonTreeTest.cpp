@@ -39,7 +39,7 @@ using BOX = TREE::Box;
 using RAY = Ray<TREE::FloatType, TREE::Components>;
 using VEC = Vec<TREE::FloatType, TREE::Components>;
 
-class GetBounds : public TREE::GetBounds {
+class GetBounds {
 public:
     using Map = std::map<TREE::DataType, BOX>;
     using List = std::list<TREE::DataType>;
@@ -55,11 +55,13 @@ public:
         }
         return result;
     }
-    
-    const BOX& operator()(const TREE::DataType& object) const {
-        const auto it = m_objects.find(object);
-        assert(it != std::end(m_objects));
-        return it->second;
+
+    TREE::GetBounds getBounds() const {
+        return [&](const TREE::DataType& object){
+            const auto it = m_objects.find(object);
+            assert(it != std::end(m_objects));
+            return it->second;
+        };
     }
 };
 
@@ -77,7 +79,7 @@ TEST(MortonTreeTest, buildTreeWithOneNode) {
         { 1u, BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)) }
     });
     
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
     ASSERT_FALSE(tree.empty());
     ASSERT_TRUE(tree.contains(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), 1u));
     ASSERT_EQ(BBox3d(Vec3d::Null, Vec3d(16.0, 8.0, 8.0)), tree.bounds());
@@ -91,7 +93,7 @@ TEST(MortonTreeTest, buildTreeWithTwoNodes) {
         { 2u, BBox3d(Vec3d(32.0, 32.0, 32.0), Vec3d(48.0, 48.0, 48.0)) }
     });
     
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
     ASSERT_FALSE(tree.empty());
     ASSERT_TRUE(tree.contains(BBox3d(Vec3d( 0.0,  0.0,  0.0), Vec3d(16.0,  8.0,  8.0)), 1u));
     ASSERT_TRUE(tree.contains(BBox3d(Vec3d(32.0, 32.0, 32.0), Vec3d(48.0, 48.0, 48.0)), 2u));
@@ -107,7 +109,7 @@ TEST(MortonTreeTest, buildTreeWithTwoNodesHavingIdenticalCodes) {
         { 2u, BBox3d(16.0) }
     });
     
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
     ASSERT_FALSE(tree.empty());
     ASSERT_TRUE(tree.contains(BBox3d(32.0), 1u));
     ASSERT_TRUE(tree.contains(BBox3d(16.0), 2u));
@@ -261,7 +263,7 @@ TEST(MortonTreeTest, findIntersectorsOfTreeWithOneNode) {
         { 1u, BOX(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0)) }
     });
 
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
 
     assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::NegX), {});
     assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::PosX), { 1u });
@@ -275,7 +277,7 @@ TEST(MortonTreeTest, findIntersectorsOfTreeWithTwoNodes) {
         { 2u, BOX(VEC(+1.0, -1.0, -1.0), VEC(+2.0, +1.0, +1.0)) },
     });
 
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
 
     assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::PosX), {});
     assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::NegX), {});
@@ -295,7 +297,7 @@ TEST(MortonTreeTest, findIntersectorFromInside) {
         { 1u, BOX(VEC(-4.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)) },
     });
 
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
 
     assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 1u });
 }
@@ -308,7 +310,7 @@ TEST(MortonTreeTest, findIntersectorsFromInsideRootBBox) {
         { 2u, BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)) },
     });
 
-    tree.clearAndBuild(getBounds.objects(), getBounds);
+    tree.clearAndBuild(getBounds.objects(), getBounds.getBounds());
 
     assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 2u });
 }

@@ -612,7 +612,7 @@ public:
 
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
         if (!oldBounds.empty() && !remove(oldBounds, data)) {
-            AABBException ex;
+            NodeTreeException ex;
             ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
             throw ex;
         }

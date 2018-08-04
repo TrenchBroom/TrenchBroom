@@ -51,7 +51,7 @@ namespace TrenchBroom {
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
 
-            using NodeTree = AABBTree<FloatType, 3, Node*>;
+            using NodeTree = AABBTree<FloatType, 3, Node*, 100000>;
             NodeTree m_nodeTree;
             bool m_updateNodeTree;
         public:
@@ -75,6 +75,7 @@ namespace TrenchBroom {
             class RemoveNodeFromNodeTree;
             class UpdateNodeInNodeTree;
         public: // node tree bulk updating
+            class MatchTreeNodes;
             void disableNodeTreeUpdates();
             void enableNodeTreeUpdates();
             void rebuildNodeTree();

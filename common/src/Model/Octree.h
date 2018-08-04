@@ -201,40 +201,40 @@ namespace TrenchBroom {
             
             void insert(const BBox<F, 3>& bounds, T object) {
                 if (!m_root->contains(bounds))
-                    throw OctreeException("Object is too large for this octree");
+                    throw NodeTreeException("Object is too large for this octree");
                 
                 OctreeNode<F,T>* node = m_root->addObject(bounds, object);
                 if (node == nullptr)
-                    throw OctreeException("Unknown error when inserting into octree");
+                    throw NodeTreeException("Unknown error when inserting into octree");
                 assertResult(MapUtils::insertOrFail(m_objectMap, object, node));
             }
             
             void remove(T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
                 if (it == std::end(m_objectMap))
-                    throw OctreeException("Cannot find object in octree");
+                    throw NodeTreeException("Cannot find object in octree");
                 
                 OctreeNode<F,T>* node = it->second;
                 if (!node->removeObject(object))
-                    throw OctreeException("Cannot find object in octree");
+                    throw NodeTreeException("Cannot find object in octree");
                 m_objectMap.erase(it);
             }
             
             void update(const BBox<F, 3>& bounds, T object) {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
                 if (it == std::end(m_objectMap))
-                    throw OctreeException("Cannot find object in octree");
+                    throw NodeTreeException("Cannot find object in octree");
 
                 OctreeNode<F,T>* oldNode = it->second;
                 if (!oldNode->removeObject(object))
-                    throw OctreeException("Cannot find object in octree");
+                    throw NodeTreeException("Cannot find object in octree");
                 
                 OctreeNode<F,T>* newAncestor = oldNode->findContaining(bounds);
                 if (newAncestor == nullptr)
-                    throw OctreeException("Cannot find new ancestor node in octree");
+                    throw NodeTreeException("Cannot find new ancestor node in octree");
                 OctreeNode<F,T>* newParent = newAncestor->addObject(bounds, object);
                 if (newParent == nullptr)
-                    throw OctreeException("Unknown error when inserting into octree");
+                    throw NodeTreeException("Unknown error when inserting into octree");
                 MapUtils::insertOrReplace(m_objectMap, object, newParent);
             }
             

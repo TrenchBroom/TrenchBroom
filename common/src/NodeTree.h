@@ -29,16 +29,13 @@ template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
 class NodeTree {
 public:
     using List = std::list<U>;
+    using Array = std::vector<U>;
     using Box = BBox<T,S>;
     using DataType = U;
     using FloatType = T;
     static const size_t Components = S;
     
-    class GetBounds {
-    public:
-        virtual ~GetBounds() {}
-        virtual const Box& operator()(const U& data) const = 0;
-    };
+    using GetBounds = std::function<Box(const U& data)>;
 public:
     virtual ~NodeTree() {}
 
@@ -58,6 +55,19 @@ public:
      * @param getBounds a function to compute the bounds from each object
      */
     virtual void clearAndBuild(const List& objects, const GetBounds& getBounds) {
+        clear();
+        for (const auto& object : objects) {
+            insert(getBounds(object), object);
+        }
+    }
+
+    /**
+     * Clears this tree and rebuilds it by inserting given objects.
+     *
+     * @param objects the objects to insert
+     * @param getBounds a function to compute the bounds from each object
+     */
+    virtual void clearAndBuild(const Array& objects, const GetBounds& getBounds) {
         clear();
         for (const auto& object : objects) {
             insert(getBounds(object), object);

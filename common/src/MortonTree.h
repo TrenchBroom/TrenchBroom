@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <vector>
@@ -101,6 +102,7 @@ template <typename T, size_t S, typename U, typename CodeComp, typename Cmp = st
 class MortonTree : public NodeTree<T,S,U,Cmp> {
 public:
     using List = typename NodeTree<T,S,U,Cmp>::List;
+    using Array = typename NodeTree<T,S,U,Cmp>::Array;
     using Box = typename NodeTree<T,S,U,Cmp>::Box;
     using DataType = typename NodeTree<T,S,U,Cmp>::DataType;
     using FloatType = typename NodeTree<T,S,U,Cmp>::FloatType;
@@ -204,6 +206,38 @@ private:
          * @return true if the split index is correct and false otherwise
          */
         virtual bool doCheckSplitIndex(const size_t parentIndex) const = 0;
+
+        /**
+         * Appends a textual representation of this node to the given output stream.
+         *
+         * @param str the stream to append to
+         */
+        void appendTo(std::ostream& str) const {
+            appendTo(str, "  ", 0);
+        }
+
+        /**
+         * Appends a textual representation of this node to the given output stream using the given indent string and
+         * the given level of indentation.
+         *
+         * @param str the stream to append to
+         * @param indent the indent string
+         * @param level the level of indentation
+         */
+        virtual void appendTo(std::ostream& str, const std::string& indent, const size_t level) const = 0;
+    protected:
+        /**
+         * Appends a textual representation of this node's bounds to the given output stream.
+         *
+         * @param str the stream to append to
+         */
+        void appendBounds(std::ostream& str) const {
+            str << "[ (";
+            m_bounds.min.write(str);
+            str << ") (";
+            m_bounds.max.write(str);
+            str << ") ]";
+        }
     };
 
     /**
@@ -212,6 +246,8 @@ private:
      * simply group leafs with identical codes.
      */
     class InnerNode : public Node {
+    private:
+        using Node::m_bounds;
     protected:
         /**
          * The value of the identical bit prefix of all nodes in this subtree. Non-identical bits are 0.
@@ -247,6 +283,23 @@ private:
                 return new SplitNode(this, leaf, splitIndex, identicalPrefix);
             }
         }
+
+        /**
+         * Checks whether the given bounds possibly contribute to this inner node's bounds.
+         *
+         * @param bounds the bounds to check, expected to be contained in this inner node's bounds
+         * @return true if the given bounds possibly contribute to this inner node's bounds
+         */
+        bool contributesToBounds(const Box& bounds) const {
+            assert(m_bounds.contains(bounds));
+
+            for (size_t i = 0; i < S; ++i) {
+                if (bounds.min[i] == m_bounds.min[i] || bounds.max[i] == m_bounds.max[i]) {
+                    return true;
+                }
+            }
+            return false;
+        }
     public:
         virtual ~InnerNode() {}
     };
@@ -256,12 +309,15 @@ private:
      */
     class SplitNode : public InnerNode {
     private:
-        using InnerNode::m_identicalPrefix;
         Node* m_left;
         Node* m_right;
         size_t m_splitIndex;
 
+        using Node::m_bounds;
+        using Node::appendBounds;
+        using InnerNode::m_identicalPrefix;
         using InnerNode::insertSibling;
+        using InnerNode::contributesToBounds;
     public:
         /**
          * Creates a new inner node with the given left and right children and split index.
@@ -314,10 +370,12 @@ private:
             // test whether the bit at which this node splits the range of its subtree
             // is set or not
             if (!Math::testBit(code, m_splitIndex)) {
-                m_left = m_left->insert(bounds, data, code);
+                m_left = m_left->insert(bounds, code, data);
             } else {
-                m_right = m_right->insert(bounds, data, code);
+                m_right = m_right->insert(bounds, code, data);
             }
+
+            m_bounds = m_left->bounds().mergedWith(m_right->bounds());
 
             return this;
         }
@@ -331,22 +389,42 @@ private:
                 return doRemove(m_right, m_left, bounds, code, data);
             }
         }
-
+    private:
         std::tuple<Node*, bool> doRemove(Node*& child, Node*& other, const Box& bounds, const CodeType code, const U& data) {
             Node* newChild;
             bool result;
-            std::tie(newChild, result) = child->remove(bounds, data, code);
+            std::tie(newChild, result) = child->remove(bounds, code, data);
 
-            if (newChild != nullptr) {
-                child = newChild;
-                return std::make_tuple(this, result);
+            if (result) {
+                // node was found
+                if (newChild == nullptr) {
+                    // child was a leaf and will be deleted when parent deletes me
+                    auto* survivor = other;
+                    other = nullptr; // prevent survivor from getting deleted by my destructor
+                    
+                    // parent must delete me
+                    return std::make_tuple(survivor, result);
+                } else {
+                    if (newChild != child) {
+                        // child was an inner node and needs to replaced
+                        delete child;
+                        child = newChild;
+                    }
+                    
+                    // update my bounds if necessary
+                    if (contributesToBounds(bounds)) {
+                        m_bounds = child->bounds().mergedWith(other->bounds());
+                    }
+
+                    // the structure was adapted and the changes are contained in child's subtree
+                    return std::make_tuple(this, result);
+                }
             } else {
-                delete child;
-                child = nullptr;
-                return std::make_tuple(other, result);
+                // node was not found
+                return std::make_tuple(this, result);
             }
         }
-
+    public:
         LeafNode* findLeaf(const Box& bounds, const CodeType code, const U& data) override {
             // test whether the bit at which this node splits the range of its subtree
             // is set or not
@@ -375,6 +453,19 @@ private:
                 m_right->accept(visitor);
             }
         }
+
+        void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
+            for (size_t i = 0; i < level; ++i) {
+                str << indent;
+            }
+
+            str << "X ";
+            appendBounds(str);
+            str << std::endl;
+
+            m_left->appendTo(str, indent, level + 1);
+            m_right->appendTo(str, indent, level + 1);
+        }
     };
 
     /**
@@ -383,11 +474,13 @@ private:
      */
     class SetNode : public InnerNode {
     private:
-        using Node::m_bounds;
-        using InnerNode::m_identicalPrefix;
         std::list<LeafNode*> m_children;
 
+        using Node::m_bounds;
+        using Node::appendBounds;
+        using InnerNode::m_identicalPrefix;
         using InnerNode::insertSibling;
+        using InnerNode::contributesToBounds;
     public:
         /**
          * Creates a new set node that contains the given nodes.
@@ -455,9 +548,14 @@ private:
                     return std::make_tuple(this, false);
                 } else {
                     m_children.erase(it);
-                    if (m_children.empty()) {
-                        return std::make_tuple(nullptr, true);
+                    if (m_children.size() == 1) {
+                        auto* leaf = m_children.front();
+                        m_children.clear();
+                        return std::make_tuple(leaf, true);
                     } else {
+                        if (contributesToBounds(bounds)) {
+                            m_bounds = mergeBounds(std::begin(m_children), std::end(m_children), [](const auto* node){ return node->bounds(); });
+                        }
                         return std::make_tuple(this, true);
                     }
                 }
@@ -489,6 +587,20 @@ private:
                 }
             }
         }
+
+        void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
+            for (size_t i = 0; i < level; ++i) {
+                str << indent;
+            }
+
+            str << "S ";
+            appendBounds(str);
+            str << std::endl;
+
+            for (const auto* leaf : m_children) {
+                leaf->appendTo(str, indent, level + 1);
+            }
+        }
     };
 
     /**
@@ -512,6 +624,8 @@ private:
     class LeafNode : public Node, public CodedNode {
     private:
         U m_data;
+
+        using Node::appendBounds;
     public:
         LeafNode(const Box& bounds, const CodeType& code, const U& data) :
         Node(bounds),
@@ -584,6 +698,16 @@ private:
         bool doCheckSplitIndex(const size_t parentIndexLeft) const override {
             return true;
         }
+
+        void appendTo(std::ostream& str, const std::string& indent, const size_t level) const override {
+            for (size_t i = 0; i < level; ++i) {
+                str << indent;
+            }
+
+            str << "L ";
+            appendBounds(str);
+            str << ": " << m_data << std::endl;
+        }
     };
 
 private:
@@ -606,37 +730,49 @@ public:
 
     void clearAndBuild(const List& objects, const GetBounds& getBounds) override {
         clear();
-        build(objects, getBounds);
+        build(std::begin(objects), std::end(objects), objects.size(), getBounds);
+    }
+
+    void clearAndBuild(const Array& objects, const GetBounds& getBounds) override {
+        clear();
+        build(std::begin(objects), std::end(objects), objects.size(), getBounds);
     }
 private:
     /**
      * Builds the tree by creating leaf nodes for all objects, sorting the leaf nodes according to their
      * morton codes, and building the tree on top of this sorted array.
      *
-     * @param objects the objects to insert into the tree
+     * @param cur the start of the range to insert
+     * @param end the end of the range to insert
+     * count the number of objects to insert
      * @param getBounds a function to obtain the bounds from each object
      */
-    void build(const List& objects, const GetBounds& getBounds) {
+    template <typename I>
+    void build(I cur, I end, const size_t count, const GetBounds& getBounds) {
         assert(empty());
 
-        // initialize the list of leafs
-        using LeafList = std::vector<LeafNode*>;
-        LeafList leafList;
-        leafList.reserve(objects.size());
+        if (cur != end) {
+            // initialize the list of leafs
+            using LeafList = std::vector<LeafNode*>;
+            LeafList leafList;
+            leafList.reserve(count);
 
-        for (const auto& object : objects) {
-            const auto& bounds = getBounds(object);
-            const auto code = computeMortonCode(bounds.center());
-            leafList.push_back(new LeafNode(bounds, code, object));
+            while (cur != end) {
+                auto& object = *cur;
+                const auto bounds = getBounds(object);
+                const auto code = computeMortonCode(bounds.center());
+                leafList.push_back(new LeafNode(bounds, code, object));
+                ++cur;
+            }
+
+            // sort the nodes by their morton codes
+            std::sort(std::begin(leafList), std::end(leafList),
+                      [](const CodedNode* lhs, const CodedNode* rhs) { return lhs->code() < rhs->code(); });
+
+            // recursively build the tree
+            m_root = buildTree(std::begin(leafList), std::end(leafList), CodeTypeWidth);
+            assert(check());
         }
-
-        // sort the nodes by their morton codes
-        std::sort(std::begin(leafList), std::end(leafList),
-                  [](const CodedNode* lhs, const CodedNode* rhs) { return lhs->code() < rhs->code(); });
-
-        // recursively build the tree
-        m_root = buildTree(std::begin(leafList), std::end(leafList), CodeTypeWidth);
-        assert(check());
     }
 
     /**
@@ -703,16 +839,20 @@ public:
             Node* newRoot;
             bool result;
             std::tie(newRoot, result) = m_root->remove(bounds, code, data);
-            if (newRoot == nullptr) {
+            if (newRoot != m_root) {
                 delete m_root;
+                m_root = newRoot;
             }
-            m_root = newRoot;
             return result;
         }
     }
 
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
-        remove(oldBounds, data);
+        if (!remove(oldBounds, data)) {
+            NodeTreeException ex;
+            ex << "Node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
+            throw ex;
+        }
         insert(newBounds, data);
     }
 
@@ -796,13 +936,43 @@ public:
         if (empty()) {
             return true;
         } else {
-            return checkSplitIndex();
+            return checkSplitIndex() && checkUniqueData();
+        }
+    }
+
+    /**
+     * Prints a textual representation of this tree to the given output stream.
+     *
+     * @param str the output stream to print to
+     */
+    void print(std::ostream& str = std::cout) const {
+        if (!empty()) {
+            m_root->appendTo(str);
         }
     }
 private:
     bool checkSplitIndex() const {
         assert(!empty());
         return m_root->checkSplitIndex();
+    }
+    
+    bool checkUniqueData() const {
+        assert(!empty());
+        
+        std::set<U> dataSet;
+        bool unique = true;
+        
+        LambdaVisitor visitor(
+            [&](const InnerNode* innerNode) {
+              return true;
+            },
+            [&](const LeafNode* leaf) {
+                unique &= dataSet.insert(leaf->data()).second;
+            }
+        );
+        
+        m_root->accept(visitor);
+        return unique;
     }
 };
 

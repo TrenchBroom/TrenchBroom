@@ -515,14 +515,60 @@ namespace TrenchBroom {
             document->selectAllNodes();
             auto* outer = document->groupSelection("outer");
 
+            const Ray3 highRay(Vec3(-32, 0, 256+32), Vec3::PosX);
+            const Ray3  lowRay(Vec3(-32, 0,    +32), Vec3::PosX);
+
+            /*
+             *          Z
+             *         /|\
+             *          |
+             *          | ______________
+             *          | |   ______   |
+             *  hiRay *-->|   | b3 |   |
+             *          | |   |____|   |
+             *          | |            |
+             *          | |   outer    |
+             *          | | __________ |
+             *          | | | ______ | |
+             *          | | | | b2 | | |
+             *          | | | |____| | |
+             *          | | |        | |
+             *          | | |  inner | |
+             *          | | | ______ | |
+             * lowRay *-->| | | b1 | | |
+             *        0_| | | |____| | |
+             *          | | |________| |
+             *          | |____________|
+             * ---------|--------------------> X
+             *                |
+             *                0
+             */
+
+            /*
+             * world
+             * * outer (closed)
+             *   * inner (closed)
+             *     * brush1
+             *     * brush2
+             *   * brush3
+             */
+
             Model::PickResult pickResult;
-            document->pick(Ray3(Vec3(-32, 0, 0), Vec3::PosX), pickResult);
 
             // hitting a grouped object when the containing group is open should return the object only
             document->openGroup(outer);
 
+            /*
+             * world
+             * * outer (open)
+             *   * inner (closed)
+             *     * brush1
+             *     * brush2
+             *   * brush3
+             */
+
             pickResult.clear();
-            document->pick(Ray3(Vec3(-32, 0, 256+32), Vec3::PosX), pickResult);
+            document->pick(highRay, pickResult);
 
             auto hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
@@ -535,7 +581,7 @@ namespace TrenchBroom {
 
             // hitting the brush in the inner group should return the inner group and the brush
             pickResult.clear();
-            document->pick(Ray3(Vec3(-32, 0, 32), Vec3::PosX), pickResult);
+            document->pick(lowRay, pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
@@ -552,9 +598,18 @@ namespace TrenchBroom {
             // open the inner group, too
             document->openGroup(inner);
 
+            /*
+             * world
+             * * outer (open)
+             *   * inner (open)
+             *     * brush1
+             *     * brush2
+             *   * brush3
+             */
+
             // pick a brush in the outer group
             pickResult.clear();
-            document->pick(Ray3(Vec3(-32, 0, 256 + 32), Vec3::PosX), pickResult);
+            document->pick(highRay, pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
@@ -567,7 +622,7 @@ namespace TrenchBroom {
 
             // pick a brush in the inner group
             pickResult.clear();
-            document->pick(Ray3(Vec3(-32, 0, 32), Vec3::PosX), pickResult);
+            document->pick(lowRay, pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
