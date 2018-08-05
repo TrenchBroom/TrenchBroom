@@ -97,6 +97,8 @@ namespace TrenchBroom {
             void editorContextDidChange();
             void mapViewConfigDidChange();
             void gridDidChange();
+            void pointFileDidChange();
+            void portalFileDidChange();
             void preferenceDidChange(const IO::Path& path);
 			void documentDidChange(MapDocument* document);
         private: // interaction events
