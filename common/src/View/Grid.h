@@ -100,7 +100,7 @@ namespace TrenchBroom {
                 const T actSize = static_cast<T>(actualSize());
                 switch (snapDir) {
                     case SnapDir_None:
-                        return actSize * Math::round(f / actSize);
+                        return Math::snap(f, actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
                         return (skip && Math::eq(s, f)) ? s + actualSize() : s;
