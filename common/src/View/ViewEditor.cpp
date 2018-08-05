@@ -218,12 +218,28 @@ namespace TrenchBroom {
             config.setShowEntityClassnames(event.IsChecked());
         }
 
-        void ViewEditor::OnShowEntityBoundsChanged(wxCommandEvent& event) {
+        void ViewEditor::OnShowGroupBoundsChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityBounds(event.IsChecked());
+            config.setShowGroupBounds(event.IsChecked());
+        }
+
+        void ViewEditor::OnShowBrushEntityBoundsChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowBrushEntityBounds(event.IsChecked());
+        }
+
+        void ViewEditor::OnShowPointEntityBoundsChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            MapDocumentSPtr document = lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowPointEntityBounds(event.IsChecked());
         }
 
         void ViewEditor::OnShowPointEntitiesChanged(wxCommandEvent& event) {
@@ -418,18 +434,25 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel(parent, "Entities", false);
 
             m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
-            m_showEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity bounds");
+            m_showGroupBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show group bounds");
+            m_showBrushEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show brush entity bounds");
+            m_showPointEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entity bounds");
+
             m_showPointEntitiesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entities");
             m_showPointEntityModelsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entity models");
 
             m_showEntityClassnamesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEntityClassnamesChanged, this);
-            m_showEntityBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowEntityBoundsChanged, this);
+            m_showGroupBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowGroupBoundsChanged, this);
+            m_showBrushEntityBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowBrushEntityBoundsChanged, this);
+            m_showPointEntityBoundsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntityBoundsChanged, this);
             m_showPointEntitiesCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntitiesChanged, this);
             m_showPointEntityModelsCheckBox->Bind(wxEVT_CHECKBOX, &ViewEditor::OnShowPointEntityModelsChanged, this);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_showEntityClassnamesCheckBox);
-            sizer->Add(m_showEntityBoundsCheckBox);
+            sizer->Add(m_showGroupBoundsCheckBox);
+            sizer->Add(m_showBrushEntityBoundsCheckBox);
+            sizer->Add(m_showPointEntityBoundsCheckBox);
             sizer->Add(m_showPointEntitiesCheckBox);
             sizer->Add(m_showPointEntityModelsCheckBox);
 
@@ -546,7 +569,9 @@ namespace TrenchBroom {
             const MapViewConfig& config = document->mapViewConfig();
 
             m_showEntityClassnamesCheckBox->SetValue(config.showEntityClassnames());
-            m_showEntityBoundsCheckBox->SetValue(config.showEntityBounds());
+            m_showGroupBoundsCheckBox->SetValue(config.showGroupBounds());
+            m_showBrushEntityBoundsCheckBox->SetValue(config.showBrushEntityBounds());
+            m_showPointEntityBoundsCheckBox->SetValue(config.showPointEntityBounds());
             m_showPointEntitiesCheckBox->SetValue(config.showPointEntities());
             m_showPointEntityModelsCheckBox->SetValue(config.showPointEntityModels());
         }
