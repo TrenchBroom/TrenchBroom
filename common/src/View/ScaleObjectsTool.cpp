@@ -699,6 +699,26 @@ namespace TrenchBroom {
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 sides = {side};
+
+                // Add additional highlights when Shift is pressed, to indicate the other axes that are being scaled
+                // proportionally.
+                for (size_t i = 0; i < 3; ++i) {
+                    // Don't highlight `side` or its opposite
+                    if (i == side.normal.firstComponent()) {
+                        continue;
+                    }
+
+                    if (m_proportionalAxes.isAxisProportional(i)) {
+                        // Highlight the + and - sides on this axis
+                        Vec3 side1;
+                        side1[i] = 1.0;
+                        sides.emplace_back(side1);
+
+                        Vec3 side2;
+                        side2[i] = -1.0;
+                        sides.emplace_back(side2);
+                    }
+                }
             } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                 const auto edge = m_dragStartHit.target<BBoxEdge>();
                 sides = sidesForEdgeSelection(edge);
@@ -706,12 +726,7 @@ namespace TrenchBroom {
                 const auto corner = m_dragStartHit.target<BBoxCorner>();
                 sides = sidesForCornerSelection(corner);
             } else {
-                // ???
-            }
-
-            // When dragging all axes, change the highlighted sides to "all except the opposites"
-            if (m_proportionalAxes.allAxesProportional()) {
-                sides = allSidesExcept(oppositeSides(sides));
+                return {};
             }
 
             // When the anchor point is the center, highlight the opposite sides also.
