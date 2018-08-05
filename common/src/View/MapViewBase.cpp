@@ -130,6 +130,10 @@ namespace TrenchBroom {
 			document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
 			document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
 			document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+			document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->pointFileWasUnloadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->portalFileWasLoadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
+            document->portalFileWasUnloadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
 
             Grid& grid = document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
@@ -160,6 +164,10 @@ namespace TrenchBroom {
 				document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
 				document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
 				document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->pointFileWasLoadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
+                document->pointFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
+                document->portalFileWasLoadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
+                document->portalFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
 
                 Grid& grid = document->grid();
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
@@ -218,6 +226,14 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::gridDidChange() {
+            Refresh();
+        }
+
+        void MapViewBase::pointFileDidChange() {
+            Refresh();
+        }
+
+        void MapViewBase::portalFileDidChange() {
             Refresh();
         }
 

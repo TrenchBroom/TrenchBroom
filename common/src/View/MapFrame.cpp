@@ -683,8 +683,10 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
             Bind(wxEVT_MENU, &MapFrame::OnFileExportObj, this, CommandIds::Menu::FileExportObj);
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadPointFile, this, CommandIds::Menu::FileReloadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPortalFile, this, CommandIds::Menu::FileLoadPortalFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileReloadPortalFile, this, CommandIds::Menu::FileReloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPortalFile, this, CommandIds::Menu::FileUnloadPortalFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
@@ -821,6 +823,14 @@ namespace TrenchBroom {
                 m_document->loadPointFile(IO::Path(browseDialog.GetPath().ToStdString()));
         }
 
+        void MapFrame::OnFileReloadPointFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (canUnloadPointFile()) {
+                m_document->reloadPointFile();
+            }
+        }
+
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             if (canUnloadPointFile())
@@ -840,7 +850,15 @@ namespace TrenchBroom {
                 m_document->loadPortalFile(IO::Path(browseDialog.GetPath().ToStdString()));
             }
         }
-        
+
+        void MapFrame::OnFileReloadPortalFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            if (canUnloadPortalFile()) {
+                m_document->reloadPortalFile();
+            }
+        }
+
         void MapFrame::OnFileUnloadPortalFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
@@ -1470,12 +1488,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::FileLoadPointFile:
                     event.Enable(true);
                     break;
+                case CommandIds::Menu::FileReloadPointFile:
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(canUnloadPointFile());
                     break;
                 case CommandIds::Menu::FileLoadPortalFile:
                     event.Enable(true);
                     break;
+                case CommandIds::Menu::FileReloadPortalFile:
                 case CommandIds::Menu::FileUnloadPortalFile:
                     event.Enable(canUnloadPortalFile());
                     break;

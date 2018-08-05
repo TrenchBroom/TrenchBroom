@@ -356,10 +356,14 @@ namespace TrenchBroom {
             return result;
         }
         
-        void MapDocument::loadPointFile(const IO::Path& path) {
-            if (isPointFileLoaded())
+        void MapDocument::loadPointFile(const IO::Path path) {
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+
+            m_pointFilePath = path;
             m_pointFile = std::make_unique<Model::PointFile>(path);
+
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -367,21 +371,28 @@ namespace TrenchBroom {
         bool MapDocument::isPointFileLoaded() const {
             return m_pointFile != nullptr;
         }
-        
+
+        void MapDocument::reloadPointFile() {
+            assert(isPointFileLoaded());
+            loadPointFile(m_pointFilePath);
+        }
+
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
             m_pointFile = nullptr;
+            m_pointFilePath = IO::Path();
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
         }
         
-        void MapDocument::loadPortalFile(const IO::Path& path) {
+        void MapDocument::loadPortalFile(const IO::Path path) {
             if (isPortalFileLoaded()) {
                 unloadPortalFile();
             }
             
             try {
+                m_portalFilePath = path;
                 m_portalFile = std::make_unique<Model::PortalFile>(path);
             } catch (const std::exception &exception) {
                 info("Couldn't load portal file " + path.asString() + ": " + exception.what());
@@ -396,10 +407,16 @@ namespace TrenchBroom {
         bool MapDocument::isPortalFileLoaded() const {
             return m_portalFile != nullptr;
         }
+
+        void MapDocument::reloadPortalFile() {
+            assert(isPortalFileLoaded());
+            loadPortalFile(m_portalFilePath);
+        }
         
         void MapDocument::unloadPortalFile() {
             assert(isPortalFileLoaded());
             m_portalFile = nullptr;
+            m_portalFilePath = IO::Path();
             
             info("Unloaded portal file");
             portalFileWasUnloadedNotifier();
