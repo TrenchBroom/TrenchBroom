@@ -214,8 +214,8 @@ namespace TrenchBroom {
         public:
             std::vector<Polygon3f> polygonsHighlightedByDrag() const;
 
-            bool hasDragPolygon() const;
-            Polygon3f dragPolygon() const;
+            bool hasDragSide() const;
+            Polygon3f dragSide() const;
             
             bool hasDragEdge() const;
             Edge3f dragEdge() const;

@@ -667,14 +667,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        static std::vector<BBoxSide> oppositeSides(const std::vector<BBoxSide>& sides) {
-            std::vector<BBoxSide> result;
-            for (const auto& side : sides) {
-                result.push_back(oppositeSide(side));
-            }
-            return result;
-        }
-
         static std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides) {
             std::set<BBoxSide> result;
             for (const auto& side : sides) {
@@ -682,14 +674,6 @@ namespace TrenchBroom {
                 result.insert(oppositeSide(side));
             }
 
-            return std::vector<BBoxSide>(result.begin(), result.end());
-        }
-
-        static std::vector<BBoxSide> allSidesExcept(const std::vector<BBoxSide>& sides) {
-            std::set<BBoxSide> result = SetUtils::makeSet(allSides());
-            for (const auto& side : sides) {
-                result.erase(side);
-            }
             return std::vector<BBoxSide>(result.begin(), result.end());
         }
 
@@ -737,11 +721,11 @@ namespace TrenchBroom {
             return polysForSides(bounds(), sides);
         }
         
-        bool ScaleObjectsTool::hasDragPolygon() const {
-            return dragPolygon().vertexCount() > 0;
+        bool ScaleObjectsTool::hasDragSide() const {
+            return dragSide().vertexCount() > 0;
         }
 
-        Polygon3f ScaleObjectsTool::dragPolygon() const {
+        Polygon3f ScaleObjectsTool::dragSide() const {
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return Polygon3f(polygonForBBoxSide(bounds(), side));

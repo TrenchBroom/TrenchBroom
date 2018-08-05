@@ -206,6 +206,8 @@ namespace TrenchBroom {
         }
         
         void ScaleObjectsToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            const auto& camera = renderContext.camera();
+
             // bounds and corner handles
 
             if (!m_tool->bounds().empty())  {
@@ -235,28 +237,40 @@ namespace TrenchBroom {
                     renderService.renderHandle(corner);
                 }
             }
-            
-            // highlighted stuff
-            
-            // highlight the polygons that will be dragged
+
+            // Highlight all sides that will be moving as a result of the Shift/Alt modifiers
+            // (proporitional scaling or center anchor modifiers)
+
             auto highlightedPolys = m_tool->polygonsHighlightedByDrag();
             for (const auto& poly : highlightedPolys) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setShowBackfaces();
-                renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
-                renderService.renderFilledPolygon(poly.vertices());
+                {
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setShowBackfaces();
+                    renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
+                    renderService.renderFilledPolygon(poly.vertices());
+                }
+
+                // In 2D, additionally stroke the edges of this polyhedron, so it's visible even when looking at it
+                // from an edge
+                if (camera.orthographicProjection()) {
+                    Renderer::RenderService renderService(renderContext, renderBatch);
+                    renderService.setLineWidth(2.0);
+                    renderService.setForegroundColor(pref(Preferences::ScaleOutlineDimColor));
+                    renderService.renderPolygonOutline(poly.vertices());
+                }
             }
-            
-            if (m_tool->hasDragPolygon()) {
+
+            // draw the main highlighted handle
+
+            if (m_tool->hasDragSide()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setLineWidth(2.0);
                 renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
-                renderService.renderPolygonOutline(m_tool->dragPolygon().vertices());
+                renderService.renderPolygonOutline(m_tool->dragSide().vertices());
             }
             
             if (m_tool->hasDragEdge()) {
                 const auto line = m_tool->dragEdge();
-                const auto& camera = renderContext.camera();
 
                 if (camera.orthographicProjection()
                     && line.direction().parallelTo(camera.direction())) {
