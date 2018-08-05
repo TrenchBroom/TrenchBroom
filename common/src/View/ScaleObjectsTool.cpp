@@ -480,41 +480,51 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
 
-        void ScaleObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const BBox3& myBounds = bounds();
+        BackSide pickBackSideOfBox(const Ray3& pickRay, const Renderer::Camera& camera, const BBox3& box) {
+            FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
+            FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
+            Vec3 bestNormal;
 
-            // select back faces. Used for both 2D and 3D.
-            if (pickResult.empty()) {
+            // idea is: find the closest point on an edge of the cube, belonging
+            // to a face that's facing away from the pick ray.
+            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+                const FloatType cosAngle = n.dot(pickRay.direction);
+                if (cosAngle >= 0.0 && cosAngle < 1.0) {
+                    // the face is pointing away from the camera (or exactly perpendicular)
+                    // but not equal to the camera direction (important for 2D views)
 
-                FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
-                FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
-                Vec3 bestNormal;
-
-                // idea is: find the closest point on an edge of the cube, belonging
-                // to a face that's facing away from the pick ray.
-                auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
-                    const FloatType cosAngle = n.dot(pickRay.direction);
-                    if (cosAngle >= 0.0 && cosAngle < 1.0) {
-                        // the face is pointing away from the camera (or exactly perpendicular)
-                        // but not equal to the camera direction (important for 2D views)
-
-                        const std::array<Vec3, 4> points{p0, p1, p2, p3};
-                        for (size_t i = 0; i < 4; i++) {
-                            const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
-                            if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
-                                closestDistToRay = result.distance;
-                                bestNormal = n;
-                                bestDistAlongRay = result.rayDistance;
-                            }
+                    const std::array<Vec3, 4> points{p0, p1, p2, p3};
+                    for (size_t i = 0; i < 4; i++) {
+                        const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
+                        if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
+                            closestDistToRay = result.distance;
+                            bestNormal = n;
+                            bestDistAlongRay = result.rayDistance;
                         }
                     }
-                };
-                eachBBoxFace(myBounds, visitor);
+                }
+            };
+            eachBBoxFace(box, visitor);
+
+            // The hit point is the closest point on the pick ray to one of the edges of the face.
+            // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
+            assert(bestNormal != Vec3::Null);
+
+            BackSide result;
+            result.distAlongRay = bestDistAlongRay;
+            result.pickedSideNormal = bestNormal;
+            return result;
+        }
+
+        void ScaleObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            // select back sides. Used for both 2D and 3D.
+            if (pickResult.empty()) {
+                const auto result = pickBackSideOfBox(pickRay, camera, bounds());
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(bestNormal != Vec3::Null);
-                pickResult.addHit(Model::Hit(ScaleToolSideHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
+                assert(result.pickedSideNormal != Vec3::Null);
+                pickResult.addHit(Model::Hit(ScaleToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 

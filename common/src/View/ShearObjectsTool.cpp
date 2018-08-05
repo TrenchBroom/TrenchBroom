@@ -22,6 +22,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "ScaleObjectsTool.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -58,39 +59,14 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const BBox3& myBounds = bounds();
-
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
-                FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
-                FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
-                Vec3 bestNormal;
-
-                // idea is: find the closest point on an edge of the cube, belonging
-                // to a face that's facing away from the pick ray.
-                auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
-                    const FloatType cosAngle = n.dot(pickRay.direction);
-                    if (cosAngle >= 0.0 && cosAngle < 1.0) {
-                        // the face is pointing away from the camera (or exactly perpendicular)
-                        // but not equal to the camera direction (important for 2D views)
-
-                        const std::array<Vec3, 4> points{p0, p1, p2, p3};
-                        for (size_t i = 0; i < 4; i++) {
-                            const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
-                            if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
-                                closestDistToRay = result.distance;
-                                bestNormal = n;
-                                bestDistAlongRay = result.rayDistance;
-                            }
-                        }
-                    }
-                };
-                eachBBoxFace(myBounds, visitor);
+                const auto result = pickBackSideOfBox(pickRay, camera, bounds());
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(bestNormal != Vec3::Null);
-                pickResult.addHit(Model::Hit(ShearToolSideHit, bestDistAlongRay, pickRay.pointAtDistance(bestDistAlongRay), BBoxSide{bestNormal}));
+                assert(result.pickedSideNormal != Vec3::Null);
+                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 

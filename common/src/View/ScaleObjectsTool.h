@@ -182,6 +182,22 @@ namespace TrenchBroom {
                              ProportionalAxes proportional,
                              AnchorPos anchor);
 
+        struct BackSide {
+            float distAlongRay;
+            Vec3 pickedSideNormal;
+        };
+
+        /**
+         * Picks a "back side" of the given box; this is used when the mouse is not over the selection.
+         *
+         * Among the faces of the box that are facing away from the camera, finds the one that comes closest to the pick
+         * ray.
+         *
+         * Returns the point on the pick ray (stored as a distance along the ray) that is closest to the selected face,
+         * as well as that face's normal.
+         */
+        BackSide pickBackSideOfBox(const Ray3& pickRay, const Renderer::Camera& camera, const BBox3& box);
+
         class ScaleObjectsTool : public Tool {
         public:
             static const Model::Hit::HitType ScaleToolSideHit;
