@@ -46,6 +46,8 @@ namespace TrenchBroom {
             Color m_selectedColor;
             
             VertexArray m_entityLinks;
+            VertexArray m_entityArrows;
+
             bool m_valid;
         public:
             EntityLinkRenderer(View::MapDocumentWPtr document);

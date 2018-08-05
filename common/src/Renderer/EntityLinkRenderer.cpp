@@ -69,6 +69,7 @@ namespace TrenchBroom {
             if (!m_valid) {
                 validate();
                 m_entityLinks.prepare(vertexVbo);
+                m_entityArrows.prepare(vertexVbo);
             }
         }
 
@@ -86,12 +87,49 @@ namespace TrenchBroom {
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
             m_entityLinks.render(GL_LINES);
+
+            // render arrows
+            {
+                glAssert(glDisable(GL_DEPTH_TEST));
+                shader.set("Alpha", 0.4f);
+                m_entityArrows.render(GL_LINES);
+
+                glAssert(glEnable(GL_DEPTH_TEST));
+                shader.set("Alpha", 1.0f);
+                m_entityArrows.render(GL_LINES);
+            }
         }
 
         void EntityLinkRenderer::validate() {
             Vertex::List links;
             getLinks(links);
+
+            // build the arrows before destroying `links`
+            {
+                Vertex::List arrows;
+                assert((links.size() % 2) == 0);
+                for (size_t i = 0; i < links.size(); i += 2) {
+                    const auto& startVertex = links.at(i);
+                    const auto& endVertex = links.at(i+1);
+
+                    const auto lineVec = (endVertex.v1 - startVertex.v1);
+                    const auto arrowPosition = startVertex.v1 + (lineVec * 0.666f);
+
+                    const auto lineDir = lineVec.normalized();
+
+                    const auto rotateFromPosXToLine = translationMatrix(arrowPosition) * rotationMatrix(Vec3f::PosX, lineDir);
+
+                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
+                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, 1}, startVertex.v2);
+                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
+                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, -1}, startVertex.v2);
+                }
+
+                m_entityArrows = VertexArray::swap(arrows);
+            }
+
             m_entityLinks = VertexArray::swap(links);
+
             m_valid = true;
         }
         
