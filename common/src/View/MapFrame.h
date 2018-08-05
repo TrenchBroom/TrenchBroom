@@ -140,8 +140,10 @@ namespace TrenchBroom {
             void OnFileSaveAs(wxCommandEvent& event);
             void OnFileExportObj(wxCommandEvent& event);
             void OnFileLoadPointFile(wxCommandEvent& event);
+            void OnFileReloadPointFile(wxCommandEvent& event);
             void OnFileUnloadPointFile(wxCommandEvent& event);
             void OnFileLoadPortalFile(wxCommandEvent& event);
+            void OnFileReloadPortalFile(wxCommandEvent& event);
             void OnFileUnloadPortalFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 

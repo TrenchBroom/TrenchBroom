@@ -63,6 +63,8 @@ namespace TrenchBroom {
                 const int FileUnloadPortalFile               = Lowest +  79;
                 const int ViewMoveCameraToNextPoint          = Lowest +  80;
                 const int ViewMoveCameraToPreviousPoint      = Lowest +  81;
+                const int FileReloadPointFile                = Lowest +  82;
+                const int FileReloadPortalFile               = Lowest +  83;
 
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
