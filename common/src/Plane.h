@@ -61,7 +61,7 @@ public:
     
     // Assignment operators
     Plane<T,S>& operator=(const Plane<T,S>& other) = default;
-    Plane<T,S>& operator=(Plane<T,S>& other) = default;
+    Plane<T,S>& operator=(Plane<T,S>&& other) = default;
     
     // Conversion constructor
     template <typename U>

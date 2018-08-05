@@ -23,6 +23,7 @@
 #include "BBox.h"
 #include "Ray.h"
 
+#include <functional>
 #include <list>
 
 template <typename T, size_t S, typename U, typename Cmp = std::less<U>>
