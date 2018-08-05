@@ -400,8 +400,6 @@ namespace Math {
     template <typename T>
     bool testBit(const T value, const size_t index) {
         static_assert(std::is_integral<T>::value, "type must be integral");
-        assert(index < sizeof(T)*8);
-
         return value & bitMask<T>(index);
     }
 
@@ -417,8 +415,6 @@ namespace Math {
     template <typename T>
     T bitPrefix(const T value, const size_t index) {
         static_assert(std::is_integral<T>::value, "type must be integral");
-        assert(index < sizeof(T)*8);
-
         const auto mask = bitMask<T>(sizeof(T)*8, index);
         return value & mask;
     }
