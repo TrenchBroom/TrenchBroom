@@ -790,7 +790,7 @@ public:
         return Vec<T,S>(*this).snap(precision);
     }
 
-    Vec<T,S>& snap(const T precision) const {
+    Vec<T,S>& snap(const T precision) {
         for (size_t i = 0; i < S; ++i) {
             v[i] = Math::snap(v[i], precision);
         }
