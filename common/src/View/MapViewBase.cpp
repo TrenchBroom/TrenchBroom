@@ -870,7 +870,9 @@ namespace TrenchBroom {
             renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
             renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
             renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowGroupBounds(mapViewConfig.showGroupBounds());
+            renderContext.setShowBrushEntityBounds(mapViewConfig.showBrushEntityBounds());
+            renderContext.setShowPointEntityBounds(mapViewConfig.showPointEntityBounds());
             renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());

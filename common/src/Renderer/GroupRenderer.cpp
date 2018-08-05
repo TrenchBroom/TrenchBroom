@@ -24,6 +24,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Group.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/VertexSpec.h"
@@ -105,7 +106,9 @@ namespace TrenchBroom {
         
         void GroupRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_groups.empty()) {
-                renderBounds(renderContext, renderBatch);
+                if (renderContext.showGroupBounds()) {
+                    renderBounds(renderContext, renderBatch);
+                }
                 renderNames(renderContext, renderBatch);
             }
         }

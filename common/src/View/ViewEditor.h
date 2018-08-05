@@ -73,7 +73,11 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             
             wxCheckBox* m_showEntityClassnamesCheckBox;
-            wxCheckBox* m_showEntityBoundsCheckBox;
+
+            wxCheckBox* m_showGroupBoundsCheckBox;
+            wxCheckBox* m_showBrushEntityBoundsCheckBox;
+            wxCheckBox* m_showPointEntityBoundsCheckBox;
+
             wxCheckBox* m_showPointEntitiesCheckBox;
             wxCheckBox* m_showPointEntityModelsCheckBox;
             
@@ -93,7 +97,9 @@ namespace TrenchBroom {
             ~ViewEditor();
             
             void OnShowEntityClassnamesChanged(wxCommandEvent& event);
-            void OnShowEntityBoundsChanged(wxCommandEvent& event);
+            void OnShowGroupBoundsChanged(wxCommandEvent& event);
+            void OnShowBrushEntityBoundsChanged(wxCommandEvent& event);
+            void OnShowPointEntityBoundsChanged(wxCommandEvent& event);
             void OnShowPointEntitiesChanged(wxCommandEvent& event);
             void OnShowPointEntityModelsChanged(wxCommandEvent& event);
             void OnShowBrushesChanged(wxCommandEvent& event);
