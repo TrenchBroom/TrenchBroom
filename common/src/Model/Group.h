@@ -77,7 +77,7 @@ namespace TrenchBroom {
             void doChildWasRemoved(Node* node) override;
 
             void doNodeBoundsDidChange(const BBox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds);
+            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
 
             bool doSelectable() const override;
             

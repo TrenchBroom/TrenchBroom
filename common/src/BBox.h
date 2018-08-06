@@ -279,7 +279,7 @@ public:
      * @param epsilon the epsilon value
      * @return true if the given bounding box is enclosed within this bounding box and false otherwise
      */
-    bool encloses(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool encloses(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lte(bounds.min[i], min[i], epsilon) ||
                 Math::gte(bounds.max[i], max[i], epsilon)) {
@@ -303,7 +303,7 @@ public:
         return result;
     }
 
-    bool intersects(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool intersects(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(bounds.max[i], min[i], epsilon) ||
                 Math::gt(bounds.min[i], max[i], epsilon)) {
@@ -313,7 +313,7 @@ public:
         return true;
     }
     
-    bool touches(const Vec<T,S>& start, const Vec<T,S>& end, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool touches(const Vec<T,S>& start, const Vec<T,S>& end, const T epsilon = static_cast<T>(0.0)) const {
         if (contains(start, epsilon) || contains(end, epsilon))
             return true;
 
