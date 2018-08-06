@@ -150,7 +150,15 @@ namespace TrenchBroom {
         void Group::doNodeBoundsDidChange(const BBox3& oldBounds) {
             invalidateBounds();
         }
-        
+
+        void Group::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
+            const BBox3 myOldBounds = bounds();
+            invalidateBounds();
+            if (bounds() != myOldBounds) {
+                nodeBoundsDidChange(myOldBounds);
+            }
+        }
+
         bool Group::doSelectable() const {
             return true;
         }

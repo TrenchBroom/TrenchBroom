@@ -238,7 +238,7 @@ public:
         return BBox<U,S>(min.template makeIntegral<U>(), max.template makeIntegral<U>());
     }
 
-    bool contains(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool contains(const Vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(point[i], min[i], epsilon) ||
                 Math::gt(point[i], max[i], epsilon)) {
@@ -262,7 +262,7 @@ public:
         return RelativePosition(p);
     }
 
-    bool contains(const BBox<T,S>& bounds, const T epsilon = Math::Constants<T>::almostZero()) const {
+    bool contains(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(bounds.min[i], min[i], epsilon) ||
                 Math::gt(bounds.max[i], max[i], epsilon)) {
