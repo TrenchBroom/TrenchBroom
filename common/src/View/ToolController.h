@@ -223,6 +223,19 @@ namespace TrenchBroom {
         private:
             bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
         };
+
+        /**
+         * Snaps at least one axis to grid, while staying on the given line.
+         */
+        class LineDragSnapper : public DragSnapper {
+        private:
+            const Grid& m_grid;
+            Line3 m_line;
+        public:
+            LineDragSnapper(const Grid& grid, const Line3& line);
+        private:
+            bool doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const override;
+        };
         
         class CircleDragSnapper : public DragSnapper {
         private:

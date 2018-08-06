@@ -179,6 +179,12 @@ const TT intersectLineWithTriangle(const Line<TT,3>& L, const Vec<TT,3>& V0, con
 template <typename T, size_t S>
 const typename Line<T,S>::List Line<T,S>::EmptyList = Line<T,S>::List();
 
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const Line<T,S>& line) {
+    stream << "{point:" << line.point << " direction:" << line.direction << "}";
+    return stream;
+}
+
 typedef Line<float,3> Line3f;
 typedef Line<double,3> Line3d;
 

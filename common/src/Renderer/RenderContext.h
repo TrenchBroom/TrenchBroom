@@ -64,7 +64,10 @@ namespace TrenchBroom {
             bool m_showPointEntities;
             bool m_showPointEntityModels;
             bool m_showEntityClassnames;
-            bool m_showEntityBounds;
+
+            bool m_showGroupBounds;
+            bool m_showBrushEntityBounds;
+            bool m_showPointEntityBounds;
             
             bool m_showFog;
             
@@ -106,9 +109,15 @@ namespace TrenchBroom {
             
             bool showEntityClassnames() const;
             void setShowEntityClassnames(bool showEntityClassnames);
-            
-            bool showEntityBounds() const;
-            void setShowEntityBounds(bool showEntityBounds);
+
+            bool showGroupBounds() const;
+            void setShowGroupBounds(bool showGroupBounds);
+
+            bool showBrushEntityBounds() const;
+            void setShowBrushEntityBounds(bool showBrushEntityBounds);
+
+            bool showPointEntityBounds() const;
+            void setShowPointEntityBounds(bool showPointEntityBounds);
             
             bool showFog() const;
             void setShowFog(bool showFog);

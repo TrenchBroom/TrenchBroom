@@ -352,6 +352,17 @@ namespace TrenchBroom {
             checkTextureLockOffWithTransform(xform, origFace);
         }
         
+        static void checkTextureLockWithScale(const BrushFace *origFace, const Vec3& scaleFactors) {
+            Mat4x4 xform = scalingMatrix(scaleFactors);
+            checkTextureLockOnWithTransform(xform, origFace);
+        }
+        
+        static void checkTextureLockWithShear(const BrushFace *origFace) {
+            // shear the x axis towards the y axis
+            Mat4x4 xform = shearMatrix(1, 0, 0, 0, 0, 0);
+            checkTextureLockOnWithTransform(xform, origFace);
+        }
+        
         static void checkTextureLockForFace(const BrushFace *origFace, bool doParallelTests) {
             checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
             checkTextureLockWithSingleAxisRotations(origFace, 30);
@@ -361,9 +372,13 @@ namespace TrenchBroom {
             if (doParallelTests) {
                 checkTextureLockWithMultiAxisRotations(origFace, 30);
                 checkTextureLockWithMultiAxisRotations(origFace, 45);
+                
+                checkTextureLockWithShear(origFace);
             }
             
             checkTextureLockOffWithTranslation(origFace);
+            
+            checkTextureLockWithScale(origFace, Vec3(2, 2, 1));
         }
         
         /**
@@ -393,6 +408,37 @@ namespace TrenchBroom {
             delete face;
         }
         
+        static void checkTextureLockOffWithScale(const Brush* cube) {
+            const Vec3 mins(cube->bounds().min);
+            
+            // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
+            const Mat4x4 transform = translationMatrix(mins) * scalingMatrix(Vec3(2.0, 1.0, 1.0)) * translationMatrix(-1.0 * mins);
+            const BrushFace* origFace = cube->findFace(Vec3::NegY);
+            
+            // transform the face (texture lock off)
+            BrushFace* face = origFace->clone();
+            face->transform(transform, false);
+            face->resetTexCoordSystemCache();
+            
+            // get UV at mins; should be equal
+            const Vec2 left_origTC = origFace->textureCoords(mins);
+            const Vec2 left_transformedTC = face->textureCoords(mins);
+            EXPECT_TC_EQ(left_origTC, left_transformedTC);
+
+            // get UVs at mins, plus the X size of the cube
+            const Vec2 right_origTC = origFace->textureCoords(mins + Vec3(cube->bounds().size().x(), 0, 0));
+            const Vec2 right_transformedTC = face->textureCoords(mins + Vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            
+            // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
+            const Vec2 orig_U_width = right_origTC - left_origTC;
+            const Vec2 transformed_U_width = right_transformedTC - left_transformedTC;
+            
+            EXPECT_FLOAT_EQ(orig_U_width.x() * 2.0, transformed_U_width.x());
+            EXPECT_FLOAT_EQ(orig_U_width.y(), transformed_U_width.y());
+            
+            delete face;
+        }
+        
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
             const BBox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
@@ -409,7 +455,8 @@ namespace TrenchBroom {
             }
             
             checkTextureLockOffWithVerticalFlip(cube);
-
+            checkTextureLockOffWithScale(cube);
+            
             delete cube;
         }
 
@@ -429,6 +476,7 @@ namespace TrenchBroom {
             }
             
             checkTextureLockOffWithVerticalFlip(cube);
+            checkTextureLockOffWithScale(cube);
 
             delete cube;
         }

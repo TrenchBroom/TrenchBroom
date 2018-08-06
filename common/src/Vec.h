@@ -60,9 +60,22 @@ private:
         return 2;
     }
 public:
+    class GridCmp {
+    private:
+        const T m_precision;
+    public:
+        GridCmp(const T precision) : m_precision(precision) {
+            assert(m_precision > 0.0);
+        }
+        
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+            return lhs.compareSnapped(rhs, m_precision) < 0;
+        }
+    };
+public:
     typedef Vec<float, S> FloatType;
 
-    typedef T Type;
+    using Type = T;
     static const size_t Size = S;
 
     static const Vec<T,S> PosX;
@@ -291,7 +304,19 @@ public:
         v[S-2] = static_cast<T>(oneButLast);
         v[S-1] = static_cast<T>(last);
     }
-    
+
+    int compareSnapped(const Vec<T,S>& right, const T precision) const {
+        for (size_t i = 0; i < S; ++i) {
+            const T mine  = Math::snap(v[i], precision);
+            const T their = Math::snap(right[i], precision);
+            if (Math::lt(mine, their, 0.0))
+                return -1;
+            if (Math::gt(mine, their, 0.0))
+                return 1;
+        }
+        return 0;
+    }
+
     int compare(const Vec<T,S>& right, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(v[i], right[i], epsilon))
@@ -764,11 +789,22 @@ public:
     template <typename U>
     Vec<U,S> makeIntegral() const {
         static_assert(std::is_integral<U>::value, "integral result type required");
-        Vec<U,S> result;
+        Vec<U, S> result;
         for (size_t i = 0; i < S; ++i) {
             result[i] = static_cast<U>(v[i]);
         }
         return result;
+    }
+
+    Vec<T,S> snapped(const T precision) const {
+        return Vec<T,S>(*this).snap(precision);
+    }
+
+    Vec<T,S>& snap(const T precision) {
+        for (size_t i = 0; i < S; ++i) {
+            v[i] = Math::snap(v[i], precision);
+        }
+        return *this;
     }
     
     Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {

@@ -21,6 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TrenchBroom_MathUtils_h
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -197,6 +198,12 @@ namespace Math {
     template <typename T>
     T up(const T v) {
         return v < 0.0 ? floor(v) : ceil(v);
+    }
+
+    template <typename T>
+    T snap(const T v, const T grid) {
+        assert(grid > 0.0);
+        return grid * Math::round(v / grid);
     }
 
     template <typename T>

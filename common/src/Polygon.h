@@ -32,8 +32,10 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Polygon {
     public:
-        typedef Polygon<float, S> FloatType;
-        typedef std::vector<Polygon<T,S> > List;
+        using Type = T;
+        static const size_t Size = S;
+        using List = std::vector<Polygon<T,S>>;
+        using FloatType = Polygon<float, S>;
     private:
         typename Vec<T,S>::List m_vertices;
     public:
@@ -73,7 +75,17 @@ namespace TrenchBroom {
         bool operator<(const Polygon<T,S>& rhs) const {
             return compare(rhs) < 0;
         }
-        
+
+        int compareSnapped(const Polygon<T,S>& other, const T precision) const {
+            if (m_vertices.size() < other.m_vertices.size())
+                return -1;
+            if (m_vertices.size() > other.m_vertices.size())
+                return 1;
+
+            const auto count = m_vertices.size();
+            return doCompareSnapped(other, 0, count, precision);
+        }
+
         int compare(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
             if (m_vertices.size() < other.m_vertices.size())
                 return -1;
@@ -130,7 +142,21 @@ namespace TrenchBroom {
     private:
         int doCompare(const Polygon<T,S>& other, size_t i, const size_t count, const T epsilon) const {
             while (i < count) {
-                const auto cmp = m_vertices[i].compare(other.m_vertices[i]);
+                const auto cmp = m_vertices[i].compare(other.m_vertices[i], epsilon);
+                if (cmp < 0) {
+                    return -1;
+                } else if (cmp > 0) {
+                    return +1;
+                }
+                ++i;
+            }
+
+            return 0;
+        }
+
+        int doCompareSnapped(const Polygon<T,S>& other, size_t i, const size_t count, const T precision) const {
+            while (i < count) {
+                const auto cmp = m_vertices[i].compareSnapped(other.m_vertices[i], precision);
                 if (cmp < 0) {
                     return -1;
                 } else if (cmp > 0) {
@@ -192,6 +218,10 @@ namespace TrenchBroom {
                 std::reverse(std::next(std::begin(m_vertices)), std::end(m_vertices));
             }
             return *this;
+        }
+        
+        Polygon<T,S> transformed(const Mat<T,S+1,S+1>& mat) const {
+            return Polygon<T,S>(mat * vertices());
         }
     public:
         friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {

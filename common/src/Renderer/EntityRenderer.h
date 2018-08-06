@@ -52,8 +52,10 @@ namespace TrenchBroom {
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
             Model::EntityList m_entities;
-            
-            DirectEdgeRenderer m_wireframeBoundsRenderer;
+
+            DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
+            DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
+
             TriangleRenderer m_solidBoundsRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
@@ -101,7 +103,8 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderWireframeBounds(RenderBatch& renderBatch);
+            void renderPointEntityWireframeBounds(RenderBatch& renderBatch);
+            void renderBrushEntityWireframeBounds(RenderBatch& renderBatch);
             void renderSolidBounds(RenderBatch& renderBatch);
             void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);

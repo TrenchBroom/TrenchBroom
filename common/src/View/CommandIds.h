@@ -63,6 +63,8 @@ namespace TrenchBroom {
                 const int FileUnloadPortalFile               = Lowest +  79;
                 const int ViewMoveCameraToNextPoint          = Lowest +  80;
                 const int ViewMoveCameraToPreviousPoint      = Lowest +  81;
+                const int FileReloadPointFile                = Lowest +  82;
+                const int FileReloadPortalFile               = Lowest +  83;
 
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
@@ -85,6 +87,8 @@ namespace TrenchBroom {
 
                 const int EditToggleCreateComplexBrushTool   = Lowest + 111;
                 const int EditToggleRotateObjectsTool        = Lowest + 113;
+                const int EditToggleScaleObjectsTool         = Lowest + 114;
+                const int EditToggleShearObjectsTool         = Lowest + 115;
                 const int EditCsgConvexMerge                 = Lowest + 116;
                 const int EditCsgSubtract                    = Lowest + 117;
                 const int EditCsgIntersect                   = Lowest + 118;

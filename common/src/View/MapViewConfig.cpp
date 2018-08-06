@@ -27,7 +27,9 @@ namespace TrenchBroom {
         m_editorContext(editorContext),
         m_showEntityClassnames(true),
         m_showPointEntityModels(true),
-        m_showEntityBounds(true),
+        m_showGroupBounds(true),
+        m_showBrushEntityBounds(true),
+        m_showPointEntityBounds(true),
         m_faceRenderMode(FaceRenderMode_Textured),
         m_shadeFaces(true),
         m_showFog(false),
@@ -58,15 +60,40 @@ namespace TrenchBroom {
             m_showPointEntityModels = showPointEntityModels;
             mapViewConfigDidChangeNotifier();
         }
-        
-        bool MapViewConfig::showEntityBounds() const {
-            return m_showEntityBounds;
+
+        bool MapViewConfig::showGroupBounds() const {
+            return m_showGroupBounds;
         }
-        
-        void MapViewConfig::setShowEntityBounds(const bool showEntityBounds) {
-            if (showEntityBounds == m_showEntityBounds)
+
+        void MapViewConfig::setShowGroupBounds(const bool showGroupBounds) {
+            if (showGroupBounds == m_showGroupBounds) {
                 return;
-            m_showEntityBounds = showEntityBounds;
+            }
+            m_showGroupBounds = showGroupBounds;
+            mapViewConfigDidChangeNotifier();
+        }
+
+        bool MapViewConfig::showBrushEntityBounds() const {
+            return m_showBrushEntityBounds;
+        }
+
+        void MapViewConfig::setShowBrushEntityBounds(const bool showBrushEntityBounds) {
+            if (showBrushEntityBounds == m_showBrushEntityBounds) {
+                return;
+            }
+            m_showBrushEntityBounds = showBrushEntityBounds;
+            mapViewConfigDidChangeNotifier();
+        }
+
+        bool MapViewConfig::showPointEntityBounds() const {
+            return m_showPointEntityBounds;
+        }
+
+        void MapViewConfig::setShowPointEntityBounds(const bool showPointEntityBounds) {
+            if (showPointEntityBounds == m_showPointEntityBounds) {
+                return;
+            }
+            m_showPointEntityBounds = showPointEntityBounds;
             mapViewConfigDidChangeNotifier();
         }
         
