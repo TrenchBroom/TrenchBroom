@@ -454,6 +454,78 @@ BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
     return transformator.bbox;
 }
 
+template <typename T>
+Mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
+    const Vec<T,3>& oldSize = oldBBox.size();
+    const Vec<T,3>& newSize = newBBox.size();
+    const Vec<T,3> scaleFactors = newSize / oldSize;
+    
+    const Mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+    return transform;
+}
+
+template <typename T>
+Mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const Vec<T,3>& newSize, const Vec<T,3>& anchorPoint) {
+    const Vec<T,3>& oldSize = oldBBox.size();
+    const Vec<T,3> scaleFactors = newSize / oldSize;
+
+    const Mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
+    return transform;
+}
+
+template <typename T>
+Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const Vec<T,3>& sideToShear, const Vec<T,3>& delta) {
+    const auto oldSize = box.size();
+    
+    // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
+    Mat<T,4,4> shearMat;
+    if (sideToShear == Vec<T,3>::PosX) {
+        const auto relativeDelta = delta / oldSize.x();
+        shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
+    }
+    if (sideToShear == Vec<T,3>::NegX) {
+        const auto relativeDelta = delta / oldSize.x();
+        shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
+    }
+    if (sideToShear == Vec<T,3>::PosY) {
+        const auto relativeDelta = delta / oldSize.y();
+        shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
+    }
+    if (sideToShear == Vec<T,3>::NegY) {
+        const auto relativeDelta = delta / oldSize.y();
+        shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
+    }
+    if (sideToShear == Vec<T,3>::PosZ) {
+        const auto relativeDelta = delta / oldSize.z();
+        shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
+    }
+    if (sideToShear == Vec<T,3>::NegZ) {
+        const auto relativeDelta = delta / oldSize.z();
+        shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
+    }
+    
+    // grab any vertex on side that is opposite the one being sheared.
+    const auto sideOppositeToShearSide = -sideToShear;
+    Vec<T,3> vertOnOppositeSide;
+    bool didGrab = false;
+    auto visitor = [&](const Vec<T,3>& p0, const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& n){
+        if (n == sideOppositeToShearSide) {
+            vertOnOppositeSide = p0;
+            didGrab = true;
+        }
+    };
+    eachBBoxFace(box, visitor);
+    assert(didGrab);
+    
+    const Mat<T,4,4> transform = translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
+    return transform;
+}
+
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
+    stream << "{min:" << bbox.min << " max:" << bbox.max << "}";
+    return stream;
+}
 
 typedef BBox<float,1> BBox1f;
 typedef BBox<double,1> BBox1d;

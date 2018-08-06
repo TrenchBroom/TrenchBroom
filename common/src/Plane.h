@@ -332,6 +332,12 @@ Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal,
     return Plane<T,3>(position, crossed(normal, vertical));
 }
 
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const Plane<T,S>& plane) {
+    stream << "{normal:" << plane.normal << " distance:" << plane.distance << "}";
+    return stream;
+}
+
 typedef Plane<float,3> Plane3f;
 typedef Plane<double,3> Plane3d;
 

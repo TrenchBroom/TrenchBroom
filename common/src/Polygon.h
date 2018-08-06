@@ -193,6 +193,10 @@ namespace TrenchBroom {
             }
             return *this;
         }
+        
+        Polygon<T,S> transformed(const Mat<T,S+1,S+1>& mat) const {
+            return Polygon<T,S>(mat * vertices());
+        }
     public:
         friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
             return Polygon<T,S>(polygon.vertices() + offset);
