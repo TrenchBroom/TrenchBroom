@@ -183,7 +183,7 @@ namespace TrenchBroom {
                              AnchorPos anchor);
 
         struct BackSide {
-            float distAlongRay;
+            FloatType distAlongRay;
             Vec3 pickedSideNormal;
         };
 

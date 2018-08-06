@@ -402,11 +402,11 @@ namespace TrenchBroom {
             // same.
 
             if (hit.type() == ScaleObjectsTool::ScaleToolSideHit) {
-                const auto endSide = hit.target<BBoxSide>();
+                const auto draggingSide = hit.target<BBoxSide>();
 
-                const Vec3 handleLineStart = centerForBBoxSide(bboxAtDragStart, endSide);
-
-                handleLine = Line3(handleLineStart, endSide.normal);
+                // We could use centerForBBoxSide(draggingSide) here, but this gives better dragging behaviour.
+                // See pickBackSideOfBox() for how hit.hitPoint() is determined.
+                handleLine = Line3(hit.hitPoint(), draggingSide.normal);
             } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
