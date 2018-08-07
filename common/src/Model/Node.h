@@ -161,10 +161,10 @@ namespace TrenchBroom {
             void childWillBeRemoved(Node* node);
             void childWasRemoved(Node* node);
             
-            void descendantWillBeAdded(Node* newParent, Node* node);
-            void descendantWasAdded(Node* node);
-            void descendantWillBeRemoved(Node* node);
-            void descendantWasRemoved(Node* oldParent, Node* node);
+            void descendantWillBeAdded(Node* newParent, Node* node, size_t depth);
+            void descendantWasAdded(Node* node, size_t depth);
+            void descendantWillBeRemoved(Node* node, size_t depth);
+            void descendantWasRemoved(Node* oldParent, Node* node, size_t depth);
             bool shouldPropagateDescendantEvents() const;
             
             void incDescendantCount(size_t delta);
@@ -183,19 +183,28 @@ namespace TrenchBroom {
                 NotifyNodeChange(Node* node);
                 ~NotifyNodeChange();
             };
-            
+
             // call these methods via the NotifyNodeChange class, it's much safer
             void nodeWillChange();
             void nodeDidChange();
-            
-            void nodeBoundsDidChange();
+
+            class NotifyNodeBoundsChange {
+            private:
+                Node* m_node;
+                const BBox3 m_oldBounds;
+            public:
+                NotifyNodeBoundsChange(Node* node);
+                ~NotifyNodeBoundsChange();
+            };
+            void nodeBoundsDidChange(BBox3 oldBounds);
         private:
             void childWillChange(Node* node);
             void childDidChange(Node* node);
             void descendantWillChange(Node* node);
             void descendantDidChange(Node* node);
             
-            void childBoundsDidChange(Node* node);
+            void childBoundsDidChange(Node* node, const BBox3& oldBounds);
+            void descendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth);
         public: // selection
             bool selected() const;
             void select();
@@ -263,20 +272,20 @@ namespace TrenchBroom {
             template <class V>
             void acceptAndRecurse(V& visitor) {
                 accept(visitor);
-                if (!visitor.recursionStopped())
+                if (!visitor.recursionStopped() && !visitor.cancelled())
                     recurse(visitor);
             }
             
             template <class V>
             void acceptAndRecurse(V& visitor) const {
                 accept(visitor);
-                if (!visitor.recursionStopped())
+                if (!visitor.recursionStopped() && !visitor.cancelled())
                     recurse(visitor);
             }
             
             template <typename I, typename V>
             static void acceptAndRecurse(I cur, I end, V& visitor) {
-                while (cur != end) {
+                while (cur != end && !visitor.cancelled()) {
                     (*cur)->acceptAndRecurse(visitor);
                     ++cur;
                 }
@@ -285,20 +294,20 @@ namespace TrenchBroom {
             template <class V>
             void acceptAndEscalate(V& visitor) {
                 accept(visitor);
-                if (!visitor.recursionStopped())
+                if (!visitor.recursionStopped() && !visitor.cancelled())
                     escalate(visitor);
             }
             
             template <class V>
             void acceptAndEscalate(V& visitor) const {
                 accept(visitor);
-                if (!visitor.recursionStopped())
+                if (!visitor.recursionStopped() && !visitor.cancelled())
                     escalate(visitor);
             }
             
             template <typename I, typename V>
             static void acceptAndEscalate(I cur, I end, V& visitor) {
-                while (cur != end) {
+                while (cur != end && !visitor.cancelled()) {
                     (*cur)->acceptAndEscalate(visitor);
                     ++cur;
                 }
@@ -316,7 +325,7 @@ namespace TrenchBroom {
             
             template <typename I, typename V>
             static void accept(I cur, I end, V& visitor) {
-                while (cur != end) {
+                while (cur != end && !visitor.cancelled()) {
                     (*cur)->accept(visitor);
                     ++cur;
                 }
@@ -364,7 +373,7 @@ namespace TrenchBroom {
             
             template <typename I, typename V>
             static void iterate(I cur, I end, V& visitor) {
-                while (cur != end) {
+                while (cur != end && !visitor.cancelled()) {
                     (*cur)->iterate(visitor);
                     ++cur;
                 }
@@ -384,7 +393,7 @@ namespace TrenchBroom {
 
             template <typename I, typename V>
             static void escalate(I cur, I end, V& visitor) {
-                while (cur != end) {
+                while (cur != end && !visitor.cancelled()) {
                     (*cur)->escalate(visitor);
                     ++cur;
                 }
@@ -412,10 +421,10 @@ namespace TrenchBroom {
             virtual void doChildWillBeRemoved(Node* node);
             virtual void doChildWasRemoved(Node* node);
             
-            virtual void doDescendantWillBeAdded(Node* newParent, Node* node);
-            virtual void doDescendantWasAdded(Node* node);
-            virtual void doDescendantWillBeRemoved(Node* node);
-            virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
+            virtual void doDescendantWillBeAdded(Node* newParent, Node* node, size_t depth);
+            virtual void doDescendantWasAdded(Node* node, size_t depth);
+            virtual void doDescendantWillBeRemoved(Node* node, size_t depth);
+            virtual void doDescendantWasRemoved(Node* oldParent, Node* node, size_t depth);
             virtual bool doShouldPropagateDescendantEvents() const;
 
             virtual void doParentWillChange();
@@ -423,8 +432,9 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
             
-            virtual void doNodeBoundsDidChange();
-            virtual void doChildBoundsDidChange(Node* node);
+            virtual void doNodeBoundsDidChange(const BBox3& oldBounds);
+            virtual void doChildBoundsDidChange(Node* node, const BBox3& oldBounds);
+            virtual void doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth);
             
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);

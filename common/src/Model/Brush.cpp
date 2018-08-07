@@ -293,7 +293,7 @@ namespace TrenchBroom {
         m_contentTypeValid(true) {
             addFaces(faces);
             try {
-                rebuildGeometry(worldBounds);
+                buildGeometry(worldBounds);
             } catch (const GeometryException&) {
                 cleanup();
                 throw;
@@ -388,10 +388,16 @@ namespace TrenchBroom {
 
         void Brush::setFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
             const NotifyNodeChange nodeChange(this);
+
+            const BBox3 oldBounds = bounds();
+            deleteGeometry();
+
             detachFaces(m_faces);
             VectorUtils::clearAndDelete(m_faces);
             addFaces(faces);
-            rebuildGeometry(worldBounds);
+
+            buildGeometry(worldBounds);
+            nodeBoundsDidChange(oldBounds);
         }
 
         bool Brush::closed() const {
@@ -458,6 +464,7 @@ namespace TrenchBroom {
             if (face->selected()) {
                 decChildSelectionCount(1);
             }
+            face->setGeometry(nullptr);
             face->setBrush(nullptr);
             invalidateContentType();
             invalidateVertexCache();
@@ -1036,7 +1043,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
             updateFacesFromGeometry(worldBounds);
             assert(fullySpecified());
-            nodeBoundsDidChange();
+            nodeBoundsDidChange(bounds());
         }
 
         Brush::VertexSet Brush::createVertexSet(const Vec3::List& vertices) {
@@ -1116,17 +1123,16 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        void Brush::deleteGeometry() {
-            // clear brush face geometry
-            for (auto* brushFace : m_faces) {
-                brushFace->setGeometry(nullptr);
-            }
-            delete m_geometry;
-            m_geometry = nullptr;
+        void Brush::rebuildGeometry(const BBox3& worldBounds) {
+            const BBox3 oldBounds = bounds();
+            deleteGeometry();
+            buildGeometry(worldBounds);
+            nodeBoundsDidChange(oldBounds);
         }
 
-        void Brush::rebuildGeometry(const BBox3& worldBounds) {
-            deleteGeometry();
+        void Brush::buildGeometry(const BBox3& worldBounds) {
+            assert(m_geometry == nullptr);
+
             m_geometry = new BrushGeometry(worldBounds.expanded(1.0));
 
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
@@ -1139,17 +1145,17 @@ namespace TrenchBroom {
             } else if (!fullySpecified()) {
                 throw GeometryException("Brush is not fully specified");
             }
-
-            nodeBoundsDidChange();
         }
 
-        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
-            const NotifyNodeChange nodeChange(this);
+        void Brush::deleteGeometry() {
+            assert(m_geometry != nullptr);
 
-            for (auto* face : m_faces) {
-                face->findIntegerPlanePoints();
+            // clear brush face geometry
+            for (auto* brushFace : m_faces) {
+                brushFace->setGeometry(nullptr);
             }
-            rebuildGeometry(worldBounds);
+            delete m_geometry;
+            m_geometry = nullptr;
         }
 
         bool Brush::checkGeometry() const {
@@ -1172,6 +1178,15 @@ namespace TrenchBroom {
             }
 
             return true;
+        }
+
+        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
+            const NotifyNodeChange nodeChange(this);
+
+            for (auto* face : m_faces) {
+                face->findIntegerPlanePoints();
+            }
+            rebuildGeometry(worldBounds);
         }
 
         bool Brush::transparent() const {

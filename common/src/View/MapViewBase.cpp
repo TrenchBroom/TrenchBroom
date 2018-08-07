@@ -706,57 +706,20 @@ namespace TrenchBroom {
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
             
-            MapDocumentSPtr document = lock(m_document);
-            Model::Entity* entity = document->world()->createEntity();
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Vec3 delta = doComputePointEntityPosition(definition->bounds());
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentParent());
-            document->select(entity);
-            document->translateObjects(delta);
+            auto document = lock(m_document);
+            const auto delta = doComputePointEntityPosition(definition->bounds());
+            document->createPointEntity(definition, delta);
         }
         
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
             
-            MapDocumentSPtr document = lock(m_document);
-            
-            const Model::BrushList brushes = document->selectedNodes().brushes();
-            assert(!brushes.empty());
-            
-            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = std::begin(brushes);
-            Model::BrushList::const_iterator end = std::end(brushes);
-            Model::AttributableNode* entityTemplate = (*it++)->entity();
-            while (it != end && entityTemplate != nullptr)
-                if ((*it++)->parent() != entityTemplate)
-                    entityTemplate = nullptr;
-            
-            Model::Entity* entity = document->world()->createEntity();
-            if (entityTemplate != nullptr && entityTemplate != document->world())
-                entity->setAttributes(entityTemplate->attributes());
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, nodes);
-            document->select(nodes);
+            auto document = lock(m_document);
+            document->createBrushEntity(definition);
         }
         
         bool MapViewBase::canCreateBrushEntity() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectedNodes().hasOnlyBrushes();
         }
 

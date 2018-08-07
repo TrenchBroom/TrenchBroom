@@ -116,13 +116,14 @@ namespace TrenchBroom {
             private:
                 NotifyNodeChange m_nodeChange;
                 AttributableNode* m_node;
+                BBox3 m_oldBounds;
             public:
                 NotifyAttributeChange(AttributableNode* node);
                 ~NotifyAttributeChange();
             };
             
             void attributesWillChange();
-            void attributesDidChange();
+            void attributesDidChange(const BBox3& oldBounds);
             
             void updateClassname();
         private: // search index management
@@ -192,7 +193,7 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange() override;
             virtual void doAncestorDidChange() override;
         private: // subclassing interface
-            virtual void doAttributesDidChange() = 0;
+            virtual void doAttributesDidChange(const BBox3& oldBounds) = 0;
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
             virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
             virtual Vec3 doGetLinkSourceAnchor() const = 0;

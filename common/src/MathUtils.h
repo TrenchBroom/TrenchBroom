@@ -25,6 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <type_traits>
 
 namespace Math {
     template <typename T>
@@ -348,7 +349,139 @@ namespace Math {
         n = n << 1;
         return n;
     }
-    
+
+    /**
+     * Returns a bit mask where only the bits up to, but not including, the given index are set.
+     *
+     * @tparam T the type of the parameter and result
+     * @param index the index of the lowest bit which should not be set
+     * @return the bit mask
+     */
+    template <typename T>
+    T fillMask(const size_t index) {
+        static_assert(std::is_integral<T>::value, "type must be integral");
+        if (index == sizeof(T)*8) {
+            return ~static_cast<T>(0);
+        } else {
+            return (static_cast<T>(1) << index) - 1;
+        }
+    }
+
+    /**
+     * Returns a bit mask with only the bits in the given index range set.
+     *
+     * @param end the 0-based end index, exclusive
+     * @param start the 0-based start index, inclusive
+     * @return the bit mask
+     */
+    template <typename T>
+    T bitMask(const size_t end, const size_t start) {
+        static_assert(std::is_integral<T>::value, "type must be integral");
+        const auto   endMask = fillMask<T>(end);
+        const auto startMask = fillMask<T>(start);
+        const auto result = endMask & ~startMask;
+        return result;
+    }
+
+    /**
+     * Returns a bit mask with only the bit at the given index set.
+     *
+     * @tparam T the type of the bit mask
+     * @param index the index of the set bit
+     * @return the bit mask
+     */
+    template <typename T>
+    T bitMask(const size_t index) {
+        static_assert(std::is_integral<T>::value, "type must be integral");
+        return static_cast<T>(1) << index;
+    }
+
+    /**
+     * Tests whether the bit of the given value at the given index is set.
+     *
+     * @tparam T the value type
+     * @param value the value to test
+     * @param index the index of the bit to test
+     * @return  true if the bit at the given index is set and false otherwise
+     */
+    template <typename T>
+    bool testBit(const T value, const size_t index) {
+        static_assert(std::is_integral<T>::value, "type must be integral");
+        return value & bitMask<T>(index);
+    }
+
+    /**
+     * Computes the prefix of the given value up until and including the given index.
+     *
+     * @tparam T the type of the given value
+     * @param value the value
+     * @param index the index, inclusive
+     * @return the prefix, i.e. all bits of the given value from the highest bit up
+     *   until and including the bit at the given index
+     */
+    template <typename T>
+    T bitPrefix(const T value, const size_t index) {
+        static_assert(std::is_integral<T>::value, "type must be integral");
+        const auto mask = bitMask<T>(sizeof(T)*8, index);
+        return value & mask;
+    }
+
+    /**
+     * Finds the highest set bit in the given value. The search starts at the given
+     * index, which is 0-based from the right. The function returns the index of the
+     * highest set bit which is not higher than the given index, or the number of bits
+     * of type T if no such bit is found.
+     *
+     * If the given start index is greater than the number of bits in T, the search will
+     * start at the highest bit of T regardless.
+     *
+     * @tparam T the type of the argument
+     * @param x the value
+     * @param i the 0-based index of the bit to start the search at
+     * @return the 0-based index of the highest set bit or the number of bits of T of no such bit is found
+     */
+    template <typename T>
+    size_t findHighestOrderBit(T x, size_t i = sizeof(T)*8 - 1) {
+        static_assert(std::is_integral<T>::value, "x is integral");
+
+        i = min(sizeof(T)*8 - 1, i);
+
+        while (true) {
+            const T test = static_cast<T>(1) << static_cast<T>(i);
+            if (x & test) {
+                return i;
+            }
+            if (i == 0) {
+                break;
+            }
+            --i;
+        }
+
+        return sizeof(T)*8;
+    }
+
+    /**
+     * Finds the highest bit in which the given values differ. The search starts at the given
+     * index, which is 0-based from the right. The function returns the index of the
+     * highest differing bit which is not higher than the given index, or the number of bits
+     * of type T if no such bit is found.
+     *
+     * If the given start index is greater than the number of bits in T, the search will
+     * start at the highest bit of T regardless.
+     *
+     *
+     * @tparam T the type of the arguments
+     * @param x the first value
+     * @param y the second value
+     * @param i the 0-based index of the bit to start the search at
+     * @return the 0-based index of the highest set in which x and y differ or the number of bits of T of no such bit is found
+     */
+    template <typename T>
+    size_t findHighestDifferingBit(const T x, const T y, size_t i = sizeof(T)*8 - 1) {
+        static_assert(std::is_integral<T>::value, "x and y are integral");
+        return findHighestOrderBit(x ^ y, i);
+    }
+
     template <typename T>
     T normalizeRadians(T angle) {
         static const T z = static_cast<T>(0.0);

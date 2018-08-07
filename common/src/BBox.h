@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
+#include "Algorithms.h"
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"
 #include "Vec.h"
 
 #include <algorithm>
+#include <array>
 
 template <typename T, size_t S>
 class BBox {
@@ -63,6 +65,20 @@ public:
     min(Vec<T,S>::Null),
     max(Vec<T,S>::Null) {}
     
+    // Copy and move constructors
+    BBox(const BBox<T,S>& other) = default;
+    BBox(BBox<T,S>&& other) = default;
+    
+    // Assignment operators
+    BBox<T,S>& operator=(const BBox<T,S>& other) = default;
+    BBox<T,S>& operator=(BBox<T,S>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    BBox(const BBox<U,S>& other) :
+    min(other.min),
+    max(other.max) {}
+    
     BBox(const Vec<T,S>& i_min, const Vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {}
@@ -99,11 +115,6 @@ public:
             mergeWith(get(*cur++));
     }
 
-    template <typename U>
-    BBox(const BBox<U,S>& other) :
-    min(other.min),
-    max(other.max) {}
-
     bool operator==(const BBox<T,S>& right) const {
         return min == right.min && max == right.max;
     }
@@ -119,26 +130,35 @@ public:
         return false;
     }
     
-    const Vec<T,S> center() const {
+    Vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }
     
-    const Vec<T,S> size() const {
+    Vec<T,S> size() const {
         return max - min;
     }
-    
-    const Vec<T,S> vertex(const Corner c[S]) const {
+
+    T volume() const {
+        const auto size = this->size();
+        T result = 1.0;
+        for (size_t i = 0; i < S; ++i) {
+            result *= size[i];
+        }
+        return result;
+    }
+
+    Vec<T,S> vertex(const Corner c[S]) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = c[i] == Corner_Min ? min[i] : max[i];
         return result;
     }
     
-    const Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
+    Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
         Corner c[] = { x, y, z };
         return vertex(c);
     }
-    
+
     BBox<T,S>& mergeWith(const BBox<T,S>& right) {
         for (size_t i = 0; i < S; ++i) {
             min[i] = std::min(min[i], right.min[i]);
@@ -147,7 +167,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> mergedWith(const BBox<T,S>& right) const {
+    BBox<T,S> mergedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
@@ -160,7 +180,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> mergedWith(const Vec<T,S>& right) const {
+    BBox<T,S> mergedWith(const Vec<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
@@ -172,7 +192,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
+    BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).insersectWith(right);
     }
     
@@ -193,7 +213,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> translatedToOrigin() const {
+    BBox<T,S> translatedToOrigin() const {
         return BBox<T,S>(*this).translateToOrigin();
     }
     
@@ -205,22 +225,30 @@ public:
         return *this;
     }
     
-    const BBox<T,S> repaired() const {
+    BBox<T,S> repaired() const {
         return BBox<T,S>(*this).repair();
     }
 
-    const BBox<T,S> rounded() const {
+    BBox<T,S> rounded() const {
         return BBox<T,S>(min.rounded(), max.rounded());
     }
-    
-    bool contains(const Vec<T,S>& point) const {
-        for (size_t i = 0; i < S; ++i)
-            if (point[i] < min[i] || point[i] > max[i])
+
+    template <typename U>
+    BBox<U,S> makeIntegral() const {
+        return BBox<U,S>(min.template makeIntegral<U>(), max.template makeIntegral<U>());
+    }
+
+    bool contains(const Vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(point[i], min[i], epsilon) ||
+                Math::gt(point[i], max[i], epsilon)) {
                 return false;
+            }
+        }
         return true;
     }
     
-    const RelativePosition relativePosition(const Vec<T,S>& point) const {
+    RelativePosition relativePosition(const Vec<T,S>& point) const {
         typename RelativePosition::Range p[S];
         for (size_t i = 0; i < S; ++i) {
             if (point[i] < min[i])
@@ -234,61 +262,135 @@ public:
         return RelativePosition(p);
     }
 
-    bool contains(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; ++i)
-            if (bounds.min[i] < min[i] || bounds.max[i] > max[i])
+    bool contains(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(bounds.min[i], min[i], epsilon) ||
+                Math::gt(bounds.max[i], max[i], epsilon)) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether the given bounding box is contained within this bounding box, but without touching it.
+     *
+     * @param bounds the bounds to check
+     * @param epsilon the epsilon value
+     * @return true if the given bounding box is enclosed within this bounding box and false otherwise
+     */
+    bool encloses(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lte(bounds.min[i], min[i], epsilon) ||
+                Math::gte(bounds.max[i], max[i], epsilon)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Constrains the given point to the volume covered by this bounding box.
+     *
+     * @param point the point to constrain
+     * @return the constrained point
+     */
+    Vec<T,S> constrain(const Vec<T,S>& point) const {
+        Vec<T,S> result(point);
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = Math::min(max[i], Math::max(min[i], result[i]));
+        }
+        return result;
+    }
+
+    bool intersects(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
+        for (size_t i = 0; i < S; ++i) {
+            if (Math::lt(bounds.max[i], min[i], epsilon) ||
+                Math::gt(bounds.min[i], max[i], epsilon)) {
+                return false;
+            }
+        }
         return true;
     }
     
-    bool intersects(const BBox<T,S>& bounds) const {
-        for (size_t i = 0; i < S; ++i)
-            if (bounds.max[i] < min[i] || bounds.min[i] > max[i])
-                return false;
-        return true;
-        
-    }
-    
-    bool touches(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        if (contains(start) || contains(end))
+    bool touches(const Vec<T,S>& start, const Vec<T,S>& end, const T epsilon = static_cast<T>(0.0)) const {
+        if (contains(start, epsilon) || contains(end, epsilon))
             return true;
 
         const Ray<T,S> ray(start, (end-start).normalized());
         return !Math::isnan(intersectWithRay(ray));
     }
-    
-    T intersectWithRay(const Ray<T,S>& ray, Vec<T,S>* sideNormal = nullptr) const {
-        const bool inside = contains(ray.origin);
-        
+
+    T intersectWithRay(const Ray<T,S>& ray) const {
+        // Compute candidate planes
+        std::array<T, S> origins;
+        std::array<bool, S> inside;
+        bool allInside = true;
         for (size_t i = 0; i < S; ++i) {
-            if (ray.direction[i] == static_cast<T>(0.0))
-                continue;
-            
-            Vec<T,S> normal, position;
-            normal[i] = ray.direction[i] < static_cast<T>(0.0) ? static_cast<T>(1.0) : static_cast<T>(-1.0);
-            if (inside)
-                position = ray.direction[i] < static_cast<T>(0.0) ? min : max;
-            else
-                position = ray.direction[i] < static_cast<T>(0.0) ? max : min;
-            
-            const Plane<T,S> plane(position, normal);
-            const T distance = plane.intersectWithRay(ray);
-            if (Math::isnan(distance))
-                continue;
-            
-            const Vec<T,S> point = ray.pointAtDistance(distance);
-            for (size_t j = 0; j < S; ++j)
-                if (i != j && !Math::between(point[j], min[j], max[j]))
-                    goto cont;
-            
-            if (sideNormal != nullptr)
-                *sideNormal = inside ? -normal : normal;
-            return distance;
-            
-        cont:;
+            if (ray.origin[i] < min[i]) {
+                origins[i] = min[i];
+                allInside = inside[i] = false;
+            } else if (ray.origin[i] > max[i]) {
+                origins[i] = max[i];
+                allInside = inside[i] = false;
+            } else {
+                if (ray.direction[i] < static_cast<T>(0.0)) {
+                    origins[i] = min[i];
+                } else {
+                    origins[i] = max[i];
+                }
+                inside[i] = true;
+            }
         }
-        
-        return std::numeric_limits<T>::quiet_NaN();
+
+        // Intersect candidate planes with ray
+        std::array<T, S> distances;
+        for (size_t i = 0; i < S; ++i) {
+            if (ray.direction[i] != static_cast<T>(0.0)) {
+                distances[i] = (origins[i] - ray.origin[i]) / ray.direction[i];
+            } else {
+                distances[i] = static_cast<T>(-1.0);
+            }
+        }
+
+        size_t bestPlane = 0;
+        if (allInside) {
+            // find the closest plane that was hit
+            for (size_t i = 1; i < S; ++i) {
+                if (distances[i] < distances[bestPlane]) {
+                    bestPlane = i;
+                }
+            }
+        } else {
+            // find the farthest plane that was hit
+            for (size_t i = 0; i < S; ++i) {
+                if (!inside[i]) {
+                    bestPlane = i;
+                    break;
+                }
+            }
+            for (size_t i = bestPlane + 1; i < S; ++i) {
+                if (!inside[i] && distances[i] > distances[bestPlane]) {
+                    bestPlane = i;
+                }
+            }
+        }
+
+        // Check if the final candidate actually hits the box
+        if (distances[bestPlane] < static_cast<T>(0.0)) {
+            return std::numeric_limits<T>::quiet_NaN();
+        }
+
+        for (size_t i = 0; i < S; ++i) {
+            if (bestPlane != i) {
+                const T coord = ray.origin[i] + distances[bestPlane] * ray.direction[i];
+                if (coord < min[i] || coord > max[i]) {
+                    return std::numeric_limits<T>::quiet_NaN();
+                }
+            }
+        }
+
+        return distances[bestPlane];
     }
     
     BBox<T,S>& expand(const T f) {
@@ -299,7 +401,7 @@ public:
         return *this;
     }
     
-    const BBox<T,S> expanded(const T f) const {
+    BBox<T,S> expanded(const T f) const {
         return BBox<T,S>(*this).expand(f);
     }
     
@@ -309,8 +411,18 @@ public:
         return *this;
     }
     
-    const BBox<T,S> translated(const Vec<T,S>& delta) const {
+    BBox<T,S> translated(const Vec<T,S>& delta) const {
         return BBox<T,S>(*this).translate(delta);
+    }
+
+    String asString() const {
+        StringStream result;
+        result << "[";
+        min.write(result);
+        result << " - ";
+        max.write(result);
+        result << "]";
+        return result.str();
     }
 };
 
@@ -452,6 +564,16 @@ BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
     TransformBBox<T> transformator(transformation);
     eachBBoxVertex(bbox, transformator);
     return transformator.bbox;
+}
+
+template <typename I, typename Get = Identity>
+auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
+    assert(cur != end);
+    auto result = getBounds(*cur); ++cur;
+    while (cur != end) {
+        result.mergeWith(getBounds(*cur)); ++cur;
+    };
+    return result;
 }
 
 template <typename T>
