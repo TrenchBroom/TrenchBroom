@@ -68,6 +68,7 @@ namespace TrenchBroom {
         void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_valid) {
                 validate();
+                // hack, Requires these two vbo's to have the same vertex format
                 m_entityLinks.prepare(vertexVbo);
                 m_entityArrows.prepare(vertexVbo);
             }
@@ -75,21 +76,27 @@ namespace TrenchBroom {
 
         void EntityLinkRenderer::doRender(RenderContext& renderContext) {
             assert(m_valid);
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
-            shader.set("CameraPosition", renderContext.camera().position());
-            shader.set("MaxDistance", 6000.0f);
 
-            glAssert(glDisable(GL_DEPTH_TEST));
-            shader.set("Alpha", 0.4f);
-            m_entityLinks.render(GL_LINES);
-            
-            glAssert(glEnable(GL_DEPTH_TEST));
-            shader.set("Alpha", 1.0f);
-            m_entityLinks.render(GL_LINES);
+            {
+                ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
+                shader.set("CameraPosition", renderContext.camera().position());
+                shader.set("MaxDistance", 6000.0f);
+
+                glAssert(glDisable(GL_DEPTH_TEST));
+                shader.set("Alpha", 0.4f);
+                m_entityLinks.render(GL_LINES);
+
+                glAssert(glEnable(GL_DEPTH_TEST));
+                shader.set("Alpha", 1.0f);
+                m_entityLinks.render(GL_LINES);
+            }
 
             // render arrows
             {
+                ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkArrowShader);
+                shader.set("CameraPosition", renderContext.camera().position());
+                shader.set("MaxDistance", 6000.0f);
+
                 glAssert(glDisable(GL_DEPTH_TEST));
                 shader.set("Alpha", 0.4f);
                 m_entityArrows.render(GL_LINES);
@@ -119,10 +126,17 @@ namespace TrenchBroom {
 
                     const auto rotateFromPosXToLine = translationMatrix(arrowPosition) * rotationMatrix(Vec3f::PosX, lineDir);
 
-                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
-                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, 1}, startVertex.v2);
-                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
-                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, -1}, startVertex.v2);
+//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
+//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, 1}, startVertex.v2);
+//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
+//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, -1}, startVertex.v2);
+
+                    const auto color = startVertex.v2;
+
+                    arrows.emplace_back(Vec3f{1, 0, 0}, color, arrowPosition, lineDir);
+                    arrows.emplace_back(Vec3f{0, 0, 1}, color, arrowPosition, lineDir);
+                    arrows.emplace_back(Vec3f{1, 0, 0}, color, arrowPosition, lineDir);
+                    arrows.emplace_back(Vec3f{0, 0, -1}, color, arrowPosition, lineDir);
                 }
 
                 m_entityArrows = VertexArray::swap(arrows);
@@ -172,8 +186,8 @@ namespace TrenchBroom {
                 const Color& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
                 Color targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor));
-                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor));
+                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor, Vec3::Null, Vec3::Null));
+                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor, Vec3::Null, Vec3::Null));
             }
         };
         

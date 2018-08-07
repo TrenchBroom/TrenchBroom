@@ -38,8 +38,21 @@ namespace TrenchBroom {
         
         class EntityLinkRenderer : public DirectRenderable {
         private:
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            
+            // Due to current api limitations we can't have multiple vertex formats per Renderable
+            // so we'll waste some attribute space on the lines
+
+            //using Vertex = VertexSpecs::P3C4::Vertex;
+
+            // Hack...
+            using T03 = AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 3>;
+            using T13 = AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 3>;
+
+            using Vertex = VertexSpec4<
+                    AttributeSpecs::P3,          // vertex of the arrow
+                    AttributeSpecs::C4,          // arrow color
+                    T03,                          // arrow location
+                    T13>::Vertex;                 // direction the arrow is pointing
+
             View::MapDocumentWPtr m_document;
             
             Color m_defaultColor;

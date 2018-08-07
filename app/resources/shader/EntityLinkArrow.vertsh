@@ -1,0 +1,85 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform vec3 CameraPosition;
+
+varying float distanceFromCamera;
+varying vec4 color;
+
+/**
+ Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
+ */
+mat4 rotationMatrix(vec3 axis, float angle) {
+    float s = sin(-angle);
+    float c = cos(-angle);
+    float i = 1.0f - c;
+
+    float ix  = i  * axis[0];
+    float ix2 = ix * axis[0];
+    float ixy = ix * axis[1];
+    float ixz = ix * axis[2];
+
+    float iy  = i  * axis[1];
+    float iy2 = iy * axis[1];
+    float iyz = iy * axis[2];
+
+    float iz2 = i  * axis[2] * axis[2];
+
+    float sx = s * axis[0];
+    float sy = s * axis[1];
+    float sz = s * axis[2];
+
+    mat4 rotation = mat4(1.0);
+    rotation[0][0] = ix2 + c;
+    rotation[0][1] = ixy - sz;
+    rotation[0][2] = ixz + sy;
+
+    rotation[1][0] = ixy + sz;
+    rotation[1][1] = iy2 + c;
+    rotation[1][2] = iyz - sx;
+
+    rotation[2][0] = ixz - sy;
+    rotation[2][1] = iyz + sx;
+    rotation[2][2] = iz2 + c;
+
+    return rotation;
+}
+
+mat4 translationMatrix(vec3 delta) {
+    mat4 translation = mat4(1.0);
+    int i;
+    for (i = 0; i < 3; ++i) {
+        translation[3][i] = delta[i];
+    }
+    return translation;
+}
+
+void main(void) {
+    // hack.. should use user-defined attributes
+    vec3 ArrowLocation = gl_MultiTexCoord0.xyz;
+    vec3 ArrowPointing = gl_MultiTexCoord1.xyz;
+
+    vec4 worldVert = translationMatrix(ArrowLocation) * gl_Vertex;
+
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * worldVert;
+    distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);
+    color = gl_Color;
+}
