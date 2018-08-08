@@ -687,14 +687,15 @@ namespace TrenchBroom {
             using VecMap = std::map<Vec3, Vec3>;
             Vec3::List result;
             VecMap vertexMapping;
-            for (auto* vertex : m_geometry->vertices()) {
-                const auto& oldPosition = vertex->position();
+            for (auto* oldVertex : m_geometry->vertices()) {
+                const auto& oldPosition = oldVertex->position();
                 const auto moved = vertexSet.count(oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
-                if (newGeometry.hasVertex(newPosition)) {
-                    vertexMapping.insert(std::make_pair(oldPosition, newPosition));
+                const auto* newVertex = newGeometry.findVertexByPosition(newPosition);
+                if (newVertex != nullptr) {
+                    vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
                     if (moved) {
-                        result.push_back(newPosition);
+                        result.push_back(newVertex->position());
                     }
                 }
             }
@@ -829,10 +830,11 @@ namespace TrenchBroom {
             Edge3::List result;
             result.reserve(edgePositions.size());
 
-            for (const auto& edge : edgePositions) {
-                const Edge3 newEdge(edge.start() + delta, edge.end() + delta);
-                assert(m_geometry->hasEdge(newEdge.start(), newEdge.end()));
-                result.push_back(newEdge);
+            for (const auto& edgePosition : edgePositions) {
+                const auto* newEdge = m_geometry->findEdgeByPositions(edgePosition.start() + delta, edgePosition.end() + delta);
+                if (newEdge != nullptr) {
+                    result.push_back(Edge3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
+                }
             }
 
             return result;
@@ -867,10 +869,11 @@ namespace TrenchBroom {
             Polygon3::List result;
             result.reserve(facePositions.size());
 
-            for (const auto& face : facePositions) {
-                const Polygon3 newFace(face.vertices() + delta);
-                assert(m_geometry->hasFace(newFace.vertices()));
-                result.push_back(newFace);
+            for (const auto& facePosition : facePositions) {
+                const auto* newFace = m_geometry->findFaceByPositions(facePosition.vertices() + delta);
+                if (newFace != nullptr) {
+                    result.push_back(Polygon3(newFace->vertexPositions()));
+                }
             }
 
             return result;
