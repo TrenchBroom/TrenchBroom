@@ -63,6 +63,73 @@ mat4 rotationMatrix(vec3 axis, float angle) {
     return rotation;
 }
 
+struct Quat {
+    float r;
+    vec3 v;
+};
+
+mat4 rotationMatrix(Quat quat) {
+    // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
+
+    float x = quat.v[0];
+    float y = quat.v[1];
+    float z = quat.v[2];
+    float w = quat.r;
+
+    float x2 = x*x;
+    float y2 = y*y;
+    float z2 = z*z;
+
+    mat4 rotation = mat4(1.0);
+    rotation[0][0] = (1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
+    rotation[0][1] = (2.0*(x*y + z*w));
+    rotation[0][2] = (2.0*(x*z - y*w));
+
+    rotation[1][0] = (2.0*(x*y - z*w));
+    rotation[1][1] = (1.0 - 2.0*(x2 + z2));//a2 - b2 + c2 - d2;
+    rotation[1][2] = (2.0*(y*z + x*w));
+
+    rotation[2][0] = (2.0*(x*z + y*w));
+    rotation[2][1] = (2.0*(y*z - x*w));
+    rotation[2][2] = (1.0 - 2.0*(x2 + y2));// a2 - b2 - c2 + d2;
+
+    return rotation;
+}
+
+Quat setRotation(vec3 axis, float angle) {
+    Quat quat;
+    quat.r = cos(angle / 2.0f);
+    quat.v = axis * sin(angle / 2.0f);
+    return quat;
+}
+
+bool eqEpsilon(float a, float b, float epsilon) {
+    return abs(a - b) < epsilon;
+}
+
+/**
+ * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
+ * expected to be normalized.
+ */
+Quat makeQuat(vec3 from, vec3 to) {
+    float cosAngle = dot(from, to);
+    if (eqEpsilon(abs(cosAngle), 1.0, 0.001)) {
+        return setRotation(vec3(0.0, 0.0, 1.0), 0.0);
+    } else {
+        vec3 axis = normalize(cross(from, to));
+        float angle = acos(cosAngle);
+        return setRotation(axis, angle);
+    }
+}
+
+/**
+ Returns a matrix that will rotate the given from vector onto the given to vector
+ about their perpendicular axis. The vectors are expected to be normalized.
+ */
+mat4 rotationMatrix(vec3 from, vec3 to) {
+    return rotationMatrix(makeQuat(from, to));
+}
+
 mat4 translationMatrix(vec3 delta) {
     mat4 translation = mat4(1.0);
     int i;
@@ -74,10 +141,12 @@ mat4 translationMatrix(vec3 delta) {
 
 void main(void) {
     // hack.. should use user-defined attributes
-    vec3 ArrowLocation = gl_MultiTexCoord0.xyz;
-    vec3 ArrowPointing = gl_MultiTexCoord1.xyz;
+    vec3 arrowPosition = gl_MultiTexCoord0.xyz;
+    vec3 lineDir = gl_MultiTexCoord1.xyz;
 
-    vec4 worldVert = translationMatrix(ArrowLocation) * gl_Vertex;
+    mat4 rotateFromPosXToLine = translationMatrix(arrowPosition) * rotationMatrix(vec3(1.0, 0.0, 0.0), lineDir);
+
+    vec4 worldVert = rotateFromPosXToLine * gl_Vertex;
 
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * worldVert;
     distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);
