@@ -66,14 +66,6 @@ namespace TrenchBroom {
         };
 
         template <typename H>
-        class HCmp {
-        public:
-            bool operator()(const H& lhs, const H& rhs) const {
-                return lhs.compare(rhs, 0.0) < 0;
-            }
-        };
-
-        template <typename H>
         class VertexHandleManagerBaseT : public VertexHandleManagerBase {
         public:
             typedef H Handle;
@@ -114,7 +106,7 @@ namespace TrenchBroom {
                 }
             };
             
-            typedef std::map<H, HandleInfo, HCmp<H>> HandleMap;
+            typedef std::map<H, HandleInfo> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
             HandleMap m_handles;
