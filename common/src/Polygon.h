@@ -56,12 +56,22 @@ namespace TrenchBroom {
             swap(m_vertices, i_vertices);
             CollectionUtils::rotateMinToFront(m_vertices);
         }
-        
-        template <typename TT, size_t SS>
-        Polygon(const Polygon<TT,SS>& other) {
+
+        // Copy and move constructors
+        Polygon(const Polygon<T,S>& other) = default;
+        Polygon(Polygon<T,S>&& other) = default;
+
+        // Assignment operators
+        Polygon<T,S>& operator=(const Polygon<T,S>& other) = default;
+        Polygon<T,S>& operator=(Polygon<T,S>&& other) = default;
+
+        // Conversion constructors
+        template <typename U>
+        Polygon(const Polygon<U,S>& other) {
             m_vertices.reserve(other.vertexCount());
-            for (const auto& vertex : other)
+            for (const auto& vertex : other.vertices()) {
                 m_vertices.push_back(Vec<T,S>(vertex));
+            }
         }
 
         bool operator==(const Polygon<T,S>& rhs) const {
@@ -76,14 +86,16 @@ namespace TrenchBroom {
             return compare(rhs) < 0;
         }
 
-        int compareSnapped(const Polygon<T,S>& other, const T precision) const {
-            if (m_vertices.size() < other.m_vertices.size())
-                return -1;
-            if (m_vertices.size() > other.m_vertices.size())
-                return 1;
+        bool operator<=(const Polygon<T,S>& rhs) const {
+            return compare(rhs) <= 0;
+        }
 
-            const auto count = m_vertices.size();
-            return doCompareSnapped(other, 0, count, precision);
+        bool operator>(const Polygon<T,S>& rhs) const {
+            return compare(rhs) > 0;
+        }
+
+        bool operator>=(const Polygon<T,S>& rhs) const {
+            return compare(rhs) >= 0;
         }
 
         int compare(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
@@ -143,20 +155,6 @@ namespace TrenchBroom {
         int doCompare(const Polygon<T,S>& other, size_t i, const size_t count, const T epsilon) const {
             while (i < count) {
                 const auto cmp = m_vertices[i].compare(other.m_vertices[i], epsilon);
-                if (cmp < 0) {
-                    return -1;
-                } else if (cmp > 0) {
-                    return +1;
-                }
-                ++i;
-            }
-
-            return 0;
-        }
-
-        int doCompareSnapped(const Polygon<T,S>& other, size_t i, const size_t count, const T precision) const {
-            while (i < count) {
-                const auto cmp = m_vertices[i].compareSnapped(other.m_vertices[i], precision);
                 if (cmp < 0) {
                     return -1;
                 } else if (cmp > 0) {

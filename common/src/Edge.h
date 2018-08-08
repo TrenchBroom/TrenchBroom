@@ -44,31 +44,43 @@ namespace TrenchBroom {
             if (m_end < m_start)
                 flip();
         }
-        
-        template <typename TT, size_t SS>
-        Edge(const Edge<TT,SS>& other) :
+
+        // Copy and move constructors
+        Edge(const Edge<T,S>& other) = default;
+        Edge(Edge<T,S>&& other) = default;
+
+        // Assignment operators
+        Edge<T,S>& operator=(const Edge<T,S>& other) = default;
+        Edge<T,S>& operator=(Edge<T,S>&& other) = default;
+
+        // Conversion constructors
+        template <typename U>
+        Edge(const Edge<U,S>& other) :
         m_start(other.start()),
         m_end(other.end()) {}
-        
+
         bool operator==(const Edge<T,S>& other) const {
-            return m_start == other.m_start && m_end == other.m_end;
+            return compare(other) == 0;
         }
         
         bool operator!=(const Edge<T,S>& other) const {
-            return !(*this == other);
+            return compare(other) != 0;
         }
         
         bool operator<(const Edge<T,S>& other) const {
             return compare(other) < 0;
         }
 
-        int compareSnapped(const Edge<T,S>& other, const T precision) const {
-            const int startCmp = m_start.compareSnapped(other.m_start, precision);
-            if (startCmp < 0)
-                return -1;
-            if (startCmp > 0)
-                return 1;
-            return m_end.compareSnapped(other.m_end, precision);
+        bool operator<=(const Edge<T,S>& other) const {
+            return compare(other) <= 0;
+        }
+
+        bool operator>(const Edge<T,S>& other) const {
+            return compare(other) > 0;
+        }
+
+        bool operator>=(const Edge<T,S>& other) const {
+            return compare(other) >= 0;
         }
 
         int compare(const Edge<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
