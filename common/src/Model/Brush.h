@@ -61,7 +61,7 @@ namespace TrenchBroom {
             class QueryCallback;
             class FaceMatchingCallback;
             
-            using VertexSet = std::set<Vec3, Vec3::GridCmp>;
+            using VertexSet = std::set<Vec3>;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;

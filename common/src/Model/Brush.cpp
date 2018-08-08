@@ -1016,7 +1016,7 @@ namespace TrenchBroom {
         }
 
         Brush::VertexSet Brush::createVertexSet(const Vec3::List& vertices) {
-            return VertexSet(std::begin(vertices), std::end(vertices), Vec3::GridCmp(Math::Constants<FloatType>::almostZero()));
+            return VertexSet(std::begin(vertices), std::end(vertices));
         }
 
         BrushList Brush::subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const {
