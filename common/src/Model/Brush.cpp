@@ -563,15 +563,15 @@ namespace TrenchBroom {
             return m_geometry->vertexPositions();
         }
 
-        bool Brush::hasVertex(const Vec3& position) const {
+        bool Brush::hasVertex(const Vec3& position, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return m_geometry->findVertexByPosition(position) != nullptr;
+            return m_geometry->findVertexByPosition(position, nullptr, epsilon) != nullptr;
         }
 
-        bool Brush::hasVertices(const Vec3::List positions) const {
+        bool Brush::hasVertices(const Vec3::List positions, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& position : positions) {
-                if (!m_geometry->hasVertex(position)) {
+                if (!m_geometry->hasVertex(position, epsilon)) {
                     return false;
                 }
             }
@@ -583,46 +583,46 @@ namespace TrenchBroom {
             return m_geometry->findClosestVertex(position)->position();
         }
 
-        bool Brush::hasEdge(const Edge3& edge) const {
+        bool Brush::hasEdge(const Edge3& edge, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return m_geometry->findEdgeByPositions(edge.start(), edge.end()) != nullptr;
+            return m_geometry->findEdgeByPositions(edge.start(), edge.end(), epsilon) != nullptr;
         }
 
-        bool Brush::hasEdges(const Edge3::List& edges) const {
+        bool Brush::hasEdges(const Edge3::List& edges, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& edge : edges) {
-                if (!m_geometry->hasEdge(edge.start(), edge.end())) {
+                if (!m_geometry->hasEdge(edge.start(), edge.end(), epsilon)) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool Brush::hasFace(const Polygon3& face) const {
+        bool Brush::hasFace(const Polygon3& face, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return m_geometry->hasFace(face.vertices());
+            return m_geometry->hasFace(face.vertices(), epsilon);
         }
 
-        bool Brush::hasFaces(const Polygon3::List& faces) const {
+        bool Brush::hasFaces(const Polygon3::List& faces, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& face : faces) {
-                if (!m_geometry->hasFace(face.vertices())) {
+                if (!m_geometry->hasFace(face.vertices(), epsilon)) {
                     return false;
                 }
             }
             return true;
         }
 
-        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3) const {
-            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3)));
+        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const FloatType epsilon) const {
+            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3)), epsilon);
         }
 
-        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4) const {
-            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3, p4)));
+        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const FloatType epsilon) const {
+            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3, p4)), epsilon);
         }
 
-        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5) const {
-            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3, p4, p5)));
+        bool Brush::hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5, const FloatType epsilon) const {
+            return hasFace(Polygon3(VectorUtils::create<Vec3>(p1, p2, p3, p4, p5)), epsilon);
         }
 
 

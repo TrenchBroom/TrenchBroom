@@ -3494,7 +3494,6 @@ namespace TrenchBroom {
                 brush->findClosestVertexPosition(Vec3(1120.51, -1855.32, 574.536))
             };
 
-            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, Vec3(16.0, 0.0, 0.0)));
             ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, Vec3(16.0, 0.0, 0.0)));
         }
     }

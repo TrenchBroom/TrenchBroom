@@ -137,11 +137,11 @@ public:
         Face* secondFace() const;
         Vertex* commonVertex(const Edge* other) const;
         bool hasVertex(const Vertex* vertex) const;
-        bool hasPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
-        bool hasPositions(const V& position1, const V& position2, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasPosition(const V& position, T epsilon = static_cast<T>(0.0)) const;
+        bool hasPositions(const V& position1, const V& position2, T epsilon = static_cast<T>(0.0)) const;
         bool orphaned() const;
         bool fullySpecified() const;
-        bool contains(const V& point, T maxDistance = Math::Constants<T>::almostZero()) const;
+        bool contains(const V& point, T maxDistance = static_cast<T>(0.0)) const;
         Edge* next() const;
         Edge* previous() const;
     private:
@@ -181,7 +181,7 @@ public:
         HalfEdge* twin() const;
         HalfEdge* previousIncident() const;
         HalfEdge* nextIncident() const;
-        bool hasOrigins(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasOrigins(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
         String asString() const;
     private:
         Math::PointStatus::Type pointStatus(const V& faceNormal, const V& point) const;
@@ -214,14 +214,14 @@ public:
         Face* previous() const;
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
-        HalfEdge* findHalfEdge(const V& origin) const;
+        HalfEdge* findHalfEdge(const V& origin, T epsilon = static_cast<T>(0.0)) const;
         HalfEdge* findHalfEdge(const Vertex* origin) const;
-        Edge* findEdge(const V& first, const V& second) const;
+        Edge* findEdge(const V& first, const V& second, T epsilon = static_cast<T>(0.0)) const;
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;
-        bool hasVertexPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
-        bool hasVertexPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+        bool hasVertexPosition(const V& position, T epsilon = static_cast<T>(0.0)) const;
+        bool hasVertexPositions(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
@@ -324,19 +324,19 @@ public: // Operators
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;
-    bool hasVertex(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
-    bool hasVertex(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
-    bool hasVertices(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasVertex(const V& position, T epsilon = static_cast<T>(0.0)) const;
+    bool hasVertex(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
+    bool hasVertices(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
     typename V::List vertexPositions() const;
     void printVertices() const;
     
     size_t edgeCount() const;
     const EdgeList& edges() const;
-    bool hasEdge(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasEdge(const V& pos1, const V& pos2, T epsilon = static_cast<T>(0.0)) const;
     
     size_t faceCount() const;
     const FaceList& faces() const;
-    bool hasFace(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    bool hasFace(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
     
     const BBox<T,3>& bounds() const;
     
@@ -360,11 +360,11 @@ public: // Accessors
     
     FaceHit pickFace(const Ray<T,3>& ray) const;
 public: // General purpose methods
-    Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = Math::Constants<T>::almostZero()) const;
+    Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = static_cast<T>(0.0)) const;
     Vertex* findClosestVertex(const V& position) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
-    Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
-    Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
+    Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = static_cast<T>(0.0)) const;
+    Face* findFaceByPositions(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
 private:
     template <typename O>
     void getVertexPositions(O output) const;

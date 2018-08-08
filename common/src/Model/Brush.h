@@ -141,16 +141,16 @@ namespace TrenchBroom {
             const Vec3::List vertexPositions() const;
             Vec3 findClosestVertexPosition(const Vec3& position) const;
 
-            bool hasVertex(const Vec3& position) const;
-            bool hasVertices(const Vec3::List positions) const;
-            bool hasEdge(const Edge3& edge) const;
-            bool hasEdges(const Edge3::List& edges) const;
-            bool hasFace(const Polygon3& face) const;
-            bool hasFaces(const Polygon3::List& faces) const;
+            bool hasVertex(const Vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertices(const Vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdge(const Edge3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdges(const Edge3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFaces(const Polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4) const;
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
             size_t edgeCount() const;
             EdgeList edges() const;

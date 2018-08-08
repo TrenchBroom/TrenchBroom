@@ -119,10 +119,11 @@ namespace TrenchBroom {
         }
         
         static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
-            typename Vec<T,S>::List result(2 * edges.size());
+            typename Vec<T,S>::List result;
+            result.reserve(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {
-                result[2*i+0] = edges[i].start();
-                result[2*i+1] = edges[i].end();
+                result.push_back(edges[i].start());
+                result.push_back(edges[i].end());
             }
             return result;
         }
