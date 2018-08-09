@@ -48,13 +48,25 @@ bool eqEpsilon(float a, float b, float epsilon) {
  */
 Quat makeQuat(vec3 from, vec3 to) {
     float cosAngle = dot(from, to);
-    if (eqEpsilon(abs(cosAngle), 1.0, almostZero)) {
+
+    // check for `from` and `to` equal
+    if (eqEpsilon(cosAngle, 1.0, almostZero)) {
         return setRotation(vec3(0.0, 0.0, 1.0), 0.0);
-    } else {
-        vec3 axis = normalize(cross(from, to));
-        float angle = acos(cosAngle);
-        return setRotation(axis, angle);
     }
+
+    // check for `from` and `to` opposite
+    if (eqEpsilon(cosAngle, -1.0, almostZero)) {
+        // need to find a rotation axis that is perpendicular to `from`
+        vec3 axis = cross(from, vec3(0.0, 0.0, 1.0));
+        if (dot(axis, axis) < 0.01) {
+            axis = cross(from, vec3(1.0, 0.0, 0.0));
+        }
+        return setRotation(normalize(axis), radians(180.0));
+    }
+
+    vec3 axis = normalize(cross(from, to));
+    float angle = acos(cosAngle);
+    return setRotation(axis, angle);
 }
 
 Quat quatMult(Quat left, Quat right) {
@@ -88,6 +100,25 @@ vec3 quatMult(Quat left, vec3 right) {
      return p.v;
 }
 
+/**
+ Computes the CCW angle between axis and vector in relation to the given up vector.
+ All vectors are expected to be normalized.
+ */
+float angleBetween(vec3 vec, vec3 axis, vec3 up) {
+    float cosAngle = dot(vec, axis);
+    if (eqEpsilon(+cosAngle, 1.0, almostZero)) {
+        return 0.0;
+    }
+    if (eqEpsilon(-cosAngle, 1.0, almostZero)) {
+        return radians(180.0);
+    }
+    vec3 crossProd = cross(axis, vec);
+    if (dot(crossProd, up) > -almostZero) {
+        return acos(cosAngle);
+    }
+    return radians(360.0) - acos(cosAngle);
+}
+
 void main(void) {
     // TODO: use user-defined attributes for these
     vec3 arrowPosition = gl_MultiTexCoord0.xyz;
@@ -102,7 +133,10 @@ void main(void) {
     desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
 
     vec3 currentUp = quatMult(rotateFromPosXToLineDir, vec3(0.0, 0.0, 1.0));
-    Quat fixUp = makeQuat(currentUp, desiredUp);
+
+    // We want to specifically rotate about `lineDir` only, so can't use makeQuat() (which picks the rotation axis itself
+    // and could accidentally flip the arrow the wrong way instead of rolling it 180 degrees.)
+    Quat fixUp = setRotation(lineDir, -angleBetween(currentUp, desiredUp, lineDir));
 
     // now apply the rotations and translation to gl_Vertex
     vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz);
