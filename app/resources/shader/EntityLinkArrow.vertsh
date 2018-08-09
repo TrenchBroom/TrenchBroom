@@ -89,23 +89,31 @@ vec3 quatMult(Quat left, vec3 right) {
 }
 
 void main(void) {
-    // TODO: use user-defined attributes
+    // TODO: use user-defined attributes for these
     vec3 arrowPosition = gl_MultiTexCoord0.xyz;
     vec3 lineDir = gl_MultiTexCoord1.xyz;
 
-    Quat rotateFromPosXToLineDir = makeQuat(vec3(1.0, 0.0, 0.0), lineDir);
+    vec3 worldVert;
 
-    // the above will point the arrow along the line, but we also want to roll it so it faces the camera.
-    // see: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-find-the-rotation-between-2-vectors-
-    vec3 desiredUp = normalize(CameraPosition - arrowPosition);
-    vec3 desiredRight = cross(lineDir, desiredUp);
-    desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
+    if (lineDir != vec3(0.0)) {
+        Quat rotateFromPosXToLineDir = makeQuat(vec3(1.0, 0.0, 0.0), lineDir);
 
-    vec3 currentUp = quatMult(rotateFromPosXToLineDir, vec3(0.0, 0.0, 1.0));
-    Quat fixUp = makeQuat(currentUp, desiredUp);
+        // the above will point the arrow along the line, but we also want to roll it so it faces the camera.
+        // see: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-find-the-rotation-between-2-vectors-
+        vec3 desiredUp = normalize(CameraPosition - arrowPosition);
+        vec3 desiredRight = cross(lineDir, desiredUp);
+        desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
 
-    // now apply the rotations and translation to gl_Vertex
-    vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz);
+        vec3 currentUp = quatMult(rotateFromPosXToLineDir, vec3(0.0, 0.0, 1.0));
+        Quat fixUp = makeQuat(currentUp, desiredUp);
+
+        // now apply the rotations and translation to gl_Vertex
+        worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz);
+    } else {
+        // this is only the case when reusing this shader for the entity link lines, not the arrows
+
+        worldVert = gl_Vertex.xyz;
+    }
 
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(worldVert, 1.0);
     distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);

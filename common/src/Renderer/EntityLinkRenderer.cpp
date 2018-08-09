@@ -68,7 +68,7 @@ namespace TrenchBroom {
         void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_valid) {
                 validate();
-                // hack, Requires these two vbo's to have the same vertex format
+                // TODO: Requires these two vbo's to have the same vertex format
                 m_entityLinks.prepare(vertexVbo);
                 m_entityArrows.prepare(vertexVbo);
             }
