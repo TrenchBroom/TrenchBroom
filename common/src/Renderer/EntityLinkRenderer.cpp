@@ -68,7 +68,8 @@ namespace TrenchBroom {
         void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_valid) {
                 validate();
-                // TODO: Requires these two vbo's to have the same vertex format
+
+                // Upload the VBO's
                 m_entityLinks.prepare(vertexVbo);
                 m_entityArrows.prepare(vertexVbo);
             }
@@ -113,7 +114,7 @@ namespace TrenchBroom {
 
             // build the arrows before destroying `links`
             {
-                Vertex::List arrows;
+                ArrowVertex::List arrows;
                 assert((links.size() % 2) == 0);
                 for (size_t i = 0; i < links.size(); i += 2) {
                     const auto& startVertex = links.at(i);
@@ -179,8 +180,8 @@ namespace TrenchBroom {
                 const Color& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
                 Color targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor, Vec3::Null, Vec3::Null));
-                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor, Vec3::Null, Vec3::Null));
+                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor));
+                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor));
             }
         };
         
