@@ -24,44 +24,11 @@ uniform vec3 CameraPosition;
 varying float distanceFromCamera;
 varying vec4 color;
 
-/**
- Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
- */
-mat4 rotationMatrix(vec3 axis, float angle) {
-    float s = sin(-angle);
-    float c = cos(-angle);
-    float i = 1.0f - c;
+// Math
 
-    float ix  = i  * axis[0];
-    float ix2 = ix * axis[0];
-    float ixy = ix * axis[1];
-    float ixz = ix * axis[2];
-
-    float iy  = i  * axis[1];
-    float iy2 = iy * axis[1];
-    float iyz = iy * axis[2];
-
-    float iz2 = i  * axis[2] * axis[2];
-
-    float sx = s * axis[0];
-    float sy = s * axis[1];
-    float sz = s * axis[2];
-
-    mat4 rotation = mat4(1.0);
-    rotation[0][0] = ix2 + c;
-    rotation[0][1] = ixy - sz;
-    rotation[0][2] = ixz + sy;
-
-    rotation[1][0] = ixy + sz;
-    rotation[1][1] = iy2 + c;
-    rotation[1][2] = iyz - sx;
-
-    rotation[2][0] = ixz - sy;
-    rotation[2][1] = iyz + sx;
-    rotation[2][2] = iz2 + c;
-
-    return rotation;
-}
+const float pi = 3.14159265359;
+const float twoPi = 2.0 * pi;
+const float almostZero = 0.001;
 
 struct Quat {
     float r;
@@ -113,7 +80,7 @@ bool eqEpsilon(float a, float b, float epsilon) {
  */
 Quat makeQuat(vec3 from, vec3 to) {
     float cosAngle = dot(from, to);
-    if (eqEpsilon(abs(cosAngle), 1.0, 0.001)) {
+    if (eqEpsilon(abs(cosAngle), 1.0, almostZero)) {
         return setRotation(vec3(0.0, 0.0, 1.0), 0.0);
     } else {
         vec3 axis = normalize(cross(from, to));
@@ -140,13 +107,22 @@ mat4 translationMatrix(vec3 delta) {
 }
 
 void main(void) {
-    // hack.. should use user-defined attributes
+    // TODO: use user-defined attributes
     vec3 arrowPosition = gl_MultiTexCoord0.xyz;
     vec3 lineDir = gl_MultiTexCoord1.xyz;
 
-    mat4 rotateFromPosXToLine = translationMatrix(arrowPosition) * rotationMatrix(vec3(1.0, 0.0, 0.0), lineDir);
+    mat4 rotateFromPosXToLineDir = rotationMatrix(vec3(1.0, 0.0, 0.0), lineDir);
 
-    vec4 worldVert = rotateFromPosXToLine * gl_Vertex;
+    // the above will point the arrow along the line, but we also want to roll it so it faces the camera.
+    // see: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-find-the-rotation-between-2-vectors-
+    vec3 desiredUp = normalize(CameraPosition - arrowPosition);
+    vec3 desiredRight = cross(lineDir, desiredUp);
+    desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
+
+    vec3 currentUp = vec3(rotateFromPosXToLineDir * vec4(0.0, 0.0, 1.0, 1.0));
+    mat4 fixUp = rotationMatrix(currentUp, desiredUp);
+
+    vec4 worldVert = translationMatrix(arrowPosition) * fixUp * rotateFromPosXToLineDir * gl_Vertex;
 
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * worldVert;
     distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);

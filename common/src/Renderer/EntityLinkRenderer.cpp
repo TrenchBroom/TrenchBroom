@@ -124,19 +124,12 @@ namespace TrenchBroom {
 
                     const auto lineDir = lineVec.normalized();
 
-                    const auto rotateFromPosXToLine = translationMatrix(arrowPosition) * rotationMatrix(Vec3f::PosX, lineDir);
-
-//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
-//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, 1}, startVertex.v2);
-//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{1, 0, 0}, startVertex.v2);
-//                    arrows.emplace_back(rotateFromPosXToLine * Vec3f{0, 0, -1}, startVertex.v2);
-
                     const auto color = startVertex.v2;
 
                     arrows.emplace_back(Vec3f{1, 0, 0}, color, arrowPosition, lineDir);
-                    arrows.emplace_back(Vec3f{0, 0, 1}, color, arrowPosition, lineDir);
+                    arrows.emplace_back(Vec3f{0, 1, 0}, color, arrowPosition, lineDir);
                     arrows.emplace_back(Vec3f{1, 0, 0}, color, arrowPosition, lineDir);
-                    arrows.emplace_back(Vec3f{0, 0, -1}, color, arrowPosition, lineDir);
+                    arrows.emplace_back(Vec3f{0, -1, 0}, color, arrowPosition, lineDir);
                 }
 
                 m_entityArrows = VertexArray::swap(arrows);
