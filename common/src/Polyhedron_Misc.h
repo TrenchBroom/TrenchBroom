@@ -665,8 +665,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position) const {
-    T closestDistance = std::numeric_limits<T>::max();
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position, const T maxDistance) const {
+    T closestDistance = maxDistance;
     Vertex* closestVertex = nullptr;
     
     Vertex* firstVertex = m_vertices.front();

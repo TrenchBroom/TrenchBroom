@@ -3488,12 +3488,15 @@ namespace TrenchBroom {
             std::unique_ptr<Brush> brush(static_cast<Brush*>(nodes.front()));
 
             const Vec3::List vertexPositions {
-                brush->findClosestVertexPosition(Vec3(1164.17, -1797.73, 578.315)),
-                brush->findClosestVertexPosition(Vec3(1169.18, -1800.3,  568.765)),
-                brush->findClosestVertexPosition(Vec3(1163.52, -1820.79, 554.179)),
-                brush->findClosestVertexPosition(Vec3(1120.51, -1855.32, 574.536))
+                // brush->findClosestVertexPosition(Vec3(1169.1814909038198, -1800.3019058236118, 568.76530164725909)),
+                brush->findClosestVertexPosition(Vec3(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
+                //brush->findClosestVertexPosition(Vec3(1164.1684427444827, -1797.7261801439595, 578.31529060850733)),
+                brush->findClosestVertexPosition(Vec3(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
+                brush->findClosestVertexPosition(Vec3(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
+                brush->findClosestVertexPosition(Vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))
             };
 
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, Vec3(16.0, 0.0, 0.0)));
             ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, Vec3(16.0, 0.0, 0.0)));
         }
     }

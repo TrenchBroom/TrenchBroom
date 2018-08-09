@@ -712,8 +712,11 @@ public:
         }
     }
     
-    std::string asString(const size_t components = S) const {
+    std::string asString(const size_t components = S, const int precision = -1) const {
         StringStream result;
+        if (precision > 0) {
+            result.precision(precision);
+        }
         write(result, components);
         return result.str();
     }

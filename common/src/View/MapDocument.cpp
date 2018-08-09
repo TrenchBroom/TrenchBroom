@@ -1167,8 +1167,9 @@ namespace TrenchBroom {
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
                     StringStream str;
+                    str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices())
-                        str << "(" << vertex->position().asString() << ") ";
+                        str << vertex->position() << " ";
                     info(str.str());
                 }
             }

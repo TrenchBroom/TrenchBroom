@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <queue>
+#include <limits>
 #include <vector>
 
 template <typename T, typename FP, typename VP>
@@ -361,7 +362,7 @@ public: // Accessors
     FaceHit pickFace(const Ray<T,3>& ray) const;
 public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = static_cast<T>(0.0)) const;
-    Vertex* findClosestVertex(const V& position) const;
+    Vertex* findClosestVertex(const V& position, T maxDistance = std::numeric_limits<T>::max()) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = static_cast<T>(0.0)) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
