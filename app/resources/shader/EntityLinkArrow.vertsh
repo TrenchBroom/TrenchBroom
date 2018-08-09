@@ -24,44 +24,12 @@ uniform vec3 CameraPosition;
 varying float distanceFromCamera;
 varying vec4 color;
 
-// Math
-
-const float pi = 3.14159265359;
-const float twoPi = 2.0 * pi;
 const float almostZero = 0.001;
 
 struct Quat {
     float r;
     vec3 v;
 };
-
-mat4 rotationMatrix(Quat quat) {
-    // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
-
-    float x = quat.v[0];
-    float y = quat.v[1];
-    float z = quat.v[2];
-    float w = quat.r;
-
-    float x2 = x*x;
-    float y2 = y*y;
-    float z2 = z*z;
-
-    mat4 rotation = mat4(1.0);
-    rotation[0][0] = (1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
-    rotation[0][1] = (2.0*(x*y + z*w));
-    rotation[0][2] = (2.0*(x*z - y*w));
-
-    rotation[1][0] = (2.0*(x*y - z*w));
-    rotation[1][1] = (1.0 - 2.0*(x2 + z2));//a2 - b2 + c2 - d2;
-    rotation[1][2] = (2.0*(y*z + x*w));
-
-    rotation[2][0] = (2.0*(x*z + y*w));
-    rotation[2][1] = (2.0*(y*z - x*w));
-    rotation[2][2] = (1.0 - 2.0*(x2 + y2));// a2 - b2 - c2 + d2;
-
-    return rotation;
-}
 
 Quat setRotation(vec3 axis, float angle) {
     Quat quat;
@@ -89,21 +57,35 @@ Quat makeQuat(vec3 from, vec3 to) {
     }
 }
 
-/**
- Returns a matrix that will rotate the given from vector onto the given to vector
- about their perpendicular axis. The vectors are expected to be normalized.
- */
-mat4 rotationMatrix(vec3 from, vec3 to) {
-    return rotationMatrix(makeQuat(from, to));
+Quat quatMult(Quat left, Quat right) {
+    float t = right.r;
+    vec3 w = right.v;
+
+    float nx = left.r * w.x + t * left.v.x + left.v.y * w.z - left.v.z * w.y;
+    float ny = left.r * w.y + t * left.v.y + left.v.z * w.x - left.v.x * w.z;
+    float nz = left.r * w.z + t * left.v.z + left.v.x * w.y - left.v.y * w.x;
+
+    Quat result;
+    result.r = left.r * t - dot(left.v, w);
+    result.v[0] = nx;
+    result.v[1] = ny;
+    result.v[2] = nz;
+    return result;
 }
 
-mat4 translationMatrix(vec3 delta) {
-    mat4 translation = mat4(1.0);
-    int i;
-    for (i = 0; i < 3; ++i) {
-        translation[3][i] = delta[i];
-    }
-    return translation;
+Quat conjugated(Quat left) {
+    Quat result;
+    result.r = left.r;
+    result.v = -left.v;
+    return result;
+}
+
+vec3 quatMult(Quat left, vec3 right) {
+     Quat p;
+     p.r = 0.0;
+     p.v = right;
+     p = quatMult(quatMult(left, p), conjugated(left));
+     return p.v;
 }
 
 void main(void) {
@@ -111,7 +93,7 @@ void main(void) {
     vec3 arrowPosition = gl_MultiTexCoord0.xyz;
     vec3 lineDir = gl_MultiTexCoord1.xyz;
 
-    mat4 rotateFromPosXToLineDir = rotationMatrix(vec3(1.0, 0.0, 0.0), lineDir);
+    Quat rotateFromPosXToLineDir = makeQuat(vec3(1.0, 0.0, 0.0), lineDir);
 
     // the above will point the arrow along the line, but we also want to roll it so it faces the camera.
     // see: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-find-the-rotation-between-2-vectors-
@@ -119,12 +101,13 @@ void main(void) {
     vec3 desiredRight = cross(lineDir, desiredUp);
     desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
 
-    vec3 currentUp = vec3(rotateFromPosXToLineDir * vec4(0.0, 0.0, 1.0, 1.0));
-    mat4 fixUp = rotationMatrix(currentUp, desiredUp);
+    vec3 currentUp = quatMult(rotateFromPosXToLineDir, vec3(0.0, 0.0, 1.0));
+    Quat fixUp = makeQuat(currentUp, desiredUp);
 
-    vec4 worldVert = translationMatrix(arrowPosition) * fixUp * rotateFromPosXToLineDir * gl_Vertex;
+    // now apply the rotations and translation to gl_Vertex
+    vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz);
 
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * worldVert;
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(worldVert, 1.0);
     distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);
     color = gl_Color;
 }
