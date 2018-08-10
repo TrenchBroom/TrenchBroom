@@ -30,7 +30,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <array>
 #include <set>
 
 namespace TrenchBroom {
@@ -493,7 +492,7 @@ namespace TrenchBroom {
                     // the face is pointing away from the camera (or exactly perpendicular)
                     // but not equal to the camera direction (important for 2D views)
 
-                    const std::array<Vec3, 4> points{p0, p1, p2, p3};
+                    const Vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
                         const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
                         if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
