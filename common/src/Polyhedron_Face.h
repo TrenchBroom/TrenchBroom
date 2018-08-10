@@ -185,6 +185,39 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& posit
 }
 
 template <typename T, typename FP, typename VP>
+T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const T maxDistance) const {
+    assert(positions.size() == vertexCount());
+
+    T closestDistance = maxDistance;
+
+    // Find the boundary edge with the origin closest to the first position.
+    const auto* firstEdge = m_boundary.front();
+    const auto* startEdge = firstEdge;
+    const auto* currentEdge = firstEdge;
+    do {
+        const T currentDistance = currentEdge->origin()->position().distanceTo(positions.front());
+        if (currentDistance < closestDistance) {
+            closestDistance = currentDistance;
+            startEdge = currentEdge;
+        }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+
+    // now find the maximum distance of all points
+    firstEdge = startEdge;
+    currentEdge = firstEdge->next();
+    auto posIt = std::next(std::begin(positions));
+    do {
+        const auto& position = *posIt;
+        ++posIt;
+
+        closestDistance = std::max(closestDistance, currentEdge->origin()->position().distanceTo(position));
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return closestDistance;
+}
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
     const auto* first = m_boundary.front();
     const auto* current = first;

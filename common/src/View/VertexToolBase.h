@@ -218,7 +218,6 @@ namespace TrenchBroom {
             
             virtual void endMove() {
                 MapDocumentSPtr document = lock(m_document);
-                rebuildBrushGeometry();
                 document->commitTransaction();
                 m_dragging = false;
                 m_ignoreChangeNotifications.popLiteral();
@@ -244,7 +243,6 @@ namespace TrenchBroom {
 
                 Transaction transaction(m_document, actionName());
                 move(delta);
-                rebuildBrushGeometry();
             }
             
             bool canRemoveSelection() const {
@@ -325,12 +323,6 @@ namespace TrenchBroom {
             }
             
             virtual bool doDeactivate() override {
-                /*
-                 if (m_changeCount > 0) {
-                 RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document, document.editStateManager().selectedBrushes(), m_changeCount);
-                 submitCommand(command);
-                 }
-                 */
                 unbindObservers();
                 handleManager().clear();
                 return true;
@@ -402,9 +394,6 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command.get());
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
-
-                    if (!m_dragging)
-                        rebuildBrushGeometry();
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
@@ -414,10 +403,6 @@ namespace TrenchBroom {
                     auto* vertexCommand = static_cast<VertexCommand*>(command.get());
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
-
-                    if (!m_dragging) {
-                        rebuildBrushGeometry();
-                    }
                     m_ignoreChangeNotifications.popLiteral();
                 }
             }
@@ -449,21 +434,6 @@ namespace TrenchBroom {
                 if (!m_ignoreChangeNotifications) {
                     addHandles(nodes);
                 }
-            }
-        protected:
-            void rebuildBrushGeometry() {
-                const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
-                
-                const auto selectedHandles = handleManager().selectedHandles();
-                const Model::BrushSet brushes = findIncidentBrushes(handleManager(), std::begin(selectedHandles), std::end(selectedHandles));
-                const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
-                removeHandles(nodes);
-
-                MapDocumentSPtr document = lock(m_document);
-                document->rebuildBrushGeometry(Model::BrushList(std::begin(brushes), std::end(brushes)));
-
-                addHandles(nodes);
-                handleManager().select(std::begin(selectedHandles), std::end(selectedHandles));
             }
         protected:
             virtual void addHandles(VertexCommand* command) {

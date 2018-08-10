@@ -193,7 +193,8 @@ namespace TrenchBroom {
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
             
-            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
+            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, Vec3 delta, bool allowVertexRemoval) const;
+            void doMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
             
             static VertexSet createVertexSet(const Vec3::List& vertices = Vec3::EmptyList);
@@ -204,7 +205,7 @@ namespace TrenchBroom {
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
-            void updateFacesFromGeometry(const BBox3& worldBounds);
+            void updateFacesFromGeometry(const BBox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
             void deleteGeometry();

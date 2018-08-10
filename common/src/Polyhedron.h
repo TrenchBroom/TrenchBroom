@@ -140,6 +140,7 @@ public:
         bool hasVertex(const Vertex* vertex) const;
         bool hasPosition(const V& position, T epsilon = static_cast<T>(0.0)) const;
         bool hasPositions(const V& position1, const V& position2, T epsilon = static_cast<T>(0.0)) const;
+        T distanceTo(const V& position1, const V& position2) const;
         bool orphaned() const;
         bool fullySpecified() const;
         bool contains(const V& point, T maxDistance = static_cast<T>(0.0)) const;
@@ -223,6 +224,7 @@ public:
         typename V::List vertexPositions() const;
         bool hasVertexPosition(const V& position, T epsilon = static_cast<T>(0.0)) const;
         bool hasVertexPositions(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
+        T distanceTo(const typename V::List& positions, T maxDistance = std::numeric_limits<T>::max()) const;
         V normal() const;
         V center() const;
         T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
@@ -365,7 +367,9 @@ public: // General purpose methods
     Vertex* findClosestVertex(const V& position, T maxDistance = std::numeric_limits<T>::max()) const;
     ClosestVertexSet findClosestVertices(const V& position) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = static_cast<T>(0.0)) const;
+    Edge* findClosestEdge(const V& pos1, const V& pos2, T maxDistance = std::numeric_limits<T>::max()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
+    Face* findClosestFace(const typename V::List& positions, T maxDistance = std::numeric_limits<T>::max());
 private:
     template <typename O>
     void getVertexPositions(O output) const;
