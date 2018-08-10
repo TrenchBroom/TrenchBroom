@@ -60,7 +60,7 @@ public:
     Quat(const Vec<T,3>& axis, const T angle) {
         setRotation(axis, angle);
     }
-    
+
     /**
      * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
      * expected to be normalized.
@@ -70,8 +70,17 @@ public:
         assert(to.isNormalized());
         
         const T cos = from.dot(to);
-        if (Math::eq(std::abs(cos), static_cast<T>(1.0))) {
+        if (Math::eq(cos, static_cast<T>(1.0))) {
+            // `from` and `to` are equal.
             setRotation(Vec<T,3>::PosZ, static_cast<T>(0.0));
+        } else if (Math::eq(cos, static_cast<T>(-1.0))) {
+            // `from` and `to` are opposite.
+            // We need to find a rotation axis that is perpendicular to `from`.
+            auto axis = crossed(from, Vec<T,3>::PosZ);
+            if (Math::zero(axis.squaredLength())) {
+                axis = crossed(from, Vec<T,3>::PosX);
+            }
+            setRotation(axis.normalized(), Math::radians(static_cast<T>(180)));
         } else {
             const Vec<T,3> axis = crossed(from, to).normalized();
             const T angle = std::acos(cos);
@@ -127,7 +136,7 @@ public:
         return *this;
     }
     
-    float angle() const {
+    T angle() const {
         return static_cast<T>(2.0) * std::acos(r);
     }
     
