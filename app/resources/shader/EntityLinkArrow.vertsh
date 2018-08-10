@@ -138,10 +138,14 @@ void main(void) {
     // and could accidentally flip the arrow the wrong way instead of rolling it 180 degrees.)
     Quat fixUp = setRotation(lineDir, -angleBetween(currentUp, desiredUp, lineDir));
 
-    // now apply the rotations and translation to gl_Vertex
-    vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz);
+    distanceFromCamera = length(CameraPosition - arrowPosition);
+
+    // scale up as you get further away, to a maximum of 6x at 2048 units away
+    float scaleFactor = mix(1.0, 6.0, smoothstep(0.0, 2048.0, distanceFromCamera));
+
+    // now apply the scale, rotations, and translation to gl_Vertex
+    vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz * scaleFactor);
 
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(worldVert, 1.0);
-    distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);
     color = gl_Color;
 }
