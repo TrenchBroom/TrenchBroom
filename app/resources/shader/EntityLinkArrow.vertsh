@@ -1,0 +1,151 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform vec3 CameraPosition;
+
+varying float distanceFromCamera;
+varying vec4 color;
+
+const float almostZero = 0.001;
+
+struct Quat {
+    float r;
+    vec3 v;
+};
+
+Quat setRotation(vec3 axis, float angle) {
+    Quat quat;
+    quat.r = cos(angle / 2.0f);
+    quat.v = axis * sin(angle / 2.0f);
+    return quat;
+}
+
+bool eqEpsilon(float a, float b, float epsilon) {
+    return abs(a - b) < epsilon;
+}
+
+/**
+ * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
+ * expected to be normalized.
+ */
+Quat makeQuat(vec3 from, vec3 to) {
+    float cosAngle = dot(from, to);
+
+    // check for `from` and `to` equal
+    if (eqEpsilon(cosAngle, 1.0, almostZero)) {
+        return setRotation(vec3(0.0, 0.0, 1.0), 0.0);
+    }
+
+    // check for `from` and `to` opposite
+    if (eqEpsilon(cosAngle, -1.0, almostZero)) {
+        // need to find a rotation axis that is perpendicular to `from`
+        vec3 axis = cross(from, vec3(0.0, 0.0, 1.0));
+        if (dot(axis, axis) < 0.01) {
+            axis = cross(from, vec3(1.0, 0.0, 0.0));
+        }
+        return setRotation(normalize(axis), radians(180.0));
+    }
+
+    vec3 axis = normalize(cross(from, to));
+    float angle = acos(cosAngle);
+    return setRotation(axis, angle);
+}
+
+Quat quatMult(Quat left, Quat right) {
+    float t = right.r;
+    vec3 w = right.v;
+
+    float nx = left.r * w.x + t * left.v.x + left.v.y * w.z - left.v.z * w.y;
+    float ny = left.r * w.y + t * left.v.y + left.v.z * w.x - left.v.x * w.z;
+    float nz = left.r * w.z + t * left.v.z + left.v.x * w.y - left.v.y * w.x;
+
+    Quat result;
+    result.r = left.r * t - dot(left.v, w);
+    result.v[0] = nx;
+    result.v[1] = ny;
+    result.v[2] = nz;
+    return result;
+}
+
+Quat conjugated(Quat left) {
+    Quat result;
+    result.r = left.r;
+    result.v = -left.v;
+    return result;
+}
+
+vec3 quatMult(Quat left, vec3 right) {
+     Quat p;
+     p.r = 0.0;
+     p.v = right;
+     p = quatMult(quatMult(left, p), conjugated(left));
+     return p.v;
+}
+
+/**
+ Computes the CCW angle between axis and vector in relation to the given up vector.
+ All vectors are expected to be normalized.
+ */
+float angleBetween(vec3 vec, vec3 axis, vec3 up) {
+    float cosAngle = dot(vec, axis);
+    if (eqEpsilon(+cosAngle, 1.0, almostZero)) {
+        return 0.0;
+    }
+    if (eqEpsilon(-cosAngle, 1.0, almostZero)) {
+        return radians(180.0);
+    }
+    vec3 crossProd = cross(axis, vec);
+    if (dot(crossProd, up) > -almostZero) {
+        return acos(cosAngle);
+    }
+    return radians(360.0) - acos(cosAngle);
+}
+
+void main(void) {
+    // TODO: use user-defined attributes for these
+    vec3 arrowPosition = gl_MultiTexCoord0.xyz;
+    vec3 lineDir = gl_MultiTexCoord1.xyz;
+
+    Quat rotateFromPosXToLineDir = makeQuat(vec3(1.0, 0.0, 0.0), lineDir);
+
+    // the above will point the arrow along the line, but we also want to roll it so it faces the camera.
+    // see: http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/#how-do-i-find-the-rotation-between-2-vectors-
+    vec3 desiredUp = normalize(CameraPosition - arrowPosition);
+    vec3 desiredRight = cross(lineDir, desiredUp);
+    desiredUp = normalize(cross(desiredRight, lineDir)); // make desiredUp perpendicular to the lineDir
+
+    vec3 currentUp = quatMult(rotateFromPosXToLineDir, vec3(0.0, 0.0, 1.0));
+
+    // We want to specifically rotate about `lineDir` only, so can't use makeQuat() (which picks the rotation axis itself
+    // and could accidentally flip the arrow the wrong way instead of rolling it 180 degrees.)
+    Quat fixUp = setRotation(lineDir, -angleBetween(currentUp, desiredUp, lineDir));
+
+    distanceFromCamera = length(CameraPosition - arrowPosition);
+
+    // scale up as you get further away, to a maximum of 4x at 2048 units away
+    float scaleFactor = mix(1.0, 4.0, smoothstep(0.0, 2048.0, distanceFromCamera));
+
+    // now apply the scale, rotations, and translation to gl_Vertex
+    vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz * scaleFactor);
+
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(worldVert, 1.0);
+    color = gl_Color;
+}
