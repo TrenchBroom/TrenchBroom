@@ -50,18 +50,42 @@ namespace TrenchBroom {
         public:
             virtual ~VertexHandleManagerBase();
         public:
+            /**
+             * Adds all handles of the the given range of brushes to this handle manager.
+             *
+             * @tparam I the type of the given range iterators
+             * @param begin the beginning of the range
+             * @param end the end of the range
+             */
             template <typename I>
             void addHandles(I begin, I end) {
                 std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
             }
-            
+
+            /**
+             * Adds all handles of the given brush to this handle manager.
+             *
+             * @param brush the brush whose handles to add
+             */
             virtual void addHandles(const Model::Brush* brush) = 0;
-            
+
+            /**
+             * Removes all handles of the given range of brushes from this handle manager.
+             *
+             * @tparam I the type of the range iterators
+             * @param begin the beginning of the range
+             * @param end the end of the range
+             */
             template <typename I>
             void removeHandles(I begin, I end) {
                 std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
             }
 
+            /**
+             * Removes all handles of the given brush from this handle manager.
+             *
+             * @param brush the brush whose handles to remove
+             */
             virtual void removeHandles(const Model::Brush* brush) = 0;
         };
 
@@ -72,6 +96,10 @@ namespace TrenchBroom {
             typedef std::vector<H> HandleList;
         private:
         protected:
+            /**
+             * Represents the status of a handle, i.e., how many duplicates exist at the same coordinates and whether
+             * or not all of these are selected.
+             */
             struct HandleInfo {
                 size_t count;
                 bool selected;
@@ -79,28 +107,49 @@ namespace TrenchBroom {
                 HandleInfo() :
                 count(0),
                 selected(false) {}
-                
+
+                /**
+                 * Sets this handle to selected.
+                 *
+                 * @return true if and only if this handle was not previously selected
+                 */
                 bool select() {
                     const bool result = !selected;
                     selected = true;
                     return result;
                 }
-                
+
+                /**
+                 * Sets this handle to deselected.
+                 *
+                 * @return true if and only if this handle was previously selected
+                 */
                 bool deselect() {
                     const bool result = selected;
                     selected = false;
                     return result;
                 }
-                
+
+                /**
+                 * Toggles the selection state of this handle.
+                 *
+                 * @return true if and only if this handle was previously selected
+                 */
                 bool toggle() {
                     selected = !selected;
                     return selected;
                 }
-                
+
+                /**
+                 * Increments the number of handles at the same coordinates.
+                 */
                 void inc() {
                     ++count;
                 }
-                
+
+                /**
+                 * Deccrements the number of handles at the same coordinates.
+                 */
                 void dec() {
                     --count;
                 }
@@ -109,7 +158,14 @@ namespace TrenchBroom {
             typedef std::map<H, HandleInfo> HandleMap;
             typedef typename HandleMap::value_type HandleEntry;
 
+            /**
+             * Maps a handle position to its info.
+             */
             HandleMap m_handles;
+
+            /**
+             * The total number of selected handles, not counting duplicates.
+             */
             size_t m_selectedHandleCount;
         public:
             VertexHandleManagerBaseT() :
@@ -117,41 +173,75 @@ namespace TrenchBroom {
             
             virtual ~VertexHandleManagerBaseT() {}
         public:
+            /**
+             * Returns the hit type value of the picking hits reported by this manager.
+             *
+             * @return the hit type value
+             */
             virtual Model::Hit::HitType hitType() const = 0;
-            
+
+            /**
+             * The total number of selected handles, not counting duplicates.
+             *
+             * @return the total number of selected handles
+             */
             size_t selectedHandleCount() const {
                 return m_selectedHandleCount;
             }
-            
+
+            /**
+             * The total number of unselected handles, not counting duplicates.
+             *
+             * @return the total number of unselected handles
+             */
             size_t unselectedHandleCount() const {
                 return totalHandleCount() - selectedHandleCount();
             }
-            
+
+            /**
+             * The total number of handles, selected or not, not counting duplicates.
+             *
+             * @return the total number of handles
+             */
             size_t totalHandleCount() const {
                 return m_handles.size();
             }
         public:
+            /**
+             * Returns all handles contained in this manager.
+             *
+             * @return a list containing all handles
+             */
             HandleList allHandles() const {
                 HandleList result;
                 result.reserve(totalHandleCount());
                 collectHandles([](const HandleInfo& info) { return true; }, std::back_inserter(result));
                 return result;
             }
-            
+
+            /**
+             * Returns all selected handles contained in this manager.
+             *
+             * @return a list containing all selected handles
+             */
             HandleList selectedHandles() const {
                 HandleList result;
                 result.reserve(selectedHandleCount());
                 collectHandles([](const HandleInfo& info) { return info.selected; }, std::back_inserter(result));
                 return result;
             }
-            
+
+            /**
+             * Returns all unselected handles contained in this manager.
+             *
+             * @return a list containing all unselected handles
+             */
             HandleList unselectedHandles() const {
                 HandleList result;
                 result.reserve(unselectedHandleCount());
                 collectHandles([](const HandleInfo& info) { return !info.selected; }, std::back_inserter(result));
                 return result;
             }
-
         private:
             template <typename T, typename O>
             void collectHandles(const T& test, O out) const {
@@ -163,29 +253,61 @@ namespace TrenchBroom {
                 }
             }
         public:
+            /**
+             * Indicates whether the given handle is contained in this manager.
+             *
+             * @param handle the handle to check
+             * @return true if and only if the given handle is contained in this manager
+             */
             bool contains(const Handle& handle) const {
                 return m_handles.count(handle) > 0;
             }
 
+            /**
+             * Indicates whether the given handle is selected.
+             *
+             * @param handle the handle to check
+             * @return true if and only if the given handle is contained in this manager and it is selected
+             */
             bool selected(const Handle& handle) const {
                 const auto it = m_handles.find(handle);
                 if (it == std::end(m_handles))
                     return false;
                 return it->second.selected;
             }
-            
+
+            /**
+             * Indicates whether any handle is currently selected.
+             *
+             * @return true if and only if any handle is selected
+             */
             bool anySelected() const {
                 return selectedHandleCount() > 0;
             }
-            
+
+            /**
+             * Indicates whether all handles are currently selected
+             * @return true if and only if all handles are selected
+             */
             bool allSelected() const {
                 return selectedHandleCount() == totalHandleCount();
             }
         public:
+            /**
+             * Adds the given handle to this manager.
+             *
+             * @param handle the handle to add
+             */
             void add(const Handle& handle) {
                 MapUtils::findOrInsert(m_handles, handle, HandleInfo())->second.inc();
             }
-            
+
+            /**
+             * Removes the given handle from this manager.
+             *
+             * @param handle the handle to remove
+             * @return true if the given handle was contained in this manager (and therefore removed) and false otherwise
+             */
             bool remove(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
@@ -202,46 +324,91 @@ namespace TrenchBroom {
                 return false;
             }
 
+            /**
+             * Removes all handles from this manager.
+             */
             void clear() {
                 m_handles.clear();
                 m_selectedHandleCount = 0;
             }
 
+            /**
+             * Selects the given range of handles.
+             *
+             * @tparam I the type of the range iterator
+             * @param begin the beginning of the range
+             * @param end the end of the range
+             */
             template <typename I>
             void select(I begin, I end) {
                 std::for_each(begin, end, [this](const Handle& handle) { select(handle); });
             }
-            
+
+            /**
+             * Selects the given handle. If the given handle is not contained in this manager or if it is selected,
+             * nothing happens.
+             *
+             * @param handle the handle to select
+             */
             void select(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
                     select(it->second);
                 }
             }
-            
+
+            /**
+             * Deselects the given range of handles.
+             *
+             * @tparam I the type of the range iterators
+             * @param begin the beginning of the range
+             * @param end the end of the range
+             */
             template <typename I>
             void deselect(I begin, I end) {
                 std::for_each(begin, end, [this](const Handle& handle) { deselect(handle); });
             }
-            
+
+            /**
+             * Deselects the given handle. If the handle is not contained in this manager or if it is not selected,
+             * nothing happens.
+             *
+             * @param handle the handle to deselect
+             */
             void deselect(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
                     deselect(it->second);
                 }
             }
-            
+
+            /**
+             * Deselects all currently selected handles
+             */
             void deselectAll() {
                 std::for_each(std::begin(m_handles), std::end(m_handles), [this](HandleEntry& entry) {
                     deselect(entry.second);
                 });
             }
-            
+
+            /**
+             * Toggles the selection of the given range of handles.
+             *
+             * @tparam I the type of the range iterators
+             * @param begin the beginning of the range
+             * @param end the end of the range
+             */
             template <typename I>
             void toggle(I begin, I end) {
                 std::for_each(begin, end, [this](const Handle& handle) { toggle(handle); });
             }
-            
+
+            /**
+             * Toggles the selection state of the given handle. If the handle is not contained in this manager, nothing
+             * happens.
+             *
+             * @param handle the handle to toggle
+             */
             void toggle(const Handle& handle) {
                 const auto it = m_handles.find(handle);
                 if (it != std::end(m_handles)) {
@@ -273,6 +440,14 @@ namespace TrenchBroom {
                 }
             }
         public:
+            /**
+             * Applies the given picking test to all handles in this manager and adds all hits to the given picking
+             * result.
+             *
+             * @tparam P the type of the picking test, which must be a unary function that maps a handle to a picking hit
+             * @param test the picking test to apply
+             * @param pickResult the pick result to add hits to
+             */
             template <typename P>
             void pick(const P& test, Model::PickResult& pickResult) const {
                 std::for_each(std::begin(m_handles), std::end(m_handles), [&test, &pickResult](const HandleEntry& entry) {
@@ -282,13 +457,33 @@ namespace TrenchBroom {
                 });
             }
         public:
+            /**
+             * Finds and returns all brushes in the given range which are incident to the given handle.
+             *
+             * @tparam I the type of the range iterators
+             * @param handle the handle
+             * @param begin the beginning of the range of brushes
+             * @param end the end of the range of brushes
+             * @return a set of all brushes that are incident to the given handle
+             */
             template <typename I>
             Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
                 Model::BrushSet result;
                 findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
                 return result;
             }
-            
+
+            /**
+             * Finds and returns all brushes in the given range which are incident to any handle in the given range.
+             *
+             * @tparam I1 the type of range iterators for the range of handles
+             * @tparam I2 the type of range iterators for the range of brushes
+             * @param hBegin the beginning of the range of handles
+             * @param hEnd the end of the range of handles
+             * @param bBegin the beginning of the range of brushes
+             * @param bEnd the end of the range of brushes
+             * @return a set containing all incident brushes
+             */
             template <typename I1, typename I2>
             Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
                 Model::BrushSet result;
@@ -298,15 +493,35 @@ namespace TrenchBroom {
                 });
                 return result;
             }
-            
+
+            /**
+             * Finds all brushes in the given range which are incident to the given handle.
+             *
+             * @tparam I the type of the range iterators
+             * @tparam O an output iterator to append the resulting brushes to
+             * @param handle the handle
+             * @param begin the beginning of the range of brushes
+             * @param end the end of the range of brushes
+             * @param out an output iterator that accepts the incident brushes
+             */
             template <typename I, typename O>
             void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
                 std::copy_if(begin, end, out, [this, &handle](const Model::Brush* brush) { return this->isIncident(handle, brush); });
             }
         private:
+            /**
+             * Checks whether the given brush is incident to the given handle.
+             *
+             * @param handle the handle to check
+             * @param brush the brush to check
+             * @return true if and only if the given brush is incident to the given handle
+             */
             virtual bool isIncident(const Handle& handle, const Model::Brush* brush) const = 0;
         };
 
+        /**
+         * Manages vertex handles. A vertex handle is a 3D point.
+         */
         class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
         public:
             static const Model::Hit::HitType HandleHit;
@@ -314,6 +529,14 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
         public:
+            /**
+             * Picks all vertex handles hit by the given picking ray in the context of the given camera, and adds the
+             * hits to the given picking result.
+             *
+             * @param pickRay the picking ray
+             * @param camera the camera
+             * @param pickResult the picking result to add the hits to
+             */
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
@@ -323,7 +546,16 @@ namespace TrenchBroom {
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
-        
+
+        /**
+         * Manages edge handles. An edge handle is a line segment given by two points. The edge handles are not directly
+         * pickable. Instead of picking the line segment, the manager intersects the picking ray with a sphere around
+         * the center point of each edge handle.
+         *
+         * Additionally, this manager can pick virtual handles. These virtual handles are points where the edge handles
+         * intersect with a grid plane. Such handles are not added to this manager explicitly, but are computed on the
+         * fly.
+         */
         class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
         public:
             static const Model::Hit::HitType HandleHit;
@@ -332,7 +564,24 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
         public:
+            /**
+             * Picks a virtual handle at any position where an edge handle intersects with any grid plane. These virtual
+             * handles are points, but they are computed on the fly from the edge handles contained in this manager.
+             *
+             * @param pickRay the picking ray
+             * @param camera the camera
+             * @param grid the current grid
+             * @param pickResult the picking result to add the hits to
+             */
             void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+
+            /**
+             * Picks the center point of the edge handles contained in this manager.
+             *
+             * @param pickRay the picking ray
+             * @param camera the camera
+             * @param pickResult the picking result to add the hits to
+             */
             void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
@@ -343,6 +592,15 @@ namespace TrenchBroom {
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
         };
 
+        /**
+        * Manages face handles. A face handle is a polygon given its vertices. The face handles are not directly
+        * pickable. Instead of picking the polygon, the manager intersects the picking ray with a sphere around
+        * the center point of each face handle.
+        *
+        * Additionally, this manager can pick virtual handles. These virtual handles are points where the face handles
+        * intersect with two grid planes. Such handles are not added to this manager explicitly, but are computed on the
+        * fly.
+        */
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
@@ -351,12 +609,30 @@ namespace TrenchBroom {
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
         public:
+            /**
+             * Picks a virtual handle at any position where a face handle intersects with any two grid planes. These
+             * virtual handles are points, but they are computed on the fly from the face handles contained in this
+             * manager.
+             *
+             * @param pickRay the picking ray
+             * @param camera the camera
+             * @param grid the current grid
+             * @param pickResult the picking result to add the hits to
+             */
             void pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+
+            /**
+             * Picks the center point of the face handles contained in this manager.
+             *
+             * @param pickRay the picking ray
+             * @param camera the camera
+             * @param pickResult the picking result to add the hits to
+             */
             void pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
-            
+
             Model::Hit::HitType hitType() const override;
         private:
             bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
