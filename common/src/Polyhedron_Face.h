@@ -193,8 +193,9 @@ T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const
     T closestDistance = maxDistance;
 
     // Find the boundary edge with the origin closest to the first position.
+    const HalfEdge* startEdge = nullptr;
+
     const auto* firstEdge = m_boundary.front();
-    const auto* startEdge = firstEdge;
     const auto* currentEdge = firstEdge;
     do {
         const T currentDistance = currentEdge->origin()->position().distanceTo(positions.front());
@@ -204,6 +205,11 @@ T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const
         }
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
+
+    // No vertex is within maxDistance of the first of the given positions.
+    if (startEdge == nullptr) {
+        return maxDistance;
+    }
 
     // now find the maximum distance of all points
     firstEdge = startEdge;
