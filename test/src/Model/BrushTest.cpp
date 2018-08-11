@@ -1196,7 +1196,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const Vec3 peakPosition(0.0, 0.0, 128.0);
-            const Vec3::List vertexPositions{
+            const Vec3::List vertexPositions {
                     Vec3(-64.0, -64.0, 0.0), // base quad
                     Vec3(-64.0, +64.0, 0.0),
                     Vec3(+64.0, +64.0, 0.0),

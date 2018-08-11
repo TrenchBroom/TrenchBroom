@@ -678,7 +678,7 @@ namespace TrenchBroom {
             result.reserve(vertexPositions.size());
 
             for (const auto& position : vertexPositions) {
-                const auto* newVertex = m_geometry->findClosestVertex(position + delta);
+                const auto* newVertex = m_geometry->findClosestVertex(position + delta, Math::Constants<FloatType>::almostZero());
                 if (newVertex != nullptr) {
                     result.push_back(newVertex->position());
                 }
@@ -701,7 +701,7 @@ namespace TrenchBroom {
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
 
-            auto* newVertex = m_geometry->findClosestVertex(position);
+            auto* newVertex = m_geometry->findClosestVertex(position, Math::Constants<FloatType>::almostZero());
             ensure(newVertex != nullptr, "vertex could not be added");
             return newVertex;
         }
@@ -813,7 +813,7 @@ namespace TrenchBroom {
             result.reserve(edgePositions.size());
 
             for (const auto& edgePosition : edgePositions) {
-                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta);
+                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, Math::Constants<FloatType>::almostZero());
                 if (newEdge != nullptr) {
                     result.push_back(Edge3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
                 }
@@ -852,7 +852,7 @@ namespace TrenchBroom {
             result.reserve(facePositions.size());
 
             for (const auto& facePosition : facePositions) {
-                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta);
+                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, Math::Constants<FloatType>::almostZero());
                 if (newFace != nullptr) {
                     result.push_back(Polygon3(newFace->vertexPositions()));
                 }
@@ -1008,7 +1008,7 @@ namespace TrenchBroom {
                 const auto& oldPosition = oldVertex->position();
                 const auto moved = vertexSet.count(oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
-                const auto* newVertex = newGeometry.findClosestVertex(newPosition);
+                const auto* newVertex = newGeometry.findClosestVertex(newPosition, Math::Constants<FloatType>::almostZero());
                 if (newVertex != nullptr) {
                     vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
                 }

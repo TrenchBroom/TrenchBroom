@@ -186,7 +186,9 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& posit
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const T maxDistance) const {
-    assert(positions.size() == vertexCount());
+    if (positions.size() != vertexCount()) {
+        return maxDistance;
+    }
 
     T closestDistance = maxDistance;
 
@@ -229,7 +231,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
         cross = crossed(p2 - p1, p3 - p1);
         if (!cross.null()) {
             return cross.normalized();
-        }
+        }   
         current = current->next();
     } while (first != current);
     return cross;
