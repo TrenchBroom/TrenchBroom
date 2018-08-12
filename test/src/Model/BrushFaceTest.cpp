@@ -43,7 +43,7 @@ namespace TrenchBroom {
     namespace Model {
         TEST(BrushFaceTest, constructWithValidPoints) {
             const Vec3 p0(0.0,  0.0, 4.0);
-            const Vec3 p1(1.f,  0.0, 4.0);
+            const Vec3 p1(1.0,  0.0, 4.0);
             const Vec3 p2(0.0, -1.0, 4.0);
             
             const BrushFaceAttributes attribs("");
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         
         TEST(BrushFaceTest, constructWithColinearPoints) {
             const Vec3 p0(0.0, 0.0, 4.0);
-            const Vec3 p1(1.f, 0.0, 4.0);
+            const Vec3 p1(1.0, 0.0, 4.0);
             const Vec3 p2(2.0, 0.0, 4.0);
             
             const BrushFaceAttributes attribs("");
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         
         TEST(BrushFaceTest, textureUsageCount) {
             const Vec3 p0(0.0,  0.0, 4.0);
-            const Vec3 p1(1.f,  0.0, 4.0);
+            const Vec3 p1(1.0,  0.0, 4.0);
             const Vec3 p2(0.0, -1.0, 4.0);
             Assets::Texture texture("testTexture", 64, 64);
             Assets::Texture texture2("testTexture2", 64, 64);

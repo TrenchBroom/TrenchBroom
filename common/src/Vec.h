@@ -33,6 +33,38 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 template <typename T, size_t S>
 class Vec {
+public:
+    using FloatType = Vec<float, S>;
+    using Type = T;
+    static const size_t Size = S;
+
+    static const Vec<T,S> PosX;
+    static const Vec<T,S> PosY;
+    static const Vec<T,S> PosZ;
+    static const Vec<T,S> NegX;
+    static const Vec<T,S> NegY;
+    static const Vec<T,S> NegZ;
+    static const Vec<T,S> Null;
+    static const Vec<T,S> One;
+    static const Vec<T,S> NaN;
+    static const Vec<T,S> Min;
+    static const Vec<T,S> Max;
+
+    using List = std::vector<Vec<T,S>>;
+    static const List EmptyList;
+public:
+    class GridCmp {
+    private:
+        const T m_precision;
+    public:
+        GridCmp(const T precision) : m_precision(precision) {
+            assert(m_precision > 0.0);
+        }
+
+        bool operator()(const Vec<T, S> &lhs, const Vec<T, S> &rhs) const {
+            return compareSnapped(lhs, rhs, m_precision) < 0;
+        }
+    };
 private:
     class SelectionHeapCmp {
     private:
@@ -60,127 +92,31 @@ private:
         return 2;
     }
 public:
-    class GridCmp {
-    private:
-        const T m_precision;
-    public:
-        GridCmp(const T precision) : m_precision(precision) {
-            assert(m_precision > 0.0);
-        }
-
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return compareSnapped(lhs, rhs, m_precision) < 0;
-        }
-    };
-public:
-    typedef Vec<float, S> FloatType;
-
-    typedef T Type;
-    static const size_t Size = S;
-
-    static const Vec<T,S> PosX;
-    static const Vec<T,S> PosY;
-    static const Vec<T,S> PosZ;
-    static const Vec<T,S> NegX;
-    static const Vec<T,S> NegY;
-    static const Vec<T,S> NegZ;
-    static const Vec<T,S> Null;
-    static const Vec<T,S> One;
-    static const Vec<T,S> NaN;
-    static const Vec<T,S> Min;
-    static const Vec<T,S> Max;
-    
-    using List = std::vector<Vec<T,S>>;
-
-    static const List AllAxes;
-    static const List PosAxes;
-    static const List NegAxes;
-    
-    static const List EmptyList;
-public:
+    /**
+     * Returns a vector with the component at the given index set to 1, and all others set to 0.
+     *
+     * @param index the index of the component to set to 1
+     * @return the newly created vector
+     */
     static const Vec<T,S> axis(const size_t index) {
         Vec<T,S> axis;
         axis[index] = static_cast<T>(1.0);
         return axis;
     }
-    
+
+    /**
+     * Returns a vector where all components are set to the given value.
+     *
+     * @param value the value to set
+     * @return the newly created vector
+     */
     static Vec<T,S> fill(const T value) {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = value;
         return result;
     }
-    
-    static Vec<T,S> unit(const size_t index) {
-        assert(index < S);
-        
-        Vec<T,S> result;
-        result[index] = static_cast<T>(1.0);
-        return result;
-    }
-    
-    template <typename U1>
-    static Vec<T,S> create(const U1 i_x) {
-        Vec<T,S> result;
-        if (S > 0) {
-            result[0] = static_cast<T>(i_x);
-        }
-        for (size_t i = 1; i < S; ++i)
-            result[i] = static_cast<T>(0.0);
-        return result;
-    }
-    
-    template <typename U1, typename U2>
-    static Vec<T,S> create(const U1 i_x, const U2 i_y) {
-        Vec<T,S> result;
-        if (S > 0) {
-            result[0] = static_cast<T>(i_x);
-            if (S > 1) {
-                result[1] = static_cast<T>(i_y);
-            }
-        }
-        for (size_t i = 2; i < S; ++i)
-            result[i] = static_cast<T>(0.0);
-        return result;
-    }
 
-    template <typename U1, typename U2, typename U3>
-    static Vec<T,S> create(const U1 i_x, const U2 i_y, const U3 i_z) {
-        Vec<T,S> result;
-        if (S > 0) {
-            result[0] = static_cast<T>(i_x);
-            if (S > 1) {
-                result[1] = static_cast<T>(i_y);
-                if (S > 2) {
-                    result[2] = static_cast<T>(i_z);
-                }
-            }
-        }
-        for (size_t i = 3; i < S; ++i)
-            result[i] = static_cast<T>(0.0);
-        return result;
-    }
-
-    template <typename U1, typename U2, typename U3, typename U4>
-    static Vec<T,S> create(const U1 i_x, const U2 i_y, const U3 i_z, const U4 i_w) {
-        Vec<T,S> result;
-        if (S > 0) {
-            result[0] = static_cast<T>(i_x);
-            if (S > 1) {
-                result[1] = static_cast<T>(i_y);
-                if (S > 2) {
-                    result[2] = static_cast<T>(i_z);
-                    if (S > 3) {
-                        result[3] = static_cast<T>(i_w);
-                    }
-                }
-            }
-        }
-        for (size_t i = 4; i < S; ++i)
-            result[i] = static_cast<T>(0.0);
-        return result;
-    }
-    
     static Vec<T,S> parse(const std::string& str) {
         size_t pos = 0;
         Vec<T,S> result;
@@ -220,7 +156,10 @@ private:
     }
 public:
     T v[S];
-    
+
+    /**
+     * Creates a new vector with all components initialized to 0.
+     */
     Vec() {
         setNull();
     }
@@ -233,7 +172,16 @@ public:
     Vec<T,S>& operator=(const Vec<T,S>& other) = default;
     Vec<T,S>& operator=(Vec<T,S>&& other) = default;
 
-    // Conversion constructor
+    /**
+     * Creates a new vector by copying the values from the given vector. If the given vector has a different component
+     * type, the values are converted using static_cast. If the given vectors has a smaller size, then the remaining
+     * elements of the newly created vector are filled with 0s. If the given vector has a greater size, then the
+     * surplus components of the given vector are ignored.
+     *
+     * @tparam U the component type of the given vector
+     * @tparam V the number of components of the given vector
+     * @param other the vector to copy the values from
+     */
     template <typename U, size_t V>
     Vec(const Vec<U,V>& other) {
         for (size_t i = 0; i < std::min(S,V); ++i) {
@@ -244,31 +192,92 @@ public:
         }
     }
 
+    // Constructor with initializer list
+    /**
+     * Creates a new vector from the values in the given initializer list. If the given list has fewer elements than
+     * the size of this vector, then the remaining components are set to 0. If the given list has more elements than
+     * the size of this vector, then the surplus elements are ignored.
+     *
+     * @param values the values
+     */
+    Vec(std::initializer_list<T> values) {
+        auto it = std::begin(values);
+        for (size_t i = 0; i < std::min(S, values.size()); ++i) {
+            v[i] = *it++;
+        }
+        for (size_t i = values.size(); i < S; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
+    }
+
+    /**
+     * Creates a new vector with the given component values. If the type of the given values differs from the
+     * component type, then the values will be converted using static_cast. If fewer values are given than the number
+     * of components of this vector, then the remaining components are set to 0. If more values are given than the
+     * number of components of this vector, then the surplus values are ignored.
+     *
+     * @tparam U1 the type of the first given value
+     * @tparam U2 the type of the second given value
+     * @param i_x the value of the first component
+     * @param i_y the value of the second component
+     */
     template <typename U1, typename U2>
     Vec(const U1 i_x, const U2 i_y) {
         if (S > 0) {
             v[0] = static_cast<T>(i_x);
-            if (S > 1)
+            if (S > 1) {
                 v[1] = static_cast<T>(i_y);
+            }
         }
-        for (size_t i = 2; i < S; ++i)
+        for (size_t i = 2; i < S; ++i) {
             v[i] = static_cast<T>(0.0);
+        }
     }
-    
+
+    /**
+     * Creates a new vector with the given component values. If the type of the given values differs from the
+     * component type, then the values will be converted using static_cast. If fewer values are given than the number
+     * of components of this vector, then the remaining components are set to 0. If more values are given than the
+     * number of components of this vector, then the surplus values are ignored.
+     *
+     * @tparam U1 the type of the first given value
+     * @tparam U2 the type of the second given value
+     * @tparam U3 the type of the third given value
+     * @param i_x the value of the first component
+     * @param i_y the value of the second component
+     * @param i_z the value of the third component
+     */
     template <typename U1, typename U2, typename U3>
     Vec(const U1 i_x, const U2 i_y, const U3 i_z) {
         if (S > 0) {
             v[0] = static_cast<T>(i_x);
             if (S > 1) {
                 v[1] = static_cast<T>(i_y);
-                if (S > 2)
+                if (S > 2) {
                     v[2] = static_cast<T>(i_z);
+                }
             }
         }
-        for (size_t i = 3; i < S; ++i)
+        for (size_t i = 3; i < S; ++i) {
             v[i] = static_cast<T>(0.0);
+        }
     }
 
+    /**
+     * Creates a new vector with the given component values. If the type of the given values differs from the
+     * component type, then the values will be converted using static_cast. If fewer values are given than the number
+     * of components of this vector, then the remaining components are set to 0. If more values are given than the
+     * number of components of this vector, then the surplus values are ignored.
+     *
+     * @tparam U1 the type of the first given value
+     * @tparam U2 the type of the second given value
+     * @tparam U3 the type of the third given value
+     * @tparam U4 the type of the fourth given value
+     * @param i_x the value of the first component
+     * @param i_y the value of the second component
+     * @param i_z the value of the third component
+     * @param i_w the value of the fourth component
+     */
     template <typename U1, typename U2, typename U3, typename U4>
     Vec(const U1 i_x, const U2 i_y, const U3 i_z, const U4 i_w) {
         if (S > 0) {
@@ -277,34 +286,68 @@ public:
                 v[1] = static_cast<T>(i_y);
                 if (S > 2) {
                     v[2] = static_cast<T>(i_z);
-                    if (S > 3)
+                    if (S > 3) {
                         v[3] = static_cast<T>(i_w);
+                    }
                 }
             }
         }
-        for (size_t i = 4; i < S; ++i)
+        for (size_t i = 4; i < S; ++i) {
             v[i] = static_cast<T>(0.0);
+        }
     }
 
+    /**
+     * Creates a vector with the values from the given vector, but sets the last component to the given scalar value.
+     * Values which are not initialized by the given vector and value (due to the number of components of the given
+     * vector being less than the number of components of the vector to create minus one) are set to 0. Surplus values
+     * of the given vector are ignored.
+     *
+     * @tparam U the component type of the given vector and the type of the given scalar value
+     * @tparam O the number of components of the given vector
+     * @param vec the vector to initialize components 0...S-2 with
+     * @param last the value to initialize component S-1 with
+     */
     template <typename U, size_t O>
     Vec(const Vec<U,O>& vec, const U last) {
-        for (size_t i = 0; i < std::min(S-1,O); ++i)
+        for (size_t i = 0; i < std::min(S-1,O); ++i) {
             v[i] = static_cast<T>(vec[i]);
-        for (size_t i = std::min(S-1, O); i < S-1; ++i)
+        }
+        for (size_t i = std::min(S-1, O); i < S-1; ++i) {
             v[i] = static_cast<T>(0.0);
-        v[S-1] = static_cast<T>(last);
-    }
-    
-    template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec, const U oneButLast, const U last) {
-        for (size_t i = 0; i < std::min(S-2,O); ++i)
-            v[i] = static_cast<T>(vec[i]);
-        for (size_t i = std::min(S-2, O); i < S-2; ++i)
-            v[i] = static_cast<T>(0.0);
-        v[S-2] = static_cast<T>(oneButLast);
+        }
         v[S-1] = static_cast<T>(last);
     }
 
+    /**
+     * Creates a vector with the values from the given vector, but sets the last two components to the given scalar values.
+     * Values which are not initialized by the given vector and value (due to the number of components of the given
+     * vector being less than the number of components of the vector to create minus two) are set to 0. Surplus values
+     * of the given vector are ignored.
+     *
+     * @tparam U the component type of the given vector and the type of the given scalar value
+     * @tparam O the number of components of the given vector
+     * @param vec the vector to initialize components 0...S-3 with
+     * @param lastButOne the value to initialize component S-2 with
+     * @param last the value to initialize component S-1 with
+     */
+    template <typename U, size_t O>
+    Vec(const Vec<U,O>& vec, const U lastButOne, const U last) {
+        for (size_t i = 0; i < std::min(S-2,O); ++i) {
+            v[i] = static_cast<T>(vec[i]);
+        }
+        for (size_t i = std::min(S-2, O); i < S-2; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
+        v[S-2] = static_cast<T>(lastButOne);
+        v[S-1] = static_cast<T>(last);
+    }
+
+    /**
+     * Returns an inverted copy of this vector. The copy is inverted by negating every component.
+     *
+     * @return the inverted copy
+     */
     const Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -312,52 +355,109 @@ public:
         return result;
     }
 
+    /**
+     * Returns a reference to the component at the given index. The index is not checked at runtime.
+     *
+     * @param index the index of the component
+     * @return a reference to the compononent at the given index
+     */
     T& operator[](const size_t index) {
         assert(index < S);
         return v[index];
     }
-    
+
+    /**
+     * Returns a const reference to the component at the given index. The index is not checked at runtime.
+     *
+     * @param index the index of the component
+     * @return a const reference to the compononent at the given index
+     */
     const T& operator[](const size_t index) const {
         assert(index < S);
         return v[index];
     }
-    
+
+    /**
+     * Returns the value of the first compnent.
+     *
+     * @return the value of the first component
+     */
     T x() const {
         assert(S > 0);
         return v[0];
     }
-            
+
+    /**
+     * Returns the value of the component compnent.
+     *
+     * @return the value of the component component
+     */
     T y() const {
         assert(S > 1);
         return v[1];
     }
-    
+
+    /**
+     * Returns the value of the third compnent.
+     *
+     * @return the value of the third component
+     */
     T z() const {
         assert(S > 2);
         return v[2];
     }
 
+    /**
+     * Returns the value of the fourth compnent.
+     *
+     * @return the value of the fourth component
+     */
     T w() const {
         assert(S > 3);
         return v[3];
     }
-            
+
+    /**
+     * Returns a vector with the values of the first and second component.
+     *
+     * @return a vector with the values of the first and second component
+     */
     Vec<T,2> xy() const {
         return Vec<T,2>(x(), y());
     }
 
+    /**
+     * Returns a vector with the values of the first and third component.
+     *
+     * @return a vector with the values of the first and third component
+     */
     Vec<T,2> xz() const {
         return Vec<T,2>(x(), z());
     }
 
+    /**
+     * Returns a vector with the values of the second and third component.
+     *
+     * @return a vector with the values of the second and third component
+     */
     Vec<T,2> yz() const {
         return Vec<T,2>(y(), z());
     }
-    
+
+    /**
+     * Returns a vector with the values of the first three components.
+     *
+     * @return a vector with the values of the first three components
+     */
     Vec<T,3> xyz() const {
         return Vec<T,3>(x(), y(), z());
     }
             
+    /**
+     * Returns a vector with the values of the first four components.
+     *
+     * @return a vector with the values of the first four components
+     */
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
     }
@@ -660,17 +760,17 @@ public:
 };
 
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>::unit(0);
+const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>::axis(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>::unit(1);
+const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>::axis(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>::unit(2);
+const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>::axis(2);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegX = -Vec<T,S>::unit(0);
+const Vec<T,S> Vec<T,S>::NegX = -Vec<T,S>::axis(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegY = -Vec<T,S>::unit(1);
+const Vec<T,S> Vec<T,S>::NegY = -Vec<T,S>::axis(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegZ = -Vec<T,S>::unit(2);
+const Vec<T,S> Vec<T,S>::NegZ = -Vec<T,S>::axis(2);
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Null = Vec<T,S>::fill(static_cast<T>(0.0));
 template <typename T, size_t S>
@@ -681,13 +781,6 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Min  = Vec<T,S>::fill(std::numeric_limits<T>::min());
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
-
-template <typename T, size_t S>
-const typename Vec<T,S>::List Vec<T,S>::PosAxes = Vec<T,S>::List({ PosX, PosY, PosZ });
-template <typename T, size_t S>
-const typename Vec<T,S>::List Vec<T,S>::NegAxes = Vec<T,S>::List({ NegX, NegY, NegZ });
-template <typename T, size_t S>
-const typename Vec<T,S>::List Vec<T,S>::AllAxes = Vec<T,S>::List({ PosX, NegX, PosY, NegY, PosZ, NegZ });
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();

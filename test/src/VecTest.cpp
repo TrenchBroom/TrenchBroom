@@ -35,10 +35,6 @@ TEST(VecTest, constructVec3fWithInvalidString) {
     ASSERT_EQ(Vec3f::Null, Vec3f::parse("asdf"));
 }
 
-TEST(VecTest, constructVec3fFrom1Float) {
-    ASSERT_EQ(Vec3f(1.0f, 0.0f, 0.0f), Vec3f::create(1.0f));
-}
-
 TEST(VecTest, constructVec3fFrom2Floats) {
     ASSERT_EQ(Vec3f(1.0f, 2.0f, 0.0f), Vec3f(1.0f, 2.0f));
 }
