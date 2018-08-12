@@ -180,9 +180,9 @@ private:
         }
         return true;
     }
-public:
+protected:
     T v[S];
-
+public:
     /**
      * Creates a new vector with all components initialized to 0.
      */
