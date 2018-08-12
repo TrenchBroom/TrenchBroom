@@ -170,6 +170,15 @@ TEST(BBoxTest, containsBBox) {
     ASSERT_FALSE(bounds1.contains(bounds3));
 }
 
+TEST(BBoxTest, enclosesBBox) {
+    const BBox3f bounds1(Vec3f(-12.0f, -3.0f,  4.0f), Vec3f( 8.0f, 9.0f, 8.0f));
+    const BBox3f bounds2(Vec3f(-10.0f, -2.0f,  5.0f), Vec3f( 7.0f, 8.0f, 7.0f));
+    const BBox3f bounds3(Vec3f(-10.0f, -3.0f,  5.0f), Vec3f( 7.0f, 8.0f, 7.0f));
+    ASSERT_FALSE(bounds1.encloses(bounds1));
+    ASSERT_TRUE(bounds1.encloses(bounds2));
+    ASSERT_FALSE(bounds1.encloses(bounds3));
+}
+
 TEST(BBoxTest, intersectsBBox) {
     const BBox3f bounds1(Vec3f(-12.0f, -3.0f,  4.0f), Vec3f(  8.0f,  9.0f,  8.0f));
     const BBox3f bounds2(Vec3f(-10.0f, -2.0f,  5.0f), Vec3f(  7.0f,  8.0f,  7.0f));
@@ -185,24 +194,21 @@ TEST(BBoxTest, intersectsBBox) {
 
 TEST(BBoxTest, intersectWithRay) {
     const BBox3f bounds(Vec3f(-12.0f, -3.0f,  4.0f), Vec3f(  8.0f,  9.0f,  8.0f));
-    Vec3f normal;
-    
+
     float distance = bounds.intersectWithRay(Ray3f(Vec3f::Null, Vec3f::NegZ));
     ASSERT_TRUE(Math::isnan(distance));
     
-    distance = bounds.intersectWithRay(Ray3f(Vec3f::Null, Vec3f::PosZ), &normal);
+    distance = bounds.intersectWithRay(Ray3f(Vec3f::Null, Vec3f::PosZ));
     ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(4.0f, distance);
-    ASSERT_VEC_EQ(Vec3f::NegZ, normal);
-    
+
     const Vec3f origin = Vec3f(-10.0f, -7.0f, 14.0f);
     const Vec3f diff = Vec3f(-2.0f, 3.0f, 8.0f) - origin;
     const Vec3f dir = normalize(diff);
-    distance = bounds.intersectWithRay(Ray3f(origin, dir), &normal);
+    distance = bounds.intersectWithRay(Ray3f(origin, dir));
     ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(length(diff), distance);
-    ASSERT_VEC_EQ(Vec3f::PosZ, normal);
-    
+
 }
 
 TEST(BBoxTest, expand) {
@@ -227,4 +233,16 @@ TEST(BBoxTest, translated) {
     const BBox3f bounds    (Vec3f(-12.0f, -3.0f,  4.0f), Vec3f( 8.0f, 9.0f, 8.0f));
     const BBox3f translated(Vec3f(-10.0f, -4.0f,  1.0f), Vec3f(10.0f, 8.0f, 5.0f));
     ASSERT_EQ(translated, bounds.translated(Vec3f(2.0f, -1.0f, -3.0f)));
+}
+
+TEST(BBoxTest, constrain) {
+    const BBox3d bounds (1024.0);
+    ASSERT_VEC_EQ(Vec3d::Null, bounds.constrain(Vec3d::Null));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegX));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegY));
+    ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + Vec3d::NegZ));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosX));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosY));
+    ASSERT_VEC_EQ(bounds.max, bounds.constrain(bounds.max + Vec3d::PosZ));
 }

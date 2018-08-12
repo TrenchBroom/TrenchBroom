@@ -69,7 +69,7 @@ namespace TrenchBroom {
         class HCmp {
         public:
             bool operator()(const H& lhs, const H& rhs) const {
-                return compare(lhs, rhs, 0.001) < 0;
+                return compareSnapped(lhs, rhs, Math::Constants<typename H::Type>::almostZero()) < 0;
             }
         };
 

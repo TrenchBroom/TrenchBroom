@@ -111,6 +111,7 @@
 #include "View/ViewEffectsService.h"
 
 #include <cassert>
+#include <numeric>
 
 namespace TrenchBroom {
     namespace View {
@@ -356,10 +357,14 @@ namespace TrenchBroom {
             return result;
         }
         
-        void MapDocument::loadPointFile(const IO::Path& path) {
-            if (isPointFileLoaded())
+        void MapDocument::loadPointFile(const IO::Path path) {
+            if (isPointFileLoaded()) {
                 unloadPointFile();
+            }
+
+            m_pointFilePath = path;
             m_pointFile = std::make_unique<Model::PointFile>(path);
+
             info("Loaded point file " + path.asString());
             pointFileWasLoadedNotifier();
         }
@@ -367,21 +372,28 @@ namespace TrenchBroom {
         bool MapDocument::isPointFileLoaded() const {
             return m_pointFile != nullptr;
         }
-        
+
+        void MapDocument::reloadPointFile() {
+            assert(isPointFileLoaded());
+            loadPointFile(m_pointFilePath);
+        }
+
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
             m_pointFile = nullptr;
+            m_pointFilePath = IO::Path();
             
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
         }
         
-        void MapDocument::loadPortalFile(const IO::Path& path) {
+        void MapDocument::loadPortalFile(const IO::Path path) {
             if (isPortalFileLoaded()) {
                 unloadPortalFile();
             }
             
             try {
+                m_portalFilePath = path;
                 m_portalFile = std::make_unique<Model::PortalFile>(path);
             } catch (const std::exception &exception) {
                 info("Couldn't load portal file " + path.asString() + ": " + exception.what());
@@ -396,10 +408,16 @@ namespace TrenchBroom {
         bool MapDocument::isPortalFileLoaded() const {
             return m_portalFile != nullptr;
         }
+
+        void MapDocument::reloadPortalFile() {
+            assert(isPortalFileLoaded());
+            loadPortalFile(m_portalFilePath);
+        }
         
         void MapDocument::unloadPortalFile() {
             assert(isPortalFileLoaded());
             m_portalFile = nullptr;
+            m_portalFilePath = IO::Path();
             
             info("Unloaded portal file");
             portalFileWasUnloadedNotifier();
@@ -742,7 +760,64 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
+        Model::Entity* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const Vec3& delta) {
+            ensure(definition != nullptr, "definition is null");
+
+            auto* entity = m_world->createEntity();
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+
+            StringStream name;
+            name << "Create " << definition->name();
+
+            const Transaction transaction(this, name.str());
+            deselectAll();
+            addNode(entity, currentParent());
+            select(entity);
+            translateObjects(delta);
+
+            return entity;
+        }
+
+        Model::Entity* MapDocument::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
+            ensure(definition != nullptr, "definition is null");
+
+            const auto brushes = selectedNodes().brushes();
+            assert(!brushes.empty());
+
+            auto* entity = m_world->createEntity();
+
+            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+            auto* entityTemplate = brushes.front()->entity();
+            if (entityTemplate != m_world) {
+                for (auto* brush : brushes) {
+                    if (brush->entity() != entityTemplate) {
+                        entityTemplate = nullptr;
+                        break;
+                    }
+                }
+
+                if (entityTemplate != nullptr) {
+                    entity->setAttributes(entityTemplate->attributes());
+                }
+            }
+
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+
+            StringStream name;
+            name << "Create " << definition->name();
+
+            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
+
+            const Transaction transaction(this, name.str());
+            deselectAll();
+            addNode(entity, currentParent());
+            reparentNodes(entity, nodes);
+            select(nodes);
+
+            return entity;
+        }
+
         Model::Group* MapDocument::groupSelection(const String& name) {
             if (!hasSelectedNodes())
                 return nullptr;
@@ -922,6 +997,14 @@ namespace TrenchBroom {
         
         bool MapDocument::rotateObjects(const Vec3& center, const Vec3& axis, const FloatType angle) {
             return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
+        }
+        
+        bool MapDocument::scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) {
+            return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
+        }
+        
+        bool MapDocument::shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) {
+            return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
         }
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
@@ -1378,7 +1461,11 @@ namespace TrenchBroom {
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
             submitAndStore(EntityDefinitionFileCommand::set(spec));
         }
-        
+
+        void MapDocument::setEntityDefinitions(const Assets::EntityDefinitionList& definitions) {
+            m_entityDefinitionManager->setDefinitions(definitions);
+        }
+
         IO::Path::List MapDocument::enabledTextureCollections() const {
             return m_game->extractTextureCollections(m_world);
         }

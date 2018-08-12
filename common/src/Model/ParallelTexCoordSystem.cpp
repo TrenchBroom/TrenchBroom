@@ -135,20 +135,13 @@ namespace TrenchBroom {
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
                 return;
             
-            // when texture lock is off, strip off the translation and flip part of the transformation
-            Mat4x4 effectiveTransformation;
-            if (lockTexture) {
-                effectiveTransformation = transformation;
-            } else {
-                effectiveTransformation = stripTranslation(transformation);
-                
-                // we also shouldn't compensate for flips
-                if (effectiveTransformation.equals(Mat4x4::MirX)
-                    || effectiveTransformation.equals(Mat4x4::MirY)
-                    || effectiveTransformation.equals(Mat4x4::MirZ)) {
-                    effectiveTransformation = Mat4x4::Identity;
-                }
+            // when texture lock is off, just project the current texturing
+            if (!lockTexture) {
+                doUpdateNormalWithProjection(oldBoundary.normal, newBoundary.normal, attribs);
+                return;
             }
+            
+            const Mat4x4 effectiveTransformation = transformation;
             
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const float angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
@@ -161,16 +154,34 @@ namespace TrenchBroom {
             assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
-            const Vec3 offset = effectiveTransformation * Vec3::Null;
-            m_xAxis           = effectiveTransformation * m_xAxis - offset;
-            m_yAxis           = effectiveTransformation * m_yAxis - offset;
+            const Mat4x4 worldToTexSpace = toMatrix(Vec2(0, 0), Vec2(1, 1));
+            
+            // The formula for texturing is:
+            //
+            //     uv = worldToTexSpace * point
+            //
+            // We want to find a new worldToTexSpace matrix, ?, such that
+            // transformed points have the same uv coords as they did
+            // without the transform, with the old worldToTexSpace matrix:
+            //
+            //     uv = ? * transform * point
+            //
+            // The solution for ? is (worldToTexSpace * transform_inverse)
+            const Mat4x4 newWorldToTexSpace = worldToTexSpace * invertedMatrix(effectiveTransformation);
+            
+            // extract the new m_xAxis and m_yAxis from newWorldToTexSpace.
+            // note, the matrix is in column major format.
+            for (size_t i=0; i<3; i++) {
+                m_xAxis[i] = newWorldToTexSpace[i][0];
+                m_yAxis[i] = newWorldToTexSpace[i][1];
+            }
             assert(!isNaN(m_xAxis));
             assert(!isNaN(m_yAxis));
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec3 newInvariant = effectiveTransformation * oldInvariant;
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
-            
+
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
@@ -179,12 +190,12 @@ namespace TrenchBroom {
         }
 
         float ParallelTexCoordSystem::computeTextureAngle(const Plane3& oldBoundary, const Mat4x4& transformation) const {
-            const Mat4x4& rotation = stripTranslation(transformation);
+            const Mat4x4& rotationScale = stripTranslation(transformation);
             const Vec3& oldNormal = oldBoundary.normal;
-            const Vec3  newNormal = rotation * oldNormal;
+            const Vec3  newNormal = normalize(rotationScale * oldNormal);
 
-            const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotation);
-            const Vec3 newXAxis = normalize(rotation * m_xAxis);
+            const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
+            const Vec3 newXAxis = normalize(rotationScale * m_xAxis);
             const Vec3 nonXAxis = normalize(nonRotation * m_xAxis);
             const FloatType angle = Math::degrees(angleBetween(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
@@ -260,8 +271,8 @@ namespace TrenchBroom {
         
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             Quat3 rotation;
-            Vec3 axis = cross(oldNormal, newNormal);
-            if (isNull(axis)) {
+            Vec3 axis = ::cross(oldNormal, newNormal);
+            if (axis == Vec3::Null) {
                 // oldNormal and newNormal are either the same or opposite.
                 // in this case, no need to update the texture axes.
                 return;

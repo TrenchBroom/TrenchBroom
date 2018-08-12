@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
@@ -36,11 +37,23 @@ namespace TrenchBroom {
         class PickResult;
         
         class World : public AttributableNode, public ModelFactory {
+        public:
+            class CreateNodeTree {
+            private:
+                World* m_world;
+            public:
+                CreateNodeTree(World* world);
+                ~CreateNodeTree();
+            };
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
+
+            using NodeTree = AABBTree<FloatType, 3, Node*>;
+            NodeTree m_nodeTree;
+            bool m_updateNodeTree;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management
@@ -58,6 +71,15 @@ namespace TrenchBroom {
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
+            class AddNodeToNodeTree;
+            class RemoveNodeFromNodeTree;
+            class UpdateNodeInNodeTree;
+        public: // node tree bulk updating
+            class MatchTreeNodes;
+            void disableNodeTreeUpdates();
+            void enableNodeTreeUpdates();
+            void rebuildNodeTree();
+        private:
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
@@ -67,6 +89,11 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
+
+            void doDescendantWasAdded(Node* node, size_t depth) override;
+            void doDescendantWillBeRemoved(Node* node, size_t depth) override;
+            void doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth) override;
+
             bool doSelectable() const override;
             void doPick(const Ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const Vec3& point, NodeList& result) override;
@@ -79,7 +106,7 @@ namespace TrenchBroom {
             void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
             void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange() override;
+            void doAttributesDidChange(const BBox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
             Vec3 doGetLinkSourceAnchor() const override;

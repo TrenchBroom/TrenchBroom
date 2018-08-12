@@ -64,6 +64,24 @@ public:
         setIdentity();
     }
     
+    // Copy and move constructors
+    Mat(const Mat<T,R,C>& other) = default;
+    Mat(Mat<T,R,C>&& other) = default;
+    
+    // Assignment operators
+    Mat<T,R,C>& operator=(const Mat<T,R,C>& other) = default;
+    Mat<T,R,C>& operator=(Mat<T,R,C>&& other) = default;
+    
+    // Conversion constructor
+    template <typename U>
+    Mat(const Mat<U,R,C>& other) {
+        for (size_t c = 0; c < C; ++c) {
+            for (size_t r = 0; r < R; ++r) {
+                v[c][r] = static_cast<T>(other[c][r]);
+            }
+        }
+    }
+
     Mat<T,R,C>(const T v11, const T v12, const T v13,
                const T v21, const T v22, const T v23,
                const T v31, const T v32, const T v33) {
@@ -86,26 +104,6 @@ public:
         for (size_t c = 4; c < C; c++)
             for (size_t r = 4; r < R; r++)
                 v[c][r] = static_cast<T>(0.0);
-    }
-    
-    template <typename U>
-    Mat<T,R,C>(const Mat<U,R,C>& other) {
-        for (size_t c = 0; c < C; ++c)
-            for (size_t r = 0; r < R; ++r)
-                v[c][r] = static_cast<T>(other[c][r]);
-    }
-    
-    Mat(const Mat& other) {
-        for (size_t c = 0; c < C; ++c)
-            for (size_t r = 0; r < R; ++r)
-                v[c][r] = other[c][r];
-    }
-    
-    Mat<T,R,C>& operator=(const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = right[c][r];
-        return *this;
     }
     
     const Mat<T,R,C> operator-() const {
@@ -724,6 +722,18 @@ Mat<T,3,3> rotationMatrix(const T angle) {
                       sin,  cos, 0.0,
                       0.0,  0.0, 1.0);
 }
+
+/**
+From: http://web.archive.org:80/web/20041029003853/http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q43
+*/
+template <typename T>
+Mat<T,4,4> shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
+    return Mat<T,4,4>(1.0, Syx, Szx, 0.0,
+                      Sxy, 1.0, Szy, 0.0,
+                      Sxz, Syz, 1.0, 0.0,
+                      0.0, 0.0, 0.0, 1.0);
+}
+
 
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();

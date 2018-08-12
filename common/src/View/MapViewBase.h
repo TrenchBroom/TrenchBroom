@@ -97,6 +97,8 @@ namespace TrenchBroom {
             void editorContextDidChange();
             void mapViewConfigDidChange();
             void gridDidChange();
+            void pointFileDidChange();
+            void portalFileDidChange();
             void preferenceDidChange(const IO::Path& path);
 			void documentDidChange(MapDocument* document);
         private: // interaction events
@@ -141,6 +143,9 @@ namespace TrenchBroom {
             void OnMoveRotationCenterUp(wxCommandEvent& event);
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(Math::Direction direction);
+            
+            void OnToggleScaleObjectsTool(wxCommandEvent& event);
+            void OnToggleShearObjectsTool(wxCommandEvent& event);
             
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);

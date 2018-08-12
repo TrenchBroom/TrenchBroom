@@ -35,14 +35,23 @@ public:
     origin(Vec<T,S>::Null),
     direction(Vec<T,S>::Null) {}
 
-    Ray(const Vec<T,S>& i_origin, const Vec<T,S>& i_direction) :
-    origin(i_origin),
-    direction(i_direction) {}
-
+    // Copy and move constructors
+    Ray(const Ray<T,S>& other) = default;
+    Ray(Ray<T,S>&& other) = default;
+    
+    // Assignment operators
+    Ray<T,S>& operator=(const Ray<T,S>& other) = default;
+    Ray<T,S>& operator=(Ray<T,S>&& other) = default;
+    
+    // Conversion constructor
     template <typename U>
     Ray(const Ray<U,S>& other) :
     origin(other.origin),
     direction(other.direction) {}
+
+    Ray(const Vec<T,S>& i_origin, const Vec<T,S>& i_direction) :
+    origin(i_origin),
+    direction(i_direction) {}
 
     bool operator==(const Ray<T,S>& other) const {
         return compare(origin, other.origin) == 0 && compare(direction, other.direction) == 0;
@@ -324,6 +333,12 @@ const TT intersectRayWithTriangle(const Ray<TT, 3>& R, const Vec<TT,3>& V0, cons
         return Math::nan<TT>();
     
     return t;
+}
+
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const Ray<T,S>& ray) {
+    stream << "{origin:" << ray.origin << " direction:" << ray.direction << "}";
+    return stream;
 }
 
 typedef Ray<float,3> Ray3f;

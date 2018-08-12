@@ -32,8 +32,10 @@ namespace TrenchBroom {
     template <typename T, size_t S>
     class Polygon {
     public:
-        typedef Polygon<float, S> FloatType;
-        typedef std::vector<Polygon<T,S> > List;
+        using Type = T;
+        static const size_t Size = S;
+        using List = std::vector<Polygon<T,S>>;
+        using FloatType = Polygon<float, S>;
     private:
         typename Vec<T,S>::List m_vertices;
     public:
@@ -125,6 +127,10 @@ namespace TrenchBroom {
             }
             return *this;
         }
+        
+        Polygon<T,S> transformed(const Mat<T,S+1,S+1>& mat) const {
+            return Polygon<T,S>(mat * vertices());
+        }
     public:
         friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
             return Polygon<T,S>(polygon.vertices() + offset);
@@ -148,6 +154,29 @@ namespace TrenchBroom {
         } else {
             return compare(std::begin(lhsVerts), std::end(lhsVerts),
                            std::begin(rhsVerts), std::end(rhsVerts), epsilon);
+        }
+    }
+
+    template <typename T, size_t S>
+    int compareSnapped(const Polygon<T,S>& lhs, const Polygon<T,S>& rhs, const T precision) {
+        const auto& lhsVerts = lhs.vertices();
+        const auto& rhsVerts = rhs.vertices();
+
+        if (lhsVerts.size() < rhsVerts.size()) {
+            return -1;
+        } else if (lhsVerts.size() > rhsVerts.size()) {
+            return 1;
+        } else {
+            const auto count = lhsVerts.size();
+            for (size_t i = 0; i < count; ++i) {
+                const auto cmp = compareSnapped(lhsVerts[i], rhsVerts[i], precision);
+                if (cmp < 0) {
+                    return -1;
+                } else if (cmp > 0) {
+                    return +1;
+                }
+            }
+            return 0;
         }
     }
 

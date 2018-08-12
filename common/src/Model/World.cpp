@@ -27,9 +27,21 @@
 
 namespace TrenchBroom {
     namespace Model {
+        World::CreateNodeTree::CreateNodeTree(World* world) :
+        m_world(world) {
+            m_world->disableNodeTreeUpdates();
+        }
+
+        World::CreateNodeTree::~CreateNodeTree() {
+            m_world->rebuildNodeTree();
+            m_world->enableNodeTreeUpdates();
+        }
+
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
-        m_defaultLayer(nullptr) {
+        m_defaultLayer(nullptr),
+        // m_nodeTree(VecCodeComputer<Vec3>(worldBounds)),
+        m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
         }
@@ -77,6 +89,84 @@ namespace TrenchBroom {
         void World::unregisterAllIssueGenerators() {
             m_issueGeneratorRegistry.unregisterAllGenerators();
             invalidateAllIssues();
+        }
+
+        class World::AddNodeToNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+        public:
+            AddNodeToNodeTree(NodeTree& nodeTree) :
+            m_nodeTree(nodeTree) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.insert(group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->bounds(), brush); }
+        };
+        
+        class World::RemoveNodeFromNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+        public:
+            RemoveNodeFromNodeTree(NodeTree& nodeTree) :
+            m_nodeTree(nodeTree) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { doRemove(group, group->bounds()); }
+            void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
+            void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
+            
+            void doRemove(Node* node, const BBox3& bounds) {
+                if (!m_nodeTree.remove(bounds, node)) {
+                    NodeTreeException ex;
+                    ex << "Node not found with bounds [ (" << bounds.min.asString(3) << ") (" << bounds.max.asString(3) << ") ]: " << node;
+                    throw ex;
+                }
+            }
+        };
+        
+        class World::UpdateNodeInNodeTree : public NodeVisitor {
+        private:
+            NodeTree& m_nodeTree;
+            const BBox3 m_oldBounds;
+        public:
+            UpdateNodeInNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+            m_nodeTree(nodeTree),
+            m_oldBounds(oldBounds) {}
+        private:
+            void doVisit(World* world) override   {}
+            void doVisit(Layer* layer) override   {}
+            void doVisit(Group* group) override   { m_nodeTree.update(m_oldBounds, group->bounds(), group); }
+            void doVisit(Entity* entity) override { m_nodeTree.update(m_oldBounds, entity->bounds(), entity); }
+            void doVisit(Brush* brush) override   { m_nodeTree.update(m_oldBounds, brush->bounds(), brush); }
+        };
+        
+        class World::MatchTreeNodes {
+        public:
+            bool operator()(const Model::World* world) const   { return false; }
+            bool operator()(const Model::Layer* layer) const   { return false; }
+            bool operator()(const Model::Group* group) const   { return true; }
+            bool operator()(const Model::Entity* entity) const { return true; }
+            bool operator()(const Model::Brush* brush) const   { return true; }
+        };
+
+        void World::disableNodeTreeUpdates() {
+            m_updateNodeTree = false;
+        }
+        
+        void World::enableNodeTreeUpdates() {
+            m_updateNodeTree = true;
+        }
+        
+        void World::rebuildNodeTree() {
+            using CollectTreeNodes = CollectMatchingNodesVisitor<MatchTreeNodes>;
+            
+            CollectTreeNodes collect;
+            acceptAndRecurse(collect);
+
+            m_nodeTree.clearAndBuild(collect.nodes(), [](const auto* node){ return node->bounds(); });
         }
 
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
@@ -165,18 +255,41 @@ namespace TrenchBroom {
             return false;
         }
 
+        void World::doDescendantWasAdded(Node* node, const size_t depth) {
+            if (m_updateNodeTree && depth > 1) { // ignore layers
+                AddNodeToNodeTree visitor(m_nodeTree);
+                node->acceptAndRecurse(visitor);
+            }
+        }
+
+        void World::doDescendantWillBeRemoved(Node* node, const size_t depth) {
+            if (m_updateNodeTree && depth > 1) { // ignore layers
+                RemoveNodeFromNodeTree visitor(m_nodeTree);
+                node->acceptAndRecurse(visitor);
+            }
+        }
+
+        void World::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
+            if (m_updateNodeTree && depth > 1) { // ignore layers
+                UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
+                node->accept(visitor);
+            }
+        }
+
         bool World::doSelectable() const {
             return false;
         }
 
         void World::doPick(const Ray3& ray, PickResult& pickResult) const {
-            for (const Node* child : Node::children())
-                child->pick(ray, pickResult);
+            for (const auto* node : m_nodeTree.findIntersectors(ray)) {
+                node->pick(ray, pickResult);
+            }
         }
         
         void World::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            for (Node* child : Node::children())
-                child->findNodesContaining(point, result);
+            for (auto* node : m_nodeTree.findContainers(point)) {
+                node->findNodesContaining(point, result);
+            }
         }
 
         FloatType World::doIntersectWithRay(const Ray3& ray) const {
@@ -211,7 +324,7 @@ namespace TrenchBroom {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 
-        void World::doAttributesDidChange() {}
+        void World::doAttributesDidChange(const BBox3& oldBounds) {}
 
         bool World::doIsAttributeNameMutable(const AttributeName& name) const {
             if (name == AttributeNames::Classname)

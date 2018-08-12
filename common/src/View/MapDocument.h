@@ -75,6 +75,8 @@ namespace TrenchBroom {
             Model::Layer* m_currentLayer;
             std::unique_ptr<Model::PointFile> m_pointFile;
             std::unique_ptr<Model::PortalFile> m_portalFile;
+            IO::Path m_pointFilePath;
+            IO::Path m_portalFilePath;
             Model::EditorContext* m_editorContext;
             
             Assets::EntityDefinitionManager* m_entityDefinitionManager;
@@ -193,12 +195,14 @@ namespace TrenchBroom {
             bool pasteNodes(const Model::NodeList& nodes);
             bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
-            void loadPointFile(const IO::Path& path);
+            void loadPointFile(const IO::Path path);
             bool isPointFileLoaded() const;
+            void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            void loadPortalFile(const IO::Path& path);
+            void loadPortalFile(const IO::Path path);
             bool isPortalFileLoaded() const;
+            void reloadPortalFile();
             void unloadPortalFile();
         public: // selection
             bool hasSelection() const override;
@@ -260,6 +264,9 @@ namespace TrenchBroom {
         public:
             bool deleteObjects() override;
             bool duplicateObjects() override;
+        public: // entity management
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const Vec3& delta);
+            Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
         public: // group management
             Model::Group* groupSelection(const String& name);
             void mergeSelectedGroupsWithGroup(Model::Group* group);
@@ -287,6 +294,8 @@ namespace TrenchBroom {
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta) override;
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
+            bool scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) override;
+            bool shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) override;
             bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
         public:
             bool createBrush(const Vec3::List& points);
@@ -381,7 +390,10 @@ namespace TrenchBroom {
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
-            
+
+            // For testing
+            void setEntityDefinitions(const Assets::EntityDefinitionList& definitions);
+
             IO::Path::List enabledTextureCollections() const;
             IO::Path::List availableTextureCollections() const;
             void setEnabledTextureCollections(const IO::Path::List& paths);

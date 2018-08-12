@@ -88,7 +88,8 @@ namespace TrenchBroom {
 
         void EntityRenderer::clear() {
             m_entities.clear();
-            m_wireframeBoundsRenderer = DirectEdgeRenderer();
+            m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer();
+            m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
             m_modelRenderer.clear();
         }
@@ -162,18 +163,31 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
 
-            if (renderContext.showEntityBounds())
-                renderWireframeBounds(renderBatch);
+            if (renderContext.showPointEntityBounds()) {
+                renderPointEntityWireframeBounds(renderBatch);
+            }
+            if (renderContext.showBrushEntityBounds()) {
+                renderBrushEntityWireframeBounds(renderBatch);
+            }
+
             if (m_showHiddenEntities || renderContext.showPointEntities())
                 renderSolidBounds(renderBatch);
         }
-        
-        void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
-            if (m_showOccludedBounds)
-                m_wireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
-            m_wireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
+
+        void EntityRenderer::renderPointEntityWireframeBounds(RenderBatch& renderBatch) {
+            if (m_showOccludedBounds) {
+                m_pointEntityWireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+            }
+            m_pointEntityWireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
         }
-        
+
+        void EntityRenderer::renderBrushEntityWireframeBounds(RenderBatch& renderBatch) {
+            if (m_showOccludedBounds) {
+                m_brushEntityWireframeBoundsRenderer.renderOnTop(renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
+            }
+            m_brushEntityWireframeBoundsRenderer.render(renderBatch, m_overrideBoundsColor, m_boundsColor);
+        }
+
         void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
             m_solidBoundsRenderer.setApplyTinting(m_tint);
             m_solidBoundsRenderer.setTintColor(m_tintColor);
@@ -314,13 +328,21 @@ namespace TrenchBroom {
             solidVertices.reserve(36 * m_entities.size());
             
             if (m_overrideBoundsColor) {
-                VertexSpecs::P3::Vertex::List wireframeVertices;
-                wireframeVertices.reserve(24 * m_entities.size());
+                VertexSpecs::P3::Vertex::List pointEntityWireframeVertices;
+                VertexSpecs::P3::Vertex::List brushEntityWireframeVertices;
 
-                BuildWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices);
+                pointEntityWireframeVertices.reserve(24 * m_entities.size());
+                brushEntityWireframeVertices.reserve(24 * m_entities.size());
+
+                BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices);
+                BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices);
+
                 for (const Model::Entity* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
-                        eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
+                        const bool pointEntity = !entity->hasChildren();
+
+                        eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
@@ -328,24 +350,33 @@ namespace TrenchBroom {
                     }
                 }
                 
-                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(pointEntityWireframeVertices), GL_LINES);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(brushEntityWireframeVertices), GL_LINES);
             } else {
-                VertexSpecs::P3C4::Vertex::List wireframeVertices;
-                wireframeVertices.reserve(24 * m_entities.size());
+                VertexSpecs::P3C4::Vertex::List pointEntityWireframeVertices;
+                VertexSpecs::P3C4::Vertex::List brushEntityWireframeVertices;
+
+                pointEntityWireframeVertices.reserve(24 * m_entities.size());
+                brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
                 for (const Model::Entity* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
+                        const bool pointEntity = !entity->hasChildren();
+
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         } else {
-                            BuildColoredWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices, boundsColor(entity));
-                            eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
+                            BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
+                            BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
+
+                            eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
                         }
                     }
                 }
 
-                m_wireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(wireframeVertices), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(pointEntityWireframeVertices), GL_LINES);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::swap(brushEntityWireframeVertices), GL_LINES);
             }
             
             m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(solidVertices), GL_QUADS);

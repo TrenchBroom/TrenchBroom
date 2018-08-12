@@ -46,6 +46,34 @@ TEST(QuatTest, rotateVecConstructor) {
     ASSERT_VEC_EQ(to, q * from);
 }
 
+TEST(QuatTest, rotateVecConstructor_oppositeVectors) {
+    for (size_t i = 0; i < 3; ++i) {
+        Vec3d from(0.0, 0.0, 0.0);
+        Vec3d to(0.0, 0.0, 0.0);
+
+        from[i] = 1.0;
+        to[i] = -1.0;
+
+        const Quatd q(from, to);
+        EXPECT_VEC_EQ(to, q * from);
+
+        // The quaternion axis should be perpendicular to both from and to vectors
+        EXPECT_FLOAT_EQ(0.0, dot(q.axis(), from));
+        EXPECT_FLOAT_EQ(0.0, dot(q.axis(), to));
+    }
+}
+
+TEST(QuatTest, rotateVecConstructor_equalVectors) {
+    for (size_t i = 0; i < 3; ++i) {
+        Vec3d from(0.0, 0.0, 0.0);
+        from[i] = 1.0;
+
+        const Vec3d to = from;
+        const Quatd q(from, to);
+        EXPECT_VEC_EQ(to, q * from);
+    }
+}
+
 TEST(QuatTest, negation) {
     const Quatf q(Vec<float,3>::PosX, Math::radians(15.0f));
     const Quatf nq = -q;

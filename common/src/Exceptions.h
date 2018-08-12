@@ -112,7 +112,7 @@ public:
     using ExceptionStream::ExceptionStream;
 };
 
-class OctreeException : public ExceptionStream<OctreeException> {
+class NodeTreeException : public ExceptionStream<NodeTreeException> {
 public:
     using ExceptionStream::ExceptionStream;
 };

@@ -60,6 +60,19 @@ private:
         return 2;
     }
 public:
+    class GridCmp {
+    private:
+        const T m_precision;
+    public:
+        GridCmp(const T precision) : m_precision(precision) {
+            assert(m_precision > 0.0);
+        }
+
+        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
+            return compareSnapped(lhs, rhs, m_precision) < 0;
+        }
+    };
+public:
     typedef Vec<float, S> FloatType;
 
     typedef T Type;
@@ -211,7 +224,26 @@ public:
     Vec() {
         setNull();
     }
-            
+
+    // Copy and move constructors
+    Vec(const Vec<T,S>& other) = default;
+    Vec(Vec<T,S>&& other) = default;
+
+    // Assignment operators
+    Vec<T,S>& operator=(const Vec<T,S>& other) = default;
+    Vec<T,S>& operator=(Vec<T,S>&& other) = default;
+
+    // Conversion constructor
+    template <typename U, size_t V>
+    Vec(const Vec<U,V>& other) {
+        for (size_t i = 0; i < std::min(S,V); ++i) {
+            v[i] = static_cast<T>(other[i]);
+        }
+        for (size_t i = std::min(S,V); i < S; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
+    }
+
     template <typename U1, typename U2>
     Vec(const U1 i_x, const U2 i_y) {
         if (S > 0) {
@@ -251,16 +283,6 @@ public:
             }
         }
         for (size_t i = 4; i < S; ++i)
-            v[i] = static_cast<T>(0.0);
-    }
-
-    // We want this constructor to be non-explicit because it allows for quick conversions.
-    // cppcheck-suppress noExplicitConstructor
-    template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec) {
-        for (size_t i = 0; i < std::min(S,O); ++i)
-            v[i] = static_cast<T>(vec[i]);
-        for (size_t i = std::min(S,O); i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
 
@@ -745,6 +767,31 @@ int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type
     assert(lhsCur == lhsEnd && rhsCur == rhsEnd);
     return 0;
 }
+
+
+/**
+ * Lexicographically compares the given components of the vectors after snapping them to a grid of the given size.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the left hand vector
+ * @param rhs the right hand vector
+ * @param precision the grid size for component wise comparison
+ * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
+ */
+template<typename T, size_t S>
+int compareSnapped(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T precision) {
+    for (size_t i = 0; i < S; ++i) {
+        const T l = Math::snap(lhs[i], precision);
+        const T r = Math::snap(rhs[i], precision);
+        if (Math::lt(l, r, 0.0))
+            return -1;
+        if (Math::gt(l, r, 0.0))
+            return 1;
+    }
+    return 0;
+}
+
 
 /**
  * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.
@@ -1235,6 +1282,23 @@ bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T e
     }
 
     return Math::zero(j * j - k * l, epsilon);
+}
+
+/**
+ * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
+ * in the same or in opposite directions.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param epsilon the epsilon value
+ * @return true if the given vectors are parallel, and false otherwise
+ */
+template <typename T, size_t S>
+bool parallel(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    const T cos = dot(normalize(lhs), normalize(rhs));
+    return Math::one(Math::abs(cos), epsilon);
 }
 
 /* ========== computing properties of single vectors ========== */

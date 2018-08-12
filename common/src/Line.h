@@ -35,14 +35,23 @@ public:
     point(Vec<T,S>::Null),
     direction(Vec<T,S>::Null) {}
     
-    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
-    point(i_point),
-    direction(i_direction) {}
+    // Copy and move constructors
+    Line(const Line<T,S>& other) = default;
+    Line(Line<T,S>&& other) = default;
     
+    // Assignment operators
+    Line<T,S>& operator=(const Line<T,S>& other) = default;
+    Line<T,S>& operator=(Line<T,S>&& other) = default;
+    
+    // Conversion constructor
     template <typename U>
     Line(const Line<U,S>& other) :
     point(other.point),
-    direction(other.direction) {}
+    direction(static_cast<T>(other.direction)) {}
+    
+    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
+    point(i_point),
+    direction(i_direction) {}
     
     Line<T,S> makeCanonical() const {
         // choose the point such that its support vector is orthogonal to
@@ -169,6 +178,12 @@ const TT intersectLineWithTriangle(const Line<TT,3>& L, const Vec<TT,3>& V0, con
 
 template <typename T, size_t S>
 const typename Line<T,S>::List Line<T,S>::EmptyList = Line<T,S>::List();
+
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const Line<T,S>& line) {
+    stream << "{point:" << line.point << " direction:" << line.direction << "}";
+    return stream;
+}
 
 typedef Line<float,3> Line3f;
 typedef Line<double,3> Line3d;

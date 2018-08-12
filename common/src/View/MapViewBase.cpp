@@ -130,6 +130,10 @@ namespace TrenchBroom {
 			document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
 			document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
 			document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
+			document->pointFileWasLoadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->pointFileWasUnloadedNotifier.addObserver(this, &MapViewBase::pointFileDidChange);
+            document->portalFileWasLoadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
+            document->portalFileWasUnloadedNotifier.addObserver(this, &MapViewBase::portalFileDidChange);
 
             Grid& grid = document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
@@ -160,6 +164,10 @@ namespace TrenchBroom {
 				document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
 				document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
 				document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
+                document->pointFileWasLoadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
+                document->pointFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::pointFileDidChange);
+                document->portalFileWasLoadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
+                document->portalFileWasUnloadedNotifier.removeObserver(this, &MapViewBase::portalFileDidChange);
 
                 Grid& grid = document->grid();
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
@@ -218,6 +226,14 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::gridDidChange() {
+            Refresh();
+        }
+
+        void MapViewBase::pointFileDidChange() {
+            Refresh();
+        }
+
+        void MapViewBase::portalFileDidChange() {
             Refresh();
         }
 
@@ -489,6 +505,18 @@ namespace TrenchBroom {
 
             m_toolBox.toggleRotateObjectsTool();
         }
+        
+        void MapViewBase::OnToggleScaleObjectsTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            m_toolBox.toggleScaleObjectsTool();
+        }
+
+        void MapViewBase::OnToggleShearObjectsTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_toolBox.toggleShearObjectsTool();
+        }
 
         void MapViewBase::OnMoveRotationCenterForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
@@ -678,57 +706,20 @@ namespace TrenchBroom {
         void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
             
-            MapDocumentSPtr document = lock(m_document);
-            Model::Entity* entity = document->world()->createEntity();
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Vec3 delta = doComputePointEntityPosition(definition->bounds());
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentParent());
-            document->select(entity);
-            document->translateObjects(delta);
+            auto document = lock(m_document);
+            const auto delta = doComputePointEntityPosition(definition->bounds());
+            document->createPointEntity(definition, delta);
         }
         
         void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
             ensure(definition != nullptr, "definition is null");
             
-            MapDocumentSPtr document = lock(m_document);
-            
-            const Model::BrushList brushes = document->selectedNodes().brushes();
-            assert(!brushes.empty());
-            
-            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = std::begin(brushes);
-            Model::BrushList::const_iterator end = std::end(brushes);
-            Model::AttributableNode* entityTemplate = (*it++)->entity();
-            while (it != end && entityTemplate != nullptr)
-                if ((*it++)->parent() != entityTemplate)
-                    entityTemplate = nullptr;
-            
-            Model::Entity* entity = document->world()->createEntity();
-            if (entityTemplate != nullptr && entityTemplate != document->world())
-                entity->setAttributes(entityTemplate->attributes());
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentParent());
-            document->reparentNodes(entity, nodes);
-            document->select(nodes);
+            auto document = lock(m_document);
+            document->createBrushEntity(definition);
         }
         
         bool MapViewBase::canCreateBrushEntity() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectedNodes().hasOnlyBrushes();
         }
 
@@ -780,6 +771,10 @@ namespace TrenchBroom {
                 return ActionContext_AnyVertexTool;
             if (m_toolBox.rotateObjectsToolActive())
                 return ActionContext_RotateTool;
+            if (m_toolBox.scaleObjectsToolActive())
+                return ActionContext_ScaleTool;
+            if (m_toolBox.shearObjectsToolActive())
+                return ActionContext_ShearTool;
 
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes())
@@ -870,7 +865,9 @@ namespace TrenchBroom {
             renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
             renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
             renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowGroupBounds(mapViewConfig.showGroupBounds());
+            renderContext.setShowBrushEntityBounds(mapViewConfig.showBrushEntityBounds());
+            renderContext.setShowPointEntityBounds(mapViewConfig.showPointEntityBounds());
             renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());

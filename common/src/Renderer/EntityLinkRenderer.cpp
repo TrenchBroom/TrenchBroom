@@ -68,13 +68,20 @@ namespace TrenchBroom {
         void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
             if (!m_valid) {
                 validate();
+
+                // Upload the VBO's
                 m_entityLinks.prepare(vertexVbo);
+                m_entityLinkArrows.prepare(vertexVbo);
             }
         }
 
         void EntityLinkRenderer::doRender(RenderContext& renderContext) {
             assert(m_valid);
-            
+            renderLines(renderContext);
+            renderArrows(renderContext);
+        }
+
+        void EntityLinkRenderer::renderLines(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
             shader.set("CameraPosition", renderContext.camera().position());
             shader.set("MaxDistance", 6000.0f);
@@ -82,19 +89,80 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
             m_entityLinks.render(GL_LINES);
-            
+
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
             m_entityLinks.render(GL_LINES);
         }
 
+        void EntityLinkRenderer::renderArrows(RenderContext& renderContext) {
+            ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkArrowShader);
+            shader.set("CameraPosition", renderContext.camera().position());
+            shader.set("MaxDistance", 6000.0f);
+
+            glAssert(glDisable(GL_DEPTH_TEST));
+            shader.set("Alpha", 0.4f);
+            m_entityLinkArrows.render(GL_LINES);
+
+            glAssert(glEnable(GL_DEPTH_TEST));
+            shader.set("Alpha", 1.0f);
+            m_entityLinkArrows.render(GL_LINES);
+        }
+
         void EntityLinkRenderer::validate() {
             Vertex::List links;
             getLinks(links);
+
+            // build the arrows before destroying `links`
+            ArrowVertex::List arrows;
+            getArrows(arrows, links);
+
             m_entityLinks = VertexArray::swap(links);
+            m_entityLinkArrows = VertexArray::swap(arrows);
+
             m_valid = true;
         }
-        
+
+        void EntityLinkRenderer::getArrows(ArrowVertex::List& arrows, const Vertex::List& links) {
+            assert((links.size() % 2) == 0);
+            for (size_t i = 0; i < links.size(); i += 2) {
+                const auto& startVertex = links[i];
+                const auto& endVertex = links[i + 1];
+
+                const auto lineVec = (endVertex.v1 - startVertex.v1);
+                const auto lineLength = length(lineVec);
+                const auto lineDir = lineVec / lineLength;
+                const auto color = startVertex.v2;
+
+                if (lineLength < 512) {
+                    const auto arrowPosition = startVertex.v1 + (lineVec * 0.6f);
+                    addArrow(arrows, color, arrowPosition, lineDir);
+                } else if (lineLength < 1024) {
+                    const auto arrowPosition1 = startVertex.v1 + (lineVec * 0.2f);
+                    const auto arrowPosition2 = startVertex.v1 + (lineVec * 0.6f);
+
+                    addArrow(arrows, color, arrowPosition1, lineDir);
+                    addArrow(arrows, color, arrowPosition2, lineDir);
+                } else {
+                    const auto arrowPosition1 = startVertex.v1 + (lineVec * 0.1f);
+                    const auto arrowPosition2 = startVertex.v1 + (lineVec * 0.4f);
+                    const auto arrowPosition3 = startVertex.v1 + (lineVec * 0.7f);
+
+                    addArrow(arrows, color, arrowPosition1, lineDir);
+                    addArrow(arrows, color, arrowPosition2, lineDir);
+                    addArrow(arrows, color, arrowPosition3, lineDir);
+                }
+            }
+        }
+
+        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const Vec4f& color, const Vec3f& arrowPosition, const Vec3f& lineDir) {
+            arrows.emplace_back(Vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+
+            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(Vec3f{0,-3, 0}, color, arrowPosition, lineDir);
+        }
+
         class EntityLinkRenderer::MatchEntities {
         public:
             bool operator()(const Model::Entity* entity) { return true; }

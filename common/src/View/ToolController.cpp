@@ -210,6 +210,15 @@ namespace TrenchBroom {
             return true;
         }
 
+        LineDragSnapper::LineDragSnapper(const Grid& grid, const Line3& line) :
+        m_grid(grid),
+        m_line(line) {}
+
+        bool LineDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+            curPoint = m_grid.snap(curPoint, m_line);
+            return true;
+        }
+
         CircleDragSnapper::CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, const FloatType radius) :
         m_grid(grid),
         m_start(start),

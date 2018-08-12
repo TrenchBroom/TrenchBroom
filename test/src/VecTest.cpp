@@ -415,3 +415,17 @@ TEST(VecTest, colinear) {
     ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
     ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(10.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
 }
+
+TEST(VecTest, compareSnapped) {
+    ASSERT_EQ( 0, compareSnapped(Vec3d::Null, Vec3d::Null, 0.1));
+    ASSERT_EQ(-1, compareSnapped(Vec3d::Null, Vec3d::One,  0.1));
+    ASSERT_EQ(+1, compareSnapped( Vec3d::One, Vec3d::Null, 0.1));
+
+    ASSERT_EQ( 0, compareSnapped(Vec3d::Null, Vec3d::Null, 1.0));
+    ASSERT_EQ(-1, compareSnapped(Vec3d::Null, Vec3d::One,  1.0));
+    ASSERT_EQ(+1, compareSnapped( Vec3d::One, Vec3d::Null, 1.0));
+
+    ASSERT_EQ( 0, compareSnapped(Vec3d::Null, Vec3d::Null, 10.0));
+    ASSERT_EQ( 0, compareSnapped(Vec3d::Null, Vec3d::One,  10.0));
+    ASSERT_EQ( 0, compareSnapped( Vec3d::One, Vec3d::Null, 10.0));
+}

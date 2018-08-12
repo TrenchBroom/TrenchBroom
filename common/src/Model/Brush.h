@@ -38,6 +38,8 @@
 #include <vector>
 #include <Renderer/BrushRendererBrushCache.h>
 
+#include <set>
+
 namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
@@ -67,6 +69,8 @@ namespace TrenchBroom {
             typedef MoveVerticesCallback RemoveVertexCallback;
             class QueryCallback;
             class FaceMatchingCallback;
+            
+            using VertexSet = std::set<Vec3, Vec3::GridCmp>;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
@@ -207,6 +211,8 @@ namespace TrenchBroom {
             
             CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
+            
+            static VertexSet createVertexSet(const Vec3::List& vertices = Vec3::EmptyList);
         public:
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
@@ -217,11 +223,13 @@ namespace TrenchBroom {
             void updateFacesFromGeometry(const BBox3& worldBounds);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
-            void deleteGeometry();
             void rebuildGeometry(const BBox3& worldBounds);
-            void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
+            void buildGeometry(const BBox3& worldBounds);
+            void deleteGeometry();
             bool checkGeometry() const;
+        public:
+            void findIntegerPlanePoints(const BBox3& worldBounds);
         public: // content type
             bool transparent() const;
             bool hasContentType(const BrushContentType& contentType) const;

@@ -36,7 +36,9 @@ namespace TrenchBroom {
         m_showPointEntities(true),
         m_showPointEntityModels(true),
         m_showEntityClassnames(true),
-        m_showEntityBounds(true),
+        m_showGroupBounds(true),
+        m_showBrushEntityBounds(true),
+        m_showPointEntityBounds(true),
         m_showFog(false),
         m_showGrid(true),
         m_gridSize(4),
@@ -124,12 +126,28 @@ namespace TrenchBroom {
             m_showEntityClassnames = showEntityClassnames;
         }
 
-        bool RenderContext::showEntityBounds() const {
-            return m_showEntityBounds;
+        bool RenderContext::showGroupBounds() const {
+            return m_showGroupBounds;
         }
 
-        void RenderContext::setShowEntityBounds(const bool showEntityBounds) {
-            m_showEntityBounds = showEntityBounds;
+        void RenderContext::setShowGroupBounds(const bool showGroupBounds) {
+            m_showGroupBounds = showGroupBounds;
+        }
+
+        bool RenderContext::showBrushEntityBounds() const {
+            return m_showBrushEntityBounds;
+        }
+
+        void RenderContext::setShowBrushEntityBounds(const bool showBrushEntityBounds) {
+            m_showBrushEntityBounds = showBrushEntityBounds;
+        }
+
+        bool RenderContext::showPointEntityBounds() const {
+            return m_showPointEntityBounds;
+        }
+
+        void RenderContext::setShowPointEntityBounds(const bool showPointEntityBounds) {
+            m_showPointEntityBounds = showPointEntityBounds;
         }
 
         bool RenderContext::showFog() const {
