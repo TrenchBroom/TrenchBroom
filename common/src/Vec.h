@@ -117,13 +117,39 @@ public:
         return result;
     }
 
+    /**
+     * Parses the given string representation. The syntax of the given string is as follows
+     *
+     *   VEC ::= S * COMP;
+     *     S ::= number of components
+     *  COMP ::= WS, FLOAT;
+     *    WS ::= " " | \\t | \\n | \\r | "(" | ")";
+     * FLOAT ::= any floating point number parseable by std::atof
+     *
+     * Note that this method does not signal if the string could actually be parsed.
+     *
+     * @param str the string to parse
+     * @return the vector parsed from the string
+     */
     static Vec<T,S> parse(const std::string& str) {
         size_t pos = 0;
         Vec<T,S> result;
         doParse(str, pos, result);
         return result;
     }
-    
+
+    /**
+     * Parses the given string for a list of vectors. The syntax of the given string is as follows:
+     *
+     * LIST ::= VEC, { SEP, VEC }
+     *  SEP ::= " " | \\t | \\n |t \\r | "," | ";";
+     *
+     * Note that the list can be separated by whitespace or commas or semicolons, or a mix of these separators. Only
+     * vectors which conform to the vector syntax are added to the result list.
+     *
+     * @param str the string to parse
+     * @return the list of vectors parsed from the string
+     */
     static List parseList(const std::string& str) {
         static const std::string blank(" \t\n\r,;");
         
