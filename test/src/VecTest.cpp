@@ -178,7 +178,7 @@ TEST(VecTest, accessors) {
 
 TEST(VecTest, vec4fOverLast) {
     Vec4f v(2.0f, 4.0f, 8.0f, 2.0f);
-    ASSERT_EQ(Vec3f(1.0f, 2.0f, 4.0f), v.overLast());
+    ASSERT_EQ(Vec3f(1.0f, 2.0f, 4.0f), toCartesianCoords(v));
 }
 
 TEST(VecTest, vec2RoundToMultiple) {

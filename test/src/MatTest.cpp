@@ -442,7 +442,7 @@ TEST(MatTest, rightMultiplyWithVectorOneLessDimension) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Vec4d r(18.0, 46.0, 74.0, 102.0);
-    ASSERT_VEC_EQ(r.overLast(), m * v);
+    ASSERT_VEC_EQ(toCartesianCoords(r), m * v);
 }
 
 TEST(MatTest, leftMultiplyWithVectorOneLessDimension) {
@@ -452,7 +452,7 @@ TEST(MatTest, leftMultiplyWithVectorOneLessDimension) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Vec4d r(51.0, 58.0, 65.0, 72.0);
-    ASSERT_VEC_EQ(r.overLast(), v * m);
+    ASSERT_VEC_EQ(toCartesianCoords(r), v * m);
 }
 
 TEST(MatTest, leftMultiplyWithVectorOneLessDimensionAndAssign) {
@@ -463,7 +463,7 @@ TEST(MatTest, leftMultiplyWithVectorOneLessDimensionAndAssign) {
                     13.0, 14.0, 15.0, 16.0);
     const Vec4d r(51.0, 58.0, 65.0, 72.0);
     v *= m;
-    ASSERT_VEC_EQ(r.overLast(), v);
+    ASSERT_VEC_EQ(toCartesianCoords(r), v);
 }
 
 TEST(MatTest, rightMultiplyWithListOfVectors) {
@@ -541,9 +541,9 @@ TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
                     13.0, 14.0, 15.0, 16.0);
     
     Vec3d::List r;
-    r.push_back(Vec4d(18.0, 46.0, 74.0, 102.0).overLast());
-    r.push_back(Vec4d(24.0, 64.0, 104.0, 144.0).overLast());
-    r.push_back(Vec4d(120.0, 260.0, 400.0, 540.0).overLast());
+    r.push_back(toCartesianCoords(Vec4d(18.0, 46.0, 74.0, 102.0)));
+    r.push_back(toCartesianCoords(Vec4d(24.0, 64.0, 104.0, 144.0)));
+    r.push_back(toCartesianCoords(Vec4d(120.0, 260.0, 400.0, 540.0)));
     
     const Vec3d::List o = m * v;
     for (size_t i = 0; i < 3; i++)
@@ -562,9 +562,9 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
                     13.0, 14.0, 15.0, 16.0);
     
     Vec3d::List r;
-    r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0).overLast());
-    r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0).overLast());
-    r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0).overLast());
+    r.push_back(toCartesianCoords(Vec4d(51.0, 58.0, 65.0, 72.0)));
+    r.push_back(toCartesianCoords(Vec4d(66.0, 76.0, 86.0, 96.0)));
+    r.push_back(toCartesianCoords(Vec4d(339.0, 370.0, 401.0, 432.0)));
     
     const Vec3d::List o = v * m;
     for (size_t i = 0; i < 3; i++)
@@ -583,9 +583,9 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimensionAndAssign) {
                     13.0, 14.0, 15.0, 16.0);
     
     Vec3d::List r;
-    r.push_back(Vec4d(51.0, 58.0, 65.0, 72.0).overLast());
-    r.push_back(Vec4d(66.0, 76.0, 86.0, 96.0).overLast());
-    r.push_back(Vec4d(339.0, 370.0, 401.0, 432.0).overLast());
+    r.push_back(toCartesianCoords(Vec4d(51.0, 58.0, 65.0, 72.0)));
+    r.push_back(toCartesianCoords(Vec4d(66.0, 76.0, 86.0, 96.0)));
+    r.push_back(toCartesianCoords(Vec4d(339.0, 370.0, 401.0, 432.0)));
 
     v *= m;
     for (size_t i = 0; i < 3; i++)

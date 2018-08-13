@@ -24,11 +24,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "StringUtils.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
-#include <map>
 #include <ostream>
-#include <set>
 #include <vector>
 
 template <typename T, size_t S>
@@ -181,7 +180,7 @@ private:
         return true;
     }
 protected:
-    T v[S];
+    std::array<T, S> v;
 public:
     /**
      * Creates a new vector with all components initialized to 0.
@@ -486,13 +485,6 @@ public:
      */
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
-    }
-
-    Vec<T,S-1> overLast() const {
-        Vec<T,S-1> result;
-        for (size_t i = 0; i < S-1; ++i)
-            result[i] = v[i] / v[S-1];
-        return result;
     }
 
     Vec<T,S> roundDownToMultiple(const Vec<T,S>& m) const {
@@ -1372,6 +1364,38 @@ T squaredDistance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
 template <typename T, size_t S>
 Vec<T,S> normalize(const Vec<T,S>& vec) {
     return vec / length(vec);
+}
+
+/**
+ * Converts the given point in cartesian coordinates to homogeneous coordinates by embedding the point into
+ * a vector with a size increased by 1 and setting the last component to 1.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point in cartesian coordinates
+ * @return the point in homogeneous coordinates
+ */
+template <typename T, size_t S>
+Vec<T,S+1> toHomogeneousCoords(const Vec<T,S>& point) {
+    return Vec<T,S+1>(point, static_cast<T>(1.0));
+}
+
+/**
+ * Converts the given point in homogeneous coordinates to cartesian coordinates by dividing all but the last
+ * component by the value of the last component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point in homogeneous coordinates
+ * @return the point in cartesian coordinates
+ */
+template <typename T, size_t S>
+Vec<T,S-1> toCartesianCoords(const Vec<T,S>& point) {
+    Vec<T,S-1> result;
+    for (size_t i = 0; i < S-1; ++i) {
+        result[i] = point[i] / point[S-1];
+    }
+    return result;
 }
 
 /**

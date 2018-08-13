@@ -191,8 +191,7 @@ public:
     }
     
     const Vec<T,C-1> operator*(const Vec<T,C-1>& right) const {
-        const Vec<T,C> t(right, static_cast<T>(1.0));
-        return (*this * t).overLast();
+        return toCartesianCoords(*this * toHomogeneousCoords(right));
     }
     
     // Vector list right multiplication
@@ -299,7 +298,7 @@ const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const 
 // Vector left multiplication with vector of dimension R-1
 template <typename T, size_t R, size_t C>
 const Vec<T,R-1> operator*(const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
-    return (Vec<T,R>(left, static_cast<T>(1.0)) * right).overLast();
+    return toCartesianCoords(toHomogeneousCoords(left) * right);
 }
 
 template <typename T, size_t R, size_t C>
