@@ -182,9 +182,9 @@ TEST(VecTest, vec4fOverLast) {
 }
 
 TEST(VecTest, vec2RoundToMultiple) {
-    ASSERT_EQ(Vec2f(8.0f,  0.0f), Vec2f( 7.0f, -3.0f).roundToMultiple(Vec2f( 4.0f, 12.0f)));
-    ASSERT_EQ(Vec2f( 8.0f, -6.0f), Vec2f( 7.0f, -5.0f).roundToMultiple(Vec2f(-4.0f, -2.0f)));
-    ASSERT_EQ(Vec2f(-8.0f,  6.0f), Vec2f(-7.0f,  5.0f).roundToMultiple(Vec2f(-4.0f, -2.0f)));
+    ASSERT_EQ(Vec2f( 8.0f,  0.0f), roundToMultiple(Vec2f( 7.0f, -3.0f), Vec2f( 4.0f, 12.0f)));
+    ASSERT_EQ(Vec2f( 8.0f, -6.0f), roundToMultiple(Vec2f( 7.0f, -5.0f), Vec2f(-4.0f, -2.0f)));
+    ASSERT_EQ(Vec2f(-8.0f,  6.0f), roundToMultiple(Vec2f(-7.0f,  5.0f), Vec2f(-4.0f, -2.0f)));
 }
 
 TEST(VecTest, vec3fDot) {

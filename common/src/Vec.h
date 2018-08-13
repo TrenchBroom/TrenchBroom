@@ -487,27 +487,6 @@ public:
         return Vec<T,4>(x(), y(), z(), w());
     }
 
-    Vec<T,S> roundDownToMultiple(const Vec<T,S>& m) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = Math::roundDownToMultiple(v[i], m[i]);
-        return result;
-    }
-    
-    Vec<T,S> roundUpToMultiple(const Vec<T,S>& m) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = Math::roundUpToMultiple(v[i], m[i]);
-        return result;
-    }
-    
-    Vec<T,S> roundToMultiple(const Vec<T,S>& m) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = Math::roundToMultiple(v[i], m[i]);
-        return result;
-    }
-
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         return compare(*this, other, epsilon) == 0;
     }
@@ -1366,6 +1345,8 @@ Vec<T,S> normalize(const Vec<T,S>& vec) {
     return vec / length(vec);
 }
 
+/* ========== coordinate system conversions ========== */
+
 /**
  * Converts the given point in cartesian coordinates to homogeneous coordinates by embedding the point into
  * a vector with a size increased by 1 and setting the last component to 1.
@@ -1516,6 +1497,62 @@ bool isNaN(const Vec<T,S>& vec) {
         }
     }
     return false;
+}
+
+/* ========== rounding and error correction ========== */
+
+/**
+ * Rounds the components of the given vector down to multiples of the components of the given vector m.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to round down
+ * @param m the multiples to round down to
+ * @return the rounded vector
+ */
+template <typename T, size_t S>
+Vec<T,S> roundDownToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::roundDownToMultiple(vec[i], m[i]);
+    }
+    return result;
+}
+
+/**
+ * Rounds the components of the given vector up to multiples of the components of the given vector m.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to round down
+ * @param m the multiples to round up to
+ * @return the rounded vector
+ */
+template <typename T, size_t S>
+Vec<T,S> roundUpToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::roundUpToMultiple(vec[i], m[i]);
+    }
+    return result;
+}
+
+/**
+ * Rounds the components of the given vector to multiples of the components of the given vector m.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to round down
+ * @param m the multiples to round to
+ * @return the rounded vector
+ */
+template <typename T, size_t S>
+Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::roundToMultiple(vec[i], m[i]);
+    }
+    return result;
 }
 
 

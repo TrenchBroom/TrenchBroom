@@ -164,7 +164,7 @@ namespace TrenchBroom {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
-            const Vec2 closest = position.xy().roundToMultiple(stripe);
+            const Vec2 closest = roundToMultiple(position.xy(), stripe);
             return Vec2f(closest - position.xy());
         }
         
