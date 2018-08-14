@@ -491,7 +491,7 @@ public:
         for (size_t i = 0; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
-            
+
     void set(const T value) {
         for (size_t i = 0; i < S; ++i)
             v[i] = value;
@@ -500,19 +500,7 @@ public:
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
-    
-    bool hasMajorComponent(const T epsilon = Math::Constants<T>::almostZero()) const {
-        if (S == 0)
-            return false;
-        if (S == 1)
-            return true;
-        
-        Vec<T,S> copy(*this);
-        const Math::Less<T, true> less;
-        std::sort(&copy.v[0], &copy.v[S-1]+1, less);
-        return less(copy[0], copy[1]);
-    }
-    
+
     size_t majorComponent(const size_t k) const {
         assert(k < S);
         
@@ -566,27 +554,15 @@ public:
     const Vec<T,3> firstAxis() const {
         return majorAxis(0);
     }
-            
-    const Vec<T,3> absFirstAxis() const {
-        return absMajorAxis(0);
-    }
-    
+
     const Vec<T,3> secondAxis() const {
         return majorAxis(1);
     }
-    
-    const Vec<T,3> absSecondAxis() const {
-        return absMajorAxis(1);
-    }
-    
+
     const Vec<T,3> thirdAxis() const {
         return majorAxis(2);
     }
-    
-    const Vec<T,3> absThirdAxis() const {
-        return absMajorAxis(2);
-    }
-    
+
     Vec<T,S> makePerpendicular() const {
         // get an axis that this vector has the least weight towards.
         const Vec<T,S> leastAxis = majorAxis(S-1);
