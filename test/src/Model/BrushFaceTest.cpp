@@ -569,8 +569,8 @@ namespace TrenchBroom {
             negXFace->rotateTexture(45.0);
             ASSERT_FLOAT_EQ(45.0f, negXFace->attribs().rotation());
 
-            ASSERT_VEC_EQ(newXAxis, negXFace->textureXAxis());
-            ASSERT_VEC_EQ(newYAxis, negXFace->textureYAxis());
+            ASSERT_VEC_EQ(Vec3d(newXAxis), negXFace->textureXAxis());
+            ASSERT_VEC_EQ(Vec3d(newYAxis), negXFace->textureYAxis());
 
             VectorUtils::clearAndDelete(nodes);
         }

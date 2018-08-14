@@ -134,16 +134,16 @@ bool Polyhedron<T,FP,VP>::Edge::hasVertex(const Vertex* vertex) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPosition(const V& position, const T epsilon) const {
-    return ( firstVertex()->position().equals(position, epsilon) ||
-            secondVertex()->position().equals(position, epsilon));
+    return (equal( firstVertex()->position(), position, epsilon) ||
+            equal(secondVertex()->position(), position, epsilon));
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& position2, const T epsilon) const {
-    return (( firstVertex()->position().equals(position1, epsilon) &&
-             secondVertex()->position().equals(position2, epsilon)) ||
-            ( firstVertex()->position().equals(position2, epsilon) &&
-             secondVertex()->position().equals(position1, epsilon))
+    return ((equal( firstVertex()->position(), position1, epsilon) &&
+             equal(secondVertex()->position(), position2, epsilon)) ||
+            (equal( firstVertex()->position(), position2, epsilon) &&
+             equal(secondVertex()->position(), position1, epsilon))
             );
 }
 

@@ -196,7 +196,7 @@ public:
     }
     
     bool equals(const Plane<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
-        return Math::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
+        return Math::eq(distance, other.distance, epsilon) && equal(normal, other.normal, epsilon);
     }
     
     Plane<T,S>& flip() {

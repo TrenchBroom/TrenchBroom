@@ -214,9 +214,9 @@ public:
         Face* previous() const;
         size_t vertexCount() const;
         const HalfEdgeList& boundary() const;
-        HalfEdge* findHalfEdge(const V& origin) const;
+        HalfEdge* findHalfEdge(const V& origin, T epsilon = Math::Constants<T>::almostZero()) const;
         HalfEdge* findHalfEdge(const Vertex* origin) const;
-        Edge* findEdge(const V& first, const V& second) const;
+        Edge* findEdge(const V& first, const V& second, T epsilon = Math::Constants<T>::almostZero()) const;
         void printBoundary() const;
         V origin() const;
         typename V::List vertexPositions() const;

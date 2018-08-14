@@ -115,7 +115,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPoint(const Polyhedron& lhs, const Poly
     
     const V& lhsPos = lhs.m_vertices.front()->position();
     const V& rhsPos = rhs.m_vertices.front()->position();
-    return lhsPos.equals(rhsPos);
+    return lhsPos == rhsPos;
 }
 
 template <typename T, typename FP, typename VP>

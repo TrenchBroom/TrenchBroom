@@ -127,9 +127,10 @@ namespace TrenchBroom {
             assert(isUnit(newNormal));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (newNormal.equals(oldNormal, 0.01))
+            if (equal(newNormal, oldNormal, 0.01)) {
                 newNormal = oldNormal;
-            
+            }
+
             if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 setRotation(newNormal, attribs.rotation(), attribs.rotation());
                 return;

@@ -202,18 +202,17 @@ namespace TrenchBroom {
         }
 
         Mat4x4 ParallelTexCoordSystem::computeNonTextureRotation(const Vec3& oldNormal, const Vec3& newNormal, const Mat4x4& rotation) const {
-            if (oldNormal.equals(newNormal))
+            if (oldNormal == newNormal) {
                 return Mat4x4::Identity;
-            
-            if (oldNormal.equals(-newNormal)) {
+            } else if (oldNormal == -newNormal) {
                 const Vec3 minorAxis = oldNormal.majorAxis(2);
                 const Vec3 axis = normalize(cross(oldNormal, minorAxis));
                 return rotationMatrix(axis, Math::C::pi());
+            } else {
+                const Vec3 axis = normalize(cross(newNormal, oldNormal));
+                const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+                return rotationMatrix(axis, angle);
             }
-            
-            const Vec3 axis = normalize(cross(newNormal, oldNormal));
-            const FloatType angle = angleBetween(newNormal, oldNormal, axis);
-            return rotationMatrix(axis, angle);
         }
 
         void ParallelTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {

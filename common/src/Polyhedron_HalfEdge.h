@@ -120,8 +120,9 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const typename V::List& origins, const T epsilon) const {
     const HalfEdge* edge = this;
     for (const V& origin : origins) {
-        if (!edge->origin()->position().equals(origin, epsilon))
+        if (!equal(edge->origin()->position(), origin, epsilon)) {
             return false;
+        }
         edge = edge->next();
     }
     return true;

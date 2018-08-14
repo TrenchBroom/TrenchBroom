@@ -487,10 +487,6 @@ public:
         return Vec<T,4>(x(), y(), z(), w());
     }
 
-    bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
-        return compare(*this, other, epsilon) == 0;
-    }
-
     void setNull() {
         for (size_t i = 0; i < S; ++i)
             v[i] = static_cast<T>(0.0);
@@ -1377,6 +1373,25 @@ Vec<T,S-1> toCartesianCoords(const Vec<T,S>& point) {
         result[i] = point[i] / point[S-1];
     }
     return result;
+}
+
+/* ========== geometric properties and comparison ========== */
+
+/**
+ * Checks whether the given vectors are component wise equal up to the given epsilon.
+ *
+ * Unline the equality operator ==, this function takes an epsilon value into account.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param epsilon the epsilon value
+ * @return true if the given vectors are component wise equal up to the given epsilon value
+ */
+template <typename T, size_t S>
+bool equal(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon) {
+    return compare(lhs, rhs, epsilon) == 0;
 }
 
 /**

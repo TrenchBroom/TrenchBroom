@@ -40,9 +40,21 @@ namespace TrenchBroom {
     }
 }
 
-#define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
-#define EXPECT_VEC_EQ(vec1, vec2) EXPECT_TRUE((vec1).equals((vec2)))
-#define ASSERT_VEC_NE(vec1, vec2) ASSERT_FALSE((vec1).equals((vec2)))
+template <typename T, size_t S>
+void ASSERT_VEC_EQ(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    ASSERT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t S>
+void EXPECT_VEC_EQ(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    EXPECT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t S>
+void ASSERT_VEC_NE(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    ASSERT_FALSE(equal(lhs, rhs, static_cast<T>(0.001)));
+}
+
 #define ASSERT_MAT_EQ(mat1, mat2) ASSERT_TRUE((mat1).equals((mat2)))
 #define ASSERT_MAT_NE(mat1, mat2) ASSERT_FALSE((mat1).equals((mat2)))
 #define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))

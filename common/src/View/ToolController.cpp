@@ -364,7 +364,7 @@ namespace TrenchBroom {
             m_currentMousePosition = newMousePosition;
             
             Vec3 newHandlePosition = m_currentMousePosition;
-            if (!snapPoint(inputState, newHandlePosition) || newHandlePosition.equals(m_currentHandlePosition))
+            if (!snapPoint(inputState, newHandlePosition) || newHandlePosition == m_currentHandlePosition)
                 return true;
             
             const DragResult result = doDrag(inputState, m_currentHandlePosition, newHandlePosition);

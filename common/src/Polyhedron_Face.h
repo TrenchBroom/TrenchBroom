@@ -85,11 +85,11 @@ const typename Polyhedron<T,FP,VP>::HalfEdgeList& Polyhedron<T,FP,VP>::Face::bou
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const typename Polyhedron<T,FP,VP>::V& origin) const {
+typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(const typename Polyhedron<T,FP,VP>::V& origin, const T epsilon) const {
     auto* firstEdge = m_boundary.front();
     auto* currentEdge = firstEdge;
     do {
-        if (currentEdge->origin()->position().equals(origin)) {
+        if (equal(currentEdge->origin()->position(), origin, epsilon)) {
             return currentEdge;
         }
         currentEdge = currentEdge->next();
@@ -112,18 +112,18 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V& first, const V& second) const {
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V& first, const V& second, const T epsilon) const {
     auto* halfEdge = findHalfEdge(first);
     if (halfEdge == nullptr) {
         return nullptr;
     }
 
-    if (halfEdge->destination()->position().equals(second)) {
+    if (equal(halfEdge->destination()->position(), second, epsilon)) {
         return halfEdge->edge();
     }
 
     halfEdge = halfEdge->previous();
-    if (halfEdge->origin()->position().equals(second)) {
+    if (equal(halfEdge->origin()->position(), second, epsilon)) {
         return halfEdge->edge();
     }
 
@@ -159,7 +159,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T eps
     const auto* firstEdge = m_boundary.front();
     const auto* currentEdge = firstEdge;
     do {
-        if (currentEdge->origin()->position().equals(position, epsilon)) {
+        if (equal(currentEdge->origin()->position(), position, epsilon)) {
             return true;
         }
         currentEdge = currentEdge->next();

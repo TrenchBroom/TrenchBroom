@@ -657,7 +657,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
     Vertex* firstVertex = m_vertices.front();
     Vertex* currentVertex = firstVertex;
     do {
-        if (currentVertex != except && position.equals(currentVertex->position(), epsilon))
+        if (currentVertex != except && equal(position, currentVertex->position(), epsilon))
             return currentVertex;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);

@@ -343,7 +343,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const Vec3& normal) const {
             for (auto* face : m_faces) {
-                if (face->boundary().normal.equals(normal)) {
+                if (equal(face->boundary().normal, normal, Math::Constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
