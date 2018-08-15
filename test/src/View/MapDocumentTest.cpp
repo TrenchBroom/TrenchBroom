@@ -238,6 +238,30 @@ namespace TrenchBroom {
             };
             ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
         }
+
+        TEST_F(MapDocumentTest, scaleObjects) {
+            const BBox3 initialBBox(Vec3(-100,-100,-100), Vec3(100,100,100));
+            const BBox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
+            const BBox3 invalidBBox(Vec3(0,-100,-100), Vec3(0,100,100));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+
+            ASSERT_EQ(Vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(Plane3(100.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+
+            // attempting an invalid scale has no effect
+            ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+            ASSERT_EQ(Vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(Plane3(100.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+
+            ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
+            ASSERT_EQ(Vec3(400,400,400), brush1->bounds().size());
+            ASSERT_EQ(Plane3(200.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+        }
         
         TEST_F(MapDocumentTest, csgConvexMerge) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
