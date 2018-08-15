@@ -238,7 +238,22 @@ namespace TrenchBroom {
             };
             ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
         }
-        
+
+        TEST_F(MapDocumentTest, scaleObjectsWithCenter) {
+            const BBox3 initialBBox(Vec3(0,0,0), Vec3(100,100,400));
+            const BBox3 expectedBBox(Vec3(-50,0,0), Vec3(150,100,400));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+
+            const Vec3 center = initialBBox.center();
+            ASSERT_TRUE(document->scaleObjects(center, Vec3(2.0, 1.0, 1.0)));
+            ASSERT_EQ(expectedBBox, brush1->bounds());
+        }
+
         TEST_F(MapDocumentTest, csgConvexMerge) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
             
