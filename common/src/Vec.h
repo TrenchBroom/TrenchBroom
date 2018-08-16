@@ -186,7 +186,9 @@ public:
      * Creates a new vector with all components initialized to 0.
      */
     Vec() {
-        setNull();
+        for (size_t i = 0; i < S; ++i) {
+            v[i] = static_cast<T>(0.0);
+        }
     }
 
     // Copy and move constructors
@@ -485,11 +487,6 @@ public:
      */
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
-    }
-
-    void setNull() {
-        for (size_t i = 0; i < S; ++i)
-            v[i] = static_cast<T>(0.0);
     }
 
     void set(const T value) {
