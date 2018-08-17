@@ -25,10 +25,23 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height) {
+        size_t bytesPerPixelForFormat(GLenum format) {
+            switch (format) {
+                case GL_RGB:
+                case GL_BGR:
+                    return 3U;
+                case GL_RGBA:
+                    return 4U;
+            }
+            ensure(false, "unknown format");
+        }
+
+        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height, const GLenum format) {
+            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
+
             for (size_t i = 0; i < buffers.size(); ++i) {
                 const size_t div = 1 << i;
-                const size_t size = 3 * (width * height) / (div * div);
+                const size_t size = bytesPerPixel * (width * height) / (div * div);
                 assert(size > 0);
                 buffers[i] = Assets::TextureBuffer(size);
             }
@@ -44,9 +57,10 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_textureId(0) {
+            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
-            assert(buffer.size() >= m_width * m_height * 3);
+            assert(buffer.size() >= m_width * m_height * bytesPerPixel);
             m_buffers.push_back(buffer);
         }
         
@@ -61,10 +75,11 @@ namespace TrenchBroom {
         m_format(format),
         m_textureId(0),
         m_buffers(buffers) {
+            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
             for (size_t i = 0; i < m_buffers.size(); ++i) {
-                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * 3);
+                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * bytesPerPixel);
             }
         }
         

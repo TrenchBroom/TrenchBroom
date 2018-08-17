@@ -331,10 +331,10 @@ namespace TrenchBroom {
             const ImageLoader image(ImageLoader::PCX, file->begin(), file->end());
             
             const Buffer<unsigned char>& indices = image.indices();
-            Buffer<unsigned char> rgbImage(indices.size() * 3);
-            m_palette.indexedToRgb(indices, indices.size(), rgbImage, avgColor);
+            Buffer<unsigned char> rgbaImage(indices.size() * 4);
+            m_palette.indexedToRgba(indices, indices.size(), rgbaImage, avgColor);
             
-            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbImage);
+            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbaImage, GL_RGBA);
         }
 
         Assets::Md2Model::FrameList Md2Parser::buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes) {

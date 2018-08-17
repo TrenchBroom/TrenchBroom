@@ -205,6 +205,7 @@ namespace TrenchBroom {
             Vec3f(-0.688191f, -0.587785f, -0.425325f),
         };
 
+        static const int MF_HOLEY = (1 << 14);
         
         MdlParser::MdlParser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
         m_name(name),
@@ -229,8 +230,11 @@ namespace TrenchBroom {
             const size_t skinVertexCount = readSize<int32_t>(cursor);
             const size_t skinTriangleCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
+            [[maybe_unused]]
+            const size_t syncType = readSize<int32_t>(cursor);
+            const int flags = readInt<int32_t>(cursor);
             
-            parseSkins(cursor, *model, skinCount, skinWidth, skinHeight);
+            parseSkins(cursor, *model, skinCount, skinWidth, skinHeight, flags);
             const MdlSkinVertexList skinVertices = parseSkinVertices(cursor, skinVertexCount);
             const MdlSkinTriangleList skinTriangles = parseSkinTriangles(cursor, skinTriangleCount);
             parseFrames(cursor, *model, frameCount, skinTriangles, skinVertices, skinWidth, skinHeight, origin, scale);
@@ -239,8 +243,11 @@ namespace TrenchBroom {
             return model;
         }
 
-        void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height) {
+        void MdlParser::parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height, const int flags) {
             const size_t size = width * height;
+            const auto transparency = (flags & MF_HOLEY)
+                    ? Assets::PaletteTransparency::Index255Transparent
+                    : Assets::PaletteTransparency::Opaque;
             Color avgColor;
             StringStream textureName;
 
@@ -248,13 +255,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < count; ++i) {
                 const size_t skinGroup = readSize<int32_t>(cursor);
                 if (skinGroup == 0) {
-                    Buffer<unsigned char> rgbImage(size * 3);
-                    m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                    Buffer<unsigned char> rgbaImage(size * 4);
+                    m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
                     cursor += size;
 
                     textureName << m_name << "_" << i;
                     
-                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
+                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA);
                     model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
@@ -267,14 +274,14 @@ namespace TrenchBroom {
                         cursor = base + j * sizeof(float);
                         times[j] = readFloat<float>(cursor);
                         
-                        Buffer<unsigned char> rgbImage(size * 3);
+                        Buffer<unsigned char> rgbaImage(size * 4);
                         cursor = base + pictureCount * 4 + j * size;
-                        m_palette.indexedToRgb(cursor, size, rgbImage, avgColor);
+                        m_palette.indexedToRgba(cursor, size, rgbaImage, avgColor, transparency);
                         cursor += size;
 
                         textureName << m_name << "_" << i << "_" << j;
 
-                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbImage);
+                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA);
                     }
                     
                     model.addSkin(new Assets::MdlSkin(textures, times));
