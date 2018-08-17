@@ -34,6 +34,7 @@ namespace TrenchBroom {
                     return 4U;
             }
             ensure(false, "unknown format");
+            return 0U;
         }
 
         void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height, const GLenum format) {
