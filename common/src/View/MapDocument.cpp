@@ -1002,6 +1002,10 @@ namespace TrenchBroom {
         bool MapDocument::scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) {
             return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
         }
+
+        bool MapDocument::scaleObjects(const Vec3& center, const Vec3& scaleFactors) {
+            return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
+        }
         
         bool MapDocument::shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) {
             return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));

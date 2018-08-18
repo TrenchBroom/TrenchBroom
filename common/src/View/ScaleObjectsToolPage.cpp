@@ -72,13 +72,8 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const auto box = document->selectionBounds();
-            document->scaleObjects(box, scaleBBoxFromCenter(box, scaleFactors));
-        }
 
-        BBox3 ScaleObjectsToolPage::scaleBBoxFromCenter(const BBox3& box, const Vec3& scaleFactors) {
-            const Vec3 newSize = (box.size() * scaleFactors).absolute();
-            return BBox3(box.center() - (newSize * 0.5),
-                         box.center() + (newSize * 0.5));
+            document->scaleObjects(box.center(), scaleFactors);
         }
     }
 }

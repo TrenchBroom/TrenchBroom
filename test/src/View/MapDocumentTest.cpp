@@ -262,6 +262,21 @@ namespace TrenchBroom {
             ASSERT_EQ(Vec3(400,400,400), brush1->bounds().size());
             ASSERT_EQ(Plane3(200.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
         }
+
+        TEST_F(MapDocumentTest, scaleObjectsWithCenter) {
+            const BBox3 initialBBox(Vec3(0,0,0), Vec3(100,100,400));
+            const BBox3 expectedBBox(Vec3(-50,0,0), Vec3(150,100,400));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+
+            const Vec3 center = initialBBox.center();
+            ASSERT_TRUE(document->scaleObjects(center, Vec3(2.0, 1.0, 1.0)));
+            ASSERT_EQ(expectedBBox, brush1->bounds());
+        }
         
         TEST_F(MapDocumentTest, csgConvexMerge) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
