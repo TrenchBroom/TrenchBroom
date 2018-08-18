@@ -142,6 +142,7 @@ namespace TrenchBroom {
 
 #define GL_CLAMP_TO_EDGE 0x812F
 #define GL_TEXTURE_MAX_LEVEL 0x813D
+#define GL_GENERATE_MIPMAP 0x8191
 
 #define GL_TEXTURE0 0x84C0
 #define GL_TEXTURE1 0x84C1

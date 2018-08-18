@@ -46,7 +46,7 @@ namespace TrenchBroom {
             const size_t width = reader.readSize<uint32_t>();
             const size_t height = reader.readSize<uint32_t>();
             
-            Assets::setMipBufferSize(buffers, width, height);
+            Assets::setMipBufferSize(buffers, width, height, GL_RGBA);
 
             for (size_t i = 0; i < MipLevels; ++i)
                 offset[i] = reader.readSize<int32_t>();
@@ -56,12 +56,12 @@ namespace TrenchBroom {
                 const size_t size = mipSize(width, height, i);
                 const char* data = begin + offset[i];
 
-                m_palette.indexedToRgb(data, size, buffers[i], tempColor);
+                m_palette.indexedToRgba(data, size, buffers[i], tempColor);
                 if (i == 0)
                     averageColor = tempColor;
             }
             
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, Assets::TextureType::Opaque);
         }
     }
 }

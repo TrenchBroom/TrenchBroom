@@ -25,16 +25,30 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height) {
+        size_t bytesPerPixelForFormat(const GLenum format) {
+            switch (format) {
+                case GL_RGB:
+                case GL_BGR:
+                    return 3U;
+                case GL_RGBA:
+                    return 4U;
+            }
+            ensure(false, "unknown format");
+            return 0U;
+        }
+
+        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t width, const size_t height, const GLenum format) {
+            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
+
             for (size_t i = 0; i < buffers.size(); ++i) {
                 const size_t div = 1 << i;
-                const size_t size = 3 * (width * height) / (div * div);
+                const size_t size = bytesPerPixel * (width * height) / (div * div);
                 assert(size > 0);
                 buffers[i] = Assets::TextureBuffer(size);
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -43,14 +57,15 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
-            assert(buffer.size() >= m_width * m_height * 3);
+            assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
             m_buffers.push_back(buffer);
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -59,16 +74,17 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
             assert(m_height > 0);
             for (size_t i = 0; i < m_buffers.size(); ++i) {
-                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * 3);
+                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * bytesPerPixelForFormat(format));
             }
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -77,6 +93,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -142,12 +159,22 @@ namespace TrenchBroom {
             glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
             
             glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-            
+
+            // Quake fence textures tend to have nonsense mipmaps
+            // Also generate mipmaps if we don't have any
+            const bool generateMipmaps =
+                    (m_type == TextureType::Masked) || (m_buffers.size() == 1);
+
+            if (generateMipmaps) {
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+            } else {
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+            }
+
             /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
             const size_t potWidth = Math::nextPOT(m_width);
             const size_t potHeight = Math::nextPOT(m_height);
@@ -158,7 +185,10 @@ namespace TrenchBroom {
             
             size_t mipWidth = m_width; //potWidth;
             size_t mipHeight = m_height; //potHeight;
-            for (size_t j = 0; j < m_buffers.size(); ++j) {
+
+            const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
+
+            for (size_t j = 0; j < mipmapsToUpload; ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                       static_cast<GLsizei>(mipWidth),
