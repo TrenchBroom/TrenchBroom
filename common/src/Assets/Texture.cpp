@@ -156,12 +156,13 @@ namespace TrenchBroom {
             glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
             
             glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+            //glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-            
+            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+
             /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
             const size_t potWidth = Math::nextPOT(m_width);
             const size_t potHeight = Math::nextPOT(m_height);
@@ -172,16 +173,13 @@ namespace TrenchBroom {
             
             size_t mipWidth = m_width; //potWidth;
             size_t mipHeight = m_height; //potHeight;
-            for (size_t j = 0; j < m_buffers.size(); ++j) {
-                const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
-                glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
-                                      static_cast<GLsizei>(mipWidth),
-                                      static_cast<GLsizei>(mipHeight),
-                                      0, m_format, GL_UNSIGNED_BYTE, data));
-                mipWidth  /= 2;
-                mipHeight /= 2;
-            }
-            
+
+            const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[0].ptr());
+            glAssert(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                                  static_cast<GLsizei>(mipWidth),
+                                  static_cast<GLsizei>(mipHeight),
+                                  0, m_format, GL_UNSIGNED_BYTE, data));
+
             m_buffers.clear();
             m_textureId = textureId;
         }
