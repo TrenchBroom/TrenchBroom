@@ -42,7 +42,9 @@ namespace TrenchBroom {
             typedef enum {
                 Action_Translate,
                 Action_Rotate,
-                Action_Flip
+                Action_Flip,
+                Action_Shear,
+                Action_Scale
             } Action;
             
             Action m_action;
@@ -54,6 +56,7 @@ namespace TrenchBroom {
             static Ptr translate(const Vec3& delta, bool lockTextures);
             static Ptr rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
             static Ptr scale(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures);
+            static Ptr scale(const Vec3& center, const Vec3& scaleFactors, const bool lockTextures);
             static Ptr shearBBox(const BBox3& box, const Vec3& sideToShear, const Vec3& delta, const bool lockTextures);
             static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
             ~TransformObjectsCommand() override;
