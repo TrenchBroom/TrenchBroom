@@ -56,7 +56,7 @@ namespace TrenchBroom {
         public:
             Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format);
             Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format);
-            Texture(const String& name, size_t width, size_t height, GLenum format);
+            Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB);
             ~Texture();
 
             const String& name() const;
