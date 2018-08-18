@@ -58,6 +58,7 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_textureId(0) {
+            [[maybe_unused]]
             const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
@@ -76,6 +77,7 @@ namespace TrenchBroom {
         m_format(format),
         m_textureId(0),
         m_buffers(buffers) {
+            [[maybe_unused]]
             const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
