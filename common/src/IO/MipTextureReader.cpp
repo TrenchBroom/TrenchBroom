@@ -74,8 +74,12 @@ namespace TrenchBroom {
                     averageColor = tempColor;
                 
             }
-            
-            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA);
+
+            const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                    ? Assets::TextureType::Masked
+                    : Assets::TextureType::Opaque;
+
+            return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers, GL_RGBA, type);
         }
     }
 }

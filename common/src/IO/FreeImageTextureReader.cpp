@@ -68,7 +68,7 @@ namespace TrenchBroom {
             FreeImage_Unload(image);
             FreeImage_CloseMemory(imageMemory);
 
-            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format);
+            return new Assets::Texture(textureName(imageName, path), imageWidth, imageHeight, Color(), buffers, format, Assets::TextureType::Opaque);
         }
     }
 

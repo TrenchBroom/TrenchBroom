@@ -247,6 +247,9 @@ namespace TrenchBroom {
             const auto transparency = (flags & MF_HOLEY)
                     ? Assets::PaletteTransparency::Index255Transparent
                     : Assets::PaletteTransparency::Opaque;
+            const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                              ? Assets::TextureType::Masked
+                              : Assets::TextureType::Opaque;
             Color avgColor;
             StringStream textureName;
 
@@ -260,7 +263,7 @@ namespace TrenchBroom {
 
                     textureName << m_name << "_" << i;
                     
-                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA);
+                    Assets::Texture* texture = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type);
                     model.addSkin(new Assets::MdlSkin(texture));
                 } else {
                     const size_t pictureCount = readSize<int32_t>(cursor);
@@ -280,7 +283,7 @@ namespace TrenchBroom {
 
                         textureName << m_name << "_" << i << "_" << j;
 
-                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA);
+                        textures[j] = new Assets::Texture(textureName.str(), width, height, avgColor, rgbaImage, GL_RGBA, type);
                     }
                     
                     model.addSkin(new Assets::MdlSkin(textures, times));

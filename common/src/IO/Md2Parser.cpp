@@ -334,7 +334,7 @@ namespace TrenchBroom {
             Buffer<unsigned char> rgbaImage(indices.size() * 4);
             m_palette.indexedToRgba(indices, indices.size(), rgbaImage, avgColor);
             
-            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbaImage, GL_RGBA);
+            return new Assets::Texture(skin.name, image.width(), image.height(), avgColor, rgbaImage, GL_RGBA, Assets::TextureType::Opaque);
         }
 
         Assets::Md2Model::FrameList Md2Parser::buildFrames(const Md2FrameList& frames, const Md2MeshList& meshes) {

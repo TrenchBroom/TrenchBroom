@@ -48,7 +48,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -57,6 +57,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -64,7 +65,7 @@ namespace TrenchBroom {
             m_buffers.push_back(buffer);
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -73,6 +74,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0),
         m_buffers(buffers) {
             assert(m_width > 0);
@@ -82,7 +84,7 @@ namespace TrenchBroom {
             }
         }
         
-        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format) :
+        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
         m_collection(nullptr),
         m_name(name),
         m_width(width),
@@ -91,6 +93,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_overridden(false),
         m_format(format),
+        m_type(type),
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -156,12 +159,22 @@ namespace TrenchBroom {
             glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
             
             glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-            glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
             glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-            
+
+            // Quake fence textures tend to have nonsense mipmaps
+            // Also generate mipmaps if we don't have any
+            const bool generateMipmaps =
+                    (m_type == TextureType::Masked) || (m_buffers.size() == 1);
+
+            if (generateMipmaps) {
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+            } else {
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
+            }
+
             /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
             const size_t potWidth = Math::nextPOT(m_width);
             const size_t potHeight = Math::nextPOT(m_height);
@@ -172,7 +185,10 @@ namespace TrenchBroom {
             
             size_t mipWidth = m_width; //potWidth;
             size_t mipHeight = m_height; //potHeight;
-            for (size_t j = 0; j < m_buffers.size(); ++j) {
+
+            const auto mipmapsToUpload = generateMipmaps ? 1u : m_buffers.size();
+
+            for (size_t j = 0; j < mipmapsToUpload; ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                       static_cast<GLsizei>(mipWidth),
