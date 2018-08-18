@@ -1074,6 +1074,20 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
+        bool Brush::canTransform(const Mat4x4& transformation, const BBox3& worldBounds) const {
+            auto* testBrush = clone(worldBounds);
+            bool result = true;
+
+            try {
+                testBrush->doTransform(transformation, false, worldBounds);
+            } catch (GeometryException&) {
+                result = false;
+            }
+
+            delete testBrush;
+            return result;
+        }
+
         Brush* Brush::createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const {
             BrushFaceList faces(0);
             faces.reserve(geometry.faceCount());

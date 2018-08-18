@@ -443,9 +443,14 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        void
-        MapDocumentCommandFacade::performTransform(const Mat4x4 &transform,
-                                                   const bool lockTextures) {
+        bool MapDocumentCommandFacade::performTransform(const Mat4x4 &transform, const bool lockTextures) {
+          // Test whether all brushes can be transformed; abort if any fail.
+          for (const auto& brush : m_selectedNodes.brushes()) {
+              if (!brush->canTransform(transform, m_worldBounds)) {
+                  return false;
+              }
+          }
+
           const Model::NodeList &nodes = m_selectedNodes.nodes();
           const Model::NodeList parents = collectParents(nodes);
 
@@ -460,6 +465,7 @@ namespace TrenchBroom {
           Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
           invalidateSelectionBounds();
+          return true;
         }
 
         Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {

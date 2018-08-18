@@ -76,7 +76,11 @@ namespace TrenchBroom {
             void performPushGroup(Model::Group* group);
             void performPopGroup();
         public: // transformation
-            void performTransform(const Mat4x4& transform, bool lockTextures);
+            /**
+             * @return true if the transform was applied, false if can't be applied
+             *         to everything in the selection (in which case nothing is modified).
+             */
+            bool performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes
             Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
