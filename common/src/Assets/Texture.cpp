@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        size_t bytesPerPixelForFormat(GLenum format) {
+        size_t bytesPerPixelForFormat(const GLenum format) {
             switch (format) {
                 case GL_RGB:
                 case GL_BGR:
@@ -58,11 +58,9 @@ namespace TrenchBroom {
         m_overridden(false),
         m_format(format),
         m_textureId(0) {
-            [[maybe_unused]]
-            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
-            assert(buffer.size() >= m_width * m_height * bytesPerPixel);
+            assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
             m_buffers.push_back(buffer);
         }
         
@@ -77,12 +75,10 @@ namespace TrenchBroom {
         m_format(format),
         m_textureId(0),
         m_buffers(buffers) {
-            [[maybe_unused]]
-            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
             assert(m_width > 0);
             assert(m_height > 0);
             for (size_t i = 0; i < m_buffers.size(); ++i) {
-                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * bytesPerPixel);
+                assert(m_buffers[i].size() >= (m_width * m_height) / ((1 << i) * (1 << i)) * bytesPerPixelForFormat(format));
             }
         }
         

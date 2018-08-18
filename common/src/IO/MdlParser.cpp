@@ -230,8 +230,7 @@ namespace TrenchBroom {
             const size_t skinVertexCount = readSize<int32_t>(cursor);
             const size_t skinTriangleCount = readSize<int32_t>(cursor);
             const size_t frameCount = readSize<int32_t>(cursor);
-            [[maybe_unused]]
-            const size_t syncType = readSize<int32_t>(cursor);
+            /* const size_t syncType = */ readSize<int32_t>(cursor);
             const int flags = readInt<int32_t>(cursor);
             
             parseSkins(cursor, *model, skinCount, skinWidth, skinHeight, flags);
