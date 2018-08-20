@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <vector>
 
 namespace TrenchBroom {
@@ -96,6 +97,19 @@ namespace TrenchBroom {
 
         bool operator>=(const Polygon<T,S>& rhs) const {
             return compare(rhs) >= 0;
+        }
+
+        T squaredDistanceTo(const Polygon<T,S>& other) const {
+            if (m_vertices.size() != other.m_vertices.size()) {
+                return std::numeric_limits<T>::max();
+            }
+
+            T maxDistance = static_cast<T>(0.0);
+            for (size_t i = 0; i < m_vertices.size(); ++i) {
+                maxDistance = std::max(maxDistance, m_vertices[i].squaredDistanceTo(other.m_vertices[i]));
+            }
+
+            return maxDistance;
         }
 
         int compare(const Polygon<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {

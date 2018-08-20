@@ -351,10 +351,7 @@ namespace TrenchBroom {
              * @param handle the handle to select
              */
             void select(const Handle& handle) {
-                const auto it = m_handles.find(handle);
-                if (it != std::end(m_handles)) {
-                    select(it->second);
-                }
+                forEachCloseHandle(handle, [this](HandleInfo& info){ select(info); });
             }
 
             /**
@@ -376,10 +373,7 @@ namespace TrenchBroom {
              * @param handle the handle to deselect
              */
             void deselect(const Handle& handle) {
-                const auto it = m_handles.find(handle);
-                if (it != std::end(m_handles)) {
-                    deselect(it->second);
-                }
+                forEachCloseHandle(handle, [this](HandleInfo& info){ deselect(info); });
             }
 
             /**
@@ -410,12 +404,18 @@ namespace TrenchBroom {
              * @param handle the handle to toggle
              */
             void toggle(const Handle& handle) {
-                const auto it = m_handles.find(handle);
-                if (it != std::end(m_handles)) {
-                    toggle(it->second);
-                }
+                forEachCloseHandle(handle, [this](HandleInfo& info){ toggle(info); });
             }
         private:
+            void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
+                static const auto epsilon = 0.001 * 0.001;
+                for (auto& entry : m_handles) {
+                    if (handle.squaredDistanceTo(entry.first) < epsilon * epsilon) {
+                        fun(entry.second);
+                    }
+                }
+            }
+
             void select(HandleInfo& info) {
                 if (info.select()) {
                     assert(selectedHandleCount() < totalHandleCount());
