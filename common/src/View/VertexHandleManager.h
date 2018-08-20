@@ -30,6 +30,7 @@
 #include "View/ViewTypes.h"
 
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <map>
 
