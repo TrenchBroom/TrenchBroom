@@ -320,6 +320,7 @@ namespace TrenchBroom {
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // debug commands
             void printVertices();
+            bool throwExceptionDuringCommand();
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

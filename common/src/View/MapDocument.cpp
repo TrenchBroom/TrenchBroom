@@ -1175,6 +1175,39 @@ namespace TrenchBroom {
             }
         }
 
+        class ThrowExceptionCommand : public DocumentCommand {
+        public:
+            static const CommandType Type;
+            typedef std::shared_ptr<ThrowExceptionCommand> Ptr;
+        public:
+            ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
+
+        private:
+            bool doPerformDo(MapDocumentCommandFacade* document) override {
+                GeometryException e;
+                throw e;
+                return false;
+            }
+
+            bool doPerformUndo(MapDocumentCommandFacade* document) override {
+                return true;
+            }
+
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+                return false;
+            }
+
+            bool doCollateWith(UndoableCommand::Ptr command) override {
+                return false;
+            }
+        };
+
+        const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
+
+        bool MapDocument::throwExceptionDuringCommand() {
+            return submitAndStore(ThrowExceptionCommand::Ptr(new ThrowExceptionCommand()));
+        }
+
         bool MapDocument::canUndoLastCommand() const {
             return doCanUndoLastCommand();
         }

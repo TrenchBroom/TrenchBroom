@@ -102,6 +102,7 @@ namespace TrenchBroom {
                 const int DebugClipWithFace                  = Lowest + 145;
                 const int DebugCrashReportDialog             = Lowest + 146;
                 const int DebugSetWindowSize                 = Lowest + 147;
+                const int DebugThrowExceptionDuringCommand   = Lowest + 148;
 
                 const int RunCompile                         = Lowest + 150;
                 const int RunLaunch                          = Lowest + 151;
