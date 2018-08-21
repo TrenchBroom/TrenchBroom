@@ -20,8 +20,6 @@
 #include "TransformObjectsCommand.h"
 
 #include "Macros.h"
-#include "Model/Snapshot.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -43,40 +41,17 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }
 
-        TransformObjectsCommand::~TransformObjectsCommand() {
-            deleteSnapshot();
-        }
-        
         TransformObjectsCommand::TransformObjectsCommand(const Action action, const String& name, const Mat4x4& transform, const bool lockTextures) :
-        DocumentCommand(Type, name),
+        SnapshotCommand(Type, name),
         m_action(action),
         m_transform(transform),
-        m_lockTextures(lockTextures),
-        m_snapshot(nullptr) {}
+        m_lockTextures(lockTextures) {}
         
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            takeSnapshot(document->selectedNodes().nodes());
             document->performTransform(m_transform, m_lockTextures);
             return true;
         }
         
-        bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
-            deleteSnapshot();
-            return true;
-        }
-        
-        void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
-            assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(nodes), std::end(nodes));
-        }
-        
-        void TransformObjectsCommand::deleteSnapshot() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
-
         bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedNodes();
         }

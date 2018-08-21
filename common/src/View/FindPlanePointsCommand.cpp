@@ -19,7 +19,6 @@
 
 #include "FindPlanePointsCommand.h"
 
-#include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -31,27 +30,13 @@ namespace TrenchBroom {
         }
 
         FindPlanePointsCommand::FindPlanePointsCommand() :
-        DocumentCommand(Type, "Find Plane Points"),
-        m_snapshot(nullptr) {}
+        SnapshotCommand(Type, "Find Plane Points") {}
         
         bool FindPlanePointsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot == nullptr);
-            m_snapshot = document->performFindPlanePoints();
-            return m_snapshot != nullptr;
-        }
-        
-        bool FindPlanePointsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
-            deleteSnapshot();
+            document->performFindPlanePoints();
             return true;
         }
         
-        void FindPlanePointsCommand::deleteSnapshot() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
-
         bool FindPlanePointsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return false;
         }
