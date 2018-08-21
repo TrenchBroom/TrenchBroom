@@ -371,6 +371,22 @@ public:
     }
 
     /**
+     * Returns a new vector with all components set to the given value.
+     *
+     * @tparam U the type of the value to set
+     * @param value the value to set
+     * @return the newly created vector
+     */
+    template <typename U>
+    static Vec<T,S> setAll(const U value) {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = static_cast<T>(value);
+        }
+        return result;
+    }
+
+    /**
      * Returns an inverted copy of this vector. The copy is inverted by negating every component.
      *
      * @return the inverted copy
@@ -487,11 +503,6 @@ public:
      */
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
-    }
-
-    void set(const T value) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] = value;
     }
 
     int weight() const {

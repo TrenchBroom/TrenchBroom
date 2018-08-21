@@ -238,10 +238,8 @@ TEST(VecTest, vec3fNull) {
     ASSERT_FALSE(isNull(Vec3f::PosX));
 }
 
-TEST(VecTest, vec3fSetSingleValue) {
-    Vec3f v(1.0f, 2.0f, 3.0f);
-    v.set(7.0f);
-    ASSERT_VEC_EQ(Vec3f(7.0f, 7.0f, 7.0f), v);
+TEST(VecTest, vec3fSetAll) {
+    ASSERT_EQ(Vec3f(2.0f, 2.0, 2.0f), Vec3f::setAll(2.0f));
 }
 
 TEST(VecTest, vec3fMajorComponent) {
