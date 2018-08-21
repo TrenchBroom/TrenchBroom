@@ -421,17 +421,3 @@ TEST(VecTest, makePerpendicular2) {
         ASSERT_DOUBLE_EQ(0.0, v.dot(p));
     }
 }
-
-TEST(VecTest, compareSnapped) {
-    ASSERT_EQ( 0, Vec3d::Null.compareSnapped(Vec3d::Null, 0.1));
-    ASSERT_EQ(-1, Vec3d::Null.compareSnapped(Vec3d::One,  0.1));
-    ASSERT_EQ(+1,  Vec3d::One.compareSnapped(Vec3d::Null, 0.1));
-
-    ASSERT_EQ( 0, Vec3d::Null.compareSnapped(Vec3d::Null, 1.0));
-    ASSERT_EQ(-1, Vec3d::Null.compareSnapped(Vec3d::One,  1.0));
-    ASSERT_EQ(+1,  Vec3d::One.compareSnapped(Vec3d::Null, 1.0));
-
-    ASSERT_EQ( 0, Vec3d::Null.compareSnapped(Vec3d::Null, 10.0));
-    ASSERT_EQ( 0, Vec3d::Null.compareSnapped(Vec3d::One,  10.0));
-    ASSERT_EQ( 0,  Vec3d::One.compareSnapped(Vec3d::Null, 10.0));
-}

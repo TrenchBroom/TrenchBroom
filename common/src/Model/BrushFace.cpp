@@ -548,22 +548,9 @@ namespace TrenchBroom {
             return VertexList(m_geometry->boundary());
         }
 
-        bool BrushFace::hasVertices(const Polygon3& vertices) const {
+        bool BrushFace::hasVertices(const Polygon3& vertices, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-
-            if (vertices.vertexCount() != vertexCount())
-                return false;
-            
-            const BrushGeometry::HalfEdge* currentEdge = m_geometry->findHalfEdge(vertices.vertices().front());
-            if (currentEdge == nullptr)
-                return false;
-            
-            for (size_t i = 1; i < vertexCount(); ++i) {
-                currentEdge = currentEdge->next();
-                if (!currentEdge->origin()->position().equals(vertices.vertices()[i]))
-                    return false;
-            }
-            return true;
+            return m_geometry->hasVertexPositions(vertices.vertices(), epsilon);
         }
 
         Polygon3 BrushFace::polygon() const {

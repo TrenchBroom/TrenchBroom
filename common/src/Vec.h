@@ -60,19 +60,6 @@ private:
         return 2;
     }
 public:
-    class GridCmp {
-    private:
-        const T m_precision;
-    public:
-        GridCmp(const T precision) : m_precision(precision) {
-            assert(m_precision > 0.0);
-        }
-        
-        bool operator()(const Vec<T,S>& lhs, const Vec<T,S>& rhs) const {
-            return lhs.compareSnapped(rhs, m_precision) < 0;
-        }
-    };
-public:
     typedef Vec<float, S> FloatType;
 
     using Type = T;
@@ -294,18 +281,6 @@ public:
             v[i] = static_cast<T>(0.0);
         v[S-2] = static_cast<T>(oneButLast);
         v[S-1] = static_cast<T>(last);
-    }
-
-    int compareSnapped(const Vec<T,S>& right, const T precision) const {
-        for (size_t i = 0; i < S; ++i) {
-            const T mine  = Math::snap(v[i], precision);
-            const T their = Math::snap(right[i], precision);
-            if (Math::lt(mine, their, 0.0))
-                return -1;
-            if (Math::gt(mine, their, 0.0))
-                return 1;
-        }
-        return 0;
     }
 
     int compare(const Vec<T,S>& right, const T epsilon = static_cast<T>(0.0)) const {
@@ -737,8 +712,11 @@ public:
         }
     }
     
-    std::string asString(const size_t components = S) const {
+    std::string asString(const size_t components = S, const int precision = -1) const {
         StringStream result;
+        if (precision > 0) {
+            result.precision(precision);
+        }
         write(result, components);
         return result.str();
     }

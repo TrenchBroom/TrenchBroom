@@ -38,13 +38,13 @@ typedef Polyhedron3d::FaceList FaceList;
 typedef std::pair<Vec3d, Vec3d> EdgeInfo;
 typedef std::vector<EdgeInfo> EdgeInfoList;
 
-bool hasVertex(const Polyhedron3d& p, const Vec3d& point);
-bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points);
-bool hasEdge(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2);
-bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos);
-bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
-bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
-bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5);
+bool hasVertex(const Polyhedron3d& p, const Vec3d& point, double epsilon = 0.0);
+bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points, double epsilon = 0.0);
+bool hasEdge(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, double epsilon = 0.0);
+bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, double epsilon = 0.0);
+bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, double epsilon = 0.0);
+bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, double epsilon = 0.0);
+bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5, double epsilon = 0.0);
 
 void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
 void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
@@ -1792,7 +1792,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).success());
-    
+
     const Vec3d  p1(-64.0, -64.0, -64.0);
     const Vec3d  p2(-64.0, -64.0, +64.0);
     const Vec3d  p3(-64.0, +64.0, -64.0);
@@ -1805,16 +1805,16 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     const Vec3d p11(+64.0, +64.0,   0.0);
 
     ASSERT_EQ(10u, p.vertexCount());
-    ASSERT_TRUE(p.hasVertex( p1));
-    ASSERT_TRUE(p.hasVertex( p2));
-    ASSERT_TRUE(p.hasVertex( p3));
-    ASSERT_TRUE(p.hasVertex( p4));
-    ASSERT_TRUE(p.hasVertex( p5));
-    ASSERT_TRUE(p.hasVertex( p6));
-    ASSERT_TRUE(p.hasVertex( p7));
-    ASSERT_TRUE(p.hasVertex( p9));
-    ASSERT_TRUE(p.hasVertex(p10));
-    ASSERT_TRUE(p.hasVertex(p11));
+    ASSERT_TRUE(hasVertex(p,  p1));
+    ASSERT_TRUE(hasVertex(p,  p2));
+    ASSERT_TRUE(hasVertex(p,  p3));
+    ASSERT_TRUE(hasVertex(p,  p4));
+    ASSERT_TRUE(hasVertex(p,  p5));
+    ASSERT_TRUE(hasVertex(p,  p6));
+    ASSERT_TRUE(hasVertex(p,  p7));
+    ASSERT_TRUE(hasVertex(p,  p9));
+    ASSERT_TRUE(hasVertex(p, p10));
+    ASSERT_TRUE(hasVertex(p, p11, 0.0001));
     
     ASSERT_EQ(15u, p.edgeCount());
     ASSERT_TRUE(hasEdge(p,  p1,  p2));
@@ -1828,19 +1828,19 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     ASSERT_TRUE(hasEdge(p,  p5,  p6));
     ASSERT_TRUE(hasEdge(p,  p5,  p7));
     ASSERT_TRUE(hasEdge(p,  p6,  p9));
-    ASSERT_TRUE(hasEdge(p,  p7, p11));
+    ASSERT_TRUE(hasEdge(p,  p7, p11, 0.0001));
     ASSERT_TRUE(hasEdge(p,  p9, p10));
-    ASSERT_TRUE(hasEdge(p,  p9, p11));
-    ASSERT_TRUE(hasEdge(p, p10, p11));
+    ASSERT_TRUE(hasEdge(p,  p9, p11, 0.0001));
+    ASSERT_TRUE(hasEdge(p, p10, p11, 0.0001));
     
     ASSERT_EQ(7u, p.faceCount());
     ASSERT_TRUE(hasQuadOf(p,  p1,  p3,  p7,  p5));
     ASSERT_TRUE(hasQuadOf(p,  p1,  p5,  p6,  p2));
     ASSERT_TRUE(hasQuadOf(p,  p1,  p2,  p4,  p3));
     ASSERT_TRUE(hasPolygonOf(p,  p2,  p6,  p9, p10,  p4));
-    ASSERT_TRUE(hasPolygonOf(p,  p3,  p4, p10, p11,  p7));
-    ASSERT_TRUE(hasPolygonOf(p,  p5,  p7, p11,  p9,  p6));
-    ASSERT_TRUE(hasTriangleOf(p, p9, p11, p10));
+    ASSERT_TRUE(hasPolygonOf(p,  p3,  p4, p10, p11,  p7, 0.0001));
+    ASSERT_TRUE(hasPolygonOf(p,  p5,  p7, p11,  p9,  p6, 0.0001));
+    ASSERT_TRUE(hasTriangleOf(p, p9, p11, p10, 0.0001));
 }
 
 TEST(PolyhedronTest, clipCubeDiagonally) {
@@ -2637,61 +2637,61 @@ TEST(PolyhedronTest, intersection_polygon_polyhedron_any_orientation) {
     }, cube);
 }
 
-bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
-    return p.hasVertex(point);
+bool hasVertex(const Polyhedron3d& p, const Vec3d& point, const double epsilon) {
+    return p.hasVertex(point, epsilon);
 }
 
-bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points) {
+bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points, const double epsilon) {
     if (p.vertexCount() != points.size())
         return false;
     
     for (size_t i = 0; i < points.size(); ++i) {
-        if (!hasVertex(p, points[i]))
+        if (!hasVertex(p, points[i], epsilon))
             return false;
     }
     return true;
 }
 
-bool hasEdge(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2) {
-    return p.hasEdge(p1, p2);
+bool hasEdge(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const double epsilon) {
+    return p.hasEdge(p1, p2, epsilon);
 }
 
-bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos) {
+bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, const double epsilon) {
     if (p.edgeCount() != edgeInfos.size())
         return false;
     
     for (size_t i = 0; i < edgeInfos.size(); ++i) {
-        if (!hasEdge(p, edgeInfos[i].first, edgeInfos[i].second))
+        if (!hasEdge(p, edgeInfos[i].first, edgeInfos[i].second, epsilon))
             return false;
     }
     return true;
 }
 
-bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
+bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const double epsilon) {
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
-    return p.hasFace(points);
+    return p.hasFace(points, epsilon);
 }
 
-bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
+bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const double epsilon) {
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    return p.hasFace(points);
+    return p.hasFace(points, epsilon);
 }
 
-bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5) {
+bool hasPolygonOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4, const Vec3d& p5, const double epsilon) {
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
     points.push_back(p5);
-    return p.hasFace(points);
+    return p.hasFace(points, epsilon);
 }
 
 

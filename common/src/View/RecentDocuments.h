@@ -127,6 +127,7 @@ namespace TrenchBroom {
                     const wxString value = m_recentDocuments[i].asString();
                     conf->Write(confName, value);
                 }
+                conf->Flush();
             }
             
             void updateBindings() {
