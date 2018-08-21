@@ -395,17 +395,17 @@ namespace TrenchBroom {
              */
             template <typename I>
             void toggle(I begin, I end) {
-                std::for_each(begin, end, [this](const Handle& handle) { toggle(handle); });
-            }
+                using SelectionState = std::map<Handle, bool>;
+                SelectionState selectionState;
 
-            /**
-             * Toggles the selection state of the given handle. If the handle is not contained in this manager, nothing
-             * happens.
-             *
-             * @param handle the handle to toggle
-             */
-            void toggle(const Handle& handle) {
-                forEachCloseHandle(handle, [this](HandleInfo& info){ toggle(info); });
+                std::for_each(begin, end, [&](const Handle& handle) { selectionState[handle] = selected(handle); });
+                std::for_each(begin, end, [&](const Handle& handle) {
+                    if (selectionState[handle]) {
+                        deselect(handle);
+                    } else {
+                        select(handle);
+                    }
+                });
             }
         private:
             void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
