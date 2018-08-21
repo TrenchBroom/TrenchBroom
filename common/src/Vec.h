@@ -82,14 +82,6 @@ private:
             return m_vec.v[lhs] < m_vec.v[rhs];
         }
     };
-    
-    int weight(T c) const {
-        if (std::abs(c - static_cast<T>(1.0)) < static_cast<T>(0.9))
-            return 0;
-        if (std::abs(c + static_cast<T>(1.0)) < static_cast<T>(0.9))
-            return 1;
-        return 2;
-    }
 public:
     /**
      * Returns a vector with the component at the given index set to 1, and all others set to 0.
@@ -503,10 +495,6 @@ public:
      */
     Vec<T,4> xyzw() const {
         return Vec<T,4>(x(), y(), z(), w());
-    }
-
-    int weight() const {
-        return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
 
     size_t majorComponent(const size_t k) const {

@@ -53,31 +53,36 @@ namespace TrenchBroom {
             setPoints(point0, point1, point2);
         }
 
-        class PlaneWeightOrder {
+        class FaceWeightOrder {
         private:
             bool m_deterministic;
         public:
-            PlaneWeightOrder(const bool deterministic) :
+            FaceWeightOrder(const bool deterministic) :
             m_deterministic(deterministic) {}
 
-            template <typename T, size_t S>
-            bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
-                int result = lhs.normal.weight() - rhs.normal.weight();
-                if (m_deterministic)
-                    result += static_cast<int>(1000.0 * (lhs.distance - lhs.distance));
+            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
+                const auto& lhsBoundary = lhs->boundary();
+                const auto& rhsBoundary = rhs->boundary();
+                auto result = weight(lhsBoundary.normal) - weight(rhsBoundary.normal);
+                if (m_deterministic) {
+                    result += static_cast<int>(1000.0 * (lhsBoundary.distance - lhsBoundary.distance));
+                }
+
                 return result < 0;
             }
-        };
-
-        class FaceWeightOrder {
         private:
-            const PlaneWeightOrder& m_planeOrder;
-        public:
-            FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
-            m_planeOrder(planeOrder) {}
+            template <typename T>
+            int weight(const Vec<T,3>& vec) const {
+                return weight(vec[0]) * 100 + weight(vec[1]) * 10 + weight(vec[2]);
+            }
 
-            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
-                return m_planeOrder(lhs->boundary(), rhs->boundary());
+            template <typename T>
+            int weight(T c) const {
+                if (std::abs(c - static_cast<T>(1.0)) < static_cast<T>(0.9))
+                    return 0;
+                if (std::abs(c + static_cast<T>(1.0)) < static_cast<T>(0.9))
+                    return 1;
+                return 2;
             }
         };
 
@@ -92,8 +97,8 @@ namespace TrenchBroom {
         }
         
         void BrushFace::sortFaces(BrushFaceList& faces) {
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(true)));
-            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(PlaneWeightOrder(false)));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(true));
+            std::sort(std::begin(faces), std::end(faces), FaceWeightOrder(false));
         }
 
         BrushFace::~BrushFace() {

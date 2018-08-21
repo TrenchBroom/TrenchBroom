@@ -30,23 +30,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 template <typename T, size_t S>
 class Plane {
 public:
-    typedef std::vector<Plane> List;
-    typedef std::set<Plane> Set;
-    
-    class WeightOrder {
-    private:
-        bool m_deterministic;
-    public:
-        WeightOrder(const bool deterministic) :
-        m_deterministic(deterministic) {}
-        
-        bool operator()(const Plane<T,3>& lhs, const Plane<T,3>& rhs) const {
-            int result = lhs.normal.weight() - rhs.normal.weight();
-            if (m_deterministic)
-                result += static_cast<int>(1000.0f * (lhs.distance - lhs.distance));
-            return result < 0.0f;
-        }
-    };
+    using List = std::vector<Plane>;
+    using Set = std::set<Plane>;
 
     T distance;
     Vec<T,S> normal;
