@@ -497,6 +497,14 @@ public:
         return Vec<T,4>(x(), y(), z(), w());
     }
 
+    /**
+     * Returns the index of the component with the k-highest absolute value. The k-highest component is the
+     * index of the component that receives index k if the components are sorted descendent by their absolute
+     * value.
+     *
+     * @param k the value of k
+     * @return the index of the k-highest component
+     */
     size_t majorComponent(const size_t k) const {
         assert(k < S);
         
@@ -522,6 +530,14 @@ public:
         return heap[S - k - 1];
     }
 
+    /**
+     * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
+     * set to 0 except for the component that holds the k-largest value. The sign of the returned vector
+     * depends on the sign of the value of the k-largest component.
+     *
+     * @param k the k value
+     * @return the vector indicating the axis of the k-largest component.
+     */
     const Vec<T,S> majorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         Vec<T,S> a = axis(c);
@@ -530,39 +546,81 @@ public:
         return a;
     }
 
+    /**
+     * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
+     * set to 0 except for the compnent that holds the h-largest value. The sign of the returned vector is
+     * always positive.
+     *
+     * @param k the k value
+     * @return the vector indicating the absolute axis of the k-largest component
+     */
     const Vec<T,S> absMajorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         return axis(c);
     }
-    
+
+    /**
+     * Returns the index of the largest component.
+     *
+     * @return the index of the largest component
+     */
     size_t firstComponent() const {
         return majorComponent(0);
     }
-    
+
+    /**
+     * Returns the index of the second largest component.
+     *
+     * @return the index of the second largest component
+     */
     size_t secondComponent() const {
         return majorComponent(1);
     }
-    
+
+    /**
+     * Returns the index of the third largest component.
+     *
+     * @return the index of the third largest component
+     */
     size_t thirdComponent() const {
         return majorComponent(2);
     }
-    
+
+    /**
+     * Returns the axis of the largest component.
+     *
+     * @return the axis of the largest component
+     */
     const Vec<T,3> firstAxis() const {
         return majorAxis(0);
     }
 
+    /**
+     * Returns the axis of the second largest component.
+     *
+     * @return the axis of the second largest component
+     */
     const Vec<T,3> secondAxis() const {
         return majorAxis(1);
     }
 
+    /**
+     * Returns the axis of the third largest component.
+     *
+     * @return the axis of the third largest component
+     */
     const Vec<T,3> thirdAxis() const {
         return majorAxis(2);
     }
 
+    /**
+     * Returns a vector that is perpendicular to this vector and its weakest axis.
+     *
+     * @return the perpendicular vector
+     */
     Vec<T,S> makePerpendicular() const {
         // get an axis that this vector has the least weight towards.
         const Vec<T,S> leastAxis = majorAxis(S-1);
-        
         return normalize(cross(*this, leastAxis));
     }
     
