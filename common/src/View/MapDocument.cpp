@@ -1184,9 +1184,7 @@ namespace TrenchBroom {
 
         private:
             bool doPerformDo(MapDocumentCommandFacade* document) override {
-                GeometryException e;
-                throw e;
-                return false;
+                throw GeometryException();
             }
 
             bool doPerformUndo(MapDocumentCommandFacade* document) override {
