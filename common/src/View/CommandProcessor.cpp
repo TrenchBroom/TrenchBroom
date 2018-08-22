@@ -268,30 +268,24 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::doCommand(Command::Ptr command) {
-            try {
-                commandDoNotifier(command);
-                if (command->performDo(m_document)) {
-                    commandDoneNotifier(command);
-                    return true;
-                }
-                commandDoFailedNotifier(command);
-            } catch (const Exception& e) {
-                m_document->error(e.what());
+            Notifier1<Command::Ptr>::NotifyBeforeSuccessFail notifier(commandDoNotifier, commandDoneNotifier, commandDoFailedNotifier, command);
+            if (command->performDo(m_document)) {
+                notifier.setDidSucceed(true);
+                // success notifier is called
+                return true;
             }
+            // failed notifier is called
             return false;
         }
         
         bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
-            try {
-                commandUndoNotifier(command);
-                if (command->performUndo(m_document)) {
-                    commandUndoneNotifier(command);
-                    return true;
-                }
-                commandUndoFailedNotifier(command);
-            } catch (const Exception& e) {
-                m_document->error(e.what());
+            Notifier1<UndoableCommand::Ptr>::NotifyBeforeSuccessFail notifier(commandUndoNotifier, commandUndoneNotifier, commandUndoFailedNotifier, command);
+            if (command->performUndo(m_document)) {
+                notifier.setDidSucceed(true);
+                // success notifier is called
+                return true;
             }
+            // failed notifier is called
             return false;
         }
         
