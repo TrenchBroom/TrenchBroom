@@ -118,7 +118,7 @@ namespace TrenchBroom {
             
             const Renderer::Camera& camera = inputState.camera();
             const BBox3& refBounds = document->referenceBounds();
-            bounds.mix(refBounds, camera.direction().firstAxis().absolute());
+            bounds.mix(refBounds, abs(camera.direction().firstAxis()));
         }
     }
 }

@@ -638,16 +638,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S>& makeAbsolute() {
-        for (size_t i = 0; i < S; ++i)
-            v[i] = std::abs(v[i]);
-        return *this;
-    }
-            
-    Vec<T,S> absolute() const {
-        return Vec<T,S>(*this).makeAbsolute();
-    }
-    
     Vec<T,S> max(const Vec<T,S>& o) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
@@ -1296,6 +1286,24 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
 
 
 /* ========== arithmetic functions ========== */
+
+/**
+ * Returns a vector where each component is the absolute value of the corresponding component of the the
+ * given vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to make absolute
+ * @return the absolute vector
+ */
+template <typename T, size_t S>
+Vec<T,S> abs(const Vec<T,S>& vec) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::abs(vec[i]);
+    }
+    return result;
+}
 
 /**
  * Returns the dot product (also called inner product) of the two given vectors.

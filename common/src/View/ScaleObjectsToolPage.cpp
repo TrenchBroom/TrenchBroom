@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         BBox3 ScaleObjectsToolPage::scaleBBoxFromCenter(const BBox3& box, const Vec3& scaleFactors) {
-            const Vec3 newSize = (box.size() * scaleFactors).absolute();
+            const Vec3 newSize = (box.size() * abs(scaleFactors));
             return BBox3(box.center() - (newSize * 0.5),
                          box.center() + (newSize * 0.5));
         }
