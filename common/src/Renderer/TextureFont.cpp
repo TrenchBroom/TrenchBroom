@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_index(0),
             m_y(0.0f) {
                 for (size_t i = 0; i < m_sizes.size(); ++i) {
-                    m_maxSize = m_maxSize.max(m_sizes[i]);
+                    m_maxSize = max(m_maxSize, m_sizes[i]);
                     m_y += m_sizes[i].y();
                 }
                 m_y -= m_sizes.back().y();

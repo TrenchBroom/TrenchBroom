@@ -638,13 +638,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S> max(const Vec<T,S>& o) const {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = std::max(v[i], o[i]);
-        return result;
-    }
-    
     Vec<T,S>& round() {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::round(v[i]);
@@ -1306,6 +1299,78 @@ Vec<T,S> abs(const Vec<T,S>& vec) {
 }
 
 /**
+ * Returns a vector where each component is the minimum of the corresponding components of the given vectors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @return the component wise minimum of the given vectors
+ */
+template <typename T, size_t S>
+Vec<T,S> min(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::min(lhs[i], rhs[i]);
+    }
+    return result;
+}
+
+/**
+ * Returns a vector where each component is the maximum of the corresponding components of the given vectors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @return the component wise maximum of the given vectors
+ */
+template <typename T, size_t S>
+Vec<T,S> max(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::max(lhs[i], rhs[i]);
+    }
+    return result;
+}
+
+/**
+ * Returns a vector where each component is the absolute minimum of the corresponding components of the given vectors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @return the component wise absolute minimum of the given vectors
+ */
+template <typename T, size_t S>
+Vec<T,S> absMin(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::absMin(lhs[i], rhs[i]);
+    }
+    return result;
+}
+
+/**
+ * Returns a vector where each component is the absolute maximum of the corresponding components of the given vectors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @return the component wise absolute maximum of the given vectors
+ */
+template <typename T, size_t S>
+Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::absMax(lhs[i], rhs[i]);
+    }
+    return result;
+}
+
+/**
  * Returns the dot product (also called inner product) of the two given vectors.
  *
  * @tparam T the component type
@@ -1662,38 +1727,6 @@ bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, con
     const T offset = dot(p1, normal);
     const T dist = dot(p4, normal) - offset;
     return Math::abs(dist) < epsilon;
-}
-
-template <typename T, size_t S>
-Vec<T,S> min(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i)
-        result[i] = Math::min(lhs[i], rhs[i]);
-    return result;
-}
-
-template <typename T, size_t S>
-Vec<T,S> max(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i)
-        result[i] = Math::max(lhs[i], rhs[i]);
-    return result;
-}
-
-template <typename T, size_t S>
-Vec<T,S> absMin(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i)
-        result[i] = Math::absMin(lhs[i], rhs[i]);
-    return result;
-}
-
-template <typename T, size_t S>
-Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i)
-        result[i] = Math::absMax(lhs[i], rhs[i]);
-    return result;
 }
 
 #endif
