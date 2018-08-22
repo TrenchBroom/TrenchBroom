@@ -102,9 +102,10 @@ namespace TrenchBroom {
             ensure(face != nullptr, "face is null");
             
             const Assets::Texture* texture = face->texture();
-            if (texture == nullptr)
-                return delta.rounded();
-            
+            if (texture == nullptr) {
+                return round(delta);
+            }
+
             const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
             Vec2f distance = Vec2f::Max;

@@ -120,19 +120,19 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const Vec3 nPitchYawRoll(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, nPitchYawRoll.rounded());
+                    entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
                     break;
                 }
                 case RotationType_Euler_PositivePitchDown: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const Vec3 nPitchYawRoll(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, nPitchYawRoll.rounded());
+                    entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
                     break;
                 }
                 case RotationType_Mangle: {
                     const Vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
                     const Vec3 yawNPitchRoll(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
-                    entity->addOrUpdateAttribute(info.attribute, yawNPitchRoll.rounded());
+                    entity->addOrUpdateAttribute(info.attribute, round(yawNPitchRoll));
                     break;
                 }
                 case RotationType_None:

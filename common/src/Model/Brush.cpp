@@ -802,7 +802,7 @@ namespace TrenchBroom {
 
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
-                const auto destination = snapToF * (origin / snapToF).rounded();
+                const auto destination = snapToF * round(origin / snapToF);
                 newGeometry.addPoint(destination);
             }
 
@@ -816,7 +816,7 @@ namespace TrenchBroom {
 
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
-                const auto destination = snapToF * (origin / snapToF).rounded();
+                const auto destination = snapToF * round(origin / snapToF);
                 newGeometry.addPoint(destination);
             }
 
@@ -824,7 +824,7 @@ namespace TrenchBroom {
             VecMap vertexMapping;
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
-                const auto destination = snapToF * (origin / snapToF).rounded();
+                const auto destination = snapToF * round(origin / snapToF);
                 if (newGeometry.hasVertex(destination)) {
                     vertexMapping.insert(std::make_pair(origin, destination));
                 }

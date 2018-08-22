@@ -138,7 +138,7 @@ namespace TrenchBroom {
         Vec2f TextRenderer::stringSize(RenderContext& renderContext, const AttrString& string) const {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
-            return font.measure(string).rounded();
+            return round(font.measure(string));
         }
 
         void TextRenderer::doPrepareVertices(Vbo& vertexVbo) {

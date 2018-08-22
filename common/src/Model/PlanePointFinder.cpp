@@ -128,7 +128,7 @@ namespace TrenchBroom {
         }
         
         void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points) {
-            points[0] = plane.anchor().rounded();
+            points[0] = round(plane.anchor());
             const Math::Axis::Type axis = plane.normal.firstComponent();
             switch (axis) {
                 case Math::Axis::AX:

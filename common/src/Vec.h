@@ -638,16 +638,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S>& round() {
-        for (size_t i = 0; i < S; ++i)
-            v[i] = Math::round(v[i]);
-        return *this;
-    }
-    
-    Vec<T,S> rounded() const {
-        return Vec<T,S>(*this).round();
-    }
-    
     Vec<T,S>& mix(const Vec<T,S>& vec, const Vec<T,S>& factor) {
         *this = *this * (Vec<T,S>::One - factor) + vec * factor;
         return *this;
@@ -1618,6 +1608,24 @@ bool isNaN(const Vec<T,S>& vec) {
 }
 
 /* ========== rounding and error correction ========== */
+
+/**
+ * Returns a vector where each component is the rounded value of the corresponding component of the given
+ * vector.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to round
+ * @return the rounded vector
+ */
+template <typename T, size_t S>
+Vec<T,S> round(const Vec<T,S>& vec) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::round(vec[i]);
+    }
+    return result;
+}
 
 /**
  * Rounds the components of the given vector down to multiples of the components of the given vector m.
