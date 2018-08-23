@@ -465,7 +465,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
         }
-        
+
         TEST_F(MapDocumentTest, mergeGroups) {
             document->selectAllNodes();
             document->deleteObjects();
@@ -762,10 +762,11 @@ namespace TrenchBroom {
 
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
-            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            auto *brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
             document->addNode(brush1, document->currentParent());
 
-            auto* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)), "texture");
+            auto *brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)),
+                                                "texture");
             document->addNode(brush2, document->currentParent());
 
             document->selectAllNodes();
@@ -781,8 +782,12 @@ namespace TrenchBroom {
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace *>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+        }
+
+        TEST_F(MapDocumentTest, throwExceptionDuringCommand) {
+            ASSERT_THROW(document->throwExceptionDuringCommand(), GeometryException);
         }
     }
 }

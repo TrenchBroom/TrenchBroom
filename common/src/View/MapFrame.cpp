@@ -767,6 +767,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnDebugClipBrush, this, CommandIds::Menu::DebugClipWithFace);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCopyJSShortcutMap, this, CommandIds::Menu::DebugCopyJSShortcuts);
             Bind(wxEVT_MENU, &MapFrame::OnDebugCrash, this, CommandIds::Menu::DebugCrash);
+            Bind(wxEVT_MENU, &MapFrame::OnDebugThrowExceptionDuringCommand, this, CommandIds::Menu::DebugThrowExceptionDuringCommand);
             Bind(wxEVT_MENU, &MapFrame::OnDebugSetWindowSize, this, CommandIds::Menu::DebugSetWindowSize);
 
             Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
@@ -1462,6 +1463,12 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::OnDebugThrowExceptionDuringCommand(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
+            m_document->throwExceptionDuringCommand();
+        }
+
         void MapFrame::OnDebugSetWindowSize(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
             if (dialog.ShowModal() == wxID_OK) {
@@ -1757,6 +1764,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::DebugCreateCube:
                 case CommandIds::Menu::DebugCopyJSShortcuts:
                 case CommandIds::Menu::DebugCrash:
+                case CommandIds::Menu::DebugThrowExceptionDuringCommand:
                 case CommandIds::Menu::DebugSetWindowSize:
                     event.Enable(true);
                     break;

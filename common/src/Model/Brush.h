@@ -70,7 +70,7 @@ namespace TrenchBroom {
             class QueryCallback;
             class FaceMatchingCallback;
             
-            using VertexSet = std::set<Vec3, Vec3::GridCmp>;
+            using VertexSet = std::set<Vec3>;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
@@ -158,16 +158,16 @@ namespace TrenchBroom {
             const Vec3::List vertexPositions() const;
             Vec3 findClosestVertexPosition(const Vec3& position) const;
 
-            bool hasVertex(const Vec3& position) const;
-            bool hasVertices(const Vec3::List positions) const;
-            bool hasEdge(const Edge3& edge) const;
-            bool hasEdges(const Edge3::List& edges) const;
-            bool hasFace(const Polygon3& face) const;
-            bool hasFaces(const Polygon3::List& faces) const;
+            bool hasVertex(const Vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertices(const Vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdge(const Edge3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdges(const Edge3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFaces(const Polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3) const;
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4) const;
-            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& p4, const Vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
             size_t edgeCount() const;
             EdgeList edges() const;
@@ -209,7 +209,8 @@ namespace TrenchBroom {
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
             
-            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertices, Vec3 delta, bool allowVertexRemoval) const;
+            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, Vec3 delta, bool allowVertexRemoval) const;
+            void doMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
             
             static VertexSet createVertexSet(const Vec3::List& vertices = Vec3::EmptyList);
@@ -223,7 +224,7 @@ namespace TrenchBroom {
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
-            void updateFacesFromGeometry(const BBox3& worldBounds);
+            void updateFacesFromGeometry(const BBox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const BBox3& worldBounds);
         public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);

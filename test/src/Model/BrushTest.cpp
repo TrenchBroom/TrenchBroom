@@ -1196,7 +1196,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const Vec3 peakPosition(0.0, 0.0, 128.0);
-            const Vec3::List vertexPositions{
+            const Vec3::List vertexPositions {
                     Vec3(-64.0, -64.0, 0.0), // base quad
                     Vec3(-64.0, +64.0, 0.0),
                     Vec3(+64.0, +64.0, 0.0),
@@ -3549,10 +3549,10 @@ namespace TrenchBroom {
             std::unique_ptr<Brush> brush(static_cast<Brush*>(nodes.front()));
 
             const Vec3::List vertexPositions {
-                brush->findClosestVertexPosition(Vec3(1164.17, -1797.73, 578.315)),
-                brush->findClosestVertexPosition(Vec3(1169.18, -1800.3,  568.765)),
-                brush->findClosestVertexPosition(Vec3(1163.52, -1820.79, 554.179)),
-                brush->findClosestVertexPosition(Vec3(1120.51, -1855.32, 574.536))
+                brush->findClosestVertexPosition(Vec3(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
+                brush->findClosestVertexPosition(Vec3(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
+                brush->findClosestVertexPosition(Vec3(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
+                brush->findClosestVertexPosition(Vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))
             };
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, Vec3(16.0, 0.0, 0.0)));

@@ -1342,11 +1342,43 @@ namespace TrenchBroom {
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
                     StringStream str;
+                    str.precision(17);
                     for (const Model::BrushVertex* vertex : brush->vertices())
-                        str << "(" << vertex->position().asString() << ") ";
+                        str << vertex->position() << " ";
                     info(str.str());
                 }
             }
+        }
+
+        class ThrowExceptionCommand : public DocumentCommand {
+        public:
+            static const CommandType Type;
+            typedef std::shared_ptr<ThrowExceptionCommand> Ptr;
+        public:
+            ThrowExceptionCommand() : DocumentCommand(Type, "Throw Exception") {}
+
+        private:
+            bool doPerformDo(MapDocumentCommandFacade* document) override {
+                throw GeometryException();
+            }
+
+            bool doPerformUndo(MapDocumentCommandFacade* document) override {
+                return true;
+            }
+
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+                return false;
+            }
+
+            bool doCollateWith(UndoableCommand::Ptr command) override {
+                return false;
+            }
+        };
+
+        const ThrowExceptionCommand::CommandType ThrowExceptionCommand::Type = Command::freeType();
+
+        bool MapDocument::throwExceptionDuringCommand() {
+            return submitAndStore(ThrowExceptionCommand::Ptr(new ThrowExceptionCommand()));
         }
 
         bool MapDocument::canUndoLastCommand() const {

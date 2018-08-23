@@ -640,13 +640,14 @@ bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != nullptr; }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,3>& ray) const {
-    const Math::Side side = polygon() ? Math::Side_Both : Math::Side_Front;
-    Face* firstFace = m_faces.front();
-    Face* currentFace = firstFace;
+    const auto side = polygon() ? Math::Side_Both : Math::Side_Front;
+    auto* firstFace = m_faces.front();
+    auto* currentFace = firstFace;
     do {
-        const T distance = currentFace->intersectWithRay(ray, side);
-        if (!Math::isnan(distance))
+        const auto distance = currentFace->intersectWithRay(ray, side);
+        if (!Math::isnan(distance)) {
             return FaceHit(currentFace, distance);
+        }
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
     return FaceHit();
@@ -654,27 +655,28 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(const V& position, const Vertex* except, const T epsilon) const {
-    Vertex* firstVertex = m_vertices.front();
-    Vertex* currentVertex = firstVertex;
+    auto* firstVertex = m_vertices.front();
+    auto* currentVertex = firstVertex;
     do {
-        if (currentVertex != except && position.equals(currentVertex->position(), epsilon))
+        if (currentVertex != except && position.equals(currentVertex->position(), epsilon)) {
             return currentVertex;
+        }
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
     return nullptr;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position) const {
-    T closestDistance = std::numeric_limits<T>::max();
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(const V& position, const T maxDistance) const {
+    auto closestDistance2 = maxDistance * maxDistance;
     Vertex* closestVertex = nullptr;
     
-    Vertex* firstVertex = m_vertices.front();
-    Vertex* currentVertex = firstVertex;
+    auto* firstVertex = m_vertices.front();
+    auto* currentVertex = firstVertex;
     do {
-        const T distance = position.squaredDistanceTo(currentVertex->position());
-        if (distance < closestDistance) {
-            closestDistance = distance;
+        const auto currentDistance2 = position.squaredDistanceTo(currentVertex->position());
+        if (currentDistance2 < closestDistance2) {
+            closestDistance2 = currentDistance2;
             closestVertex = currentVertex;
         }
         currentVertex = currentVertex->next();
@@ -685,8 +687,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findClosestVertex(con
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::ClosestVertexSet Polyhedron<T,FP,VP>::findClosestVertices(const V& position) const {
     ClosestVertexSet result = ClosestVertexSet(VertexDistanceCmp(position));
-    Vertex* firstVertex = m_vertices.front();
-    Vertex* currentVertex = firstVertex;
+    auto* firstVertex = m_vertices.front();
+    auto* currentVertex = firstVertex;
     do {
         result.insert(currentVertex);
         currentVertex = currentVertex->next();
@@ -696,8 +698,8 @@ typename Polyhedron<T,FP,VP>::ClosestVertexSet Polyhedron<T,FP,VP>::findClosestV
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
-    Edge* firstEdge = m_edges.front();
-    Edge* currentEdge = firstEdge;
+    auto* firstEdge = m_edges.front();
+    auto* currentEdge = firstEdge;
     do {
         currentEdge = currentEdge->next();
         if (currentEdge->hasPositions(pos1, pos2, epsilon))
@@ -707,9 +709,27 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findEdgeByPositions(con
 }
 
 template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::findClosestEdge(const V& pos1, const V& pos2, const T maxDistance) const {
+    auto closestDistance = maxDistance;
+    Edge* closestEdge = nullptr;
+
+    auto* firstEdge = m_edges.front();
+    auto* currentEdge = firstEdge;
+    do {
+        const auto currentDistance = currentEdge->distanceTo(pos1, pos2);
+        if (currentDistance < closestDistance) {
+            closestDistance = currentDistance;
+            closestEdge = currentEdge;
+        }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return closestEdge;
+}
+
+template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
-    Face* firstFace = m_faces.front();
-    Face* currentFace = firstFace;
+    auto* firstFace = m_faces.front();
+    auto* currentFace = firstFace;
     do {
         if (currentFace->hasVertexPositions(positions, epsilon))
             return currentFace;
@@ -718,23 +738,43 @@ typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findFaceByPositions(con
     return nullptr;
 }
 
+template <typename T, typename FP, typename VP>
+typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::findClosestFace(const typename V::List& positions, const T maxDistance) {
+    auto closestDistance = maxDistance;
+    Face* closestFace = nullptr;
+
+    auto* firstFace = m_faces.front();
+    auto* currentFace = firstFace;
+    do {
+        const auto currentDistance = currentFace->distanceTo(positions);
+        if (currentDistance < closestDistance) {
+            closestDistance = currentDistance;
+            closestFace = currentFace;
+        }
+        currentFace = currentFace->next();
+    } while (currentFace != firstFace);
+    return closestFace;
+}
+
 template <typename T, typename FP, typename VP> template <typename O>
 void Polyhedron<T,FP,VP>::getVertexPositions(O output) const {
-    Vertex* firstVertex = m_vertices.front();
-    Vertex* currentVertex = firstVertex;
+    auto* firstVertex = m_vertices.front();
+    auto* currentVertex = firstVertex;
     do {
         output = currentVertex->position();
+        ++output;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasVertex(const Vertex* vertex) const {
-    const Vertex* firstVertex = m_vertices.front();
-    const Vertex* currentVertex = firstVertex;
+    const auto* firstVertex = m_vertices.front();
+    const auto* currentVertex = firstVertex;
     do {
-        if (currentVertex == vertex)
+        if (currentVertex == vertex) {
             return true;
+        }
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
     return false;
@@ -742,11 +782,12 @@ bool Polyhedron<T,FP,VP>::hasVertex(const Vertex* vertex) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasEdge(const Edge* edge) const {
-    const Edge* firstEdge = m_edges.front();
-    const Edge* currentEdge = firstEdge;
+    const auto* firstEdge = m_edges.front();
+    const auto* currentEdge = firstEdge;
     do {
-        if (currentEdge == edge)
+        if (currentEdge == edge) {
             return true;
+        }
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return false;
@@ -754,11 +795,12 @@ bool Polyhedron<T,FP,VP>::hasEdge(const Edge* edge) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::hasFace(const Face* face) const {
-    const Face* firstFace = m_faces.front();
-    const Face* currentFace = firstFace;
+    const auto* firstFace = m_faces.front();
+    const auto* currentFace = firstFace;
     do {
-        if (currentFace == face)
+        if (currentFace == face) {
             return true;
+        }
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
     return false;
