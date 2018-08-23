@@ -327,5 +327,9 @@ namespace TrenchBroom {
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
         }
+
+        TEST_F(MapDocumentTest, throwExceptionDuringCommand) {
+            ASSERT_THROW(document->throwExceptionDuringCommand(), GeometryException);
+        }
     }
 }
