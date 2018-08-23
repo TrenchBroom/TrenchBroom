@@ -24,17 +24,13 @@
 #include "VecMath.h"
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
-#include "View/DocumentCommand.h"
+#include "View/SnapshotCommand.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-    
     namespace View {
         class MapDocumentCommandFacade;
         
-        class TransformObjectsCommand : public DocumentCommand {
+        class TransformObjectsCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
             typedef std::shared_ptr<TransformObjectsCommand> Ptr;
@@ -48,22 +44,15 @@ namespace TrenchBroom {
             Action m_action;
             Mat4x4 m_transform;
             bool m_lockTextures;
-            
-            Model::Snapshot* m_snapshot;
         public:
             static Ptr translate(const Vec3& delta, bool lockTextures);
             static Ptr rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
             static Ptr flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
-            ~TransformObjectsCommand() override;
         private:
             TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
-            
-            void takeSnapshot(const Model::NodeList& nodes);
-            void deleteSnapshot();
-            
+
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
             
