@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <vector>
 
 namespace TrenchBroom {
@@ -57,23 +58,45 @@ namespace TrenchBroom {
             CollectionUtils::rotateMinToFront(m_vertices);
         }
 
-        template <typename TT, size_t SS>
-        Polygon(const Polygon<TT,SS>& other) {
+        // Copy and move constructors
+        Polygon(const Polygon<T,S>& other) = default;
+        Polygon(Polygon<T,S>&& other) = default;
+
+        // Assignment operators
+        Polygon<T,S>& operator=(const Polygon<T,S>& other) = default;
+        Polygon<T,S>& operator=(Polygon<T,S>&& other) = default;
+
+        // Conversion constructors
+        template <typename U>
+        Polygon(const Polygon<U,S>& other) {
             m_vertices.reserve(other.vertexCount());
-            for (const auto& vertex : other)
+            for (const auto& vertex : other.vertices()) {
                 m_vertices.push_back(Vec<T,S>(vertex));
+            }
         }
 
         bool operator==(const Polygon<T,S>& rhs) const {
             return compare(*this, rhs, T(0.0)) == 0;
         }
-
+        
         bool operator!=(const Polygon<T,S>& rhs) const {
             return compare(*this, rhs, T(0.0)) != 0;
         }
-
+        
         bool operator<(const Polygon<T,S>& rhs) const {
             return compare(*this, rhs, T(0.0)) < 0;
+        }
+
+        bool operator<=(const Polygon<T,S>& rhs) const {
+            return compare(*this, rhs, T(0.0)) <= 0;
+        }
+
+        bool operator>(const Polygon<T,S>& rhs) const {
+            return compare(*this, rhs, T(0.0)) > 0;
+        }
+
+        bool operator>=(const Polygon<T,S>& rhs) const {
+            return compare(*this, rhs, T(0.0)) >= 0;
         }
     public:
         bool hasVertex(const Vec<T,S>& vertex) const {
@@ -158,29 +181,6 @@ namespace TrenchBroom {
     }
 
     template <typename T, size_t S>
-    int compareSnapped(const Polygon<T,S>& lhs, const Polygon<T,S>& rhs, const T precision) {
-        const auto& lhsVerts = lhs.vertices();
-        const auto& rhsVerts = rhs.vertices();
-
-        if (lhsVerts.size() < rhsVerts.size()) {
-            return -1;
-        } else if (lhsVerts.size() > rhsVerts.size()) {
-            return 1;
-        } else {
-            const auto count = lhsVerts.size();
-            for (size_t i = 0; i < count; ++i) {
-                const auto cmp = compareSnapped(lhsVerts[i], rhsVerts[i], precision);
-                if (cmp < 0) {
-                    return -1;
-                } else if (cmp > 0) {
-                    return +1;
-                }
-            }
-            return 0;
-        }
-    }
-
-    template <typename T, size_t S>
     int compareUnoriented(const Polygon<T,S>& lhs, const Polygon<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
         const auto& lhsVerts = lhs.vertices();
         const auto& rhsVerts = rhs.vertices();
@@ -229,6 +229,23 @@ namespace TrenchBroom {
                 return 0;
             }
         }
+    }
+
+    template <typename T, size_t S>
+    T squaredDistance(const Polygon<T,S>& lhs, const Polygon<T,S>& rhs) {
+        const auto& lhsVertices = lhs.vertices();
+        const auto& rhsVertices = rhs.vertices();
+
+        if (lhsVertices.size() != rhsVertices.size()) {
+            return std::numeric_limits<T>::max();
+        }
+
+        auto maxDistance = static_cast<T>(0.0);
+        for (size_t i = 0; i < lhsVertices.size(); ++i) {
+            maxDistance = std::max(maxDistance, squaredDistance(lhsVertices[i], rhsVertices[i]));
+        }
+
+        return maxDistance;
     }
 }
 

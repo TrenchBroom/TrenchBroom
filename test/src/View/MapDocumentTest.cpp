@@ -238,6 +238,45 @@ namespace TrenchBroom {
             };
             ASSERT_EQ(shearedPositions, SetUtils::makeSet(brush1->vertexPositions()));
         }
+
+        TEST_F(MapDocumentTest, scaleObjects) {
+            const BBox3 initialBBox(Vec3(-100,-100,-100), Vec3(100,100,100));
+            const BBox3 doubleBBox(2.0 * initialBBox.min, 2.0 * initialBBox.max);
+            const BBox3 invalidBBox(Vec3(0,-100,-100), Vec3(0,100,100));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+
+            ASSERT_EQ(Vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(Plane3(100.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+
+            // attempting an invalid scale has no effect
+            ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+            ASSERT_EQ(Vec3(200,200,200), brush1->bounds().size());
+            ASSERT_EQ(Plane3(100.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+
+            ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
+            ASSERT_EQ(Vec3(400,400,400), brush1->bounds().size());
+            ASSERT_EQ(Plane3(200.0, Vec3::PosZ), brush1->findFace(Vec3::PosZ)->boundary());
+        }
+
+        TEST_F(MapDocumentTest, scaleObjectsWithCenter) {
+            const BBox3 initialBBox(Vec3(0,0,0), Vec3(100,100,400));
+            const BBox3 expectedBBox(Vec3(-50,0,0), Vec3(150,100,400));
+
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::Brush *brush1 = builder.createCuboid(initialBBox, "texture");
+
+            document->addNode(brush1, document->currentParent());
+            document->select(Model::NodeList{brush1});
+
+            const Vec3 center = initialBBox.center();
+            ASSERT_TRUE(document->scaleObjects(center, Vec3(2.0, 1.0, 1.0)));
+            ASSERT_EQ(expectedBBox, brush1->bounds());
+        }
         
         TEST_F(MapDocumentTest, csgConvexMerge) {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
@@ -426,7 +465,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
         }
-        
+
         TEST_F(MapDocumentTest, mergeGroups) {
             document->selectAllNodes();
             document->deleteObjects();
@@ -723,10 +762,11 @@ namespace TrenchBroom {
 
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
-            auto* brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
+            auto *brush1 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)), "texture");
             document->addNode(brush1, document->currentParent());
 
-            auto* brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)), "texture");
+            auto *brush2 = builder.createCuboid(BBox3(Vec3(0, 0, 0), Vec3(64, 64, 64)).translate(Vec3(0, 0, 128)),
+                                                "texture");
             document->addNode(brush2, document->currentParent());
 
             document->selectAllNodes();
@@ -742,8 +782,12 @@ namespace TrenchBroom {
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace*>());
+            ASSERT_EQ(brush1->findFace(Vec3::NegX), hits.front().target<Model::BrushFace *>());
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
+        }
+
+        TEST_F(MapDocumentTest, throwExceptionDuringCommand) {
+            ASSERT_THROW(document->throwExceptionDuringCommand(), GeometryException);
         }
     }
 }

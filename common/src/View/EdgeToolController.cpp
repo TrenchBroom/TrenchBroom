@@ -29,7 +29,7 @@ namespace TrenchBroom {
             SelectPartBase(tool, EdgeHandleManager::HandleHit) {}
         private:
             bool equalHandles(const Edge3& lhs, const Edge3& rhs) const override {
-                return lhs.squaredDistanceTo(rhs) < MaxHandleDistance * MaxHandleDistance;
+                return squaredDistance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
             }
         };
         

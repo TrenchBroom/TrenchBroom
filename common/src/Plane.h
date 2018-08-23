@@ -74,7 +74,7 @@ public:
             return -1;
         if (Math::gt(distance, other.distance, epsilon))
             return 1;
-        return normal.compare(other.normal);
+        return ::compare(normal, other.normal, epsilon);
     }
     
     bool operator==(const Plane<T,S>& other) const {

@@ -51,19 +51,6 @@ public:
 
     using List = std::vector<Vec<T,S>>;
     static const List EmptyList;
-public:
-    class GridCmp {
-    private:
-        const T m_precision;
-    public:
-        GridCmp(const T precision) : m_precision(precision) {
-            assert(m_precision > 0.0);
-        }
-
-        bool operator()(const Vec<T, S> &lhs, const Vec<T, S> &rhs) const {
-            return compareSnapped(lhs, rhs, m_precision) < 0;
-        }
-    };
 private:
     class SelectionHeapCmp {
     private:
@@ -632,8 +619,11 @@ public:
         }
     }
     
-    std::string asString(const size_t components = S) const {
+    std::string asString(const size_t components = S, const int precision = -1) const {
         StringStream result;
+        if (precision > 0) {
+            result.precision(precision);
+        }
         write(result, components);
         return result.str();
     }
@@ -856,31 +846,6 @@ int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type
     assert(lhsCur == lhsEnd && rhsCur == rhsEnd);
     return 0;
 }
-
-
-/**
- * Lexicographically compares the given components of the vectors after snapping them to a grid of the given size.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the left hand vector
- * @param rhs the right hand vector
- * @param precision the grid size for component wise comparison
- * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
- */
-template<typename T, size_t S>
-int compareSnapped(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T precision) {
-    for (size_t i = 0; i < S; ++i) {
-        const T l = Math::snap(lhs[i], precision);
-        const T r = Math::snap(rhs[i], precision);
-        if (Math::lt(l, r, 0.0))
-            return -1;
-        if (Math::gt(l, r, 0.0))
-            return 1;
-    }
-    return 0;
-}
-
 
 /**
  * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.

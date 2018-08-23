@@ -21,8 +21,6 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Snapshot.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -34,28 +32,13 @@ namespace TrenchBroom {
         }
         
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const FloatType snapTo) :
-        DocumentCommand(Type, "Snap Brush Vertices"),
-        m_snapTo(snapTo),
-        m_snapshot(nullptr) {}
+        SnapshotCommand(Type, "Snap Brush Vertices"),
+        m_snapTo(snapTo) {}
         
-        SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
-            delete m_snapshot;
+        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            return document->performSnapVertices(m_snapTo);
         }
 
-        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot == nullptr);
-            m_snapshot = document->performSnapVertices(m_snapTo);
-            return true;
-        }
-        
-        bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot);
-            delete m_snapshot;
-            m_snapshot = nullptr;
-            return true;
-        }
-        
         bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return false;
         }

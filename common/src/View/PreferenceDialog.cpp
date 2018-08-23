@@ -131,8 +131,15 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (GetParent() != nullptr)
+            wxConfigBase* conf = wxConfig::Get();
+            if (conf != nullptr) {
+                conf->Flush();
+            }
+
+            if (GetParent() != nullptr) {
                 GetParent()->Raise();
+            }
+
             event.Skip();
         }
 

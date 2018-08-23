@@ -25,7 +25,7 @@
 	]
 	CD(integer) : "CD track to play" : 1
 	MIDI(string) : "Midi file to play" : "casa1"
-	spawnflags2(choices) : "Func_Train type" : 0 = //Spawnflags don't show for worldspawn. Needs to be edited in the .map manually
+	spawnflags(choices) : "Func_Train type" : 0 = //Spawnflags don't show for worldspawn. Needs to be edited in the .map manually
 	[
 		0 : "Hexen2 Func_Trains"
 		1 : "PoP Func_Trains"

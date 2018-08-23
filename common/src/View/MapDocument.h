@@ -295,6 +295,7 @@ namespace TrenchBroom {
             bool translateObjects(const Vec3& delta) override;
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
             bool scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) override;
+            bool scaleObjects(const Vec3& center, const Vec3& scaleFactors) override;
             bool shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) override;
             bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
         public:
@@ -343,6 +344,7 @@ namespace TrenchBroom {
             virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // debug commands
             void printVertices();
+            bool throwExceptionDuringCommand();
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

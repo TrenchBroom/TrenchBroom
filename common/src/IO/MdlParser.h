@@ -65,7 +65,7 @@ namespace TrenchBroom {
         private:
             Assets::EntityModel* doParseModel() override;
             
-            void parseSkins(const char*& cursor, Assets::MdlModel& model, const size_t count, const size_t width, const size_t height);
+            void parseSkins(const char*& cursor, Assets::MdlModel& model, size_t count, size_t width, size_t height, int flags);
             MdlSkinVertexList parseSkinVertices(const char*& cursor, const size_t count);
             MdlSkinTriangleList parseSkinTriangles(const char*& cursor, const size_t count);
             void parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const Vec3f& origin, const Vec3f& scale);

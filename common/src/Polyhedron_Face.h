@@ -113,7 +113,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V& first, const V& second, const T epsilon) const {
-    auto* halfEdge = findHalfEdge(first);
+    auto* halfEdge = findHalfEdge(first, epsilon);
     if (halfEdge == nullptr) {
         return nullptr;
     }
@@ -182,6 +182,47 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& posit
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return false;
+}
+
+template <typename T, typename FP, typename VP>
+T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const T maxDistance) const {
+    if (positions.size() != vertexCount()) {
+        return maxDistance;
+    }
+
+    T closestDistance = maxDistance;
+
+    // Find the boundary edge with the origin closest to the first position.
+    const HalfEdge* startEdge = nullptr;
+
+    const auto* firstEdge = m_boundary.front();
+    const auto* currentEdge = firstEdge;
+    do {
+        const T currentDistance = distance(currentEdge->origin()->position(), positions.front());
+        if (currentDistance < closestDistance) {
+            closestDistance = currentDistance;
+            startEdge = currentEdge;
+        }
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+
+    // No vertex is within maxDistance of the first of the given positions.
+    if (startEdge == nullptr) {
+        return maxDistance;
+    }
+
+    // now find the maximum distance of all points
+    firstEdge = startEdge;
+    currentEdge = firstEdge->next();
+    auto posIt = std::next(std::begin(positions));
+    do {
+        const auto& position = *posIt;
+        ++posIt;
+
+        closestDistance = std::max(closestDistance, distance(currentEdge->origin()->position(), position));
+        currentEdge = currentEdge->next();
+    } while (currentEdge != firstEdge);
+    return closestDistance;
 }
 
 template <typename T, typename FP, typename VP>

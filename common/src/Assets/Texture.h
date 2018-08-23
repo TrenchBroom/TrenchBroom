@@ -33,8 +33,14 @@ namespace TrenchBroom {
         class TextureCollection;
         
         typedef Buffer<unsigned char> TextureBuffer;
-        void setMipBufferSize(TextureBuffer::List& buffers, const size_t width, const size_t height);
-        
+
+        enum class TextureType {
+            Opaque, Masked
+        };
+
+        size_t bytesPerPixelForFormat(GLenum format);
+        void setMipBufferSize(TextureBuffer::List& buffers, size_t width, size_t height, GLenum format);
+
         class Texture {
         private:
             TextureCollection* m_collection;
@@ -48,13 +54,14 @@ namespace TrenchBroom {
             bool m_overridden;
 
             GLenum m_format;
+            TextureType m_type;
 
             mutable GLuint m_textureId;
             mutable TextureBuffer::List m_buffers;
         public:
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format = GL_RGB);
-            Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format = GL_RGB);
-            Texture(const String& name, const size_t width, const size_t height, GLenum format = GL_RGB);
+            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
+            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
+            Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
             ~Texture();
 
             const String& name() const;

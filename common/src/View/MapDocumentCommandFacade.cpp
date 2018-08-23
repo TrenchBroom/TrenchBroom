@@ -443,9 +443,14 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        void
-        MapDocumentCommandFacade::performTransform(const Mat4x4 &transform,
-                                                   const bool lockTextures) {
+        bool MapDocumentCommandFacade::performTransform(const Mat4x4 &transform, const bool lockTextures) {
+          // Test whether all brushes can be transformed; abort if any fail.
+          for (const auto& brush : m_selectedNodes.brushes()) {
+              if (!brush->canTransform(transform, m_worldBounds)) {
+                  return false;
+              }
+          }
+
           const Model::NodeList &nodes = m_selectedNodes.nodes();
           const Model::NodeList parents = collectParents(nodes);
 
@@ -460,6 +465,7 @@ namespace TrenchBroom {
           Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
           invalidateSelectionBounds();
+          return true;
         }
 
         Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
@@ -664,25 +670,24 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(faces);
         }
 
-        Model::Snapshot* MapDocumentCommandFacade::performFindPlanePoints() {
+        bool MapDocumentCommandFacade::performFindPlanePoints() {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            Model::Snapshot* snapshot = new Model::Snapshot(std::begin(brushes), std::end(brushes));
-            
+
             const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            for (Model::Brush* brush : brushes)
+            for (Model::Brush* brush : brushes) {
                 brush->findIntegerPlanePoints(m_worldBounds);
-            
-            return snapshot;
+            }
+
+            return true;
         }
 
-        Model::Snapshot* MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
+        bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
-            Model::Snapshot* snapshot = new Model::Snapshot(std::begin(brushes), std::end(brushes));
 
             const Model::NodeList nodes(std::begin(brushes), std::end(brushes));
             const Model::NodeList parents = collectParents(nodes);
@@ -715,7 +720,7 @@ namespace TrenchBroom {
                 info(msg.str());
             }
             
-            return snapshot;
+            return true;
         }
 
         Vec3::List MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta) {

@@ -148,6 +148,13 @@ bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& positi
 }
 
 template <typename T, typename FP, typename VP>
+T Polyhedron<T,FP,VP>::Edge::distanceTo(const V& position1, const V& position2) const {
+    const T pos1Distance = std::min(squaredDistance(firstVertex()->position(), position1), squaredDistance(secondVertex()->position(), position1));
+    const T pos2Distance = std::min(squaredDistance(firstVertex()->position(), position2), squaredDistance(secondVertex()->position(), position2));
+    return std::max(pos1Distance, pos2Distance);
+}
+
+template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::orphaned() const {
     return m_first == nullptr && m_second == nullptr;
 }

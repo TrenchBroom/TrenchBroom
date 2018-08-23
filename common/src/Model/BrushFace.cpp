@@ -551,9 +551,9 @@ namespace TrenchBroom {
             return VertexList(m_geometry->boundary());
         }
 
-        bool BrushFace::hasVertices(const Polygon3& vertices) const {
+        bool BrushFace::hasVertices(const Polygon3& vertices, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return m_geometry->hasVertexPositions(vertices.vertices());
+            return m_geometry->hasVertexPositions(vertices.vertices(), epsilon);
         }
 
         Polygon3 BrushFace::polygon() const {

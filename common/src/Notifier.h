@@ -391,6 +391,34 @@ namespace TrenchBroom {
             }
         };
 
+        class NotifyBeforeSuccessFail {
+        private:
+            N& m_success;
+            N& m_fail;
+            A1& m_a1;
+            bool m_didSucceed;
+        public:
+            NotifyBeforeSuccessFail(N& before, N& success, N& fail, A1& a1) :
+            m_success(success),
+            m_fail(fail),
+            m_a1(a1),
+            m_didSucceed(false) {
+                before(a1);
+            }
+
+            virtual ~NotifyBeforeSuccessFail() {
+                if (m_didSucceed) {
+                    m_success(m_a1);
+                }  else {
+                    m_fail(m_a1);
+                }
+            }
+
+            void setDidSucceed(bool didSucceed) {
+                m_didSucceed = didSucceed;
+            }
+        };
+
         template <typename R>
         bool addObserver(R* receiver, void (R::*function)(A1)) {
             return m_state.addObserver(new CObserver<R>(receiver, function));

@@ -45,8 +45,17 @@ namespace TrenchBroom {
                 flip();
         }
 
-        template <typename TT, size_t SS>
-        Edge(const Edge<TT,SS>& other) :
+        // Copy and move constructors
+        Edge(const Edge<T,S>& other) = default;
+        Edge(Edge<T,S>&& other) = default;
+
+        // Assignment operators
+        Edge<T,S>& operator=(const Edge<T,S>& other) = default;
+        Edge<T,S>& operator=(Edge<T,S>&& other) = default;
+
+        // Conversion constructors
+        template <typename U>
+        Edge(const Edge<U,S>& other) :
         m_start(other.start()),
         m_end(other.end()) {}
 
@@ -62,10 +71,16 @@ namespace TrenchBroom {
             return compare(*this, other, T(0.0)) < 0;
         }
 
-        T squaredDistanceTo(const Edge<T,S>& other) const {
-            const T startDistance = squaredDistance(m_start, other.m_start);
-            const T endDistance = squaredDistance(m_end, other.m_end);
-            return Math::max(startDistance, endDistance);
+        bool operator<=(const Edge<T,S>& other) const {
+            return compare(*this, other, T(0.0)) <= 0;
+        }
+
+        bool operator>(const Edge<T,S>& other) const {
+            return compare(*this, other, T(0.0)) > 0;
+        }
+
+        bool operator>=(const Edge<T,S>& other) const {
+            return compare(*this, other, T(0.0)) >= 0;
         }
 
         const Vec<T,S>& start() const {
@@ -89,10 +104,11 @@ namespace TrenchBroom {
         }
 
         static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
-            typename Vec<T,S>::List result(2 * edges.size());
+            typename Vec<T,S>::List result;
+            result.reserve(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {
-                result[2*i+0] = edges[i].start();
-                result[2*i+1] = edges[i].end();
+                result.push_back(edges[i].start());
+                result.push_back(edges[i].end());
             }
             return result;
         }
@@ -122,14 +138,12 @@ namespace TrenchBroom {
         return compare(lhs.end(), rhs.end(), epsilon);
     }
 
+
     template <typename T, size_t S>
-    int compareSnapped(const Edge<T, S>& lhs, const Edge<T,S>& rhs, const T precision) {
-        const int startCmp = compareSnapped(lhs.start(), rhs.start(), precision);
-        if (startCmp < 0)
-            return -1;
-        if (startCmp > 0)
-            return 1;
-        return compareSnapped(lhs.end(), rhs.end(), precision);
+    T squaredDistance(const Edge<T,S>& lhs, const Edge<T,S>& rhs) {
+        const auto startDistance = squaredDistance(lhs.start(), rhs.start());
+        const auto endDistance = squaredDistance(lhs.end(), rhs.end());
+        return Math::max(startDistance, endDistance);
     }
 }
 

@@ -62,7 +62,6 @@ namespace TrenchBroom {
 
             Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
             lock(m_document)->removeEdges(brushMap);
-            rebuildBrushGeometry();
         }
     }
 }
