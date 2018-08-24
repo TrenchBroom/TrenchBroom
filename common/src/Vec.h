@@ -628,13 +628,6 @@ public:
         return result.str();
     }
 
-    bool isInteger(const T epsilon = Math::Constants<T>::almostZero()) const {
-        for (size_t i = 0; i < S; ++i)
-            if (std::abs(v[i] - Math::round(v[i])) > epsilon)
-                return false;
-        return true;
-    }
-    
     Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::correct(v[i], decimals, epsilon);
@@ -1579,6 +1572,25 @@ bool isNaN(const Vec<T,S>& vec) {
         }
     }
     return false;
+}
+
+/**
+ * Checks whether each component of the given vector is within a distance of epsilon around an integral value.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to check
+ * @param epsilon the epsilon value
+ * @return true if all components of the given vector are integral under the above definition
+ */
+template <typename T, size_t S>
+bool isIntegral(const Vec<T,S>& vec, const T epsilon = static_cast<T>(0.0)) {
+    for (size_t i = 0; i < S; ++i) {
+        if (std::abs(vec[i] - Math::round(vec[i])) >= epsilon) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /* ========== rounding and error correction ========== */

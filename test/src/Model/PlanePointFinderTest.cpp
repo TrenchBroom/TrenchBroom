@@ -32,7 +32,7 @@
 TEST(PlaneTest, planePointFinder) {
     Plane3 plane;
     const Vec3 points[3] = {Vec3(48, 16, 28), Vec3(16.0, 16.0, 27.9980487823486328125), Vec3(48, 18, 22)};
-    ASSERT_FALSE(points[1].isInteger());
+    ASSERT_FALSE(isIntegral(points[1]));
     ASSERT_TRUE(setPlanePoints(plane, points[0], points[1], points[2]));
     
     
@@ -56,9 +56,9 @@ TEST(PlaneTest, planePointFinder) {
     
     TrenchBroom::Model::PlanePointFinder::findPoints(plane, intpoints, 3);
     
-    ASSERT_TRUE(intpoints[0].isInteger());
-    ASSERT_TRUE(intpoints[1].isInteger());
-    ASSERT_TRUE(intpoints[2].isInteger());
+    ASSERT_TRUE(isIntegral(intpoints[0], 0.001));
+    ASSERT_TRUE(isIntegral(intpoints[1], 0.001));
+    ASSERT_TRUE(isIntegral(intpoints[2], 0.001));
     
     Plane3 intplane;
     ASSERT_TRUE(setPlanePoints(intplane, intpoints[0], intpoints[1], intpoints[2]));

@@ -166,7 +166,7 @@ namespace TrenchBroom {
             
             assert(numPoints <= 3);
             
-            if (numPoints == 3 && points[0].isInteger() && points[1].isInteger() && points[2].isInteger())
+            if (numPoints == 3 && isIntegral(points[0]) && isIntegral(points[1]) && isIntegral(points[2]))
                 return;
             
             const FloatType frequency = computePlaneFrequency(plane);
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             GridSearchCursor cursor(swizzledPlane, frequency);
             if (numPoints == 0) {
                 points[0] = cursor.findMinimum(swizzledPlane.anchor());
-            } else if (!points[0].isInteger()) {
+            } else if (!isIntegral(points[0])) {
                 points[0] = cursor.findMinimum(points[0]);
             }
 
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             FloatType cos;
             size_t count = 0;
             do {
-                if (numPoints < 2 || !points[1].isInteger())
+                if (numPoints < 2 || !isIntegral(points[1]))
                     points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * Vec3::PosX);
                 points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3::PosY - pointDistance / 2.0 * Vec3::PosX));
                 v1 = normalize(points[2] - points[0]);
