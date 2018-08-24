@@ -1667,7 +1667,6 @@ Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
  * @param epsilon the epsilon value
  * @return the corrected vector
  */
-
 template <typename T, size_t S>
 Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
     Vec<T,S> result;

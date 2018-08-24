@@ -210,7 +210,7 @@ namespace Math {
     T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
-        if (abs(v - r) <= epsilon)
+        if (abs(v - r) < epsilon)
             return r / m;
         return v;
     }
