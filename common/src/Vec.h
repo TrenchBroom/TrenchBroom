@@ -1657,6 +1657,17 @@ Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
     return result;
 }
 
+/**
+ * Corrects the given vector's components to the given number of decimal places.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param vec the vector to correct
+ * @param decimals the number of decimal places to keep
+ * @param epsilon the epsilon value
+ * @return the corrected vector
+ */
+
 template <typename T, size_t S>
 Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
     Vec<T,S> result;
