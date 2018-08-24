@@ -172,11 +172,11 @@ public:
 
     // Copy and move constructors
     Vec(const Vec<T,S>& other) = default;
-    Vec(Vec<T,S>&& other) = default;
+    Vec(Vec<T,S>&& other) noexcept = default;
 
     // Assignment operators
     Vec<T,S>& operator=(const Vec<T,S>& other) = default;
-    Vec<T,S>& operator=(Vec<T,S>&& other) = default;
+    Vec<T,S>& operator=(Vec<T,S>&& other) noexcept = default;
 
     /**
      * Creates a new vector by copying the values from the given vector. If the given vector has a different component
@@ -628,15 +628,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S>& mix(const Vec<T,S>& vec, const Vec<T,S>& factor) {
-        *this = *this * (Vec<T,S>::One - factor) + vec * factor;
-        return *this;
-    }
-    
-    Vec<T,S> mixed(const Vec<T,S>& vec, const Vec<T,S>& factor) const {
-        return Vec<T,S>(*this).mix(vec, factor);
-    }
-    
     bool isInteger(const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - Math::round(v[i])) > epsilon)
@@ -1356,6 +1347,24 @@ Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
     return Vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
                     lhs[2] * rhs[0] - lhs[0] * rhs[2],
                     lhs[0] * rhs[1] - lhs[1] * rhs[0]);
+}
+
+/**
+ * Mixes the given two vectors using the given factors. For each component i of the given vectors, the corresponding
+ * component of the result is computed as
+ *
+ *   (1 - f[i]) * lhs[i] + f * rhs[i]
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param f the mixing factors
+ * @return the mixed vector
+ */
+template <typename T, size_t S>
+Vec<T,S> mix(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const Vec<T,S>& f) {
+    return (Vec<T,S>::One - f) * lhs + f * rhs;
 }
 
 /**

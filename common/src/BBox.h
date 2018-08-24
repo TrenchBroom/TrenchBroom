@@ -193,10 +193,10 @@ public:
     BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
         return BBox<T,S>(*this).insersectWith(right);
     }
-    
+
     BBox<T,S>& mix(const BBox<T,S>& box, const Vec<T,S>& factor) {
-        min.mix(box.min, factor);
-        max.mix(box.max, factor);
+        min = ::mix(min, box.min, factor);
+        max = ::mix(max, box.max, factor);
         return *this;
     }
     

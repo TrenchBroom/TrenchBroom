@@ -403,3 +403,9 @@ TEST(VecTest, colinear) {
     ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(1.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
     ASSERT_FALSE(colinear(Vec3d(0.0, 0.0, 0.0), Vec3d(10.0, 0.0, 0.0), Vec3d(0.0, 1.0, 0.0)));
 }
+
+TEST(VecTest, mix) {
+    ASSERT_EQ(Vec3d::Null, mix(Vec3d::Null, Vec3d::One, Vec3d::Null));
+    ASSERT_EQ(Vec3d::One, mix(Vec3d::Null, Vec3d::One, Vec3d::One));
+    ASSERT_EQ(Vec3d::One / 2.0, mix(Vec3d::Null, Vec3d::One, Vec3d::One / 2.0));
+}
