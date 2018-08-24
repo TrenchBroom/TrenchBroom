@@ -117,8 +117,8 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
-            bounds.min.correct();
-            bounds.max.correct();
+            bounds.min = correct(bounds.min);
+            bounds.max = correct(bounds.max);
             
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);

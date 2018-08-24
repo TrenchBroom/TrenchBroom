@@ -150,7 +150,7 @@ namespace TrenchBroom {
             if (!isNull(seam.direction)) {
                 const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const Vec2f offsetChange = desriedCoords - currentCoords;
-                m_attribs.setOffset(m_attribs.modOffset(m_attribs.offset() + offsetChange).corrected(4));
+                m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
             }
         }
         
@@ -496,7 +496,7 @@ namespace TrenchBroom {
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
                 const Vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const Vec2f offsetChange = desriedCoords - currentCoords;
-                m_attribs.setOffset(m_attribs.modOffset(m_attribs.offset() + offsetChange).corrected(4));
+                m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
             }
         }
 
@@ -650,8 +650,9 @@ namespace TrenchBroom {
         }
 
         void BrushFace::correctPoints() {
-            for (size_t i = 0; i < 3; ++i)
-                m_points[i].correct();
+            for (size_t i = 0; i < 3; ++i) {
+                m_points[i] = correct(m_points[i]);
+            }
         }
 
         void BrushFace::invalidateVertexCache() {

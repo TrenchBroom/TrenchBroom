@@ -259,7 +259,7 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const Vec3f& direction = camera.direction();
             
-            const Vec3 size = m_bounds.size().corrected();
+            const Vec3 size = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
                     buffer << labels[i] << ": " << size[i];
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
             
-            const Vec3 size = m_bounds.size().corrected();
+            const Vec3 size = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << size[i];
                 
@@ -296,11 +296,11 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
 
-            buffer << "Min: " << m_bounds.min.corrected().asString();
+            buffer << "Min: " << correct(m_bounds.min).asString();
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Min, renderContext.camera()));
             buffer.str("");
             
-            buffer << "Max: " << m_bounds.max.corrected().asString();
+            buffer << "Max: " << correct(m_bounds.max).asString();
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Max, renderContext.camera()));
         }
     }

@@ -333,13 +333,13 @@ namespace TrenchBroom {
             const size_t column = token.column();
             
             expect(QuakeMapToken::OParenthesis, token);
-            const Vec3 p1 = parseVector().corrected();
+            const Vec3 p1 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const Vec3 p2 = parseVector().corrected();
+            const Vec3 p2 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const Vec3 p3 = parseVector().corrected();
+            const Vec3 p3 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number

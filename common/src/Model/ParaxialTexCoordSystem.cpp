@@ -195,8 +195,7 @@ namespace TrenchBroom {
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            Vec2f newScale = Vec2f(length(projectedTransformedXAxis),
-                                   length(projectedTransformedYAxis)).corrected(4);
+            Vec2f newScale = correct(Vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
 
             // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
             if (dot(m_xAxis, normalizedXAxis) < 0.0)
@@ -212,7 +211,7 @@ namespace TrenchBroom {
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordiknates of the center
-            const Vec2f newOffset = attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords).corrected(4);
+            const Vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
@@ -250,11 +249,8 @@ namespace TrenchBroom {
         void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
             const Vec3 rotAxis = cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
             const Quat3 rot(rotAxis, angleInRadians);
-            xAxis = rot * xAxis;
-            yAxis = rot * yAxis;
-
-            xAxis.correct();
-            yAxis.correct();
+            xAxis = correct(rot * xAxis);
+            yAxis = correct(rot * yAxis);
         }
     }
 }

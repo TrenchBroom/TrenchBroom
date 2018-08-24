@@ -62,7 +62,7 @@ namespace TrenchBroom {
             const Vec2f snapped  = snapDelta(delta);
 
             const Model::BrushFace* face = m_helper.face();
-            const Vec2f corrected = (face->offset() - snapped).corrected(4, 0.0f);
+            const Vec2f corrected = correct(face->offset() - snapped, 4, 0.0f);
             
             if (corrected == face->offset())
                 return true;

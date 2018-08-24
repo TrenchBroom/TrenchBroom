@@ -184,7 +184,7 @@ namespace TrenchBroom {
 
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
+            const Vec2f newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords), 4);
             assert(!isNaN(newOffset));
             attribs.setOffset(newOffset);
         }

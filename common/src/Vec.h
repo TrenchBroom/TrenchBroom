@@ -628,16 +628,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
-        for (size_t i = 0; i < S; ++i)
-            v[i] = Math::correct(v[i], decimals, epsilon);
-        return *this;
-    }
-    
-    Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) const {
-        return Vec<T,S>(*this).correct(decimals, epsilon);
-    }
-    
     Vec<T,S-1> at(const size_t j, const T a) const {
         assert(v[j] != 0.0f);
         
@@ -1667,6 +1657,14 @@ Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
     return result;
 }
 
+template <typename T, size_t S>
+Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = Math::correct(vec[i], decimals, epsilon);
+    }
+    return result;
+}
 
 
 /*

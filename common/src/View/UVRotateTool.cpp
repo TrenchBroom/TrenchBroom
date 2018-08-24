@@ -139,7 +139,7 @@ namespace TrenchBroom {
             const Vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
 
             const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const Vec2f newOffset = (face->offset() + delta).corrected(4, 0.0f);
+            const Vec2f newOffset = correct(face->offset() + delta, 4, 0.0f);
             
             request.clear();
             request.setOffset(newOffset);

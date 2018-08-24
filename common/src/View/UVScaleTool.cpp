@@ -120,7 +120,7 @@ namespace TrenchBroom {
                     newScale[i] = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
                 }
             }
-            newScale.correct(4, 0.0f);
+            newScale = correct(newScale, 4, 0.0f);
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setScale(newScale);
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             document->setFaceAttributes(request);
             
-            const auto newOriginInTexCoords = m_helper.originInTexCoords().corrected(4, 0.0f);
+            const auto newOriginInTexCoords = correct(m_helper.originInTexCoords(), 4, 0.0f);
             const auto originDelta = originHandlePosTexCoords - newOriginInTexCoords;
             
             request.clear();
