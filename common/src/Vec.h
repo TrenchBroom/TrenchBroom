@@ -28,6 +28,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cstddef>
 #include <ostream>
+#include <type_traits>
 #include <vector>
 
 template <typename T, size_t S>
@@ -628,26 +629,6 @@ public:
         return result.str();
     }
 
-    static Vec<T,S> average(const typename Vec<T,S>::List& vecs) {
-        assert(!vecs.empty());
-        Vec<T,S> sum;
-        for (size_t i = 0; i < vecs.size(); ++i)
-            sum += vecs[i];
-        return sum / static_cast<T>(vecs.size());
-    }
-
-    template <typename I, typename G>
-    static Vec<T,S> center(I cur, I end, const G& get) {
-        assert(cur != end);
-        Vec<T,S> result = get(*cur++);
-        T count = 1.0;
-        while (cur != end) {
-            result += get(*cur++);
-            count += 1.0;
-        }
-        return result / count;
-    }
-    
     template <typename I, typename G>
     static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
         typename Vec<T,S>::List result;
@@ -1712,6 +1693,28 @@ bool between(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) 
     return !Math::pos(d);
 }
 
+/**
+ * Computes the average of the given range of elements, using the given function to transform an element into a vector.
+ *
+ * @tparam I the type of the range iterators
+ * @tparam G the type of the transformation function from a range element to a vector type
+ * @param cur the start of the range
+ * @param end the end of the range
+ * @param get the transformation function, defaults to identity
+ * @return the average of the vectors obtained from the given range of elements
+ */
+template <typename I, typename G>
+auto average(I cur, I end, const G& get = Math::Identity()) -> typename std::remove_reference<decltype(get(*cur))>::type {
+    assert(cur != end);
+
+    auto result = get(*cur++);
+    auto count = 1.0;
+    while (cur != end) {
+        result += get(*cur++);
+        count += 1.0;
+    }
+    return result / count;
+}
 
 /*
  * The normal will be pointing towards the reader when the points are oriented like this:

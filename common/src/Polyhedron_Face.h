@@ -245,7 +245,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
-    return V::center(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
+    return average(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
 }
 
 template <typename T, typename FP, typename VP>

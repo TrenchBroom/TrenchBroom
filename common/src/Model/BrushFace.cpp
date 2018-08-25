@@ -185,7 +185,7 @@ namespace TrenchBroom {
         Vec3 BrushFace::center() const {
             ensure(m_geometry != nullptr, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
-            return Vec3::center(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
+            return average(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
         Vec3 BrushFace::boundsCenter() const {
