@@ -628,19 +628,6 @@ public:
         return result.str();
     }
 
-    Vec<T,S-1> at(const size_t j, const T a) const {
-        assert(v[j] != 0.0f);
-        
-        const T f = a / v[j];
-        Vec<T,S-1> result;
-        size_t k = 0;
-        for (size_t i = 0; i < S; ++i) {
-            if (i != j)
-                result[k++] = v[i] * f;
-        }
-        return result;
-    }
-    
     struct EdgeDistance {
         const Vec<T,S> point;
         const T distance;
