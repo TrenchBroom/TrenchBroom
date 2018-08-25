@@ -601,17 +601,6 @@ public:
         return majorAxis(2);
     }
 
-    /**
-     * Returns a vector that is perpendicular to this vector and its weakest axis.
-     *
-     * @return the perpendicular vector
-     */
-    Vec<T,S> makePerpendicular() const {
-        // get an axis that this vector has the least weight towards.
-        const Vec<T,S> leastAxis = majorAxis(S-1);
-        return normalize(cross(*this, leastAxis));
-    }
-
     template <typename I, typename G>
     static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
         typename Vec<T,S>::List result;
