@@ -128,7 +128,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyh
     const V& rhsStart = rhsEdge->firstVertex()->position();
     const V& rhsEnd = rhsEdge->secondVertex()->position();
 
-    return lhsPos.containedWithinSegment(rhsStart, rhsEnd);
+    return between(lhsPos, rhsStart, rhsEnd);
 }
 
 template <typename T, typename FP, typename VP>

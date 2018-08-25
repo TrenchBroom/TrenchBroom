@@ -636,15 +636,6 @@ public:
         return sum / static_cast<T>(vecs.size());
     }
 
-    bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        assert(colinear(*this, start, end));
-        const Vec<T,S> toStart = start - *this;
-        const Vec<T,S> toEnd   =   end - *this;
-
-        const T d = dot(toEnd, normalize(toStart));
-        return !Math::pos(d);
-    }
-
     template <typename I, typename G>
     static Vec<T,S> center(I cur, I end, const G& get) {
         assert(cur != end);
@@ -1696,6 +1687,29 @@ EdgeDistance<T,S> distanceOfPointAndSegment(const Vec<T,S>& point, const Vec<T,S
 
     const T distance = length(point - closestPoint);
     return EdgeDistance<T,S>(closestPoint, distance);
+}
+
+/**
+ * Given three colinear points, this function checks whether the first point is contained in a segment formed by the
+ * other two points.
+ *
+ * The result is undefined for the case of non-colinear points.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point to check
+ * @param start the segment start
+ * @param end the segment end
+ * @return true if the given point is contained within the segment
+ */
+template <typename T, size_t S>
+bool between(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
+    assert(colinear(point, start, end));
+    const Vec<T,S> toStart = start - point;
+    const Vec<T,S> toEnd   =   end - point;
+
+    const T d = dot(toEnd, normalize(toStart));
+    return !Math::pos(d);
 }
 
 

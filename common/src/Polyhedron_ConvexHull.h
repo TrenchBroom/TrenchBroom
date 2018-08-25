@@ -318,16 +318,17 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
     assert(colinear(v1->position(), v2->position(), position));
-    
-    if (position.containedWithinSegment(v1->position(), v2->position()))
+
+    if (between(position, v1->position(), v2->position())) {
         return nullptr;
-    
-    if (v1->position().containedWithinSegment(position, v2->position())) {
+    }
+
+    if (between(v1->position(), position, v2->position())) {
         v1->setPosition(position);
         return v1;
     }
 
-    assert(v2->position().containedWithinSegment(position, v1->position()));
+    assert(between(v2->position(), position, v1->position()));
     v2->setPosition(position);
     return v2;
 }
@@ -427,22 +428,26 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
         const Math::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
         
         // If the current edge contains the point, it will not be added anyway.
-        if (curStatus == Math::PointStatus::PSInside && position.containedWithinSegment(curEdge->origin()->position(), curEdge->destination()->position()))
+        if (curStatus == Math::PointStatus::PSInside && between(position, curEdge->origin()->position(), curEdge->destination()->position())) {
             return nullptr;
-        
-        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow)
+        }
+
+        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow) {
             firstVisibleEdge = curEdge;
-        
-        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow)
+        }
+
+        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow) {
             lastVisibleEdge = curEdge;
-        
+        }
+
         curEdge = curEdge->next();
     } while (curEdge != firstEdge && (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr));
     
     // Is the point contained in the polygon?
-    if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr)
+    if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr) {
         return nullptr;
-    
+    }
+
     // Now we know which edges are visible from the point. These will have to be replaced with two new edges.
     Vertex* newVertex = new Vertex(position);
     HalfEdge* h1 = new HalfEdge(firstVisibleEdge->origin());
