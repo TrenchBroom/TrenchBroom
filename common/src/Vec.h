@@ -628,34 +628,6 @@ public:
         return result.str();
     }
 
-    struct EdgeDistance {
-        const Vec<T,S> point;
-        const T distance;
-        
-        EdgeDistance(const Vec<T,S>& i_point, const T i_distance) :
-        point(i_point),
-        distance(i_distance) {}
-    };
-    
-    EdgeDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
-        const Vec<T,S> edgeVec = end - start;
-        const Vec<T,S> edgeDir = normalize(edgeVec);
-        const T scale = dot(*this - start, edgeDir);
-        
-        // determine the closest point on the edge
-        Vec<T,S> closestPoint;
-        if (scale < 0.0) {
-            closestPoint = start;
-        } else if ((scale * scale) > squaredLength(edgeVec)) {
-            closestPoint = end;
-        } else {
-            closestPoint = start + edgeDir * scale;
-        }
-
-        const T distance = length(*this - closestPoint);
-        return EdgeDistance(closestPoint, distance);
-    }
-
     static Vec<T,S> average(const typename Vec<T,S>::List& vecs) {
         assert(!vecs.empty());
         Vec<T,S> sum;
@@ -1661,6 +1633,69 @@ Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon
         result[i] = Math::correct(vec[i], decimals, epsilon);
     }
     return result;
+}
+
+/* ========== extra stuff - to be moved to separate module ========== */
+
+/**
+ * Return type for the distanceToSegment function. Contains the point on a segment which is closest to some given
+ * point, and the distance between that segment point and the given point.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ */
+template <typename T, size_t S>
+struct EdgeDistance {
+    /**
+     * The closest point on a given segment to a given point.
+     */
+
+    const Vec<T,S> point;
+    /**
+     * The distance between the closest segment point and a given point.
+     */
+    const T distance;
+
+    /**
+     * Constructs a new instance with the given info.
+     *
+     * @param i_point the closest point on the segment
+     * @param i_distance the distance between the closest point and the given point
+     */
+    EdgeDistance(const Vec<T,S>& i_point, const T i_distance) :
+    point(i_point),
+    distance(i_distance) {}
+};
+
+/**
+ * Given a point X and a segment represented by two points A and B, this function computes the closest point P on the
+ * segment AB and the given point X, as well as the distance between X and P.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point
+ * @param start the start point of the segment
+ * @param end the end point of the segment
+ * @return a struct containing the closest point on the segment and the distance between that point and the given point
+ */
+template <typename T, size_t S>
+EdgeDistance<T,S> distanceOfPointAndSegment(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
+    const Vec<T,S> edgeVec = end - start;
+    const Vec<T,S> edgeDir = normalize(edgeVec);
+    const T scale = dot(point - start, edgeDir);
+
+    // determine the closest point on the edge
+    Vec<T,S> closestPoint;
+    if (scale < 0.0) {
+        closestPoint = start;
+    } else if ((scale * scale) > squaredLength(edgeVec)) {
+        closestPoint = end;
+    } else {
+        closestPoint = start + edgeDir * scale;
+    }
+
+    const T distance = length(point - closestPoint);
+    return EdgeDistance<T,S>(closestPoint, distance);
 }
 
 

@@ -167,7 +167,7 @@ bool Polyhedron<T,FP,VP>::Edge::fullySpecified() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::contains(const V& point, const T maxDistance) const {
-    return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
+    return distanceOfPointAndSegment(point, firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
 }
 
 template <typename T, typename FP, typename VP>
