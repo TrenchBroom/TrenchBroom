@@ -88,7 +88,7 @@ namespace TrenchBroom {
             
             template <typename T, size_t S>
             void addOrUpdateAttribute(const AttributeName& name, const Vec<T,S>& value) {
-                addOrUpdateAttribute(name, value.asString());
+                addOrUpdateAttribute(name, StringUtils::toString(value));
             }
             
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;

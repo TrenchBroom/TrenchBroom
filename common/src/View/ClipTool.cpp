@@ -362,7 +362,7 @@ namespace TrenchBroom {
                     renderService.renderHandle(point);
                     
                     StringStream str;
-                    str << (i+1) << ": " << point.asString();
+                    str << (i+1) << ": " << point;
                     
                     renderService.renderString(str.str(), point);
                 }

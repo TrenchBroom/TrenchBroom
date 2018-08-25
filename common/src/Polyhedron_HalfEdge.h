@@ -131,12 +131,13 @@ bool Polyhedron<T,FP,VP>::HalfEdge::hasOrigins(const typename V::List& origins, 
 template <typename T, typename FP, typename VP>
 String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
     StringStream str;
-    origin()->position().write(str);
+    str << origin()->position();
     str << " --> ";
-    if (destination() != nullptr)
-        destination()->position().write(str);
-    else
+    if (destination() != nullptr) {
+        str << destination()->position();
+    } else {
         str << "NULL";
+    }
     return str.str();
 }
 

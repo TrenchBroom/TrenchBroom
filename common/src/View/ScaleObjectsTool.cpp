@@ -54,7 +54,7 @@ namespace TrenchBroom {
         BBoxSide::BBoxSide(const Vec3& n)
                 : normal(n) {
             if (!validSideNormal(n)) {
-                throw std::invalid_argument("BBoxSide created with invalid normal " + n.asString());
+                throw std::invalid_argument("BBoxSide created with invalid normal " + StringUtils::toString(n));
             }
         }
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         BBoxCorner::BBoxCorner(const Vec3& c) : corner(c) {
             if (!validCorner(c)) {
-                throw std::invalid_argument("BBoxCorner created with invalid corner " + c.asString());
+                throw std::invalid_argument("BBoxCorner created with invalid corner " + StringUtils::toString(c));
             }
         }
 
@@ -92,10 +92,10 @@ namespace TrenchBroom {
 
         BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + p0.asString());
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p0));
             }
             if (!BBoxCorner::validCorner(p1)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + p1.asString());
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p1));
             }
         }
 

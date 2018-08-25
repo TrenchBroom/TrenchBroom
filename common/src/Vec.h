@@ -611,23 +611,6 @@ public:
         const Vec<T,S> leastAxis = majorAxis(S-1);
         return normalize(cross(*this, leastAxis));
     }
-    
-    void write(std::ostream& str, const size_t components = S) const {
-        for (size_t i = 0; i < components; ++i) {
-            str << v[i];
-            if (i < components - 1)
-                str << ' ';
-        }
-    }
-    
-    std::string asString(const size_t components = S, const int precision = -1) const {
-        StringStream result;
-        if (precision > 0) {
-            result.precision(precision);
-        }
-        write(result, components);
-        return result.str();
-    }
 
     template <typename I, typename G>
     static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
@@ -1126,14 +1109,12 @@ typename Vec<T,S>::List operator*(const T lhs, const typename Vec<T,S>::List& rh
 
 template <typename T, size_t S>
 std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
-    stream << "(";
     if (S > 0) {
         stream << vec[0];
         for (size_t i = 1; i < S; ++i) {
-            stream << ", " << vec[i];
+            stream << " " << vec[i];
         }
     }
-    stream << ")";
     return stream;
 }
 

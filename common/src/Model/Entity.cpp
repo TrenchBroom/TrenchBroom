@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const Vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, round(origin).asString());
+            addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
         
         void Entity::applyRotation(const Mat4x4& transformation) {

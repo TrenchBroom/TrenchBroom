@@ -242,7 +242,7 @@ namespace TrenchBroom {
                     renderService.renderHandleHighlight(Vec3f(m_position));
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                    renderService.renderString(m_position.asString(), m_position);
+                    renderService.renderString(StringUtils::toString(m_position), m_position);
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                     renderService.renderHandleHighlight(Vec3f(m_position) + radius * xAxis);

@@ -181,11 +181,7 @@ private:
          * @param str the stream to append to
          */
         void appendBounds(std::ostream& str) const {
-            str << "[ (";
-            m_bounds.min.write(str);
-            str << ") (";
-            m_bounds.max.write(str);
-            str << ") ]";
+            str << "[ ( " << m_bounds.min << " ) ( " << m_bounds.max  << " ) ]";
         }
     };
 
@@ -498,7 +494,7 @@ public:
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
         if (!remove(oldBounds, data)) {
             NodeTreeException ex;
-            ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
+            ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
             throw ex;
         }
         insert(newBounds, data);

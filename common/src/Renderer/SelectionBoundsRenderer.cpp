@@ -296,11 +296,11 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
 
-            buffer << "Min: " << correct(m_bounds.min).asString();
+            buffer << "Min: " << correct(m_bounds.min);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Min, renderContext.camera()));
             buffer.str("");
             
-            buffer << "Max: " << correct(m_bounds.max).asString();
+            buffer << "Max: " << correct(m_bounds.max);
             renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::Corner_Max, renderContext.camera()));
         }
     }

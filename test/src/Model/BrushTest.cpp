@@ -2816,7 +2816,7 @@ namespace TrenchBroom {
                 size_t i = 0;
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
                     const Vec3& pos = vertex->position();
-                    ASSERT_TRUE(isIntegral(pos, 0.001)) << "Vertex at " << i << " is not integer after snap: " << pos.asString();
+                    ASSERT_TRUE(isIntegral(pos, 0.001)) << "Vertex at " << i << " is not integer after snap: " << pos;
                 }
             }
         }

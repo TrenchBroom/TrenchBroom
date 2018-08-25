@@ -114,8 +114,9 @@ public:
     }
     
     void print() const {
-        for (const Edge* edge : m_edges)
-            std::cout << edge->secondVertex()->position().asString(3) << " -> " << edge->firstVertex()->position().asString(3) << std::endl;
+        for (const Edge* edge : m_edges) {
+            std::cout << "(" << edge->secondVertex()->position() << ") -> (" << edge->firstVertex()->position() << ")" << std::endl;
+        }
     }
     
     bool hasMultipleLoops() const {

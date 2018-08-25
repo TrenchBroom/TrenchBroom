@@ -121,7 +121,7 @@ namespace TrenchBroom {
             void doRemove(Node* node, const BBox3& bounds) {
                 if (!m_nodeTree.remove(bounds, node)) {
                     NodeTreeException ex;
-                    ex << "Node not found with bounds [ (" << bounds.min.asString(3) << ") (" << bounds.max.asString(3) << ") ]: " << node;
+                    ex << "Node not found with bounds [ (" << bounds.min << ") (" << bounds.max << ") ]: " << node;
                     throw ex;
                 }
             }

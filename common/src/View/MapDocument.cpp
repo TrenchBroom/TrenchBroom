@@ -1335,16 +1335,19 @@ namespace TrenchBroom {
             if (hasSelectedBrushFaces()) {
                 for (const Model::BrushFace* face : m_selectedBrushFaces) {
                     StringStream str;
-                    for (const Model::BrushVertex* vertex : face->vertices())
-                        str << "(" << vertex->position().asString() << ") ";
+                    str.precision(17);
+                    for (const Model::BrushVertex* vertex : face->vertices()) {
+                        str << "(" << vertex->position() << ") ";
+                    }
                     info(str.str());
                 }
             } else if (selectedNodes().hasBrushes()) {
                 for (const Model::Brush* brush : selectedNodes().brushes()) {
                     StringStream str;
                     str.precision(17);
-                    for (const Model::BrushVertex* vertex : brush->vertices())
+                    for (const Model::BrushVertex* vertex : brush->vertices()) {
                         str << vertex->position() << " ";
+                    }
                     info(str.str());
                 }
             }

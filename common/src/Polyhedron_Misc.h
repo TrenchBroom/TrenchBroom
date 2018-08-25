@@ -548,10 +548,11 @@ void Polyhedron<T,FP,VP>::printVertices() const {
     const Vertex* firstVertex = m_vertices.front();
     const Vertex* currentVertex = firstVertex;
     do {
-        std::cout << "(" + currentVertex->position().asString() + ")";
+        std::cout << "(" << currentVertex->position() << ")";
         currentVertex = currentVertex->next();
-        if (currentVertex != firstVertex)
+        if (currentVertex != firstVertex) {
             std::cout << " ";
+        }
     } while (currentVertex != firstVertex);
     std::cout << std::endl;
 }

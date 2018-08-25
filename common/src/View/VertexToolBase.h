@@ -303,7 +303,7 @@ namespace TrenchBroom {
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(handle.asString(), handle);
+                renderService.renderString(StringUtils::toString(handle), handle);
             }
 
             template <typename HH>

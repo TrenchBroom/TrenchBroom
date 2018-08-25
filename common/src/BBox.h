@@ -415,11 +415,7 @@ public:
 
     String asString() const {
         StringStream result;
-        result << "[";
-        min.write(result);
-        result << " - ";
-        max.write(result);
-        result << "]";
+        result << "[ (" << min << ") - (" << max << ") ]";
         return result.str();
     }
 };

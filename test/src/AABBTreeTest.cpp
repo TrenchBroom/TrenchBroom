@@ -48,7 +48,7 @@ TEST(AABBTreeTest, insertSingleNode) {
 
 
     assertTree(R"(
-L [ (0 0 0) (2 1 1) ]: 1
+L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -65,9 +65,9 @@ TEST(AABBTreeTest, insertTwoNodes) {
     tree.insert(bounds2, 2u);
 
     assertTree(R"(
-O [ (-1 -1 -1) (2 1 1) ]
-  L [ (0 0 0) (2 1 1) ]: 1
-  L [ (-1 -1 -1) (1 1 1) ]: 2
+O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
+  L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -87,11 +87,11 @@ TEST(AABBTreeTest, insertThreeNodes) {
     tree.insert(bounds3, 3u);
 
     assertTree(R"(
-O [ (-2 -2 -1) (2 1 1) ]
-  L [ (0 0 0) (2 1 1) ]: 1
-  O [ (-2 -2 -1) (1 1 1) ]
-    L [ (-1 -1 -1) (1 1 1) ]: 2
-    L [ (-2 -2 -1) (0 0 1) ]: 3
+O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
+  L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
+  O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
+    L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
+    L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -116,11 +116,11 @@ TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
     ASSERT_TRUE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-O [ (-2 -2 -1) (2 1 1) ]
-  L [ (0 0 0) (2 1 1) ]: 1
-  O [ (-2 -2 -1) (1 1 1) ]
-    L [ (-1 -1 -1) (1 1 1) ]: 2
-    L [ (-2 -2 -1) (0 0 1) ]: 3
+O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
+  L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
+  O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
+    L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
+    L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
     ASSERT_TRUE(tree.remove(bounds3, 3u));
@@ -130,9 +130,9 @@ O [ (-2 -2 -1) (2 1 1) ]
     ASSERT_FALSE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-O [ (-1 -1 -1) (2 1 1) ]
-  L [ (0 0 0) (2 1 1) ]: 1
-  L [ (-1 -1 -1) (1 1 1) ]: 2
+O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
+  L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -146,7 +146,7 @@ O [ (-1 -1 -1) (2 1 1) ]
     ASSERT_FALSE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-L [ (0 0 0) (2 1 1) ]: 1
+L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -185,11 +185,11 @@ TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
     ASSERT_TRUE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-O [ (-2 -2 -1) (2 1 1) ]
-  L [ (0 0 0) (2 1 1) ]: 1
-  O [ (-2 -2 -1) (1 1 1) ]
-    L [ (-1 -1 -1) (1 1 1) ]: 2
-    L [ (-2 -2 -1) (0 0 1) ]: 3
+O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
+  L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
+  O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
+    L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
+    L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
     ASSERT_TRUE(tree.remove(bounds1, 1u));
@@ -199,9 +199,9 @@ O [ (-2 -2 -1) (2 1 1) ]
     ASSERT_TRUE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-O [ (-2 -2 -1) (1 1 1) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 2
-  L [ (-2 -2 -1) (0 0 1) ]: 3
+O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 2
+  L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -215,7 +215,7 @@ O [ (-2 -2 -1) (1 1 1) ]
     ASSERT_TRUE(tree.contains(bounds3, 3u));
 
     assertTree(R"(
-L [ (-2 -2 -1) (0 0 1) ]: 3
+L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -250,9 +250,9 @@ TEST(AABBTreeTest, insertFourContainedNodes) {
     tree.insert(bounds2, 2u);
 
     assertTree(R"(
-O [ (-4 -4 -4) (4 4 4) ]
-  L [ (-4 -4 -4) (4 4 4) ]: 1
-  L [ (-3 -3 -3) (3 3 3) ]: 2
+O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+  L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
+  L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
@@ -260,11 +260,11 @@ O [ (-4 -4 -4) (4 4 4) ]
     tree.insert(bounds3, 3u);
 
     assertTree(R"(
-O [ (-4 -4 -4) (4 4 4) ]
-  L [ (-4 -4 -4) (4 4 4) ]: 1
-  O [ (-3 -3 -3) (3 3 3) ]
-    L [ (-3 -3 -3) (3 3 3) ]: 2
-    L [ (-2 -2 -2) (2 2 2) ]: 3
+O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+  L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
+  O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+    L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 3
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
@@ -272,13 +272,13 @@ O [ (-4 -4 -4) (4 4 4) ]
     tree.insert(bounds4, 4u);
 
     assertTree(R"(
-O [ (-4 -4 -4) (4 4 4) ]
-  L [ (-4 -4 -4) (4 4 4) ]: 1
-  O [ (-3 -3 -3) (3 3 3) ]
-    L [ (-3 -3 -3) (3 3 3) ]: 2
-    O [ (-2 -2 -2) (2 2 2) ]
-      L [ (-2 -2 -2) (2 2 2) ]: 3
-      L [ (-1 -1 -1) (1 1 1) ]: 4
+O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+  L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 1
+  O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+    L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 2
+    O [ ( -2 -2 -2 ) ( 2 2 2 ) ]
+      L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 3
+      L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 4
 )" , tree);
 
     ASSERT_EQ(bounds1, tree.bounds());
@@ -300,9 +300,9 @@ TEST(AABBTreeTest, insertFourContainedNodesInverse) {
     tree.insert(bounds2, 2u);
 
     assertTree(R"(
-O [ (-2 -2 -2) (2 2 2) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  L [ (-2 -2 -2) (2 2 2) ]: 2
+O [ ( -2 -2 -2 ) ( 2 2 2 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
 )" , tree);
 
     ASSERT_EQ(bounds2, tree.bounds());
@@ -310,11 +310,11 @@ O [ (-2 -2 -2) (2 2 2) ]
     tree.insert(bounds3, 3u);
 
     assertTree(R"(
-O [ (-3 -3 -3) (3 3 3) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  O [ (-3 -3 -3) (3 3 3) ]
-    L [ (-2 -2 -2) (2 2 2) ]: 2
-    L [ (-3 -3 -3) (3 3 3) ]: 3
+O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
+    L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 3
 )" , tree);
 
     ASSERT_EQ(bounds3, tree.bounds());
@@ -322,13 +322,13 @@ O [ (-3 -3 -3) (3 3 3) ]
     tree.insert(bounds4, 4u);
 
     assertTree(R"(
-O [ (-4 -4 -4) (4 4 4) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  O [ (-4 -4 -4) (4 4 4) ]
-    L [ (-2 -2 -2) (2 2 2) ]: 2
-    O [ (-4 -4 -4) (4 4 4) ]
-      L [ (-3 -3 -3) (3 3 3) ]: 3
-      L [ (-4 -4 -4) (4 4 4) ]: 4
+O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
+    O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+      L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 3
+      L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 4
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
@@ -358,23 +358,23 @@ TEST(AABBTreeTest, removeFourContainedNodes) {
     ASSERT_TRUE(tree.contains(bounds4, 4u));
 
     assertTree(R"(
-O [ (-4 -4 -4) (4 4 4) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  O [ (-4 -4 -4) (4 4 4) ]
-    L [ (-2 -2 -2) (2 2 2) ]: 2
-    O [ (-4 -4 -4) (4 4 4) ]
-      L [ (-3 -3 -3) (3 3 3) ]: 3
-      L [ (-4 -4 -4) (4 4 4) ]: 4
+O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
+    O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
+      L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 3
+      L [ ( -4 -4 -4 ) ( 4 4 4 ) ]: 4
 )" , tree);
 
 
     tree.remove(bounds4, 4u);
     assertTree(R"(
-O [ (-3 -3 -3) (3 3 3) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  O [ (-3 -3 -3) (3 3 3) ]
-    L [ (-2 -2 -2) (2 2 2) ]: 2
-    L [ (-3 -3 -3) (3 3 3) ]: 3
+O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  O [ ( -3 -3 -3 ) ( 3 3 3 ) ]
+    L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
+    L [ ( -3 -3 -3 ) ( 3 3 3 ) ]: 3
 )" , tree);
 
 
@@ -385,9 +385,9 @@ O [ (-3 -3 -3) (3 3 3) ]
 
     tree.remove(bounds3, 3u);
     assertTree(R"(
-O [ (-2 -2 -2) (2 2 2) ]
-  L [ (-1 -1 -1) (1 1 1) ]: 1
-  L [ (-2 -2 -2) (2 2 2) ]: 2
+O [ ( -2 -2 -2 ) ( 2 2 2 ) ]
+  L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
+  L [ ( -2 -2 -2 ) ( 2 2 2 ) ]: 2
 )" , tree);
 
 
@@ -398,7 +398,7 @@ O [ (-2 -2 -2) (2 2 2) ]
 
     tree.remove(bounds2, 2u);
     assertTree(R"(
-L [ (-1 -1 -1) (1 1 1) ]: 1
+L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
 )" , tree);
 
 

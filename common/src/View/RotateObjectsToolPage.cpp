@@ -52,7 +52,7 @@ namespace TrenchBroom {
             Vec3::List::const_reverse_iterator it, end;
             for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
                 const Vec3& center = *it;
-                m_recentlyUsedCentersList->Append(center.asString());
+                m_recentlyUsedCentersList->Append(StringUtils::toString(center));
             }
             
             if (m_recentlyUsedCentersList->GetCount() > 0)
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsToolPage::setCurrentCenter(const Vec3& center) {
-            m_recentlyUsedCentersList->SetValue(center.asString());
+            m_recentlyUsedCentersList->SetValue(StringUtils::toString(center));
         }
 
         void RotateObjectsToolPage::createGui() {

@@ -627,7 +627,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::printPoints() const {
-            std::for_each(std::begin(m_points), std::end(m_points), [](const Vec3& p) { std::cout << "( " << p.asString(3) << " ) "; });
+            std::for_each(std::begin(m_points), std::end(m_points), [](const Vec3& p) { std::cout << "( " << p << " ) "; });
             std::cout << std::endl;
         }
 
@@ -640,9 +640,9 @@ namespace TrenchBroom {
             if (!setPlanePoints(m_boundary, m_points)) {
                 GeometryException e;
                 e << "Colinear face points: (" <<
-                m_points[0].asString() << ") (" <<
-                m_points[1].asString() << ") (" <<
-                m_points[2].asString() << ")";
+                m_points[0] << ") (" <<
+                m_points[1] << ") (" <<
+                m_points[2] << ")";
                 throw e;
             }
 
