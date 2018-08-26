@@ -84,12 +84,12 @@ public:
     max(i_max) {}
     
     BBox(const T i_minMax) :
-    min(Vec<T,S>::setAll(-i_minMax)),
-    max(Vec<T,S>::setAll(+i_minMax)) {}
+    min(Vec<T,S>::fill(-i_minMax)),
+    max(Vec<T,S>::fill(+i_minMax)) {}
     
     BBox(const T i_min, const T i_max) :
-    min(Vec<T,S>::setAll(i_min)),
-    max(Vec<T,S>::setAll(i_max)) {}
+    min(Vec<T,S>::fill(i_min)),
+    max(Vec<T,S>::fill(i_max)) {}
     
     BBox(const Vec<T,S>& center, const T size) {
         for (size_t i = 0; i < S; ++i) {

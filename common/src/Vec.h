@@ -144,7 +144,6 @@ public:
         
         return result;
     }
-
 private:
     static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
         static const std::string blank(" \t\n\r()");
@@ -348,22 +347,6 @@ public:
         }
         v[S-2] = static_cast<T>(lastButOne);
         v[S-1] = static_cast<T>(last);
-    }
-
-    /**
-     * Returns a new vector with all components set to the given value.
-     *
-     * @tparam U the type of the value to set
-     * @param value the value to set
-     * @return the newly created vector
-     */
-    template <typename U>
-    static Vec<T,S> setAll(const U value) {
-        Vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = static_cast<T>(value);
-        }
-        return result;
     }
 
     /**
