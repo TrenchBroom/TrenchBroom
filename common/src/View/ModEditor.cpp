@@ -67,15 +67,16 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_availableModList->GetSelections(selections);
-            if (selections.empty())
+            if (selections.empty()) {
                 return;
-            
-            MapDocumentSPtr document = lock(m_document);
+            }
 
-            StringList mods = document->mods();
+            auto document = lock(m_document);
+
+            auto mods = document->mods();
             for (size_t i = 0; i < selections.size(); ++i) {
-                const int index = selections[i] - static_cast<int>(i);
-                const wxString item = m_availableModList->GetString(static_cast<unsigned int>(index));
+                const auto index = selections[i] - static_cast<int>(i);
+                const auto item = m_availableModList->GetString(static_cast<unsigned int>(index));
                 m_availableModList->Delete(static_cast<unsigned int>(index));
                 m_enabledModList->Append(item);
 
@@ -93,17 +94,17 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_enabledModList->GetSelections(selections);
-            if (selections.empty())
+            if (selections.empty()) {
                 return;
-            
-            MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            }
+
+            auto document = lock(m_document);
+            auto mods = document->mods();
             std::sort(std::begin(selections), std::end(selections));
             
-            wxArrayInt::const_reverse_iterator it, end;
-            for (it = selections.rbegin(), end = selections.rend(); it != end; ++it) {
-                const size_t index = static_cast<size_t>(*it);
-                const String mod = mods[index];
+            for (auto it = selections.rbegin(), end = selections.rend(); it != end; ++it) {
+                const auto index = static_cast<size_t>(*it);
+                const auto mod = mods[index];
                 mods.erase(std::begin(mods) + *it);
             }
 
@@ -117,10 +118,10 @@ namespace TrenchBroom {
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
             
-            MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            auto document = lock(m_document);
+            auto mods = document->mods();
 
-            const size_t index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(selections.front());
             ensure(index > 0 && index < mods.size(), "index out of range");
             
             using std::swap;
@@ -138,10 +139,10 @@ namespace TrenchBroom {
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
             
-            MapDocumentSPtr document = lock(m_document);
-            StringList mods = document->mods();
+            auto document = lock(m_document);
+            auto mods = document->mods();
             
-            const size_t index = static_cast<size_t>(selections.front());
+            const auto index = static_cast<size_t>(selections.front());
             ensure(index < mods.size() - 1, "index out of range");
             
             using std::swap;
@@ -176,7 +177,7 @@ namespace TrenchBroom {
         void ModEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const int enabledModCount = static_cast<int>(m_enabledModList->GetCount());
+            const auto enabledModCount = static_cast<int>(m_enabledModList->GetCount());
             wxArrayInt selections;
             event.Enable(m_enabledModList->GetSelections(selections) == 1 && selections.front() < enabledModCount - 1);
         }
@@ -188,11 +189,11 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            TitledPanel* availableModContainer = new TitledPanel(this, "Available", false);
+            auto* availableModContainer = new TitledPanel(this, "Available", false);
             availableModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_availableModList = new wxListBox(availableModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            wxSizer* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* availableModContainerSizer = new wxBoxSizer(wxVERTICAL);
             availableModContainerSizer->Add(m_availableModList, wxSizerFlags().Expand().Proportion(1));
             availableModContainer->getPanel()->SetSizer(availableModContainerSizer);
             
@@ -200,25 +201,25 @@ namespace TrenchBroom {
             m_filterBox->SetToolTip("Filter the list of available mods");
             m_filterBox->SetFont(m_availableModList->GetFont());
             
-            wxSizer* filterBoxSizer = new wxBoxSizer(wxVERTICAL);
+            auto* filterBoxSizer = new wxBoxSizer(wxVERTICAL);
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             filterBoxSizer->Add(m_filterBox, wxSizerFlags().Expand());
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            TitledPanel* enabledModContainer = new TitledPanel(this, "Enabled", false);
+            auto* enabledModContainer = new TitledPanel(this, "Enabled", false);
             enabledModContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_enabledModList = new wxListBox(enabledModContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            wxSizer* enabledModContainerSizer = new wxBoxSizer(wxVERTICAL);
+            auto* enabledModContainerSizer = new wxBoxSizer(wxVERTICAL);
             enabledModContainerSizer->Add(m_enabledModList, wxSizerFlags().Expand().Proportion(1));
             enabledModContainer->getPanel()->SetSizer(enabledModContainerSizer);
 
-            wxWindow* addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
-            wxWindow* removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
-            wxWindow* moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
-            wxWindow* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
+            auto* addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
+            auto* removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
+            auto* moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
+            auto* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            auto* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addModsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->Add(removeModsButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
@@ -226,7 +227,7 @@ namespace TrenchBroom {
             buttonSizer->Add(moveModDownButton, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin));
             buttonSizer->AddStretchSpacer();
             
-            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
+            auto* sizer = new wxGridBagSizer(0, 0);
             sizer->Add(availableModContainer,                                   wxGBPosition(0, 0), wxDefaultSpan, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical),    wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
             sizer->Add(enabledModContainer,                                     wxGBPosition(0, 2), wxDefaultSpan, wxEXPAND);
@@ -256,24 +257,24 @@ namespace TrenchBroom {
         }
 
         void ModEditor::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ModEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &ModEditor::documentWasLoaded);
             document->modsDidChangeNotifier.addObserver(this, &ModEditor::modsDidChange);
             
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &ModEditor::preferenceDidChange);
         }
         
         void ModEditor::unbindObservers() {
             if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &ModEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &ModEditor::documentWasLoaded);
                 document->modsDidChangeNotifier.removeObserver(this, &ModEditor::modsDidChange);
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
+            auto& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &ModEditor::preferenceDidChange);
         }
         
@@ -293,7 +294,7 @@ namespace TrenchBroom {
         }
 
         void ModEditor::preferenceDidChange(const IO::Path& path) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (document->isGamePathPreference(path)) {
                 updateAvailableMods();
                 updateMods();
@@ -301,35 +302,39 @@ namespace TrenchBroom {
         }
 
         void ModEditor::updateAvailableMods() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             StringList availableMods = document->game()->availableMods();
             StringUtils::sortCaseInsensitive(availableMods);
 
             m_availableMods.clear();
             m_availableMods.reserve(availableMods.size());
-            for (size_t i = 0; i < availableMods.size(); ++i)
+            for (size_t i = 0; i < availableMods.size(); ++i) {
                 m_availableMods.push_back(availableMods[i]);
+            }
         }
 
         void ModEditor::updateMods() {
-            const String pattern = m_filterBox->GetValue().ToStdString();
+            const auto pattern = m_filterBox->GetValue().ToStdString();
             
-            MapDocumentSPtr document = lock(m_document);
-            StringList enabledMods = document->mods();
+            auto document = lock(m_document);
+            auto enabledMods = document->mods();
             
             wxArrayString availableModItems;
             for (size_t i = 0; i < m_availableMods.size(); ++i) {
-                const String& mod = m_availableMods[i];
+                const auto& mod = m_availableMods[i];
                 if (StringUtils::containsCaseInsensitive(mod, pattern) &&
-                    !VectorUtils::contains(enabledMods, mod))
+                    !VectorUtils::contains(enabledMods, mod)) {
                     availableModItems.Add(mod);
+                }
             }
 
             wxArrayString enabledModItems;
-            for (size_t i = 0; i < enabledMods.size(); ++i)
-                if (StringUtils::containsCaseInsensitive(enabledMods[i], pattern))
+            for (size_t i = 0; i < enabledMods.size(); ++i) {
+                if (StringUtils::containsCaseInsensitive(enabledMods[i], pattern)) {
                     enabledModItems.Add(enabledMods[i]);
-            
+                }
+            }
+
             m_availableModList->Set(availableModItems);
             m_enabledModList->Set(enabledModItems);
         }
