@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "BBox.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include "TestUtils.h"
 

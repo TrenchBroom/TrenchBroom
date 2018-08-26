@@ -19,8 +19,8 @@
 
 #include "RotateObjectsToolController.h"
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -156,12 +156,12 @@ namespace TrenchBroom {
             };
             
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-                const vec3 startAxis = normalize(m_start - m_center);
-                const vec3 endAxis = Quat3(m_axis, m_angle) * startAxis;
+                auto& prefs = PreferenceManager::instance();
+                const auto handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+                const auto startAxis = normalize(m_start - m_center);
+                const auto endAxis = Quat3(m_axis, m_angle) * startAxis;
                 
-                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, m_axis.firstComponent(), startAxis, endAxis));
+                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, firstComponent(m_axis), startAxis, endAxis));
             }
             
             void renderAngleText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

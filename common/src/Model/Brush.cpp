@@ -19,8 +19,8 @@
 
 #include "Brush.h"
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 
 #include "CollectionUtils.h"
 #include "Macros.h"

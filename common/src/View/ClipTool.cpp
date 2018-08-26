@@ -172,25 +172,28 @@ namespace TrenchBroom {
                 size_t counts[3];
                 counts[0] = counts[1] = counts[2] = 0;
                 
-                const vec3::List helpVectors = combineHelpVectors();
+                const auto helpVectors = combineHelpVectors();
                 for (size_t i = 0; i < std::min(m_numPoints, helpVectors.size()); ++i) {
-                    const Math::Axis::Type axis = helpVectors[i].firstComponent();
+                    const auto axis = firstComponent(helpVectors[i]);
                     counts[axis]++;
                 }
                 
-                if (counts[0] > counts[1] && counts[0] > counts[2])
+                if (counts[0] > counts[1] && counts[0] > counts[2]) {
                     return vec3::pos_x;
-                if (counts[1] > counts[0] && counts[1] > counts[2])
+                } else if (counts[1] > counts[0] && counts[1] > counts[2]) {
                     return vec3::pos_y;
-                if (counts[2] > counts[0] && counts[2] > counts[1])
+                } else if (counts[2] > counts[0] && counts[2] > counts[1]) {
                     return vec3::pos_z;
-
-                // two counts are equal
-                // prefer the Z axis if possible:
-                if (counts[2] == counts[0] || counts[2] == counts[1])
-                    return vec3::pos_z;
-                // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-                return vec3::pos_x;
+                } else {
+                    // two counts are equal
+                    // prefer the Z axis if possible:
+                    if (counts[2] == counts[0] || counts[2] == counts[1]) {
+                        return vec3::pos_z;
+                    } else {
+                        // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
+                        return vec3::pos_x;
+                    }
+                }
             }
             
             vec3::List combineHelpVectors() const {

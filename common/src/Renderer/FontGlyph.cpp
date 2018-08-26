@@ -20,8 +20,8 @@
 #include "FontGlyph.h"
 
 #include "vec_forward.h"
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 
 namespace TrenchBroom {
     namespace Renderer {

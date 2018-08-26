@@ -24,7 +24,7 @@
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include <algorithm>
 #include <array>

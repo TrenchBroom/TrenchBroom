@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "vec.h"
+#include "vec_type.h"
 #include "Plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"

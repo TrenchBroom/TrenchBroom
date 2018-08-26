@@ -146,11 +146,11 @@ namespace TrenchBroom {
         }
         
         Model::PickResult MapView2D::doPick(const Ray3& pickRay) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
-            const Math::Axis::Type axis = pickRay.direction.firstComponent();
+            auto document = lock(m_document);
+            const auto& editorContext = document->editorContext();
+            const auto axis = firstComponent(pickRay.direction);
             
-            Model::PickResult pickResult = Model::PickResult::bySize(editorContext, axis);
+            auto pickResult = Model::PickResult::bySize(editorContext, axis);
             document->pick(pickRay, pickResult);
             
             return pickResult;
@@ -259,17 +259,17 @@ namespace TrenchBroom {
         vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward:
-                    return m_camera.direction().firstAxis();
+                    return firstAxis(m_camera.direction());
                 case Math::Direction_Backward:
-                    return -m_camera.direction().firstAxis();
+                    return -firstAxis(m_camera.direction());
                 case Math::Direction_Left:
-                    return -m_camera.right().firstAxis();
+                    return -firstAxis(m_camera.right());
                 case Math::Direction_Right:
-                    return m_camera.right().firstAxis();
+                    return firstAxis(m_camera.right());
                 case Math::Direction_Up:
-                    return m_camera.up().firstAxis();
+                    return firstAxis(m_camera.up());
                 case Math::Direction_Down:
-                    return -m_camera.up().firstAxis();
+                    return -firstAxis(m_camera.up());
                 switchDefault()
             }
         }

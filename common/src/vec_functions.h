@@ -20,8 +20,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_vec_extras_h
 #define TrenchBroom_vec_extras_h
 
-#include "vec.h"
+#include "vec_type.h"
 
+#include <algorithm>
+#include <vector>
 
 /* ========== comparison operators ========== */
 
@@ -157,6 +159,183 @@ bool operator>(const vec<T,S>& lhs, const vec<T,S>& rhs) {
 template <typename T, size_t S>
 bool operator>=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) >= 0;
+}
+
+/* ========== accessing major component / axis ========== */
+
+/**
+ * Comparator for a selection heap which compares the values of vector components.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ */
+template <typename T, size_t S>
+class selection_heap_cmp {
+private:
+    const vec<T,S>& m_v;
+    bool m_abs;
+public:
+    selection_heap_cmp(const vec<T,S>& i_v, const bool abs) :
+            m_v(i_v),
+            m_abs(abs) {}
+
+    bool operator()(size_t lhs, size_t rhs) const {
+        assert(lhs < S);
+        assert(rhs < S);
+        if (m_abs)
+            return std::abs(m_v[lhs]) < std::abs(m_v[rhs]);
+        return m_v[lhs] < m_v[rhs];
+    }
+};
+
+/**
+ * Returns the index of the component with the k-highest absolute value. The k-highest component is the
+ * index of the component that receives index k if the components are sorted descendent by their absolute
+ * value.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @param k the value of k
+ * @return the index of the k-highest component
+ */
+template <typename T, size_t S>
+size_t majorComponent(const vec<T,S>& v, const size_t k) {
+    assert(k < S);
+
+    if (k == 0) {
+        size_t index = 0;
+        for (size_t i = 1; i < S; ++i) {
+            if (std::abs(v[i]) > std::abs(v[index]))
+                index = i;
+        }
+        return index;
+    }
+
+    // simple selection algorithm
+    // we store the indices of the values in heap
+    selection_heap_cmp<T,S> cmp(v, true);
+    std::vector<size_t> heap;
+    for (size_t i = 0; i < S; ++i) {
+        heap.push_back(i);
+        std::push_heap(std::begin(heap), std::end(heap), cmp);
+    }
+
+    std::sort_heap(std::begin(heap), std::end(heap), cmp);
+    return heap[S - k - 1];
+}
+
+/**
+ * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
+ * set to 0 except for the component that holds the k-largest value. The sign of the returned vector
+ * depends on the sign of the value of the k-largest component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @param k the k value
+ * @return the vector indicating the axis of the k-largest component.
+ */
+template <typename T, size_t S>
+vec<T,S> majorAxis(const vec<T,S>& v, const size_t k) {
+    const auto c = majorComponent(v, k);
+    auto a = vec<T,S>::axis(c);
+    if (v[c] < static_cast<T>(0.0)) {
+        return -a;
+    }
+    return a;
+}
+
+/**
+ * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
+ * set to 0 except for the compnent that holds the h-largest value. The sign of the returned vector is
+ * always positive.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @param k the k value
+ * @return the vector indicating the absolute axis of the k-largest component
+ */
+template <typename T, size_t S>
+vec<T,S> absMajorAxis(const vec<T,S>& v, const size_t k) {
+    const auto c = majorComponent(v, k);
+    return vec<T,S>::axis(c);
+}
+
+/**
+ * Returns the index of the largest component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @return the index of the largest component
+ */
+template <typename T, size_t S>
+size_t firstComponent(const vec<T,S>& v) {
+    return majorComponent(v, 0);
+}
+
+/**
+ * Returns the index of the second largest component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @return the index of the second largest component
+ */
+template <typename T, size_t S>
+size_t secondComponent(const vec<T,S>& v) {
+    return majorComponent(v, 1);
+}
+
+/**
+ * Returns the index of the third largest component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector
+ * @return the index of the third largest component
+ */
+template <typename T, size_t S>
+size_t thirdComponent(const vec<T,S>& v) {
+    return majorComponent(v, 2);
+}
+
+/**
+ * Returns the axis of the largest component.
+ *
+ * @tparam T the component type
+ * @param v the vector
+ * @return the axis of the largest component
+ */
+template <typename T>
+vec<T,3> firstAxis(const vec<T,3>& v) {
+    return majorAxis(v, 0);
+}
+
+/**
+ * Returns the axis of the second largest component.
+ *
+ * @tparam T the component type
+ * @param v the vector
+ * @return the axis of the second largest component
+ */
+template <typename T>
+vec<T,3> secondAxis(const vec<T,3>& v) {
+    return majorAxis(v, 1);
+}
+
+/**
+ * Returns the axis of the third largest component.
+ *
+ * @tparam T the component type
+ * @param v the vector
+ * @return the axis of the third largest component
+ */
+template <typename T>
+vec<T,3> thirdAxis(const vec<T,3>& v) {
+    return majorAxis(v, 2);
 }
 
 /* ========== arithmetic operators ========== */

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Line_h
 #define TrenchBroom_Line_h
 
-#include "vec.h"
+#include "vec_type.h"
 
 template <typename T, size_t S>
 class Line {

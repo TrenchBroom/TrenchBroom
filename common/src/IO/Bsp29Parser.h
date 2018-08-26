@@ -21,7 +21,7 @@
 #define TrenchBroom_Bsp29Parser
 
 #include "vec_forward.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include "StringUtils.h"
 #include "SharedPointer.h"

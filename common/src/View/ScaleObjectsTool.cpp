@@ -262,7 +262,7 @@ namespace TrenchBroom {
                 sideLengthDelta *= 2.0;
             }
 
-            const size_t axis = side.normal.firstComponent();
+            const size_t axis = firstComponent(side.normal);
             const FloatType inSideLenth = in.max[axis] - in.min[axis];
             const FloatType sideLength = inSideLenth + sideLengthDelta;
 
@@ -271,9 +271,9 @@ namespace TrenchBroom {
             }
 
             const vec3 n = side.normal;
-            const size_t axis1 = n.firstComponent();
-            const size_t axis2 = n.secondComponent();
-            const size_t axis3 = n.thirdComponent();
+            const size_t axis1 = firstComponent(n);
+            const size_t axis2 = secondComponent(n);
+            const size_t axis3 = thirdComponent(n);
 
             vec3 newSize = in.size();
 
@@ -357,7 +357,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const size_t nonMovingAxis = oldAnchorDist.thirdComponent();
+            const size_t nonMovingAxis = thirdComponent(oldAnchorDist);
 
             const vec3 corner1 = (anchorType == AnchorPos::Center)
                                  ? anchor - newAnchorDist
@@ -371,7 +371,7 @@ namespace TrenchBroom {
             // the only type of proportional scaling we support is optionally
             // scaling the nonMovingAxis.
             if (proportional.isAxisProportional(nonMovingAxis)) {
-                const size_t axis1 = oldAnchorDist.firstComponent();
+                const size_t axis1 = firstComponent(oldAnchorDist);
                 const FloatType ratio = result.size()[axis1] / in.size()[axis1];
 
                 result.min[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
@@ -697,7 +697,7 @@ namespace TrenchBroom {
                 // proportionally.
                 for (size_t i = 0; i < 3; ++i) {
                     // Don't highlight `side` or its opposite
-                    if (i == side.normal.firstComponent()) {
+                    if (i == firstComponent(side.normal)) {
                         continue;
                     }
 

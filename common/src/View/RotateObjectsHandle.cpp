@@ -53,8 +53,8 @@ namespace TrenchBroom {
             vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
-            Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
-            switch (camera.direction().firstComponent()) {
+            auto hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
+            switch (firstComponent(camera.direction())) {
                 case Math::Axis::AX:
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
                     break;
@@ -140,14 +140,14 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
             
-            renderService.setForegroundColor(pref(Preferences::axisColor(camera.direction().firstComponent())));
-            renderService.renderCircle(m_position, camera.direction().firstComponent(), 64, radius);
+            renderService.setForegroundColor(pref(Preferences::axisColor(firstComponent(camera.direction()))));
+            renderService.renderCircle(m_position, firstComponent(camera.direction()), 64, radius);
             
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderHandle(m_position);
             
             const vec3 viewDirection = camera.direction();
-            switch (viewDirection.firstComponent()) {
+            switch (firstComponent(viewDirection)) {
                 case Math::Axis::AX:
                 case Math::Axis::AZ:
                     renderService.renderHandle(vec3f(m_position) + radius * camera.right());

@@ -39,7 +39,7 @@ namespace TrenchBroom {
             const float h = float(viewport.height) / 2.0f;
 
             const vec3f& p = camera.position();
-            switch (camera.direction().firstComponent()) {
+            switch (firstComponent(camera.direction())) {
                 case Math::Axis::AX:
                     result[0] = Vertex(vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h));
                     result[1] = Vertex(vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h));

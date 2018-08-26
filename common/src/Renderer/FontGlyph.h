@@ -21,7 +21,7 @@
 #define TrenchBroom_FontGlyph
 
 #include "vec_forward.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include <vector>
 

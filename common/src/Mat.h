@@ -21,7 +21,7 @@
 #define TrenchBroom_Mat_h
 
 #include "Quat.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include <algorithm>
 #include <cassert>
@@ -684,7 +684,7 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const
     // and the Z axis is the projection direction
     vec<T,3> xAxis;
     
-    switch (normal.firstComponent()) {
+    switch (firstComponent(normal)) {
         case Math::Axis::AX:
             xAxis = normalize(cross(normal, vec<T, 3>::pos_z));
             break;

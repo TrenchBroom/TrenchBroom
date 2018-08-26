@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 #include "ParallelTexCoordSystem.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -207,7 +207,7 @@ namespace TrenchBroom {
             if (oldNormal == newNormal) {
                 return Mat4x4::Identity;
             } else if (oldNormal == -newNormal) {
-                const vec3 minorAxis = oldNormal.majorAxis(2);
+                const vec3 minorAxis = majorAxis(oldNormal, 2);
                 const vec3 axis = normalize(cross(oldNormal, minorAxis));
                 return rotationMatrix(axis, Math::C::pi());
             } else {
@@ -314,9 +314,7 @@ namespace TrenchBroom {
         }
 
         void ParallelTexCoordSystem::computeInitialAxes(const vec3& normal, vec3& xAxis, vec3& yAxis) const {
-            const Math::Axis::Type first = normal.firstComponent();
-            
-            switch (first) {
+            switch (firstComponent(normal)) {
                 case Math::Axis::AX:
                 case Math::Axis::AY:
                     xAxis = normalize(cross(vec3::pos_z, normal));

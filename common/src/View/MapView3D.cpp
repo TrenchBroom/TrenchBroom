@@ -338,7 +338,7 @@ namespace TrenchBroom {
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
                     const vec3 point = grid.snap(m_camera.defaultPoint(pickRay));
-                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -vec3(m_camera.direction().firstAxis()));
+                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -vec3(firstAxis(m_camera.direction())));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
@@ -510,19 +510,19 @@ namespace TrenchBroom {
                     if (isNull(projectedDirection)) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
-                            return m_camera.up().firstAxis();
+                            return firstAxis(m_camera.up());
                         } else {
-                            return -m_camera.up().firstAxis();
+                            return -firstAxis(m_camera.up());
                         }
                     }
-                    return projectedDirection.firstAxis();
+                    return firstAxis(projectedDirection);
                 }
                 case Math::Direction_Backward:
                     return -doGetMoveDirection(Math::Direction_Forward);
                 case Math::Direction_Left:
                     return -doGetMoveDirection(Math::Direction_Right);
                 case Math::Direction_Right: {
-                    vec3 dir = m_camera.right().firstAxis();
+                    vec3 dir = firstAxis(m_camera.right());
                     if (dir == doGetMoveDirection(Math::Direction_Forward))
                         dir = cross(dir, vec3::pos_z);
                     return dir;

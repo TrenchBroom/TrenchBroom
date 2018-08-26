@@ -197,7 +197,7 @@ namespace TrenchBroom {
             vec<T,S> snap(const vec<T,S>& p, const Plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
                 
                 vec<T,3> result;
-                switch(onPlane.normal.firstComponent()) {
+                switch(firstComponent(onPlane.normal)) {
                     case Math::Axis::AX:
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);

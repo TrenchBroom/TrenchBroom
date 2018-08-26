@@ -21,7 +21,7 @@
 #define TrenchBroom_Algorithms_h
 
 #include "CoordinatePlane.h"
-#include "vec.h"
+#include "vec_type.h"
 #include "Plane.h"
 #include "Ray.h"
 
@@ -83,12 +83,12 @@ bool polygonContainsPoint(const vec<T,3>& point, I cur, I end, const F& getPosit
     std::tie(result, normal) = planeNormal(p1, p2, p3);
     assert(result);
 
-    return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
+    return polygonContainsPoint(point, firstComponent(normal), cur, end, getPosition);
 }
 
 template <typename T, typename I, typename F = Identity>
 bool polygonContainsPoint(const vec<T,3>& point, const vec<T,3>& normal, I cur, I end, const F& getPosition = F()) {
-    return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
+    return polygonContainsPoint(point, firstComponent(normal), cur, end, getPosition);
 }
 
 template <typename T, typename I, typename F = Identity>
@@ -257,19 +257,21 @@ public:
 private:
     size_t findLinearlyIndependentPoint() const {
         size_t index = 2;
-        while (index < m_points.size() && colinear(m_points[0], m_points[1], m_points[index]))
+        while (index < m_points.size() && colinear(m_points[0], m_points[1], m_points[index])) {
             ++index;
+        }
         return index;
     }
     
     Math::Axis::Type computeAxis(const size_t thirdPointIndex) const {
         const vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
-        return ortho.firstComponent();
+        return firstComponent(ortho);
     }
     
     void swizzleTo(const Math::Axis::Type axis) {
-        for (size_t i = 0; i < m_points.size(); ++i)
+        for (size_t i = 0; i < m_points.size(); ++i) {
             m_points[i] = swizzle(m_points[i], axis);
+        }
     }
     
     void swizzleFrom(const Math::Axis::Type axis) {
@@ -282,8 +284,9 @@ private:
         for (size_t i = 1; i < m_points.size(); ++i) {
             if ((m_points[i].y() < m_points[anchor].y()) ||
                 (m_points[i].y() == m_points[anchor].y() &&
-                 m_points[i].x() >  m_points[anchor].x()))
+                 m_points[i].x() >  m_points[anchor].x())) {
                 anchor = i;
+            }
         }
         
         if (anchor > 0) {
@@ -302,10 +305,11 @@ private:
             const vec<T,3>& p1 = *(i++);
             while (i != std::end(m_points)) {
                 const vec<T,3>& p2 = *i;
-                if (isLeft(anchor, p1, p2) == 0)
+                if (isLeft(anchor, p1, p2) == 0) {
                     i = m_points.erase(i);
-                else
+                } else {
                     break;
+                }
             };
         }
     }

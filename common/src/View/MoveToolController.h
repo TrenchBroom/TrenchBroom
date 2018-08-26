@@ -200,26 +200,26 @@ namespace TrenchBroom {
             virtual void doCancelMove() = 0;
             
             virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
+                const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
                     return new PlaneDragRestricter(Plane3(curPoint, vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(Plane3(curPoint, vec3(camera.direction().firstAxis())));
+                    return new PlaneDragRestricter(Plane3(curPoint, vec3(firstAxis(camera.direction()))));
                 }
             }
             
             virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const vec3& curPoint) const {
-                const Renderer::Camera& camera = inputState.camera();
+                const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
                     return new LineDragRestricter(Line3(curPoint, vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(Plane3(curPoint, vec3(camera.direction().firstAxis())));
+                    return new PlaneDragRestricter(Plane3(curPoint, vec3(firstAxis(camera.direction()))));
                 }
             }
             
             virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vec3& initialPoint, const vec3& curPoint) const {
-                const vec3 delta = curPoint - initialPoint;
-                const vec3 axis = delta.firstAxis();
+                const auto delta = curPoint - initialPoint;
+                const auto axis = firstAxis(delta);
                 return new LineDragRestricter(Line3(initialPoint, axis));
             }
             

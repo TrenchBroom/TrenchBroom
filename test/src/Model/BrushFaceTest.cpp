@@ -546,7 +546,7 @@ namespace TrenchBroom {
             // find the faces
             BrushFace* negXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (face->boundary().normal.firstAxis() == vec3::neg_x) {
+                if (firstAxis(face->boundary().normal) == vec3::neg_x) {
                     ASSERT_EQ(negXFace, nullptr);
                     negXFace = face;
                 }
@@ -603,10 +603,10 @@ namespace TrenchBroom {
             BrushFace* negYFace = nullptr;
             BrushFace* posXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (face->boundary().normal.firstAxis() == vec3::neg_y) {
+                if (firstAxis(face->boundary().normal) == vec3::neg_y) {
                     ASSERT_EQ(negYFace, nullptr);
                     negYFace = face;
-                } else if (face->boundary().normal.firstAxis() == vec3::pos_x) {
+                } else if (firstAxis(face->boundary().normal) == vec3::pos_x) {
                     ASSERT_EQ(posXFace, nullptr);
                     posXFace = face;
                 }

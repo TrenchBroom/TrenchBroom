@@ -243,7 +243,7 @@ namespace TrenchBroom {
             /**
              * Scalar projection of normDelta onto the nearest axial normal vector.
              */
-            const FloatType normDeltaScalarProj = dot(normDelta, normDelta.firstAxis());
+            const FloatType normDeltaScalarProj = dot(normDelta, firstAxis(normDelta));
             
             size_t gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
             if (gridSkip > 0)

@@ -182,8 +182,7 @@ namespace TrenchBroom {
             
             if (m_renderContext.render2D()) {
                 const Camera& camera = m_renderContext.camera();
-                const Math::Axis::Type axis = camera.direction().firstComponent();
-                switch (axis) {
+                switch (firstComponent(camera.direction())) {
                     case Math::Axis::AX:
                         m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;

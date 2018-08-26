@@ -240,7 +240,7 @@ namespace TrenchBroom {
             Callback(tool) {}
             
             DragRestricter* createDragRestricter(const InputState& inputState, const vec3& initialPoint) const override {
-                return new PlaneDragRestricter(Plane3(initialPoint, inputState.camera().direction().firstAxis()));
+                return new PlaneDragRestricter(Plane3(initialPoint, firstAxis(inputState.camera().direction())));
             }
             
             DragSnapper* createDragSnapper(const InputState& inputState) const override {
@@ -253,7 +253,7 @@ namespace TrenchBroom {
 
             bool doGetNewClipPointPosition(const InputState& inputState, vec3& position) const override {
                 const Renderer::Camera& camera = inputState.camera();
-                const vec3 viewDir = camera.direction().firstAxis();
+                const vec3 viewDir = firstAxis(camera.direction());
                 
                 const Ray3& pickRay = inputState.pickRay();
                 const vec3 defaultPos = m_tool->defaultClipPointPos();
@@ -280,7 +280,7 @@ namespace TrenchBroom {
             vec3::List result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
                 const vec3& normal = incidentFace->boundary().normal;
-                result.push_back(normal.firstAxis());
+                result.push_back(firstAxis(normal));
             }
             
             return result;

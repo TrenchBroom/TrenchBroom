@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Vertex, typename Polyhedron<T,FP,VP>::GetVertexLink>::Link& Polyhedron<T,FP,VP>::GetVertexLink::operator()(Vertex* vertex) const {

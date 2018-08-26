@@ -275,7 +275,7 @@ namespace TrenchBroom {
             const vec3f rightUnnormalized = cross(m_direction, up);
             if (isNull(rightUnnormalized)) {
                 // `direction` and `up` were colinear.
-                const auto axis = m_direction.thirdAxis();
+                const auto axis = thirdAxis(m_direction);
                 m_right = normalize(cross(m_direction, axis));
             } else {
                 m_right = normalize(rightUnnormalized);

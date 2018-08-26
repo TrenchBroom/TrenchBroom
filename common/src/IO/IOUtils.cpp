@@ -19,7 +19,7 @@
 
 #include "IOUtils.h"
 
-#include "vec.h"
+#include "vec_type.h"
 
 #include "IO/Path.h"
 

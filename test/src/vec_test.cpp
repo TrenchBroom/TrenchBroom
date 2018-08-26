@@ -19,8 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
@@ -244,42 +244,42 @@ TEST(VecTest, vec3fFill) {
 }
 
 TEST(VecTest, vec3fMajorComponent) {
-    ASSERT_EQ(Math::Axis::AX, vec3f::pos_x.majorComponent(0));
-    ASSERT_EQ(Math::Axis::AX, vec3f::neg_x.majorComponent(0));
-    ASSERT_EQ(Math::Axis::AY, vec3f::pos_y.majorComponent(0));
-    ASSERT_EQ(Math::Axis::AY, vec3f::neg_y.majorComponent(0));
-    ASSERT_EQ(Math::Axis::AZ, vec3f::pos_z.majorComponent(0));
-    ASSERT_EQ(Math::Axis::AZ, vec3f::neg_z.majorComponent(0));
+    ASSERT_EQ(Math::Axis::AX, majorComponent(vec3f::pos_x, 0));
+    ASSERT_EQ(Math::Axis::AX, majorComponent(vec3f::neg_x, 0));
+    ASSERT_EQ(Math::Axis::AY, majorComponent(vec3f::pos_y, 0));
+    ASSERT_EQ(Math::Axis::AY, majorComponent(vec3f::neg_y, 0));
+    ASSERT_EQ(Math::Axis::AZ, majorComponent(vec3f::pos_z, 0));
+    ASSERT_EQ(Math::Axis::AZ, majorComponent(vec3f::neg_z, 0));
     
-    ASSERT_EQ(Math::Axis::AX, vec3f(3.0f, -1.0f, 2.0f).majorComponent(0));
-    ASSERT_EQ(Math::Axis::AZ, vec3f(3.0f, -1.0f, 2.0f).majorComponent(1));
-    ASSERT_EQ(Math::Axis::AY, vec3f(3.0f, -1.0f, 2.0f).majorComponent(2));
+    ASSERT_EQ(Math::Axis::AX, majorComponent(vec3f(3.0f, -1.0f, 2.0f), 0));
+    ASSERT_EQ(Math::Axis::AZ, majorComponent(vec3f(3.0f, -1.0f, 2.0f), 1));
+    ASSERT_EQ(Math::Axis::AY, majorComponent(vec3f(3.0f, -1.0f, 2.0f), 2));
 }
 
 TEST(VecTest, vec3fMajorAxis) {
-    ASSERT_EQ(vec3f::pos_x, vec3f::pos_x.majorAxis(0));
-    ASSERT_EQ(vec3f::neg_x, vec3f::neg_x.majorAxis(0));
-    ASSERT_EQ(vec3f::pos_y, vec3f::pos_y.majorAxis(0));
-    ASSERT_EQ(vec3f::neg_y, vec3f::neg_y.majorAxis(0));
-    ASSERT_EQ(vec3f::pos_z, vec3f::pos_z.majorAxis(0));
-    ASSERT_EQ(vec3f::neg_z, vec3f::neg_z.majorAxis(0));
+    ASSERT_EQ(vec3f::pos_x, majorAxis(vec3f::pos_x, 0));
+    ASSERT_EQ(vec3f::neg_x, majorAxis(vec3f::neg_x, 0));
+    ASSERT_EQ(vec3f::pos_y, majorAxis(vec3f::pos_y, 0));
+    ASSERT_EQ(vec3f::neg_y, majorAxis(vec3f::neg_y, 0));
+    ASSERT_EQ(vec3f::pos_z, majorAxis(vec3f::pos_z, 0));
+    ASSERT_EQ(vec3f::neg_z, majorAxis(vec3f::neg_z, 0));
 
-    ASSERT_EQ(vec3f::pos_x, vec3f(3.0f, -1.0f, 2.0f).majorAxis(0));
-    ASSERT_EQ(vec3f::pos_z, vec3f(3.0f, -1.0f, 2.0f).majorAxis(1));
-    ASSERT_EQ(vec3f::neg_y, vec3f(3.0f, -1.0f, 2.0f).majorAxis(2));
+    ASSERT_EQ(vec3f::pos_x, majorAxis(vec3f(3.0f, -1.0f, 2.0f), 0));
+    ASSERT_EQ(vec3f::pos_z, majorAxis(vec3f(3.0f, -1.0f, 2.0f), 1));
+    ASSERT_EQ(vec3f::neg_y, majorAxis(vec3f(3.0f, -1.0f, 2.0f), 2));
 }
 
 TEST(VecTest, vec3fAbsMajorAxis) {
-    ASSERT_EQ(vec3f::pos_x, vec3f::pos_x.absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_x, vec3f::neg_x.absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_y, vec3f::pos_y.absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_y, vec3f::neg_y.absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_z, vec3f::pos_z.absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_z, vec3f::neg_z.absMajorAxis(0));
+    ASSERT_EQ(vec3f::pos_x, absMajorAxis(vec3f::pos_x, 0));
+    ASSERT_EQ(vec3f::pos_x, absMajorAxis(vec3f::neg_x, 0));
+    ASSERT_EQ(vec3f::pos_y, absMajorAxis(vec3f::pos_y, 0));
+    ASSERT_EQ(vec3f::pos_y, absMajorAxis(vec3f::neg_y, 0));
+    ASSERT_EQ(vec3f::pos_z, absMajorAxis(vec3f::pos_z, 0));
+    ASSERT_EQ(vec3f::pos_z, absMajorAxis(vec3f::neg_z, 0));
     
-    ASSERT_EQ(vec3f::pos_x, vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(0));
-    ASSERT_EQ(vec3f::pos_z, vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(1));
-    ASSERT_EQ(vec3f::pos_y, vec3f(3.0f, -1.0f, 2.0f).absMajorAxis(2));
+    ASSERT_EQ(vec3f::pos_x, absMajorAxis(vec3f(3.0f, -1.0f, 2.0f), 0));
+    ASSERT_EQ(vec3f::pos_z, absMajorAxis(vec3f(3.0f, -1.0f, 2.0f), 1));
+    ASSERT_EQ(vec3f::pos_y, absMajorAxis(vec3f(3.0f, -1.0f, 2.0f), 2));
 }
 
 TEST(VecTest, multiplyScalarWithVec3f) {

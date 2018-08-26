@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
                     // special case for 2D: don't scale along the axis of the camera
-                    const size_t cameraComponent = camera.direction().firstComponent();
+                    const size_t cameraComponent = firstComponent(camera.direction());
                     scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
             }

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "vec.h"
+#include "vec_type.h"
 #include "Plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
@@ -303,5 +303,5 @@ TEST(PlaneTest, alignedOrthogonalDragPlane) {
     const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
     const Plane3f p = alignedOrthogonalDragPlane(position, direction);
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
-    ASSERT_VEC_EQ(direction.firstAxis(), p.normal);
+    ASSERT_VEC_EQ(firstAxis(direction), p.normal);
 }

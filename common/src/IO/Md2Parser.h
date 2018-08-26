@@ -21,7 +21,7 @@
 #define TrenchBroom_Md2Parser
 
 #include "vec_forward.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"

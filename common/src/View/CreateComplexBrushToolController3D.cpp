@@ -101,22 +101,22 @@ namespace TrenchBroom {
             bool doCancel() override { return false; }
         private:
             void updatePolyhedron(const vec3& current) {
-                const Grid& grid = m_tool->grid();
+                const auto& grid = m_tool->grid();
                 
-                const Math::Axis::Type axis = m_plane.normal.firstComponent();
+                const auto axis = firstComponent(m_plane.normal);
                 const Plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
-                const vec3 theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
-                const vec3 theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
+                const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
+                const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
                 
                 const Vec2     topLeft2(theMin.x(), theMin.y());
                 const Vec2    topRight2(theMax.x(), theMin.y());
                 const Vec2  bottomLeft2(theMin.x(), theMax.y());
                 const Vec2 bottomRight2(theMax.x(), theMax.y());
                 
-                const vec3     topLeft3 = unswizzle(vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
-                const vec3    topRight3 = unswizzle(vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
-                const vec3  bottomLeft3 = unswizzle(vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
-                const vec3 bottomRight3 = unswizzle(vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
+                const auto     topLeft3 = unswizzle(vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
+                const auto    topRight3 = unswizzle(vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
+                const auto  bottomLeft3 = unswizzle(vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
+                const auto bottomRight3 = unswizzle(vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
                 
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 polyhedron.addPoint(topLeft3);
@@ -159,20 +159,20 @@ namespace TrenchBroom {
             }
             
             DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
-                Polyhedron3 polyhedron = m_oldPolyhedron;
+                auto polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
-                const Grid& grid = m_tool->grid();
+                const auto& grid = m_tool->grid();
                 
-                const vec3 rayDelta             = nextHandlePosition - initialHandlePosition();
-                const vec3 rayAxis              = m_dragDir.firstAxis();
-                const FloatType axisDistance    = dot(rayDelta, rayAxis);
-                const FloatType snappedDistance = grid.snap(axisDistance);
-                const FloatType snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
-                const vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
+                const auto rayDelta        = nextHandlePosition - initialHandlePosition();
+                const auto rayAxis         = firstAxis(m_dragDir);
+                const auto axisDistance    = dot(rayDelta, rayAxis);
+                const auto snappedDistance = grid.snap(axisDistance);
+                const auto snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
+                const auto snappedRayDelta = snappedRayDist * m_dragDir;
                 
-                const Polyhedron3::Face* face = m_oldPolyhedron.faces().front();
-                const vec3::List points = face->vertexPositions() + snappedRayDelta;
+                const auto* face = m_oldPolyhedron.faces().front();
+                const auto points = face->vertexPositions() + snappedRayDelta;
                 
                 polyhedron.addPoints(points);
                 m_tool->update(polyhedron);

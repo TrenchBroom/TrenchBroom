@@ -21,7 +21,7 @@
 #define TrenchBroom_Quat_h
 
 #include "MathUtils.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include <cassert>
 

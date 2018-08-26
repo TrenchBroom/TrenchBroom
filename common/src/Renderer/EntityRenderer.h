@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityRenderer
 
 #include "vec_forward.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include "AttrString.h"
 #include "Color.h"

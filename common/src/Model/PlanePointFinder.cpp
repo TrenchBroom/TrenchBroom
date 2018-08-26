@@ -19,8 +19,8 @@
 
 #include "PlanePointFinder.h"
 
-#include "vec.h"
-#include "vec_extras.h"
+#include "vec_type.h"
+#include "vec_functions.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         FloatType computePlaneFrequency(const Plane3& plane) {
             static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
-            const vec3& axis = plane.normal.firstAxis();
+            const vec3& axis = firstAxis(plane.normal);
             const FloatType cos = dot(plane.normal, axis);
             assert(cos != 0.0);
             
@@ -132,8 +132,7 @@ namespace TrenchBroom {
         
         void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
-            const Math::Axis::Type axis = plane.normal.firstComponent();
-            switch (axis) {
+            switch (firstComponent(plane.normal)) {
                 case Math::Axis::AX:
                     if (plane.normal.x() > 0.0) {
                         points[1] = points[0] + 64.0 * vec3::pos_z;
@@ -178,7 +177,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            const Math::Axis::Type axis = plane.normal.firstComponent();
+            const Math::Axis::Type axis = firstComponent(plane.normal);
             const Plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i)
                 points[i] = swizzle(points[i], axis);

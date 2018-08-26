@@ -21,7 +21,7 @@
 
 #include "Mat.h"
 #include "Quat.h"
-#include "vec.h"
+#include "vec_type.h"
 #include "TrenchBroom.h"
 #include "TestUtils.h"
 

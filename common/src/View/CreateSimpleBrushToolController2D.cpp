@@ -41,26 +41,31 @@ namespace TrenchBroom {
         }
         
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController2D::doStartDrag(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+            }
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                 return DragInfo();
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection())
+            }
+
+            auto document = lock(m_document);
+            if (document->hasSelection()) {
                 return DragInfo();
+            }
+
+            const auto& bounds = document->referenceBounds();
+            const auto& camera = inputState.camera();
+            const Plane3 plane(bounds.min, firstAxis(camera.direction()));
             
-            const BBox3& bounds = document->referenceBounds();
-            const Renderer::Camera& camera = inputState.camera();
-            const Plane3 plane(bounds.min, camera.direction().firstAxis());
-            
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            const auto distance = plane.intersectWithRay(inputState.pickRay());
+            if (Math::isnan(distance)) {
                 return DragInfo();
-            
+            }
+
             m_initialPoint = inputState.pickRay().pointAtDistance(distance);
-            if (updateBounds(inputState, m_initialPoint))
+            if (updateBounds(inputState, m_initialPoint)) {
                 m_tool->refreshViews();
+            }
 
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
@@ -111,14 +116,14 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, BBox3& bounds) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
             
-            const Renderer::Camera& camera = inputState.camera();
-            const BBox3& refBounds = document->referenceBounds();
-            bounds.mix(refBounds, abs(camera.direction().firstAxis()));
+            const auto& camera = inputState.camera();
+            const auto& refBounds = document->referenceBounds();
+            bounds.mix(refBounds, abs(firstAxis(camera.direction())));
         }
     }
 }

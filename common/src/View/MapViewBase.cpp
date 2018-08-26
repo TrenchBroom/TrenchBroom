@@ -807,7 +807,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doFlipObjects(const Math::Direction direction) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
@@ -818,8 +818,8 @@ namespace TrenchBroom {
             Grid halfGrid(document->grid().size());
             halfGrid.decSize();
             
-            const vec3 center = halfGrid.referencePoint(document->selectionBounds());
-            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
+            const auto center = halfGrid.referencePoint(document->selectionBounds());
+            const auto axis = firstComponent(moveDirection(direction));
             
             document->flipObjects(center, axis);
         }

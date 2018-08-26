@@ -20,8 +20,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_Plane_h
 #define TrenchBroom_Plane_h
 
-#include "vec.h"
-#include "vec_extras.h" // TODO 2201: remove this when free functions were moved to separate plane_extras.h
+#include "vec_type.h"
+#include "vec_functions.h" // TODO 2201: remove this when free functions were moved to separate plane_extras.h
 #include "Line.h"
 #include "MathUtils.h"
 #include "Mat.h"
@@ -350,9 +350,11 @@ Plane<T,3> horizontalDragPlane(const vec<T,3>& position) {
 
 template <typename T>
 Plane<T,3> verticalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
-    if (direction.firstComponent() != Math::Axis::AZ)
-        return Plane<T,3>(position, direction.firstAxis());
-    return Plane<T,3>(position, direction.secondAxis());
+    if (firstComponent(direction) != Math::Axis::AZ) {
+        return Plane<T,3>(position, firstAxis(direction));
+    } else {
+        return Plane<T, 3>(position, secondAxis(direction));
+    }
 }
 
 template <typename T>
@@ -362,7 +364,7 @@ Plane<T,3> orthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& directi
 
 template <typename T>
 Plane<T,3> alignedOrthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
-    return Plane<T,3>(position, direction.firstAxis());
+    return Plane<T,3>(position, firstAxis(direction));
 }
 
 template <typename T>

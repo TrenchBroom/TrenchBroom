@@ -21,7 +21,7 @@
 #define TrenchBroom_MdlParser
 
 #include "vec_forward.h"
-#include "vec.h"
+#include "vec_type.h"
 
 #include "StringUtils.h"
 #include "ByteBuffer.h"
