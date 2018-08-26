@@ -19,7 +19,7 @@
 
 #include "ParaxialTexCoordSystem.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 
 #include "Assets/Texture.h"
@@ -27,26 +27,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Vec3 ParaxialTexCoordSystem::BaseAxes[] = {
-            Vec3( 0.0,  0.0,  1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
-            Vec3( 0.0,  0.0, -1.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0, -1.0,  0.0),
-            Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3(-1.0,  0.0,  0.0), Vec3( 0.0,  1.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3( 0.0,  1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
-            Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
+        const vec3 ParaxialTexCoordSystem::BaseAxes[] = {
+            vec3( 0.0,  0.0,  1.0), vec3( 1.0,  0.0,  0.0), vec3( 0.0, -1.0,  0.0),
+            vec3( 0.0,  0.0, -1.0), vec3( 1.0,  0.0,  0.0), vec3( 0.0, -1.0,  0.0),
+            vec3( 1.0,  0.0,  0.0), vec3( 0.0,  1.0,  0.0), vec3( 0.0,  0.0, -1.0),
+            vec3(-1.0,  0.0,  0.0), vec3( 0.0,  1.0,  0.0), vec3( 0.0,  0.0, -1.0),
+            vec3( 0.0,  1.0,  0.0), vec3( 1.0,  0.0,  0.0), vec3( 0.0,  0.0, -1.0),
+            vec3( 0.0, -1.0,  0.0), vec3( 1.0,  0.0,  0.0), vec3( 0.0,  0.0, -1.0),
         };
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) :
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs) :
         m_index(0) {
             resetCache(point0, point1, point2, attribs);
         }
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal, const BrushFaceAttributes& attribs) :
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const vec3& normal, const BrushFaceAttributes& attribs) :
         m_index(0) {
             setRotation(normal, 0.0f, attribs.rotation());
         }
         
-        size_t ParaxialTexCoordSystem::planeNormalIndex(const Vec3& normal) {
+        size_t ParaxialTexCoordSystem::planeNormalIndex(const vec3& normal) {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
@@ -59,18 +59,18 @@ namespace TrenchBroom {
             return bestIndex;
         }
         
-        void ParaxialTexCoordSystem::axes(const size_t index, Vec3& xAxis, Vec3& yAxis) {
-            Vec3 temp;
+        void ParaxialTexCoordSystem::axes(const size_t index, vec3& xAxis, vec3& yAxis) {
+            vec3 temp;
             axes(index, xAxis, yAxis, temp);
         }
         
-        void ParaxialTexCoordSystem::axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis) {
+        void ParaxialTexCoordSystem::axes(size_t index, vec3& xAxis, vec3& yAxis, vec3& projectionAxis) {
             xAxis = BaseAxes[index * 3 + 1];
             yAxis = BaseAxes[index * 3 + 2];
             projectionAxis = BaseAxes[(index / 2) * 6];
         }
         
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const size_t index, const Vec3& xAxis, const Vec3& yAxis) :
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const size_t index, const vec3& xAxis, const vec3& yAxis) :
         m_index(index),
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
@@ -87,46 +87,46 @@ namespace TrenchBroom {
             ensure(false, "unsupported");
         }
 
-        Vec3 ParaxialTexCoordSystem::getXAxis() const {
+        vec3 ParaxialTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
         
-        Vec3 ParaxialTexCoordSystem::getYAxis() const {
+        vec3 ParaxialTexCoordSystem::getYAxis() const {
             return m_yAxis;
         }
         
-        Vec3 ParaxialTexCoordSystem::getZAxis() const {
+        vec3 ParaxialTexCoordSystem::getZAxis() const {
             return BaseAxes[m_index * 3 + 0];
         }
 
-        void ParaxialTexCoordSystem::doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) {
-            const Vec3 normal = normalize(cross(point2 - point0, point1 - point0));
+        void ParaxialTexCoordSystem::doResetCache(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs) {
+            const vec3 normal = normalize(cross(point2 - point0, point1 - point0));
             setRotation(normal, 0.0f, attribs.rotation());
         }
 
-        void ParaxialTexCoordSystem::doResetTextureAxes(const Vec3& normal) {}
-        void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const Vec3& normal, const float angle) {}
-        void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const Vec3& normal, const float angle) {}
+        void ParaxialTexCoordSystem::doResetTextureAxes(const vec3& normal) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const vec3& normal, const float angle) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const vec3& normal, const float angle) {}
 
-        bool ParaxialTexCoordSystem::isRotationInverted(const Vec3& normal) const {
+        bool ParaxialTexCoordSystem::isRotationInverted(const vec3& normal) const {
             const size_t index = planeNormalIndex(normal);
             return index % 2 == 0;
         }
 
-        Vec2f ParaxialTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const {
+        vec2f ParaxialTexCoordSystem::doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
-        void ParaxialTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
+        void ParaxialTexCoordSystem::doSetRotation(const vec3& normal, const float oldAngle, const float newAngle) {
             m_index = planeNormalIndex(normal);
             axes(m_index, m_xAxis, m_yAxis);
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
-            const Vec3 offset     = transformation * Vec3::Null;
-            const Vec3& oldNormal = oldBoundary.normal;
-                  Vec3 newNormal  = newBoundary.normal;
+        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
+            const vec3 offset     = transformation * vec3::zero;
+            const vec3& oldNormal = oldBoundary.normal;
+                  vec3 newNormal  = newBoundary.normal;
             assert(isUnit(newNormal));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
@@ -140,36 +140,36 @@ namespace TrenchBroom {
             }
             
             // calculate the current texture coordinates of the origin
-            const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
+            const vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
             // project the texture axes onto the boundary plane along the texture Z axis
             const Vec2 scale(attribs.scale());
-            const Vec3 boundaryOffset     = oldBoundary.projectPoint(Vec3::Null, getZAxis());
-            const Vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
-            const Vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
+            const vec3 boundaryOffset     = oldBoundary.projectPoint(vec3::zero, getZAxis());
+            const vec3 oldXAxisOnBoundary = oldBoundary.projectPoint(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
+            const vec3 oldYAxisOnBoundary = oldBoundary.projectPoint(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
 
             // transform the projected texture axes and compensate the translational component
-            const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
-            const Vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
+            const vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
+            const vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
             
-            const Vec2f textureSize = attribs.textureSize();
+            const vec2f textureSize = attribs.textureSize();
             const bool preferX = textureSize.x() >= textureSize.y();
 
             // obtain the new texture plane norm and the new base texture axes
-            Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
+            vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
 
             const Plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
-            const Vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
-            const Vec3 projectedTransformedYAxis = newTexturePlane.projectPoint(transformedYAxis);
+            const vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
+            const vec3 projectedTransformedYAxis = newTexturePlane.projectPoint(transformedYAxis);
             assert(!isNaN(projectedTransformedXAxis) &&
                    !isNaN(projectedTransformedYAxis));
 
-            const Vec3 normalizedXAxis = normalize(projectedTransformedXAxis);
-            const Vec3 normalizedYAxis = normalize(projectedTransformedYAxis);
+            const vec3 normalizedXAxis = normalize(projectedTransformedXAxis);
+            const vec3 normalizedYAxis = normalize(projectedTransformedYAxis);
             
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
             float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            Vec2f newScale = correct(Vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
+            vec2f newScale = correct(vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
 
             // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
             if (dot(m_xAxis, normalizedXAxis) < 0.0)
@@ -207,14 +207,14 @@ namespace TrenchBroom {
                 newScale[1] *= -1.0f;
             
             // compute the parameters of the transformed texture coordinate system
-            const Vec3 newInvariant = transformation * oldInvariant;
+            const vec3 newInvariant = transformation * oldInvariant;
 
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
+            const vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordiknates of the center
-            const Vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
+            const vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
@@ -227,30 +227,30 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithProjection(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) {
             setRotation(newNormal, attribs.rotation(), attribs.rotation());
         }
 
-        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
+        void ParaxialTexCoordSystem::doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) {
             // not supported; fall back to doUpdateNormalWithProjection
             doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
         }
         
-        void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
+        void ParaxialTexCoordSystem::doShearTexture(const vec3& normal, const vec2f& factors) {
             // not supported
         }
 
-        float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
-            const Vec3& zAxis = Vec3::PosZ; //m_index == 5 ? Vec3::NegZ : 	Vec3::PosZ;
+        float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
+            const vec3& zAxis = vec3::pos_z; //m_index == 5 ? vec3::neg_z : 	vec3::pos_z;
             const Quat3 rot(zAxis, -Math::radians(currentAngle));
-            const Vec3 vec = rot * (point - center);
+            const vec3 vec = rot * (point - center);
 
-            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), Vec3::PosX, zAxis);
+            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), vec3::pos_x, zAxis);
             return static_cast<float>(Math::degrees(angleInRadians));
         }
 
-        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
-            const Vec3 rotAxis = cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
+        void ParaxialTexCoordSystem::rotateAxes(vec3& xAxis, vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
+            const vec3 rotAxis = cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
             const Quat3 rot(rotAxis, angleInRadians);
             xAxis = correct(rot * xAxis);
             yAxis = correct(rot * yAxis);

@@ -19,7 +19,7 @@
 
 #include "UVRotateTool.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -64,7 +64,7 @@ namespace TrenchBroom {
                 return;
 
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
             const Plane3& boundary = face->boundary();
             const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
@@ -72,10 +72,10 @@ namespace TrenchBroom {
             const Ray3& pickRay = inputState.pickRay();
             const FloatType distanceToFace = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
             assert(!Math::isnan(distanceToFace));
-            const Vec3 hitPoint = pickRay.pointAtDistance(distanceToFace);
+            const vec3 hitPoint = pickRay.pointAtDistance(distanceToFace);
             
-            const Vec3 originOnPlane   = toPlane * fromFace * Vec3(m_helper.originInFaceCoords());
-            const Vec3 hitPointOnPlane = toPlane * hitPoint;
+            const vec3 originOnPlane   = toPlane * fromFace * vec3(m_helper.originInFaceCoords());
+            const vec3 hitPointOnPlane = toPlane * hitPoint;
 
             const float zoom = m_helper.cameraZoom();
             const FloatType error = Math::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
@@ -98,9 +98,9 @@ namespace TrenchBroom {
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
-            const Vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
+            const vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
             MapDocumentSPtr document = lock(m_document);
@@ -116,19 +116,19 @@ namespace TrenchBroom {
             const Plane3& boundary = face->boundary();
             const Ray3& pickRay = inputState.pickRay();
             const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
-            const Vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
+            const vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
             
-            const Mat4x4 toFaceOld = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
-            const Vec2f curPointInFaceCoords(toFaceOld * curPoint);
+            const vec2f curPointInFaceCoords(toFaceOld * curPoint);
             const float curAngle = measureAngle(curPointInFaceCoords);
 
             const float angle = curAngle - m_initalAngle;
             const float snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
 
-            const Vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
-            const Vec3 oldCenterInWorldCoords = toWorld * Vec3(oldCenterInFaceCoords);
+            const vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
+            const vec3 oldCenterInWorldCoords = toWorld * vec3(oldCenterInFaceCoords);
             
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
@@ -137,11 +137,11 @@ namespace TrenchBroom {
             document->setFaceAttributes(request);
             
             // Correct the offsets.
-            const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
+            const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
 
-            const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const Vec2f newOffset = correct(face->offset() + delta, 4, 0.0f);
+            const vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
+            const vec2f newOffset = correct(face->offset() + delta, 4, 0.0f);
             
             request.clear();
             request.setOffset(newOffset);
@@ -150,9 +150,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        float UVRotateTool::measureAngle(const Vec2f& point) const {
+        float UVRotateTool::measureAngle(const vec2f& point) const {
             const Model::BrushFace* face = m_helper.face();
-            const Vec2f origin = m_helper.originInFaceCoords();
+            const vec2f origin = m_helper.originInFaceCoords();
             return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
         
@@ -167,10 +167,10 @@ namespace TrenchBroom {
             };
             float minDelta = std::numeric_limits<float>::max();
             
-            const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             for (const Model::BrushEdge* edge : face->edges()) {
-                const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
-                const Vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
+                const vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
+                const vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
                 const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {
@@ -219,14 +219,14 @@ namespace TrenchBroom {
             
             void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
-                const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+                const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
                 
                 const Plane3& boundary = face->boundary();
                 const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
                 const Mat4x4 fromPlane = invertedMatrix(toPlane);
 
-                const Vec2f originPosition(toPlane * fromFace * Vec3(m_helper.originInFaceCoords()));
-                const Vec2f faceCenterPosition(toPlane * m_helper.face()->boundsCenter());
+                const vec2f originPosition(toPlane * fromFace * vec3(m_helper.originInFaceCoords()));
+                const vec2f faceCenterPosition(toPlane * m_helper.face()->boundsCenter());
 
                 const Color& handleColor = pref(Preferences::HandleColor);
                 const Color& highlightColor = pref(Preferences::SelectedHandleColor);
@@ -234,7 +234,7 @@ namespace TrenchBroom {
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
                 {
-                    const Mat4x4 translation = translationMatrix(Vec3(originPosition));
+                    const Mat4x4 translation = translationMatrix(vec3(originPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                     if (m_highlight)
                         shader.set("Color", highlightColor);
@@ -244,7 +244,7 @@ namespace TrenchBroom {
                 }
                 
                 {
-                    const Mat4x4 translation = translationMatrix(Vec3(faceCenterPosition));
+                    const Mat4x4 translation = translationMatrix(vec3(faceCenterPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                     shader.set("Color", highlightColor);
                     m_center.render();

@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class PointFile {
         private:
-            Vec3f::List m_points;
+            vec3f::List m_points;
             size_t m_current;
         public:
             PointFile();
@@ -41,9 +41,9 @@ namespace TrenchBroom {
             bool hasNextPoint() const;
             bool hasPreviousPoint() const;
             
-            const Vec3f::List& points() const;
-            const Vec3f& currentPoint() const;
-            const Vec3f currentDirection() const;
+            const vec3f::List& points() const;
+            const vec3f& currentPoint() const;
+            const vec3f currentDirection() const;
             void advance();
             void retreat();
         private:

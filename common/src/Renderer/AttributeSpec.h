@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class AttributeSpec {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {}
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_User, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_Position, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_Normal, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_Color, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_TexCoord0, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -136,7 +136,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_TexCoord1, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_TexCoord2, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -176,7 +176,7 @@ namespace TrenchBroom {
         class AttributeSpec<AttributeType_TexCoord3, D, S> {
         public:
             typedef typename GLType<D>::Type DataType;
-            typedef Vec<DataType, S> ElementType;
+            typedef vec<DataType, S> ElementType;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {

@@ -68,7 +68,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void UVView::setSubDivisions(const Vec2i& subDivisions) {
+        void UVView::setSubDivisions(const vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
             Refresh();
         }
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         private:
             Vertex::List getVertices() {
                 const Model::BrushFace* face = m_helper.face();
-                const Vec3& normal = face->boundary().normal;
+                const vec3& normal = face->boundary().normal;
                 
                 Vertex::List vertices;
                 vertices.reserve(4);
@@ -217,14 +217,14 @@ namespace TrenchBroom {
                 const float w2 = static_cast<float>(v.width) / 2.0f;
                 const float h2 = static_cast<float>(v.height) / 2.0f;
                 
-                const Vec3f& p = camera.position();
-                const Vec3f& r = camera.right();
-                const Vec3f& u = camera.up();
+                const vec3f& p = camera.position();
+                const vec3f& r = camera.right();
+                const vec3f& u = camera.up();
                 
-                const Vec3f pos1 = -w2 * r +h2 * u + p;
-                const Vec3f pos2 = +w2 * r +h2 * u + p;
-                const Vec3f pos3 = +w2 * r -h2 * u + p;
-                const Vec3f pos4 = -w2 * r -h2 * u + p;
+                const vec3f pos1 = -w2 * r +h2 * u + p;
+                const vec3f pos2 = +w2 * r +h2 * u + p;
+                const vec3f pos3 = +w2 * r -h2 * u + p;
+                const vec3f pos4 = -w2 * r -h2 * u + p;
                 
                 vertices.push_back(Vertex(pos1, normal, face->textureCoords(pos1)));
                 vertices.push_back(Vertex(pos2, normal, face->textureCoords(pos2)));
@@ -240,8 +240,8 @@ namespace TrenchBroom {
             
             void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
-                const Vec2f& offset = face->offset();
-                const Vec2f& scale = face->scale();
+                const vec2f& offset = face->offset();
+                const vec2f& scale = face->scale();
                 const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
@@ -254,11 +254,11 @@ namespace TrenchBroom {
                 shader.set("Color", texture->averageColor());
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
-                shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
+                shader.set("GridSizes", vec2f(texture->width(), texture->height()));
                 shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
                 shader.set("GridMatrix", toTex);
-                shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
+                shader.set("GridDivider", vec2f(m_helper.subDivisions()));
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
@@ -300,11 +300,11 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             
             const Model::BrushFace* face = m_helper.face();
-            const Vec3& normal = face->boundary().normal;
+            const vec3& normal = face->boundary().normal;
             
-            const Vec3 xAxis = face->textureXAxis() - dot(face->textureXAxis(), normal) * normal;
-            const Vec3 yAxis = face->textureYAxis() - dot(face->textureYAxis(), normal) * normal;
-            const Vec3 center = face->boundsCenter();
+            const vec3 xAxis = face->textureXAxis() - dot(face->textureXAxis(), normal) * normal;
+            const vec3 yAxis = face->textureYAxis() - dot(face->textureYAxis(), normal) * normal;
+            const vec3 center = face->boundsCenter();
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
@@ -337,7 +337,7 @@ namespace TrenchBroom {
             Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!Math::isnan(distance)) {
-                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                const vec3 hitPoint = pickRay.pointAtDistance(distance);
                 pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
             }
             return pickResult;

@@ -52,19 +52,19 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeVertices() {
             std::fprintf(m_stream, "# vertices\n");
-            for (const Vec3& elem : m_vertices.list())
+            for (const vec3& elem : m_vertices.list())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
-            for (const Vec2f& elem : m_texCoords.list())
+            for (const vec2f& elem : m_texCoords.list())
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
         }
         
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
-            for (const Vec3& elem : m_normals.list())
+            for (const vec3& elem : m_normals.list())
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
         
         void ObjFileSerializer::doBrushFace(Model::BrushFace* face) {
-            const Vec3& normal = face->boundary().normal;
+            const vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
             
             const Model::BrushFace::VertexList vertices = face->vertices();
@@ -118,8 +118,8 @@ namespace TrenchBroom {
             
             for (const Model::BrushVertex* vertex : vertices) {
             Model::BrushFace::VertexList::const_iterator it, end;
-                const Vec3& position = vertex->position();
-                const Vec2f texCoords = face->textureCoords(position);
+                const vec3& position = vertex->position();
+                const vec2f texCoords = face->textureCoords(position);
                 
                 const size_t vertexIndex = m_vertices.index(position);
                 const size_t texCoordsIndex = m_texCoords.index(texCoords);

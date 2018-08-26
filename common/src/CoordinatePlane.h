@@ -21,7 +21,7 @@
 #define TrenchBroom_CoordinatePlane_h
 
 #include "MathUtils.h"
-#include "Vec.h"
+#include "vec.h"
 
 template <typename T, size_t S>
 class CoordinatePlane {
@@ -31,37 +31,37 @@ public:
     CoordinatePlane(const size_t axis) :
     m_axis(axis) {}
     
-    CoordinatePlane(const Vec<T,S>& axis) :
+    CoordinatePlane(const vec<T,S>& axis) :
     m_axis(axis.firstComponent()) {}
     
-    Vec<T,S> project(const Vec<T,S>& point) const {
-        Vec<T,S> result = point;
+    vec<T,S> project(const vec<T,S>& point) const {
+        vec<T,S> result = point;
         result[m_axis] = static_cast<T>(0.0);
         return result;
     }
 };
 
 template <typename T>
-Vec<T,3> swizzle(const Vec<T,3>& point, const size_t axis) {
+vec<T,3> swizzle(const vec<T,3>& point, const size_t axis) {
     assert(axis <= 3);
     switch (axis) {
         case 0:
-            return Vec<T,3>(point.y(), point.z(), point.x());
+            return vec<T,3>(point.y(), point.z(), point.x());
         case 1:
-            return Vec<T,3>(point.z(), point.x(), point.y());
+            return vec<T,3>(point.z(), point.x(), point.y());
         default:
             return point;
     }
 }
 
 template <typename T>
-Vec<T,3> unswizzle(const Vec<T,3>& point, const size_t axis) {
+vec<T,3> unswizzle(const vec<T,3>& point, const size_t axis) {
     assert(axis <= 3);
     switch (axis) {
         case 0:
-            return Vec<T,3>(point.z(), point.x(), point.y());
+            return vec<T,3>(point.z(), point.x(), point.y());
         case 1:
-            return Vec<T,3>(point.y(), point.z(), point.x());
+            return vec<T,3>(point.y(), point.z(), point.x());
         default:
             return point;
     }

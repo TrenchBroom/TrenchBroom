@@ -46,12 +46,12 @@ namespace TrenchBroom {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
-        void RotateObjectsToolPage::setRecentlyUsedCenters(const Vec3::List& centers) {
+        void RotateObjectsToolPage::setRecentlyUsedCenters(const vec3::List& centers) {
             m_recentlyUsedCentersList->Clear();
             
-            Vec3::List::const_reverse_iterator it, end;
+            vec3::List::const_reverse_iterator it, end;
             for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
-                const Vec3& center = *it;
+                const vec3& center = *it;
                 m_recentlyUsedCentersList->Append(StringUtils::toString(center));
             }
             
@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 m_recentlyUsedCentersList->SetSelection(0);
         }
         
-        void RotateObjectsToolPage::setCurrentCenter(const Vec3& center) {
+        void RotateObjectsToolPage::setCurrentCenter(const vec3& center) {
             m_recentlyUsedCentersList->SetValue(StringUtils::toString(center));
         }
 
@@ -130,7 +130,7 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const Vec3 center = Vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
+            const vec3 center = vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
             m_tool->setRotationCenter(center);
         }
         
@@ -158,22 +158,22 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Vec3 center = m_tool->rotationCenter();
-            const Vec3 axis = getAxis();
+            const vec3 center = m_tool->rotationCenter();
+            const vec3 axis = getAxis();
             const FloatType angle = Math::radians(m_angle->GetValue());
             
             MapDocumentSPtr document = lock(m_document);
             document->rotateObjects(center, axis, angle);
         }
         
-        Vec3 RotateObjectsToolPage::getAxis() const {
+        vec3 RotateObjectsToolPage::getAxis() const {
             switch (m_axis->GetSelection()) {
                 case 0:
-                    return Vec3::PosX;
+                    return vec3::pos_x;
                 case 1:
-                    return Vec3::PosY;
+                    return vec3::pos_y;
                 default:
-                    return Vec3::PosZ;
+                    return vec3::pos_z;
             }
         }
     }

@@ -96,16 +96,16 @@ namespace TrenchBroom {
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
-                    m_camera.setDirection(Vec3f::NegZ, Vec3f::PosY);
-                    m_camera.moveTo(Vec3f(0.0f, 0.0f, 16384.0f));
+                    m_camera.setDirection(vec3f::neg_z, vec3f::pos_y);
+                    m_camera.moveTo(vec3f(0.0f, 0.0f, 16384.0f));
                     break;
                 case MapView2D::ViewPlane_XZ:
-                    m_camera.setDirection(Vec3f::PosY, Vec3f::PosZ);
-                    m_camera.moveTo(Vec3f(0.0f, -16384.0f, 0.0f));
+                    m_camera.setDirection(vec3f::pos_y, vec3f::pos_z);
+                    m_camera.moveTo(vec3f(0.0f, -16384.0f, 0.0f));
                     break;
                 case MapView2D::ViewPlane_YZ:
-                    m_camera.setDirection(Vec3f::NegX, Vec3f::PosZ);
-                    m_camera.moveTo(Vec3f(16384.0f, 0.0f, 0.0f));
+                    m_camera.setDirection(vec3f::neg_x, vec3f::pos_z);
+                    m_camera.moveTo(vec3f(16384.0f, 0.0f, 0.0f));
                     break;
             }
             m_camera.setNearPlane(1.0f);
@@ -160,23 +160,23 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
             MapDocumentSPtr document = lock(m_document);
             View::Grid& grid = document->grid();
             const BBox3& worldBounds = document->worldBounds();
 
             const Ray3& pickRay = MapView2D::pickRay();
             
-            const Vec3 toMin = referenceBounds.min - pickRay.origin;
-            const Vec3 toMax = referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const vec3 toMin = referenceBounds.min - pickRay.origin;
+            const vec3 toMax = referenceBounds.max - pickRay.origin;
+            const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
             const Plane3 dragPlane(anchor, -pickRay.direction);
             
             const FloatType distance = dragPlane.intersectWithRay(pickRay);
             if (Math::isnan(distance))
-                return Vec3::Null;
+                return vec3::zero;
             
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const vec3 hitPoint = pickRay.pointAtDistance(distance);
             return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
         }
         
@@ -188,11 +188,11 @@ namespace TrenchBroom {
             const MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             
-            const FloatType min = dot(worldBounds.min, Vec3(m_camera.direction()));
-            const FloatType max = dot(worldBounds.max, Vec3(m_camera.direction()));
+            const FloatType min = dot(worldBounds.min, vec3(m_camera.direction()));
+            const FloatType max = dot(worldBounds.max, vec3(m_camera.direction()));
             
-            const Plane3 minPlane(min, Vec3(m_camera.direction()));
-            const Plane3 maxPlane(max, Vec3(m_camera.direction()));
+            const Plane3 minPlane(min, vec3(m_camera.direction()));
+            const Plane3 maxPlane(max, vec3(m_camera.direction()));
             
             const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             tallBrushes.reserve(selectionBrushes.size());
             
             for (const Model::Brush* selectionBrush : selectionBrushes) {
-                Vec3::List tallVertices(0);
+                vec3::List tallVertices(0);
                 tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
                 for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
@@ -227,20 +227,20 @@ namespace TrenchBroom {
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const MapDocumentSPtr document = lock(m_document);
             const BBox3& bounds = document->referenceBounds();
-            const Vec3 diff = bounds.center() - Vec3(m_camera.position());
-            const Vec3 delta = diff * Vec3(m_camera.up() + m_camera.right());
-            moveCameraToPosition(Vec3(m_camera.position()) + delta, animate);
+            const vec3 diff = bounds.center() - vec3(m_camera.position());
+            const vec3 delta = diff * vec3(m_camera.up() + m_camera.right());
+            moveCameraToPosition(vec3(m_camera.position()) + delta, animate);
         }
         
-        void MapView2D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+        void MapView2D::doMoveCameraToPosition(const vec3& position, const bool animate) {
             if (animate)
-                animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+                animateCamera(vec3f(position), m_camera.direction(), m_camera.up());
             else
                 m_camera.moveTo(position);
         }
         
-        void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            const Vec3f actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
+        void MapView2D::animateCamera(const vec3f& position, const vec3f& direction, const vec3f& up, const wxLongLong duration) {
+            const vec3f actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
             CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
             m_animationManager->runAnimation(animation, true);
         }
@@ -252,11 +252,11 @@ namespace TrenchBroom {
             Model::PointFile* pointFile = document->pointFile();
             assert(pointFile->hasNextPoint());
             
-            const Vec3f position = pointFile->currentPoint();
+            const vec3f position = pointFile->currentPoint();
             moveCameraToPosition(position, true);
         }
 
-        Vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
+        vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward:
                     return m_camera.direction().firstAxis();
@@ -274,10 +274,10 @@ namespace TrenchBroom {
             }
         }
 
-        Vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
+        vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
 
-            Vec3 delta;
+            vec3 delta;
             View::Grid& grid = document->grid();
             
             const BBox3& worldBounds = document->worldBounds();
@@ -290,16 +290,16 @@ namespace TrenchBroom {
                 const BBox3 referenceBounds = document->referenceBounds();
                 const Ray3& pickRay = MapView2D::pickRay();
                 
-                const Vec3 toMin = referenceBounds.min - pickRay.origin;
-                const Vec3 toMax = referenceBounds.max - pickRay.origin;
-                const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+                const vec3 toMin = referenceBounds.min - pickRay.origin;
+                const vec3 toMax = referenceBounds.max - pickRay.origin;
+                const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
                 const Plane3 dragPlane(anchor, -pickRay.direction);
                 
                 const FloatType distance = dragPlane.intersectWithRay(pickRay);
                 if (Math::isnan(distance))
-                    return Vec3::Null;
+                    return vec3::zero;
                 
-                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                const vec3 hitPoint = pickRay.pointAtDistance(distance);
                 return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
             }
         }

@@ -523,7 +523,7 @@ namespace TrenchBroom {
         /**
          * Manages vertex handles. A vertex handle is a 3D point.
          */
-        class VertexHandleManager : public VertexHandleManagerBaseT<Vec3> {
+        class VertexHandleManager : public VertexHandleManagerBaseT<vec3> {
         public:
             static const Model::Hit::HitType HandleHit;
         public:
@@ -560,7 +560,7 @@ namespace TrenchBroom {
         class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<Edge3, Vec3> HitType;
+            typedef std::tuple<Edge3, vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -605,7 +605,7 @@ namespace TrenchBroom {
         class FaceHandleManager : public VertexHandleManagerBaseT<Polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<Polygon3, Vec3> HitType;
+            typedef std::tuple<Polygon3, vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

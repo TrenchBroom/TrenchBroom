@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 
 #include "BrushFaceAttributes.h"
@@ -29,8 +29,8 @@ namespace TrenchBroom {
         BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
         m_textureName(textureName),
         m_texture(nullptr),
-        m_offset(Vec2f::Null),
-        m_scale(Vec2f(1.0f, 1.0f)),
+        m_offset(vec2f::zero),
+        m_scale(vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
         m_surfaceContents(0),
         m_surfaceFlags(0),
@@ -91,15 +91,16 @@ namespace TrenchBroom {
             return m_texture;
         }
         
-        Vec2f BrushFaceAttributes::textureSize() const {
-            if (m_texture == nullptr)
-                return Vec2f::One;
+        vec2f BrushFaceAttributes::textureSize() const {
+            if (m_texture == nullptr) {
+                return vec2f::one;
+            }
             const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
-            return Vec2f(w, h);
+            return vec2f(w, h);
         }
         
-        const Vec2f& BrushFaceAttributes::offset() const {
+        const vec2f& BrushFaceAttributes::offset() const {
             return m_offset;
         }
         
@@ -111,11 +112,11 @@ namespace TrenchBroom {
             return m_offset.y();
         }
         
-        Vec2f BrushFaceAttributes::modOffset(const Vec2f& offset) const {
+        vec2f BrushFaceAttributes::modOffset(const vec2f& offset) const {
             return offset - roundDownToMultiple(offset, textureSize());
         }
         
-        const Vec2f& BrushFaceAttributes::scale() const {
+        const vec2f& BrushFaceAttributes::scale() const {
             return m_scale;
         }
         
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             m_textureName = BrushFace::NoTextureName;
         }
 
-        void BrushFaceAttributes::setOffset(const Vec2f& offset) {
+        void BrushFaceAttributes::setOffset(const vec2f& offset) {
             m_offset = offset;
         }
         
@@ -172,7 +173,7 @@ namespace TrenchBroom {
             m_offset[1] = yOffset;
         }
         
-        void BrushFaceAttributes::setScale(const Vec2f& scale) {
+        void BrushFaceAttributes::setScale(const vec2f& scale) {
             m_scale = scale;
         }
         

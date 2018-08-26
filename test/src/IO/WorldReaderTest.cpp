@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+        inline Model::BrushFace* findFaceByPoints(const Model::BrushFaceList& faces, const vec3& point0, const vec3& point1, const vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            const Model::BrushFace* face1 = findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0));
+            const Model::BrushFace* face1 = findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3(  0.0,   0.0,   0.0), vec3( 64.0,   0.0, -16.0));
             ASSERT_TRUE(face1 != nullptr);
             ASSERT_STREQ("tex1", face1->textureName().c_str());
             ASSERT_FLOAT_EQ(1.0, face1->xOffset());
@@ -188,11 +188,11 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(4.0, face1->xScale());
             ASSERT_FLOAT_EQ(5.0, face1->yScale());
             
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3(  0.0,  64.0, -16.0), vec3(  0.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3( 64.0,   0.0, -16.0), vec3(  0.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3(  0.0,  64.0,   0.0), vec3( 64.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3( 64.0,  64.0, -16.0), vec3( 64.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3( 64.0,   0.0,   0.0), vec3(  0.0,  64.0,   0.0)) != nullptr);
             
             delete world;
         }
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            Model::BrushFace* face = findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0));
+            Model::BrushFace* face = findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3(  0.0,   0.0,   0.0), vec3( 64.0,   0.0, -16.0));
             ASSERT_TRUE(face != nullptr);
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
             ASSERT_FLOAT_EQ(22.0f, face->xOffset());
@@ -262,12 +262,12 @@ namespace TrenchBroom {
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0), Vec3( 64.0,   0.0,   0.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3(  0.0,   0.0,   0.0), vec3( 64.0,   0.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3(  0.0,  64.0, -16.0), vec3(  0.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(  0.0,   0.0, -16.0), vec3( 64.0,   0.0, -16.0), vec3(  0.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3(  0.0,  64.0,   0.0), vec3( 64.0,  64.0, -16.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3( 64.0,  64.0, -16.0), vec3( 64.0,   0.0,   0.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3( 64.0,  64.0,   0.0), vec3( 64.0,   0.0,   0.0), vec3(  0.0,  64.0,   0.0)) != nullptr);
             
             delete world;
         }
@@ -298,12 +298,12 @@ namespace TrenchBroom {
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 108.0, 176.0), Vec3(308.0, 132.0, 176.0), Vec3(252.0, 132.0, 176.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(252.0, 132.0, 208.0), Vec3(308.0, 132.0, 208.0), Vec3(308.0, 108.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 152.0, 176.0), Vec3(288.0, 152.0, 208.0), Vec3(288.0, 120.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(288.0, 122.0, 176.0), Vec3(288.0, 122.0, 208.0), Vec3(308.0, 102.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(308.0, 100.0, 176.0), Vec3(308.0, 100.0, 208.0), Vec3(324.0, 116.0, 208.0)) != nullptr);
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(308.0, 108.0, 176.0), vec3(308.0, 132.0, 176.0), vec3(252.0, 132.0, 176.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(252.0, 132.0, 208.0), vec3(308.0, 132.0, 208.0), vec3(308.0, 108.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(288.0, 152.0, 176.0), vec3(288.0, 152.0, 208.0), vec3(288.0, 120.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(288.0, 122.0, 176.0), vec3(288.0, 122.0, 208.0), vec3(308.0, 102.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(308.0, 100.0, 176.0), vec3(308.0, 100.0, 208.0), vec3(324.0, 116.0, 208.0)) != nullptr);
+            ASSERT_TRUE(findFaceByPoints(faces, vec3(287.0, 152.0, 208.0), vec3(287.0, 152.0, 176.0), vec3(323.0, 116.0, 176.0)) != nullptr);
             
             delete world;
         }

@@ -61,55 +61,55 @@ namespace TrenchBroom {
             TexCoordSystem* clone() const;
             TexCoordSystemSnapshot* takeSnapshot();
             
-            Vec3 xAxis() const;
-            Vec3 yAxis() const;
+            vec3 xAxis() const;
+            vec3 yAxis() const;
 
-            void resetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
-            void resetTextureAxes(const Vec3& normal);
-            void resetTextureAxesToParaxial(const Vec3& normal, float angle);
-            void resetTextureAxesToParallel(const Vec3& normal, float angle);
+            void resetCache(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs);
+            void resetTextureAxes(const vec3& normal);
+            void resetTextureAxesToParaxial(const vec3& normal, float angle);
+            void resetTextureAxesToParallel(const vec3& normal, float angle);
             
-            Vec2f getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
+            vec2f getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const;
             
-            void setRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void transform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
-            void updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
+            void setRotation(const vec3& normal, float oldAngle, float newAngle);
+            void transform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant);
+            void updateNormal(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
 
-            void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const;
-            void rotateTexture(const Vec3& normal, float angle, BrushFaceAttributes& attribs) const;
-            void shearTexture(const Vec3& normal, const Vec2f& factors);
+            void moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vec2f& offset, BrushFaceAttributes& attribs) const;
+            void rotateTexture(const vec3& normal, float angle, BrushFaceAttributes& attribs) const;
+            void shearTexture(const vec3& normal, const vec2f& factors);
 
-            Mat4x4 toMatrix(const Vec2f& offset, const Vec2f& scale) const;
-            Mat4x4 fromMatrix(const Vec2f& offset, const Vec2f& scale) const;
-            float measureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
+            Mat4x4 toMatrix(const vec2f& offset, const vec2f& scale) const;
+            Mat4x4 fromMatrix(const vec2f& offset, const vec2f& scale) const;
+            float measureAngle(float currentAngle, const vec2f& center, const vec2f& point) const;
         private:
             virtual TexCoordSystem* doClone() const = 0;
             virtual TexCoordSystemSnapshot* doTakeSnapshot() = 0;
             virtual void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) = 0;
             friend class TexCoordSystemSnapshot;
             
-            virtual Vec3 getXAxis() const = 0;
-            virtual Vec3 getYAxis() const = 0;
-            virtual Vec3 getZAxis() const = 0;
+            virtual vec3 getXAxis() const = 0;
+            virtual vec3 getYAxis() const = 0;
+            virtual vec3 getZAxis() const = 0;
 
-            virtual void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) = 0;
-            virtual void doResetTextureAxes(const Vec3& normal) = 0;
-            virtual void doResetTextureAxesToParaxial(const Vec3& normal, float angle) = 0;
-            virtual void doResetTextureAxesToParallel(const Vec3& normal, float angle) = 0;
+            virtual void doResetCache(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs) = 0;
+            virtual void doResetTextureAxes(const vec3& normal) = 0;
+            virtual void doResetTextureAxesToParaxial(const vec3& normal, float angle) = 0;
+            virtual void doResetTextureAxesToParallel(const vec3& normal, float angle) = 0;
 
-            virtual bool isRotationInverted(const Vec3& normal) const = 0;
-            virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const = 0;
+            virtual bool isRotationInverted(const vec3& normal) const = 0;
+            virtual vec2f doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const = 0;
             
-            virtual void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) = 0;
-            virtual void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) = 0;
-            virtual void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
-            virtual void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
+            virtual void doSetRotation(const vec3& normal, float oldAngle, float newAngle) = 0;
+            virtual void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant) = 0;
+            virtual void doUpdateNormalWithProjection(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
+            virtual void doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
-            virtual void doShearTexture(const Vec3& normal, const Vec2f& factors) = 0;
+            virtual void doShearTexture(const vec3& normal, const vec2f& factors) = 0;
             
-            virtual float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const = 0;
+            virtual float doMeasureAngle(float currentAngle, const vec2f& center, const vec2f& point) const = 0;
         protected:
-            Vec2f computeTexCoords(const Vec3& point, const Vec2f& scale) const;
+            vec2f computeTexCoords(const vec3& point, const vec2f& scale) const;
 
             template <typename T>
             T safeScale(const T value) const {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             }
             
             template <typename T1, typename T2>
-            Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
+            vec<T1,3> safeScaleAxis(const vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(T1(factor));
             }
         private:

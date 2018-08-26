@@ -78,15 +78,15 @@ namespace TrenchBroom {
             std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
         }
 
-        Vec3f readVec3f(const char*& cursor) {
-            Vec3f value;
+        vec3f readVec3f(const char*& cursor) {
+            vec3f value;
             for (size_t i = 0; i < 3; i++)
                 value[i] = readFloat<float>(cursor);
             return value;
         }
         
-        Vec3f readVec3f(const char* const& cursor) {
-            Vec3f value;
+        vec3f readVec3f(const char* const& cursor) {
+            vec3f value;
             for (size_t i = 0; i < 3; i++)
                 value[i] = readFloat<float>(cursor);
             return value;

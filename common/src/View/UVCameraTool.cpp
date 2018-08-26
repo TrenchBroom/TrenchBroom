@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
         
         void UVCameraTool::doMouseScroll(const InputState& inputState) {
-            const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
+            const vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
             
@@ -44,11 +44,11 @@ namespace TrenchBroom {
             else
                 m_camera.zoom(1.0f / 1.1f);
             
-            const Vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
+            const vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
             
-            const Vec3f delta = oldWorldPos - newWorldPos;
+            const vec3f delta = oldWorldPos - newWorldPos;
             m_camera.moveBy(delta);
         }
         
@@ -60,13 +60,13 @@ namespace TrenchBroom {
             const int oldX = inputState.mouseX() - inputState.mouseDX();
             const int oldY = inputState.mouseY() - inputState.mouseDY();
             
-            const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(oldX),
+            const vec3f oldWorldPos = m_camera.unproject(static_cast<float>(oldX),
                                                          static_cast<float>(oldY),
                                                          0.0f);
-            const Vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
+            const vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
-            const Vec3f delta = oldWorldPos - newWorldPos;
+            const vec3f delta = oldWorldPos - newWorldPos;
             m_camera.moveBy(delta);
             return true;
         }

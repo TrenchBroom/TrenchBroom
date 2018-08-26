@@ -19,7 +19,7 @@
 
 #include "Entity.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 
 #include "Model/BoundsContainsNodeVisitor.h"
@@ -69,8 +69,8 @@ namespace TrenchBroom {
             return hasPointEntityDefinition();
         }
         
-        Vec3 Entity::origin() const {
-            return Vec3::parse(attribute(AttributeNames::Origin, ""));
+        vec3 Entity::origin() const {
+            return vec3::parse(attribute(AttributeNames::Origin, ""));
         }
 
         Mat4x4 Entity::rotation() const {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(Math::Axis::Type axis) const {
-            const Vec3 size = bounds().size();
+            const vec3 size = bounds().size();
             switch (axis) {
                 case Math::Axis::AX:
                     return size.y() * size.z();
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::setOrigin(const Vec3& origin) {
+        void Entity::setOrigin(const vec3& origin) {
             addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
         
@@ -182,14 +182,14 @@ namespace TrenchBroom {
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = myBounds.intersectWithRay(ray);
                     if (!Math::isnan(distance)) {
-                        const Vec3 hitPoint = ray.pointAtDistance(distance);
+                        const vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                     }
                 }
             }
         }
         
-        void Entity::doFindNodesContaining(const Vec3& point, NodeList& result) {
+        void Entity::doFindNodesContaining(const vec3& point, NodeList& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
@@ -251,11 +251,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vec3 Entity::doGetLinkSourceAnchor() const {
+        vec3 Entity::doGetLinkSourceAnchor() const {
             return bounds().center();
         }
         
-        Vec3 Entity::doGetLinkTargetAnchor() const {
+        vec3 Entity::doGetLinkTargetAnchor() const {
             return bounds().center();
         }
 
@@ -302,9 +302,9 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const Vec3 center = bounds().center();
-                const Vec3 offset = center - origin();
-                const Vec3 transformedCenter = transformation * center;
+                const vec3 center = bounds().center();
+                const vec3 offset = center - origin();
+                const vec3 transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
                 
                 // applying rotation has side effects (e.g. normalizing "angles")

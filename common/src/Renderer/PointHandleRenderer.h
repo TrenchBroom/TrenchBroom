@@ -36,7 +36,7 @@ namespace TrenchBroom {
         
         class PointHandleRenderer : public DirectRenderable {
         private:
-            typedef std::map<Color, Vec3f::List> HandleMap;
+            typedef std::map<Color, vec3f::List> HandleMap;
             
             HandleMap m_pointHandles;
             HandleMap m_highlights;
@@ -46,8 +46,8 @@ namespace TrenchBroom {
         public:
             PointHandleRenderer();
             
-            void addPoint(const Color& color, const Vec3f& position);
-            void addHighlight(const Color& color, const Vec3f& position);
+            void addPoint(const Color& color, const vec3f& position);
+            void addHighlight(const Color& color, const vec3f& position);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

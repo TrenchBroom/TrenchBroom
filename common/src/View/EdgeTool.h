@@ -50,7 +50,7 @@ namespace TrenchBroom {
             EdgeHandleManager& handleManager() override;
             const EdgeHandleManager& handleManager() const override;
         public:
-            MoveResult move(const Vec3& delta) override;
+            MoveResult move(const vec3& delta) override;
 
             String actionName() const override;
 

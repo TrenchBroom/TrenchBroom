@@ -77,7 +77,7 @@ namespace TrenchBroom {
             glAssert(glPointSize(1.0f));
         }
 
-        void SpikeGuideRenderer::addPoint(const Vec3& position) {
+        void SpikeGuideRenderer::addPoint(const vec3& position) {
             m_pointVertices.push_back(PointVertex(position, m_color));
         }
         

@@ -89,7 +89,7 @@ namespace TrenchBroom {
             void parseBrush(ParserStatus& status);
             void parseFace(ParserStatus& status);
 
-            Vec3 parseVector();
+            vec3 parseVector();
             void parseExtraAttributes(ExtraAttributes& extraAttributes, ParserStatus& status);
         private: // implement Parser interface
             TokenNameMap tokenNames() const override;

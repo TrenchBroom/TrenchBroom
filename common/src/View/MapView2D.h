@@ -67,18 +67,18 @@ namespace TrenchBroom {
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
+            vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
             
-            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
+            void doMoveCameraToPosition(const vec3& position, bool animate) override;
+            void animateCamera(const vec3f& position, const vec3f& direction, const vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
-            Vec3 doGetMoveDirection(Math::Direction direction) const override;
-            Vec3 doComputePointEntityPosition(const BBox3& bounds) const override;
+            vec3 doGetMoveDirection(Math::Direction direction) const override;
+            vec3 doComputePointEntityPosition(const BBox3& bounds) const override;
 
             ActionContext doGetActionContext() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;

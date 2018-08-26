@@ -24,18 +24,18 @@ namespace TrenchBroom {
         OrthographicCamera::OrthographicCamera() :
         Camera() {}
         
-        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const vec3f& position, const vec3f& direction, const vec3f& up) :
         Camera(nearPlane, farPlane, viewport, position, direction, up) {}
         
-        Vec3::List OrthographicCamera::viewportVertices() const {
+        vec3::List OrthographicCamera::viewportVertices() const {
             const float w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
             const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            Vec3::List result(4);
-            result[0] = Vec3(position() - w2 * right() + h2 * up());
-            result[1] = Vec3(position() + w2 * right() + h2 * up());
-            result[2] = Vec3(position() + w2 * right() - h2 * up());
-            result[3] = Vec3(position() - w2 * right() - h2 * up());
+            vec3::List result(4);
+            result[0] = vec3(position() - w2 * right() + h2 * up());
+            result[1] = vec3(position() + w2 * right() + h2 * up());
+            result[2] = vec3(position() + w2 * right() - h2 * up());
+            result[3] = vec3(position() - w2 * right() - h2 * up());
             return result;
         }
 
@@ -51,10 +51,10 @@ namespace TrenchBroom {
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
-        Ray3f OrthographicCamera::doGetPickRay(const Vec3f& point) const {
-            const Vec3f v = point - position();
+        Ray3f OrthographicCamera::doGetPickRay(const vec3f& point) const {
+            const vec3f v = point - position();
             const float d = dot(v, direction());
-            const Vec3f o = point - d * direction();
+            const vec3f o = point - d * direction();
             return Ray3f(o, direction());
         }
         
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
             const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            const Vec3f& center = position();
+            const vec3f& center = position();
             topPlane    = Plane3f(center + h2 * up(), up());
             rightPlane  = Plane3f(center + w2 * right(), right());
             bottomPlane = Plane3f(center - h2 * up(), -up());
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return Math::nan<float>();
         }
 
-        float OrthographicCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
+        float OrthographicCamera::doGetPerspectiveScalingFactor(const vec3f& position) const {
             return 1.0f / zoom();
         }
     }

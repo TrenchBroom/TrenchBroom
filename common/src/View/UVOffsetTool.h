@@ -33,7 +33,7 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             const UVViewHelper& m_helper;
-            Vec2f m_lastPoint;
+            vec2f m_lastPoint;
         public:
             UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper);
         private:
@@ -44,8 +44,8 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
             
-            Vec2f computeHitPoint(const Ray3& ray) const;
-            Vec2f snapDelta(const Vec2f& delta) const;
+            vec2f computeHitPoint(const Ray3& ray) const;
+            vec2f snapDelta(const vec2f& delta) const;
             
             bool doCancel() override;
         };

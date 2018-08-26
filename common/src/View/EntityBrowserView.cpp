@@ -63,8 +63,8 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinition::Name) {
-            const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
-            const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
+            const Quatf hRotation = Quatf(vec3f::pos_z, Math::radians(-30.0f));
+            const Quatf vRotation = Quatf(vec3f::pos_y, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
             
             m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
                 
                 const float maxCellWidth = layout.maxCellWidth();
                 const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager().font(actualFont).measure(definition->name());
+                const vec2f actualSize = fontManager().font(actualFont).measure(definition->name());
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
                 Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
@@ -187,17 +187,17 @@ namespace TrenchBroom {
                 
                 BBox3f rotatedBounds;
                 if (model != nullptr) {
-                    const Vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
+                    const vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
                     const Mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = BBox3f(definition->bounds());
-                    const Vec3f center = rotatedBounds.center();
+                    const vec3f center = rotatedBounds.center();
                     rotatedBounds = rotateBBox(rotatedBounds, m_rotation, center);
                 }
                 
-                const Vec3f size = rotatedBounds.size();
+                const vec3f size = rotatedBounds.size();
                 layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
                                size.y(),
                                size.z(),
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
 
             const Mat4x4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const Mat4x4f view = viewMatrix(Vec3f::NegX, Vec3f::PosZ) * translationMatrix(Vec3f(256.0f, 0.0f, 0.0f));
+            const Mat4x4f view = viewMatrix(vec3f::neg_x, vec3f::pos_z) * translationMatrix(vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
             
             renderBounds(layout, y, height);
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             color(i_color),
             vertices(i_vertices) {}
             
-            void operator()(const Vec3f& v1, const Vec3f& v2) {
+            void operator()(const vec3f& v1, const vec3f& v2) {
                 vertices.push_back(Vertex(transformation * v1, color));
                 vertices.push_back(Vertex(transformation * v2, color));
             }
@@ -313,7 +313,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
-            Renderer::Transformation transformation(projection, viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, -1.0f)));
+            Renderer::Transformation transformation(projection, viewMatrix(vec3f::neg_z, vec3f::pos_y) * translationMatrix(vec3f(0.0f, 0.0f, -1.0f)));
             
             Renderer::ActivateVbo activate(vertexVbo());
             
@@ -332,10 +332,10 @@ namespace TrenchBroom {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                    vertices.push_back(Vertex(Vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.left(), height - (titleBounds.bottom() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.right(), height - (titleBounds.bottom() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.right(), height - (titleBounds.top() - y))));
+                    vertices.push_back(Vertex(vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
+                    vertices.push_back(Vertex(vec2f(titleBounds.left(), height - (titleBounds.bottom() - y))));
+                    vertices.push_back(Vertex(vec2f(titleBounds.right(), height - (titleBounds.bottom() - y))));
+                    vertices.push_back(Vertex(vec2f(titleBounds.right(), height - (titleBounds.top() - y))));
                 }
             }
 
@@ -391,10 +391,10 @@ namespace TrenchBroom {
                     const String& title = group.item();
                     if (!title.empty()) {
                         const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
                         Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const Vec2f::List quads = font.quads(title, false, offset);
+                        const vec2f::List quads = font.quads(title, false, offset);
                         const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
@@ -405,10 +405,10 @@ namespace TrenchBroom {
                             for (unsigned int k = 0; k < row.size(); k++) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 const LayoutBounds titleBounds = cell.titleBounds();
-                                const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                const vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const Vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
+                                const vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
                                 const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
@@ -423,11 +423,11 @@ namespace TrenchBroom {
         Mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
             Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
             
-            const Vec3f offset = Vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+            const vec3f offset = vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
             const float scaling = cell.scale();
             const BBox3f& rotatedBounds = cell.item().bounds;
-            const Vec3f rotationOffset = Vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            const Vec3f center = definition->bounds().center();
+            const vec3f rotationOffset = vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
+            const vec3f center = definition->bounds().center();
             
             return (translationMatrix(offset) *
                     scalingMatrix<4>(scaling) *

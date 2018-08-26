@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool m_constrainVertical;
             BBox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit;
-            Vec3 m_dragCumulativeDelta;
+            vec3 m_dragCumulativeDelta;
 
         public:
             explicit ShearObjectsTool(MapDocumentWPtr document);
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void startShearWithHit(const Model::Hit& hit);
             void commitShear();
             void cancelShear();
-            void shearByDelta(const Vec3 &delta);
+            void shearByDelta(const vec3 &delta);
 
             const Model::Hit& dragStartHit() const;
 

@@ -48,7 +48,7 @@ namespace TrenchBroom {
         // see http://tfc.duke.free.fr/coding/md2-specs-en.html
         class Md2Parser : public EntityModelParser {
         private:
-            static const Vec3f Normals[162];
+            static const vec3f Normals[162];
 
             struct Md2Skin {
                 char name[Md2Layout::SkinNameLength];
@@ -62,19 +62,19 @@ namespace TrenchBroom {
             typedef std::vector<Md2Vertex> Md2VertexList;
             
             struct Md2Frame {
-                Vec3f scale;
-                Vec3f offset;
+                vec3f scale;
+                vec3f offset;
                 char name[Md2Layout::FrameNameLength];
                 Md2VertexList vertices;
                 
                 Md2Frame(size_t vertexCount);
-                Vec3f vertex(size_t index) const;
-                const Vec3f& normal(size_t index) const;
+                vec3f vertex(size_t index) const;
+                const vec3f& normal(size_t index) const;
             };
             typedef std::vector<Md2Frame> Md2FrameList;
 
             struct Md2MeshVertex {
-                Vec2f texCoords;
+                vec2f texCoords;
                 size_t vertexIndex;
             };
             typedef std::vector<Md2MeshVertex> Md2MeshVertexList;

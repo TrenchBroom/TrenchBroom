@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != Vec3::Null);
+                assert(result.pickedSideNormal != vec3::zero);
                 pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
@@ -158,7 +158,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = Vec3::Null;
+            m_dragCumulativeDelta = vec3::zero;
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Objects");
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             m_resizing = false;
         }
 
-        void ShearObjectsTool::shearByDelta(const Vec3 &delta) {
+        void ShearObjectsTool::shearByDelta(const vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;

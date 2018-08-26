@@ -24,7 +24,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "MathUtils.h"
 #include "Mat.h"
 #include "Ray.h"
-#include "Vec.h"
+#include "vec.h"
 #include <vector>
 
 template <typename T, size_t S>
@@ -34,11 +34,11 @@ public:
     using Set = std::set<Plane>;
 
     T distance;
-    Vec<T,S> normal;
+    vec<T,S> normal;
     
     Plane() :
     distance(static_cast<T>(0.0)),
-    normal(Vec<T,S>::Null) {}
+    normal(vec<T,S>::zero) {}
     
     // Copy and move constructors
     Plane(const Plane<T,S>& other) = default;
@@ -54,18 +54,18 @@ public:
     distance(static_cast<T>(other.distance)),
     normal(other.normal) {}
 
-    Plane(const T i_distance, const Vec<T,S>& i_normal) :
+    Plane(const T i_distance, const vec<T,S>& i_normal) :
     distance(i_distance),
     normal(i_normal) {}
     
-    Plane(const Vec<T,S>& i_anchor, const Vec<T,S>& i_normal) :
+    Plane(const vec<T,S>& i_anchor, const vec<T,S>& i_normal) :
     distance(dot(i_anchor, i_normal)),
     normal(i_normal) {}
             
-    static const Plane<T,S> planeContainingVector(const Vec<T,S>& position, const Vec<T,S>& normalizedVector, const Vec<T,S>& viewPoint) {
-        const Vec<T,S> diff = viewPoint - position;
-        const Vec<T,S> point = position + normalizedVector * diff.dot(normalizedVector);
-        const Vec<T,S> normal = normalize(viewPoint - point);
+    static const Plane<T,S> planeContainingVector(const vec<T,S>& position, const vec<T,S>& normalizedVector, const vec<T,S>& viewPoint) {
+        const vec<T,S> diff = viewPoint - position;
+        const vec<T,S> point = position + normalizedVector * diff.dot(normalizedVector);
+        const vec<T,S> normal = normalize(viewPoint - point);
         return Plane(normal, position);
     }
 
@@ -101,7 +101,7 @@ public:
         return compare(other) >= 0;
     }
 
-    const Vec<T,S> anchor() const {
+    const vec<T,S> anchor() const {
         return normal * distance;
     }
     
@@ -117,7 +117,7 @@ public:
     }
     
     Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
-        const Vec<T,S> lineDirection = normalize(cross(normal, other.normal));
+        const vec<T,S> lineDirection = normalize(cross(normal, other.normal));
         
         if (isNaN(lineDirection)) {
             // the planes are parallel
@@ -133,7 +133,7 @@ public:
         
         const Line<T,S> lineToOtherPlane{anchor(), normalize(projectVector(other.normal))};
         const T dist = other.intersectWithLine(lineToOtherPlane);
-        const Vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
+        const vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
         if (isNaN(point)) {
             return Line<T,S>();
@@ -141,7 +141,7 @@ public:
         return Line<T,S>(point, lineDirection);
     }
     
-    Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
+    Math::PointStatus::Type pointStatus(const vec<T,S>& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
         const T dist = pointDistance(point);
         if (dist >  epsilon)
             return Math::PointStatus::PSAbove;
@@ -150,11 +150,11 @@ public:
         return Math::PointStatus::PSInside;
     }
     
-    T pointDistance(const Vec<T,S>& point) const {
+    T pointDistance(const vec<T,S>& point) const {
         return dot(point, normal) - distance;
     }
     
-    T at(const Vec<T,S-1>& point, const Math::Axis::Type axis) const {
+    T at(const vec<T,S-1>& point, const Math::Axis::Type axis) const {
         if (Math::zero(normal[axis]))
             return static_cast<T>(0.0);
         
@@ -168,15 +168,15 @@ public:
         return (distance - t) / normal[axis];
     }
             
-    T xAt(const Vec<T,S-1>& point) const {
+    T xAt(const vec<T,S-1>& point) const {
         return at(point, Math::Axis::AX);
     }
     
-    T yAt(const Vec<T,S-1>& point) const {
+    T yAt(const vec<T,S-1>& point) const {
         return at(point, Math::Axis::AY);
     }
     
-    T zAt(const Vec<T,S-1>& point) const {
+    T zAt(const vec<T,S-1>& point) const {
         return at(point, Math::Axis::AZ);
     }
     
@@ -195,7 +195,7 @@ public:
     }
     
     Plane<T,S>& transform(const Mat<T,S+1,S+1>& transform) {
-        const Vec<T,3> oldAnchor = anchor();
+        const vec<T,3> oldAnchor = anchor();
         normal = normalize(stripTranslation(transform) * normal);
         distance = dot(transform * oldAnchor, normal);
         return *this;
@@ -206,62 +206,62 @@ public:
     }
     
     /*
-    Plane<T>& rotate(const Quat<T>& rotation, const Vec<T,3>& center) {
-        const Vec<T,3> oldAnchor = anchor();
+    Plane<T>& rotate(const Quat<T>& rotation, const vec<T,3>& center) {
+        const vec<T,3> oldAnchor = anchor();
         normal = rotation * normal;
         distance = (rotation * (oldAnchor - center) + center).dot(normal);
         return *this;
     }
     
-    const Plane<T> rotated(const Quat<T>& rotation, const Vec<T,3>& center) const {
-        const Vec<T,3> oldAnchor = anchor();
+    const Plane<T> rotated(const Quat<T>& rotation, const vec<T,3>& center) const {
+        const vec<T,3> oldAnchor = anchor();
         return Plane(rotation * normal, rotation * (oldAnchor - center) + center);
     }
              */
     
-    Vec<T,S> projectPoint(const Vec<T,S>& point) const {
+    vec<T,S> projectPoint(const vec<T,S>& point) const {
         return point - dot(point, normal) * normal + distance * normal;
     }
 
-    Vec<T,S> projectPoint(const Vec<T,S>& point, const Vec<T,S>& direction) const {
+    vec<T,S> projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
         const T cos = dot(direction, normal);
         if (Math::zero(cos))
-            return Vec<T,S>::NaN;
+            return vec<T,S>::NaN;
         const T d = dot(distance * normal - point, normal) / cos;
         return point + direction * d;
     }
     
-    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points) const {
-        typename Vec<T,S>::List result(points.size());
+    typename vec<T,S>::List projectPoints(const typename vec<T,S>::List& points) const {
+        typename vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i]);
         return result;
     }
 
-    typename Vec<T,S>::List projectPoints(const typename Vec<T,S>::List& points, const Vec<T,S>& direction) const {
-        typename Vec<T,S>::List result(points.size());
+    typename vec<T,S>::List projectPoints(const typename vec<T,S>::List& points, const vec<T,S>& direction) const {
+        typename vec<T,S>::List result(points.size());
         for (size_t i = 0; i < points.size(); ++i)
             result[i] = project(points[i], direction);
         return result;
     }
     
-    Vec<T,S> projectVector(const Vec<T,S>& vector) const {
+    vec<T,S> projectVector(const vec<T,S>& vector) const {
         return projectPoint(anchor() + vector) - anchor();
     }
     
-    Vec<T,S> projectVector(const Vec<T,S>& vector, const Vec<T,S>& direction) const {
+    vec<T,S> projectVector(const vec<T,S>& vector, const vec<T,S>& direction) const {
         return projectPoint(anchor() + vector) - anchor();
     }
     
-    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors) const {
-        typename Vec<T,S>::List result(vectors.size());
+    typename vec<T,S>::List projectVectors(const typename vec<T,S>::List& vectors) const {
+        typename vec<T,S>::List result(vectors.size());
         for (size_t i = 0; i < vectors.size(); ++i)
             result[i] = projectVector(vectors[i]);
         return result;
     }
     
-    typename Vec<T,S>::List projectVectors(const typename Vec<T,S>::List& vectors, const Vec<T,S>& direction) const {
-        typename Vec<T,S>::List result(vectors.size());
+    typename vec<T,S>::List projectVectors(const typename vec<T,S>::List& vectors, const vec<T,S>& direction) const {
+        typename vec<T,S>::List result(vectors.size());
         for (size_t i = 0; i < vectors.size(); ++i)
             result[i] = projectVector(vectors[i], direction);
         return result;
@@ -269,7 +269,7 @@ public:
 };
 
 template <typename T>
-bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
+bool setPlanePoints(Plane<T,3>& plane, const vec<T,3>* points) {
     return setPlanePoints(plane, points[0], points[1], points[2]);
 }
             
@@ -284,7 +284,7 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
  * 0------v1----2
  */
 template <typename T>
-bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+bool setPlanePoints(Plane<T,3>& plane, const vec<T,3>& point0, const vec<T,3>& point1, const vec<T,3>& point2) {
     bool result;
     std::tie(result, plane.normal) = planeNormal(point0, point1, point2);
     plane.distance = dot(point0, plane.normal); // becomes 0 if plane points failed
@@ -315,7 +315,7 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& p
  * @return a pair of a boolean and a vector
  */
 template <typename T>
-std::tuple<bool, Vec<T,3>> planeNormal(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
+std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& point0, const vec<T,3>& point1, const vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
     const auto v1 = point2 - point0;
     const auto v2 = point1 - point0;
     const auto normal = cross(v1, v2);
@@ -327,7 +327,7 @@ std::tuple<bool, Vec<T,3>> planeNormal(const Vec<T,3>& point0, const Vec<T,3>& p
     if (Math::isnan(sin_theta) ||
         Math::isinf(sin_theta) ||
         sin_theta < epsilon) {
-        return std::make_tuple(false, Vec<T,3>::Null);
+        return std::make_tuple(false, vec<T,3>::zero);
     } else {
         return std::make_tuple(true, normalize(normal));
     }
@@ -336,38 +336,38 @@ std::tuple<bool, Vec<T,3>> planeNormal(const Vec<T,3>& point0, const Vec<T,3>& p
 
 
 template <typename T>
-Plane<T,3> fromPlanePoints(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+Plane<T,3> fromPlanePoints(const vec<T,3>& point0, const vec<T,3>& point1, const vec<T,3>& point2) {
     Plane<T,3> result;
     assert(setPlanePoints(result, point0, point1, point2));
     return result;
 }
 
 template <typename T>
-Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
-    return Plane<T,3>(position, Vec<T,3>::PosZ);
+Plane<T,3> horizontalDragPlane(const vec<T,3>& position) {
+    return Plane<T,3>(position, vec<T,3>::pos_z);
 }
 
 template <typename T>
-Plane<T,3> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> verticalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
     if (direction.firstComponent() != Math::Axis::AZ)
         return Plane<T,3>(position, direction.firstAxis());
     return Plane<T,3>(position, direction.secondAxis());
 }
 
 template <typename T>
-Plane<T,3> orthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> orthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
     return Plane<T,3>(position, normalize(direction));
 }
 
 template <typename T>
-Plane<T,3> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> alignedOrthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
     return Plane<T,3>(position, direction.firstAxis());
 }
 
 template <typename T>
-Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal, const Vec<T,3>& cameraPosition) {
-    const Vec<T,3> fromCamera = normalize(position - cameraPosition);
-    const Vec<T,3> vertical = cross(normal, fromCamera);
+Plane<T,3> containingDragPlane(const vec<T,3>& position, const vec<T,3>& normal, const vec<T,3>& cameraPosition) {
+    const vec<T,3> fromCamera = normalize(position - cameraPosition);
+    const vec<T,3> vertical = cross(normal, fromCamera);
     return Plane<T,3>(position, cross(normal, vertical));
 }
 

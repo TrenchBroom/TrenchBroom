@@ -49,12 +49,12 @@ namespace TrenchBroom {
             
             Model::BrushFace* m_face;
 
-            Vec2i m_subDivisions;
+            vec2i m_subDivisions;
             
             /**
              The position of the scaling origin / rotation center handle in world coords.
              */
-            Vec3 m_origin;
+            vec3 m_origin;
         public:
             UVViewHelper(Renderer::OrthographicCamera& camera);
             
@@ -64,34 +64,34 @@ namespace TrenchBroom {
             void setFace(Model::BrushFace* face);
             void cameraViewportChanged();
 
-            const Vec2i& subDivisions() const;
+            const vec2i& subDivisions() const;
             Vec2 stripeSize() const;
-            void setSubDivisions(const Vec2i& subDivisions);
+            void setSubDivisions(const vec2i& subDivisions);
             
-            const Vec3 origin() const;
-            const Vec2f originInFaceCoords() const;
-            const Vec2f originInTexCoords() const;
-            void setOriginInFaceCoords(const Vec2f& originInFaceCoords);
+            const vec3 origin() const;
+            const vec2f originInFaceCoords() const;
+            const vec2f originInTexCoords() const;
+            void setOriginInFaceCoords(const vec2f& originInFaceCoords);
 
             const Renderer::Camera& camera() const;
             float cameraZoom() const;
 
             void pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
-            Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
-            Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
+            vec2f snapDelta(const vec2f& delta, const vec2f& distance) const;
+            vec2f computeDistanceFromTextureGrid(const vec3& position) const;
 
-            void computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
-            void computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
-            void computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
+            void computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
+            void computeScaleHandleVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
+            void computeLineVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
         private:
             void resetOrigin();
             void resetCamera();
             void resetZoom();
             
             BBox3 computeFaceBoundsInCameraCoords() const;
-            Vec3 transformToCamera(const Vec3& point) const;
-            Vec3 transformFromCamera(const Vec3& point) const;
+            vec3 transformToCamera(const vec3& point) const;
+            vec3 transformFromCamera(const vec3& point) const;
         };
     }
 }

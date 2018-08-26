@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void validate();
 
             static void getArrows(ArrowVertex::List& arrows, const Vertex::List& links);
-            static void addArrow(ArrowVertex::List& arrows, const Vec4f& color, const Vec3f& arrowPosition, const Vec3f& lineDir);
+            static void addArrow(ArrowVertex::List& arrows, const vec4f& color, const vec3f& arrowPosition, const vec3f& lineDir);
             
             class MatchEntities;
             class CollectEntitiesVisitor;

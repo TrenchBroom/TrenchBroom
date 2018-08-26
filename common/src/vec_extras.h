@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_vec_extras_h
 #define TrenchBroom_vec_extras_h
 
-#include "Vec.h"
+#include "vec.h"
 
 /* ========== rounding and error correction ========== */
 
@@ -30,14 +30,14 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to round
+ * @param v the vector to round
  * @return the rounded vector
  */
 template <typename T, size_t S>
-Vec<T,S> round(const Vec<T,S>& vec) {
-    Vec<T,S> result;
+vec<T,S> round(const vec<T,S>& v) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::round(vec[i]);
+        result[i] = Math::round(v[i]);
     }
     return result;
 }
@@ -47,15 +47,15 @@ Vec<T,S> round(const Vec<T,S>& vec) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to round down
+ * @param v the vector to round down
  * @param m the multiples to round down to
  * @return the rounded vector
  */
 template <typename T, size_t S>
-Vec<T,S> roundDownToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
+vec<T,S> roundDownToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundDownToMultiple(vec[i], m[i]);
+        result[i] = Math::roundDownToMultiple(v[i], m[i]);
     }
     return result;
 }
@@ -65,15 +65,15 @@ Vec<T,S> roundDownToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to round down
+ * @param v the vector to round down
  * @param m the multiples to round up to
  * @return the rounded vector
  */
 template <typename T, size_t S>
-Vec<T,S> roundUpToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
+vec<T,S> roundUpToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundUpToMultiple(vec[i], m[i]);
+        result[i] = Math::roundUpToMultiple(v[i], m[i]);
     }
     return result;
 }
@@ -83,15 +83,15 @@ Vec<T,S> roundUpToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to round down
+ * @param v the vector to round down
  * @param m the multiples to round to
  * @return the rounded vector
  */
 template <typename T, size_t S>
-Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
+vec<T,S> roundToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundToMultiple(vec[i], m[i]);
+        result[i] = Math::roundToMultiple(v[i], m[i]);
     }
     return result;
 }
@@ -101,16 +101,16 @@ Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to correct
+ * @param v the vector to correct
  * @param decimals the number of decimal places to keep
  * @param epsilon the epsilon value
  * @return the corrected vector
  */
 template <typename T, size_t S>
-Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
-    Vec<T,S> result;
+vec<T,S> correct(const vec<T,S>& v, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::correct(vec[i], decimals, epsilon);
+        result[i] = Math::correct(v[i], decimals, epsilon);
     }
     return result;
 }
@@ -123,16 +123,16 @@ Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param point the point to check
+ * @param p the point to check
  * @param start the segment start
  * @param end the segment end
  * @return true if the given point is contained within the segment
  */
 template <typename T, size_t S>
-bool between(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
-    assert(colinear(point, start, end));
-    const Vec<T,S> toStart = start - point;
-    const Vec<T,S> toEnd   =   end - point;
+bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end) {
+    assert(colinear(p, start, end));
+    const vec<T,S> toStart = start - p;
+    const vec<T,S> toEnd   =   end - p;
 
     const T d = dot(toEnd, normalize(toStart));
     return !Math::pos(d);
@@ -167,20 +167,20 @@ auto average(I cur, I end, const G& get = Math::Identity()) -> typename std::rem
  * vector so that it becomes identical to the given vector.
  *
  * @tparam T the coordinate type
- * @param vec the vector
+ * @param v the vector
  * @param axis the axis
  * @param up the up vector
  * @return the CCW angle
  */
 template <typename T>
-T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
-    const auto cos = dot(vec, axis);
+T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
+    const auto cos = dot(v, axis);
     if (Math::one(+cos)) {
         return static_cast<T>(0.0);
     } else if (Math::one(-cos)) {
         return Math::Constants<T>::pi();
     } else {
-        const auto perp = cross(axis, vec);
+        const auto perp = cross(axis, v);
         if (!Math::neg(dot(perp, up))) {
             return std::acos(cos);
         } else {
@@ -202,7 +202,7 @@ struct EdgeDistance {
      * The closest point on a given segment to a given point.
      */
 
-    const Vec<T,S> point;
+    const vec<T,S> point;
     /**
      * The distance between the closest segment point and a given point.
      */
@@ -214,7 +214,7 @@ struct EdgeDistance {
      * @param i_point the closest point on the segment
      * @param i_distance the distance between the closest point and the given point
      */
-    EdgeDistance(const Vec<T,S>& i_point, const T i_distance) :
+    EdgeDistance(const vec<T,S>& i_point, const T i_distance) :
             point(i_point),
             distance(i_distance) {}
 };
@@ -231,13 +231,13 @@ struct EdgeDistance {
  * @return a struct containing the closest point on the segment and the distance between that point and the given point
  */
 template <typename T, size_t S>
-EdgeDistance<T,S> distanceOfPointAndSegment(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
-    const Vec<T,S> edgeVec = end - start;
-    const Vec<T,S> edgeDir = normalize(edgeVec);
+EdgeDistance<T,S> distanceOfPointAndSegment(const vec<T,S>& point, const vec<T,S>& start, const vec<T,S>& end) {
+    const vec<T,S> edgeVec = end - start;
+    const vec<T,S> edgeDir = normalize(edgeVec);
     const T scale = dot(point - start, edgeDir);
 
     // determine the closest point on the edge
-    Vec<T,S> closestPoint;
+    vec<T,S> closestPoint;
     if (scale < 0.0) {
         closestPoint = start;
     } else if ((scale * scale) > squaredLength(edgeVec)) {

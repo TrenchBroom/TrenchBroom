@@ -19,7 +19,7 @@
 
 #include "PlanePointFinder.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 
 namespace TrenchBroom {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
                     m_errors[i] = 0.0;
             }
             
-            Vec3 findMinimum(const Vec3& initialPosition) {
+            vec3 findMinimum(const vec3& initialPosition) {
                 for (size_t i = 0; i < 2; ++i)
                     m_position[i] = Math::round(initialPosition[i]);
                 
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return Vec3(globalMinPos.x(),
+                return vec3(globalMinPos.x(),
                             globalMinPos.y(),
                             Math::round(m_plane.zAt(globalMinPos)));
             }
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         FloatType computePlaneFrequency(const Plane3& plane) {
             static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
-            const Vec3& axis = plane.normal.firstAxis();
+            const vec3& axis = plane.normal.firstAxis();
             const FloatType cos = dot(plane.normal, axis);
             assert(cos != 0.0);
             
@@ -136,29 +136,29 @@ namespace TrenchBroom {
             switch (axis) {
                 case Math::Axis::AX:
                     if (plane.normal.x() > 0.0) {
-                        points[1] = points[0] + 64.0 * Vec3::PosZ;
-                        points[2] = points[0] + 64.0 * Vec3::PosY;
+                        points[1] = points[0] + 64.0 * vec3::pos_z;
+                        points[2] = points[0] + 64.0 * vec3::pos_y;
                     } else {
-                        points[1] = points[0] + 64.0 * Vec3::PosY;
-                        points[2] = points[0] + 64.0 * Vec3::PosZ;
+                        points[1] = points[0] + 64.0 * vec3::pos_y;
+                        points[2] = points[0] + 64.0 * vec3::pos_z;
                     }
                     break;
                 case Math::Axis::AY:
                     if (plane.normal.y() > 0.0) {
-                        points[1] = points[0] + 64.0 * Vec3::PosX;
-                        points[2] = points[0] + 64.0 * Vec3::PosZ;
+                        points[1] = points[0] + 64.0 * vec3::pos_x;
+                        points[2] = points[0] + 64.0 * vec3::pos_z;
                     } else {
-                        points[1] = points[0] + 64.0 * Vec3::PosZ;
-                        points[2] = points[0] + 64.0 * Vec3::PosX;
+                        points[1] = points[0] + 64.0 * vec3::pos_z;
+                        points[2] = points[0] + 64.0 * vec3::pos_x;
                     }
                     break;
                 default:
                     if  (plane.normal.z() > 0.0) {
-                        points[1] = points[0] + 64.0 * Vec3::PosY;
-                        points[2] = points[0] + 64.0 * Vec3::PosX;
+                        points[1] = points[0] + 64.0 * vec3::pos_y;
+                        points[2] = points[0] + 64.0 * vec3::pos_x;
                     } else {
-                        points[1] = points[0] + 64.0 * Vec3::PosX;
-                        points[2] = points[0] + 64.0 * Vec3::PosY;
+                        points[1] = points[0] + 64.0 * vec3::pos_x;
+                        points[2] = points[0] + 64.0 * vec3::pos_y;
                     }
                     break;
             }
@@ -194,13 +194,13 @@ namespace TrenchBroom {
                 points[0] = cursor.findMinimum(points[0]);
             }
 
-            Vec3 v1, v2;
+            vec3 v1, v2;
             FloatType cos;
             size_t count = 0;
             do {
                 if (numPoints < 2 || !isIntegral(points[1]))
-                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * Vec3::PosX);
-                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * Vec3::PosY - pointDistance / 2.0 * Vec3::PosX));
+                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * vec3::pos_x);
+                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vec3::pos_y - pointDistance / 2.0 * vec3::pos_x));
                 v1 = normalize(points[2] - points[0]);
                 v2 = normalize(points[1] - points[0]);
                 cos = dot(v1, v2);

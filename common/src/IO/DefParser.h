@@ -88,7 +88,7 @@ namespace TrenchBroom {
             
             String parseDescription();
 
-            Vec3 parseVector(ParserStatus& status);
+            vec3 parseVector(ParserStatus& status);
             BBox3 parseBounds(ParserStatus& status);
             Color parseColor(ParserStatus& status);
             

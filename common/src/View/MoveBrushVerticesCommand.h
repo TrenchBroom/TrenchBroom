@@ -36,22 +36,22 @@ namespace TrenchBroom {
             typedef std::shared_ptr<MoveBrushVerticesCommand> Ptr;
         private:
             Model::BrushVerticesMap m_vertices;
-            Vec3::List m_oldVertexPositions;
-            Vec3::List m_newVertexPositions;
-            Vec3 m_delta;
+            vec3::List m_oldVertexPositions;
+            vec3::List m_newVertexPositions;
+            vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            static Ptr move(const Model::VertexToBrushesMap& vertices, const vec3& delta);
             bool hasRemainingVertices() const;
         private:
-            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta);
+            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vec3::List& vertexPositions, const vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
             
             bool doCollateWith(UndoableCommand::Ptr command) override;
 
-            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const override;
-            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const override;
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const override;
         };
     }
 }

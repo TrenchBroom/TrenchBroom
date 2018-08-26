@@ -40,9 +40,9 @@ namespace TrenchBroom {
 
         // Scale tool helper functions
 
-        bool BBoxSide::validSideNormal(const Vec3& n) {
+        bool BBoxSide::validSideNormal(const vec3& n) {
             for (size_t i = 0; i < 3; ++i) {
-                Vec3 expected = Vec3::Null;
+                vec3 expected = vec3::zero;
                 expected[i] = 1.0;
                 if (n == expected || n == -expected) {
                     return true;
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        BBoxSide::BBoxSide(const Vec3& n)
+        BBoxSide::BBoxSide(const vec3& n)
                 : normal(n) {
             if (!validSideNormal(n)) {
                 throw std::invalid_argument("BBoxSide created with invalid normal " + StringUtils::toString(n));
@@ -68,7 +68,7 @@ namespace TrenchBroom {
 
         // BBoxCorner
 
-        bool BBoxCorner::validCorner(const Vec3& c) {
+        bool BBoxCorner::validCorner(const vec3& c) {
             // all components must be either +1 or -1
             for (size_t i = 0; i < 3; ++i) {
                 if (!(c[i] == -1.0 || c[i] == 1.0)) {
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        BBoxCorner::BBoxCorner(const Vec3& c) : corner(c) {
+        BBoxCorner::BBoxCorner(const vec3& c) : corner(c) {
             if (!validCorner(c)) {
                 throw std::invalid_argument("BBoxCorner created with invalid corner " + StringUtils::toString(c));
             }
@@ -90,7 +90,7 @@ namespace TrenchBroom {
 
         // BBoxEdge
 
-        BBoxEdge::BBoxEdge(const Vec3 &p0, const Vec3& p1) : point0(p0), point1(p1) {
+        BBoxEdge::BBoxEdge(const vec3 &p0, const vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
                 throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p0));
             }
@@ -147,7 +147,7 @@ namespace TrenchBroom {
             result.reserve(6);
             
             const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
-            auto op = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& normal) {
+            auto op = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& normal) {
                 result.push_back(BBoxSide(normal));
             };
             eachBBoxFace(box, op);
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             result.reserve(12);
             
             const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
-            auto op = [&](const Vec3& p0, const Vec3& p1) {
+            auto op = [&](const vec3& p0, const vec3& p1) {
                 result.push_back(BBoxEdge(p0, p1));
             };
             eachBBoxEdge(box, op);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             result.reserve(8);
             
             const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
-            auto op = [&](const Vec3& point) {
+            auto op = [&](const vec3& point) {
                 result.push_back(BBoxCorner(point));
             };
             eachBBoxVertex(box, op);
@@ -184,8 +184,8 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner) {
-            Vec3 res;
+        vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner) {
+            vec3 res;
             for (size_t i = 0; i < 3; ++i) {
                 assert(corner.corner[i] == 1.0 || corner.corner[i] == -1.0);
                 
@@ -199,7 +199,7 @@ namespace TrenchBroom {
         }
         
         BBoxCorner oppositeCorner(const BBoxCorner& corner) {
-            return BBoxCorner(Vec3(-corner.corner.x(),
+            return BBoxCorner(vec3(-corner.corner.x(),
                                    -corner.corner.y(),
                                    -corner.corner.z()));
         }
@@ -218,7 +218,7 @@ namespace TrenchBroom {
             const auto wantedNormal = side.normal;
             
             Polygon3 res;
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+            auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
                 if (n == wantedNormal) {
                     const Polygon3 poly {p0, p1, p2, p3};
                     res = poly;
@@ -230,13 +230,13 @@ namespace TrenchBroom {
             return res;
         }
         
-        Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side) {
+        vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side) {
             const auto wantedNormal = side.normal;
             
-            Vec3 result;
+            vec3 result;
             bool setResult = false;
             
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+            auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
                 if (n == wantedNormal) {
                     result = (p0 + p1 + p2 + p3) / 4.0;
                     setResult = true;
@@ -251,7 +251,7 @@ namespace TrenchBroom {
 
         BBox3 moveBBoxSide(const BBox3 &in,
                            const BBoxSide &side,
-                           const Vec3 &delta,
+                           const vec3 &delta,
                            ProportionalAxes proportional,
                            AnchorPos anchorType) {
             FloatType sideLengthDelta = dot(side.normal, delta);
@@ -270,12 +270,12 @@ namespace TrenchBroom {
                 return BBox3();
             }
 
-            const Vec3 n = side.normal;
+            const vec3 n = side.normal;
             const size_t axis1 = n.firstComponent();
             const size_t axis2 = n.secondComponent();
             const size_t axis3 = n.thirdComponent();
 
-            Vec3 newSize = in.size();
+            vec3 newSize = in.size();
 
             newSize[axis1] = sideLength;
 
@@ -288,7 +288,7 @@ namespace TrenchBroom {
                 newSize[axis3] *= ratio;
             }
 
-            const Vec3 anchor = (anchorType == AnchorPos::Center)
+            const vec3 anchor = (anchorType == AnchorPos::Center)
                 ? in.center()
                 : centerForBBoxSide(in, oppositeSide(side));
 
@@ -300,16 +300,16 @@ namespace TrenchBroom {
 
         BBox3 moveBBoxCorner(const BBox3& in,
                              const BBoxCorner& corner,
-                             const Vec3& delta,
+                             const vec3& delta,
                              const AnchorPos anchorType) {
 
             const BBoxCorner opposite = oppositeCorner(corner);
-            const Vec3 oppositePoint = pointForBBoxCorner(in, opposite);
-            const Vec3 anchor = (anchorType == AnchorPos::Center)
+            const vec3 oppositePoint = pointForBBoxCorner(in, opposite);
+            const vec3 anchor = (anchorType == AnchorPos::Center)
                                 ? in.center()
                                 : oppositePoint;
-            const Vec3 oldCorner = pointForBBoxCorner(in, corner);
-            const Vec3 newCorner = oldCorner + delta;
+            const vec3 oldCorner = pointForBBoxCorner(in, corner);
+            const vec3 newCorner = oldCorner + delta;
 
             // check for inverting the box
             for (size_t i = 0; i < 3; ++i) {
@@ -324,28 +324,28 @@ namespace TrenchBroom {
             }
 
             if (anchorType == AnchorPos::Center) {
-                return BBox3(Vec3::List{anchor - (newCorner - anchor), newCorner});
+                return BBox3(vec3::List{anchor - (newCorner - anchor), newCorner});
             } else {
-                return BBox3(Vec3::List{oppositePoint, newCorner});
+                return BBox3(vec3::List{oppositePoint, newCorner});
             }
         }
 
         BBox3 moveBBoxEdge(const BBox3& in,
                            const BBoxEdge& edge,
-                           const Vec3& delta,
+                           const vec3& delta,
                            const ProportionalAxes proportional,
                            const AnchorPos anchorType) {
 
             const BBoxEdge opposite = oppositeEdge(edge);
-            const Vec3 edgeMid = pointsForBBoxEdge(in, edge).center();
-            const Vec3 oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
+            const vec3 edgeMid = pointsForBBoxEdge(in, edge).center();
+            const vec3 oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
 
-            const Vec3 anchor = (anchorType == AnchorPos::Center)
+            const vec3 anchor = (anchorType == AnchorPos::Center)
                                 ? in.center()
                                 : oppositeEdgeMid;
 
-            const Vec3 oldAnchorDist = edgeMid - anchor;
-            const Vec3 newAnchorDist = oldAnchorDist + delta;
+            const vec3 oldAnchorDist = edgeMid - anchor;
+            const vec3 newAnchorDist = oldAnchorDist + delta;
 
             // check for crossing over the anchor
             for (size_t i = 0; i < 3; ++i) {
@@ -359,10 +359,10 @@ namespace TrenchBroom {
 
             const size_t nonMovingAxis = oldAnchorDist.thirdComponent();
 
-            const Vec3 corner1 = (anchorType == AnchorPos::Center)
+            const vec3 corner1 = (anchorType == AnchorPos::Center)
                                  ? anchor - newAnchorDist
                                  : anchor;
-            const Vec3 corner2 = anchor + newAnchorDist;
+            const vec3 corner2 = anchor + newAnchorDist;
 
 
             BBox3 result(corner1, corner2);
@@ -413,16 +413,16 @@ namespace TrenchBroom {
                 const Edge3 endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
                 const Edge3 startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
 
-                const Vec3 handleLineStart = startEdgeActual.center();
-                const Vec3 handleLineEnd = endEdgeActual.center();
+                const vec3 handleLineStart = startEdgeActual.center();
+                const vec3 handleLineEnd = endEdgeActual.center();
 
                 handleLine = Line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
             } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
                 const auto endCorner = hit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
-                const Vec3 handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
-                const Vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
+                const vec3 handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
+                const vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
 
                 handleLine = Line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
             } else {
@@ -434,7 +434,7 @@ namespace TrenchBroom {
 
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
-                             const Vec3& delta,
+                             const vec3& delta,
                              const ProportionalAxes proportional,
                              const AnchorPos anchor) {
             if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit) {
@@ -465,7 +465,7 @@ namespace TrenchBroom {
         m_anchorPos(AnchorPos::Opposite),
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
-        m_dragCumulativeDelta(Vec3::Null),
+        m_dragCumulativeDelta(vec3::zero),
         m_proportionalAxes(ProportionalAxes::None()) {}
         
         ScaleObjectsTool::~ScaleObjectsTool() = default;
@@ -482,17 +482,17 @@ namespace TrenchBroom {
         BackSide pickBackSideOfBox(const Ray3& pickRay, const Renderer::Camera& camera, const BBox3& box) {
             FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
             FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
-            Vec3 bestNormal;
+            vec3 bestNormal;
 
             // idea is: find the closest point on an edge of the cube, belonging
             // to a face that's facing away from the pick ray.
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
+            auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
                 const FloatType cosAngle = dot(n, pickRay.direction);
                 if (cosAngle >= 0.0 && cosAngle < 1.0) {
                     // the face is pointing away from the camera (or exactly perpendicular)
                     // but not equal to the camera direction (important for 2D views)
 
-                    const Vec3 points[] = {p0, p1, p2, p3};
+                    const vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
                         const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
                         if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
@@ -507,7 +507,7 @@ namespace TrenchBroom {
 
             // The hit point is the closest point on the pick ray to one of the edges of the face.
             // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-            assert(bestNormal != Vec3::Null);
+            assert(bestNormal != vec3::zero);
 
             BackSide result;
             result.distAlongRay = bestDistAlongRay;
@@ -522,7 +522,7 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != Vec3::Null);
+                assert(result.pickedSideNormal != vec3::zero);
                 pickResult.addHit(Model::Hit(ScaleToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
@@ -543,9 +543,9 @@ namespace TrenchBroom {
                 const Edge3 points = pointsForBBoxEdge(myBounds, edge);
 
                 // in 2d views, only use edges that are parallel to the camera
-                if (parallel(points.direction(), Vec3(camera.direction()))) {
+                if (parallel(points.direction(), vec3(camera.direction()))) {
                     // could figure out which endpoint is closer to camera, or just test both.
-                    for (const Vec3& point : Vec3::List{points.start(), points.end()}) {
+                    for (const vec3& point : vec3::List{points.start(), points.end()}) {
                         const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
                         if (!Math::isnan(dist)) {
                             localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
@@ -578,7 +578,7 @@ namespace TrenchBroom {
 
             // corners
             for (const BBoxCorner& corner : allCorners()) {
-                const Vec3 point = pointForBBoxCorner(myBounds, corner);
+                const vec3 point = pointForBBoxCorner(myBounds, corner);
 
                 // make the spheres for the corner handles slightly larger than the
                 // cylinders of the edge handles, so they take priority where they overlap.
@@ -632,7 +632,7 @@ namespace TrenchBroom {
         static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner corner) {
             std::vector<BBoxSide> result;
             for (size_t i = 0; i < 3; ++i) {
-                Vec3 sideNormal = Vec3::Null;
+                vec3 sideNormal = vec3::zero;
                 sideNormal[i] = corner.corner[i];
                 
                 result.push_back(BBoxSide(sideNormal));
@@ -649,8 +649,8 @@ namespace TrenchBroom {
             
             const BBox3 box{{-1, -1, -1}, {1, 1, 1}};
             
-            auto visitor = [&](const Vec3& p0, const Vec3& p1, const Vec3& p2, const Vec3& p3, const Vec3& n){
-                const Vec3 verts[4] = {p0, p1, p2, p3};
+            auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
+                const vec3 verts[4] = {p0, p1, p2, p3};
                 
                 // look for the edge
                 for (size_t i = 0; i < 4; ++i) {
@@ -703,11 +703,11 @@ namespace TrenchBroom {
 
                     if (m_proportionalAxes.isAxisProportional(i)) {
                         // Highlight the + and - sides on this axis
-                        Vec3 side1;
+                        vec3 side1;
                         side1[i] = 1.0;
                         sides.emplace_back(side1);
 
-                        Vec3 side2;
+                        vec3 side2;
                         side2[i] = -1.0;
                         sides.emplace_back(side2);
                     }
@@ -757,10 +757,10 @@ namespace TrenchBroom {
             return m_dragStartHit.type() == ScaleToolCornerHit;
         }
         
-        Vec3f ScaleObjectsTool::dragCorner() const {
+        vec3f ScaleObjectsTool::dragCorner() const {
             assert(hasDragCorner());
             auto whichCorner = m_dragStartHit.target<BBoxCorner>();
-            return Vec3f(pointForBBoxCorner(bounds(), whichCorner));
+            return vec3f(pointForBBoxCorner(bounds(), whichCorner));
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
@@ -774,33 +774,33 @@ namespace TrenchBroom {
                    || type == ScaleToolSideHit;
         }
 
-        Vec3f ScaleObjectsTool::dragAnchor() const {
+        vec3f ScaleObjectsTool::dragAnchor() const {
             if (m_anchorPos == AnchorPos::Center) {
-                return Vec3f(bounds().center());
+                return vec3f(bounds().center());
             }
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto endSide = m_dragStartHit.target<BBoxSide>();
                 const auto startSide = oppositeSide(endSide);
 
-                return Vec3f(centerForBBoxSide(bounds(), startSide));
+                return vec3f(centerForBBoxSide(bounds(), startSide));
             } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                 const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
                 const Edge3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
 
-                return Vec3f(startEdgeActual.center());
+                return vec3f(startEdgeActual.center());
             } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                 const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
                 const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
-                return Vec3f(startCornerActual);
+                return vec3f(startCornerActual);
             }
 
             assert(0);
-            return Vec3f::Null;
+            return vec3f::zero;
         }
 
         BBox3 ScaleObjectsTool::bboxAtDragStart() const {
@@ -808,14 +808,14 @@ namespace TrenchBroom {
             return m_bboxAtDragStart;
         }
 
-        Vec3::List ScaleObjectsTool::cornerHandles() const {
+        vec3::List ScaleObjectsTool::cornerHandles() const {
             if (bounds().empty()) {
                 return {};
             }
 
-            Vec3::List result;
+            vec3::List result;
             result.reserve(8);
-            auto op = [&](const Vec3& point) {
+            auto op = [&](const vec3& point) {
                 result.push_back(point);
             };
             eachBBoxVertex(bounds(), op);
@@ -871,14 +871,14 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = Vec3::Null;
+            m_dragCumulativeDelta = vec3::zero;
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Scale Objects");
             m_resizing = true;
         }
 
-        void ScaleObjectsTool::scaleByDelta(const Vec3 &delta) {
+        void ScaleObjectsTool::scaleByDelta(const vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
             m_dragCumulativeDelta += delta;

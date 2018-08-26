@@ -83,9 +83,9 @@ namespace TrenchBroom {
             wxPoint windowCenter() const;
         private:
             ExitCode Entry() override;
-            Vec3f moveDelta();
-            Vec2f lookDelta();
-            Vec2f lookSpeed() const;
+            vec3f moveDelta();
+            vec2f lookDelta();
+            vec2f lookSpeed() const;
             float moveSpeed() const;
         };
     }

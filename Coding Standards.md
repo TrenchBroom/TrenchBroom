@@ -21,7 +21,7 @@
   if (…) doThis();
 - Avoid header files that declare more than one class.
 - Make typedefs for templates, vectors and smart pointers, e.g.
-typedef Vec<double,3> Vec3d;
+typedef vec<double,3> vec3d;
 typedef std::vector<MyClass> MyClassList;
 typedef std::shared_ptr<MyClass> MyClassPtr;
 

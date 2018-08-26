@@ -90,19 +90,19 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
 
-            const Vec3 toMin = m_referenceBounds.min - pickRay.origin;
-            const Vec3 toMax = m_referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
+            const vec3 toMin = m_referenceBounds.min - pickRay.origin;
+            const vec3 toMax = m_referenceBounds.max - pickRay.origin;
+            const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
             const Plane3 dragPlane(anchor, -pickRay.direction);
             
             const FloatType distance = dragPlane.intersectWithRay(pickRay);
             if (Math::isnan(distance))
                 return;
             
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const vec3 hitPoint = pickRay.pointAtDistance(distance);
             
             const Grid& grid = document->grid();
-            const Vec3 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
+            const vec3 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
             
             if (!isNull(delta)) {
                 document->translateObjects(delta);
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             
-            Vec3 delta;
+            vec3 delta;
             const Grid& grid = document->grid();
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
@@ -122,8 +122,8 @@ namespace TrenchBroom {
                 const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
-                const Vec3 newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
-                const Vec3 center = m_entity->bounds().center();
+                const vec3 newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
+                const vec3 center = m_entity->bounds().center();
                 delta = grid.moveDeltaForPoint(center, document->worldBounds(), newPosition - center);
             }
             

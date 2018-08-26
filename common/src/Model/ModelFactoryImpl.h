@@ -47,8 +47,8 @@ namespace TrenchBroom {
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const override;
             
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const override;
+            BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const override;
+            BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const override;
         };
     }
 }

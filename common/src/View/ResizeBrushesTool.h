@@ -46,8 +46,8 @@ namespace TrenchBroom {
 
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_dragFaces;
-            Vec3 m_dragOrigin;
-            Vec3 m_totalDelta;
+            vec3 m_dragOrigin;
+            vec3 m_totalDelta;
             bool m_splitBrushes;
             bool m_resizing;
         public:
@@ -73,12 +73,12 @@ namespace TrenchBroom {
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
-            Vec3 selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, FloatType mouseDistance) const;
+            vec3 selectDelta(const vec3& relativeDelta, const vec3& absoluteDelta, FloatType mouseDistance) const;
 
             void commitResize();
             void cancelResize();
         private:
-            bool splitBrushes(const Vec3& delta);
+            bool splitBrushes(const vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
             Polygon3::List dragFaceDescriptors() const;
         private:

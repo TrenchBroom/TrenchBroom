@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        void resizeMips(TextureBuffer::List& buffers, const Vec2s& oldSize, const Vec2s& newSize);
+        void resizeMips(TextureBuffer::List& buffers, const vec2s& oldSize, const vec2s& newSize);
     }
 }
 

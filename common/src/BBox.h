@@ -24,7 +24,7 @@
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"
-#include "Vec.h"
+#include "vec.h"
 
 #include <algorithm>
 #include <array>
@@ -58,12 +58,12 @@ public:
         }
     };
     
-    Vec<T,S> min;
-    Vec<T,S> max;
+    vec<T,S> min;
+    vec<T,S> max;
     
     BBox() :
-    min(Vec<T,S>::Null),
-    max(Vec<T,S>::Null) {}
+    min(vec<T,S>::zero),
+    max(vec<T,S>::zero) {}
     
     // Copy and move constructors
     BBox(const BBox<T,S>& other) = default;
@@ -79,26 +79,26 @@ public:
     min(other.min),
     max(other.max) {}
     
-    BBox(const Vec<T,S>& i_min, const Vec<T,S>& i_max) :
+    BBox(const vec<T,S>& i_min, const vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {}
     
     BBox(const T i_minMax) :
-    min(Vec<T,S>::fill(-i_minMax)),
-    max(Vec<T,S>::fill(+i_minMax)) {}
+    min(vec<T,S>::fill(-i_minMax)),
+    max(vec<T,S>::fill(+i_minMax)) {}
     
     BBox(const T i_min, const T i_max) :
-    min(Vec<T,S>::fill(i_min)),
-    max(Vec<T,S>::fill(i_max)) {}
+    min(vec<T,S>::fill(i_min)),
+    max(vec<T,S>::fill(i_max)) {}
     
-    BBox(const Vec<T,S>& center, const T size) {
+    BBox(const vec<T,S>& center, const T size) {
         for (size_t i = 0; i < S; ++i) {
             min[i] = center[i] - size;
             max[i] = center[i] + size;
         }
     }
     
-    BBox(const typename Vec<T,S>::List& vertices) {
+    BBox(const typename vec<T,S>::List& vertices) {
         assert(vertices.size() > 0);
         min = max = vertices[0];
         for (size_t i = 0; i < vertices.size(); ++i)
@@ -128,11 +128,11 @@ public:
         return false;
     }
     
-    Vec<T,S> center() const {
+    vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }
     
-    Vec<T,S> size() const {
+    vec<T,S> size() const {
         return max - min;
     }
 
@@ -145,14 +145,14 @@ public:
         return result;
     }
 
-    Vec<T,S> vertex(const Corner c[S]) const {
-        Vec<T,S> result;
+    vec<T,S> vertex(const Corner c[S]) const {
+        vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = c[i] == Corner_Min ? min[i] : max[i];
         return result;
     }
     
-    Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
+    vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
         Corner c[] = { x, y, z };
         return vertex(c);
     }
@@ -170,7 +170,7 @@ public:
     }
     
     
-    BBox<T,S>& mergeWith(const Vec<T,S>& right) {
+    BBox<T,S>& mergeWith(const vec<T,S>& right) {
         for (size_t i = 0; i < S; ++i) {
             min[i] = std::min(min[i], right[i]);
             max[i] = std::max(max[i], right[i]);
@@ -178,7 +178,7 @@ public:
         return *this;
     }
     
-    BBox<T,S> mergedWith(const Vec<T,S>& right) const {
+    BBox<T,S> mergedWith(const vec<T,S>& right) const {
         return BBox<T,S>(*this).mergeWith(right);
     }
     
@@ -194,18 +194,18 @@ public:
         return BBox<T,S>(*this).insersectWith(right);
     }
 
-    BBox<T,S>& mix(const BBox<T,S>& box, const Vec<T,S>& factor) {
+    BBox<T,S>& mix(const BBox<T,S>& box, const vec<T,S>& factor) {
         min = ::mix(min, box.min, factor);
         max = ::mix(max, box.max, factor);
         return *this;
     }
     
-    BBox<T,S> mixed(const BBox<T,S>& box, const Vec<T,S>& factor) const {
+    BBox<T,S> mixed(const BBox<T,S>& box, const vec<T,S>& factor) const {
         return BBox<T,S>(*this).mix(box, factor);
     }
     
     BBox<T,S>& translateToOrigin() {
-        const Vec<T,S> c = center();
+        const vec<T,S> c = center();
         min -= c;
         max -= c;
         return *this;
@@ -236,7 +236,7 @@ public:
         return BBox<U,S>(min.template makeIntegral<U>(), max.template makeIntegral<U>());
     }
 
-    bool contains(const Vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
+    bool contains(const vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(point[i], min[i], epsilon) ||
                 Math::gt(point[i], max[i], epsilon)) {
@@ -246,7 +246,7 @@ public:
         return true;
     }
     
-    RelativePosition relativePosition(const Vec<T,S>& point) const {
+    RelativePosition relativePosition(const vec<T,S>& point) const {
         typename RelativePosition::Range p[S];
         for (size_t i = 0; i < S; ++i) {
             if (point[i] < min[i])
@@ -293,8 +293,8 @@ public:
      * @param point the point to constrain
      * @return the constrained point
      */
-    Vec<T,S> constrain(const Vec<T,S>& point) const {
-        Vec<T,S> result(point);
+    vec<T,S> constrain(const vec<T,S>& point) const {
+        vec<T,S> result(point);
         for (size_t i = 0; i < S; ++i) {
             result[i] = Math::min(max[i], Math::max(min[i], result[i]));
         }
@@ -311,7 +311,7 @@ public:
         return true;
     }
     
-    bool touches(const Vec<T,S>& start, const Vec<T,S>& end, const T epsilon = static_cast<T>(0.0)) const {
+    bool touches(const vec<T,S>& start, const vec<T,S>& end, const T epsilon = static_cast<T>(0.0)) const {
         if (contains(start, epsilon) || contains(end, epsilon))
             return true;
 
@@ -403,13 +403,13 @@ public:
         return BBox<T,S>(*this).expand(f);
     }
     
-    BBox<T,S>& translate(const Vec<T,S>& delta) {
+    BBox<T,S>& translate(const vec<T,S>& delta) {
         min += delta;
         max += delta;
         return *this;
     }
     
-    BBox<T,S> translated(const Vec<T,S>& delta) const {
+    BBox<T,S> translated(const vec<T,S>& delta) const {
         return BBox<T,S>(*this).translate(delta);
     }
 
@@ -422,27 +422,27 @@ public:
 
 template <typename T, class Op>
 void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
-    const Vec<T,3> size = bbox.size();
-    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> size = bbox.size();
+    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
     
-    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x, Vec<T,3>( 0.0,  0.0, +1.0)); // top
-    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y, Vec<T,3>( 0.0,  0.0, -1.0)); // bottom
-    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x, Vec<T,3>( 0.0, -1.0,  0.0)); // front
-    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z, Vec<T,3>( 0.0, +1.0,  0.0)); // back
-    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z, Vec<T,3>(-1.0,  0.0,  0.0)); // left
-    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y, Vec<T,3>(+1.0,  0.0,  0.0)); // right
+    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x, vec<T,3>( 0.0,  0.0, +1.0)); // top
+    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y, vec<T,3>( 0.0,  0.0, -1.0)); // bottom
+    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x, vec<T,3>( 0.0, -1.0,  0.0)); // front
+    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z, vec<T,3>( 0.0, +1.0,  0.0)); // back
+    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z, vec<T,3>(-1.0,  0.0,  0.0)); // left
+    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y, vec<T,3>(+1.0,  0.0,  0.0)); // right
 }
 
 template <typename T, class Op>
 void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
-    const Vec<T,3> size = bbox.size();
-    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> size = bbox.size();
+    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
     
-    Vec<T,3> v1, v2;
+    vec<T,3> v1, v2;
     
     // top edges clockwise (viewed from above)
     op(bbox.max,         bbox.max - y    );
@@ -464,13 +464,13 @@ void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
 }
 
 template <typename T>
-typename Vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
-    const Vec<T,3> size = bbox.size();
-    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+typename vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
+    const vec<T,3> size = bbox.size();
+    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
 
-    typename Vec<T,3>::List vertices(8);
+    typename vec<T,3>::List vertices(8);
     
     // top vertices clockwise (viewed from above)
     vertices[0] = bbox.max;
@@ -488,10 +488,10 @@ typename Vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
 
 template <typename T, class Op>
 void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
-    const Vec<T,3> size = bbox.size();
-    const Vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const Vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const Vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> size = bbox.size();
+    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
     
     // top vertices clockwise (viewed from above)
     op(bbox.max);
@@ -516,7 +516,7 @@ struct RotateBBox {
     rotation(i_rotation),
     first(true) {}
     
-    void operator()(const Vec<T,3>& vertex) {
+    void operator()(const vec<T,3>& vertex) {
         if (first) {
             bbox.min = bbox.max = rotation * vertex;
             first = false;
@@ -527,7 +527,7 @@ struct RotateBBox {
 };
 
 template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
+BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Quat<T>& rotation, const vec<T,3>& center = vec<T,3>::Null) {
     RotateBBox<T> rotator(rotation);
     eachBBoxVertex(bbox.translated(-center), rotator);
     return rotator.bbox.translated(center);
@@ -543,7 +543,7 @@ struct TransformBBox {
     transformation(i_transformation),
     first(true) {}
     
-    void operator()(const Vec<T,3>& vertex) {
+    void operator()(const vec<T,3>& vertex) {
         if (first) {
             bbox.min = bbox.max = transformation * vertex;
             first = false;
@@ -572,59 +572,59 @@ auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
 
 template <typename T>
 Mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
-    const Vec<T,3>& oldSize = oldBBox.size();
-    const Vec<T,3>& newSize = newBBox.size();
-    const Vec<T,3> scaleFactors = newSize / oldSize;
+    const vec<T,3>& oldSize = oldBBox.size();
+    const vec<T,3>& newSize = newBBox.size();
+    const vec<T,3> scaleFactors = newSize / oldSize;
     
     const Mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
     return transform;
 }
 
 template <typename T>
-Mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const Vec<T,3>& newSize, const Vec<T,3>& anchorPoint) {
-    const Vec<T,3>& oldSize = oldBBox.size();
-    const Vec<T,3> scaleFactors = newSize / oldSize;
+Mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
+    const vec<T,3>& oldSize = oldBBox.size();
+    const vec<T,3> scaleFactors = newSize / oldSize;
 
     const Mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
     return transform;
 }
 
 template <typename T>
-Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const Vec<T,3>& sideToShear, const Vec<T,3>& delta) {
+Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
     const auto oldSize = box.size();
     
     // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
     Mat<T,4,4> shearMat;
-    if (sideToShear == Vec<T,3>::PosX) {
+    if (sideToShear == vec<T,3>::pos_x) {
         const auto relativeDelta = delta / oldSize.x();
         shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
     }
-    if (sideToShear == Vec<T,3>::NegX) {
+    if (sideToShear == vec<T,3>::neg_x) {
         const auto relativeDelta = delta / oldSize.x();
         shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
     }
-    if (sideToShear == Vec<T,3>::PosY) {
+    if (sideToShear == vec<T,3>::pos_y) {
         const auto relativeDelta = delta / oldSize.y();
         shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
     }
-    if (sideToShear == Vec<T,3>::NegY) {
+    if (sideToShear == vec<T,3>::neg_y) {
         const auto relativeDelta = delta / oldSize.y();
         shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
     }
-    if (sideToShear == Vec<T,3>::PosZ) {
+    if (sideToShear == vec<T,3>::pos_z) {
         const auto relativeDelta = delta / oldSize.z();
         shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
     }
-    if (sideToShear == Vec<T,3>::NegZ) {
+    if (sideToShear == vec<T,3>::neg_z) {
         const auto relativeDelta = delta / oldSize.z();
         shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
     }
     
     // grab any vertex on side that is opposite the one being sheared.
     const auto sideOppositeToShearSide = -sideToShear;
-    Vec<T,3> vertOnOppositeSide;
+    vec<T,3> vertOnOppositeSide;
     bool didGrab = false;
-    auto visitor = [&](const Vec<T,3>& p0, const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& n){
+    auto visitor = [&](const vec<T,3>& p0, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, const vec<T,3>& n){
         if (n == sideOppositeToShearSide) {
             vertOnOppositeSide = p0;
             didGrab = true;

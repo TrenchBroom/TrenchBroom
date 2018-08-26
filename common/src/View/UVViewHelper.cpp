@@ -19,7 +19,7 @@
 
 #include "UVViewHelper.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 resetZoom();
         }
         
-        const Vec2i& UVViewHelper::subDivisions() const {
+        const vec2i& UVViewHelper::subDivisions() const {
             return m_subDivisions;
         }
 
@@ -83,37 +83,37 @@ namespace TrenchBroom {
             
             const Assets::Texture* texture = m_face->texture();
             if (texture == nullptr)
-                return Vec2::Null;
+                return Vec2::zero;
             const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
             const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
             return Vec2(width, height);
         }
 
-        void UVViewHelper::setSubDivisions(const Vec2i& subDivisions) {
+        void UVViewHelper::setSubDivisions(const vec2i& subDivisions) {
             m_subDivisions = subDivisions;
         }
         
-        const Vec3 UVViewHelper::origin() const {
+        const vec3 UVViewHelper::origin() const {
             assert(valid());
 
             return m_origin;
         }
 
-        const Vec2f UVViewHelper::originInFaceCoords() const {
-            const Mat4x4 toFace = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+        const vec2f UVViewHelper::originInFaceCoords() const {
+            const Mat4x4 toFace = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             return toFace * origin();
         }
         
-        const Vec2f UVViewHelper::originInTexCoords() const {
+        const vec2f UVViewHelper::originInTexCoords() const {
             assert(valid());
             
             const Mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            return Vec2f(toFace * origin());
+            return vec2f(toFace * origin());
         }
         
-        void UVViewHelper::setOriginInFaceCoords(const Vec2f& originInFaceCoords) {
-            const Mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            m_origin = fromFace * Vec3(originInFaceCoords);
+        void UVViewHelper::setOriginInFaceCoords(const vec2f& originInFaceCoords) {
+            const Mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            m_origin = fromFace * vec3(originInFaceCoords);
         }
         
         const Renderer::Camera& UVViewHelper::camera() const {
@@ -132,8 +132,8 @@ namespace TrenchBroom {
                 
                 const Plane3& boundary = m_face->boundary();
                 const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());
-                const Vec3 hitPointInWorldCoords = ray.pointAtDistance(rayDistance);
-                const Vec3 hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                const vec3 hitPointInWorldCoords = ray.pointAtDistance(rayDistance);
+                const vec3 hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
                 
                 const FloatType maxDistance = 5.0 / cameraZoom();
                 const Vec2 stripeSize = UVViewHelper::stripeSize();
@@ -149,10 +149,10 @@ namespace TrenchBroom {
             }
         }
 
-        Vec2f UVViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
+        vec2f UVViewHelper::snapDelta(const vec2f& delta, const vec2f& distance) const {
             const float zoom = cameraZoom();
             
-            Vec2f result;
+            vec2f result;
             for (size_t i = 0; i < 2; ++i) {
                 if (Math::abs(distance[i]) < 4.0f / zoom)
                     result[i] = delta[i] + distance[i];
@@ -162,23 +162,23 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec2f UVViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
+        vec2f UVViewHelper::computeDistanceFromTextureGrid(const vec3& position) const {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
             const Vec2 closest = roundToMultiple(position.xy(), stripe);
-            return Vec2f(closest - position.xy());
+            return vec2f(closest - position.xy());
         }
         
-        void UVViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void UVViewHelper::computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const {
             assert(valid());
             
-            const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             computeLineVertices(originInFaceCoords(), x1, x2, y1, y2, toTex, toWorld);
         }
 
-        void UVViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void UVViewHelper::computeScaleHandleVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const {
             assert(valid());
             
             const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
@@ -186,38 +186,38 @@ namespace TrenchBroom {
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
         
-        void UVViewHelper::computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
-            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
+        void UVViewHelper::computeLineVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
+            const vec3::List viewportVertices = toTex * m_camera.viewportVertices();
             const BBox3 viewportBounds(viewportVertices);
-            const Vec3& min = viewportBounds.min;
-            const Vec3& max = viewportBounds.max;
+            const vec3& min = viewportBounds.min;
+            const vec3& max = viewportBounds.max;
             
-            x1 = toWorld * Vec3(pos.x(), min.y(), 0.0);
-            x2 = toWorld * Vec3(pos.x(), max.y(), 0.0);
-            y1 = toWorld * Vec3(min.x(), pos.y(), 0.0);
-            y2 = toWorld * Vec3(max.x(), pos.y(), 0.0);
+            x1 = toWorld * vec3(pos.x(), min.y(), 0.0);
+            x2 = toWorld * vec3(pos.x(), max.y(), 0.0);
+            y1 = toWorld * vec3(min.x(), pos.y(), 0.0);
+            y2 = toWorld * vec3(max.x(), pos.y(), 0.0);
         }
 
         void UVViewHelper::resetOrigin() {
             assert(valid());
 
-            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const BBox3 bounds(toTex * m_face->vertexPositions());
             
-            const Vec3 vertices[] = {
+            const vec3 vertices[] = {
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Min),
                 bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Min),
                 bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Min)
             };
             
-            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const Mat4x4 toCam(m_camera.viewMatrix());
             
             for (size_t i = 0; i < 4; ++i) {
-                const Vec3 vertex = toCam * fromTex * vertices[i];
+                const vec3 vertex = toCam * fromTex * vertices[i];
                 if (vertex.x() < 0.0 && vertex.y() < 0.0) {
-                    setOriginInFaceCoords(Vec2f(vertices[i]));
+                    setOriginInFaceCoords(vec2f(vertices[i]));
                     break;
                 }
             }
@@ -226,21 +226,21 @@ namespace TrenchBroom {
         void UVViewHelper::resetCamera() {
             assert(valid());
 
-            const Vec3& normal = m_face->boundary().normal;
-            Vec3 right;
+            const vec3& normal = m_face->boundary().normal;
+            vec3 right;
             
-            if (Math::lt(Math::abs(dot(Vec3::PosZ, normal)), 1.0)) {
-                right = normalize(cross(Vec3::PosZ, normal));
+            if (Math::lt(Math::abs(dot(vec3::pos_z, normal)), 1.0)) {
+                right = normalize(cross(vec3::pos_z, normal));
             } else {
-                right = Vec3::PosX;
+                right = vec3::pos_x;
             }
-            const Vec3 up = normalize(cross(normal, right));
+            const vec3 up = normalize(cross(normal, right));
             
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-normal, up);
 
-            const Vec3 position = m_face->boundsCenter();
+            const vec3 position = m_face->boundsCenter();
             m_camera.moveTo(position);
             resetZoom();
         }
@@ -260,7 +260,7 @@ namespace TrenchBroom {
                 h -= 80.0f;
             
             const BBox3 bounds = computeFaceBoundsInCameraCoords();
-            const Vec3f size(bounds.size());
+            const vec3f size(bounds.size());
 
             float zoom = 3.0f;
             zoom = Math::min(zoom, w / size.x());

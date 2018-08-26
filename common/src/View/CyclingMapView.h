@@ -78,7 +78,7 @@ namespace TrenchBroom {
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
-            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
+            void doMoveCameraToPosition(const vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCanMaximizeCurrentView() const override;
             bool doCurrentViewMaximized() const override;

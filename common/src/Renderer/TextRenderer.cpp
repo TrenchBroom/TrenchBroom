@@ -19,7 +19,7 @@
 
 #include "TextRenderer.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 #include "CollectionUtils.h"
 #include "AttrString.h"
@@ -36,11 +36,11 @@ namespace TrenchBroom {
     namespace Renderer {
         const float TextRenderer::DefaultMaxViewDistance = 768.0f;
         const float TextRenderer::DefaultMinZoomFactor = 0.5f;
-        const Vec2f TextRenderer::DefaultInset = Vec2f(4.0f, 4.0f);
+        const vec2f TextRenderer::DefaultInset = vec2f(4.0f, 4.0f);
         const size_t TextRenderer::RectCornerSegments = 3;
         const float TextRenderer::RectCornerRadius = 3.0f;
         
-        TextRenderer::Entry::Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
+        TextRenderer::Entry::Entry(vec2f::List& i_vertices, const vec2f& i_size, const vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
         size(i_size),
         offset(i_offset),
         textColor(i_textColor),
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         textVertexCount(0),
         rectVertexCount(0) {}
         
-        TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const float maxViewDistance, const float minZoomFactor, const Vec2f& inset) :
+        TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const float maxViewDistance, const float minZoomFactor, const vec2f& inset) :
         m_fontDescriptor(fontDescriptor),
         m_maxViewDistance(maxViewDistance),
         m_minZoomFactor(minZoomFactor),
@@ -80,10 +80,10 @@ namespace TrenchBroom {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
 
-            Vec2f::List vertices = font.quads(string, true);
+            vec2f::List vertices = font.quads(string, true);
             const float alphaFactor = computeAlphaFactor(renderContext, distance, onTop);
-            const Vec2f size = font.measure(string);
-            const Vec3f offset = position.offset(camera, size);
+            const vec2f size = font.measure(string);
+            const vec3f offset = position.offset(camera, size);
             
             if (onTop)
                 addEntry(m_entriesOnTop, Entry(vertices, size, offset,
@@ -106,9 +106,9 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.unzoomedViewport();
             
-            const Vec2f size = stringSize(renderContext, string);
-            const Vec2f offset = Vec2f(position.offset(camera, size)) - m_inset;
-            const Vec2f actualSize = size + 2.0f * m_inset;
+            const vec2f size = stringSize(renderContext, string);
+            const vec2f offset = vec2f(position.offset(camera, size)) - m_inset;
+            const vec2f actualSize = size + 2.0f * m_inset;
             
             return viewport.contains(offset.x(), offset.y(), actualSize.x(), actualSize.y());
         }
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             collection.rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
         }
         
-        Vec2f TextRenderer::stringSize(RenderContext& renderContext, const AttrString& string) const {
+        vec2f TextRenderer::stringSize(RenderContext& renderContext, const AttrString& string) const {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
             return round(font.measure(string));
@@ -166,24 +166,24 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::addEntry(const Entry& entry, const bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
-            const Vec2f::List& stringVertices = entry.vertices;
-            const Vec2f& stringSize = entry.size;
+            const vec2f::List& stringVertices = entry.vertices;
+            const vec2f& stringSize = entry.size;
             
-            const Vec3f& offset = entry.offset;
+            const vec3f& offset = entry.offset;
             
             const Color& textColor = entry.textColor;
             const Color& rectColor = entry.backgroundColor;
             
             for (size_t i = 0; i < stringVertices.size() / 2; ++i) {
-                const Vec2f& position2 = stringVertices[2 * i];
-                const Vec2f& texCoords = stringVertices[2 * i + 1];
-                textVertices.push_back(TextVertex(Vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor));
+                const vec2f& position2 = stringVertices[2 * i];
+                const vec2f& texCoords = stringVertices[2 * i + 1];
+                textVertices.push_back(TextVertex(vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor));
             }
 
-            const Vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+            const vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
             for (size_t i = 0; i < rect.size(); ++i) {
-                const Vec2f& vertex = rect[i];
-                rectVertices.push_back(RectVertex(Vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor));
+                const vec2f& vertex = rect[i];
+                rectVertices.push_back(RectVertex(vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor));
             }
         }
 
@@ -194,7 +194,7 @@ namespace TrenchBroom {
                                                    static_cast<float>(viewport.height),
                                                    static_cast<float>(viewport.width),
                                                    static_cast<float>(viewport.y));
-            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            const Mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             
             render(m_entries, renderContext);

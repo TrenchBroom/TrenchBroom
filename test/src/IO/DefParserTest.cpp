@@ -161,8 +161,8 @@ namespace TrenchBroom {
             ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
             
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
-            ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
-            ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
+            ASSERT_VEC_EQ(vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
+            ASSERT_VEC_EQ(vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
             
             const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
@@ -208,8 +208,8 @@ namespace TrenchBroom {
             ASSERT_EQ(String("some desc"), definition->description());
 
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(definition);
-            ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
-            ASSERT_VEC_EQ(Vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
+            ASSERT_VEC_EQ(vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
+            ASSERT_VEC_EQ(vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
 
             const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             m_vertices.reserve(vertexCount);
         }
         
-        void Bsp29Model::Face::addVertex(const Vec3f& vertex, const Vec2f& texCoord) {
+        void Bsp29Model::Face::addVertex(const vec3f& vertex, const vec2f& texCoord) {
             m_vertices.push_back(Vertex(vertex, texCoord));
         }
 

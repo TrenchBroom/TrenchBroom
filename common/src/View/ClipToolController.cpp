@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool ClipToolController::Callback::addClipPoint(const InputState& inputState, Vec3& position) {
+        bool ClipToolController::Callback::addClipPoint(const InputState& inputState, vec3& position) {
             if (!doGetNewClipPointPosition(inputState, position))
                 return false;
             if (!m_tool->canAddPoint(position))
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             if (inputState.anyToolDragging())
                 return;
             
-            Vec3 position;
+            vec3 position;
             if (!doGetNewClipPointPosition(inputState, position))
                 return;
             
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                 !inputState.modifierKeysPressed(ModifierKeys::MKNone))
                 return false;
-            Vec3 temp;
+            vec3 temp;
             return m_callback->addClipPoint(inputState, temp);
         }
         
@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return DragInfo();
             
-            Vec3 initialPoint;
+            vec3 initialPoint;
             if (!m_callback->addClipPoint(inputState, initialPoint))
                 return DragInfo();
             
@@ -124,10 +124,10 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ClipToolController::AddClipPointPart::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
             
             if (!m_secondPointSet) {
-                Vec3 position;
+                vec3 position;
                 if (m_callback->addClipPoint(inputState, position)) {
                     m_callback->tool()->beginDragLastPoint();
                     m_secondPointSet = true;
@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 inputState.modifierKeys() != ModifierKeys::MKNone)
                 return DragInfo();
             
-            Vec3 initialPoint;
+            vec3 initialPoint;
             if (!m_callback->tool()->beginDragPoint(inputState.pickResult(), initialPoint))
                 return DragInfo();
             
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             return DragInfo(restricter, snapper, initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ClipToolController::MoveClipPointPart::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
             if (m_callback->tool()->dragPoint(nextHandlePosition, m_callback->getHelpVectors(inputState)))
                 return DR_Continue;
             return DR_Deny;
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             Callback2D(ClipTool* tool) :
             Callback(tool) {}
             
-            DragRestricter* createDragRestricter(const InputState& inputState, const Vec3& initialPoint) const override {
+            DragRestricter* createDragRestricter(const InputState& inputState, const vec3& initialPoint) const override {
                 return new PlaneDragRestricter(Plane3(initialPoint, inputState.camera().direction().firstAxis()));
             }
             
@@ -247,16 +247,16 @@ namespace TrenchBroom {
                 return new AbsoluteDragSnapper(m_tool->grid());
             }
             
-            Vec3::List getHelpVectors(const InputState& inputState) const override {
-                return Vec3::List(1, inputState.camera().direction());
+            vec3::List getHelpVectors(const InputState& inputState) const override {
+                return vec3::List(1, inputState.camera().direction());
             }
 
-            bool doGetNewClipPointPosition(const InputState& inputState, Vec3& position) const override {
+            bool doGetNewClipPointPosition(const InputState& inputState, vec3& position) const override {
                 const Renderer::Camera& camera = inputState.camera();
-                const Vec3 viewDir = camera.direction().firstAxis();
+                const vec3 viewDir = camera.direction().firstAxis();
                 
                 const Ray3& pickRay = inputState.pickRay();
-                const Vec3 defaultPos = m_tool->defaultClipPointPos();
+                const vec3 defaultPos = m_tool->defaultClipPointPos();
                 const FloatType distance = pickRay.intersectWithPlane(viewDir, defaultPos);
                 if (Math::isnan(distance))
                     return false;
@@ -274,19 +274,19 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
         
-        Vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) {
+        vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const vec3& hitPoint) {
             ensure(face != nullptr, "face is null");
             
-            Vec3::List result;
+            vec3::List result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
-                const Vec3& normal = incidentFace->boundary().normal;
+                const vec3& normal = incidentFace->boundary().normal;
                 result.push_back(normal.firstAxis());
             }
             
             return result;
         }
         
-        Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) {
+        Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vec3& hitPoint) {
             for (const Model::BrushVertex* vertex : face->vertices()) {
                 if (equal(vertex->position(), hitPoint, Math::Constants<FloatType>::almostZero())) {
                     const Model::Brush* brush = face->brush();
@@ -311,7 +311,7 @@ namespace TrenchBroom {
             Callback3D(ClipTool* tool) :
             Callback(tool) {}
             
-            DragRestricter* createDragRestricter(const InputState& inputState, const Vec3& initialPoint) const override {
+            DragRestricter* createDragRestricter(const InputState& inputState, const vec3& initialPoint) const override {
                 SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
                 restricter->setType(Model::Brush::BrushHit);
@@ -339,7 +339,7 @@ namespace TrenchBroom {
                 return snapper;
             }
             
-            Vec3::List getHelpVectors(const InputState& inputState) const override {
+            vec3::List getHelpVectors(const InputState& inputState) const override {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
                 ensure(hit.isMatch(), "hit is not a match");
                 
@@ -347,7 +347,7 @@ namespace TrenchBroom {
                 return selectHelpVectors(face, hit.hitPoint());
             }
 
-            bool doGetNewClipPointPosition(const InputState& inputState, Vec3& position) const override {
+            bool doGetNewClipPointPosition(const InputState& inputState, vec3& position) const override {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
                 if (!hit.isMatch())
                     return false;

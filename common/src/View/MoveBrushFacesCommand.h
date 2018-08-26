@@ -38,11 +38,11 @@ namespace TrenchBroom {
             Model::BrushFacesMap m_faces;
             Polygon3::List m_oldFacePositions;
             Polygon3::List m_newFacePositions;
-            Vec3 m_delta;
+            vec3 m_delta;
         public:
-            static Ptr move(const Model::FaceToBrushesMap& faces, const Vec3& delta);
+            static Ptr move(const Model::FaceToBrushesMap& faces, const vec3& delta);
         private:
-            MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
+            MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

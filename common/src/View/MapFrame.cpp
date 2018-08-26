@@ -943,7 +943,7 @@ namespace TrenchBroom {
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
                     const BBox3 bounds = m_document->selectionBounds();
-                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+                    const vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
                 }
             }
@@ -1276,7 +1276,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3 position = Vec3::parse(str.ToStdString());
+                const vec3 position = vec3::parse(str.ToStdString());
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
@@ -1389,8 +1389,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                Vec3::List positions;
-                Vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
+                vec3::List positions;
+                vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
@@ -1403,7 +1403,7 @@ namespace TrenchBroom {
                 const wxString str = dialog.GetValue();
                 double size; str.ToDouble(&size);
                 const BBox3 bounds(size / 2.0);
-                const Vec3::List positions = bBoxVertices(bounds);
+                const vec3::List positions = bBoxVertices(bounds);
                 m_document->createBrush(positions);
             }
         }
@@ -1414,8 +1414,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                Vec3::List points;
-                Vec3::parseAll(str.ToStdString(), std::back_inserter(points));
+                vec3::List points;
+                vec3::parseAll(str.ToStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }
@@ -1476,7 +1476,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec2i size = Vec2i::parse(str.ToStdString());
+                const vec2i size = vec2i::parse(str.ToStdString());
                 SetSize(size.x(), size.y());
             }
         }

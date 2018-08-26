@@ -33,7 +33,7 @@ namespace TrenchBroom {
         Camera(),
         m_fov(90.0) {}
         
-        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up)
+        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const vec3f& position, const vec3f& direction, const vec3f& up)
         : Camera(nearPlane, farPlane, viewport, position, direction, up),
         m_fov(fov) {
             assert(m_fov > 0.0);
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        Ray3f PerspectiveCamera::doGetPickRay(const Vec3f& point) const {
-            const Vec3f direction = normalize(point - position());
+        Ray3f PerspectiveCamera::doGetPickRay(const vec3f& point) const {
+            const vec3f direction = normalize(point - position());
             return Ray3f(position(), direction);
         }
         
@@ -68,10 +68,10 @@ namespace TrenchBroom {
         }
         
         void PerspectiveCamera::doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
-            const Vec2f frustum = getFrustum();
-            const Vec3f center = position() + direction() * nearPlane();
+            const vec2f frustum = getFrustum();
+            const vec3f center = position() + direction() * nearPlane();
             
-            Vec3f d = center + up() * frustum.y() - position();
+            vec3f d = center + up() * frustum.y() - position();
             topPlane = Plane3f(position(), normalize(cross(right(), d)));
             
             d = center + right() * frustum.x() - position();
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             Vertex::List triangleVertices(6);
             Vertex::List lineVertices(8 * 2);
             
-            Vec3f verts[4];
+            vec3f verts[4];
             getFrustumVertices(size, verts);
             
             triangleVertices[0] = Vertex(position(), Color(color, 0.7f));
@@ -120,7 +120,7 @@ namespace TrenchBroom {
         }
         
         float PerspectiveCamera::doPickFrustum(const float size, const Ray3f& ray) const {
-            Vec3f verts[4];
+            vec3f verts[4];
             getFrustumVertices(size, verts);
             
             float distance = Math::nan<float>();
@@ -129,8 +129,8 @@ namespace TrenchBroom {
             return distance;
         }
 
-        void PerspectiveCamera::getFrustumVertices(const float size, Vec3f (&verts)[4]) const {
-            const Vec2f frustum = getFrustum();
+        void PerspectiveCamera::getFrustumVertices(const float size, vec3f (&verts)[4]) const {
+            const vec2f frustum = getFrustum();
             
             verts[0] = position() + (direction() * nearPlane() + frustum.y() * up() - frustum.x() * right()) / nearPlane() * size; // top left
             verts[1] = position() + (direction() * nearPlane() + frustum.y() * up() + frustum.x() * right()) / nearPlane() * size; // top right
@@ -138,14 +138,14 @@ namespace TrenchBroom {
             verts[3] = position() + (direction() * nearPlane() - frustum.y() * up() - frustum.x() * right()) / nearPlane() * size; // bottom left
         }
 
-        Vec2f PerspectiveCamera::getFrustum() const {
+        vec2f PerspectiveCamera::getFrustum() const {
             const Viewport& viewport = unzoomedViewport();
             const float v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
             const float h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
-            return Vec2f(h, v);
+            return vec2f(h, v);
         }
 
-        float PerspectiveCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
+        float PerspectiveCamera::doGetPerspectiveScalingFactor(const vec3f& position) const {
             const float perpDist = perpendicularDistanceTo(position);
             return perpDist / viewportFrustumDistance();
         }

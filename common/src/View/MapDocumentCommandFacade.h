@@ -89,19 +89,19 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
-            Polygon3::List performResizeBrushes(const Polygon3::List& polygons, const Vec3& delta);
+            Polygon3::List performResizeBrushes(const Polygon3::List& polygons, const vec3& delta);
         public: // brush face attributes
-            void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            void performMoveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta);
             void performRotateTextures(float angle);
-            void performShearTextures(const Vec2f& factors);
+            void performShearTextures(const vec2f& factors);
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
-            Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
-            Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const vec3& delta);
+            Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vec3& delta);
+            Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const vec3& delta);
             void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations

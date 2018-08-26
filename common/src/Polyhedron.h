@@ -33,9 +33,9 @@
 template <typename T, typename FP, typename VP>
 class Polyhedron {
 public:
-    typedef Vec<T,3> V;
+    typedef vec<T,3> V;
 private:
-    typedef typename Vec<T,3>::List PosList;
+    typedef typename vec<T,3>::List PosList;
 public:
     typedef std::list<Polyhedron> List;
 

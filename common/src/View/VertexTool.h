@@ -42,7 +42,7 @@ namespace TrenchBroom {
         class Lasso;
         class Selection;
         
-        class VertexTool : public VertexToolBase<Vec3> {
+        class VertexTool : public VertexToolBase<vec3> {
         private:
             typedef enum {
                 Mode_Move,
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vec3& handle) const;
             Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
             Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
         private:
@@ -74,16 +74,16 @@ namespace TrenchBroom {
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
             bool startMove(const Model::Hit::List& hits) override;
-            MoveResult move(const Vec3& delta) override;
+            MoveResult move(const vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
 
-            const Vec3& getHandlePosition(const Model::Hit& hit) const override;
+            const vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
             
             void removeSelection();
         public: // Rendering
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const override;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& position) const override;
         private: // Tool interface
             bool doActivate() override;
             bool doDeactivate() override;

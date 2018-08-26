@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return Model::Hit::List();
         }
 
-        class VertexToolController::SelectVertexPart : public SelectPartBase<Vec3> {
+        class VertexToolController::SelectVertexPart : public SelectPartBase<vec3> {
         public:
             SelectVertexPart(VertexTool* tool) :
             SelectPartBase(tool, VertexHandleManager::HandleHit) {}
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 return VertexToolController::findHandleHits(inputState, *this);
             }
 
-            bool equalHandles(const Vec3& lhs, const Vec3& rhs) const override {
+            bool equalHandles(const vec3& lhs, const vec3& rhs) const override {
                 return squaredDistance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
             }
         };
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             } SnapType;
             
             SnapType m_lastSnapType;
-            Vec3 m_handleOffset;
+            vec3 m_handleOffset;
         private:
             void doModifierKeyChange(const InputState& inputState) override {
                 MoveToolController::doModifierKeyChange(inputState);
@@ -111,9 +111,9 @@ namespace TrenchBroom {
                     
                     const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
                     if (hit.hasType(VertexHandleManager::HandleHit)) {
-                        const Vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
-                        const Vec3 targetPos = hit.target<Vec3>();
-                        const Vec3 delta = targetPos - sourcePos;
+                        const vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
+                        const vec3 targetPos = hit.target<vec3>();
+                        const vec3 delta = targetPos - sourcePos;
                         m_tool->moveSelection(delta);
                         return true;
                     }
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 if (info.move) {
                     m_lastSnapType = snapType(inputState);
                     const Model::Hit hit = findDraggableHandle(inputState);
-                    const Vec3 handlePos = m_tool->getHandlePosition(hit);
+                    const vec3 handlePos = m_tool->getHandlePosition(hit);
                     m_handleOffset = handlePos - hit.hitPoint();
                 }
                 return info;
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                 if (!thisToolDragging()) {
                     const Model::Hit hit = findDraggableHandle(inputState);
                     if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
-                        const Vec3 handle = m_tool->getHandlePosition(hit);
+                        const vec3 handle = m_tool->getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                             m_tool->renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
                         else

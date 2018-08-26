@@ -41,7 +41,7 @@ namespace TrenchBroom {
             init2D(radius, segments, startAngle, angleLength);
         }
         
-        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) :
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const vec3f& startAxis, const vec3f& endAxis) :
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
@@ -73,9 +73,10 @@ namespace TrenchBroom {
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P2::Vertex Vertex;
 
-            Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
-            if (m_filled)
-                positions.push_back(Vec2f::Null);
+            vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            if (m_filled) {
+                positions.push_back(vec2f::zero);
+            }
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }
@@ -83,9 +84,10 @@ namespace TrenchBroom {
         void Circle::init3D(const float radius, const size_t segments, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
-            Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
-            if (m_filled)
-                positions.push_back(Vec3f::Null);
+            vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            if (m_filled) {
+                positions.push_back(vec3f::zero);
+            }
             Vertex::List vertices = Vertex::fromLists(positions, positions.size());
             m_array = VertexArray::swap(vertices);
         }

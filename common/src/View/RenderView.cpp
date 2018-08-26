@@ -159,28 +159,28 @@ namespace TrenchBroom {
             Vertex::List vertices(16);
             
             // top
-            vertices[ 0] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[ 1] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 2] = Vertex(Vec3f(w-t, t, 0.0f), inner);
-            vertices[ 3] = Vertex(Vec3f(t, t, 0.0f), inner);
+            vertices[ 0] = Vertex(vec3f(0.0f, 0.0f, 0.0f), outer);
+            vertices[ 1] = Vertex(vec3f(w, 0.0f, 0.0f), outer);
+            vertices[ 2] = Vertex(vec3f(w-t, t, 0.0f), inner);
+            vertices[ 3] = Vertex(vec3f(t, t, 0.0f), inner);
             
             // right
-            vertices[ 4] = Vertex(Vec3f(w, 0.0f, 0.0f), outer);
-            vertices[ 5] = Vertex(Vec3f(w, h, 0.0f), outer);
-            vertices[ 6] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
-            vertices[ 7] = Vertex(Vec3f(w-t, t, 0.0f), inner);
+            vertices[ 4] = Vertex(vec3f(w, 0.0f, 0.0f), outer);
+            vertices[ 5] = Vertex(vec3f(w, h, 0.0f), outer);
+            vertices[ 6] = Vertex(vec3f(w-t, h-t, 0.0f), inner);
+            vertices[ 7] = Vertex(vec3f(w-t, t, 0.0f), inner);
             
             // bottom
-            vertices[ 8] = Vertex(Vec3f(w, h, 0.0f), outer);
-            vertices[ 9] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
-            vertices[10] = Vertex(Vec3f(t, h-t, 0.0f), inner);
-            vertices[11] = Vertex(Vec3f(w-t, h-t, 0.0f), inner);
+            vertices[ 8] = Vertex(vec3f(w, h, 0.0f), outer);
+            vertices[ 9] = Vertex(vec3f(0.0f, h, 0.0f), outer);
+            vertices[10] = Vertex(vec3f(t, h-t, 0.0f), inner);
+            vertices[11] = Vertex(vec3f(w-t, h-t, 0.0f), inner);
             
             // left
-            vertices[12] = Vertex(Vec3f(0.0f, h, 0.0f), outer);
-            vertices[13] = Vertex(Vec3f(0.0f, 0.0f, 0.0f), outer);
-            vertices[14] = Vertex(Vec3f(t, t, 0.0f), inner);
-            vertices[15] = Vertex(Vec3f(t, h-t, 0.0f), inner);
+            vertices[12] = Vertex(vec3f(0.0f, h, 0.0f), outer);
+            vertices[13] = Vertex(vec3f(0.0f, 0.0f, 0.0f), outer);
+            vertices[14] = Vertex(vec3f(t, t, 0.0f), inner);
+            vertices[15] = Vertex(vec3f(t, h-t, 0.0f), inner);
             
             glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
 

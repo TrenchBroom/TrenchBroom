@@ -40,8 +40,8 @@ namespace TrenchBroom {
         class Bsp29Parser : public EntityModelParser {
         private:
             struct TextureInfo {
-                Vec3f sAxis;
-                Vec3f tAxis;
+                vec3f sAxis;
+                vec3f tAxis;
                 float sOffset;
                 float tOffset;
                 size_t textureIndex;
@@ -74,12 +74,12 @@ namespace TrenchBroom {
             Assets::EntityModel* doParseModel() override;
             Assets::TextureCollection* parseTextures();
             TextureInfoList parseTextureInfos();
-            Vec3f::List parseVertices();
+            vec3f::List parseVertices();
             EdgeInfoList parseEdgeInfos();
             FaceInfoList parseFaceInfos();
             FaceEdgeIndexList parseFaceEdges();
-            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const Vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
-            Vec2f textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const;
+            Assets::Bsp29Model* parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges);
+            vec2f textureCoords(const vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const;
         };
     }
 }

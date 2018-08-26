@@ -19,14 +19,14 @@
 
 #include <gtest/gtest.h>
 
-#include "Vec.h"
+#include "vec.h"
 #include "Ray.h"
 #include "AABBTree.h"
 
 using AABB = AABBTree<double, 3, size_t>;
 using BOX = AABB::Box;
 using RAY = Ray<AABB::FloatType, AABB::Components>;
-using VEC = Vec<AABB::FloatType, AABB::Components>;
+using VEC = vec<AABB::FloatType, AABB::Components>;
 
 void assertTree(const std::string& exp, const AABB& actual);
 void assertIntersectors(const AABB& tree, const Ray<AABB::FloatType, AABB::Components>& ray, std::initializer_list<AABB::DataType> items);
@@ -426,15 +426,15 @@ BOX makeBounds(const K min, const K max) {
 
 TEST(AABBTreeTest, findIntersectorsOfEmptyTree) {
     AABB tree;
-    assertIntersectors(tree, RAY(VEC::Null, VEC::PosX), {});
+    assertIntersectors(tree, RAY(VEC::zero, VEC::pos_x), {});
 }
 
 TEST(AABBTreeTest, findIntersectorsOfTreeWithOneNode) {
     AABB tree;
     tree.insert(BOX(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0)), 1u);
 
-    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::NegX), {});
-    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::PosX), { 1u });
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::neg_x), {});
+    assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::pos_x), { 1u });
 }
 
 TEST(AABBTreeTest, findIntersectorsOfTreeWithTwoNodes) {
@@ -442,22 +442,22 @@ TEST(AABBTreeTest, findIntersectorsOfTreeWithTwoNodes) {
     tree.insert(BOX(VEC(-2.0, -1.0, -1.0), VEC(-1.0, +1.0, +1.0)), 1u);
     tree.insert(BOX(VEC(+1.0, -1.0, -1.0), VEC(+2.0, +1.0, +1.0)), 2u);
 
-    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::PosX), {});
-    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::NegX), {});
-    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosZ), {});
-    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::PosX), { 2u });
-    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::NegX), { 1u });
-    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::PosX), { 1u, 2u });
-    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::NegX), { 1u, 2u });
-    assertIntersectors(tree, RAY(VEC(-1.5, -2.0,  0.0), VEC::PosY), { 1u });
-    assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::PosY), { 2u });
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::pos_x), {});
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::neg_x), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::pos_z), {});
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::pos_x), { 2u });
+    assertIntersectors(tree, RAY(VEC( 0.0,  0.0,  0.0), VEC::neg_x), { 1u });
+    assertIntersectors(tree, RAY(VEC(-3.0,  0.0,  0.0), VEC::pos_x), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(+3.0,  0.0,  0.0), VEC::neg_x), { 1u, 2u });
+    assertIntersectors(tree, RAY(VEC(-1.5, -2.0,  0.0), VEC::pos_y), { 1u });
+    assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::pos_y), { 2u });
 }
 
 TEST(AABBTreeTest, findIntersectorFromInside) {
     AABB tree;
     tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 1u);
 
-    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 1u });
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::pos_x), { 1u });
 }
 
 TEST(AABBTreeTest, findIntersectorsFromInsideRootBBox) {
@@ -465,7 +465,7 @@ TEST(AABBTreeTest, findIntersectorsFromInsideRootBBox) {
     tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(-2.0, +1.0, +1.0)), 1u);
     tree.insert(BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 2u);
 
-    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::PosX), { 2u });
+    assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::pos_x), { 2u });
 }
 
 void assertTree(const std::string& exp, const AABB& actual) {

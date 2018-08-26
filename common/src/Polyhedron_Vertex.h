@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 
 template <typename T, typename FP, typename VP>

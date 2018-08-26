@@ -73,10 +73,10 @@ namespace TrenchBroom {
             const int viewHeight = viewport.height;
             
             const Mat4x4f projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
-            const Mat4x4f view = viewMatrix(Vec3f::PosY, Vec3f::PosZ) * translationMatrix(500.0f * Vec3f::PosY);
+            const Mat4x4f view = viewMatrix(vec3f::pos_y, vec3f::pos_z) * translationMatrix(500.0f * vec3f::pos_y);
             const ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             
-            const Mat4x4f compassTransformation = translationMatrix(Vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f)) * scalingMatrix<4>(2.0f);
+            const Mat4x4f compassTransformation = translationMatrix(vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f)) * scalingMatrix<4>(2.0f);
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
             const Mat4x4f cameraTransformation = cameraRotationMatrix(camera);
 
@@ -87,8 +87,8 @@ namespace TrenchBroom {
         }
 
         void Compass::makeArrows() {
-            const Vec3f shaftOffset(0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f);
-            const Vec3f headOffset = Vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
+            const vec3f shaftOffset(0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f);
+            const vec3f headOffset = vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
             
             VertsAndNormals shaft = cylinder3D(m_shaftRadius, m_shaftLength, m_segments);
             for (size_t i = 0; i < shaft.vertices.size(); ++i)
@@ -133,7 +133,7 @@ namespace TrenchBroom {
         
         void Compass::makeBackground() {
             typedef VertexSpecs::P2::Vertex Vertex;
-            Vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Cf::twoPi(), m_segments);
+            vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, Math::Cf::twoPi(), m_segments);
             Vertex::List verts = Vertex::fromLists(circ, circ.size());
             
             IndexRangeMap::Size backgroundSize;
@@ -178,8 +178,8 @@ namespace TrenchBroom {
 
         void Compass::renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassShader);
-            shader.set("CameraPosition", Vec3f(0.0f, 500.0f, 0.0f));
-            shader.set("LightDirection", normalize(Vec3f(0.0f, 0.5f, 1.0f)));
+            shader.set("CameraPosition", vec3f(0.0f, 500.0f, 0.0f));
+            shader.set("LightDirection", normalize(vec3f(0.0f, 0.5f, 1.0f)));
             shader.set("LightDiffuse", Color(1.0f, 1.0f, 1.0f, 1.0f));
             shader.set("LightSpecular", Color(0.3f, 0.3f, 0.3f, 1.0f));
             shader.set("GlobalAmbient", Color(0.2f, 0.2f, 0.2f, 1.0f));

@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
-            Vec2f m_lastMousePos;
+            vec2f m_lastMousePos;
         public:
             CameraTool2D(Renderer::OrthographicCamera& camera);
         private:
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             
             bool dragZoom(const InputState& inputState) const;
             
-            void zoom(const InputState& inputState, const Vec2f& mousePos, float factor);
+            void zoom(const InputState& inputState, const vec2f& mousePos, float factor);
             
             bool doCancel() override;
         };

@@ -556,7 +556,7 @@ namespace TrenchBroom {
             doPick(ray, pickResult);
         }
         
-        void Node::findNodesContaining(const Vec3& point, NodeList& result) {
+        void Node::findNodesContaining(const vec3& point, NodeList& result) {
             doFindNodesContaining(point, result);
         }
 

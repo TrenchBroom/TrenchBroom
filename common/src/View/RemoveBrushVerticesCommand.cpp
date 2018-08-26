@@ -31,13 +31,13 @@ namespace TrenchBroom {
         RemoveBrushVerticesCommand::Ptr RemoveBrushVerticesCommand::remove(const Model::VertexToBrushesMap& vertices) {
             Model::BrushList brushes;
             Model::BrushVerticesMap brushVertices;
-            Vec3::List vertexPositions;
+            vec3::List vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
             return Ptr(new RemoveBrushVerticesCommand(brushes, brushVertices, vertexPositions));
         }
 
-        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions) :
+        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vec3::List& vertexPositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Vertices", brushes, vertices),
         m_oldVertexPositions(vertexPositions) {}
     }

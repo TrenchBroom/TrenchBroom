@@ -180,7 +180,7 @@ namespace TrenchBroom {
             const size_t potHeight = Math::nextPOT(m_height);
             
             if (potWidth != m_width || potHeight != m_height)
-                resizeMips(m_buffers, Vec2s(m_width, m_height), Vec2s(potWidth, potHeight));
+                resizeMips(m_buffers, vec2s(m_width, m_height), vec2s(potWidth, potHeight));
             */
             
             size_t mipWidth = m_width; //potWidth;

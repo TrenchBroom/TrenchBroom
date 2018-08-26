@@ -155,12 +155,12 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const Vec4f& color, const Vec3f& arrowPosition, const Vec3f& lineDir) {
-            arrows.emplace_back(Vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const vec4f& color, const vec3f& arrowPosition, const vec3f& lineDir) {
+            arrows.emplace_back(vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vec3f{9, 0, 0}, color, arrowPosition, lineDir);
 
-            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(Vec3f{0,-3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vec3f{0,-3, 0}, color, arrowPosition, lineDir);
         }
 
         class EntityLinkRenderer::MatchEntities {

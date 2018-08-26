@@ -21,7 +21,7 @@
 #define TrenchBroom_Quat_h
 
 #include "MathUtils.h"
-#include "Vec.h"
+#include "vec.h"
 
 #include <cassert>
 
@@ -29,11 +29,11 @@ template <typename T>
 class Quat {
 public:
     T r;
-    Vec<T,3> v;
+    vec<T,3> v;
     
     Quat() :
     r(static_cast<float>(0.0)),
-    v(Vec<T,3>::Null) {}
+    v(vec<T,3>::zero) {}
     
     // Copy and move constructors
     Quat(const Quat<T>& other) = default;
@@ -49,7 +49,7 @@ public:
     r(static_cast<T>(other.r)),
     v(other.v) {}
 
-    Quat(const T i_r, const Vec<T,3>& i_v) :
+    Quat(const T i_r, const vec<T,3>& i_v) :
     r(i_r),
     v(i_v) {}
     
@@ -57,7 +57,7 @@ public:
      * Creates a new quaternion that represent a clounter-clockwise rotation by the given angle (in radians) about
      * the given axis.
      */
-    Quat(const Vec<T,3>& axis, const T angle) {
+    Quat(const vec<T,3>& axis, const T angle) {
         setRotation(axis, angle);
     }
 
@@ -65,20 +65,20 @@ public:
      * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
      * expected to be normalized.
      */
-    Quat(const Vec<T,3>& from, const Vec<T,3>& to) {
+    Quat(const vec<T,3>& from, const vec<T,3>& to) {
         assert(isUnit(from));
         assert(isUnit(to));
         
         const auto cos = dot(from, to);
         if (Math::one(cos)) {
             // `from` and `to` are equal.
-            setRotation(Vec<T,3>::PosZ, static_cast<T>(0.0));
+            setRotation(vec<T,3>::pos_z, static_cast<T>(0.0));
         } else if (Math::one(-cos)) {
             // `from` and `to` are opposite.
             // We need to find a rotation axis that is perpendicular to `from`.
-            auto axis = cross(from, Vec<T,3>::PosZ);
+            auto axis = cross(from, vec<T,3>::pos_z);
             if (Math::zero(squaredLength(axis))) {
-                axis = cross(from, Vec<T,3>::PosX);
+                axis = cross(from, vec<T,3>::pos_x);
             }
             setRotation(normalize(axis), Math::radians(static_cast<T>(180)));
         } else {
@@ -108,7 +108,7 @@ public:
     
     Quat<T>& operator*=(const Quat<T>& right) {
         const T& t = right.r;
-        const Vec<T,3>& w = right.v;
+        const vec<T,3>& w = right.v;
         
         const T nx = r * w.x() + t * v.x() + v.y() * w.z() - v.z() * w.y();
         const T ny = r * w.y() + t * v.y() + v.z() * w.x() - v.x() * w.z();
@@ -121,7 +121,7 @@ public:
         return *this;
     }
     
-    const Vec<T,3> operator*(const Vec<T,3>& right) const {
+    const vec<T,3> operator*(const vec<T,3>& right) const {
         Quat<T> p;
         p.r = 0.0;
         p.v = right;
@@ -129,7 +129,7 @@ public:
         return p.v;
     }
     
-    Quat<T>& setRotation(const Vec<T,3>& axis, const T angle) {
+    Quat<T>& setRotation(const vec<T,3>& axis, const T angle) {
         assert(isUnit(axis));
         r = std::cos(angle / static_cast<T>(2.0));
         v = axis * std::sin(angle / static_cast<T>(2.0));
@@ -140,7 +140,7 @@ public:
         return static_cast<T>(2.0) * std::acos(r);
     }
     
-    Vec<T,3> axis() const {
+    vec<T,3> axis() const {
         if (isNull(v)) {
             return v;
         } else {

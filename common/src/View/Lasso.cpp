@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Lasso::Lasso(const Renderer::Camera& camera, const FloatType distance, const Vec3& point) :
+        Lasso::Lasso(const Renderer::Camera& camera, const FloatType distance, const vec3& point) :
         m_camera(camera),
         m_distance(distance),
         m_transform(coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(),
@@ -32,18 +32,18 @@ namespace TrenchBroom {
         m_start(point),
         m_cur(m_start) {}
         
-        void Lasso::update(const Vec3& point) {
+        void Lasso::update(const vec3& point) {
             m_cur = point;
         }
 
-        bool Lasso::selects(const Vec3& point, const Plane3& plane, const BBox2& box) const {
+        bool Lasso::selects(const vec3& point, const Plane3& plane, const BBox2& box) const {
             const Ray3 ray(m_camera.pickRay(point));
             const FloatType hitDistance = plane.intersectWithRay(ray);
             if (Math::isnan(hitDistance))
                 return false;
             
-            const Vec3 hitPoint = ray.pointAtDistance(hitDistance);
-            const Vec3 projected = m_transform * hitPoint;
+            const vec3 hitPoint = ray.pointAtDistance(hitDistance);
+            const vec3 projected = m_transform * hitPoint;
             return box.contains(projected);
         }
         
@@ -55,13 +55,13 @@ namespace TrenchBroom {
             return selects(polygon.center(), plane, box);
         }
         
-        Vec3 Lasso::project(const Vec3& point, const Plane3& plane) const {
+        vec3 Lasso::project(const vec3& point, const Plane3& plane) const {
             const Ray3 ray(m_camera.pickRay(point));
             const FloatType hitDistance = plane.intersectWithRay(ray);
             if (Math::isnan(hitDistance))
-                return Vec3::NaN;
+                return vec3::NaN;
             
-            const Vec3 hitPoint = ray.pointAtDistance(hitDistance);
+            const vec3 hitPoint = ray.pointAtDistance(hitDistance);
             return m_transform * hitPoint;
         }
 
@@ -69,11 +69,11 @@ namespace TrenchBroom {
             const BBox2 box = this->box();
             const Mat4x4 inverted = invertedMatrix(m_transform);
             
-            Vec3f::List polygon(4);
-            polygon[0] = inverted * Vec3(box.min.x(), box.min.y(), 0.0);
-            polygon[1] = inverted * Vec3(box.min.x(), box.max.y(), 0.0);
-            polygon[2] = inverted * Vec3(box.max.x(), box.max.y(), 0.0);
-            polygon[3] = inverted * Vec3(box.max.x(), box.min.y(), 0.0);
+            vec3f::List polygon(4);
+            polygon[0] = inverted * vec3(box.min.x(), box.min.y(), 0.0);
+            polygon[1] = inverted * vec3(box.min.x(), box.max.y(), 0.0);
+            polygon[2] = inverted * vec3(box.max.x(), box.max.y(), 0.0);
+            polygon[3] = inverted * vec3(box.max.x(), box.min.y(), 0.0);
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
@@ -89,11 +89,11 @@ namespace TrenchBroom {
         }
         
         BBox2 Lasso::box() const {
-            const Vec3 start = m_transform * m_start;
-            const Vec3 cur   = m_transform * m_cur;
+            const vec3 start = m_transform * m_start;
+            const vec3 cur   = m_transform * m_cur;
             
-            const Vec3 min = ::min(start, cur);
-            const Vec3 max = ::max(start, cur);
+            const vec3 min = ::min(start, cur);
+            const vec3 max = ::max(start, cur);
             return BBox2(min, max);
         }
     }

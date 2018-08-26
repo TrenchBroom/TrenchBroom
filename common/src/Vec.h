@@ -32,42 +32,42 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 template <typename T, size_t S>
-class Vec {
+class vec {
 public:
-    using FloatType = Vec<float, S>;
-    using Type = T;
-    static const size_t Size = S;
+    using float_type = vec<float, S>;
+    using type = T;
+    static const size_t size = S;
 
-    static const Vec<T,S> PosX;
-    static const Vec<T,S> PosY;
-    static const Vec<T,S> PosZ;
-    static const Vec<T,S> NegX;
-    static const Vec<T,S> NegY;
-    static const Vec<T,S> NegZ;
-    static const Vec<T,S> Null;
-    static const Vec<T,S> One;
-    static const Vec<T,S> NaN;
-    static const Vec<T,S> Min;
-    static const Vec<T,S> Max;
+    static const vec<T,S> pos_x;
+    static const vec<T,S> pos_y;
+    static const vec<T,S> pos_z;
+    static const vec<T,S> neg_x;
+    static const vec<T,S> neg_y;
+    static const vec<T,S> neg_z;
+    static const vec<T,S> zero;
+    static const vec<T,S> one;
+    static const vec<T,S> NaN;
+    static const vec<T,S> min;
+    static const vec<T,S> max;
 
-    using List = std::vector<Vec<T,S>>;
+    using List = std::vector<vec<T,S>>;
     static const List EmptyList;
 private:
     class SelectionHeapCmp {
     private:
-        const Vec<T,S>& m_vec;
+        const vec<T,S>& m_v;
         bool m_abs;
     public:
-        SelectionHeapCmp(const Vec<T,S>& vec, const bool abs) :
-        m_vec(vec),
+        SelectionHeapCmp(const vec<T,S>& i_v, const bool abs) :
+        m_v(i_v),
         m_abs(abs) {}
         
         bool operator()(size_t lhs, size_t rhs) const {
             assert(lhs < S);
             assert(rhs < S);
             if (m_abs)
-                return std::abs(m_vec.v[lhs]) < std::abs(m_vec.v[rhs]);
-            return m_vec.v[lhs] < m_vec.v[rhs];
+                return std::abs(m_v[lhs]) < std::abs(m_v[rhs]);
+            return m_v[lhs] < m_v[rhs];
         }
     };
 public:
@@ -77,8 +77,8 @@ public:
      * @param index the index of the component to set to 1
      * @return the newly created vector
      */
-    static const Vec<T,S> axis(const size_t index) {
-        Vec<T,S> axis;
+    static const vec<T,S> axis(const size_t index) {
+        vec<T,S> axis;
         axis[index] = static_cast<T>(1.0);
         return axis;
     }
@@ -89,8 +89,8 @@ public:
      * @param value the value to set
      * @return the newly created vector
      */
-    static Vec<T,S> fill(const T value) {
-        Vec<T,S> result;
+    static vec<T,S> fill(const T value) {
+        vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = value;
         return result;
@@ -110,9 +110,9 @@ public:
      * @param str the string to parse
      * @return the vector parsed from the string
      */
-    static Vec<T,S> parse(const std::string& str) {
+    static vec<T,S> parse(const std::string& str) {
         size_t pos = 0;
-        Vec<T,S> result;
+        vec<T,S> result;
         doParse(str, pos, result);
         return result;
     }
@@ -136,7 +136,7 @@ public:
 
         size_t pos = 0;
         while (pos != std::string::npos) {
-            Vec<T,S> temp;
+            vec<T,S> temp;
             if (doParse(str, pos, temp)) {
                 out = temp;
                 ++out;
@@ -145,7 +145,7 @@ public:
         }
     }
 private:
-    static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
+    static bool doParse(const std::string& str, size_t& pos, vec<T,S>& result) {
         static const std::string blank(" \t\n\r()");
 
         const char* cstr = str.c_str();
@@ -164,19 +164,19 @@ public:
     /**
      * Creates a new vector with all components initialized to 0.
      */
-    Vec() {
+    vec() {
         for (size_t i = 0; i < S; ++i) {
             v[i] = static_cast<T>(0.0);
         }
     }
 
     // Copy and move constructors
-    Vec(const Vec<T,S>& other) = default;
-    Vec(Vec<T,S>&& other) noexcept = default;
+    vec(const vec<T,S>& other) = default;
+    vec(vec<T,S>&& other) noexcept = default;
 
     // Assignment operators
-    Vec<T,S>& operator=(const Vec<T,S>& other) = default;
-    Vec<T,S>& operator=(Vec<T,S>&& other) noexcept = default;
+    vec<T,S>& operator=(const vec<T,S>& other) = default;
+    vec<T,S>& operator=(vec<T,S>&& other) noexcept = default;
 
     /**
      * Creates a new vector by copying the values from the given vector. If the given vector has a different component
@@ -189,7 +189,7 @@ public:
      * @param other the vector to copy the values from
      */
     template <typename U, size_t V>
-    Vec(const Vec<U,V>& other) {
+    vec(const vec<U,V>& other) {
         for (size_t i = 0; i < std::min(S,V); ++i) {
             v[i] = static_cast<T>(other[i]);
         }
@@ -206,7 +206,7 @@ public:
      *
      * @param values the values
      */
-    Vec(std::initializer_list<T> values) {
+    vec(std::initializer_list<T> values) {
         auto it = std::begin(values);
         for (size_t i = 0; i < std::min(S, values.size()); ++i) {
             v[i] = *it++;
@@ -228,7 +228,7 @@ public:
      * @param i_y the value of the second component
      */
     template <typename U1, typename U2>
-    Vec(const U1 i_x, const U2 i_y) {
+    vec(const U1 i_x, const U2 i_y) {
         if (S > 0) {
             v[0] = static_cast<T>(i_x);
             if (S > 1) {
@@ -254,7 +254,7 @@ public:
      * @param i_z the value of the third component
      */
     template <typename U1, typename U2, typename U3>
-    Vec(const U1 i_x, const U2 i_y, const U3 i_z) {
+    vec(const U1 i_x, const U2 i_y, const U3 i_z) {
         if (S > 0) {
             v[0] = static_cast<T>(i_x);
             if (S > 1) {
@@ -285,7 +285,7 @@ public:
      * @param i_w the value of the fourth component
      */
     template <typename U1, typename U2, typename U3, typename U4>
-    Vec(const U1 i_x, const U2 i_y, const U3 i_z, const U4 i_w) {
+    vec(const U1 i_x, const U2 i_y, const U3 i_z, const U4 i_w) {
         if (S > 0) {
             v[0] = static_cast<T>(i_x);
             if (S > 1) {
@@ -311,13 +311,13 @@ public:
      *
      * @tparam U the component type of the given vector and the type of the given scalar value
      * @tparam O the number of components of the given vector
-     * @param vec the vector to initialize components 0...S-2 with
+     * @param i_v the vector to initialize components 0...S-2 with
      * @param last the value to initialize component S-1 with
      */
     template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec, const U last) {
+    vec(const vec<U,O>& i_v, const U last) {
         for (size_t i = 0; i < std::min(S-1,O); ++i) {
-            v[i] = static_cast<T>(vec[i]);
+            v[i] = static_cast<T>(i_v[i]);
         }
         for (size_t i = std::min(S-1, O); i < S-1; ++i) {
             v[i] = static_cast<T>(0.0);
@@ -333,14 +333,14 @@ public:
      *
      * @tparam U the component type of the given vector and the type of the given scalar value
      * @tparam O the number of components of the given vector
-     * @param vec the vector to initialize components 0...S-3 with
+     * @param i_v the vector to initialize components 0...S-3 with
      * @param lastButOne the value to initialize component S-2 with
      * @param last the value to initialize component S-1 with
      */
     template <typename U, size_t O>
-    Vec(const Vec<U,O>& vec, const U lastButOne, const U last) {
+    vec(const vec<U,O>& i_v, const U lastButOne, const U last) {
         for (size_t i = 0; i < std::min(S-2,O); ++i) {
-            v[i] = static_cast<T>(vec[i]);
+            v[i] = static_cast<T>(i_v[i]);
         }
         for (size_t i = std::min(S-2, O); i < S-2; ++i) {
             v[i] = static_cast<T>(0.0);
@@ -354,8 +354,8 @@ public:
      *
      * @return the inverted copy
      */
-    Vec<T,S> operator-() const {
-        Vec<T,S> result;
+    vec<T,S> operator-() const {
+        vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
         return result;
@@ -428,8 +428,8 @@ public:
      *
      * @return a vector with the values of the first and second component
      */
-    Vec<T,2> xy() const {
-        return Vec<T,2>(x(), y());
+    vec<T,2> xy() const {
+        return vec<T,2>(x(), y());
     }
 
     /**
@@ -437,8 +437,8 @@ public:
      *
      * @return a vector with the values of the first and third component
      */
-    Vec<T,2> xz() const {
-        return Vec<T,2>(x(), z());
+    vec<T,2> xz() const {
+        return vec<T,2>(x(), z());
     }
 
     /**
@@ -446,8 +446,8 @@ public:
      *
      * @return a vector with the values of the second and third component
      */
-    Vec<T,2> yz() const {
-        return Vec<T,2>(y(), z());
+    vec<T,2> yz() const {
+        return vec<T,2>(y(), z());
     }
 
     /**
@@ -455,8 +455,8 @@ public:
      *
      * @return a vector with the values of the first three components
      */
-    Vec<T,3> xyz() const {
-        return Vec<T,3>(x(), y(), z());
+    vec<T,3> xyz() const {
+        return vec<T,3>(x(), y(), z());
     }
             
     /**
@@ -464,8 +464,8 @@ public:
      *
      * @return a vector with the values of the first four components
      */
-    Vec<T,4> xyzw() const {
-        return Vec<T,4>(x(), y(), z(), w());
+    vec<T,4> xyzw() const {
+        return vec<T,4>(x(), y(), z(), w());
     }
 
     /**
@@ -509,9 +509,9 @@ public:
      * @param k the k value
      * @return the vector indicating the axis of the k-largest component.
      */
-    const Vec<T,S> majorAxis(const size_t k) const {
+    const vec<T,S> majorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
-        Vec<T,S> a = axis(c);
+        vec<T,S> a = axis(c);
         if (v[c] < static_cast<T>(0.0))
             return -a;
         return a;
@@ -525,7 +525,7 @@ public:
      * @param k the k value
      * @return the vector indicating the absolute axis of the k-largest component
      */
-    const Vec<T,S> absMajorAxis(const size_t k) const {
+    const vec<T,S> absMajorAxis(const size_t k) const {
         const size_t c = majorComponent(k);
         return axis(c);
     }
@@ -562,7 +562,7 @@ public:
      *
      * @return the axis of the largest component
      */
-    const Vec<T,3> firstAxis() const {
+    const vec<T,3> firstAxis() const {
         return majorAxis(0);
     }
 
@@ -571,7 +571,7 @@ public:
      *
      * @return the axis of the second largest component
      */
-    const Vec<T,3> secondAxis() const {
+    const vec<T,3> secondAxis() const {
         return majorAxis(1);
     }
 
@@ -580,64 +580,64 @@ public:
      *
      * @return the axis of the third largest component
      */
-    const Vec<T,3> thirdAxis() const {
+    const vec<T,3> thirdAxis() const {
         return majorAxis(2);
     }
 };
 
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>::axis(0);
+const vec<T,S> vec<T,S>::pos_x = vec<T,S>::axis(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>::axis(1);
+const vec<T,S> vec<T,S>::pos_y = vec<T,S>::axis(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>::axis(2);
+const vec<T,S> vec<T,S>::pos_z = vec<T,S>::axis(2);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegX = -Vec<T,S>::axis(0);
+const vec<T,S> vec<T,S>::neg_x = -vec<T,S>::axis(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegY = -Vec<T,S>::axis(1);
+const vec<T,S> vec<T,S>::neg_y = -vec<T,S>::axis(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegZ = -Vec<T,S>::axis(2);
+const vec<T,S> vec<T,S>::neg_z = -vec<T,S>::axis(2);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::Null = Vec<T,S>::fill(static_cast<T>(0.0));
+const vec<T,S> vec<T,S>::zero = vec<T,S>::fill(static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::One  = Vec<T,S>::fill(static_cast<T>(1.0));
+const vec<T,S> vec<T,S>::one  = vec<T,S>::fill(static_cast<T>(1.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>::fill(std::numeric_limits<T>::quiet_NaN());
+const vec<T,S> vec<T,S>::NaN  = vec<T,S>::fill(std::numeric_limits<T>::quiet_NaN());
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::Min  = Vec<T,S>::fill(std::numeric_limits<T>::min());
+const vec<T,S> vec<T,S>::min  = vec<T,S>::fill(std::numeric_limits<T>::min());
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
+const vec<T,S> vec<T,S>::max  = vec<T,S>::fill(std::numeric_limits<T>::max());
 
 template <typename T, size_t S>
-const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
+const typename vec<T,S>::List vec<T,S>::EmptyList = vec<T,S>::List();
 
-using Vec1f = Vec<float,1>;
-using Vec1d = Vec<double,1>;
-using Vec1i = Vec<int,1>;
-using Vec1l = Vec<long,1>;
-using Vec1s = Vec<size_t,1>;
-using Vec1b = Vec<bool,1>;
+using vec1f = vec<float,1>;
+using vec1d = vec<double,1>;
+using vec1i = vec<int,1>;
+using vec1l = vec<long,1>;
+using vec1s = vec<size_t,1>;
+using vec1b = vec<bool,1>;
 
-using Vec2f = Vec<float,2>;
-using Vec2d = Vec<double,2>;
-using Vec2i = Vec<int,2>;
-using Vec2l = Vec<long,2>;
-using Vec2s = Vec<size_t,2>;
-using Vec2b = Vec<bool,2>;
+using vec2f = vec<float,2>;
+using vec2d = vec<double,2>;
+using vec2i = vec<int,2>;
+using vec2l = vec<long,2>;
+using vec2s = vec<size_t,2>;
+using vec2b = vec<bool,2>;
 
-using Vec3f = Vec<float,3>;
-using Vec3d = Vec<double,3>;
-using Vec3i = Vec<int,3>;
-using Vec3l = Vec<long,3>;
-using Vec3s = Vec<size_t,3>;
-using Vec3b = Vec<bool,3>;
+using vec3f = vec<float,3>;
+using vec3d = vec<double,3>;
+using vec3i = vec<int,3>;
+using vec3l = vec<long,3>;
+using vec3s = vec<size_t,3>;
+using vec3b = vec<bool,3>;
 
-using Vec4f = Vec<float,4>;
-using Vec4d = Vec<double,4>;
-using Vec4i = Vec<int,4>;
-using Vec4l = Vec<long,4>;
-using Vec4s = Vec<size_t,4>;
-using Vec4b = Vec<bool,4>;
+using vec4f = vec<float,4>;
+using vec4d = vec<double,4>;
+using vec4i = vec<int,4>;
+using vec4l = vec<long,4>;
+using vec4s = vec<size_t,4>;
+using vec4b = vec<bool,4>;
 
 /* ========== comparison operators ========== */
 
@@ -652,7 +652,7 @@ using Vec4b = Vec<bool,4>;
  * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
  */
 template <typename T, size_t S>
-int compare(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
     for (size_t i = 0; i < S; ++i) {
         if (Math::lt(lhs[i], rhs[i], epsilon))
             return -1;
@@ -675,7 +675,7 @@ int compare(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = static_c
  * @return -1 if the left hand range is less than the right hand range, +1 if the left hand range is greater than the right hand range, and 0 if both ranges are equal
  */
 template <typename I>
-int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type::Type epsilon = static_cast<typename I::value_type::Type>(0.0)) {
+int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type::type epsilon = static_cast<typename I::value_type::type>(0.0)) {
     while (lhsCur != lhsEnd && rhsCur != rhsEnd) {
         const auto cmp = compare(*lhsCur, *rhsCur, epsilon);
         if (cmp < 0) {
@@ -701,7 +701,7 @@ int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type
  * @return true if the given vectors have equal values for each component, and false otherwise
  */
 template <typename T, size_t S>
-bool operator==(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator==(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) == 0;
 }
 
@@ -715,7 +715,7 @@ bool operator==(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given vectors do not have equal values for each component, and false otherwise
  */
 template <typename T, size_t S>
-bool operator!=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator!=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) != 0;
 }
 
@@ -729,7 +729,7 @@ bool operator!=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given left hand vector is less than the given right hand vector
  */
 template <typename T, size_t S>
-bool operator<(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator<(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) < 0;
 }
 
@@ -743,7 +743,7 @@ bool operator<(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given left hand vector is less than or equal to the given right hand vector
  */
 template <typename T, size_t S>
-bool operator<=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator<=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) <= 0;
 }
 
@@ -757,7 +757,7 @@ bool operator<=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given left hand vector is greater than than the given right hand vector
  */
 template <typename T, size_t S>
-bool operator>(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator>(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) > 0;
 }
 
@@ -771,7 +771,7 @@ bool operator>(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return true if the given left hand vector is greater than or equal to than the given right hand vector
  */
 template <typename T, size_t S>
-bool operator>=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+bool operator>=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) >= 0;
 }
 
@@ -787,8 +787,8 @@ bool operator>=(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the sum of the given two vectors
  */
 template <typename T, size_t S>
-Vec<T,S> operator+(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator+(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result(lhs);
     return result += rhs;
 }
 
@@ -802,7 +802,7 @@ Vec<T,S> operator+(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return a reference to the left hand vector after adding the right hand vector to it
  */
 template <typename T, size_t S>
-Vec<T,S>& operator+=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+vec<T,S>& operator+=(vec<T,S>& lhs, const vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] += rhs[i];
     }
@@ -820,8 +820,8 @@ Vec<T,S>& operator+=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the difference of the given two vectors
  */
 template <typename T, size_t S>
-Vec<T,S> operator-(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator-(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result(lhs);
     return result -= rhs;
 }
 
@@ -835,7 +835,7 @@ Vec<T,S> operator-(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return a reference to the left hand vector after subtracting the right hand vector from it
  */
 template <typename T, size_t S>
-Vec<T,S>& operator-=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+vec<T,S>& operator-=(vec<T,S>& lhs, const vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] -= rhs[i];
     }
@@ -854,8 +854,8 @@ Vec<T,S>& operator-=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the product of the given two vectors
  */
 template <typename T, size_t S>
-Vec<T,S> operator*(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator*(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result(lhs);
     return result *= rhs;
 }
 
@@ -870,8 +870,8 @@ Vec<T,S> operator*(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the scalar product of the given vector with the given factor
  */
 template <typename T, size_t S>
-Vec<T,S> operator*(const Vec<T,S>& lhs, const T rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator*(const vec<T,S>& lhs, const T rhs) {
+    vec<T,S> result(lhs);
     return result *= rhs;
 }
 
@@ -887,8 +887,8 @@ Vec<T,S> operator*(const Vec<T,S>& lhs, const T rhs) {
  * @return the scalar product of the given vector with the given factor
  */
 template <typename T, size_t S>
-Vec<T,S> operator*(const T lhs, const Vec<T,S>& rhs) {
-    return Vec<T,S>(rhs) * lhs;
+vec<T,S> operator*(const T lhs, const vec<T,S>& rhs) {
+    return vec<T,S>(rhs) * lhs;
 }
 
 /**
@@ -902,7 +902,7 @@ Vec<T,S> operator*(const T lhs, const Vec<T,S>& rhs) {
  * @return a reference to the left hand vector after multiplying it with the right hand vector in a component wise fashion
  */
 template <typename T, size_t S>
-Vec<T,S>& operator*=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+vec<T,S>& operator*=(vec<T,S>& lhs, const vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] *= rhs[i];
     }
@@ -920,7 +920,7 @@ Vec<T,S>& operator*=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return a reference to the left hand vector after multiplying each of its components with the given scalar
  */
 template <typename T, size_t S>
-Vec<T,S>& operator*=(Vec<T,S>& lhs, const T rhs) {
+vec<T,S>& operator*=(vec<T,S>& lhs, const T rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] *= rhs;
     }
@@ -938,8 +938,8 @@ Vec<T,S>& operator*=(Vec<T,S>& lhs, const T rhs) {
  * @return the division of the given two vectors
  */
 template <typename T, size_t S>
-Vec<T,S> operator/(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator/(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result(lhs);
     return result /= rhs;
 }
 
@@ -954,8 +954,8 @@ Vec<T,S> operator/(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the scalar division of the given vector with the given factor
  */
 template <typename T, size_t S>
-Vec<T,S> operator/(const Vec<T,S>& lhs, const T rhs) {
-    Vec<T,S> result(lhs);
+vec<T,S> operator/(const vec<T,S>& lhs, const T rhs) {
+    vec<T,S> result(lhs);
     return result /= rhs;
 }
 
@@ -970,7 +970,7 @@ Vec<T,S> operator/(const Vec<T,S>& lhs, const T rhs) {
  * @return a reference to the left hand vector after dividing each of its components by corresponding component of the right hand vector
  */
 template <typename T, size_t S>
-Vec<T,S>& operator/=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+vec<T,S>& operator/=(vec<T,S>& lhs, const vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] /= rhs[i];
     }
@@ -988,7 +988,7 @@ Vec<T,S>& operator/=(Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return a reference to the left hand vector after dividing each of its components by the given scalar
  */
 template <typename T, size_t S>
-Vec<T,S>& operator/=(Vec<T,S>& lhs, const T rhs) {
+vec<T,S>& operator/=(vec<T,S>& lhs, const T rhs) {
     for (size_t i = 0; i < S; ++i) {
         lhs[i] /= rhs;
     }
@@ -1005,8 +1005,8 @@ Vec<T,S>& operator/=(Vec<T,S>& lhs, const T rhs) {
  * @return a range containing the sum of each of the vectors in the given range with the right hand vector
  */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& lhs, const Vec<T,S>& rhs) {
-    typename Vec<T,S>::List result;
+typename vec<T,S>::List operator+(const typename vec<T,S>::List& lhs, const vec<T,S>& rhs) {
+    typename vec<T,S>::List result;
     result.reserve(lhs.size());
     for (const auto& vec : lhs) {
         result.push_back(vec + rhs);
@@ -1024,7 +1024,7 @@ typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& lhs, const Vec<
  * @return a range containing the sum of each of the vectors in the given range with the left hand vector
  */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator+(const Vec<T,S>& lhs, const typename Vec<T,S>::List& rhs) {
+typename vec<T,S>::List operator+(const vec<T,S>& lhs, const typename vec<T,S>::List& rhs) {
     return rhs + lhs;
 }
 
@@ -1038,8 +1038,8 @@ typename Vec<T,S>::List operator+(const Vec<T,S>& lhs, const typename Vec<T,S>::
  * @return a range containing the scalar product of each vector in the given range with the given scalar
  */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& lhs, const T rhs) {
-    typename Vec<T,S>::List result;
+typename vec<T,S>::List operator*(const typename vec<T,S>::List& lhs, const T rhs) {
+    typename vec<T,S>::List result;
     result.reserve(lhs.size());
     for (const auto& vec : lhs) {
         result.push_back(vec + rhs);
@@ -1057,14 +1057,14 @@ typename Vec<T,S>::List operator*(const typename Vec<T,S>::List& lhs, const T rh
  * @return a range containing the scalar product of each vector in the given range with the given scalar
  */
 template <typename T, size_t S>
-typename Vec<T,S>::List operator*(const T lhs, const typename Vec<T,S>::List& rhs) {
+typename vec<T,S>::List operator*(const T lhs, const typename vec<T,S>::List& rhs) {
     return rhs * lhs;
 }
 
 /* ========== stream operators ========== */
 
 template <typename T, size_t S>
-std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
+std::ostream& operator<< (std::ostream& stream, const vec<T,S>& vec) {
     if (S > 0) {
         stream << vec[0];
         for (size_t i = 1; i < S; ++i) {
@@ -1082,14 +1082,14 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to make absolute
+ * @param v the vector to make absolute
  * @return the absolute vector
  */
 template <typename T, size_t S>
-Vec<T,S> abs(const Vec<T,S>& vec) {
-    Vec<T,S> result;
+vec<T,S> abs(const vec<T,S>& v) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::abs(vec[i]);
+        result[i] = Math::abs(v[i]);
     }
     return result;
 }
@@ -1104,8 +1104,8 @@ Vec<T,S> abs(const Vec<T,S>& vec) {
  * @return the component wise minimum of the given vectors
  */
 template <typename T, size_t S>
-Vec<T,S> min(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
+vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
         result[i] = Math::min(lhs[i], rhs[i]);
     }
@@ -1122,8 +1122,8 @@ Vec<T,S> min(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the component wise maximum of the given vectors
  */
 template <typename T, size_t S>
-Vec<T,S> max(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
+vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
         result[i] = Math::max(lhs[i], rhs[i]);
     }
@@ -1140,8 +1140,8 @@ Vec<T,S> max(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the component wise absolute minimum of the given vectors
  */
 template <typename T, size_t S>
-Vec<T,S> absMin(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
+vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
         result[i] = Math::absMin(lhs[i], rhs[i]);
     }
@@ -1158,8 +1158,8 @@ Vec<T,S> absMin(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the component wise absolute maximum of the given vectors
  */
 template <typename T, size_t S>
-Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
-    Vec<T,S> result;
+vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+    vec<T,S> result;
     for (size_t i = 0; i < S; ++i) {
         result[i] = Math::absMax(lhs[i], rhs[i]);
     }
@@ -1176,7 +1176,7 @@ Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the dot product of the given vectors
  */
 template <typename T, size_t S>
-T dot(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+T dot(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     T result = static_cast<T>(0.0);
     for (size_t i = 0; i < S; ++i) {
         result += (lhs[i] * rhs[i]);
@@ -1193,8 +1193,8 @@ T dot(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the cross product of the given vectors
  */
 template <typename T>
-Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
-    return Vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
+vec<T,3> cross(const vec<T, 3>& lhs, const vec<T, 3>& rhs) {
+    return vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
                     lhs[2] * rhs[0] - lhs[0] * rhs[2],
                     lhs[0] * rhs[1] - lhs[1] * rhs[0]);
 }
@@ -1213,8 +1213,8 @@ Vec<T,3> cross(const Vec<T, 3>& lhs, const Vec<T, 3>& rhs) {
  * @return the mixed vector
  */
 template <typename T, size_t S>
-Vec<T,S> mix(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const Vec<T,S>& f) {
-    return (Vec<T,S>::One - f) * lhs + f * rhs;
+vec<T,S> mix(const vec<T,S>& lhs, const vec<T,S>& rhs, const vec<T,S>& f) {
+    return (vec<T,S>::one - f) * lhs + f * rhs;
 }
 
 /**
@@ -1227,7 +1227,7 @@ Vec<T,S> mix(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const Vec<T,S>& f) {
  * @return the distance between the given points
  */
 template <typename T, size_t S>
-T distance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+T distance(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return length(lhs - rhs);
 }
 
@@ -1241,7 +1241,7 @@ T distance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the squared distance between the given points
  */
 template <typename T, size_t S>
-T squaredDistance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+T squaredDistance(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return squaredLength(lhs - rhs);
 }
 
@@ -1254,7 +1254,7 @@ T squaredDistance(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
  * @return the normalized vector
  */
 template <typename T, size_t S>
-Vec<T,S> normalize(const Vec<T,S>& vec) {
+vec<T,S> normalize(const vec<T,S>& vec) {
     return vec / length(vec);
 }
 
@@ -1267,7 +1267,7 @@ Vec<T,S> normalize(const Vec<T,S>& vec) {
  * @return the length of the given vector
  */
 template <typename T, size_t S>
-T length(const Vec<T,S>& vec) {
+T length(const vec<T,S>& vec) {
     return std::sqrt(squaredLength(vec));
 }
 
@@ -1280,7 +1280,7 @@ T length(const Vec<T,S>& vec) {
  * @return the squared length of the given vector
  */
 template <typename T, size_t S>
-T squaredLength(const Vec<T,S>& vec) {
+T squaredLength(const vec<T,S>& vec) {
     return dot(vec, vec);
 }
 
@@ -1289,13 +1289,13 @@ T squaredLength(const Vec<T,S>& vec) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to check
+ * @param v the vector to check
  * @param epsilon the epsilon value
  * @return true if the given vector has a length of 1 and false otherwise
  */
 template <typename T, size_t S>
-bool isUnit(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZero()) {
-    return Math::one(length(vec), epsilon);
+bool isUnit(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
+    return Math::one(length(v), epsilon);
 }
 
 /**
@@ -1303,13 +1303,13 @@ bool isUnit(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZer
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to check
+ * @param v the vector to check
  * @param epsilon the epsilon value
  * @return true if the given vector has a length of 0 and false otherwise
  */
 template <typename T, size_t S>
-bool isNull(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZero()) {
-    return Math::zero(length(vec), epsilon);
+bool isNull(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
+    return Math::zero(length(v), epsilon);
 }
 
 /**
@@ -1317,13 +1317,13 @@ bool isNull(const Vec<T,S>& vec, const T epsilon = Math::Constants<T>::almostZer
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to check
+ * @param v the vector to check
  * @return true if the given vector has NaN as any component
  */
 template <typename T, size_t S>
-bool isNaN(const Vec<T,S>& vec) {
+bool isNaN(const vec<T,S>& v) {
     for (size_t i = 0; i < S; ++i) {
-        if (Math::isnan(vec[i])) {
+        if (Math::isnan(v[i])) {
             return true;
         }
     }
@@ -1335,14 +1335,14 @@ bool isNaN(const Vec<T,S>& vec) {
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to check
+ * @param v the vector to check
  * @param epsilon the epsilon value
  * @return true if all components of the given vector are integral under the above definition
  */
 template <typename T, size_t S>
-bool isIntegral(const Vec<T,S>& vec, const T epsilon = static_cast<T>(0.0)) {
+bool isIntegral(const vec<T,S>& v, const T epsilon = static_cast<T>(0.0)) {
     for (size_t i = 0; i < S; ++i) {
-        if (std::abs(vec[i] - Math::round(vec[i])) >= epsilon) {
+        if (std::abs(v[i] - Math::round(v[i])) >= epsilon) {
             return false;
         }
     }
@@ -1362,7 +1362,7 @@ bool isIntegral(const Vec<T,S>& vec, const T epsilon = static_cast<T>(0.0)) {
  * @return true if the given vectors are component wise equal up to the given epsilon value
  */
 template <typename T, size_t S>
-bool equal(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon) {
+bool equal(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
     return compare(lhs, rhs, epsilon) == 0;
 }
 
@@ -1378,7 +1378,7 @@ bool equal(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon) {
  * @return true if the given three points are colinear, and false otherwise
  */
 template <typename T, size_t S>
-bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
     // see http://math.stackexchange.com/a/1778739
 
     T j = 0.0;
@@ -1407,7 +1407,7 @@ bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T e
  * @return true if the given vectors are parallel, and false otherwise
  */
 template <typename T, size_t S>
-bool parallel(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
     const T cos = dot(normalize(lhs), normalize(rhs));
     return Math::one(Math::abs(cos), epsilon);
 }
@@ -1422,8 +1422,8 @@ bool parallel(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = Math::
  * @return the point in homogeneous coordinates
  */
 template <typename T, size_t S>
-Vec<T,S+1> toHomogeneousCoords(const Vec<T,S>& point) {
-    return Vec<T,S+1>(point, static_cast<T>(1.0));
+vec<T,S+1> toHomogeneousCoords(const vec<T,S>& point) {
+    return vec<T,S+1>(point, static_cast<T>(1.0));
 }
 
 /**
@@ -1436,8 +1436,8 @@ Vec<T,S+1> toHomogeneousCoords(const Vec<T,S>& point) {
  * @return the point in cartesian coordinates
  */
 template <typename T, size_t S>
-Vec<T,S-1> toCartesianCoords(const Vec<T,S>& point) {
-    Vec<T,S-1> result;
+vec<T,S-1> toCartesianCoords(const vec<T,S>& point) {
+    vec<T,S-1> result;
     for (size_t i = 0; i < S-1; ++i) {
         result[i] = point[i] / point[S-1];
     }

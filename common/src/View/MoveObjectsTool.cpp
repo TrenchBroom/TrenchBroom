@@ -52,7 +52,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const Vec3& delta) {
+        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             const BBox3 bounds = document->selectionBounds();

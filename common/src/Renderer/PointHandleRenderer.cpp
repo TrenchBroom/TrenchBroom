@@ -37,11 +37,11 @@ namespace TrenchBroom {
         m_handle(pref(Preferences::HandleRadius), 16, true),
         m_highlight(2.0f * pref(Preferences::HandleRadius), 16, false) {}
         
-        void PointHandleRenderer::addPoint(const Color& color, const Vec3f& position) {
+        void PointHandleRenderer::addPoint(const Color& color, const vec3f& position) {
             m_pointHandles[color].push_back(position);
         }
 
-        void PointHandleRenderer::addHighlight(const Color& color, const Vec3f& position) {
+        void PointHandleRenderer::addHighlight(const Color& color, const vec3f& position) {
             m_highlights[color].push_back(position);
         }
         
@@ -59,7 +59,7 @@ namespace TrenchBroom {
                                                    static_cast<float>(viewport.height),
                                                    static_cast<float>(viewport.width),
                                                    static_cast<float>(viewport.y));
-            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            const Mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             glAssert(glDisable(GL_DEPTH_TEST));
@@ -78,8 +78,8 @@ namespace TrenchBroom {
                 const Color& color = entry.first;
                 shader.set("Color", color);
                 
-                for (const Vec3f& position : entry.second) {
-                    const Vec3f offset = camera.project(position);
+                for (const vec3f& position : entry.second) {
+                    const vec3f offset = camera.project(position);
                     MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
                     circle.render();
                 }

@@ -140,8 +140,8 @@ namespace TrenchBroom {
             return static_cast<float>(read<T>(cursor));
         }
         
-        Vec3f readVec3f(const char*& cursor);
-        Vec3f readVec3f(const char* const& cursor);
+        vec3f readVec3f(const char*& cursor);
+        vec3f readVec3f(const char* const& cursor);
         void readBytes(const char*& cursor, char* buffer, size_t n);
         void readBytes(const char* const& cursor, char* buffer, size_t n);
         void readBytes(const char*& cursor, unsigned char* buffer, size_t n);

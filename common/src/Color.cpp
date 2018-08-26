@@ -21,30 +21,30 @@
 #include "Color.h"
 
 Color Color::parse(const std::string& str) {
-    const Vec<float, 4> vec = Vec<float, 4>::parse(str);
-    return Color(vec.x(), vec.y(), vec.z(), vec.w());
+    const vec<float, 4> v = vec<float, 4>::parse(str);
+    return Color(v.x(), v.y(), v.z(), v.w());
 }
 
 Color::Color() :
-Vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
+vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f) {}
 
-Color::Color(const Vec<float,4>& vec) :
-Vec<float, 4>(vec) {}
+Color::Color(const vec<float,4>& v) :
+vec<float, 4>(v) {}
 
 Color::Color(const float r, const float g, const float b, const float a) :
-Vec<float, 4>(r, g, b, a) {}
+vec<float, 4>(r, g, b, a) {}
 
 Color::Color(const Color& color, const float a) :
-Vec<float, 4>(color.r(), color.g(), color.b(), a) {}
+vec<float, 4>(color.r(), color.g(), color.b(), a) {}
 
 Color::Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) :
-Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
+vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
 
 Color::Color(const int r, const int g, const int b, const int a) :
-Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
+vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f) {}
 
 Color::Color(const int r, const int g, const int b, const float a) :
-Vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a) {}
+vec<float, 4>(r / 255.0f, g / 255.0f, b / 255.0f, a) {}
 
 float Color::r() const {
     return x();

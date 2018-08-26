@@ -21,7 +21,7 @@
 #define TrenchBroom_Algorithms_h
 
 #include "CoordinatePlane.h"
-#include "Vec.h"
+#include "vec.h"
 #include "Plane.h"
 #include "Ray.h"
 
@@ -36,13 +36,13 @@ template <typename T, typename I, typename F = Identity>
 bool getPlane(I cur, I end, Plane<T,3>& plane, const F& getPosition = F()) {
     if (cur == end)
         return false;
-    const Vec<T,3> p2 = *cur++;
+    const vec<T,3> p2 = *cur++;
     if (cur == end)
         return false;
-    const Vec<T,3> p0 = *cur++;
+    const vec<T,3> p0 = *cur++;
     if (cur == end)
         return false;
-    const Vec<T,3> p1 = *cur++;
+    const vec<T,3> p1 = *cur++;
     return setPlanePoints(plane, p0, p1, p2);
 }
 
@@ -53,7 +53,7 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
         return distance;
     }
 
-    const Vec<T,3> point = ray.pointAtDistance(distance);
+    const vec<T,3> point = ray.pointAtDistance(distance);
     if (polygonContainsPoint(point, plane.normal, cur, end, getPosition)) {
         return distance;
     }
@@ -71,15 +71,15 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, I cur, I end, const F& getPositio
 
 
 template <typename T, typename I, typename F = Identity>
-bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, const F& getPosition = F()) {
+bool polygonContainsPoint(const vec<T,3>& point, I cur, I end, const F& getPosition = F()) {
     I temp = cur;
     
-    assert(temp != end); const Vec<T,3> p1 = getPosition(*temp++);
-    assert(temp != end); const Vec<T,3> p2 = getPosition(*temp++);
-    assert(temp != end); const Vec<T,3> p3 = getPosition(*temp);
+    assert(temp != end); const vec<T,3> p1 = getPosition(*temp++);
+    assert(temp != end); const vec<T,3> p2 = getPosition(*temp++);
+    assert(temp != end); const vec<T,3> p3 = getPosition(*temp);
 
     [[maybe_unused]] bool result;
-    Vec<T,3> normal;
+    vec<T,3> normal;
     std::tie(result, normal) = planeNormal(p1, p2, p3);
     assert(result);
 
@@ -87,20 +87,20 @@ bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, const F& getPosit
 }
 
 template <typename T, typename I, typename F = Identity>
-bool polygonContainsPoint(const Vec<T,3>& point, const Vec<T,3>& normal, I cur, I end, const F& getPosition = F()) {
+bool polygonContainsPoint(const vec<T,3>& point, const vec<T,3>& normal, I cur, I end, const F& getPosition = F()) {
     return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
 }
 
 template <typename T, typename I, typename F = Identity>
-bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end, const F& getPosition = F()) {
-    const Vec<T,3> o = swizzle(point, axis);
+bool polygonContainsPoint(const vec<T,3>& point, const size_t axis, I cur, I end, const F& getPosition = F()) {
+    const vec<T,3> o = swizzle(point, axis);
     
-    const Vec<T,3> f = swizzle(getPosition(*cur++), axis) - o; // The first vertex.
-    Vec<T,3> p = f; // The previous vertex.
+    const vec<T,3> f = swizzle(getPosition(*cur++), axis) - o; // The first vertex.
+    vec<T,3> p = f; // The previous vertex.
     
     int d = 0;
     while (cur != end) {
-        const Vec<T,3> c = swizzle(getPosition(*cur++), axis) - o; // The current vertex.
+        const vec<T,3> c = swizzle(getPosition(*cur++), axis) - o; // The current vertex.
         const int s = handlePolygonEdgeIntersection(p, c);
         if (s == -1)
             return true;
@@ -120,7 +120,7 @@ bool polygonContainsPoint(const Vec<T,3>& point, const size_t axis, I cur, I end
 }
 
 template <typename T>
-int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
+int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
     if (Math::zero(v0.x()) && Math::zero(v0.y())) {
         // the point is identical to a polygon vertex, cancel search
         return -1;
@@ -181,7 +181,7 @@ int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
  = 0 if it is on the line.
  */
 template <typename T, size_t S>
-int isLeft(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3) {
+int isLeft(const vec<T,S>& p1, const vec<T,S>& p2, const vec<T,S>& p3) {
     assert(S >= 2);
     const T result = ( (p2.x() - p1.x()) * (p3.y() - p1.y())
                       -(p3.x() - p1.x()) * (p2.y() - p1.y()));
@@ -198,11 +198,11 @@ class ConvexHull2D {
 private:
     class LessThanByAngle {
     private:
-        const Vec<T,3>& m_anchor;
+        const vec<T,3>& m_anchor;
     public:
-        LessThanByAngle(const Vec<T,3>& anchor) : m_anchor(anchor) {}
+        LessThanByAngle(const vec<T,3>& anchor) : m_anchor(anchor) {}
     public:
-        bool operator()(const Vec<T,3>& lhs, const Vec<T,3>& rhs) const {
+        bool operator()(const vec<T,3>& lhs, const vec<T,3>& rhs) const {
             const int side = isLeft(m_anchor, lhs, rhs);
             if (side > 0)
                 return true;
@@ -221,10 +221,10 @@ private:
         }
     };
     
-    typename Vec<T,3>::List m_points;
+    typename vec<T,3>::List m_points;
     bool m_hasResult;
 public:
-    ConvexHull2D(const typename Vec<T,3>::List& points) :
+    ConvexHull2D(const typename vec<T,3>::List& points) :
     m_points(points),
     m_hasResult(m_points.size() > 2) {
         if (m_hasResult) {
@@ -250,7 +250,7 @@ public:
         return m_hasResult;
     }
     
-    const typename Vec<T,3>::List& result() const {
+    const typename vec<T,3>::List& result() const {
         assert(m_hasResult);
         return m_points;
     }
@@ -263,7 +263,7 @@ private:
     }
     
     Math::Axis::Type computeAxis(const size_t thirdPointIndex) const {
-        const Vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
+        const vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
         return ortho.firstComponent();
     }
     
@@ -293,15 +293,15 @@ private:
     }
     
     void sortPoints() {
-        const Vec<T,3>& anchor = m_points[0];
+        const vec<T,3>& anchor = m_points[0];
         std::sort(std::begin(m_points) + 1, std::end(m_points), LessThanByAngle(anchor));
         
         // now remove the duplicates
         auto i = std::begin(m_points) + 1;
         while (i != std::end(m_points)) {
-            const Vec<T,3>& p1 = *(i++);
+            const vec<T,3>& p1 = *(i++);
             while (i != std::end(m_points)) {
-                const Vec<T,3>& p2 = *i;
+                const vec<T,3>& p2 = *i;
                 if (isLeft(anchor, p1, p2) == 0)
                     i = m_points.erase(i);
                 else
@@ -311,13 +311,13 @@ private:
     }
     
     void buildHull() {
-        typename Vec<T,3>::List stack;
+        typename vec<T,3>::List stack;
         stack.reserve(m_points.size());
         stack.push_back(m_points[0]);
         stack.push_back(m_points[1]);
         
         for (size_t i = 2; i < m_points.size(); ++i) {
-            const Vec<T,3>& p = m_points[i];
+            const vec<T,3>& p = m_points[i];
             popStalePoints(stack, p);
             stack.push_back(p);
         }
@@ -327,10 +327,10 @@ private:
         assert(m_points.size() > 2);
     }
     
-    void popStalePoints(typename Vec<T,3>::List& stack, const Vec<T,3>& p) {
+    void popStalePoints(typename vec<T,3>::List& stack, const vec<T,3>& p) {
         if (stack.size() > 1) {
-            const Vec<T,3>& t1 = stack[stack.size() - 2];
-            const Vec<T,3>& t2 = stack[stack.size() - 1];
+            const vec<T,3>& t1 = stack[stack.size() - 2];
+            const vec<T,3>& t2 = stack[stack.size() - 1];
             const int side = isLeft(t1, t2, p);
             if (side < 0) {
                 stack.pop_back();
@@ -342,10 +342,10 @@ private:
 
 // see http://geomalgorithms.com/a10-_hull-1.html
 template <typename T>
-typename Vec<T,3>::List convexHull2D(const typename Vec<T,3>::List& points) {
+typename vec<T,3>::List convexHull2D(const typename vec<T,3>::List& points) {
     const ConvexHull2D<T> hull(points);
     if (!hull.hasResult())
-        return Vec<T,3>::EmptyList;
+        return vec<T,3>::EmptyList;
     return hull.result();
 }
 

@@ -49,7 +49,7 @@ namespace TrenchBroom {
             static const float speed = 256.0f / 1000.0f; // 64 units per second
             const float dist  = speed * time;
             
-            Vec3f delta;
+            vec3f delta;
             if (forward) {
                 delta += m_camera.direction() * dist;
             }
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 const float distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                const Vec3f moveDirection = pref(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const vec3f moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vec3f(inputState.pickRay().direction) : m_camera.direction();
                 const float distance = inputState.scrollY() * moveSpeed(false);
                 m_camera.moveBy(factor * distance * moveDirection);
             }
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 return true;
             } else if (pan(inputState)) {
                 const bool altMove = pref(Preferences::CameraEnableAltMove);
-                Vec3f delta;
+                vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
                     delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
                     delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();

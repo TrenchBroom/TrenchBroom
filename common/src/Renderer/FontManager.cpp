@@ -45,7 +45,7 @@ namespace TrenchBroom {
         
         FontDescriptor FontManager::selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize) {
             FontDescriptor actualDescriptor = fontDescriptor;
-            Vec2f actualBounds = font(actualDescriptor).measure(string);
+            vec2f actualBounds = font(actualDescriptor).measure(string);
             while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
                 actualDescriptor = FontDescriptor(actualDescriptor.path(), actualDescriptor.size() - 1);
                 actualBounds = font(actualDescriptor).measure(string);

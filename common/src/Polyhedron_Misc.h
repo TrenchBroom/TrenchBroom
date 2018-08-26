@@ -1331,7 +1331,7 @@ void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callb
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
-        m_bounds.min = m_bounds.max = Vec<T,3>::NaN;
+        m_bounds.min = m_bounds.max = vec<T,3>::NaN;
     } else {
         Vertex* first = m_vertices.front();
         Vertex* current = first;

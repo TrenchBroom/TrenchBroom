@@ -96,7 +96,7 @@ namespace TrenchBroom {
 
             bool doSelectable() const override;
             void doPick(const Ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vec3& point, NodeList& result) override;
             FloatType doIntersectWithRay(const Ray3& ray) const override;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
@@ -109,8 +109,8 @@ namespace TrenchBroom {
             void doAttributesDidChange(const BBox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
-            Vec3 doGetLinkSourceAnchor() const override;
-            Vec3 doGetLinkTargetAnchor() const override;
+            vec3 doGetLinkSourceAnchor() const override;
+            vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const override;
             World* doCreateWorld(const BBox3& worldBounds) const override;
@@ -118,8 +118,8 @@ namespace TrenchBroom {
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
             Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const override;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const override;
+            BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const override;
+            BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const override;
         private:
             World(const World&);
             World& operator=(const World&);

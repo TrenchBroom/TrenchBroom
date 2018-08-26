@@ -265,7 +265,7 @@ namespace TrenchBroom {
             bool deleteObjects() override;
             bool duplicateObjects() override;
         public: // entity management
-            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const Vec3& delta);
+            Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vec3& delta);
             Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition);
         public: // group management
             Model::Group* groupSelection(const String& name);
@@ -292,20 +292,20 @@ namespace TrenchBroom {
             void unlock(const Model::NodeList& nodes) override;
             void resetLock(const Model::NodeList& nodes) override;
         public: // modifying objects, declared in MapFacade interface
-            bool translateObjects(const Vec3& delta) override;
-            bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) override;
+            bool translateObjects(const vec3& delta) override;
+            bool rotateObjects(const vec3& center, const vec3& axis, FloatType angle) override;
             bool scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) override;
-            bool scaleObjects(const Vec3& center, const Vec3& scaleFactors) override;
-            bool shearObjects(const BBox3& box, const Vec3& sideToShear, const Vec3& delta) override;
-            bool flipObjects(const Vec3& center, Math::Axis::Type axis) override;
+            bool scaleObjects(const vec3& center, const vec3& scaleFactors) override;
+            bool shearObjects(const BBox3& box, const vec3& sideToShear, const vec3& delta) override;
+            bool flipObjects(const vec3& center, Math::Axis::Type axis) override;
         public:
-            bool createBrush(const Vec3::List& points);
+            bool createBrush(const vec3::List& points);
             bool csgConvexMerge();
             bool csgSubtract();
             bool csgIntersect();
             bool csgHollow();
         public:
-            bool clipBrushes(const Vec3& p1, const Vec3& p2, const Vec3& p3);
+            bool clipBrushes(const vec3& p1, const vec3& p2, const vec3& p3);
         public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) override;
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) override;
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) override;
             bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Polygon3::List& faces, const Vec3& delta) override;
+            bool resizeBrushes(const Polygon3::List& faces, const vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface
             void setTexture(Assets::Texture* texture) override;
         private:
@@ -323,18 +323,18 @@ namespace TrenchBroom {
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
             bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-            bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) override;
+            bool moveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) override;
             bool rotateTextures(float angle) override;
-            bool shearTextures(const Vec2f& factors) override;
+            bool shearTextures(const vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes) override;
             
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
             
-            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) override;
-            bool moveEdges(const Model::EdgeToBrushesMap& edges, const Vec3& delta) override;
-            bool moveFaces(const Model::FaceToBrushesMap& faces, const Vec3& delta) override;
+            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const vec3& delta) override;
+            bool moveEdges(const Model::EdgeToBrushesMap& edges, const vec3& delta) override;
+            bool moveFaces(const Model::FaceToBrushesMap& faces, const vec3& delta) override;
             
             bool addVertices(const Model::VertexToBrushesMap& vertices);
             bool removeVertices(const Model::VertexToBrushesMap& vertices);
@@ -382,7 +382,7 @@ namespace TrenchBroom {
             void commitPendingAssets();
         public: // picking
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
-            Model::NodeList findNodesContaining(const Vec3& point) const;
+            Model::NodeList findNodesContaining(const vec3& point) const;
         private: // world management
             void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game);
             void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path);

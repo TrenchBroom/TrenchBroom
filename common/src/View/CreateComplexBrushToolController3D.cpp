@@ -56,7 +56,7 @@ namespace TrenchBroom {
         class CreateComplexBrushToolController3D::DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
         private:
             Plane3 m_plane;
-            Vec3 m_initialPoint;
+            vec3 m_initialPoint;
         public:
             DrawFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
                 updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
@@ -100,23 +100,23 @@ namespace TrenchBroom {
             
             bool doCancel() override { return false; }
         private:
-            void updatePolyhedron(const Vec3& current) {
+            void updatePolyhedron(const vec3& current) {
                 const Grid& grid = m_tool->grid();
                 
                 const Math::Axis::Type axis = m_plane.normal.firstComponent();
                 const Plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
-                const Vec3 theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
-                const Vec3 theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
+                const vec3 theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
+                const vec3 theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
                 
                 const Vec2     topLeft2(theMin.x(), theMin.y());
                 const Vec2    topRight2(theMax.x(), theMin.y());
                 const Vec2  bottomLeft2(theMin.x(), theMax.y());
                 const Vec2 bottomRight2(theMax.x(), theMax.y());
                 
-                const Vec3     topLeft3 = unswizzle(Vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
-                const Vec3    topRight3 = unswizzle(Vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
-                const Vec3  bottomLeft3 = unswizzle(Vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
-                const Vec3 bottomRight3 = unswizzle(Vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
+                const vec3     topLeft3 = unswizzle(vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
+                const vec3    topRight3 = unswizzle(vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
+                const vec3  bottomLeft3 = unswizzle(vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
+                const vec3 bottomRight3 = unswizzle(vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
                 
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 polyhedron.addPoint(topLeft3);
@@ -129,7 +129,7 @@ namespace TrenchBroom {
         
         class CreateComplexBrushToolController3D::DuplicateFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
         private:
-            Vec3 m_dragDir;
+            vec3 m_dragDir;
         public:
             DuplicateFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
@@ -149,8 +149,8 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return DragInfo();
                 
-                const Vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
-                const Vec3 direction = hit.face->normal();
+                const vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
+                const vec3 direction = hit.face->normal();
                 
                 const Line3 line(origin, direction);
                 m_dragDir = line.direction;
@@ -158,21 +158,21 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
             
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
                 const Grid& grid = m_tool->grid();
                 
-                const Vec3 rayDelta             = nextHandlePosition - initialHandlePosition();
-                const Vec3 rayAxis              = m_dragDir.firstAxis();
+                const vec3 rayDelta             = nextHandlePosition - initialHandlePosition();
+                const vec3 rayAxis              = m_dragDir.firstAxis();
                 const FloatType axisDistance    = dot(rayDelta, rayAxis);
                 const FloatType snappedDistance = grid.snap(axisDistance);
                 const FloatType snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
-                const Vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
+                const vec3 snappedRayDelta      = snappedRayDist * m_dragDir;
                 
                 const Polyhedron3::Face* face = m_oldPolyhedron.faces().front();
-                const Vec3::List points = face->vertexPositions() + snappedRayDelta;
+                const vec3::List points = face->vertexPositions() + snappedRayDelta;
                 
                 polyhedron.addPoints(points);
                 m_tool->update(polyhedron);
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             const Grid& grid = m_tool->grid();
             
             const Model::BrushFace* face = Model::hitToFace(hit);
-            const Vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
+            const vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
             
             Polyhedron3 polyhedron = m_tool->polyhedron();
             polyhedron.addPoint(snapped);
@@ -272,10 +272,10 @@ namespace TrenchBroom {
                     const Polyhedron3::FaceHit hit = polyhedron.pickFace(inputState.pickRay());
                     if (hit.isMatch()) {
                         const Polyhedron3::Face* face = polyhedron.faces().front();
-                        const Vec3::List pos3 = face->vertexPositions();
-                        Vec3f::List pos3f(pos3.size());
+                        const vec3::List pos3 = face->vertexPositions();
+                        vec3f::List pos3f(pos3.size());
                         for (size_t i = 0; i < pos3.size(); ++i)
-                            pos3f[i] = Vec3f(pos3[i]);
+                            pos3f[i] = vec3f(pos3[i]);
                         
                         renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
                         renderService.renderFilledPolygon(pos3f);

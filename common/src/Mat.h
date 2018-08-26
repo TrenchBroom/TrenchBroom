@@ -21,7 +21,7 @@
 #define TrenchBroom_Mat_h
 
 #include "Quat.h"
-#include "Vec.h"
+#include "vec.h"
 
 #include <algorithm>
 #include <cassert>
@@ -58,7 +58,7 @@ public:
     
     // we store in column-major format
     // every vector is one column
-    Vec<T,R> v[C];
+    vec<T,R> v[C];
     
     Mat<T,R,C>() {
         setIdentity();
@@ -182,40 +182,40 @@ public:
     }
     
     // Vector right multiplication
-    const Vec<T,C> operator*(const Vec<T,C>& right) const {
-        Vec<T,C> result;
+    const vec<T,C> operator*(const vec<T,C>& right) const {
+        vec<T,C> result;
         for (size_t r = 0; r < R; r++)
             for (size_t c = 0; c < C; ++c)
                 result[r] += v[c][r] * right[c];
         return result;
     }
     
-    const Vec<T,C-1> operator*(const Vec<T,C-1>& right) const {
+    const vec<T,C-1> operator*(const vec<T,C-1>& right) const {
         return toCartesianCoords(*this * toHomogeneousCoords(right));
     }
     
     // Vector list right multiplication
-    const typename Vec<T,C>::List operator*(const typename Vec<T,C>::List& right) const {
-        typename Vec<T,C>::List result;
+    const typename vec<T,C>::List operator*(const typename vec<T,C>::List& right) const {
+        typename vec<T,C>::List result;
         result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C>& elem) { return *this * elem; });
+        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const vec<T,C>& elem) { return *this * elem; });
         return result;
     }
     
-    const typename Vec<T,C-1>::List operator*(const typename Vec<T,C-1>::List& right) const {
-        typename Vec<T,C-1>::List result;
+    const typename vec<T,C-1>::List operator*(const typename vec<T,C-1>::List& right) const {
+        typename vec<T,C-1>::List result;
         result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C-1>& elem) { return *this * elem; });
+        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const vec<T,C-1>& elem) { return *this * elem; });
         return result;
     }
     
     // indexed access, returns one column
-    Vec<T,R>& operator[] (const size_t index) {
+    vec<T,R>& operator[] (const size_t index) {
         assert(index < C);
         return v[index];
     }
     
-    const Vec<T,R>& operator[] (const size_t index) const {
+    const vec<T,R>& operator[] (const size_t index) const {
         assert(index < C);
         return v[index];
     }
@@ -269,57 +269,57 @@ Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with vector of dimension R
 template <typename T, size_t R, size_t C>
-const Vec<T,R> operator*(const Vec<T,R>& left, const Mat<T,R,C>& right) {
-    Vec<T,R> result;
+const vec<T,R> operator*(const vec<T,R>& left, const Mat<T,R,C>& right) {
+    vec<T,R> result;
     for (size_t c = 0; c < C; c++)
         result[c] = dot(left, right[c]);
     return result;
 }
 
 template <typename T, size_t R, size_t C>
-Vec<T,R>& operator*= (Vec<T,R>& left, const Mat<T,R,C>& right) {
+vec<T,R>& operator*= (vec<T,R>& left, const Mat<T,R,C>& right) {
     return left = left * right;
 }
 
 // Vector left multiplication with list of vectors of dimension R
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R>::List result;
+const typename vec<T,R>::List operator*(const typename vec<T,R>::List& left, const Mat<T,R,C>& right) {
+    typename vec<T,R>::List result;
     result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R>& elem) { return elem * right; });
+    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const vec<T,R>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    for (Vec<T,R>& elem : left)
+const typename vec<T,R>::List& operator*= (typename vec<T,R>::List& left, const Mat<T,R,C>& right) {
+    for (vec<T,R>& elem : left)
         elem *= right;
     return left;
 }
 
 // Vector left multiplication with vector of dimension R-1
 template <typename T, size_t R, size_t C>
-const Vec<T,R-1> operator*(const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
+const vec<T,R-1> operator*(const vec<T,R-1>& left, const Mat<T,R,C>& right) {
     return toCartesianCoords(toHomogeneousCoords(left) * right);
 }
 
 template <typename T, size_t R, size_t C>
-Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
+vec<T,R-1>& operator*= (vec<T,R-1>& left, const Mat<T,R,C>& right) {
     return left = left * right;
 }
 
 // Vector left multiplication with list of vectors of dimension R-1
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R-1>::List result;
+const typename vec<T,R-1>::List operator*(const typename vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+    typename vec<T,R-1>::List result;
     result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R-1>& elem) { return elem * right; });
+    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const vec<T,R-1>& elem) { return elem * right; });
     return result;
 }
 
 template <typename T, size_t R, size_t C>
-typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    for (Vec<T,R-1>& elem : left)
+typename vec<T,R-1>::List& operator*= (typename vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+    for (vec<T,R-1>& elem : left)
         elem *= right;
     return left;
 }
@@ -479,10 +479,10 @@ Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const 
 }
 
 template <typename T>
-Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
-    const Vec<T,3>& f = direction;
-    const Vec<T,3> s = cross(f, up);
-    const Vec<T,3> u = cross(s, f);
+Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
+    const vec<T,3>& f = direction;
+    const vec<T,3> s = cross(f, up);
+    const vec<T,3> u = cross(s, f);
     
     static const T zero = static_cast<T>(0.0);
     static const T one  = static_cast<T>(1.0);
@@ -529,7 +529,7 @@ Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
  Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& a) {
+Mat<T,4,4> rotationMatrix(const vec<T,3>& a) {
     return rotationMatrix(a.x(), a.y(), a.z());
 }
 
@@ -537,7 +537,7 @@ Mat<T,4,4> rotationMatrix(const Vec<T,3>& a) {
  Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
+Mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
     const T s = std::sin(-angle);
     const T c = std::cos(-angle);
     const T i = static_cast<T>(1.0 - c);
@@ -607,12 +607,12 @@ Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
  about their perpendicular axis. The vectors are expected to be normalized.
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& from, const Vec<T,3>& to) {
+Mat<T,4,4> rotationMatrix(const vec<T,3>& from, const vec<T,3>& to) {
     return rotationMatrix(Quat<T>(from, to));
 }
 
 template <typename T, size_t S>
-Mat<T,S+1,S+1> translationMatrix(const Vec<T,S>& delta) {
+Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
     for (size_t i = 0; i < S; ++i)
         translation[S][i] = delta[i];
@@ -636,7 +636,7 @@ Mat<T,S,S> stripTranslation(const Mat<T,S,S>& mat) {
 }
 
 template <typename T, size_t S>
-Mat<T,S+1,S+1> scalingMatrix(const Vec<T,S>& factors) {
+Mat<T,S+1,S+1> scalingMatrix(const vec<T,S>& factors) {
     Mat<T,S+1,S+1> scaling;
     for (size_t i = 0; i < S; ++i)
         scaling[i][i] = factors[i];
@@ -666,7 +666,7 @@ const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
 }
 
 template <typename T>
-Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, const Vec<T,3>& z, const Vec<T,3>& o) {
+Mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const vec<T,3>& z, const vec<T,3>& o) {
     return invertedMatrix(Mat<T,4,4>(x[0], y[0], z[0], o[0],
                                      x[1], y[1], z[1], o[1],
                                      x[2], y[2], z[2], o[2],
@@ -679,21 +679,21 @@ Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, const Ve
  projecting points onto a plane along a particular direction.
  */
 template <typename T>
-Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const Vec<T,3>& direction) {
+Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const vec<T,3>& direction) {
     // create some coordinate system where the X and Y axes are contained within the plane
     // and the Z axis is the projection direction
-    Vec<T,3> xAxis;
+    vec<T,3> xAxis;
     
     switch (normal.firstComponent()) {
         case Math::Axis::AX:
-            xAxis = normalize(cross(normal, Vec<T, 3>::PosZ));
+            xAxis = normalize(cross(normal, vec<T, 3>::pos_z));
             break;
         default:
-            xAxis = normalize(cross(normal, Vec<T, 3>::PosX));
+            xAxis = normalize(cross(normal, vec<T, 3>::pos_x));
             break;
     }
-    const Vec<T,3>  yAxis = normalize(cross(normal, xAxis));
-    const Vec<T,3>& zAxis = direction;
+    const vec<T,3>  yAxis = normalize(cross(normal, xAxis));
+    const vec<T,3>& zAxis = direction;
     
     assert(Math::eq(length(xAxis), 1.0));
     assert(Math::eq(length(yAxis), 1.0));
@@ -707,7 +707,7 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const
  Y axes are in the given plane and the Z axis is the given normal.
  */
 template <typename T>
-Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal) {
+Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal) {
     return planeProjectionMatrix(distance, normal, normal);
 }
 

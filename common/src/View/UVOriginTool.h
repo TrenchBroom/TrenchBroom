@@ -51,8 +51,8 @@ namespace TrenchBroom {
 
             UVViewHelper& m_helper;
             
-            Vec2f m_lastPoint;
-            Vec2f m_selector;
+            vec2f m_lastPoint;
+            vec2f m_selector;
         public:
             UVOriginTool(UVViewHelper& helper);
         private:
@@ -65,8 +65,8 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
             
-            Vec2f computeHitPoint(const Ray3& ray) const;
-            Vec2f snapDelta(const Vec2f& delta) const;
+            vec2f computeHitPoint(const Ray3& ray) const;
+            vec2f snapDelta(const vec2f& delta) const;
             
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;

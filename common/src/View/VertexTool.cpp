@@ -42,7 +42,7 @@ namespace TrenchBroom {
         m_mode(Mode_Move),
         m_guideRenderer(document) {}
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
+        Model::BrushSet VertexTool::findIncidentBrushes(const vec3& handle) const {
             return findIncidentBrushes(m_vertexHandles, handle);
         }
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             }
         }
         
-        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::move(const vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             
             if (m_mode == Mode_Move) {
@@ -168,12 +168,12 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
 
-        const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+        const vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
             
             if (hit.hasType(VertexHandleManager::HandleHit)) {
-                return hit.target<Vec3>();
+                return hit.target<vec3>();
             } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
                 return std::get<1>(hit.target<EdgeHandleManager::HitType>());
             } else {
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             lock(m_document)->removeVertices(brushMap);
         }
 
-        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& position) const {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
             renderBatch.add(&m_guideRenderer);
@@ -232,7 +232,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::addHandles(const Model::NodeList& nodes) {
-            AddHandles<Vec3> addVertexHandles(m_vertexHandles);
+            AddHandles<vec3> addVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
             AddHandles<Edge3> addEdgeHandles(m_edgeHandles);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
         }
         
         void VertexTool::removeHandles(const Model::NodeList& nodes) {
-            RemoveHandles<Vec3> removeVertexHandles(m_vertexHandles);
+            RemoveHandles<vec3> removeVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
             
             RemoveHandles<Edge3> removeEdgeHandles(m_edgeHandles);

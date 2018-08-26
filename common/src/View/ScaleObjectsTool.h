@@ -45,10 +45,10 @@ namespace TrenchBroom {
          */
         class BBoxSide {
         public:
-            Vec3 normal;
+            vec3 normal;
 
-            static bool validSideNormal(const Vec3& n);
-            explicit BBoxSide(const Vec3& n);
+            static bool validSideNormal(const vec3& n);
+            explicit BBoxSide(const vec3& n);
             bool operator<(const BBoxSide& other) const;
             bool operator==(const BBoxSide& other) const;
         };
@@ -59,10 +59,10 @@ namespace TrenchBroom {
          */
         class BBoxCorner {
         public:
-            Vec3 corner;
+            vec3 corner;
 
-            static bool validCorner(const Vec3& c);
-            explicit BBoxCorner(const Vec3& c);
+            static bool validCorner(const vec3& c);
+            explicit BBoxCorner(const vec3& c);
 
             bool operator==(const BBoxCorner& other) const;
         };
@@ -73,10 +73,10 @@ namespace TrenchBroom {
          */
         class BBoxEdge {
         public:
-            Vec3 point0;
-            Vec3 point1;
+            vec3 point0;
+            vec3 point1;
             
-            explicit BBoxEdge(const Vec3 &p0, const Vec3& p1);
+            explicit BBoxEdge(const vec3 &p0, const vec3& p1);
 
             bool operator==(const BBoxEdge& other) const;
         };
@@ -110,13 +110,13 @@ namespace TrenchBroom {
         std::vector<BBoxSide> allSides();
         std::vector<BBoxEdge> allEdges();
         std::vector<BBoxCorner> allCorners();
-        Vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner);
+        vec3 pointForBBoxCorner(const BBox3& box, const BBoxCorner& corner);
         BBoxSide oppositeSide(const BBoxSide& side);
         BBoxCorner oppositeCorner(const BBoxCorner& corner);
         BBoxEdge oppositeEdge(const BBoxEdge& edge);
         Edge3 pointsForBBoxEdge(const BBox3& box, const BBoxEdge& edge);
         Polygon3 polygonForBBoxSide(const BBox3& box, const BBoxSide& side);
-        Vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side);
+        vec3 centerForBBoxSide(const BBox3& box, const BBoxSide& side);
 
         /**
          * Computes a new bbox after moving the given side by the given delta.
@@ -130,7 +130,7 @@ namespace TrenchBroom {
          */
         BBox3 moveBBoxSide(const BBox3 &in,
                            const BBoxSide &side,
-                           const Vec3 &delta,
+                           const vec3 &delta,
                            ProportionalAxes proportional,
                            AnchorPos anchor);
 
@@ -144,7 +144,7 @@ namespace TrenchBroom {
          */
         BBox3 moveBBoxCorner(const BBox3& in,
                              const BBoxCorner& corner,
-                             const Vec3& delta,
+                             const vec3& delta,
                              AnchorPos anchor);
 
         /**
@@ -158,7 +158,7 @@ namespace TrenchBroom {
          */
         BBox3 moveBBoxEdge(const BBox3& in,
                            const BBoxEdge& edge,
-                           const Vec3& delta,
+                           const vec3& delta,
                            ProportionalAxes proportional,
                            AnchorPos anchor);
 
@@ -178,13 +178,13 @@ namespace TrenchBroom {
          */
         BBox3 moveBBoxForHit(const BBox3& bboxAtDragStart,
                              const Model::Hit& dragStartHit,
-                             const Vec3& delta,
+                             const vec3& delta,
                              ProportionalAxes proportional,
                              AnchorPos anchor);
 
         struct BackSide {
             FloatType distAlongRay;
-            Vec3 pickedSideNormal;
+            vec3 pickedSideNormal;
         };
 
         /**
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             AnchorPos m_anchorPos;
             BBox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit; // contains the drag type (side/edge/corner)
-            Vec3 m_dragCumulativeDelta;
+            vec3 m_dragCumulativeDelta;
             ProportionalAxes m_proportionalAxes;
 
         public:
@@ -237,17 +237,17 @@ namespace TrenchBroom {
             Edge3f dragEdge() const;
             
             bool hasDragCorner() const;
-            Vec3f dragCorner() const;
+            vec3f dragCorner() const;
 
             bool hasDragAnchor() const;
-            Vec3f dragAnchor() const;
+            vec3f dragAnchor() const;
 
             /**
              * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is true.
              */
             BBox3 bboxAtDragStart() const;
 
-            Vec3::List cornerHandles() const;
+            vec3::List cornerHandles() const;
 
             void updatePickedHandle(const Model::PickResult &pickResult);
 
@@ -259,7 +259,7 @@ namespace TrenchBroom {
 
         public:
             void startScaleWithHit(const Model::Hit& hit);
-            void scaleByDelta(const Vec3& delta);
+            void scaleByDelta(const vec3& delta);
             void commitScale();
             void cancelScale();
 

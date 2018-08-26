@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 if (inputState.scrollY() != 0.0f) {
                     const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
                     const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
-                    const Vec2f mousePos(static_cast<float>(inputState.mouseX()),
+                    const vec2f mousePos(static_cast<float>(inputState.mouseX()),
                                          static_cast<float>(inputState.mouseY()));
                     zoom(inputState, mousePos, factor);
                 }
@@ -49,11 +49,11 @@ namespace TrenchBroom {
         
         bool CameraTool2D::doStartMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                m_lastMousePos = Vec2f(static_cast<float>(inputState.mouseX()),
+                m_lastMousePos = vec2f(static_cast<float>(inputState.mouseX()),
                                        static_cast<float>(inputState.mouseY()));
                 return true;
             } else if (dragZoom(inputState)) {
-                m_lastMousePos = Vec2f(static_cast<float>(inputState.mouseX()),
+                m_lastMousePos = vec2f(static_cast<float>(inputState.mouseX()),
                                        static_cast<float>(inputState.mouseY()));
                 return true;
             }
@@ -62,10 +62,10 @@ namespace TrenchBroom {
         
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                const Vec2f currentMousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
-                const Vec3f lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
-                const Vec3f currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
-                const Vec3f delta = currentWorldPos - lastWorldPos;
+                const vec2f currentMousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
+                const vec3f lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
+                const vec3f currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
+                const vec3f delta = currentWorldPos - lastWorldPos;
                 m_camera.moveBy(-delta);
                 m_lastMousePos = currentMousePos;
                 return true;
@@ -104,13 +104,13 @@ namespace TrenchBroom {
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));
         }
 
-        void CameraTool2D::zoom(const InputState& inputState, const Vec2f& mousePos, const float factor) {
-            const Vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+        void CameraTool2D::zoom(const InputState& inputState, const vec2f& mousePos, const float factor) {
+            const vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
             
             m_camera.zoom(factor);
             
-            const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-            const Vec3f delta = newWorldPos - oldWorldPos;
+            const vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+            const vec3f delta = newWorldPos - oldWorldPos;
             m_camera.moveBy(-delta);
         }
         

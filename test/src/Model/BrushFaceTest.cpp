@@ -42,32 +42,32 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushFaceTest, constructWithValidPoints) {
-            const Vec3 p0(0.0,  0.0, 4.0);
-            const Vec3 p1(1.0,  0.0, 4.0);
-            const Vec3 p2(0.0, -1.0, 4.0);
+            const vec3 p0(0.0,  0.0, 4.0);
+            const vec3 p1(1.0,  0.0, 4.0);
+            const vec3 p2(0.0, -1.0, 4.0);
             
             const BrushFaceAttributes attribs("");
             BrushFace face(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs));
             ASSERT_VEC_EQ(p0, face.points()[0]);
             ASSERT_VEC_EQ(p1, face.points()[1]);
             ASSERT_VEC_EQ(p2, face.points()[2]);
-            ASSERT_VEC_EQ(Vec3::PosZ, face.boundary().normal);
+            ASSERT_VEC_EQ(vec3::pos_z, face.boundary().normal);
             ASSERT_EQ(4.0, face.boundary().distance);
         }
         
         TEST(BrushFaceTest, constructWithColinearPoints) {
-            const Vec3 p0(0.0, 0.0, 4.0);
-            const Vec3 p1(1.0, 0.0, 4.0);
-            const Vec3 p2(2.0, 0.0, 4.0);
+            const vec3 p0(0.0, 0.0, 4.0);
+            const vec3 p1(1.0, 0.0, 4.0);
+            const vec3 p2(2.0, 0.0, 4.0);
             
             const BrushFaceAttributes attribs("");
             ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs)), GeometryException);
         }
         
         TEST(BrushFaceTest, textureUsageCount) {
-            const Vec3 p0(0.0,  0.0, 4.0);
-            const Vec3 p1(1.0,  0.0, 4.0);
-            const Vec3 p2(0.0, -1.0, 4.0);
+            const vec3 p0(0.0,  0.0, 4.0);
+            const vec3 p1(1.0,  0.0, 4.0);
+            const vec3 p2(0.0, -1.0, 4.0);
             Assets::Texture texture("testTexture", 64, 64);
             Assets::Texture texture2("testTexture2", 64, 64);
             
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
         
         static void getFaceVertsAndTexCoords(const BrushFace *face,
-                                             std::vector<Vec3> *vertPositions,
+                                             std::vector<vec3> *vertPositions,
                                              std::vector<Vec2> *vertTexCoords) {
             BrushFace::VertexList::const_iterator it;
             BrushFace::VertexList verts = face->vertices();
@@ -189,11 +189,11 @@ namespace TrenchBroom {
             
             // UVs of the verts of `face` and `resetFace` should be the same now
             
-            std::vector<Vec3> verts;
+            std::vector<vec3> verts;
             getFaceVertsAndTexCoords(origFace, &verts, nullptr);
             
             // transform the verts
-            std::vector<Vec3> transformedVerts;
+            std::vector<vec3> transformedVerts;
             for (size_t i=0; i<verts.size(); i++) {
                 transformedVerts.push_back(transform * verts[i]);
             }
@@ -220,7 +220,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockOnWithTransform(const Mat4x4 &transform,
                                                     const BrushFace *origFace) {
-            std::vector<Vec3> verts;
+            std::vector<vec3> verts;
             std::vector<Vec2> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
             ASSERT_GE(verts.size(), 3U);
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             face->resetTexCoordSystemCache();
             
             // transform the verts
-            std::vector<Vec3> transformedVerts;
+            std::vector<vec3> transformedVerts;
             for (size_t i=0; i<verts.size(); i++) {
                 transformedVerts.push_back(transform * verts[i]);
             }
@@ -278,7 +278,7 @@ namespace TrenchBroom {
                 // translations
                 
                 if (translate) {
-                    xform = translationMatrix(Vec3(100.0, 100.0, 100.0)) * xform;
+                    xform = translationMatrix(vec3(100.0, 100.0, 100.0)) * xform;
                 }
                 
                 // -180 / -90 / 90 degree rotations
@@ -348,11 +348,11 @@ namespace TrenchBroom {
         }
         
         static void checkTextureLockOffWithTranslation(const BrushFace *origFace) {
-            Mat4x4 xform = translationMatrix(Vec3(100.0, 100.0, 100.0));
+            Mat4x4 xform = translationMatrix(vec3(100.0, 100.0, 100.0));
             checkTextureLockOffWithTransform(xform, origFace);
         }
         
-        static void checkTextureLockWithScale(const BrushFace *origFace, const Vec3& scaleFactors) {
+        static void checkTextureLockWithScale(const BrushFace *origFace, const vec3& scaleFactors) {
             Mat4x4 xform = scalingMatrix(scaleFactors);
             checkTextureLockOnWithTransform(xform, origFace);
         }
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             
             checkTextureLockOffWithTranslation(origFace);
             
-            checkTextureLockWithScale(origFace, Vec3(2, 2, 1));
+            checkTextureLockWithScale(origFace, vec3(2, 2, 1));
         }
         
         /**
@@ -387,7 +387,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
             const Mat4x4 transform = mirrorMatrix<double>(Math::Axis::AZ);
-            const BrushFace* origFace = cube->findFace(Vec3::PosX);
+            const BrushFace* origFace = cube->findFace(vec3::pos_x);
             
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -409,11 +409,11 @@ namespace TrenchBroom {
         }
         
         static void checkTextureLockOffWithScale(const Brush* cube) {
-            const Vec3 mins(cube->bounds().min);
+            const vec3 mins(cube->bounds().min);
             
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
-            const Mat4x4 transform = translationMatrix(mins) * scalingMatrix(Vec3(2.0, 1.0, 1.0)) * translationMatrix(-1.0 * mins);
-            const BrushFace* origFace = cube->findFace(Vec3::NegY);
+            const Mat4x4 transform = translationMatrix(mins) * scalingMatrix(vec3(2.0, 1.0, 1.0)) * translationMatrix(-1.0 * mins);
+            const BrushFace* origFace = cube->findFace(vec3::neg_y);
             
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -426,8 +426,8 @@ namespace TrenchBroom {
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const Vec2 right_origTC = origFace->textureCoords(mins + Vec3(cube->bounds().size().x(), 0, 0));
-            const Vec2 right_transformedTC = face->textureCoords(mins + Vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            const Vec2 right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
+            const Vec2 right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
             
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
             const Vec2 orig_U_width = right_origTC - left_origTC;
@@ -489,7 +489,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* cube = builder.createCube(128.0, "");
             
-            BrushFace* topFace = cube->findFace(Vec3(0.0, 0.0, 1.0));
+            BrushFace* topFace = cube->findFace(vec3(0.0, 0.0, 1.0));
             ASSERT_NE(nullptr, topFace);
             ASSERT_EQ(0.0, topFace->rotation());
             BrushFaceSnapshot* snapshot = topFace->takeSnapshot();
@@ -505,11 +505,11 @@ namespace TrenchBroom {
                 delete cubeSnapshot;
                 
                 // NOTE: topFace is a dangling pointer here
-                ASSERT_NE(topFace, cube->findFace(Vec3(0.0, 0.0, 1.0)));
+                ASSERT_NE(topFace, cube->findFace(vec3(0.0, 0.0, 1.0)));
             }
 
             // Lookup the new copy of topFace
-            topFace = cube->findFace(Vec3(0.0, 0.0, 1.0));
+            topFace = cube->findFace(vec3(0.0, 0.0, 1.0));
             
             // Ensure that the snapshot can be restored, despite the Brush having a new BrushFace object
             snapshot->restore();
@@ -546,31 +546,31 @@ namespace TrenchBroom {
             // find the faces
             BrushFace* negXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (face->boundary().normal.firstAxis() == Vec3::NegX) {
+                if (face->boundary().normal.firstAxis() == vec3::neg_x) {
                     ASSERT_EQ(negXFace, nullptr);
                     negXFace = face;
                 }
             }
             ASSERT_NE(nullptr, negXFace);
 
-            ASSERT_EQ(Vec3::PosY, negXFace->textureXAxis());
-            ASSERT_EQ(Vec3::NegZ, negXFace->textureYAxis());
+            ASSERT_EQ(vec3::pos_y, negXFace->textureXAxis());
+            ASSERT_EQ(vec3::neg_z, negXFace->textureYAxis());
 
             // This face's texture normal is in the same direction as the face normal
-            const Vec3f textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
-            ASSERT_GT(dot(textureNormal, Vec3f(negXFace->boundary().normal)), 0.0f);
+            const vec3f textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
+            ASSERT_GT(dot(textureNormal, vec3f(negXFace->boundary().normal)), 0.0f);
 
             const Quat3 rot45(textureNormal, Math::radians(45.0f));
-            const Vec3f newXAxis(rot45 * negXFace->textureXAxis());
-            const Vec3f newYAxis(rot45 * negXFace->textureYAxis());
+            const vec3f newXAxis(rot45 * negXFace->textureXAxis());
+            const vec3f newYAxis(rot45 * negXFace->textureYAxis());
 
             // Rotate by 45 degrees CCW
             ASSERT_FLOAT_EQ(0.0f, negXFace->attribs().rotation());
             negXFace->rotateTexture(45.0);
             ASSERT_FLOAT_EQ(45.0f, negXFace->attribs().rotation());
 
-            ASSERT_VEC_EQ(Vec3d(newXAxis), negXFace->textureXAxis());
-            ASSERT_VEC_EQ(Vec3d(newYAxis), negXFace->textureYAxis());
+            ASSERT_VEC_EQ(vec3d(newXAxis), negXFace->textureXAxis());
+            ASSERT_VEC_EQ(vec3d(newYAxis), negXFace->textureYAxis());
 
             VectorUtils::clearAndDelete(nodes);
         }
@@ -603,10 +603,10 @@ namespace TrenchBroom {
             BrushFace* negYFace = nullptr;
             BrushFace* posXFace = nullptr;
             for (BrushFace* face : pyramidLight->faces()) {
-                if (face->boundary().normal.firstAxis() == Vec3::NegY) {
+                if (face->boundary().normal.firstAxis() == vec3::neg_y) {
                     ASSERT_EQ(negYFace, nullptr);
                     negYFace = face;
-                } else if (face->boundary().normal.firstAxis() == Vec3::PosX) {
+                } else if (face->boundary().normal.firstAxis() == vec3::pos_x) {
                     ASSERT_EQ(posXFace, nullptr);
                     posXFace = face;
                 }
@@ -614,20 +614,20 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, negYFace);
             ASSERT_NE(nullptr, posXFace);
 
-            ASSERT_EQ(Vec3::PosX, negYFace->textureXAxis());
-            ASSERT_EQ(Vec3::NegZ, negYFace->textureYAxis());
+            ASSERT_EQ(vec3::pos_x, negYFace->textureXAxis());
+            ASSERT_EQ(vec3::neg_z, negYFace->textureYAxis());
 
             TexCoordSystemSnapshot* snapshot = negYFace->takeTexCoordSystemSnapshot();
 
             // copy texturing from the negYFace to posXFace using the rotation method
             posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Rotation);
-            ASSERT_VEC_EQ(Vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243), posXFace->textureXAxis());
-            ASSERT_VEC_EQ(Vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011), posXFace->textureYAxis());
+            ASSERT_VEC_EQ(vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243), posXFace->textureXAxis());
+            ASSERT_VEC_EQ(vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011), posXFace->textureYAxis());
 
             // copy texturing from the negYFace to posXFace using the projection method
             posXFace->copyTexCoordSystemFromFace(snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Projection);
-            ASSERT_VEC_EQ(Vec3::NegY, posXFace->textureXAxis());
-            ASSERT_VEC_EQ(Vec3::NegZ, posXFace->textureYAxis());
+            ASSERT_VEC_EQ(vec3::neg_y, posXFace->textureXAxis());
+            ASSERT_VEC_EQ(vec3::neg_z, posXFace->textureYAxis());
 
             delete snapshot;
             VectorUtils::clearAndDelete(nodes);

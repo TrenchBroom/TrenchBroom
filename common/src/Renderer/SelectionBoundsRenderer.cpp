@@ -19,7 +19,7 @@
 
 #include "SelectionBoundsRenderer.h"
 
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -41,11 +41,11 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const override {
-                const Vec3 half = m_bounds.size() / 2.0;
-                Vec3 pos = m_bounds.min;
+            vec3f basePosition() const override {
+                const vec3 half = m_bounds.size() / 2.0;
+                vec3 pos = m_bounds.min;
                 pos[m_axis] += half[m_axis];
-                return Vec3f(pos);
+                return vec3f(pos);
             }
             
             TextAlignment::Type alignment() const override {
@@ -56,8 +56,8 @@ namespace TrenchBroom {
                 return TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
-                Vec2f result;
+            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
+                vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
                 if (alignment & TextAlignment::Bottom)
@@ -81,10 +81,10 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const override {
+            vec3f basePosition() const override {
                 const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
-                Vec3 pos;
-                const Vec3 half = m_bounds.size() / 2.0;
+                vec3 pos;
+                const vec3 half = m_bounds.size() / 2.0;
                 
                 if (m_axis == Math::Axis::AZ) {
                     if ((camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Less) ||
@@ -153,7 +153,7 @@ namespace TrenchBroom {
                         pos[2] = m_bounds.max.z();
                 }
                 
-                return Vec3f(pos);
+                return vec3f(pos);
             }
             
             TextAlignment::Type alignment() const override {
@@ -166,8 +166,8 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
-                Vec2f result;
+            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
+                vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
                 if (alignment & TextAlignment::Bottom)
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             m_minMax(minMax),
             m_camera(camera) {}
         private:
-            Vec3f basePosition() const override {
+            vec3f basePosition() const override {
                 if (m_minMax == BBox3::Corner_Min)
                     return m_bounds.min;
                 return m_bounds.max;
@@ -213,8 +213,8 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom | TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const override {
-                Vec2f result;
+            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
+                vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
                 if (alignment & TextAlignment::Bottom)
@@ -259,9 +259,9 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjects();
             
             const Camera& camera = renderContext.camera();
-            const Vec3f& direction = camera.direction();
+            const vec3f& direction = camera.direction();
             
-            const Vec3 size = correct(m_bounds.size());
+            const vec3 size = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
                     buffer << labels[i] << ": " << size[i];
@@ -280,7 +280,7 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
             
-            const Vec3 size = correct(m_bounds.size());
+            const vec3 size = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << size[i];
                 

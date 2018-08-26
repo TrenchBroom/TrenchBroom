@@ -105,8 +105,8 @@ namespace TrenchBroom {
             String readString(size_t size);
 
             template <typename R, size_t S, typename T>
-            Vec<T,S> readVec() {
-                Vec<T,S> result;
+            vec<T,S> readVec() {
+                vec<T,S> result;
                 for (size_t i = 0; i < S; ++i)
                     result[i] = read<T, R>();
                 return result;

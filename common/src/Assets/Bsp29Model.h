@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 VertexList m_vertices;
             public:
                 Face(Texture* texture, size_t vertexCount);
-                void addVertex(const Vec3f& vertex, const Vec2f& texCoord);
+                void addVertex(const vec3f& vertex, const vec2f& texCoord);
                 
                 Texture* texture() const;
                 const VertexList& vertices() const;

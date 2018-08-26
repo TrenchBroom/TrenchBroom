@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Edge_h
 #define TrenchBroom_Edge_h
 
-#include "Vec.h"
+#include "vec.h"
 
 #include <vector>
 
@@ -30,15 +30,15 @@ namespace TrenchBroom {
     public:
         using Type = T;
         static const size_t Size = S;
-        using FloatType = Edge<float, S>;
+        using float_type = Edge<float, S>;
         using List = std::vector<Edge<T,S>>;
     private:
-        Vec<T,S> m_start;
-        Vec<T,S> m_end;
+        vec<T,S> m_start;
+        vec<T,S> m_end;
     public:
         Edge() {}
 
-        Edge(const Vec<T,S>& i_start, const Vec<T,S>& i_end) :
+        Edge(const vec<T,S>& i_start, const vec<T,S>& i_end) :
         m_start(i_start),
         m_end(i_end) {
             if (m_end < m_start)
@@ -83,28 +83,28 @@ namespace TrenchBroom {
             return compare(*this, other, T(0.0)) >= 0;
         }
 
-        const Vec<T,S>& start() const {
+        const vec<T,S>& start() const {
             return m_start;
         }
 
-        const Vec<T,S>& end() const {
+        const vec<T,S>& end() const {
             return m_end;
         }
 
-        Vec<T,S> center() const {
+        vec<T,S> center() const {
             return (m_start + m_end) / static_cast<T>(2.0);
         }
 
-        Vec<T,S> direction() const {
+        vec<T,S> direction() const {
             return normalize(m_end - m_start);
         }
 
-        Vec<T,S> pointAtDistance(const T distance) const {
+        vec<T,S> pointAtDistance(const T distance) const {
             return m_start + distance * direction();
         }
 
-        static typename Vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
-            typename Vec<T,S>::List result;
+        static typename vec<T,S>::List asVertexList(const typename Edge<T,S>::List& edges) {
+            typename vec<T,S>::List result;
             result.reserve(2 * edges.size());
             for (size_t i = 0; i < edges.size(); ++i) {
                 result.push_back(edges[i].start());
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             return result;
         }
     public:
-        friend Edge<T,S> translate(const Edge<T,S>& edge, const Vec<T,S>& offset) {
+        friend Edge<T,S> translate(const Edge<T,S>& edge, const vec<T,S>& offset) {
             return Edge<T,S>(edge.m_start + offset, edge.m_end + offset);
         }
     private:

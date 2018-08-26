@@ -87,7 +87,7 @@ namespace TrenchBroom {
             }
             
             template <typename T, size_t S>
-            void addOrUpdateAttribute(const AttributeName& name, const Vec<T,S>& value) {
+            void addOrUpdateAttribute(const AttributeName& name, const vec<T,S>& value) {
                 addOrUpdateAttribute(name, StringUtils::toString(value));
             }
             
@@ -140,8 +140,8 @@ namespace TrenchBroom {
             const AttributableNodeList& killSources() const;
             const AttributableNodeList& killTargets() const;
             
-            Vec3 linkSourceAnchor() const;
-            Vec3 linkTargetAnchor() const;
+            vec3 linkSourceAnchor() const;
+            vec3 linkTargetAnchor() const;
             
             bool hasMissingSources() const;
             AttributeNameList findMissingLinkTargets() const;
@@ -196,8 +196,8 @@ namespace TrenchBroom {
             virtual void doAttributesDidChange(const BBox3& oldBounds) = 0;
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
             virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
-            virtual Vec3 doGetLinkSourceAnchor() const = 0;
-            virtual Vec3 doGetLinkTargetAnchor() const = 0;
+            virtual vec3 doGetLinkSourceAnchor() const = 0;
+            virtual vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator
             AttributableNode(const AttributableNode&);
             AttributableNode& operator=(const AttributableNode&);

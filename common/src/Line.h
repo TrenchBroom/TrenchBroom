@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Line_h
 #define TrenchBroom_Line_h
 
-#include "Vec.h"
+#include "vec.h"
 
 template <typename T, size_t S>
 class Line {
@@ -28,12 +28,12 @@ public:
     typedef std::vector<Line<T,S> > List;
     static const List EmptyList;
     
-    Vec<T,S> point;
-    Vec<T,S> direction;
+    vec<T,S> point;
+    vec<T,S> direction;
 
     Line() :
-    point(Vec<T,S>::Null),
-    direction(Vec<T,S>::Null) {}
+    point(vec<T,S>::zero),
+    direction(vec<T,S>::zero) {}
     
     // Copy and move constructors
     Line(const Line<T,S>& other) = default;
@@ -49,7 +49,7 @@ public:
     point(other.point),
     direction(static_cast<T>(other.direction)) {}
     
-    Line(const Vec<T,S>& i_point, const Vec<T,S>& i_direction) :
+    Line(const vec<T,S>& i_point, const vec<T,S>& i_direction) :
     point(i_point),
     direction(i_direction) {}
     
@@ -57,10 +57,10 @@ public:
         // choose the point such that its support vector is orthogonal to
         // the direction of this line
         const T d = point.dot(direction);
-        const Vec<T,S> newPoint(point - d * direction);
+        const vec<T,S> newPoint(point - d * direction);
         
         // make sure the first nonzero component of the direction is positive
-        Vec<T,S> newDirection(direction);
+        vec<T,S> newDirection(direction);
         for (size_t i = 0; i < S; ++i) {
             if (direction[i] != 0.0) {
                 if (direction[i] < 0.0)
@@ -107,24 +107,24 @@ public:
         return compare(other) >= 0;
     }
     
-    T distance(const Vec<T,S>& i_point) const {
+    T distance(const vec<T,S>& i_point) const {
         return dot(i_point - point, direction);
     }
     
-    const Vec<T,S> pointAtDistance(const T distance) const {
+    const vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
     }
     
 
-    const Vec<T,S> project(const Vec<T,S>& i_point) const {
+    const vec<T,S> project(const vec<T,S>& i_point) const {
         return pointAtDistance(distance(i_point));
     }
 
-    T distanceOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
+    T distanceOnLineClosestToPoint(const vec<T,S>& otherPoint) const {
         return dot(otherPoint - point, direction);
     }
 
-    const Vec<T,S> pointOnLineClosestToPoint(const Vec<T,S>& otherPoint) const {
+    const vec<T,S> pointOnLineClosestToPoint(const vec<T,S>& otherPoint) const {
         return pointAtDistance(distanceOnLineClosestToPoint(otherPoint));
     }
 private:
@@ -146,20 +146,20 @@ private:
 };
 
 template <typename TT>
-const TT intersectLineWithTriangle(const Line<TT,3>& L, const Vec<TT,3>& V0, const Vec<TT,3>& V1, const Vec<TT,3>& V2) {
+const TT intersectLineWithTriangle(const Line<TT,3>& L, const vec<TT,3>& V0, const vec<TT,3>& V1, const vec<TT,3>& V2) {
     // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
     
-    const Vec<TT,3>& O  = L.point;
-    const Vec<TT,3>& D  = L.direction;
-    const Vec<TT,3>  E1 = V1 - V0;
-    const Vec<TT,3>  E2 = V2 - V0;
-    const Vec<TT,3>  P  = cross(D, E2);
+    const vec<TT,3>& O  = L.point;
+    const vec<TT,3>& D  = L.direction;
+    const vec<TT,3>  E1 = V1 - V0;
+    const vec<TT,3>  E2 = V2 - V0;
+    const vec<TT,3>  P  = cross(D, E2);
     const TT         a  = P.dot(E1);
     if (Math::zero(a))
         return Math::nan<TT>();
     
-    const Vec<TT,3>  T  = O - V0;
-    const Vec<TT,3>  Q  = cross(T, E1);
+    const vec<TT,3>  T  = O - V0;
+    const vec<TT,3>  Q  = cross(T, E1);
     
     const TT t = Q.dot(E2) / a;
     const TT u = P.dot(T) / a;

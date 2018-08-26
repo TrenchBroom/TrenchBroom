@@ -21,19 +21,19 @@
 #define TrenchBroom_Ray_h
 
 #include "MathUtils.h"
-#include "Vec.h"
+#include "vec.h"
 
 #include <algorithm>
 
 template <typename T, size_t S>
 class Ray {
 public:
-    Vec<T,S> origin;
-    Vec<T,S> direction;
+    vec<T,S> origin;
+    vec<T,S> direction;
 
     Ray() :
-    origin(Vec<T,S>::Null),
-    direction(Vec<T,S>::Null) {}
+    origin(vec<T,S>::zero),
+    direction(vec<T,S>::zero) {}
 
     // Copy and move constructors
     Ray(const Ray<T,S>& other) = default;
@@ -49,7 +49,7 @@ public:
     origin(other.origin),
     direction(other.direction) {}
 
-    Ray(const Vec<T,S>& i_origin, const Vec<T,S>& i_direction) :
+    Ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction) :
     origin(i_origin),
     direction(i_direction) {}
 
@@ -61,11 +61,11 @@ public:
         return compare(origin, other.origin) != 0 && compare(direction, other.direction) != 0;
     }
     
-    const Vec<T,S> pointAtDistance(const T distance) const {
+    const vec<T,S> pointAtDistance(const T distance) const {
         return origin + direction * distance;
     }
 
-    Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
+    Math::PointStatus::Type pointStatus(const vec<T,S>& point) const {
         const T scale = dot(direction, point - origin);
         if (scale >  Math::Constants<T>::pointStatusEpsilon()) {
             return Math::PointStatus::PSAbove;
@@ -76,7 +76,7 @@ public:
         }
 }
 
-const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const {
+const T intersectWithPlane(const vec<T,S>& normal, const vec<T,S>& anchor) const {
     const T d = dot(direction, normal);
     if (Math::zero(d))
         return Math::nan<T>();
@@ -87,8 +87,8 @@ const T intersectWithPlane(const Vec<T,S>& normal, const Vec<T,S>& anchor) const
     return s;
 }
 
-const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
-    const Vec<T,S> diff = origin - position;
+const T intersectWithSphere(const vec<T,S>& position, const T radius) const {
+    const vec<T,S> diff = origin - position;
 
     const T p = static_cast<T>(2.0) * dot(diff, direction);
     const T q = squaredLength(diff) - radius * radius;
@@ -108,7 +108,7 @@ const T intersectWithSphere(const Vec<T,S>& position, const T radius) const {
     return std::max(t0, t1);
 }
 
-const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
+const T intersectWithSphere(const vec<T,S>& position, const T radius, const T maxDistance) const {
     const T distanceToCenter = squaredLength(position - origin);
     if (distanceToCenter > maxDistance * maxDistance)
         return Math::nan<T>();
@@ -116,8 +116,8 @@ const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T ma
     return intersectWithSphere(position, radius * distanceToCenter);
 }
 
-const T distanceToPointOnRay(const Vec<T,S>& point) const {
-    const Vec<T,S> originToPoint = point - origin;
+const T distanceToPointOnRay(const vec<T,S>& point) const {
+    const vec<T,S> originToPoint = point - origin;
     return dot(originToPoint, direction);
 }
 
@@ -126,8 +126,8 @@ struct PointDistance {
     T distance;
 };
 
-const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
-    const Vec<T,S> originToPoint = point - origin;
+const PointDistance squaredDistanceToPoint(const vec<T,S>& point) const {
+    const vec<T,S> originToPoint = point - origin;
     PointDistance result;
     result.rayDistance = Math::max(dot(originToPoint, direction), static_cast<T>(0.0));
         if (result.rayDistance == static_cast<T>(0.0))
@@ -137,7 +137,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         return result;
     }
     
-    const PointDistance distanceToPoint(const Vec<T,S>& point) const {
+    const PointDistance distanceToPoint(const vec<T,S>& point) const {
         PointDistance distance2 = squaredDistanceToPoint(point);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
@@ -175,16 +175,16 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         }
     };
 
-    const LineDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
+    const LineDistance distanceToSegment(const vec<T,S>& start, const vec<T,S>& end) const {
         LineDistance distance2 = squaredDistanceToSegment(start, end);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
     }
     
-    const LineDistance squaredDistanceToSegment(const Vec<T,S>& start, const Vec<T,3>& end) const {
-        Vec<T,S> u = end - start;
-        Vec<T,S> v = direction;
-        Vec<T,S> w = start - origin;
+    const LineDistance squaredDistanceToSegment(const vec<T,S>& start, const vec<T,3>& end) const {
+        vec<T,S> u = end - start;
+        vec<T,S> v = direction;
+        vec<T,S> w = start - origin;
         
         const T a = dot(u, u); // squared length of u
         const T b = dot(u, v);
@@ -195,7 +195,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
 
         if (Math::zero(D)) {
             const T f = dot(w, v);
-            const Vec<T,S> z = w - f * v;
+            const vec<T,S> z = w - f * v;
             return LineDistance::Parallel(squaredLength(z));
         }
         
@@ -220,7 +220,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         u = u * sc; // vector from segment start to the closest point on the segment
         v = v * tc; // vector from ray origin to closest point on the ray
         w = w + u;
-        const Vec<T,S> dP = w - v;
+        const vec<T,S> dP = w - v;
         
         return LineDistance::NonParallel(tc, squaredLength(dP), sc * std::sqrt(a));
     }
@@ -232,7 +232,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
     }
     
     const LineDistance squaredDistanceToRay(const Ray<T,3>& ray) const {
-        Vec<T,S> u, v, w;
+        vec<T,S> u, v, w;
         u = ray.direction;
         v = direction;
         w = ray.origin - origin;
@@ -248,7 +248,7 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         
         if (Math::zero(D)) {
             const T f = w.dot(v);
-            const Vec<T,S> z = w - f * v;
+            const vec<T,S> z = w - f * v;
             return LineDistance::Parallel(squaredLength(z));
         }
         
@@ -266,13 +266,13 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         u = u * sc; // vector from the given ray's origin to the closest point on given ray
         v = v * tc; // vector from this ray's origin to closest point on this ray
         w = w + u;
-        const Vec<T,S> dP = w - v;
+        const vec<T,S> dP = w - v;
         
         return LineDistance::NonParallel(tc, squaredLength(dP), sc);
     }
     
-    const LineDistance squaredDistanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
-        const Vec<T,S> w0 = origin - lineAnchor;
+    const LineDistance squaredDistanceToLine(const vec<T,S>& lineAnchor, const vec<T,S>& lineDir) const {
+        const vec<T,S> w0 = origin - lineAnchor;
         const T a = dot(direction, direction);
         const T b = dot(direction, lineDir);
         const T c = dot(lineDir, lineDir);
@@ -282,19 +282,19 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
         const T D = a * c - b * b;
         if (Math::zero(D)) {
             const T f = dot(w0, lineDir);
-            const Vec<T,S> z = w0 - f * lineDir;
+            const vec<T,S> z = w0 - f * lineDir;
             return LineDistance::Parallel(squaredLength(z));
         }
         
         const T sc = std::max((b * e - c * d) / D, static_cast<T>(0.0));
         const T tc = (a * e - b * d) / D;
         
-        const Vec<T,S> rp = origin + sc * direction; // point on ray
-        const Vec<T,S> lp = lineAnchor + tc * lineDir; // point on line
+        const vec<T,S> rp = origin + sc * direction; // point on ray
+        const vec<T,S> lp = lineAnchor + tc * lineDir; // point on line
         return LineDistance::NonParallel(sc, squaredLength(rp - lp), tc);
     }
     
-    const LineDistance distanceToLine(const Vec<T,S>& lineAnchor, const Vec<T,S>& lineDir) const {
+    const LineDistance distanceToLine(const vec<T,S>& lineAnchor, const vec<T,S>& lineDir) const {
         LineDistance distance2 = squaredDistanceToLine(lineAnchor, lineDir);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
@@ -302,20 +302,20 @@ const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
 };
 
 template <typename TT>
-const TT intersectRayWithTriangle(const Ray<TT, 3>& R, const Vec<TT,3>& V0, const Vec<TT,3>& V1, const Vec<TT,3>& V2) {
+const TT intersectRayWithTriangle(const Ray<TT, 3>& R, const vec<TT,3>& V0, const vec<TT,3>& V1, const vec<TT,3>& V2) {
     // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
     
-    const Vec<TT,3>& O  = R.origin;
-    const Vec<TT,3>& D  = R.direction;
-    const Vec<TT,3>  E1 = V1 - V0;
-    const Vec<TT,3>  E2 = V2 - V0;
-    const Vec<TT,3>  P  = cross(D, E2);
+    const vec<TT,3>& O  = R.origin;
+    const vec<TT,3>& D  = R.direction;
+    const vec<TT,3>  E1 = V1 - V0;
+    const vec<TT,3>  E2 = V2 - V0;
+    const vec<TT,3>  P  = cross(D, E2);
     const TT         a  = dot(P, E1);
     if (Math::zero(a))
         return Math::nan<TT>();
     
-    const Vec<TT,3>  T  = O - V0;
-    const Vec<TT,3>  Q  = cross(T, E1);
+    const vec<TT,3>  T  = O - V0;
+    const vec<TT,3>  Q  = cross(T, E1);
     
     const TT t = dot(Q, E2) / a;
     if (Math::neg(t))

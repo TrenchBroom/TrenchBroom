@@ -74,7 +74,7 @@ namespace TrenchBroom {
             return brush;
         }
 
-        BrushFace* ModelFactoryImpl::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const {
+        BrushFace* ModelFactoryImpl::doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             }
         }
 
-        BrushFace* ModelFactoryImpl::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const {
+        BrushFace* ModelFactoryImpl::doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const {
             assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:

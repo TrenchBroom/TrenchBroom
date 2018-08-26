@@ -36,7 +36,7 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
 
             MoveInfo doStartMove(const InputState& inputState) override;
-            DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            DragResult doMove(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override;
             void doEndMove(const InputState& inputState) override;
             void doCancelMove() override;
             

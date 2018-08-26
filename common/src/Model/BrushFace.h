@@ -60,7 +60,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            typedef Vec3 Points[3];
+            typedef vec3 Points[3];
         public:
             static const String NoTextureName;
         private:
@@ -90,10 +90,10 @@ namespace TrenchBroom {
         protected:
             BrushFaceAttributes m_attribs;
         public:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
+            BrushFace(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
             
-            static BrushFace* createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
-            static BrushFace* createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
+            static BrushFace* createParaxial(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName = "");
+            static BrushFace* createParallel(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName = "");
             
             static void sortFaces(BrushFaceList& faces);
             
@@ -112,9 +112,9 @@ namespace TrenchBroom {
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const Plane3& plane) const;
             const Plane3& boundary() const;
-            const Vec3& normal() const;
-            Vec3 center() const;
-            Vec3 boundsCenter() const;
+            const vec3& normal() const;
+            vec3 center() const;
+            vec3 boundsCenter() const;
             FloatType area(Math::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
@@ -124,14 +124,14 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
-            Vec2f textureSize() const;
+            vec2f textureSize() const;
             
-            const Vec2f& offset() const;
+            const vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            Vec2f modOffset(const Vec2f& offset) const;
+            vec2f modOffset(const vec2f& offset) const;
 
-            const Vec2f& scale() const;
+            const vec2f& scale() const;
             float xScale() const;
             float yScale() const;
 
@@ -156,13 +156,13 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
             void setAttributes(const BrushFace* other);
 
-            Vec3 textureXAxis() const;
-            Vec3 textureYAxis() const;
+            vec3 textureXAxis() const;
+            vec3 textureYAxis() const;
             void resetTextureAxes();
             
-            void moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset);
+            void moveTexture(const vec3& up, const vec3& right, const vec2f& offset);
             void rotateTexture(float angle);
-            void shearTexture(const Vec2f& factors);
+            void shearTexture(const vec2f& factors);
             
             void transform(const Mat4x4& transform, const bool lockTexture);
             void invert();
@@ -172,14 +172,14 @@ namespace TrenchBroom {
             void findIntegerPlanePoints();
             
             Mat4x4 projectToBoundaryMatrix() const;
-            Mat4x4 toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
-            Mat4x4 fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
-            float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
+            Mat4x4 toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
+            Mat4x4 fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
+            float measureTextureAngle(const vec2f& center, const vec2f& point) const;
             
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
-            Vec3::List vertexPositions() const;
+            vec3::List vertexPositions() const;
             
             bool hasVertices(const Polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             Polygon3 polygon() const;
@@ -194,14 +194,14 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            Vec2f textureCoords(const Vec3& point) const;
+            vec2f textureCoords(const vec3& point) const;
 
-            bool containsPoint(const Vec3& point) const;
+            bool containsPoint(const vec3& point) const;
             FloatType intersectWithRay(const Ray3& ray) const;
             
             void printPoints() const;
         private:
-            void setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            void setPoints(const vec3& point0, const vec3& point1, const vec3& point2);
             void correctPoints();
 
             // renderer cache

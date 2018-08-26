@@ -531,9 +531,9 @@ namespace TrenchBroom {
             return DefaultValue<float>();
         }
         
-        Vec3 FgdParser::parseVector(ParserStatus& status) {
+        vec3 FgdParser::parseVector(ParserStatus& status) {
             Token token;
-            Vec3 vec;
+            vec3 vec;
             for (size_t i = 0; i < 3; i++) {
                 expect(status, FgdToken::Integer | FgdToken::Decimal, token = m_tokenizer.nextToken());
                 vec[i] = token.toFloat<double>();
@@ -551,7 +551,7 @@ namespace TrenchBroom {
                 size.max = parseVector(status);
                 expect(status, FgdToken::CParenthesis, token = m_tokenizer.nextToken());
             } else {
-                const Vec3 halfSize = size.min / 2.0;
+                const vec3 halfSize = size.min / 2.0;
                 size.min = -halfSize;
                 size.max =  halfSize;
             }

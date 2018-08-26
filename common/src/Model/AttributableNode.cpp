@@ -371,11 +371,11 @@ namespace TrenchBroom {
             return m_killTargets;
         }
         
-        Vec3 AttributableNode::linkSourceAnchor() const {
+        vec3 AttributableNode::linkSourceAnchor() const {
             return doGetLinkSourceAnchor();
         }
         
-        Vec3 AttributableNode::linkTargetAnchor() const {
+        vec3 AttributableNode::linkTargetAnchor() const {
             return doGetLinkTargetAnchor();
         }
 

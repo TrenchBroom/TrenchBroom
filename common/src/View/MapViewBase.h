@@ -131,9 +131,9 @@ namespace TrenchBroom {
             void duplicateAndMoveObjects(Math::Direction direction);
             void duplicateObjects();
             void moveObjects(Math::Direction direction);
-            Vec3 moveDirection(Math::Direction direction) const;
+            vec3 moveDirection(Math::Direction direction) const;
             void rotateObjects(Math::RotationAxis axis, bool clockwise);
-            Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
+            vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
         private: // tool mode events
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
             void OnMoveRotationCenterForward(wxCommandEvent& event);
@@ -228,8 +228,8 @@ namespace TrenchBroom {
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
-            virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
-            virtual Vec3 doComputePointEntityPosition(const BBox3& bounds) const = 0;
+            virtual vec3 doGetMoveDirection(Math::Direction direction) const = 0;
+            virtual vec3 doComputePointEntityPosition(const BBox3& bounds) const = 0;
 
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;

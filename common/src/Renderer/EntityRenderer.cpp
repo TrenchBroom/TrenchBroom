@@ -20,7 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "TrenchBroom.h"
-#include "Vec.h"
+#include "vec.h"
 #include "vec_extras.h"
 #include "VecMath.h"
 #include "CollectionUtils.h"
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             EntityClassnameAnchor(const Model::Entity* entity) :
             m_entity(entity) {}
         private:
-            Vec3f basePosition() const override {
-                Vec3f position = m_entity->bounds().center();
+            vec3f basePosition() const override {
+                vec3f position = m_entity->bounds().center();
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -231,37 +231,37 @@ namespace TrenchBroom {
                 return;
             
             static const float maxDistance2 = 500.0f * 500.0f;
-            const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
+            const vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
             RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjectsTransparent();
             renderService.setForegroundColor(m_angleColor);
             
-            Vec3f::List vertices(3);
+            vec3f::List vertices(3);
             for (const Model::Entity* entity : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
                 }
 
                 const Mat4x4f rotation(entity->rotation());
-                const Vec3f direction = rotation * Vec3f::PosX;
-                const Vec3f center(entity->bounds().center());
+                const vec3f direction = rotation * vec3f::pos_x;
+                const vec3f center(entity->bounds().center());
                 
-                const Vec3f toCam = renderContext.camera().position() - center;
+                const vec3f toCam = renderContext.camera().position() - center;
                 if (squaredLength(toCam) > maxDistance2) {
                     continue;
                 }
 
-                Vec3f onPlane = toCam - dot(toCam, direction) * direction;
+                vec3f onPlane = toCam - dot(toCam, direction) * direction;
                 if (isNull(onPlane)) {
                     continue;
                 }
 
                 onPlane = normalize(onPlane);
 
-                const Vec3f rotZ = rotation * Vec3f::PosZ;
+                const vec3f rotZ = rotation * vec3f::pos_z;
                 const float angle = -angleBetween(rotZ, onPlane, direction);
-                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
+                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vec3f::pos_x);
                 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];
@@ -270,12 +270,12 @@ namespace TrenchBroom {
             }
         }
 
-        Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
+        vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
             // clockwise winding
-            Vec3f::List result(3);
-            result[0] = Vec3f(0.0f,    width / 2.0f, 0.0f);
-            result[1] = Vec3f(length,          0.0f, 0.0f);
-            result[2] = Vec3f(0.0f,   -width / 2.0f, 0.0f);
+            vec3f::List result(3);
+            result[0] = vec3f(0.0f,    width / 2.0f, 0.0f);
+            result[1] = vec3f(length,          0.0f, 0.0f);
+            result[2] = vec3f(0.0f,   -width / 2.0f, 0.0f);
             return result;
         }
 
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2, const Vec3& v3, const Vec3& v4, const Vec3& n) {
+            void operator()(const vec3& v1, const vec3& v2, const vec3& v3, const vec3& v4, const vec3& n) {
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
@@ -303,7 +303,7 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
+            void operator()(const vec3& v1, const vec3& v2) {
                 vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
                 vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
             }
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
+            void operator()(const vec3& v1, const vec3& v2) {
                 vertices.push_back(VertexSpecs::P3::Vertex(v1));
                 vertices.push_back(VertexSpecs::P3::Vertex(v2));
             }

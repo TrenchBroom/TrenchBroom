@@ -60,13 +60,13 @@ namespace TrenchBroom {
                 computeOriginHandles(xHandle, yHandle);
 
                 const Model::BrushFace* face = m_helper.face();
-                const Mat4x4 fromTex = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-                const Vec3 origin = fromTex * Vec3(m_helper.originInFaceCoords());
+                const Mat4x4 fromTex = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+                const vec3 origin = fromTex * vec3(m_helper.originInFaceCoords());
                 
                 const Ray3& pickRay = inputState.pickRay();
                 const Ray3::PointDistance oDistance = pickRay.distanceToPoint(origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
+                    const vec3 hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
                     pickResult.addHit(Model::Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                     pickResult.addHit(Model::Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                 } else {
@@ -78,12 +78,12 @@ namespace TrenchBroom {
                     
                     const FloatType maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                     if (xDistance.distance <= maxDistance) {
-                        const Vec3 hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
+                        const vec3 hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
                         pickResult.addHit(Model::Hit(XHandleHit, xDistance.rayDistance, hitPoint, xHandle, xDistance.distance));
                     }
                     
                     if (yDistance.distance <= maxDistance) {
-                        const Vec3 hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
+                        const vec3 hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
                         pickResult.addHit(Model::Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, yDistance.distance));
                     }
                 }
@@ -92,13 +92,13 @@ namespace TrenchBroom {
 
         void UVOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             
-            const Vec3 origin = m_helper.originInFaceCoords();
+            const vec3 origin = m_helper.originInFaceCoords();
             xHandle.point = yHandle.point = toWorld * origin;
             
-            xHandle.direction = normalize(toWorld * (origin + Vec3::PosY) - xHandle.point);
-            yHandle.direction = (toWorld * (origin + Vec3::PosX) - yHandle.point);
+            xHandle.direction = normalize(toWorld * (origin + vec3::pos_y) - xHandle.point);
+            yHandle.direction = (toWorld * (origin + vec3::pos_x) - yHandle.point);
         }
 
         bool UVOriginTool::doStartMouseDrag(const InputState& inputState) {
@@ -130,10 +130,10 @@ namespace TrenchBroom {
         }
         
         bool UVOriginTool::doMouseDrag(const InputState& inputState) {
-            const Vec2f curPoint = computeHitPoint(inputState.pickRay());
-            const Vec2f delta = curPoint - m_lastPoint;
+            const vec2f curPoint = computeHitPoint(inputState.pickRay());
+            const vec2f delta = curPoint - m_lastPoint;
             
-            const Vec2f snapped = snapDelta(delta * m_selector);
+            const vec2f snapped = snapDelta(delta * m_selector);
             if (isNull(snapped)) {
                 return true;
             } else {
@@ -144,17 +144,17 @@ namespace TrenchBroom {
             }
         }
         
-        Vec2f UVOriginTool::computeHitPoint(const Ray3& ray) const {
+        vec2f UVOriginTool::computeHitPoint(const Ray3& ray) const {
             const Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
             const FloatType distance = boundary.intersectWithRay(ray);
-            const Vec3 hitPoint = ray.pointAtDistance(distance);
+            const vec3 hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            return Vec2f(transform * hitPoint);
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            return vec2f(transform * hitPoint);
         }
 
-        Vec2f UVOriginTool::snapDelta(const Vec2f& delta) const {
+        vec2f UVOriginTool::snapDelta(const vec2f& delta) const {
             if (isNull(delta)) {
                 return delta;
             }
@@ -168,36 +168,36 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
             
-            const Mat4x4 w2fTransform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const Mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const Mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const Mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const Mat4x4 f2tTransform = w2tTransform * f2wTransform;
             const Mat4x4 t2fTransform = w2fTransform * t2wTransform;
             
-            const Vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
-            const Vec2f newOriginInTexCoords  = Vec2f(f2tTransform * Vec3(newOriginInFaceCoords));
+            const vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
+            const vec2f newOriginInTexCoords  = vec2f(f2tTransform * vec3(newOriginInFaceCoords));
             
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
-            Vec2f distanceInTexCoords = Vec2f::Max;
+            vec2f distanceInTexCoords = vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices())
-                distanceInTexCoords = absMin(distanceInTexCoords, Vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
+                distanceInTexCoords = absMin(distanceInTexCoords, vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();
             if (texture != nullptr)
-                distanceInTexCoords = absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(Vec3(newOriginInTexCoords)));
+                distanceInTexCoords = absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vec3(newOriginInTexCoords)));
             
             // finally snap to the face center
-            const Vec2f faceCenter(w2tTransform * face->boundsCenter());
+            const vec2f faceCenter(w2tTransform * face->boundsCenter());
             distanceInTexCoords = absMin(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
-            const Vec2f distanceInFaceCoords = newOriginInFaceCoords - Vec2f(t2fTransform * Vec3(newOriginInTexCoords + distanceInTexCoords));
+            const vec2f distanceInFaceCoords = newOriginInFaceCoords - vec2f(t2fTransform * vec3(newOriginInTexCoords + distanceInTexCoords));
             return m_helper.snapDelta(delta, -distanceInFaceCoords);
         }
 
@@ -230,14 +230,14 @@ namespace TrenchBroom {
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             
-            Vec3 x1, x2, y1, y2;
+            vec3 x1, x2, y1, y2;
             m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
             EdgeVertex::List vertices(4);
-            vertices[0] = EdgeVertex(Vec3f(x1), xColor);
-            vertices[1] = EdgeVertex(Vec3f(x2), xColor);
-            vertices[2] = EdgeVertex(Vec3f(y1), yColor);
-            vertices[3] = EdgeVertex(Vec3f(y2), yColor);
+            vertices[0] = EdgeVertex(vec3f(x1), xColor);
+            vertices[1] = EdgeVertex(vec3f(x2), xColor);
+            vertices[2] = EdgeVertex(vec3f(y1), yColor);
+            vertices[3] = EdgeVertex(vec3f(y2), yColor);
             return vertices;
         }
 
@@ -263,18 +263,18 @@ namespace TrenchBroom {
             
             void doRender(Renderer::RenderContext& renderContext) override {
                 const Model::BrushFace* face = m_helper.face();
-                const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+                const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
                 
                 const Plane3& boundary = face->boundary();
                 const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
                 const Mat4x4 fromPlane = invertedMatrix(toPlane);
-                const Vec2f originPosition(toPlane * fromFace * Vec3(m_helper.originInFaceCoords()));
+                const vec2f originPosition(toPlane * fromFace * vec3(m_helper.originInFaceCoords()));
 
                 const Color& handleColor = pref(Preferences::HandleColor);
                 const Color& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
-                const Mat4x4 translation = translationMatrix(Vec3(originPosition));
+                const Mat4x4 translation = translationMatrix(vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);

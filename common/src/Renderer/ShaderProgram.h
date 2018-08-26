@@ -21,7 +21,7 @@
 #define TrenchBroom_ShaderProgram
 
 #include "StringUtils.h"
-#include "Vec.h"
+#include "vec.h"
 #include "Mat.h"
 #include "Renderer/GL.h"
 
@@ -54,9 +54,9 @@ namespace TrenchBroom {
             void set(const String& name, const size_t value);
             void set(const String& name, const float value);
             void set(const String& name, const double value);
-            void set(const String& name, const Vec2f& value);
-            void set(const String& name, const Vec3f& value);
-            void set(const String& name, const Vec4f& value);
+            void set(const String& name, const vec2f& value);
+            void set(const String& name, const vec3f& value);
+            void set(const String& name, const vec4f& value);
             void set(const String& name, const Mat2x2f& value);
             void set(const String& name, const Mat3x3f& value);
             void set(const String& name, const Mat4x4f& value);

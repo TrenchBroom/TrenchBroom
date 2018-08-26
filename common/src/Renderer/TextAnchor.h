@@ -38,34 +38,34 @@ namespace TrenchBroom {
         class TextAnchor {
         public:
             virtual ~TextAnchor();
-            virtual Vec3f offset(const Camera& camera, const Vec2f& size) const = 0;
-            virtual Vec3f position(const Camera& camera) const = 0;
+            virtual vec3f offset(const Camera& camera, const vec2f& size) const = 0;
+            virtual vec3f position(const Camera& camera) const = 0;
         };
         
         class TextAnchor3D : public TextAnchor {
         public:
             virtual ~TextAnchor3D() override;
-            Vec3f offset(const Camera& camera, const Vec2f& size) const override;
-            Vec3f position(const Camera& camera) const override;
+            vec3f offset(const Camera& camera, const vec2f& size) const override;
+            vec3f position(const Camera& camera) const override;
         private:
-            Vec2f alignmentFactors(TextAlignment::Type a) const;
+            vec2f alignmentFactors(TextAlignment::Type a) const;
         private:
-            virtual Vec3f basePosition() const = 0;
+            virtual vec3f basePosition() const = 0;
             virtual TextAlignment::Type alignment() const = 0;
-            virtual Vec2f extraOffsets(TextAlignment::Type a, const Vec2f& size) const;
+            virtual vec2f extraOffsets(TextAlignment::Type a, const vec2f& size) const;
         };
         
         class SimpleTextAnchor : public TextAnchor3D {
         private:
-            Vec3f m_position;
+            vec3f m_position;
             TextAlignment::Type m_alignment;
-            Vec2f m_extraOffsets;
+            vec2f m_extraOffsets;
         public:
-            SimpleTextAnchor(const Vec3f& position, const TextAlignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
+            SimpleTextAnchor(const vec3f& position, const TextAlignment::Type alignment, const vec2f& extraOffsets = vec2f::zero);
         private:
-            Vec3f basePosition() const override;
+            vec3f basePosition() const override;
             TextAlignment::Type alignment() const override;
-            Vec2f extraOffsets(TextAlignment::Type a, const Vec2f& size) const override;
+            vec2f extraOffsets(TextAlignment::Type a, const vec2f& size) const override;
         };
     }
 }

@@ -97,9 +97,9 @@ namespace TrenchBroom {
             void resetTextureAxesToParaxial();
             void resetTextureAxesToParallel();
             
-            void setOffset(const Vec2f& offset);
-            void addOffset(const Vec2f& offset);
-            void mulOffset(const Vec2f& offset);
+            void setOffset(const vec2f& offset);
+            void addOffset(const vec2f& offset);
+            void mulOffset(const vec2f& offset);
             
             void setXOffset(float xOffset);
             void addXOffset(float xOffset);
@@ -113,9 +113,9 @@ namespace TrenchBroom {
             void addRotation(float rotation);
             void mulRotation(float rotation);
             
-            void setScale(const Vec2f& scale);
-            void addScale(const Vec2f& scale);
-            void mulScale(const Vec2f& scale);
+            void setScale(const vec2f& scale);
+            void addScale(const vec2f& scale);
+            void mulScale(const vec2f& scale);
             
             void setXScale(float xScale);
             void addXScale(float xScale);

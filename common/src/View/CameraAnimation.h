@@ -35,14 +35,14 @@ namespace TrenchBroom {
 
             Renderer::Camera& m_camera;
             
-            const Vec3f m_startPosition;
-            const Vec3f m_startDirection;
-            const Vec3f m_startUp;
-            const Vec3f m_targetPosition;
-            const Vec3f m_targetDirection;
-            const Vec3f m_targetUp;
+            const vec3f m_startPosition;
+            const vec3f m_startDirection;
+            const vec3f m_startUp;
+            const vec3f m_targetPosition;
+            const vec3f m_targetDirection;
+            const vec3f m_targetUp;
         public:
-            CameraAnimation(Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, wxLongLong duration);
+            CameraAnimation(Renderer::Camera& camera, const vec3f& targetPosition, const vec3f& targetDirection, const vec3f& targetUp, wxLongLong duration);
         private:
             void doUpdate(double progress) override;
         };

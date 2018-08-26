@@ -32,16 +32,16 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<ShearTexturesCommand> Ptr;
         private:
-            Vec2f m_factors;
+            vec2f m_factors;
         public:
-            static Ptr shear(const Vec2f& factors);
+            static Ptr shear(const vec2f& factors);
         private:
-            ShearTexturesCommand(const Vec2f& factors);
+            ShearTexturesCommand(const vec2f& factors);
             
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            bool shearTextures(MapDocumentCommandFacade* document, const Vec2f& factors);
+            bool shearTextures(MapDocumentCommandFacade* document, const vec2f& factors);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;

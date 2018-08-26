@@ -59,52 +59,52 @@ namespace TrenchBroom {
                 virtual ~ClipStrategy();
                 void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
                 void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
-                void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const;
+                void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const;
                 
-                bool computeThirdPoint(Vec3& point) const;
+                bool computeThirdPoint(vec3& point) const;
 
                 bool canClip() const;
                 bool hasPoints() const;
-                bool canAddPoint(const Vec3& point) const;
-                void addPoint(const Vec3& point, const Vec3::List& helpVectors);
+                bool canAddPoint(const vec3& point) const;
+                void addPoint(const vec3& point, const vec3::List& helpVectors);
                 bool canRemoveLastPoint() const;
                 void removeLastPoint();
                 
-                bool canDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const;
+                bool canDragPoint(const Model::PickResult& pickResult, vec3& initialPosition) const;
                 void beginDragPoint(const Model::PickResult& pickResult);
                 void beginDragLastPoint();
-                bool dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors);
+                bool dragPoint(const vec3& newPosition, const vec3::List& helpVectors);
                 void endDragPoint();
                 void cancelDragPoint();
                 
                 bool setFace(const Model::BrushFace* face);
                 void reset();
-                size_t getPoints(Vec3& point1, Vec3& point2, Vec3& point3) const;
+                size_t getPoints(vec3& point1, vec3& point2, vec3& point3) const;
             private:
                 virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
                 virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
 
-                virtual void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const = 0;
+                virtual void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const = 0;
 
-                virtual bool doComputeThirdPoint(Vec3& point) const = 0;
+                virtual bool doComputeThirdPoint(vec3& point) const = 0;
 
                 virtual bool doCanClip() const = 0;
                 virtual bool doHasPoints() const = 0;
-                virtual bool doCanAddPoint(const Vec3& point) const = 0;
-                virtual void doAddPoint(const Vec3& point, const Vec3::List& helpVectors) = 0;
+                virtual bool doCanAddPoint(const vec3& point) const = 0;
+                virtual void doAddPoint(const vec3& point, const vec3::List& helpVectors) = 0;
                 virtual bool doCanRemoveLastPoint() const = 0;
                 virtual void doRemoveLastPoint() = 0;
                 
-                virtual bool doCanDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) const = 0;
+                virtual bool doCanDragPoint(const Model::PickResult& pickResult, vec3& initialPosition) const = 0;
                 virtual void doBeginDragPoint(const Model::PickResult& pickResult) = 0;
                 virtual void doBeginDragLastPoint() = 0;
-                virtual bool doDragPoint(const Vec3& newPosition, const Vec3::List& helpVectors) = 0;
+                virtual bool doDragPoint(const vec3& newPosition, const vec3::List& helpVectors) = 0;
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
                 
                 virtual bool doSetFace(const Model::BrushFace* face) = 0;
                 virtual void doReset() = 0;
-                virtual size_t doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const = 0;
+                virtual size_t doGetPoints(vec3& point1, vec3& point2, vec3& point3) const = 0;
             };
             
             class PointClipStrategy;
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
         public:
-            void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& point) const;
+            void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const;
         public:
             bool hasBrushes() const;
             bool canClip() const;
@@ -147,17 +147,17 @@ namespace TrenchBroom {
             Model::ParentChildrenMap clipBrushes();
         public:
 
-            Vec3 defaultClipPointPos() const;
+            vec3 defaultClipPointPos() const;
 
-            bool canAddPoint(const Vec3& point) const;
+            bool canAddPoint(const vec3& point) const;
             bool hasPoints() const;
-            void addPoint(const Vec3& point, const Vec3::List& helpVectors);
+            void addPoint(const vec3& point, const vec3::List& helpVectors);
             bool canRemoveLastPoint() const;
             bool removeLastPoint();
             
-            bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
+            bool beginDragPoint(const Model::PickResult& pickResult, vec3& initialPosition);
             void beginDragLastPoint();
-            bool dragPoint(const Vec3& newPosition, const Vec3::List& helpVectors);
+            bool dragPoint(const vec3& newPosition, const vec3::List& helpVectors);
             void endDragPoint();
             void cancelDragPoint();
             

@@ -46,17 +46,17 @@ namespace TrenchBroom {
             return m_current > 0;
         }
     
-        const Vec3f::List& PointFile::points() const {
+        const vec3f::List& PointFile::points() const {
             return m_points;
         }
         
-        const Vec3f& PointFile::currentPoint() const {
+        const vec3f& PointFile::currentPoint() const {
             return m_points[m_current];
         }
         
-        const Vec3f PointFile::currentDirection() const {
+        const vec3f PointFile::currentDirection() const {
             if (m_points.size() <= 1) {
-                return Vec3f::PosX;
+                return vec3f::pos_x;
             } else if (m_current >= m_points.size() - 1) {
                 return normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
             } else {
@@ -80,25 +80,25 @@ namespace TrenchBroom {
             std::fstream stream(pointFilePath.asString().c_str(), std::ios::in);
             assert(stream.is_open());
             
-            Vec3f::List points;
+            vec3f::List points;
             String line;
             
             if (!stream.eof()) {
                 std::getline(stream, line);
-                points.push_back(Vec3f::parse(line));
-                Vec3f lastPoint = points.back();
+                points.push_back(vec3f::parse(line));
+                vec3f lastPoint = points.back();
                 
                 if (!stream.eof()) {
                     std::getline(stream, line);
-                    Vec3f curPoint = Vec3f::parse(line);
-                    Vec3f refDir = normalize(curPoint - lastPoint);
+                    vec3f curPoint = vec3f::parse(line);
+                    vec3f refDir = normalize(curPoint - lastPoint);
                     
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
-                        curPoint = Vec3f::parse(line);
+                        curPoint = vec3f::parse(line);
                         
-                        const Vec3f dir = normalize(curPoint - lastPoint);
+                        const vec3f dir = normalize(curPoint - lastPoint);
                         if (std::acos(dot(dir, refDir)) > Threshold) {
                             points.push_back(lastPoint);
                             refDir = dir;
@@ -111,9 +111,9 @@ namespace TrenchBroom {
 
             if (points.size() > 1) {
                 for (size_t i = 0; i < points.size() - 1; ++i) {
-                    const Vec3f& curPoint = points[i];
-                    const Vec3f& nextPoint = points[i + 1];
-                    const Vec3f dir = normalize(nextPoint - curPoint);
+                    const vec3f& curPoint = points[i];
+                    const vec3f& nextPoint = points[i + 1];
+                    const vec3f dir = normalize(nextPoint - curPoint);
 
                     m_points.push_back(curPoint);
                     const float dist = length(nextPoint - curPoint);

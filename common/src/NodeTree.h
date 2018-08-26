@@ -136,7 +136,7 @@ public:
      * @param point the point to test
      * @return a list containing all found data items
      */
-    virtual List findContainers(const Vec<T,S>& point) const = 0;
+    virtual List findContainers(const vec<T,S>& point) const = 0;
 };
 
 #endif /* NodeTree_h */

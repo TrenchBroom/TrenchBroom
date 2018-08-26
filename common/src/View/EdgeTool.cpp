@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return m_edgeHandles;
         }
 
-        EdgeTool::MoveResult EdgeTool::move(const Vec3& delta) {
+        EdgeTool::MoveResult EdgeTool::move(const vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
 
             const auto handles = m_edgeHandles.selectedHandles();

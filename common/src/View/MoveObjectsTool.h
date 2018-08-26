@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const Grid& grid() const;
             
             bool startMove(const InputState& inputState);
-            MoveResult move(const InputState& inputState, const Vec3& delta);
+            MoveResult move(const InputState& inputState, const vec3& delta);
             void endMove(const InputState& inputState);
             void cancelMove();
         private:

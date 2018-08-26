@@ -93,19 +93,19 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        const Vec3f& Camera::position() const {
+        const vec3f& Camera::position() const {
             return m_position;
         }
         
-        const Vec3f& Camera::direction() const {
+        const vec3f& Camera::direction() const {
             return m_direction;
         }
         
-        const Vec3f& Camera::up() const {
+        const vec3f& Camera::up() const {
             return m_up;
         }
         
-        const Vec3f& Camera::right() const {
+        const vec3f& Camera::right() const {
             return m_right;
         }
         
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
         const Mat4x4f Camera::orthogonalBillboardMatrix() const {
-            Vec3f bbLook, bbUp, bbRight;
+            vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbUp = m_up;
             bbRight = cross(bbUp, bbLook);
@@ -134,7 +134,7 @@ namespace TrenchBroom {
         }
         
         const Mat4x4f Camera::verticalBillboardMatrix() const {
-            Vec3f bbLook, bbUp, bbRight;
+            vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbLook[2] = 0.0f;
             if (isNull(bbLook)) {
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 bbLook[2] = 0.0f;
             }
             bbLook = normalize(bbLook);
-            bbUp = Vec3f::PosZ;
+            bbUp = vec3f::pos_z;
             bbRight = cross(bbUp, bbLook);
             
             return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
@@ -163,55 +163,55 @@ namespace TrenchBroom {
             return doGetPickRay(unproject(static_cast<float>(x), static_cast<float>(y), 0.5f));
         }
 
-        Ray3f Camera::pickRay(const Vec3f& point) const {
+        Ray3f Camera::pickRay(const vec3f& point) const {
             return doGetPickRay(point);
         }
 
-        float Camera::distanceTo(const Vec3f& point) const {
+        float Camera::distanceTo(const vec3f& point) const {
             return distance(point, m_position);
         }
         
-        float Camera::squaredDistanceTo(const Vec3f& point) const {
+        float Camera::squaredDistanceTo(const vec3f& point) const {
             return squaredDistance(point, m_position);
         }
 
-        float Camera::perpendicularDistanceTo(const Vec3f& point) const {
+        float Camera::perpendicularDistanceTo(const vec3f& point) const {
             return dot(point - m_position, m_direction);
         }
 
-        Vec3f Camera::defaultPoint(const float distance) const {
+        vec3f Camera::defaultPoint(const float distance) const {
             return m_position + distance * direction();
         }
         
-        Vec3f Camera::defaultPoint(const int x, const int y) const {
+        vec3f Camera::defaultPoint(const int x, const int y) const {
             const Ray3f ray = pickRay(x, y);
             return defaultPoint(ray);
         }
 
-        float Camera::perspectiveScalingFactor(const Vec3f& position) const {
+        float Camera::perspectiveScalingFactor(const vec3f& position) const {
             return doGetPerspectiveScalingFactor(position);
         }
 
-        Vec3f Camera::project(const Vec3f& point) const {
+        vec3f Camera::project(const vec3f& point) const {
             if (!m_valid)
                 validateMatrices();
             
-            Vec3f win = m_matrix * point;
+            vec3f win = m_matrix * point;
             win[0] = m_unzoomedViewport.x + m_unzoomedViewport.width *(win.x() + 1.0f)/2.0f;
             win[1] = m_unzoomedViewport.y + m_unzoomedViewport.height*(win.y() + 1.0f)/2.0f;
             win[2] = (win.z() + 1.0f)/2.0f;
             return win;
         }
 
-        Vec3f Camera::unproject(const Vec3f& point) const {
+        vec3f Camera::unproject(const vec3f& point) const {
             return unproject(point.x(), point.y(), point.z());
         }
 
-        Vec3f Camera::unproject(const float x, const float y, const float depth) const {
+        vec3f Camera::unproject(const float x, const float y, const float depth) const {
             if (!m_valid)
                 validateMatrices();
             
-            Vec3f normalized;
+            vec3f normalized;
             normalized[0] = 2.0f*(x - m_unzoomedViewport.x)/m_unzoomedViewport.width - 1.0f;
             normalized[1] = 2.0f*(m_unzoomedViewport.height - y - m_unzoomedViewport.y)/m_unzoomedViewport.height - 1.0f;
             normalized[2] = 2.0f*depth - 1.0f;
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Camera::moveTo(const Vec3f& position) {
+        void Camera::moveTo(const vec3f& position) {
             if (position == m_position)
                 return;
             m_position = position;
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        void Camera::moveBy(const Vec3f& delta) {
+        void Camera::moveBy(const vec3f& delta) {
             if (isNull(delta))
                 return;
             m_position += delta;
@@ -263,16 +263,16 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        void Camera::lookAt(const Vec3f& point, const Vec3f& up) {
+        void Camera::lookAt(const vec3f& point, const vec3f& up) {
             setDirection(normalize(point - m_position), up);
         }
         
-        void Camera::setDirection(const Vec3f& direction, const Vec3f& up) {
+        void Camera::setDirection(const vec3f& direction, const vec3f& up) {
             if (direction == m_direction && up == m_up)
                 return;
             m_direction = direction;
             
-            const Vec3f rightUnnormalized = cross(m_direction, up);
+            const vec3f rightUnnormalized = cross(m_direction, up);
             if (isNull(rightUnnormalized)) {
                 // `direction` and `up` were colinear.
                 const auto axis = m_direction.thirdAxis();
@@ -289,9 +289,9 @@ namespace TrenchBroom {
             if (yaw == 0.0f && pitch == 0.0f)
                 return;
             
-            const Quatf rotation = Quatf(Vec3f::PosZ, yaw) * Quatf(m_right, pitch);
-            Vec3f newDirection = rotation * m_direction;
-            Vec3f newUp = rotation * m_up;
+            const Quatf rotation = Quatf(vec3f::pos_z, yaw) * Quatf(m_right, pitch);
+            vec3f newDirection = rotation * m_direction;
+            vec3f newUp = rotation * m_up;
             
             if (newUp[2] < 0.0f) {
                 newUp[2] = 0.0f;
@@ -305,14 +305,14 @@ namespace TrenchBroom {
             setDirection(newDirection, newUp);
         }
         
-        void Camera::orbit(const Vec3f& center, const float horizontal, const float vertical) {
+        void Camera::orbit(const vec3f& center, const float horizontal, const float vertical) {
             if (horizontal == 0.0f && vertical == 0.0f)
                 return;
             
-            Quatf rotation = Quatf(Vec3f::PosZ, horizontal) * Quatf(m_right, vertical);
-            Vec3f newDirection = rotation * m_direction;
-            Vec3f newUp = rotation * m_up;
-            Vec3f offset = m_position - center;
+            Quatf rotation = Quatf(vec3f::pos_z, horizontal) * Quatf(m_right, vertical);
+            vec3f newDirection = rotation * m_direction;
+            vec3f newUp = rotation * m_up;
+            vec3f offset = m_position - center;
             
             if (newUp[2] < 0.0f) {
                 newUp[2] = 0.0f;
@@ -326,7 +326,7 @@ namespace TrenchBroom {
                 const float cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const float angle = acosf(cos);
                 if (!Math::zero(angle)) {
-                    const Vec3f axis = normalize(cross(m_direction, newDirection));
+                    const vec3f axis = normalize(cross(m_direction, newDirection));
                     rotation = Quatf(axis, angle);
                     offset = rotation * offset;
                     newUp = rotation * newUp;
@@ -347,8 +347,8 @@ namespace TrenchBroom {
             return doPickFrustum(size, ray);
         }
 
-        FloatType Camera::pickPointHandle(const Ray3& pickRay, const Vec3& handlePosition, const FloatType handleRadius) const {
-            const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(Vec3f(handlePosition)));
+        FloatType Camera::pickPointHandle(const Ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const {
+            const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(vec3f(handlePosition)));
             return pickRay.intersectWithSphere(handlePosition, 2.0 * handleRadius * scaling);
         }
 
@@ -357,7 +357,7 @@ namespace TrenchBroom {
             if (distance.parallel)
                 return Math::nan<FloatType>();
             
-            const Vec3 pointHandlePosition = handlePosition.pointAtDistance(distance.lineDistance);
+            const vec3 pointHandlePosition = handlePosition.pointAtDistance(distance.lineDistance);
             return pickPointHandle(pickRay, pointHandlePosition, handleRadius);
         }
 
@@ -366,13 +366,13 @@ namespace TrenchBroom {
         m_farPlane(8000.0f),
         m_unzoomedViewport(Viewport(0, 0, 1024, 768)),
         m_zoom(1.0f),
-        m_position(Vec3f::Null),
+        m_position(vec3f::zero),
         m_valid(false) {
-            setDirection(Vec3f::PosX, Vec3f::PosZ);
+            setDirection(vec3f::pos_x, vec3f::pos_z);
             updateZoomedViewport();
         }
         
-        Camera::Camera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        Camera::Camera(const float nearPlane, const float farPlane, const Viewport& viewport, const vec3f& position, const vec3f& direction, const vec3f& up) :
         m_nearPlane(nearPlane),
         m_farPlane(farPlane),
         m_unzoomedViewport(viewport),

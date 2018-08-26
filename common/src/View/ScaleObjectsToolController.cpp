@@ -56,7 +56,7 @@ namespace TrenchBroom {
             }
         }
 
-        static std::tuple<DragRestricter*, DragSnapper*, Vec3>
+        static std::tuple<DragRestricter*, DragSnapper*, vec3>
         getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
                                                 const Grid& grid,
                                                 const Model::Hit& dragStartHit,
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const Plane3 plane(dragStartHit.hitPoint(), Vec3(inputState.camera().direction()) * -1.0);
+                const Plane3 plane(dragStartHit.hitPoint(), vec3(inputState.camera().direction()) * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
@@ -86,10 +86,10 @@ namespace TrenchBroom {
             }
 
             // Snap the initial point
-            const Vec3 initialPoint = [&]() {
-                Vec3 p = dragStartHit.hitPoint();
+            const vec3 initialPoint = [&]() {
+                vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
+                snapper->snap(inputState, vec3::zero, vec3::zero, p);
                 return p;
             }();
 
@@ -183,7 +183,7 @@ namespace TrenchBroom {
                             std::get<2>(tuple));
         }
 
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->scaleByDelta(delta);
 
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 }
 
                 // corner handles
-                for (const Vec3 &corner : m_tool->cornerHandles()) {
+                for (const vec3 &corner : m_tool->cornerHandles()) {
                     const auto ray = renderContext.camera().pickRay(corner);
 
                     if (renderContext.camera().perspectiveProjection()) {

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "Vec.h"
+#include "vec.h"
 #include "Plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
@@ -31,17 +31,17 @@
  */
 TEST(PlaneTest, planePointFinder) {
     Plane3 plane;
-    const Vec3 points[3] = {Vec3(48, 16, 28), Vec3(16.0, 16.0, 27.9980487823486328125), Vec3(48, 18, 22)};
+    const vec3 points[3] = {vec3(48, 16, 28), vec3(16.0, 16.0, 27.9980487823486328125), vec3(48, 18, 22)};
     ASSERT_FALSE(isIntegral(points[1]));
     ASSERT_TRUE(setPlanePoints(plane, points[0], points[1], points[2]));
     
     
     // Some verts that should lie (very close to) on the plane
-    std::vector<Vec3> verts;
-    verts.push_back(Vec3(48, 18, 22));
-    verts.push_back(Vec3(48, 16, 28));
-    verts.push_back(Vec3(16, 16, 28));
-    verts.push_back(Vec3(16, 18, 22));
+    std::vector<vec3> verts;
+    verts.push_back(vec3(48, 18, 22));
+    verts.push_back(vec3(48, 16, 28));
+    verts.push_back(vec3(16, 16, 28));
+    verts.push_back(vec3(16, 18, 22));
     
     for (size_t i=0; i<verts.size(); i++) {
         FloatType dist = Math::abs(plane.pointDistance(verts[i]));
@@ -50,7 +50,7 @@ TEST(PlaneTest, planePointFinder) {
     
     // Now find a similar plane with integer points
     
-    Vec3 intpoints[3];
+    vec3 intpoints[3];
     for (size_t i=0; i<3; i++)
         intpoints[i] = points[i];
     

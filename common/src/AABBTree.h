@@ -512,7 +512,7 @@ public:
     }
 
     const Box& bounds() const override {
-        static const auto EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
+        static const auto EmptyBox = Box(vec<T,S>::NaN, vec<T,S>::NaN);
 
         assert(!empty());
         if (empty()) {
@@ -554,7 +554,7 @@ public:
         }
     }
 
-     List findContainers(const Vec<T,S>& point) const override {
+     List findContainers(const vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
          return std::move(result);
@@ -569,7 +569,7 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findContainers(const Vec<T,S>& point, O out) const {
+    void findContainers(const vec<T,S>& point, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {

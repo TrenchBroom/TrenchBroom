@@ -68,7 +68,7 @@ namespace TrenchBroom {
         void ScaleObjectsToolPage::OnApply(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const Vec3 scaleFactors = Vec3::parse(m_scaleFactors->GetValue().ToStdString());
+            const vec3 scaleFactors = vec3::parse(m_scaleFactors->GetValue().ToStdString());
             
             MapDocumentSPtr document = lock(m_document);
             const auto box = document->selectionBounds();

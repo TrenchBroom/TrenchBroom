@@ -25,19 +25,19 @@
 
 TEST(LineTest, constructDefault) {
     const Line3f p;
-    ASSERT_EQ(Vec3f::Null, p.point);
-    ASSERT_EQ(Vec3f::Null, p.direction);
+    ASSERT_EQ(vec3f::zero, p.point);
+    ASSERT_EQ(vec3f::zero, p.direction);
 }
 
 TEST(LineTest, constructWithPointAndDirection) {
-    const Vec3f p(10,20,30);
-    const Vec3f n = normalize(Vec3f(1.0f, 2.0f, 3.0f));
+    const vec3f p(10,20,30);
+    const vec3f n = normalize(vec3f(1.0f, 2.0f, 3.0f));
     const Line3f l(p, n);
     ASSERT_VEC_EQ(p, l.point);
     ASSERT_VEC_EQ(n, l.direction);
 }
 
 TEST(LineTest, pointOnLineClosestToPoint) {
-    const Line3f l(Vec3f(10,0,0), Vec3::PosZ);
-    ASSERT_VEC_EQ(Vec3f(10,0,5), l.pointOnLineClosestToPoint(Vec3f(100,100,5)));
+    const Line3f l(vec3f(10,0,0), vec3::pos_z);
+    ASSERT_VEC_EQ(vec3f(10,0,5), l.pointOnLineClosestToPoint(vec3f(100,100,5)));
 }

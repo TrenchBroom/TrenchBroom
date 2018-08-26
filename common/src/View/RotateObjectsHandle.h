@@ -49,19 +49,19 @@ namespace TrenchBroom {
                 HitArea_ZAxis   = 8
             } HitArea;
         private:
-            Vec3 m_position;
+            vec3 m_position;
         public:
-            const Vec3& position() const;
-            void setPosition(const Vec3& position);
+            const vec3& position() const;
+            void setPosition(const vec3& position);
             
             Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
             Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
 
-            Vec3 pointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
+            vec3 pointHandlePosition(const HitArea area, const vec3& cameraPos) const;
             FloatType handleRadius() const;
             
-            Vec3 rotationAxis(const HitArea area) const;
-            Vec3 pointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
+            vec3 rotationAxis(const HitArea area) const;
+            vec3 pointHandleAxis(const HitArea area, const vec3& cameraPos) const;
         public:
 //            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
             void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -70,22 +70,22 @@ namespace TrenchBroom {
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
         private:
             template <typename T>
-            void computeAxes(const Vec<T,3>& cameraPos, Vec<T,3>& xAxis, Vec<T,3>& yAxis, Vec<T,3>& zAxis) const {
-                const Vec<T,3> viewDir = normalize(m_position - Vec3(cameraPos));
+            void computeAxes(const vec<T,3>& cameraPos, vec<T,3>& xAxis, vec<T,3>& yAxis, vec<T,3>& zAxis) const {
+                const vec<T,3> viewDir = normalize(m_position - vec3(cameraPos));
                 if (Math::eq(std::abs(viewDir.z()), static_cast<T>(1.0))) {
-                    xAxis = Vec<T,3>::PosX;
-                    yAxis = Vec<T,3>::PosY;
+                    xAxis = vec<T,3>::pos_x;
+                    yAxis = vec<T,3>::pos_y;
                 } else {
-                    xAxis = Math::pos(viewDir.x()) ? Vec<T,3>::NegX : Vec<T,3>::PosX;
-                    yAxis = Math::pos(viewDir.y()) ? Vec<T,3>::NegY : Vec<T,3>::PosY;
+                    xAxis = Math::pos(viewDir.x()) ? vec<T,3>::neg_x : vec<T,3>::pos_x;
+                    yAxis = Math::pos(viewDir.y()) ? vec<T,3>::neg_y : vec<T,3>::pos_y;
                 }
-                zAxis = Math::pos(viewDir.z()) ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
+                zAxis = Math::pos(viewDir.z()) ? vec<T,3>::neg_z : vec<T,3>::pos_z;
             }
 
-            Model::Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const;
+            Model::Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const;
             Model::Hit selectHit(const Model::Hit& closest, const Model::Hit& hit) const;
             
-            Vec3 getPointHandlePosition(const Vec3& axis) const;
+            vec3 getPointHandlePosition(const vec3& axis) const;
             Color getAngleIndicatorColor(const HitArea area) const;
         };
     }

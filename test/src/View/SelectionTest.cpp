@@ -44,14 +44,14 @@ namespace TrenchBroom {
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            const BBox3 brushBounds(Vec3(-32.0, -32.0, -32.0),
-                                    Vec3(+32.0, +32.0, +32.0));
+            const BBox3 brushBounds(vec3(-32.0, -32.0, -32.0),
+                                    vec3(+32.0, +32.0, +32.0));
             
             Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
             document->addNode(brush, group);
             
-            const BBox3 selectionBounds(Vec3(-16.0, -16.0, -48.0),
-                                        Vec3(+16.0, +16.0, +48.0));
+            const BBox3 selectionBounds(vec3(-16.0, -16.0, -48.0),
+                                        vec3(+16.0, +16.0, +48.0));
             
             Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
             document->addNode(selectionBrush, layer);
@@ -74,14 +74,14 @@ namespace TrenchBroom {
             document->addNode(group, layer);
             
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            const BBox3 brushBounds(Vec3(-32.0, -32.0, -32.0),
-                                    Vec3(+32.0, +32.0, +32.0));
+            const BBox3 brushBounds(vec3(-32.0, -32.0, -32.0),
+                                    vec3(+32.0, +32.0, +32.0));
             
             Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
             document->addNode(brush, group);
             
-            const BBox3 selectionBounds(Vec3(-48.0, -48.0, -48.0),
-                                        Vec3(+48.0, +48.0, +48.0));
+            const BBox3 selectionBounds(vec3(-48.0, -48.0, -48.0),
+                                        vec3(+48.0, +48.0, +48.0));
             
             Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
             document->addNode(selectionBrush, layer);

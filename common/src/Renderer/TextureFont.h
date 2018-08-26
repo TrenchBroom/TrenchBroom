@@ -45,11 +45,11 @@ namespace TrenchBroom {
             TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
             ~TextureFont();
             
-            Vec2f::List quads(const AttrString& string, bool clockwise, const Vec2f& offset = Vec2f::Null);
-            Vec2f measure(const AttrString& string);
+            vec2f::List quads(const AttrString& string, bool clockwise, const vec2f& offset = vec2f::zero);
+            vec2f measure(const AttrString& string);
 
-            Vec2f::List quads(const String& string, bool clockwise, const Vec2f& offset = Vec2f::Null);
-            Vec2f measure(const String& string);
+            vec2f::List quads(const String& string, bool clockwise, const vec2f& offset = vec2f::zero);
+            vec2f measure(const String& string);
             
             void activate();
             void deactivate();

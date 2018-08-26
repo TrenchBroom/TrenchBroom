@@ -104,14 +104,14 @@ private:
         using VList = typename V::List;
 
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ V::PosX, V::PosY, V::PosZ }));
-        it = sortPlanes(it, std::end(planes), VList({ V::PosY, V::PosX, V::PosZ }));
-        it = sortPlanes(it, std::end(planes), VList({ V::PosZ, V::PosX, V::PosY }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_x, V::pos_y, V::pos_z }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_y, V::pos_x, V::pos_z }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_z, V::pos_x, V::pos_y }));
         
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vec<T,3>::List& axes) {
         if (begin == end)
             return end;
         
@@ -126,18 +126,18 @@ private:
         return it;
     }
     
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vec<T,3>::List& axes) {
         assert(begin != end);
         assert(!axes.empty());
         
-        Vec<T,3> axis = axes.front();
+        vec<T,3> axis = axes.front();
         auto bestIt = end;
         for (auto it = begin; it != end; ++it) {
             auto newBestIt = selectPlane(it, bestIt, end, axis);
             
             // Resolve ambiguities if necessary.
             for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes); newBestIt == end && axIt != axEnd; ++axIt) {
-                const Vec<T,3>& altAxis = *axIt;
+                const vec<T,3>& altAxis = *axIt;
                 newBestIt = selectPlane(it, bestIt, end, altAxis);
                 if (newBestIt != end)
                     break;
@@ -173,7 +173,7 @@ private:
         return begin;
     }
     
-    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const Vec<T,3>& axis) {
+    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const vec<T,3>& axis) {
         const T curDot = dot(curIt->normal, axis);
         if (curDot == 0.0)
             return bestIt;

@@ -39,13 +39,13 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             Color m_color;
-            Vec3 m_position;
+            vec3 m_position;
             SpikeGuideRenderer m_spikeRenderer;
         public:
             PointGuideRenderer(View::MapDocumentWPtr document);
             
             void setColor(const Color& color);
-            void setPosition(const Vec3& position);
+            void setPosition(const vec3& position);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

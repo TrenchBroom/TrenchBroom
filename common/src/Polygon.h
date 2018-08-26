@@ -22,7 +22,7 @@
 
 #include "Algorithms.h"
 #include "CollectionUtils.h"
-#include "Vec.h"
+#include "vec.h"
 
 #include <algorithm>
 #include <cassert>
@@ -36,23 +36,23 @@ namespace TrenchBroom {
         using Type = T;
         static const size_t Size = S;
         using List = std::vector<Polygon<T,S>>;
-        using FloatType = Polygon<float, S>;
+        using float_type = Polygon<float, S>;
     private:
-        typename Vec<T,S>::List m_vertices;
+        typename vec<T,S>::List m_vertices;
     public:
         Polygon() {}
 
-        Polygon(std::initializer_list<Vec<T,S>> i_vertices) :
+        Polygon(std::initializer_list<vec<T,S>> i_vertices) :
         m_vertices(i_vertices) {
             CollectionUtils::rotateMinToFront(m_vertices);
         }
 
-        Polygon(const typename Vec<T,S>::List& i_vertices) :
+        Polygon(const typename vec<T,S>::List& i_vertices) :
         m_vertices(i_vertices) {
             CollectionUtils::rotateMinToFront(m_vertices);
         }
 
-        Polygon(typename Vec<T,S>::List& i_vertices) {
+        Polygon(typename vec<T,S>::List& i_vertices) {
             using std::swap;
             swap(m_vertices, i_vertices);
             CollectionUtils::rotateMinToFront(m_vertices);
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         Polygon(const Polygon<U,S>& other) {
             m_vertices.reserve(other.vertexCount());
             for (const auto& vertex : other.vertices()) {
-                m_vertices.push_back(Vec<T,S>(vertex));
+                m_vertices.push_back(vec<T,S>(vertex));
             }
         }
 
@@ -99,11 +99,11 @@ namespace TrenchBroom {
             return compare(*this, rhs, T(0.0)) >= 0;
         }
     public:
-        bool hasVertex(const Vec<T,S>& vertex) const {
+        bool hasVertex(const vec<T,S>& vertex) const {
             return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
         }
 
-        bool contains(const Vec<T,S>& point, const Vec<T,3>& normal) const {
+        bool contains(const vec<T,S>& point, const vec<T,3>& normal) const {
             return polygonContainsPoint(point, normal, std::begin(m_vertices), std::end(m_vertices));
         }
 
@@ -111,28 +111,28 @@ namespace TrenchBroom {
             return m_vertices.size();
         }
 
-        typename Vec<T,3>::List::const_iterator begin() const {
+        typename vec<T,3>::List::const_iterator begin() const {
             return std::begin(m_vertices);
         }
 
-        typename Vec<T,3>::List::const_iterator end() const {
+        typename vec<T,3>::List::const_iterator end() const {
             return std::end(m_vertices);
         }
 
-        const typename Vec<T,S>::List& vertices() const {
+        const typename vec<T,S>::List& vertices() const {
             return m_vertices;
         }
 
-        Vec<T,S> center() const {
+        vec<T,S> center() const {
             assert(!m_vertices.empty());
-            Vec<T,S> center = m_vertices[0];
+            vec<T,S> center = m_vertices[0];
             for (size_t i = 1; i < m_vertices.size(); ++i)
                 center += m_vertices[i];
             return center / static_cast<T>(m_vertices.size());
         }
 
-        static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
-            typename Vec<T,S>::List result;
+        static typename vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
+            typename vec<T,S>::List result;
             for (const auto& polygon : polygons) {
                 VectorUtils::append(result, polygon.m_vertices);
             }
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             return Polygon<T,S>(mat * vertices());
         }
     public:
-        friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const Vec<T,S>& offset) {
+        friend Polygon<T,S> translate(const Polygon<T,S>& polygon, const vec<T,S>& offset) {
             return Polygon<T,S>(polygon.vertices() + offset);
         }
     };
