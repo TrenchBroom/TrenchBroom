@@ -77,6 +77,7 @@
 #include <wx/statusbr.h>
 
 #include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -1388,7 +1389,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3::List positions = Vec3::parseList(str.ToStdString());
+                Vec3::List positions;
+                Vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
@@ -1412,7 +1414,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3::List points = Vec3::parseList(str.ToStdString());
+                Vec3::List points;
+                Vec3::parseAll(str.ToStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }

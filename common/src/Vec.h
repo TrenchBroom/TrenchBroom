@@ -124,25 +124,25 @@ public:
      *  SEP ::= " " | \\t | \\n |t \\r | "," | ";";
      *
      * Note that the list can be separated by whitespace or commas or semicolons, or a mix of these separators. Only
-     * vectors which conform to the vector syntax are added to the result list.
+     * vectors which conform to the vector syntax are added to the given output iterator.
      *
+     * @tparam O the type of the output iterator
      * @param str the string to parse
-     * @return the list of vectors parsed from the string
+     * @param out the output iterator add the parsed vectors to
      */
-    static List parseList(const std::string& str) {
+    template <typename O>
+    static void parseAll(const std::string& str, O out) {
         static const std::string blank(" \t\n\r,;");
-        
-        size_t pos = 0;
-        List result;
 
+        size_t pos = 0;
         while (pos != std::string::npos) {
             Vec<T,S> temp;
-            if (doParse(str, pos, temp))
-                result.push_back(temp);
+            if (doParse(str, pos, temp)) {
+                out = temp;
+                ++out;
+            }
             pos = str.find_first_of(blank, pos);
         }
-        
-        return result;
     }
 private:
     static bool doParse(const std::string& str, size_t& pos, Vec<T,S>& result) {
