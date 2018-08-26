@@ -19,6 +19,10 @@
 
 #include "FontGlyph.h"
 
+#include "vec_forward.h"
+#include "vec.h"
+#include "vec_extras.h"
+
 namespace TrenchBroom {
     namespace Renderer {
         FontGlyph::FontGlyph(const size_t x, const size_t y, const size_t w, const size_t h, const size_t a) :

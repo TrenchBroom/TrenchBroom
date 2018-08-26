@@ -19,6 +19,8 @@
 
 #include "ImageUtils.h"
 
+#include "vec_extras.h"
+
 #include <FreeImage.h>
 
 namespace TrenchBroom {

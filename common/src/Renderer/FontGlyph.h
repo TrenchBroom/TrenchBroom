@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_FontGlyph
 #define TrenchBroom_FontGlyph
 
-#include "VecMath.h"
+#include "vec_forward.h"
+#include "vec.h"
 
 #include <vector>
 

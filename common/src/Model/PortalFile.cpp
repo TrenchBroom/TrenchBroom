@@ -19,6 +19,9 @@
 
 #include "PortalFile.h"
 
+#include "vec_forward.h"
+#include "vec.h"
+
 #include "IO/Path.h"
 
 #include <cassert>

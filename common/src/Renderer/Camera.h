@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_Camera
 #define TrenchBroom_Camera
 
+#include "vec_forward.h"
+#include "vec.h"
+
 #include "Color.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Notifier.h"
 
 namespace TrenchBroom {

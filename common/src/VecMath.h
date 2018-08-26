@@ -33,7 +33,6 @@
 #include "Mat.h"
 #include "Plane.h"
 #include "Quat.h"
-#include "vec.h"
 #include "CoordinatePlane.h"
 #include "Edge.h"
 #include "Polygon.h"

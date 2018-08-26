@@ -20,8 +20,9 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
+#include "vec_forward.h"
+
 #include "IO/NodeSerializer.h"
-#include "VecMath.h"
 #include "Model/ModelTypes.h"
 
 #include <cstdio>

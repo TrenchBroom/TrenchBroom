@@ -22,6 +22,8 @@
 
 #include "Assets/Texture.h"
 
+#include "vec_forward.h"
+
 namespace TrenchBroom {
     namespace Assets {
         void resizeMips(TextureBuffer::List& buffers, const vec2s& oldSize, const vec2s& newSize);

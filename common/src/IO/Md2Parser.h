@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
+#include "vec_forward.h"
+#include "vec.h"
+
 #include "StringUtils.h"
-#include "VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Md2Model.h"
 #include "IO/EntityModelParser.h"

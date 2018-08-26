@@ -19,6 +19,8 @@
 
 #include "IOUtils.h"
 
+#include "vec.h"
+
 #include "IO/Path.h"
 
 namespace TrenchBroom {

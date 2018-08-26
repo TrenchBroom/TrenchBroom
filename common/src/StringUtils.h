@@ -22,6 +22,10 @@
 
 #include "Macros.h"
 
+#include "vec_forward.h"
+#include "vec.h"
+#include "vec_extras.h"
+
 #include <cassert>
 #include <cstdarg>
 #include <locale>
