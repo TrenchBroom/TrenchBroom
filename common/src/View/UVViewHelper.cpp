@@ -198,9 +198,9 @@ namespace TrenchBroom {
 
         void UVViewHelper::resetOrigin() {
             assert(valid());
-            
+
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const BBox3 bounds(toTex * Vec3::asList(m_face->vertices().begin(), m_face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
+            const BBox3 bounds(toTex * m_face->vertexPositions());
             
             const Vec3 vertices[] = {
                 bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),

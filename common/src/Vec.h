@@ -583,26 +583,6 @@ public:
     const Vec<T,3> thirdAxis() const {
         return majorAxis(2);
     }
-
-    template <typename I, typename G>
-    static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
-        typename Vec<T,S>::List result;
-        toList(cur, end, get, result);
-        return result;
-    }
-    
-    template <typename I, typename G>
-    static void toList(I cur, I end, const G& get, typename Vec<T,S>::List& result) {
-        addAll(cur, end, get, std::back_inserter(result));
-    }
-    
-    template <typename I, typename G, typename O>
-    static void addAll(I cur, I end, const G& get, O outp) {
-        while (cur != end) {
-            outp = get(*cur);
-            ++cur;
-        }
-    }
 };
 
 template <typename T, size_t S>

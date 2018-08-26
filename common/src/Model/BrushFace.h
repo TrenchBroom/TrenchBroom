@@ -179,6 +179,7 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
+            Vec3::List vertexPositions() const;
             
             bool hasVertices(const Polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             Polygon3 polygon() const;

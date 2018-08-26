@@ -76,11 +76,12 @@ namespace TrenchBroom {
                 const Model::BrushFaceSet& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
-                    const Polygon3 facePosition(Vec3::asList(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
-                    
                     const auto result = brushFaces.insert(std::make_pair(brush, Polygon3::List()));
-                    if (result.second)
+                    if (result.second) {
                         brushes.push_back(brush);
+                    }
+
+                    const Polygon3 facePosition = face->polygon();
                     result.first->second.push_back(facePosition);
                     facePositions.push_back(facePosition);
                 }
