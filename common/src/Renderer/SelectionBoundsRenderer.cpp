@@ -19,6 +19,8 @@
 
 #include "SelectionBoundsRenderer.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"

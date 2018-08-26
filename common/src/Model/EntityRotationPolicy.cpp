@@ -21,6 +21,8 @@
 
 #include "Macros.h"
 #include "VecMath.h"
+#include "Vec.h"
+#include "vec_extras.h"
 #include "StringUtils.h"
 #include "Model/Entity.h"
 

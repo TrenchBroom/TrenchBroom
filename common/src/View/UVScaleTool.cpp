@@ -18,6 +18,8 @@
  */
 
 #include "UVScaleTool.h"
+#include "Vec.h"
+#include "vec_extras.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

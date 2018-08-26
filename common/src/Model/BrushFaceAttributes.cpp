@@ -17,6 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Vec.h"
+#include "vec_extras.h"
+
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"

@@ -285,11 +285,55 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
  */
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    if (!planeNormal(plane.normal, point0, point1, point2))
-        return false;
-    plane.distance = dot(point0, plane.normal);
-    return true;
+    bool result;
+    std::tie(result, plane.normal) = planeNormal(point0, point1, point2);
+    plane.distance = dot(point0, plane.normal); // becomes 0 if plane points failed
+    return result;
 }
+
+/**
+ * Computes the normal of a plane in three point form.
+ *
+ * The normal will be pointing towards the reader when the points are oriented like this:
+ *
+ * 1
+ * |
+ * v2
+ * |
+ * |
+ * 0------v1----2
+ *
+ * The function returns a pair of a boolean and vector. The boolean indicates whether the normal could be computed, i.e.,
+ * whether or not the given points are a valid three point representation of a plane. The returned vector is the normal
+ * if the points are indeed valid, and 0 otherwise.
+ *
+ * @tparam T the component type
+ * @param point0 the first plane point
+ * @param point1 the second plane point
+ * @param point2 the third plane point
+ * @param epsilon an epsilon value used to determine whether the given three points do not define a plane
+ * @return a pair of a boolean and a vector
+ */
+template <typename T>
+std::tuple<bool, Vec<T,3>> planeNormal(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
+    const auto v1 = point2 - point0;
+    const auto v2 = point1 - point0;
+    const auto normal = cross(v1, v2);
+
+    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives
+    // sin_theta below.
+    const auto sin_theta = Math::abs(length(normal) / (length(v1) * length(v2)));
+    if (Math::isnan(sin_theta) ||
+        Math::isinf(sin_theta) ||
+        sin_theta < epsilon) {
+        return std::make_tuple(false, Vec<T,3>::Null);
+    } else {
+        return std::make_tuple(true, normalize(normal));
+    }
+}
+
+
 
 template <typename T>
 Plane<T,3> fromPlanePoints(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {

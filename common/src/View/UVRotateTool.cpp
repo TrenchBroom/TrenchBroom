@@ -19,6 +19,8 @@
 
 #include "UVRotateTool.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushFace.h"

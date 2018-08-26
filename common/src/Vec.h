@@ -354,7 +354,7 @@ public:
      *
      * @return the inverted copy
      */
-    const Vec<T,S> operator-() const {
+    Vec<T,S> operator-() const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
             result[i] = -v[i];
@@ -611,29 +611,33 @@ const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();
 
-typedef Vec<float,1> Vec1f;
-typedef Vec<double,1> Vec1d;
-typedef Vec<int,1> Vec1i;
-typedef Vec<long,1> Vec1l;
-typedef Vec<size_t,1> Vec1s;
-typedef Vec<float,2> Vec2f;
-typedef Vec<double,2> Vec2d;
-typedef Vec<int,2> Vec2i;
-typedef Vec<long,2> Vec2l;
-typedef Vec<size_t,2> Vec2s;
-typedef Vec<bool,2> Vec2b;
-typedef Vec<float,3> Vec3f;
-typedef Vec<double,3> Vec3d;
-typedef Vec<int,3> Vec3i;
-typedef Vec<long,3> Vec3l;
-typedef Vec<size_t,3> Vec3s;
-typedef Vec<bool,3> Vec3b;
-typedef Vec<float,4> Vec4f;
-typedef Vec<double,4> Vec4d;
-typedef Vec<int,4> Vec4i;
-typedef Vec<long,4> Vec4l;
-typedef Vec<size_t,4> Vec4s;
-typedef Vec<bool,4> Vec4b;
+using Vec1f = Vec<float,1>;
+using Vec1d = Vec<double,1>;
+using Vec1i = Vec<int,1>;
+using Vec1l = Vec<long,1>;
+using Vec1s = Vec<size_t,1>;
+using Vec1b = Vec<bool,1>;
+
+using Vec2f = Vec<float,2>;
+using Vec2d = Vec<double,2>;
+using Vec2i = Vec<int,2>;
+using Vec2l = Vec<long,2>;
+using Vec2s = Vec<size_t,2>;
+using Vec2b = Vec<bool,2>;
+
+using Vec3f = Vec<float,3>;
+using Vec3d = Vec<double,3>;
+using Vec3i = Vec<int,3>;
+using Vec3l = Vec<long,3>;
+using Vec3s = Vec<size_t,3>;
+using Vec3b = Vec<bool,3>;
+
+using Vec4f = Vec<float,4>;
+using Vec4d = Vec<double,4>;
+using Vec4i = Vec<int,4>;
+using Vec4l = Vec<long,4>;
+using Vec4s = Vec<size_t,4>;
+using Vec4b = Vec<bool,4>;
 
 /* ========== comparison operators ========== */
 
@@ -1070,7 +1074,6 @@ std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
     return stream;
 }
 
-
 /* ========== arithmetic functions ========== */
 
 /**
@@ -1255,107 +1258,6 @@ Vec<T,S> normalize(const Vec<T,S>& vec) {
     return vec / length(vec);
 }
 
-/* ========== coordinate system conversions ========== */
-
-/**
- * Converts the given point in cartesian coordinates to homogeneous coordinates by embedding the point into
- * a vector with a size increased by 1 and setting the last component to 1.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param point the point in cartesian coordinates
- * @return the point in homogeneous coordinates
- */
-template <typename T, size_t S>
-Vec<T,S+1> toHomogeneousCoords(const Vec<T,S>& point) {
-    return Vec<T,S+1>(point, static_cast<T>(1.0));
-}
-
-/**
- * Converts the given point in homogeneous coordinates to cartesian coordinates by dividing all but the last
- * component by the value of the last component.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param point the point in homogeneous coordinates
- * @return the point in cartesian coordinates
- */
-template <typename T, size_t S>
-Vec<T,S-1> toCartesianCoords(const Vec<T,S>& point) {
-    Vec<T,S-1> result;
-    for (size_t i = 0; i < S-1; ++i) {
-        result[i] = point[i] / point[S-1];
-    }
-    return result;
-}
-
-/* ========== geometric properties and comparison ========== */
-
-/**
- * Checks whether the given vectors are component wise equal up to the given epsilon.
- *
- * Unline the equality operator ==, this function takes an epsilon value into account.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are component wise equal up to the given epsilon value
- */
-template <typename T, size_t S>
-bool equal(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon) {
-    return compare(lhs, rhs, epsilon) == 0;
-}
-
-/**
- * Checks whether the given three points are colinear.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param a the first point
- * @param b the second point
- * @param c the third point
- * @param epsilon the epsilon value
- * @return true if the given three points are colinear, and false otherwise
- */
-template <typename T, size_t S>
-bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-    // see http://math.stackexchange.com/a/1778739
-
-    T j = 0.0;
-    T k = 0.0;
-    T l = 0.0;
-    for (size_t i = 0; i < S; ++i) {
-        const T ac = a[i] - c[i];
-        const T ba = b[i] - a[i];
-        j += ac * ba;
-        k += ac * ac;
-        l += ba * ba;
-    }
-
-    return Math::zero(j * j - k * l, epsilon);
-}
-
-/**
- * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
- * in the same or in opposite directions.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are parallel, and false otherwise
- */
-template <typename T, size_t S>
-bool parallel(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-    const T cos = dot(normalize(lhs), normalize(rhs));
-    return Math::one(Math::abs(cos), epsilon);
-}
-
-/* ========== computing properties of single vectors ========== */
-
 /**
  * Returns the length of the given vector.
  *
@@ -1447,260 +1349,99 @@ bool isIntegral(const Vec<T,S>& vec, const T epsilon = static_cast<T>(0.0)) {
     return true;
 }
 
-/* ========== rounding and error correction ========== */
-
 /**
- * Returns a vector where each component is the rounded value of the corresponding component of the given
- * vector.
+ * Checks whether the given vectors are component wise equal up to the given epsilon.
+ *
+ * Unline the equality operator ==, this function takes an epsilon value into account.
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param vec the vector to round
- * @return the rounded vector
- */
-template <typename T, size_t S>
-Vec<T,S> round(const Vec<T,S>& vec) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::round(vec[i]);
-    }
-    return result;
-}
-
-/**
- * Rounds the components of the given vector down to multiples of the components of the given vector m.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to round down
- * @param m the multiples to round down to
- * @return the rounded vector
- */
-template <typename T, size_t S>
-Vec<T,S> roundDownToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundDownToMultiple(vec[i], m[i]);
-    }
-    return result;
-}
-
-/**
- * Rounds the components of the given vector up to multiples of the components of the given vector m.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to round down
- * @param m the multiples to round up to
- * @return the rounded vector
- */
-template <typename T, size_t S>
-Vec<T,S> roundUpToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundUpToMultiple(vec[i], m[i]);
-    }
-    return result;
-}
-
-/**
- * Rounds the components of the given vector to multiples of the components of the given vector m.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to round down
- * @param m the multiples to round to
- * @return the rounded vector
- */
-template <typename T, size_t S>
-Vec<T,S> roundToMultiple(const Vec<T,S>& vec, const Vec<T,S>& m) {
-    Vec<T,S> result;
-    for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::roundToMultiple(vec[i], m[i]);
-    }
-    return result;
-}
-
-/**
- * Corrects the given vector's components to the given number of decimal places.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to correct
- * @param decimals the number of decimal places to keep
+ * @param lhs the first vector
+ * @param rhs the second vector
  * @param epsilon the epsilon value
- * @return the corrected vector
+ * @return true if the given vectors are component wise equal up to the given epsilon value
  */
 template <typename T, size_t S>
-Vec<T,S> correct(const Vec<T,S>& vec, const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
-    Vec<T,S> result;
+bool equal(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon) {
+    return compare(lhs, rhs, epsilon) == 0;
+}
+
+/**
+ * Checks whether the given three points are colinear.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param a the first point
+ * @param b the second point
+ * @param c the third point
+ * @param epsilon the epsilon value
+ * @return true if the given three points are colinear, and false otherwise
+ */
+template <typename T, size_t S>
+bool colinear(const Vec<T,S>& a, const Vec<T,S>& b, const Vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    // see http://math.stackexchange.com/a/1778739
+
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
     for (size_t i = 0; i < S; ++i) {
-        result[i] = Math::correct(vec[i], decimals, epsilon);
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+
+    return Math::zero(j * j - k * l, epsilon);
+}
+
+/**
+ * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
+ * in the same or in opposite directions.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param epsilon the epsilon value
+ * @return true if the given vectors are parallel, and false otherwise
+ */
+template <typename T, size_t S>
+bool parallel(const Vec<T,S>& lhs, const Vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    const T cos = dot(normalize(lhs), normalize(rhs));
+    return Math::one(Math::abs(cos), epsilon);
+}
+
+/**
+ * Converts the given point in cartesian coordinates to homogeneous coordinates by embedding the point into
+ * a vector with a size increased by 1 and setting the last component to 1.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point in cartesian coordinates
+ * @return the point in homogeneous coordinates
+ */
+template <typename T, size_t S>
+Vec<T,S+1> toHomogeneousCoords(const Vec<T,S>& point) {
+    return Vec<T,S+1>(point, static_cast<T>(1.0));
+}
+
+/**
+ * Converts the given point in homogeneous coordinates to cartesian coordinates by dividing all but the last
+ * component by the value of the last component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param point the point in homogeneous coordinates
+ * @return the point in cartesian coordinates
+ */
+template <typename T, size_t S>
+Vec<T,S-1> toCartesianCoords(const Vec<T,S>& point) {
+    Vec<T,S-1> result;
+    for (size_t i = 0; i < S-1; ++i) {
+        result[i] = point[i] / point[S-1];
     }
     return result;
-}
-
-/* ========== extra stuff - to be moved to separate module ========== */
-
-/**
- * Return type for the distanceToSegment function. Contains the point on a segment which is closest to some given
- * point, and the distance between that segment point and the given point.
- *
- * @tparam T the component type
- * @tparam S the number of components
- */
-template <typename T, size_t S>
-struct EdgeDistance {
-    /**
-     * The closest point on a given segment to a given point.
-     */
-
-    const Vec<T,S> point;
-    /**
-     * The distance between the closest segment point and a given point.
-     */
-    const T distance;
-
-    /**
-     * Constructs a new instance with the given info.
-     *
-     * @param i_point the closest point on the segment
-     * @param i_distance the distance between the closest point and the given point
-     */
-    EdgeDistance(const Vec<T,S>& i_point, const T i_distance) :
-    point(i_point),
-    distance(i_distance) {}
-};
-
-/**
- * Given a point X and a segment represented by two points A and B, this function computes the closest point P on the
- * segment AB and the given point X, as well as the distance between X and P.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param point the point
- * @param start the start point of the segment
- * @param end the end point of the segment
- * @return a struct containing the closest point on the segment and the distance between that point and the given point
- */
-template <typename T, size_t S>
-EdgeDistance<T,S> distanceOfPointAndSegment(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
-    const Vec<T,S> edgeVec = end - start;
-    const Vec<T,S> edgeDir = normalize(edgeVec);
-    const T scale = dot(point - start, edgeDir);
-
-    // determine the closest point on the edge
-    Vec<T,S> closestPoint;
-    if (scale < 0.0) {
-        closestPoint = start;
-    } else if ((scale * scale) > squaredLength(edgeVec)) {
-        closestPoint = end;
-    } else {
-        closestPoint = start + edgeDir * scale;
-    }
-
-    const T distance = length(point - closestPoint);
-    return EdgeDistance<T,S>(closestPoint, distance);
-}
-
-/**
- * Given three colinear points, this function checks whether the first point is contained in a segment formed by the
- * other two points.
- *
- * The result is undefined for the case of non-colinear points.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param point the point to check
- * @param start the segment start
- * @param end the segment end
- * @return true if the given point is contained within the segment
- */
-template <typename T, size_t S>
-bool between(const Vec<T,S>& point, const Vec<T,S>& start, const Vec<T,S>& end) {
-    assert(colinear(point, start, end));
-    const Vec<T,S> toStart = start - point;
-    const Vec<T,S> toEnd   =   end - point;
-
-    const T d = dot(toEnd, normalize(toStart));
-    return !Math::pos(d);
-}
-
-/**
- * Computes the average of the given range of elements, using the given function to transform an element into a vector.
- *
- * @tparam I the type of the range iterators
- * @tparam G the type of the transformation function from a range element to a vector type
- * @param cur the start of the range
- * @param end the end of the range
- * @param get the transformation function, defaults to identity
- * @return the average of the vectors obtained from the given range of elements
- */
-template <typename I, typename G>
-auto average(I cur, I end, const G& get = Math::Identity()) -> typename std::remove_reference<decltype(get(*cur))>::type {
-    assert(cur != end);
-
-    auto result = get(*cur++);
-    auto count = 1.0;
-    while (cur != end) {
-        result += get(*cur++);
-        count += 1.0;
-    }
-    return result / count;
-}
-
-/*
- * The normal will be pointing towards the reader when the points are oriented like this:
- *
- * 1
- * |
- * v2
- * |
- * |
- * 0------v1----2
- */
-template <typename T>
-bool planeNormal(Vec<T,3>& normal, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2, const T epsilon = Math::Constants<T>::angleEpsilon()) {
-    const Vec<T,3> v1 = point2 - point0;
-    const Vec<T,3> v2 = point1 - point0;
-    normal = cross(v1, v2);
-    
-    // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
-    // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives sin_theta below
-    const T sin_theta = Math::abs(length(normal) / (length(v1) * length(v2)));
-    if (Math::isnan(sin_theta) ||
-        Math::isinf(sin_theta) ||
-        sin_theta < epsilon)
-        return false;
-    
-    normal = normalize(normal);
-    return true;
-}
-
-/**
- Computes the CCW angle between axis and vector in relation to the given up vector.
- All vectors are expected to be normalized.
- */
-template <typename T>
-T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
-    const T cos = dot(vec, axis);
-    if (Math::one(+cos))
-        return static_cast<T>(0.0);
-    if (Math::one(-cos))
-        return Math::Constants<T>::pi();
-    const Vec<T,3> perp = cross(axis, vec);
-    if (!Math::neg(dot(perp, up)))
-        return std::acos(cos);
-    return Math::Constants<T>::twoPi() - std::acos(cos);
-}
-
-template <typename T>
-bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
-    assert(!colinear(p1, p2, p3, epsilon));
-    const Vec<T,3> normal = normalize(cross(p3 - p1, p2 - p1));
-    const T offset = dot(p1, normal);
-    const T dist = dot(p4, normal) - offset;
-    return Math::abs(dist) < epsilon;
 }
 
 #endif

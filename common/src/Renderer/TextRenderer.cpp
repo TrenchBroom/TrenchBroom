@@ -19,6 +19,8 @@
 
 #include "TextRenderer.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
 #include "CollectionUtils.h"
 #include "AttrString.h"
 #include "Renderer/Camera.h"

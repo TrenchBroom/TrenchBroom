@@ -19,6 +19,9 @@
 
 #include "Brush.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
+
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "Model/BrushContentTypeBuilder.h"

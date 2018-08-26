@@ -49,20 +49,23 @@ bool getPlane(I cur, I end, Plane<T,3>& plane, const F& getPosition = F()) {
 template <typename T, typename I, typename F = Identity>
 T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, const F& getPosition = F()) {
     const T distance = plane.intersectWithRay(ray);
-    if (Math::isnan(distance))
+    if (Math::isnan(distance)) {
         return distance;
-    
+    }
+
     const Vec<T,3> point = ray.pointAtDistance(distance);
-    if (polygonContainsPoint(point, plane.normal, cur, end, getPosition))
+    if (polygonContainsPoint(point, plane.normal, cur, end, getPosition)) {
         return distance;
+    }
     return Math::nan<T>();
 }
 
 template <typename T, typename I, typename F = Identity>
 T intersectPolygonWithRay(const Ray<T,3>& ray, I cur, I end, const F& getPosition = F()) {
     Plane<T,3> plane;
-    if (!getPlane(cur, end, plane, getPosition))
+    if (!getPlane(cur, end, plane, getPosition)) {
         return Math::nan<T>();
+    }
     return intersectPolygonWithRay(ray, plane, cur, end, getPosition);
 }
 
@@ -74,10 +77,12 @@ bool polygonContainsPoint(const Vec<T,3>& point, I cur, I end, const F& getPosit
     assert(temp != end); const Vec<T,3> p1 = getPosition(*temp++);
     assert(temp != end); const Vec<T,3> p2 = getPosition(*temp++);
     assert(temp != end); const Vec<T,3> p3 = getPosition(*temp);
-    
+
+    [[maybe_unused]] bool result;
     Vec<T,3> normal;
-    assertResult(planeNormal(normal, p1, p2, p3));
-    
+    std::tie(result, normal) = planeNormal(p1, p2, p3);
+    assert(result);
+
     return polygonContainsPoint(point, normal.firstComponent(), cur, end, getPosition);
 }
 

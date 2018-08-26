@@ -19,6 +19,8 @@
 
 #include "ToolController.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
 #include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/Tool.h"

@@ -19,6 +19,9 @@
 
 #include "PlanePointFinder.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
+
 namespace TrenchBroom {
     namespace Model {
         class GridSearchCursor {

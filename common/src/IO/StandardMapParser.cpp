@@ -19,6 +19,9 @@
 
 #include "StandardMapParser.h"
 
+#include "Vec.h"
+#include "vec_extras.h"
+
 #include "Logger.h"
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"

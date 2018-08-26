@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "Vec.h"
+#include "vec_extras.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
