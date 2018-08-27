@@ -341,6 +341,20 @@ vec<T,3> thirdAxis(const vec<T,3>& v) {
 /* ========== arithmetic operators ========== */
 
 /**
+ * Returns an inverted copy of this vector. The copy is inverted by negating every component.
+ *
+ * @return the inverted copy
+ */
+template <typename T, size_t S>
+vec<T,S> operator-(const vec<T,S>& vector) {
+    vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = -vector[i];
+    }
+    return result;
+}
+
+/**
  * Returns the sum of the given vectors, which is computed by adding all of their components.
  *
  * @tparam T the component type

@@ -332,18 +332,6 @@ public:
     }
 
     /**
-     * Returns an inverted copy of this vector. The copy is inverted by negating every component.
-     *
-     * @return the inverted copy
-     */
-    vec<T,S> operator-() const {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = -v[i];
-        return result;
-    }
-
-    /**
      * Returns a reference to the component at the given index. The index is not checked at runtime.
      *
      * @param index the index of the component
