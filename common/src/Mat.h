@@ -161,15 +161,7 @@ public:
         }
         return result;
     }
-    
-    bool operator==(const Mat<T,R,C>& right) const {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                if (v[c][r] != right[c][r])
-                    return false;
-        return true;
-    }
-    
+
     // Matrix addition and subtraction
     const Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
@@ -310,6 +302,29 @@ public:
                 buffer[(c*C + r)] = v[c][r];
     }
 };
+
+/**
+ * Checks whether the given matrices have equal components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return true if all components of the given matrices are equal, and false otherwise
+ */
+template <typename T, size_t R, size_t C>
+bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    for (size_t c = 0; c < C; c++) {
+        for (size_t r = 0; r < R; r++) {
+            if (lhs[c][r] != rhs[c][r]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 
 template <typename T, size_t R, size_t C>
 Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
