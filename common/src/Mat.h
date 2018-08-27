@@ -162,29 +162,6 @@ public:
         return result;
     }
 
-    // Matrix addition and subtraction
-    const Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
-        Mat<T,R,C> result(*this);
-        return result += right;
-    }
-    
-    Mat<T,R,C>& operator+= (const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] += right[c];
-        return *this;
-    }
-    
-    const Mat<T,R,C> operator-(const Mat<T,R,C>& right) const {
-        Mat<T,R,C> result(*this);
-        return result -= right;
-    }
-    
-    Mat<T,R,C>& operator-= (const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] -= right[c];
-        return *this;
-    }
-    
     // Matrix multiplication
     const Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
         Mat<T,R,C> result(Mat<T,R,C>::Null);
@@ -316,13 +293,49 @@ public:
 template <typename T, size_t R, size_t C>
 bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
     for (size_t c = 0; c < C; c++) {
-        for (size_t r = 0; r < R; r++) {
-            if (lhs[c][r] != rhs[c][r]) {
-                return false;
-            }
+        if (lhs[c] != rhs[c]) {
+            return false;
         }
     }
     return true;
+}
+
+/**
+ * Computes the sum of two matrices by adding the corresponding components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return a matrix where each component is the sum of the two corresponding components of the given matrices
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator+(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = lhs[c] + rhs[c];
+    }
+    return result;
+}
+
+/**
+ * Computes the difference of two matrices by subtracting the corresponding components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return a matrix where each component is the difference of the two corresponding components of the given matrices
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator-(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = lhs[c] - rhs[c];
+    }
+    return result;
 }
 
 

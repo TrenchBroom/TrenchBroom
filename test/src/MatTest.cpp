@@ -231,25 +231,6 @@ TEST(MatTest, addMatrix) {
     }
 }
 
-TEST(MatTest, addMatrixAndAssign) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const Mat4x4d n( 2.0,  2.0,  3.0,  4.0,
-                     5.0,  8.0,  7.0,  8.0,
-                     9.0, 11.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    Mat4x4d o = m;
-    o += n;
-    
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 4; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r] + n[c][r], o[c][r]);
-        }
-    }
-}
-
 TEST(MatTest, subtractMatrix) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
@@ -260,25 +241,6 @@ TEST(MatTest, subtractMatrix) {
                      9.0, 11.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m - n;
-    
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 4; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r] - n[c][r], o[c][r]);
-        }
-    }
-}
-
-TEST(MatTest, subtractMatrixAndAssign) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const Mat4x4d n( 2.0,  2.0,  3.0,  4.0,
-                     5.0,  8.0,  7.0,  8.0,
-                     9.0, 11.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    Mat4x4d o = m;
-    o -= n;
     
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
