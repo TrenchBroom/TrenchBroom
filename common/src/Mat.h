@@ -71,8 +71,14 @@ public:
     // Assignment operators
     Mat<T,R,C>& operator=(const Mat<T,R,C>& other) = default;
     Mat<T,R,C>& operator=(Mat<T,R,C>&& other) = default;
-    
-    // Conversion constructor
+
+    /**
+     * Sets the values of the newly created matrix to the values of the given matrix and casts each value of the given
+     * matrix to the component type of the newly created matrix.
+     *
+     * @tparam U the component type of the source matrix
+     * @param other the source matrix
+     */
     template <typename U>
     Mat(const Mat<U,R,C>& other) {
         for (size_t c = 0; c < C; ++c) {
@@ -82,17 +88,52 @@ public:
         }
     }
 
+    /**
+     * Sets the values of the newly created matrix to the given values, and all other values to 0.
+     *
+     * @param v11 the value at column 1 and row 1
+     * @param v12 the value at column 2 and row 1
+     * @param v13 the value at column 3 and row 1
+     * @param v21 the value at column 1 and row 2
+     * @param v22 the value at column 2 and row 2
+     * @param v23 the value at column 3 and row 2
+     * @param v31 the value at column 1 and row 3
+     * @param v32 the value at column 2 and row 3
+     * @param v33 the value at column 3 and row 3
+     */
     Mat<T,R,C>(const T v11, const T v12, const T v13,
                const T v21, const T v22, const T v23,
                const T v31, const T v32, const T v33) {
         v[0][0] = v11; v[1][0] = v12; v[2][0] = v13;
         v[0][1] = v21; v[1][1] = v22; v[2][1] = v23;
         v[0][2] = v31; v[1][2] = v32; v[2][2] = v33;
-        for (size_t c = 3; c < C; c++)
-            for (size_t r = 3; r < R; r++)
+        for (size_t c = 3; c < C; c++) {
+            for (size_t r = 3; r < R; r++) {
                 v[c][r] = static_cast<T>(0.0);
+            }
+        }
     }
-    
+
+    /**
+     * Sets the values of the newly created matrix to the given values, and all other values to 0.
+     *
+     * @param v11 the value at column 1 and row 1
+     * @param v12 the value at column 2 and row 1
+     * @param v13 the value at column 3 and row 1
+     * @param v14 the value at column 4 and row 1
+     * @param v21 the value at column 1 and row 2
+     * @param v22 the value at column 2 and row 2
+     * @param v23 the value at column 3 and row 2
+     * @param v24 the value at column 4 and row 2
+     * @param v31 the value at column 1 and row 3
+     * @param v32 the value at column 2 and row 3
+     * @param v33 the value at column 3 and row 3
+     * @param v34 the value at column 4 and row 3
+     * @param v41 the value at column 1 and row 4
+     * @param v42 the value at column 2 and row 4
+     * @param v43 the value at column 3 and row 4
+     * @param v44 the value at column 4 and row 4
+     */
     Mat<T,R,C>(const T v11, const T v12, const T v13, const T v14,
                const T v21, const T v22, const T v23, const T v24,
                const T v31, const T v32, const T v33, const T v34,
@@ -101,15 +142,23 @@ public:
         v[0][1] = v21; v[1][1] = v22; v[2][1] = v23; v[3][1] = v24;
         v[0][2] = v31; v[1][2] = v32; v[2][2] = v33; v[3][2] = v34;
         v[0][3] = v41; v[1][3] = v42; v[2][3] = v43; v[3][3] = v44;
-        for (size_t c = 4; c < C; c++)
-            for (size_t r = 4; r < R; r++)
+        for (size_t c = 4; c < C; c++) {
+            for (size_t r = 4; r < R; r++) {
                 v[c][r] = static_cast<T>(0.0);
+            }
+        }
     }
-    
-    const Mat<T,R,C> operator-() const {
+
+    /**
+     * Returns a matrix with the negated components of this matrix.
+     *
+     * @return the negated matrix
+     */
+    Mat<T,R,C> operator-() const {
         Mat<T,R,C> result;
-        for (size_t c = 0; c < C; c++)
+        for (size_t c = 0; c < C; c++) {
             result[c] = -v[c];
+        }
         return result;
     }
     
