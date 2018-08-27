@@ -266,24 +266,6 @@ TEST(MatTest, multiplyWithMatrix) {
     ASSERT_MAT_EQ(r, o);
 }
 
-TEST(MatTest, multiplyWithMatrixAndAssign) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const Mat4x4d n( 2.0,  2.0,  3.0,  4.0,
-                     5.0,  8.0,  7.0,  8.0,
-                     9.0, 11.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const Mat4x4d r( 91.0, 107.0, 110.0, 120.0,
-                    207.0, 247.0, 254.0, 280.0,
-                    323.0, 387.0, 398.0, 440.0,
-                    439.0, 527.0, 542.0, 600.0);
-    Mat4x4d o = m;
-    o *= n;
-    ASSERT_MAT_EQ(r, o);
-}
-
 TEST(MatTest, rightMultiplyWithScalar) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
@@ -312,42 +294,12 @@ TEST(MatTest, leftMultiplyWithScalar) {
     }
 }
 
-TEST(MatTest, rightMultiplyWithScalarAndAssign) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    Mat4x4d o = m;
-    o *= 3.0;
-    
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 4; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r] * 3.0, o[c][r]);
-        }
-    }
-}
-
 TEST(MatTest, divideByScalar) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m / 3.0;
-    
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 4; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r] / 3.0, o[c][r]);
-        }
-    }
-}
-
-TEST(MatTest, divideByScalarAndAssign) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    Mat4x4d o = m;
-    o /= 3.0;
     
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
@@ -386,17 +338,6 @@ TEST(MatTest, leftMultiplyWithVector) {
     ASSERT_VEC_EQ(r, v * m);
 }
 
-TEST(MatTest, leftMultiplyWithVectorAndAssign) {
-    vec4d v(1.0, 2.0, 3.0, 1.0);
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const vec4d r(51.0, 58.0, 65.0, 72.0);
-    v *= m;
-    ASSERT_VEC_EQ(r, v);
-}
-
 TEST(MatTest, rightMultiplyWithVectorOneLessDimension) {
     const vec3d v(1.0, 2.0, 3.0);
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
@@ -415,17 +356,6 @@ TEST(MatTest, leftMultiplyWithVectorOneLessDimension) {
                     13.0, 14.0, 15.0, 16.0);
     const vec4d r(51.0, 58.0, 65.0, 72.0);
     ASSERT_VEC_EQ(toCartesianCoords(r), v * m);
-}
-
-TEST(MatTest, leftMultiplyWithVectorOneLessDimensionAndAssign) {
-    vec3d v(1.0, 2.0, 3.0);
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    const vec4d r(51.0, 58.0, 65.0, 72.0);
-    v *= m;
-    ASSERT_VEC_EQ(toCartesianCoords(r), v);
 }
 
 TEST(MatTest, rightMultiplyWithListOfVectors) {
@@ -470,27 +400,6 @@ TEST(MatTest, leftMultiplyWithListOfVectors) {
         ASSERT_VEC_EQ(r[i], o[i]);
 }
 
-TEST(MatTest, leftMultiplyWithListOfVectorsAndAssign) {
-    vec4d::List v;
-    v.push_back(vec4d(1.0, 2.0, 3.0, 1.0));
-    v.push_back(vec4d(2.0, 3.0, 4.0, 1.0));
-    v.push_back(vec4d(3.0, 2.0, 3.0, 23.0));
-    
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                    5.0,  6.0,  7.0,  8.0,
-                    9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    
-    vec4d::List r;
-    r.push_back(vec4d(51.0, 58.0, 65.0, 72.0));
-    r.push_back(vec4d(66.0, 76.0, 86.0, 96.0));
-    r.push_back(vec4d(339.0, 370.0, 401.0, 432.0));
-    
-    v *= m;
-    for (size_t i = 0; i < 3; i++)
-        ASSERT_VEC_EQ(r[i], v[i]);
-}
-
 TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
     vec3d::List v;
     v.push_back(vec3d(1.0, 2.0, 3.0));
@@ -531,27 +440,6 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
     const vec3d::List o = v * m;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
-}
-
-TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimensionAndAssign) {
-    vec3d::List v;
-    v.push_back(vec4d(1.0, 2.0, 3.0));
-    v.push_back(vec4d(2.0, 3.0, 4.0));
-    v.push_back(vec4d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
-    
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                    5.0,  6.0,  7.0,  8.0,
-                    9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    
-    vec3d::List r;
-    r.push_back(toCartesianCoords(vec4d(51.0, 58.0, 65.0, 72.0)));
-    r.push_back(toCartesianCoords(vec4d(66.0, 76.0, 86.0, 96.0)));
-    r.push_back(toCartesianCoords(vec4d(339.0, 370.0, 401.0, 432.0)));
-
-    v *= m;
-    for (size_t i = 0; i < 3; i++)
-        ASSERT_VEC_EQ(r[i], v[i]);
 }
 
 TEST(MatTest, indexedAccess) {

@@ -150,89 +150,22 @@ public:
     }
 
     /**
-     * Returns a matrix with the negated components of this matrix.
+     * Returns the column at the given index.
      *
-     * @return the negated matrix
+     * @param index the index of the column to return
+     * @return the column at the given index
      */
-    Mat<T,R,C> operator-() const {
-        Mat<T,R,C> result;
-        for (size_t c = 0; c < C; c++) {
-            result[c] = -v[c];
-        }
-        return result;
-    }
-
-    // Matrix multiplication
-    const Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
-        Mat<T,R,C> result(Mat<T,R,C>::Null);
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                for (size_t i = 0; i < C; ++i)
-                    result[c][r] += v[i][r] * right[c][i];
-        return result;
-    }
-    
-    Mat<T,R,C>& operator*= (const Mat<T,C,R>& right) {
-        return *this = *this * right;
-    }
-    
-    // Scalar multiplication
-    const Mat<T,R,C> operator*(const T right) const {
-        Mat<T,R,C> result(*this);
-        return result *= right;
-    }
-    
-    Mat<T,R,C>& operator*= (const T right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] *= right;
-        return *this;
-    }
-    
-    const Mat<T,R,C> operator/(const T right) const {
-        Mat<T,R,C> result(*this);
-        return result /= right;
-    }
-    
-    Mat<T,R,C>& operator/= (const T right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] /= right;
-        return *this;
-    }
-    
-    // Vector right multiplication
-    const vec<T,C> operator*(const vec<T,C>& right) const {
-        vec<T,C> result;
-        for (size_t r = 0; r < R; r++)
-            for (size_t c = 0; c < C; ++c)
-                result[r] += v[c][r] * right[c];
-        return result;
-    }
-    
-    const vec<T,C-1> operator*(const vec<T,C-1>& right) const {
-        return toCartesianCoords(*this * toHomogeneousCoords(right));
-    }
-    
-    // Vector list right multiplication
-    const typename vec<T,C>::List operator*(const typename vec<T,C>::List& right) const {
-        typename vec<T,C>::List result;
-        result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const vec<T,C>& elem) { return *this * elem; });
-        return result;
-    }
-    
-    const typename vec<T,C-1>::List operator*(const typename vec<T,C-1>::List& right) const {
-        typename vec<T,C-1>::List result;
-        result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const vec<T,C-1>& elem) { return *this * elem; });
-        return result;
-    }
-    
-    // indexed access, returns one column
     vec<T,R>& operator[] (const size_t index) {
         assert(index < C);
         return v[index];
     }
-    
+
+    /**
+     * Returns the column at the given index.
+     *
+     * @param index the index of the column to return
+     * @return the column at the given index
+     */
     const vec<T,R>& operator[] (const size_t index) const {
         assert(index < C);
         return v[index];
@@ -301,6 +234,20 @@ bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
 }
 
 /**
+ * Returns a matrix with the negated components of the given matrix.
+ *
+ * @return the negated matrix
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator-(const Mat<T,R,C>& matrix) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = -matrix[c];
+    }
+    return result;
+}
+
+/**
  * Computes the sum of two matrices by adding the corresponding components.
  *
  * @tparam T the component type
@@ -338,59 +285,221 @@ Mat<T,R,C> operator-(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
     return result;
 }
 
-
+/**
+ * Computes the product of the given two matrices.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return the product of the given matrices
+ */
 template <typename T, size_t R, size_t C>
-Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
-    return right * left;
+Mat<T,R,C> operator*(const Mat<T,C,R>& lhs, const Mat<T,C,R>& rhs) {
+    auto result = Mat<T,R,C>::Null;
+    for (size_t c = 0; c < C; c++) {
+        for (size_t r = 0; r < R; r++) {
+            for (size_t i = 0; i < C; ++i) {
+                result[c][r] += lhs[i][r] * rhs[c][i];
+            }
+        }
+    }
+    return result;
 }
 
-// Vector left multiplication with vector of dimension R
+/**
+ * Computes the scalar product of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the scalar
+ * @return the product of the given matrix and the given value
+ */
 template <typename T, size_t R, size_t C>
-const vec<T,R> operator*(const vec<T,R>& left, const Mat<T,R,C>& right) {
+Mat<T,R,C> operator*(const Mat<T,R,C>& lhs, const T rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; ++c) {
+        result[c] = lhs[c] * rhs;
+    }
+    return result;
+}
+
+/**
+ * Computes the scalar product of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the scalar
+ * @param rhs the matrix
+ * @return the product of the given matrix and the given value
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator*(const T lhs, const Mat<T,R,C>& rhs) {
+    return rhs * lhs;
+}
+
+/**
+ * Computes the scalar division of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the scalar
+ * @return the division of the given matrix and the given value
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator/(const Mat<T,R,C>& lhs, const T rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; ++c) {
+        result[c] = lhs[c] / rhs;
+    }
+    return result;
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the vector
+ * @param rhs the matrix
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+const vec<T,R> operator*(const vec<T,R>& lhs, const Mat<T,R,C>& rhs) {
     vec<T,R> result;
-    for (size_t c = 0; c < C; c++)
-        result[c] = dot(left, right[c]);
+    for (size_t c = 0; c < C; c++) {
+        result[c] = dot(lhs, rhs[c]);
+    }
     return result;
 }
 
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the vector
+ * @return the product of the given vector and the given matrix
+ */
 template <typename T, size_t R, size_t C>
-vec<T,R>& operator*= (vec<T,R>& left, const Mat<T,R,C>& right) {
-    return left = left * right;
+vec<T,R> operator*(const Mat<T,R,C>& lhs, const vec<T,C>& rhs) {
+    vec<T,C> result;
+    for (size_t r = 0; r < R; r++) {
+        for (size_t c = 0; c < C; ++c) {
+            result[r] += lhs[c][r] * rhs[c];
+        }
+    }
+    return result;
 }
 
-// Vector left multiplication with list of vectors of dimension R
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the vector
+ * @return the product of the given vector and the given matrix
+ */
 template <typename T, size_t R, size_t C>
-const typename vec<T,R>::List operator*(const typename vec<T,R>::List& left, const Mat<T,R,C>& right) {
+vec<T,C-1> operator*(const Mat<T,R,C>& lhs, const vec<T,C-1>& rhs) {
+    return toCartesianCoords(lhs * toHomogeneousCoords(rhs));
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the vector
+ * @param rhs the matrix
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+const vec<T,R-1> operator*(const vec<T,R-1>& lhs, const Mat<T,R,C>& rhs) {
+    return toCartesianCoords(toHomogeneousCoords(lhs) * rhs);
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,R>::List operator*(const typename vec<T,R>::List& lhs, const Mat<T,R,C>& rhs) {
     typename vec<T,R>::List result;
-    result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const vec<T,R>& elem) { return elem * right; });
+    result.reserve(lhs.size());
+    std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R>& elem) { return elem * rhs; });
     return result;
 }
 
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
 template <typename T, size_t R, size_t C>
-const typename vec<T,R>::List& operator*= (typename vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    for (vec<T,R>& elem : left)
-        elem *= right;
-    return left;
-}
-
-// Vector left multiplication with vector of dimension R-1
-template <typename T, size_t R, size_t C>
-const vec<T,R-1> operator*(const vec<T,R-1>& left, const Mat<T,R,C>& right) {
-    return toCartesianCoords(toHomogeneousCoords(left) * right);
-}
-
-template <typename T, size_t R, size_t C>
-vec<T,R-1>& operator*= (vec<T,R-1>& left, const Mat<T,R,C>& right) {
-    return left = left * right;
-}
-
-// Vector left multiplication with list of vectors of dimension R-1
-template <typename T, size_t R, size_t C>
-const typename vec<T,R-1>::List operator*(const typename vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
+typename vec<T,R-1>::List operator*(const typename vec<T,R-1>::List& lhs, const Mat<T,R,C>& rhs) {
     typename vec<T,R-1>::List result;
-    result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const vec<T,R-1>& elem) { return elem * right; });
+    result.reserve(lhs.size());
+    std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R-1>& elem) { return elem * rhs; });
+    return result;
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,C>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,C>::List& rhs) {
+    typename vec<T,C>::List result;
+    result.reserve(rhs.size());
+    std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C>& elem) { return lhs * elem; });
+    return result;
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,C-1>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,C-1>::List& rhs) {
+    typename vec<T,C-1>::List result;
+    result.reserve(rhs.size());
+    std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C-1>& elem) { return lhs * elem; });
     return result;
 }
 
