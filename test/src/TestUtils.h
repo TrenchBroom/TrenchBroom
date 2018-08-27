@@ -55,8 +55,16 @@ void ASSERT_VEC_NE(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     ASSERT_FALSE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
-#define ASSERT_MAT_EQ(mat1, mat2) ASSERT_TRUE((mat1).equals((mat2)))
-#define ASSERT_MAT_NE(mat1, mat2) ASSERT_FALSE((mat1).equals((mat2)))
+template <typename T, size_t C, size_t R>
+void ASSERT_MAT_EQ(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    ASSERT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
+}
+
+template <typename T, size_t C, size_t R>
+void ASSERT_MAT_NE(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    ASSERT_FALSE(equal(lhs, rhs, static_cast<T>(0.001)));
+}
+
 #define ASSERT_WXSTR_EQ(str1, str2) ASSERT_TRUE((str1).IsSameAs((str2)))
 
 #define ASSERT_TC_EQ(tc1, tc2) ASSERT_TRUE(texCoordsEqual(tc1, tc2));

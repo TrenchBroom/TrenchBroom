@@ -310,8 +310,9 @@ namespace TrenchBroom {
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
                 const Mat4x4 rotation = stripTranslation(transformation);
-                if (!rotation.equals(Mat4x4::Identity))
-                	applyRotation(rotation);
+                if (rotation != Mat4x4::Identity) {
+                    applyRotation(rotation);
+                }
             }
         }
         

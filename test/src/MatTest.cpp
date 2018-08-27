@@ -196,7 +196,7 @@ TEST(MatTest, negate) {
     }
 }
 
-TEST(MatTest, equal) {
+TEST(MatTest, equality) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
@@ -223,7 +223,7 @@ TEST(MatTest, addMatrix) {
                      9.0, 11.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m + n;
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r] + n[c][r], o[c][r]);
@@ -241,7 +241,7 @@ TEST(MatTest, subtractMatrix) {
                      9.0, 11.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m - n;
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r] - n[c][r], o[c][r]);
@@ -272,7 +272,7 @@ TEST(MatTest, rightMultiplyWithScalar) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m * 3.0;
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r] * 3.0, o[c][r]);
@@ -286,7 +286,7 @@ TEST(MatTest, leftMultiplyWithScalar) {
                     9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = 3.0 * m;
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r] * 3.0, o[c][r]);
@@ -300,7 +300,7 @@ TEST(MatTest, divideByScalar) {
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
     const Mat4x4d o = m / 3.0;
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r] / 3.0, o[c][r]);
@@ -373,7 +373,7 @@ TEST(MatTest, rightMultiplyWithListOfVectors) {
     r.push_back(vec4d(18.0, 46.0, 74.0, 102.0));
     r.push_back(vec4d(24.0, 64.0, 104.0, 144.0));
     r.push_back(vec4d(120.0, 260.0, 400.0, 540.0));
-    
+
     const vec4d::List o = m * v;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
@@ -384,17 +384,17 @@ TEST(MatTest, leftMultiplyWithListOfVectors) {
     v.push_back(vec4d(1.0, 2.0, 3.0, 1.0));
     v.push_back(vec4d(2.0, 3.0, 4.0, 1.0));
     v.push_back(vec4d(3.0, 2.0, 3.0, 23.0));
-    
+
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
-    
+
     vec4d::List r;
     r.push_back(vec4d(51.0, 58.0, 65.0, 72.0));
     r.push_back(vec4d(66.0, 76.0, 86.0, 96.0));
     r.push_back(vec4d(339.0, 370.0, 401.0, 432.0));
-    
+
     const vec4d::List o = v * m;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
@@ -405,17 +405,17 @@ TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
     v.push_back(vec3d(1.0, 2.0, 3.0));
     v.push_back(vec3d(2.0, 3.0, 4.0));
     v.push_back(vec3d(3.0 / 23.0, 2.0 / 23.0, 7.0 / 23.0));
-    
+
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
-    
+
     vec3d::List r;
     r.push_back(toCartesianCoords(vec4d(18.0, 46.0, 74.0, 102.0)));
     r.push_back(toCartesianCoords(vec4d(24.0, 64.0, 104.0, 144.0)));
     r.push_back(toCartesianCoords(vec4d(120.0, 260.0, 400.0, 540.0)));
-    
+
     const vec3d::List o = m * v;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
@@ -426,17 +426,17 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
     v.push_back(vec4d(1.0, 2.0, 3.0));
     v.push_back(vec4d(2.0, 3.0, 4.0));
     v.push_back(vec4d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
-    
+
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
-    
+
     vec3d::List r;
     r.push_back(toCartesianCoords(vec4d(51.0, 58.0, 65.0, 72.0)));
     r.push_back(toCartesianCoords(vec4d(66.0, 76.0, 86.0, 96.0)));
     r.push_back(toCartesianCoords(vec4d(339.0, 370.0, 401.0, 432.0)));
-    
+
     const vec3d::List o = v * m;
     for (size_t i = 0; i < 3; i++)
         ASSERT_VEC_EQ(r[i], o[i]);
@@ -455,7 +455,7 @@ TEST(MatTest, indexedAccess) {
     }
 }
 
-TEST(MatTest, equals) {
+TEST(MatTest, equal) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
@@ -465,32 +465,18 @@ TEST(MatTest, equals) {
                      5.0,  8.0,  7.0,  8.0,
                      9.0, 11.0, 11.0, 12.0,
                     13.0, 14.0, 15.0, 16.0);
-    
-    ASSERT_TRUE(m.equals(n));
-    ASSERT_FALSE(m.equals(o));
+
+    ASSERT_TRUE(equal(m, n, 0.0));
+    ASSERT_FALSE(equal(m, o, 0.0));
 }
 
 TEST(MatTest, null) {
-    ASSERT_TRUE(Mat4x4d::Null.null());
-    ASSERT_FALSE(Mat4x4d::Identity.null());
+    ASSERT_TRUE(isNull(Mat4x4d::Null));
+    ASSERT_FALSE(isNull(Mat4x4d::Identity));
 }
 
-TEST(MatTest, setIdentity) {
-    Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-               5.0,  6.0,  7.0,  8.0,
-               9.0, 10.0, 11.0, 12.0,
-              13.0, 14.0, 15.0, 16.0);
-    m.setIdentity();
-    ASSERT_MAT_EQ(Mat4x4d::Identity, m);
-}
-
-TEST(MatTest, setNull) {
-    Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-               5.0,  6.0,  7.0,  8.0,
-               9.0, 10.0, 11.0, 12.0,
-              13.0, 14.0, 15.0, 16.0);
-    m.setNull();
-    ASSERT_MAT_EQ(Mat4x4d::Null, m);
+TEST(MatTest, fill) {
+    ASSERT_MAT_EQ(Mat4x4d::Null, Mat4x4d::fill(0.0));
 }
 
 TEST(MatTest, transposeMatrix) {
@@ -500,44 +486,13 @@ TEST(MatTest, transposeMatrix) {
             m[c][r] = static_cast<double>(c * 4 + r);
         }
     }
-    
+
     Mat<double, 4, 4> t = m;
     transposeMatrix(t);
-    
+
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             ASSERT_DOUBLE_EQ(m[c][r], t[r][c]);
-        }
-    }
-}
-
-TEST(MatTest, transposed) {
-    Mat<double, 3, 4> m;
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 3; ++r) {
-            m[c][r] = static_cast<double>(c * 3 + r);
-        }
-    }
-    
-    const Mat<double, 4, 3> t = m.transposed();
-    
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 3; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r], t[r][c]);
-        }
-    }
-}
-
-TEST(MatTest, write) {
-    const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
-                     5.0,  6.0,  7.0,  8.0,
-                     9.0, 10.0, 11.0, 12.0,
-                    13.0, 14.0, 15.0, 16.0);
-    double buffer[16];
-    m.write(buffer);
-    for (size_t c = 0; c < 4; ++c) {
-        for (size_t r = 0; r < 3; ++r) {
-            ASSERT_DOUBLE_EQ(m[c][r], buffer[c*4 + r]);
         }
     }
 }
@@ -610,7 +565,7 @@ TEST(MatTest, adjointMatrix) {
                      -56.0,  20.0, -14.0, -128.0,
                       65.0, -68.0, -36.0,   59.0,
                      -25.0,  -6.0,  46.0,  -87.0);
-    
+
     ASSERT_MAT_EQ(Mat4x4d::Identity, adjointMatrix(Mat4x4d::Identity));
     ASSERT_MAT_EQ(Mat4x4d::Null, adjointMatrix(Mat4x4d::Null));
     ASSERT_MAT_EQ(r1, adjointMatrix(m1));
@@ -671,7 +626,7 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
     ASSERT_MAT_EQ(Mat4x4d::Rot90YCCW, rotationMatrix(Quatd(vec3d::pos_y, Math::radians(90.0))));
     ASSERT_MAT_EQ(Mat4x4d::Rot90ZCCW, rotationMatrix(Quatd(vec3d::pos_z, Math::radians(90.0))));
 
-    
+
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     for (size_t i = 0; i < 10; ++i) {
         vec3d axis;

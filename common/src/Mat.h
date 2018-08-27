@@ -30,7 +30,7 @@
 template <typename T, size_t R, size_t C>
 class Mat {
 public:
-    typedef T Type;
+    using Type = T;
     static const size_t Rows = R;
     static const size_t Cols = C;
     
@@ -53,15 +53,51 @@ public:
     static const Mat<T,R,C> ZerZ;
     static const Mat<T,R,C> YIQToRGB;
     static const Mat<T,R,C> RGBToYIQ;
+
+    using List = std::vector<Mat<T,R,C>>;
     
-    typedef std::vector<Mat<T,R,C> > List;
-    
-    // we store in column-major format
-    // every vector is one column
+    /**
+     * The matrix components in column major format.
+     */
     vec<T,R> v[C];
-    
+public:
+    /**
+     * Returns a matrix where all components are set to the given value.
+     *
+     * @param value the value to set
+     * @return the newly created matrix
+     */
+    static Mat<T,R,C> fill(const T value) {
+        Mat<T,R,C> result;
+        for (size_t c = 0; c < C; c++) {
+            result[c] = vec<T,R>::fill(value);
+        }
+        return result;
+    }
+
+    /**
+     * Returns an identity matrix.
+     *
+     * @return a matrix with all values of the diagonal set to 1 and all other values set to 0
+     */
+    static Mat<T,R,C> identity() {
+        Mat<T,R,C> result;
+        for (size_t c = 0; c < C; c++) {
+            for (size_t r = 0; r < R; r++) {
+                if (c == r) {
+                    result[c][r] = static_cast<T>(1.0);
+                }
+            }
+        }
+        return result;
+    }
+public:
     Mat<T,R,C>() {
-        setIdentity();
+        for (size_t c = 0; c < C; c++) {
+            for (size_t r = 0; r < R; r++) {
+                v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
+            }
+        }
     }
     
     // Copy and move constructors
@@ -170,51 +206,33 @@ public:
         assert(index < C);
         return v[index];
     }
-    
-    bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
-        for (size_t c = 0; c < C; c++) {
-            if (!equal(v[c], other[c], epsilon)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    bool null() const {
-        return equals(Null);
-    }
-    
-    Mat<T,R,C>& setIdentity() {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
-        return *this;
-    }
-    
-    Mat<T,R,C>& setNull() {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = static_cast<T>(0.0);
-        return *this;
-    }
-    
-    const Mat<T,C,R> transposed() const {
-        Mat<T,C,R> result;
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                result[r][c] = v[c][r];
-        return result;
-    }
-    
-    void write(T* buffer) const {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                buffer[(c*C + r)] = v[c][r];
-    }
 };
 
 /**
- * Checks whether the given matrices have equal components.
+ * Compares the given two matrices column wise.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @param epsilon the epsilon value
+ * @return a negative value if there is a column in the left matrix that compares less than its corresponding
+ * column of the right matrix, a positive value in the opposite case, and 0 if all columns compare equal
+ */
+template <typename T, size_t R, size_t C>
+int compare(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs, const T epsilon) {
+    for (size_t c = 0; c < C; c++) {
+        const auto cmp = compare(lhs[c], rhs[c], epsilon);
+        if (cmp != 0) {
+            return cmp;
+        }
+    }
+    return 0;
+}
+
+/**
+ * Checks whether the given matrices have identical components.
  *
  * @tparam T the component type
  * @tparam R the number of rows
@@ -225,8 +243,54 @@ public:
  */
 template <typename T, size_t R, size_t C>
 bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
-    for (size_t c = 0; c < C; c++) {
-        if (lhs[c] != rhs[c]) {
+    return compare(lhs, rhs, static_cast<T>(0.0)) == 0;
+}
+
+/**
+ * Checks whether the given matrices have identical components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return false if all components of the given matrices are equal, and true otherwise
+ */
+template <typename T, size_t R, size_t C>
+bool operator!=(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    return compare(lhs, rhs, static_cast<T>(0.0)) != 0;
+}
+
+/**
+ * Checks whether the given matrices have equal components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @param epsilon the epsilon value
+ * @return true if all components of the given matrices are equal, and false otherwise
+ */
+template <typename T, size_t R, size_t C>
+bool equal(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs, const T epsilon) {
+    return compare(lhs, rhs, epsilon) == 0;
+}
+
+/**
+ * Checks whether all columns of the given matrix are zero.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param m the matrix to check
+ * @param epsilon the epsilon value
+ * @return true if all columsn of the given matrix are zero
+ */
+template <typename T, size_t R, size_t C>
+bool isNull(const Mat<T,R,C>& m, const T epsilon = Math::Constants<T>::almostZero()) {
+    for (size_t c = 0; c < C; ++c) {
+        if (!isNull(m[c])) {
             return false;
         }
     }
@@ -236,13 +300,14 @@ bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
 /**
  * Returns a matrix with the negated components of the given matrix.
  *
+ * @param m the matrix to negate
  * @return the negated matrix
  */
 template <typename T, size_t R, size_t C>
-Mat<T,R,C> operator-(const Mat<T,R,C>& matrix) {
+Mat<T,R,C> operator-(const Mat<T,R,C>& m) {
     Mat<T,R,C> result;
     for (size_t c = 0; c < C; c++) {
-        result[c] = -matrix[c];
+        result[c] = -m[c];
     }
     return result;
 }
@@ -501,13 +566,6 @@ typename vec<T,C-1>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,
     result.reserve(rhs.size());
     std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C-1>& elem) { return lhs * elem; });
     return result;
-}
-
-template <typename T, size_t R, size_t C>
-typename vec<T,R-1>::List& operator*= (typename vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    for (vec<T,R-1>& elem : left)
-        elem *= right;
-    return left;
 }
 
 template <typename T, size_t S>
@@ -923,10 +981,10 @@ Mat<T,4,4> shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const
 
 
 template <typename T, size_t R, size_t C>
-const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
+const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>::identity();
 
 template <typename T, size_t R, size_t C>
-const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
+const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>::fill(static_cast<T>(0.0));
 
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90XCW    = Mat<T,R,C>(+static_cast<T>(1.0), +static_cast<T>(0.0), +static_cast<T>(0.0), +static_cast<T>(0.0),

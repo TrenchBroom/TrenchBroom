@@ -78,6 +78,23 @@ int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type
 }
 
 /**
+ * Checks whether the given vectors are component wise equal up to the given epsilon.
+ *
+ * Unline the equality operator ==, this function takes an epsilon value into account.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param epsilon the epsilon value
+ * @return true if the given vectors are component wise equal up to the given epsilon value
+ */
+template <typename T, size_t S>
+bool equal(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
+    return compare(lhs, rhs, epsilon) == 0;
+}
+
+/**
  * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.
  *
  * @tparam T the component type
@@ -159,6 +176,122 @@ bool operator>(const vec<T,S>& lhs, const vec<T,S>& rhs) {
 template <typename T, size_t S>
 bool operator>=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
     return compare(lhs, rhs) >= 0;
+}
+
+/**
+ * Checks whether the given vector has unit length (1).
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector to check
+ * @param epsilon the epsilon value
+ * @return true if the given vector has a length of 1 and false otherwise
+ */
+template <typename T, size_t S>
+bool isUnit(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
+    return Math::one(length(v), epsilon);
+}
+
+/**
+ * Checks whether the given vector has a length of 0.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector to check
+ * @param epsilon the epsilon value
+ * @return true if the given vector has a length of 0 and false otherwise
+ */
+template <typename T, size_t S>
+bool isNull(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
+    for (size_t i = 0; i < S; ++i) {
+        if (!Math::zero(v[i], epsilon)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Checks whether the given vector NaN as any component.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector to check
+ * @return true if the given vector has NaN as any component
+ */
+template <typename T, size_t S>
+bool isNaN(const vec<T,S>& v) {
+    for (size_t i = 0; i < S; ++i) {
+        if (Math::isnan(v[i])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Checks whether each component of the given vector is within a distance of epsilon around an integral value.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector to check
+ * @param epsilon the epsilon value
+ * @return true if all components of the given vector are integral under the above definition
+ */
+template <typename T, size_t S>
+bool isIntegral(const vec<T,S>& v, const T epsilon = static_cast<T>(0.0)) {
+    for (size_t i = 0; i < S; ++i) {
+        if (std::abs(v[i] - Math::round(v[i])) >= epsilon) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Checks whether the given three points are colinear.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param a the first point
+ * @param b the second point
+ * @param c the third point
+ * @param epsilon the epsilon value
+ * @return true if the given three points are colinear, and false otherwise
+ */
+template <typename T, size_t S>
+bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    // see http://math.stackexchange.com/a/1778739
+
+    T j = 0.0;
+    T k = 0.0;
+    T l = 0.0;
+    for (size_t i = 0; i < S; ++i) {
+        const T ac = a[i] - c[i];
+        const T ba = b[i] - a[i];
+        j += ac * ba;
+        k += ac * ac;
+        l += ba * ba;
+    }
+
+    return Math::zero(j * j - k * l, epsilon);
+}
+
+/**
+ * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
+ * in the same or in opposite directions.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first vector
+ * @param rhs the second vector
+ * @param epsilon the epsilon value
+ * @return true if the given vectors are parallel, and false otherwise
+ */
+template <typename T, size_t S>
+bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
+    const T cos = dot(normalize(lhs), normalize(rhs));
+    return Math::one(Math::abs(cos), epsilon);
 }
 
 /* ========== accessing major component / axis ========== */
@@ -859,134 +992,6 @@ T length(const vec<T,S>& vec) {
 template <typename T, size_t S>
 T squaredLength(const vec<T,S>& vec) {
     return dot(vec, vec);
-}
-
-/**
- * Checks whether the given vector has unit length (1).
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @param epsilon the epsilon value
- * @return true if the given vector has a length of 1 and false otherwise
- */
-template <typename T, size_t S>
-bool isUnit(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
-    return Math::one(length(v), epsilon);
-}
-
-/**
- * Checks whether the given vector has a length of 0.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @param epsilon the epsilon value
- * @return true if the given vector has a length of 0 and false otherwise
- */
-template <typename T, size_t S>
-bool isNull(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
-    return Math::zero(length(v), epsilon);
-}
-
-/**
- * Checks whether the given vector NaN as any component.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @return true if the given vector has NaN as any component
- */
-template <typename T, size_t S>
-bool isNaN(const vec<T,S>& v) {
-    for (size_t i = 0; i < S; ++i) {
-        if (Math::isnan(v[i])) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * Checks whether each component of the given vector is within a distance of epsilon around an integral value.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @param epsilon the epsilon value
- * @return true if all components of the given vector are integral under the above definition
- */
-template <typename T, size_t S>
-bool isIntegral(const vec<T,S>& v, const T epsilon = static_cast<T>(0.0)) {
-    for (size_t i = 0; i < S; ++i) {
-        if (std::abs(v[i] - Math::round(v[i])) >= epsilon) {
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Checks whether the given vectors are component wise equal up to the given epsilon.
- *
- * Unline the equality operator ==, this function takes an epsilon value into account.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are component wise equal up to the given epsilon value
- */
-template <typename T, size_t S>
-bool equal(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
-    return compare(lhs, rhs, epsilon) == 0;
-}
-
-/**
- * Checks whether the given three points are colinear.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param a the first point
- * @param b the second point
- * @param c the third point
- * @param epsilon the epsilon value
- * @return true if the given three points are colinear, and false otherwise
- */
-template <typename T, size_t S>
-bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-    // see http://math.stackexchange.com/a/1778739
-
-    T j = 0.0;
-    T k = 0.0;
-    T l = 0.0;
-    for (size_t i = 0; i < S; ++i) {
-        const T ac = a[i] - c[i];
-        const T ba = b[i] - a[i];
-        j += ac * ba;
-        k += ac * ac;
-        l += ba * ba;
-    }
-
-    return Math::zero(j * j - k * l, epsilon);
-}
-
-/**
- * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
- * in the same or in opposite directions.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are parallel, and false otherwise
- */
-template <typename T, size_t S>
-bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = Math::Constants<T>::colinearEpsilon()) {
-    const T cos = dot(normalize(lhs), normalize(rhs));
-    return Math::one(Math::abs(cos), epsilon);
 }
 
 /**

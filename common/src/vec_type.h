@@ -52,6 +52,11 @@ public:
 
     using List = std::vector<vec<T,S>>;
     static const List EmptyList;
+protected:
+    /**
+     * The vector components.
+     */
+    std::array<T, S> v;
 public:
     /**
      * Returns a vector with the component at the given index set to 1, and all others set to 0.
@@ -140,8 +145,6 @@ private:
         }
         return true;
     }
-protected:
-    std::array<T, S> v;
 public:
     /**
      * Creates a new vector with all components initialized to 0.
