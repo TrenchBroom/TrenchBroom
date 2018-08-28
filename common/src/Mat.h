@@ -631,9 +631,9 @@ template <typename T, size_t S>
 struct MatrixDeterminant {
     T operator() (const Mat<T,S,S>& m) const {
         // Laplace after first col
-        T det = static_cast<T>(0.0);
+        auto det = static_cast<T>(0.0);
         for (size_t r = 0; r < S; r++) {
-            const T f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
+            const auto f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
             det += f * m[0][r] * MatrixDeterminant<T,S-1>()(minor(m, r, 0));
         }
         return det;
@@ -745,13 +745,13 @@ std::tuple<bool, Mat<T,S,S>> invert(const Mat<T,S,S>& m) {
 
 template <typename T>
 Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
-    const T vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
-    const T hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
-    const T depth = farPlane - nearPlane;
+    const auto vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
+    const auto hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
+    const auto depth = farPlane - nearPlane;
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
-    static const T two  = static_cast<T>(2.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
+    static const auto two  = static_cast<T>(2.0);
     
     return Mat<T,4,4>(nearPlane / hFrustum, zero,                    zero,                               zero,
                       zero,                 nearPlane / vFrustum,    zero,                               zero,
@@ -761,13 +761,13 @@ Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, c
 
 template <typename T>
 Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const T top, const T right, const T bottom) {
-    const T width = right - left;
-    const T height = top - bottom;
-    const T depth = farPlane - nearPlane;
+    const auto width = right - left;
+    const auto height = top - bottom;
+    const auto depth = farPlane - nearPlane;
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
-    static const T two  = static_cast<T>(2.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
+    static const auto two  = static_cast<T>(2.0);
     
     return Mat<T,4,4>(two / width,  zero,            zero,          -(left + right) / width,
                       zero,         two / height,    zero,          -(top + bottom) / height,
@@ -777,17 +777,17 @@ Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const 
 
 template <typename T>
 Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
-    const vec<T,3>& f = direction;
-    const vec<T,3> s = cross(f, up);
-    const vec<T,3> u = cross(s, f);
+    const auto& f = direction;
+    const auto  s = cross(f, up);
+    const auto  u = cross(s, f);
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
     
     return Mat<T,4,4>( s[0],  s[1],  s[2], zero,
-                      u[0],  u[1],  u[2], zero,
+                       u[0],  u[1],  u[2], zero,
                       -f[0], -f[1], -f[2], zero,
-                      zero,  zero,  zero, one);
+                       zero,  zero,  zero, one);
 }
 
 /**
@@ -795,25 +795,25 @@ Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
-    static const T I = static_cast<T>(1.0);
-    static const T O = static_cast<T>(0.0);
+    static const auto I = static_cast<T>(1.0);
+    static const auto O = static_cast<T>(0.0);
     
-    const T Cr = std::cos(roll);
-    const T Sr = std::sin(roll);
+    const auto Cr = std::cos(roll);
+    const auto Sr = std::sin(roll);
     const  Mat<T,4,4> R( +I,  +O,  +O,  +O,
                          +O, +Cr, -Sr,  +O,
                          +O, +Sr, +Cr,  +O,
                          +O,  +O,  +O,  +I);
     
-    const T Cp = std::cos(pitch);
-    const T Sp = std::sin(pitch);
+    const auto Cp = std::cos(pitch);
+    const auto Sp = std::sin(pitch);
     const Mat<T,4,4> P(+Cp,  +O, +Sp,  +O,
                         +O,  +I,  +O,  +O,
                        -Sp,  +O, +Cp,  +O,
                         +O,  +O,  +O,  +I);
     
-    const T Cy = std::cos(yaw);
-    const T Sy = std::sin(yaw);
+    const auto Cy = std::cos(yaw);
+    const auto Sy = std::sin(yaw);
     const Mat<T,4,4> Y(+Cy, -Sy,  +O,  +O,
                        +Sy, +Cy,  +O,  +O,
                         +O,  +O,  +I,  +O,
@@ -835,24 +835,24 @@ Mat<T,4,4> rotationMatrix(const vec<T,3>& a) {
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
-    const T s = std::sin(-angle);
-    const T c = std::cos(-angle);
-    const T i = static_cast<T>(1.0 - c);
+    const auto s = std::sin(-angle);
+    const auto c = std::cos(-angle);
+    const auto i = static_cast<T>(1.0 - c);
     
-    const T ix  = i  * axis[0];
-    const T ix2 = ix * axis[0];
-    const T ixy = ix * axis[1];
-    const T ixz = ix * axis[2];
+    const auto ix  = i  * axis[0];
+    const auto ix2 = ix * axis[0];
+    const auto ixy = ix * axis[1];
+    const auto ixz = ix * axis[2];
     
-    const T iy  = i  * axis[1];
-    const T iy2 = iy * axis[1];
-    const T iyz = iy * axis[2];
+    const auto iy  = i  * axis[1];
+    const auto iy2 = iy * axis[1];
+    const auto iyz = iy * axis[2];
     
-    const T iz2 = i  * axis[2] * axis[2];
+    const auto iz2 = i  * axis[2] * axis[2];
     
-    const T sx = s * axis[0];
-    const T sy = s * axis[1];
-    const T sz = s * axis[2];
+    const auto sx = s * axis[0];
+    const auto sy = s * axis[1];
+    const auto sz = s * axis[2];
     
     Mat<T,4,4> rotation;
     rotation[0][0] = ix2 + c;
@@ -874,14 +874,14 @@ template <typename T>
 Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
     // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
     
-    const T x = quat.v[0];
-    const T y = quat.v[1];
-    const T z = quat.v[2];
-    const T w = quat.r;
+    const auto x = quat.v[0];
+    const auto y = quat.v[1];
+    const auto z = quat.v[2];
+    const auto w = quat.r;
     
-    const T x2 = x*x;
-    const T y2 = y*y;
-    const T z2 = z*z;
+    const auto x2 = x*x;
+    const auto y2 = y*y;
+    const auto z2 = z*z;
     
     Mat<T,4,4> rotation;
     rotation[0][0] = static_cast<T>(1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
@@ -911,40 +911,45 @@ Mat<T,4,4> rotationMatrix(const vec<T,3>& from, const vec<T,3>& to) {
 template <typename T, size_t S>
 Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
-    for (size_t i = 0; i < S; ++i)
+    for (size_t i = 0; i < S; ++i) {
         translation[S][i] = delta[i];
+    }
     return translation;
 }
 
 template <typename T, size_t S>
 Mat<T,S,S> translationMatrix(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
-    for (size_t i = 0; i < S-1; ++i)
+    for (size_t i = 0; i < S-1; ++i) {
         result[S-1][i] = m[S-1][i];
+    }
     return result;
 }
 
 template <typename T, size_t S>
 Mat<T,S,S> stripTranslation(const Mat<T,S,S>& m) {
     Mat<T,S,S> result(m);
-    for (size_t i = 0; i < S-1; ++i)
+    for (size_t i = 0; i < S-1; ++i) {
         result[S-1][i] = static_cast<T>(0.0);
+    }
     return result;
 }
 
 template <typename T, size_t S>
 Mat<T,S+1,S+1> scalingMatrix(const vec<T,S>& factors) {
     Mat<T,S+1,S+1> scaling;
-    for (size_t i = 0; i < S; ++i)
+    for (size_t i = 0; i < S; ++i) {
         scaling[i][i] = factors[i];
+    }
     return scaling;
 }
 
 template <size_t S, typename T>
 Mat<T,S,S> scalingMatrix(const T f) {
     Mat<T,S,S> scaling;
-    for (size_t i = 0; i < S-1; ++i)
+    for (size_t i = 0; i < S-1; ++i) {
         scaling[i][i] = f;
+    }
     return scaling;
 }
 
@@ -991,8 +996,8 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const
             xAxis = normalize(cross(normal, vec<T, 3>::pos_x));
             break;
     }
-    const vec<T,3>  yAxis = normalize(cross(normal, xAxis));
-    const vec<T,3>& zAxis = direction;
+    const auto  yAxis = normalize(cross(normal, xAxis));
+    const auto& zAxis = direction;
     
     assert(Math::eq(length(xAxis), 1.0));
     assert(Math::eq(length(yAxis), 1.0));
@@ -1016,8 +1021,8 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal) {
  */
 template <typename T>
 Mat<T,3,3> rotationMatrix(const T angle) {
-    const T sin = std::sin(angle);
-    const T cos = std::cos(angle);
+    const auto sin = std::sin(angle);
+    const auto cos = std::cos(angle);
     return Mat<T,3,3>(cos, -sin, 0.0,
                       sin,  cos, 0.0,
                       0.0,  0.0, 1.0);
