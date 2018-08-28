@@ -43,7 +43,7 @@ namespace TrenchBroom {
         m_faces(faces),
         m_oldFacePositions(facePositions),
         m_delta(delta) {
-            assert(!isNull(m_delta));
+            assert(!isZero(m_delta));
         }
         
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {

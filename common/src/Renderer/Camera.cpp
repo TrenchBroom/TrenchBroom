@@ -137,7 +137,7 @@ namespace TrenchBroom {
             vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbLook[2] = 0.0f;
-            if (isNull(bbLook)) {
+            if (isZero(bbLook)) {
                 bbLook = -m_up;
                 bbLook[2] = 0.0f;
             }
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
         
         void Camera::moveBy(const vec3f& delta) {
-            if (isNull(delta))
+            if (isZero(delta))
                 return;
             m_position += delta;
             m_valid = false;
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             m_direction = direction;
             
             const vec3f rightUnnormalized = cross(m_direction, up);
-            if (isNull(rightUnnormalized)) {
+            if (isZero(rightUnnormalized)) {
                 // `direction` and `up` were colinear.
                 const auto axis = thirdAxis(m_direction);
                 m_right = normalize(cross(m_direction, axis));

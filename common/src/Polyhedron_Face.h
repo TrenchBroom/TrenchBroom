@@ -235,7 +235,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
         const auto& p2 = current->next()->origin()->position();
         const auto& p3 = current->next()->next()->origin()->position();
         normal = cross(p2 - p1, p3 - p1);
-        if (!isNull(normal)) {
+        if (!isZero(normal)) {
             return normalize(normal);
         }
         current = current->next();

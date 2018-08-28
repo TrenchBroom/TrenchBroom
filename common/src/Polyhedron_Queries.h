@@ -380,7 +380,7 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
             const V rhsEdgeVec = rhsCurrentEdge->vector();
             const V direction = cross(lhsEdgeVec, rhsEdgeVec);
             
-            if (!isNull(direction)) {
+            if (!isZero(direction)) {
                 const Plane<T,3> plane(lhsEdgeOrigin, direction);
                 
                 const Math::PointStatus::Type lhsStatus = pointStatus(plane, lhs.m_vertices.front());

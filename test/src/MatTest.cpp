@@ -471,8 +471,8 @@ TEST(MatTest, equal) {
 }
 
 TEST(MatTest, null) {
-    ASSERT_TRUE(isNull(Mat4x4d::Null));
-    ASSERT_FALSE(isNull(Mat4x4d::Identity));
+    ASSERT_TRUE(isZero(Mat4x4d::Null));
+    ASSERT_FALSE(isZero(Mat4x4d::Identity));
 }
 
 TEST(MatTest, fill) {

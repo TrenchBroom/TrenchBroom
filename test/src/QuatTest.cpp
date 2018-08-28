@@ -27,7 +27,7 @@
 TEST(QuatTest, defaultConstructor) {
     const Quatf q;
     ASSERT_FLOAT_EQ(0.0f, q.r);
-    ASSERT_TRUE(isNull(q.v));
+    ASSERT_TRUE(isZero(q.v));
 }
 
 TEST(QuatTest, rotationConstructor) {

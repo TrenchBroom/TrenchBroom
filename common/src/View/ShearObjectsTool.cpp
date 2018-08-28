@@ -169,7 +169,7 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             MapDocumentSPtr document = lock(m_document);
-            if (isNull(m_dragCumulativeDelta)) {
+            if (isZero(m_dragCumulativeDelta)) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -193,7 +193,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
 
-            if (!isNull(delta)) {
+            if (!isZero(delta)) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
                 if (document->shearObjects(bounds(), side.normal, delta)) {

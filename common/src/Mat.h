@@ -288,9 +288,9 @@ bool equal(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs, const T epsilon) {
  * @return true if all columsn of the given matrix are zero
  */
 template <typename T, size_t R, size_t C>
-bool isNull(const Mat<T,R,C>& m, const T epsilon = Math::Constants<T>::almostZero()) {
+bool isZero(const Mat<T,R,C>& m, const T epsilon = Math::Constants<T>::almostZero()) {
     for (size_t c = 0; c < C; ++c) {
-        if (!isNull(m[c])) {
+        if (!isZero(m[c], epsilon)) {
             return false;
         }
     }

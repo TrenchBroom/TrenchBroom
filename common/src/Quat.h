@@ -141,7 +141,7 @@ public:
     }
     
     vec<T,3> axis() const {
-        if (isNull(v)) {
+        if (isZero(v)) {
             return v;
         } else {
             return v / std::sin(angle() / static_cast<T>(2.0));

@@ -202,7 +202,7 @@ bool isUnit(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero(
  * @return true if the given vector has a length of 0 and false otherwise
  */
 template <typename T, size_t S>
-bool isNull(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
+bool isZero(const vec<T,S>& v, const T epsilon = Math::Constants<T>::almostZero()) {
     for (size_t i = 0; i < S; ++i) {
         if (!Math::zero(v[i], epsilon)) {
             return false;

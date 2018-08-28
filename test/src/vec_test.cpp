@@ -235,8 +235,8 @@ TEST(VecTest, vec3fNormalize) {
 }
 
 TEST(VecTest, vec3fNull) {
-    ASSERT_TRUE(isNull(vec3f::zero));
-    ASSERT_FALSE(isNull(vec3f::pos_x));
+    ASSERT_TRUE(isZero(vec3f::zero));
+    ASSERT_FALSE(isZero(vec3f::pos_x));
 }
 
 TEST(VecTest, vec3fFill) {

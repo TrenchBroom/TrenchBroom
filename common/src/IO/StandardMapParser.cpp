@@ -403,7 +403,7 @@ namespace TrenchBroom {
             }
 
             const vec3 axis = cross(p3 - p1, p2 - p1);
-            if (!isNull(axis)) {
+            if (!isZero(axis)) {
                 brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
             } else {
                 status.error(line, column, "Skipping face: face points are colinear");

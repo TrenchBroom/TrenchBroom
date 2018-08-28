@@ -507,7 +507,7 @@ namespace TrenchBroom {
                 case Math::Direction_Forward: {
                     const Plane3 plane(m_camera.position(), vec3::pos_z);
                     const vec3 projectedDirection = plane.projectVector(m_camera.direction());
-                    if (isNull(projectedDirection)) {
+                    if (isZero(projectedDirection)) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
                             return firstAxis(m_camera.up());

@@ -151,7 +151,7 @@ namespace TrenchBroom {
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
             
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-            if (!isNull(seam.direction)) {
+            if (!isZero(seam.direction)) {
                 const vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const vec2f offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
@@ -489,7 +489,7 @@ namespace TrenchBroom {
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
             const Line3 seam = oldPlane.intersectWithPlane(m_boundary);
-            if (!isNull(seam.direction)) {
+            if (!isZero(seam.direction)) {
                 const vec3 refPoint = seam.pointOnLineClosestToPoint(center());
                 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
