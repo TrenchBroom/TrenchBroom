@@ -216,7 +216,7 @@ namespace TrenchBroom {
             normalized[1] = 2.0f*(m_unzoomedViewport.height - y - m_unzoomedViewport.y)/m_unzoomedViewport.height - 1.0f;
             normalized[2] = 2.0f*depth - 1.0f;
             
-            return m_invertedMatrix * normalized;
+            return m_inverseMatrix * normalized;
         }
         
         void Camera::setNearPlane(const float nearPlane) {
@@ -394,10 +394,10 @@ namespace TrenchBroom {
         void Camera::validateMatrices() const {
             doValidateMatrices(m_projectionMatrix, m_viewMatrix);
             m_matrix = m_projectionMatrix * m_viewMatrix;
-            
-            bool invertible = false;
-            m_invertedMatrix = invertedMatrix(m_matrix, invertible);
-            assert(invertible);
+
+            const auto [invertible, inverse] = invert(m_matrix);
+            assert(invertible); unused(invertible);
+            m_inverseMatrix = inverse;
             m_valid = true;
         }
 

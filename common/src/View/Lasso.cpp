@@ -66,14 +66,15 @@ namespace TrenchBroom {
         }
 
         void Lasso::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
-            const BBox2 box = this->box();
-            const Mat4x4 inverted = invertedMatrix(m_transform);
-            
+            const auto box = this->box();
+            const auto [invertible, inverseTransform] = invert(m_transform);
+            assert(invertible); unused(invertible);
+
             vec3f::List polygon(4);
-            polygon[0] = inverted * vec3(box.min.x(), box.min.y(), 0.0);
-            polygon[1] = inverted * vec3(box.min.x(), box.max.y(), 0.0);
-            polygon[2] = inverted * vec3(box.max.x(), box.max.y(), 0.0);
-            polygon[3] = inverted * vec3(box.max.x(), box.min.y(), 0.0);
+            polygon[0] = inverseTransform * vec3(box.min.x(), box.min.y(), 0.0);
+            polygon[1] = inverseTransform * vec3(box.min.x(), box.max.y(), 0.0);
+            polygon[2] = inverseTransform * vec3(box.max.x(), box.max.y(), 0.0);
+            polygon[3] = inverseTransform * vec3(box.max.x(), box.min.y(), 0.0);
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));

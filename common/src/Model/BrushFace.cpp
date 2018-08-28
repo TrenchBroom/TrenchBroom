@@ -195,11 +195,12 @@ namespace TrenchBroom {
         vec3 BrushFace::boundsCenter() const {
             ensure(m_geometry != nullptr, "geometry is null");
 
-            const Mat4x4 toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
-            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            const auto toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
+            const auto [invertible, fromPlane] = ::invert(toPlane);
+            assert(invertible); unused(invertible);
 
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const BrushHalfEdge* current = first;
+            const auto* first = m_geometry->boundary().front();
+            const auto* current = first;
             
             BBox3 bounds;
             bounds.min = bounds.max = toPlane * current->origin()->position();
@@ -517,23 +518,26 @@ namespace TrenchBroom {
         }
 
         Mat4x4 BrushFace::projectToBoundaryMatrix() const {
-            const vec3 texZAxis = m_texCoordSystem->fromMatrix(vec2f::zero, vec2f::one) * vec3::pos_z;
-            const Mat4x4 worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
-            const Mat4x4 planeToWorldMatrix = invertedMatrix(worldToPlaneMatrix);
+            const auto texZAxis = m_texCoordSystem->fromMatrix(vec2f::zero, vec2f::one) * vec3::pos_z;
+            const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
+            const auto [invertible, planeToWorldMatrix] = ::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
             return planeToWorldMatrix * Mat4x4::ZerZ * worldToPlaneMatrix;
         }
 
         Mat4x4 BrushFace::toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
-            if (project)
+            if (project) {
                 return Mat4x4::ZerZ * m_texCoordSystem->toMatrix(offset, scale);
-            else
+            } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
+            }
         }
 
         Mat4x4 BrushFace::fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
-            if (project)
+            if (project) {
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
-            return m_texCoordSystem->fromMatrix(offset, scale);
+            } else {
+                return m_texCoordSystem->fromMatrix(offset, scale);
+            }
         }
 
         float BrushFace::measureTextureAngle(const vec2f& center, const vec2f& point) const {

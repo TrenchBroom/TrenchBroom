@@ -262,19 +262,20 @@ namespace TrenchBroom {
             }
             
             void doRender(Renderer::RenderContext& renderContext) override {
-                const Model::BrushFace* face = m_helper.face();
-                const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+                const auto* face = m_helper.face();
+                const auto fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
                 
-                const Plane3& boundary = face->boundary();
-                const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
-                const Mat4x4 fromPlane = invertedMatrix(toPlane);
-                const vec2f originPosition(toPlane * fromFace * vec3(m_helper.originInFaceCoords()));
+                const auto& boundary = face->boundary();
+                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto [invertible, fromPlane] = invert(toPlane);
+                const auto originPosition(toPlane * fromFace * vec3(m_helper.originInFaceCoords()));
+                assert(invertible); unused(invertible);
 
-                const Color& handleColor = pref(Preferences::HandleColor);
-                const Color& highlightColor = pref(Preferences::SelectedHandleColor);
+                const auto& handleColor = pref(Preferences::HandleColor);
+                const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
-                const Mat4x4 translation = translationMatrix(vec3(originPosition));
+                const auto translation = translationMatrix(vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);

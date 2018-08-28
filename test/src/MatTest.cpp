@@ -479,7 +479,7 @@ TEST(MatTest, fill) {
     ASSERT_MAT_EQ(Mat4x4d::Null, Mat4x4d::fill(0.0));
 }
 
-TEST(MatTest, transposeMatrix) {
+TEST(MatTest, transpose) {
     Mat<double, 4, 4> m;
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
@@ -487,8 +487,7 @@ TEST(MatTest, transposeMatrix) {
         }
     }
 
-    Mat<double, 4, 4> t = m;
-    transposeMatrix(t);
+    const auto t = transpose(m);
 
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
@@ -497,7 +496,7 @@ TEST(MatTest, transposeMatrix) {
     }
 }
 
-TEST(MatTest, minorMatrix) {
+TEST(MatTest, minor) {
     const Mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
                      9.0, 10.0, 11.0, 12.0,
@@ -514,13 +513,13 @@ TEST(MatTest, minorMatrix) {
     const Mat3x3d m21( 1.0,  3.0,  4.0,
                        5.0,  7.0,  8.0,
                       13.0, 15.0, 16.0);
-    ASSERT_MAT_EQ(m00, minorMatrix(m, 0, 0));
-    ASSERT_MAT_EQ(m33, minorMatrix(m, 3, 3));
-    ASSERT_MAT_EQ(m12, minorMatrix(m, 1, 2));
-    ASSERT_MAT_EQ(m21, minorMatrix(m, 2, 1));
+    ASSERT_MAT_EQ(m00, minor(m, 0, 0));
+    ASSERT_MAT_EQ(m33, minor(m, 3, 3));
+    ASSERT_MAT_EQ(m12, minor(m, 1, 2));
+    ASSERT_MAT_EQ(m21, minor(m, 2, 1));
 }
 
-TEST(MatTest, matrixDeterminant) {
+TEST(MatTest, determinant) {
     const Mat4x4d m1( 1.0,  2.0,  3.0,  4.0,
                       5.0,  6.0,  7.0,  8.0,
                       9.0, 10.0, 11.0, 12.0,
@@ -533,14 +532,14 @@ TEST(MatTest, matrixDeterminant) {
                       2.0,  1.0,  5.0,  7.0,
                       0.0,  5.0,  2.0, -6.0,
                      -1.0,  2.0,  1.0,  0.0);
-    ASSERT_DOUBLE_EQ(0.0, matrixDeterminant(Mat4x4d::Null));
-    ASSERT_DOUBLE_EQ(1.0, matrixDeterminant(Mat4x4d::Identity));
-    ASSERT_DOUBLE_EQ(0.0, matrixDeterminant(m1));
-    ASSERT_DOUBLE_EQ(15661.0, matrixDeterminant(m2));
-    ASSERT_DOUBLE_EQ(-418.0, matrixDeterminant(m3));
+    ASSERT_DOUBLE_EQ(0.0, determinant(Mat4x4d::Null));
+    ASSERT_DOUBLE_EQ(1.0, determinant(Mat4x4d::Identity));
+    ASSERT_DOUBLE_EQ(0.0, determinant(m1));
+    ASSERT_DOUBLE_EQ(15661.0, determinant(m2));
+    ASSERT_DOUBLE_EQ(-418.0, determinant(m3));
 }
 
-TEST(MatTest, adjointMatrix) {
+TEST(MatTest, adjugate) {
     const Mat4x4d m1( 1.0,  2.0,  3.0,  4.0,
                       5.0,  6.0,  7.0,  8.0,
                       9.0, 10.0, 11.0, 12.0,
@@ -566,11 +565,24 @@ TEST(MatTest, adjointMatrix) {
                       65.0, -68.0, -36.0,   59.0,
                      -25.0,  -6.0,  46.0,  -87.0);
 
-    ASSERT_MAT_EQ(Mat4x4d::Identity, adjointMatrix(Mat4x4d::Identity));
-    ASSERT_MAT_EQ(Mat4x4d::Null, adjointMatrix(Mat4x4d::Null));
-    ASSERT_MAT_EQ(r1, adjointMatrix(m1));
-    ASSERT_MAT_EQ(r2, adjointMatrix(m2));
-    ASSERT_MAT_EQ(r3, adjointMatrix(m3));
+    ASSERT_MAT_EQ(Mat4x4d::Identity, adjugate(Mat4x4d::Identity));
+    ASSERT_MAT_EQ(Mat4x4d::Null, adjugate(Mat4x4d::Null));
+    ASSERT_MAT_EQ(r1, adjugate(m1));
+    ASSERT_MAT_EQ(r2, adjugate(m2));
+    ASSERT_MAT_EQ(r3, adjugate(m3));
+}
+
+template <typename T, size_t S>
+void ASSERT_INVERTIBLE(const Mat<T,S,S>& expected, const Mat<T,S,S>& actual) {
+    auto [invertible, inverse] = invert(actual);
+    ASSERT_MAT_EQ(expected, inverse);
+    ASSERT_TRUE(invertible);
+}
+
+template <typename T, size_t S>
+void ASSERT_NOT_INVERTIBLE(const Mat<T,S,S>& actual) {
+    auto [invertible, inverse] = invert(actual);
+    ASSERT_FALSE(invertible);
 }
 
 TEST(MatTest, invertedMatrix) {
@@ -595,17 +607,11 @@ TEST(MatTest, invertedMatrix) {
                      -0.01066343145393,   -0.04156822680544, 0.025541153183066, -0.08588212757806,
                      -0.038758699955303,  -0.2648617585084,  0.062895089713301,  0.10101526083903);
 
-    bool invertible = false;
-    ASSERT_MAT_EQ(Mat4x4d::Identity, invertedMatrix(Mat4x4d::Identity, invertible));
-    ASSERT_TRUE(invertible);
-    ASSERT_MAT_EQ(Mat4x4d::Null, invertedMatrix(Mat4x4d::Null, invertible));
-    ASSERT_FALSE(invertible);
-    ASSERT_MAT_EQ(m1, invertedMatrix(m1, invertible));
-    ASSERT_FALSE(invertible);
-    ASSERT_MAT_EQ(r2, invertedMatrix(m2, invertible));
-    ASSERT_TRUE(invertible);
-    ASSERT_MAT_EQ(m4, invertedMatrix(m3, invertible));
-    ASSERT_TRUE(invertible);
+    ASSERT_INVERTIBLE(Mat4x4d::Identity, Mat4x4d::Identity);
+    ASSERT_INVERTIBLE(r2, m2);
+    ASSERT_INVERTIBLE(m4, m3);
+    ASSERT_NOT_INVERTIBLE(Mat4x4d::Null);
+    ASSERT_NOT_INVERTIBLE(m1);
 }
 
 TEST(MatTest, rotationMatrixWithEulerAngles) {

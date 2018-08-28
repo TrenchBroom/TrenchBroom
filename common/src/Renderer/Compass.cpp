@@ -158,11 +158,10 @@ namespace TrenchBroom {
             rotation[0] = camera.right();
             rotation[1] = camera.direction();
             rotation[2] = camera.up();
-            
-            bool invertible = true;
-            invertMatrix(rotation, invertible);
-            assert(invertible);
-            return rotation;
+
+            const auto [invertible, inverseRotation] = invert(rotation);
+            assert(invertible); unused(invertible);
+            return inverseRotation;
         }
 
         void Compass::renderBackground(RenderContext& renderContext) {

@@ -95,12 +95,13 @@ namespace TrenchBroom {
         }
 
         void TexCoordSystem::moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vec2f& offset, BrushFaceAttributes& attribs) const {
-            const Mat4x4 toPlane = planeProjectionMatrix(0.0, normal);
-            const Mat4x4 fromPlane = invertedMatrix(toPlane);
-            const Mat4x4 transform = fromPlane * Mat4x4::ZerZ * toPlane;
-            const vec3 texX = normalize(transform * getXAxis());
-            const vec3 texY = normalize(transform * getYAxis());
-            
+            const auto toPlane = planeProjectionMatrix(0.0, normal);
+            const auto [invertible, fromPlane] = invert(toPlane);
+            const auto transform = fromPlane * Mat4x4::ZerZ * toPlane;
+            const auto texX = normalize(transform * getXAxis());
+            const auto texY = normalize(transform * getYAxis());
+            assert(invertible); unused(invertible);
+
             vec3 vAxis, hAxis;
             size_t xIndex = 0;
             size_t yIndex = 0;
@@ -155,16 +156,18 @@ namespace TrenchBroom {
             }
             
             vec2f actualOffset;
-            if (dot(right, hAxis) >= 0.0)
+            if (dot(right, hAxis) >= 0.0) {
                 actualOffset[xIndex] = -offset.x();
-            else
+            } else {
                 actualOffset[xIndex] = +offset.x();
-            if (dot(up, vAxis) >= 0.0)
+            }
+            if (dot(up, vAxis) >= 0.0) {
                 actualOffset[yIndex] = -offset.y();
-            else
+            } else {
                 actualOffset[yIndex] = +offset.y();
-            
-            
+            }
+
+
             attribs.setOffset(attribs.offset() + actualOffset);
         }
 
@@ -197,7 +200,9 @@ namespace TrenchBroom {
         }
 
         Mat4x4 TexCoordSystem::fromMatrix(const vec2f& offset, const vec2f& scale) const {
-            return invertedMatrix(toMatrix(offset, scale));
+            const auto [invertible, result] = invert(toMatrix(offset, scale));
+            assert(invertible); unused(invertible);
+            return result;
         }
         
         float TexCoordSystem::measureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {

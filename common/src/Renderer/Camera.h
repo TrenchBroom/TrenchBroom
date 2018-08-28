@@ -76,7 +76,7 @@ namespace TrenchBroom {
             mutable Mat4x4f m_projectionMatrix;
             mutable Mat4x4f m_viewMatrix;
             mutable Mat4x4f m_matrix;
-            mutable Mat4x4f m_invertedMatrix;
+            mutable Mat4x4f m_inverseMatrix;
         protected:
             typedef enum {
                 Projection_Orthographic,

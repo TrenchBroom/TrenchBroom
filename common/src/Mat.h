@@ -568,40 +568,73 @@ typename vec<T,C-1>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,
     return result;
 }
 
+/**
+ * Transposes the given square matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of rows and columns
+ * @param mat the matrix to transpose
+ * @return the transposed matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& transposeMatrix(Mat<T,S,S>& mat) {
+Mat<T,S,S> transpose(const Mat<T,S,S>& mat) {
     using std::swap;
-    for (size_t c = 0; c < S; c++)
-        for (size_t r = c + 1; r < S; r++)
-            swap(mat[c][r], mat[r][c]);
-    return mat;
+    Mat<T,S,S> result(mat);
+    for (size_t c = 0; c < S; c++) {
+        for (size_t r = c + 1; r < S; r++) {
+            swap(result[c][r], result[r][c]);
+        }
+    }
+    return result;
 }
 
+/**
+ * Computes a minor of the given square matrix. The minor of a matrix is obtained by erasing one column
+ * and one row from that matrix. Thus, any minor matrix of an n*n matrix is a (n-1)*(n-1) matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of rows and columns of the given matrix
+ * @param m the matrix to compute a minor of
+ * @param row the row to strike
+ * @param col the column to strike
+ * @return the minor matrix
+ */
 template <typename T, size_t S>
-const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
+const Mat<T,S-1,S-1> minor(const Mat<T,S,S>& m, const size_t row, const size_t col) {
     Mat<T,S-1,S-1> min;
     size_t minC, minR;
     minC = 0;
     for (size_t c = 0; c < S; c++) {
         if (c != col) {
             minR = 0;
-            for (size_t r = 0; r < S; r++)
-                if (r != row)
-                    min[minC][minR++] = mat[c][r];
+            for (size_t r = 0; r < S; r++) {
+                if (r != row) {
+                    min[minC][minR++] = m[c][r];
+                }
+            }
             minC++;
         }
     }
     return min;
 }
 
+/**
+ * Helper template to compute the determinant of any square matrix using Laplace expansion
+ * after the first column.
+ *
+ * @see https://en.wikipedia.org/wiki/Laplace_expansion
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ */
 template <typename T, size_t S>
 struct MatrixDeterminant {
-    T operator() (const Mat<T,S,S>& mat) const {
+    T operator() (const Mat<T,S,S>& m) const {
         // Laplace after first col
         T det = static_cast<T>(0.0);
         for (size_t r = 0; r < S; r++) {
             const T f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
-            det += f * mat[0][r] * MatrixDeterminant<T,S-1>()(minorMatrix(mat, r, 0));
+            det += f * m[0][r] * MatrixDeterminant<T,S-1>()(minor(m, r, 0));
         }
         return det;
     }
@@ -609,85 +642,105 @@ struct MatrixDeterminant {
 
 // TODO: implement faster block-matrix based method for NxN matrices where N = 2^n
 
+/**
+ * Partial specialization helper template to compute the determinant of a 3*3 matrix using the
+ * rule of Sarrus.
+ *
+ * @see https://en.wikipedia.org/wiki/Rule_of_Sarrus
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,3> {
-    T operator() (const Mat<T,3,3>& mat) const {
-        return (  mat[0][0]*mat[1][1]*mat[2][2]
-                + mat[1][0]*mat[2][1]*mat[0][2]
-                + mat[2][0]*mat[0][1]*mat[1][2]
-                - mat[2][0]*mat[1][1]*mat[0][2]
-                - mat[1][0]*mat[0][1]*mat[2][2]
-                - mat[0][0]*mat[2][1]*mat[1][2]);
+    T operator() (const Mat<T,3,3>& m) const {
+        return (  m[0][0]*m[1][1]*m[2][2]
+                + m[1][0]*m[2][1]*m[0][2]
+                + m[2][0]*m[0][1]*m[1][2]
+                - m[2][0]*m[1][1]*m[0][2]
+                - m[1][0]*m[0][1]*m[2][2]
+                - m[0][0]*m[2][1]*m[1][2]);
     }
 };
 
+/**
+ * Partial specialization helper template to compute the determinant of a 2*2 matrix using the
+ * rule of Sarrus.
+ *
+ * @see https://en.wikipedia.org/wiki/Rule_of_Sarrus
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,2> {
-    T operator() (const Mat<T,2,2>& mat) const {
-        return mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1];
+    T operator() (const Mat<T,2,2>& m) const {
+        return (  m[0][0]*m[1][1]
+                - m[1][0]*m[0][1]);
     }
 };
 
+/**
+ * Partial specialization helper template to compute the determinant of a 1*1 matrix.
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,1> {
-    T operator() (const Mat<T,1,1>& mat) const {
-        return mat[0][0];
+    T operator() (const Mat<T,1,1>& m) const {
+        return m[0][0];
     }
 };
 
+/**
+ * Computes the determinant of the given square matrix.
+ * 
+ * @tparam T the component type 
+ * @tparam S the number of components
+ * @param m the matrix to compute the determinant of
+ * @return the determinant of the given matrix
+ */
 template <typename T, size_t S>
-T matrixDeterminant(const Mat<T,S,S>& mat) {
-    return MatrixDeterminant<T,S>()(mat);
+T determinant(const Mat<T,S,S>& m) {
+    return MatrixDeterminant<T,S>()(m);
 }
 
+/**
+ * Computes the adjugate of the given square matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the matrix to compute the adjugate of
+ * @return the adjugate of the given matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& adjoinMatrix(Mat<T,S,S>& mat) {
-    mat = adjointMatrix(mat);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> adjointMatrix(const Mat<T,S,S>& mat) {
+Mat<T,S,S> adjugate(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
     for (size_t c = 0; c < S; c++) {
         for (size_t r = 0; r < S; r++) {
             const T f = static_cast<T>((c + r) % 2 == 0 ? 1.0 : -1.0);
-            result[r][c] = f * matrixDeterminant(minorMatrix(mat, r, c)); // transpose the matrix on the fly
+            result[r][c] = f * determinant(minor(m, r, c)); // transpose the matrix on the fly
         }
     }
     return result;
 }
 
+/**
+ * Inverts the given square matrix if possible.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the matrix to invert
+ * @return a pair of a boolean and a matrix such that the boolean indicates whether the
+ * matrix is invertible, and if so, the matrix is the inverted given matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat, bool& invertible) {
-    mat = invertedMatrix(mat, invertible);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat) {
-    bool invertible = true;
-    invertMatrix(mat, invertible);
-    assert(invertible);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
-    const T det = matrixDeterminant(mat);
-    invertible = det != 0.0;
-    if (!invertible)
-        return mat;
-    
-    return adjointMatrix(mat) / det;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat) {
-    bool invertible = true;
-    const Mat<T,S,S> inverted = invertedMatrix(mat, invertible);
-    assert(invertible);
-    return inverted;
+std::tuple<bool, Mat<T,S,S>> invert(const Mat<T,S,S>& m) {
+    const auto det = determinant(m);
+    const auto invertible = (det != static_cast<T>(0.0));
+    if (!invertible) {
+        return std::make_tuple(false, Mat<T,S,S>::Identity);
+    } else {
+        return std::make_tuple(true, adjugate(m) / det);
+    }
 }
 
 template <typename T>
@@ -864,16 +917,16 @@ Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
 }
 
 template <typename T, size_t S>
-Mat<T,S,S> translationMatrix(const Mat<T,S,S>& mat) {
+Mat<T,S,S> translationMatrix(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
     for (size_t i = 0; i < S-1; ++i)
-        result[S-1][i] = mat[S-1][i];
+        result[S-1][i] = m[S-1][i];
     return result;
 }
 
 template <typename T, size_t S>
-Mat<T,S,S> stripTranslation(const Mat<T,S,S>& mat) {
-    Mat<T,S,S> result(mat);
+Mat<T,S,S> stripTranslation(const Mat<T,S,S>& m) {
+    Mat<T,S,S> result(m);
     for (size_t i = 0; i < S-1; ++i)
         result[S-1][i] = static_cast<T>(0.0);
     return result;
@@ -911,10 +964,12 @@ const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
 
 template <typename T>
 Mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const vec<T,3>& z, const vec<T,3>& o) {
-    return invertedMatrix(Mat<T,4,4>(x[0], y[0], z[0], o[0],
-                                     x[1], y[1], z[1], o[1],
-                                     x[2], y[2], z[2], o[2],
-                                     0.0,  0.0,  0.0,  1.0));
+    const auto [invertible, result] = invert(Mat<T,4,4>(x[0], y[0], z[0], o[0],
+                                                        x[1], y[1], z[1], o[1],
+                                                        x[2], y[2], z[2], o[2],
+                                                        0.0,  0.0,  0.0,  1.0));
+    assert(invertible); unused(invertible);
+    return result;
 }
 
 /**

@@ -134,29 +134,30 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
 
-            if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+            if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 return;
-            
+            }
+
             // when texture lock is off, just project the current texturing
             if (!lockTexture) {
                 doUpdateNormalWithProjection(oldBoundary.normal, newBoundary.normal, attribs);
                 return;
             }
             
-            const Mat4x4 effectiveTransformation = transformation;
+            const auto effectiveTransformation = transformation;
             
             // determine the rotation by which the texture coordinate system will be rotated about its normal
-            const float angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
-            const float newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
+            const auto angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
+            const auto newAngle = Math::correct(Math::normalizeDegrees(attribs.rotation() + angleDelta), 4);
             assert(!Math::isnan(newAngle));
             attribs.setRotation(newAngle);
 
             // calculate the current texture coordinates of the face's center
-            const vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
+            const auto oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
-            const Mat4x4 worldToTexSpace = toMatrix(Vec2(0, 0), Vec2(1, 1));
+            const auto worldToTexSpace = toMatrix(Vec2(0, 0), Vec2(1, 1));
             
             // The formula for texturing is:
             //
@@ -169,7 +170,9 @@ namespace TrenchBroom {
             //     uv = ? * transform * point
             //
             // The solution for ? is (worldToTexSpace * transform_inverse)
-            const Mat4x4 newWorldToTexSpace = worldToTexSpace * invertedMatrix(effectiveTransformation);
+            const auto [invertible, inverseTransform] = invert(effectiveTransformation);
+            assert(invertible); unused(invertible);
+            const auto newWorldToTexSpace = worldToTexSpace * inverseTransform;
             
             // extract the new m_xAxis and m_yAxis from newWorldToTexSpace.
             // note, the matrix is in column major format.
@@ -181,12 +184,12 @@ namespace TrenchBroom {
             assert(!isNaN(m_yAxis));
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const vec3 newInvariant = effectiveTransformation * oldInvariant;
-            const vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
+            const auto newInvariant = effectiveTransformation * oldInvariant;
+            const auto newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
 
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            const vec2f newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords), 4);
+            const auto newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords), 4);
             assert(!isNaN(newOffset));
             attribs.setOffset(newOffset);
         }
@@ -294,10 +297,11 @@ namespace TrenchBroom {
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);
             
-            const Mat4x4 toMatrix = coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vec3::zero);
-            const Mat4x4 fromMatrix = invertedMatrix(toMatrix);
+            const auto toMatrix = coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vec3::zero);
+            const auto [invertible, fromMatrix] = invert(toMatrix);
+            assert(invertible); unused(invertible);
 
-            const Mat4x4 transform = fromMatrix * shear * toMatrix;
+            const auto transform = fromMatrix * shear * toMatrix;
             m_xAxis = transform * m_xAxis;
             m_yAxis = transform * m_yAxis;
         }
@@ -309,7 +313,7 @@ namespace TrenchBroom {
          */
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
             const vec3 vec(point - center);
-            const FloatType angleInRadians = angleBetween(normalize(vec), vec3::pos_x, vec3::pos_z);
+            const auto angleInRadians = angleBetween(normalize(vec), vec3::pos_x, vec3::pos_z);
             return static_cast<float>(currentAngle + Math::degrees(angleInRadians));
         }
 
