@@ -60,7 +60,7 @@ namespace TrenchBroom {
                 computeOriginHandles(xHandle, yHandle);
 
                 const Model::BrushFace* face = m_helper.face();
-                const Mat4x4 fromTex = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+                const mat4x4 fromTex = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
                 const vec3 origin = fromTex * vec3(m_helper.originInFaceCoords());
                 
                 const Ray3& pickRay = inputState.pickRay();
@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
         void UVOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             
             const vec3 origin = m_helper.originInFaceCoords();
             xHandle.point = yHandle.point = toWorld * origin;
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             const FloatType distance = boundary.intersectWithRay(ray);
             const vec3 hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             return vec2f(transform * hitPoint);
         }
 
@@ -168,12 +168,12 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
             
-            const Mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const Mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const Mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const Mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const Mat4x4 f2tTransform = w2tTransform * f2wTransform;
-            const Mat4x4 t2fTransform = w2fTransform * t2wTransform;
+            const mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const mat4x4 f2tTransform = w2tTransform * f2wTransform;
+            const mat4x4 t2fTransform = w2fTransform * t2wTransform;
             
             const vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
             const vec2f newOriginInTexCoords  = vec2f(f2tTransform * vec3(newOriginInFaceCoords));

@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void Compass2D::doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform) {
+        void Compass2D::doRenderCompass(RenderContext& renderContext, const mat4x4f& transform) {
             const auto& camera = renderContext.camera();
             const auto axis = firstComponent(camera.direction());
             
@@ -35,10 +35,10 @@ namespace TrenchBroom {
                 renderSolidAxis(renderContext, transform,                        prefs.get(Preferences::ZAxisColor));
             }
             if (axis != Math::Axis::AX) {
-                renderSolidAxis(renderContext, transform * Mat4x4f::rot_90_y_ccw,   prefs.get(Preferences::XAxisColor));
+                renderSolidAxis(renderContext, transform * mat4x4f::rot_90_y_ccw,   prefs.get(Preferences::XAxisColor));
             }
             if (axis != Math::Axis::AY) {
-                renderSolidAxis(renderContext, transform * Mat4x4f::rot_90_x_cw,    prefs.get(Preferences::YAxisColor));
+                renderSolidAxis(renderContext, transform * mat4x4f::rot_90_x_cw,    prefs.get(Preferences::YAxisColor));
             }
         }
     }

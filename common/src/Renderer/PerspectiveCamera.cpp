@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return Projection_Perspective;
         }
 
-        void PerspectiveCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
+        void PerspectiveCamera::doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const {
             const Viewport& viewport = unzoomedViewport();
             projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport.width, viewport.height);
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());

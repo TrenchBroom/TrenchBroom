@@ -443,7 +443,7 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        bool MapDocumentCommandFacade::performTransform(const Mat4x4 &transform, const bool lockTextures) {
+        bool MapDocumentCommandFacade::performTransform(const mat4x4 &transform, const bool lockTextures) {
           // Test whether all brushes can be transformed; abort if any fail.
           for (const auto& brush : m_selectedNodes.brushes()) {
               if (!brush->canTransform(transform, m_worldBounds)) {

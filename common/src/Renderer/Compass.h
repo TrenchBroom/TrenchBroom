@@ -56,14 +56,14 @@ namespace TrenchBroom {
             void makeArrows();
             void makeBackground();
             
-            Mat4x4f cameraRotationMatrix(const Camera& camera) const;
+            mat4x4f cameraRotationMatrix(const Camera& camera) const;
         protected:
             void renderBackground(RenderContext& renderContext);
-            void renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
-            void renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
-            void renderAxis(RenderContext& renderContext, const Mat4x4f& transformation);
+            void renderSolidAxis(RenderContext& renderContext, const mat4x4f& transformation, const Color& color);
+            void renderAxisOutline(RenderContext& renderContext, const mat4x4f& transformation, const Color& color);
+            void renderAxis(RenderContext& renderContext, const mat4x4f& transformation);
         private:
-            virtual void doRenderCompass(RenderContext& renderContext, const Mat4x4f& cameraTransformation) = 0;
+            virtual void doRenderCompass(RenderContext& renderContext, const mat4x4f& cameraTransformation) = 0;
         };
     }
 }

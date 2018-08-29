@@ -22,19 +22,16 @@
 
 #include "VecMath.h"
 
-typedef double FloatType;
-typedef BBox<FloatType, 2> BBox2;
-typedef BBox<FloatType, 3> BBox3;
-typedef vec<FloatType, 3> vec3;
-typedef vec<FloatType, 2> Vec2;
-typedef Plane<FloatType, 3> Plane3;
-typedef Quat<FloatType> Quat3;
-typedef Mat<FloatType, 4, 4> Mat4x4;
-typedef Mat<FloatType, 3, 3> Mat3x3;
-typedef Mat<FloatType, 2, 2> Mat2x2;
-typedef Line<FloatType, 3> Line3;
-typedef Ray<FloatType, 3> Ray3;
-typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
+using FloatType = double;
+using BBox3 = BBox<FloatType, 3>;
+using BBox2 = BBox<FloatType, 2>;
+using vec3 = vec<FloatType, 3>;
+using vec2 = vec<FloatType, 2>;
+using Plane3 = Plane<FloatType, 3>;
+using Quat3 = Quat<FloatType>;
+using mat4x4 = Mat<FloatType, 4, 4>;
+using Line3 = Line<FloatType, 3>;
+using Ray3 = Ray<FloatType, 3>;
 
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
@@ -42,23 +39,15 @@ typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
 #include "Polyhedron_Instantiation.h"
 
 template<typename T, typename FP, typename VB> class Polyhedron;
-typedef Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3;
+using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
 namespace TrenchBroom {
-    typedef Edge<FloatType, 3> Edge3;
-    typedef Edge<FloatType, 2> Edge2;
-    typedef Polygon<FloatType, 3> Polygon3;
-    typedef Polygon<FloatType, 2> Polygon2;
+    using Edge3 = Edge<FloatType, 3>;
+    using Polygon3 = Polygon<FloatType, 3>;
 }
 
 namespace Math {
-    typedef Constants<FloatType> C;
-}
-
-template <typename T>
-void safeDelete(T*& p) {
-    delete p;
-    p = nullptr;
+    using C = Constants<FloatType>;
 }
 
 #endif

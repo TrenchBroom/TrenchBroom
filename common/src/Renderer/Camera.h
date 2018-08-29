@@ -73,10 +73,10 @@ namespace TrenchBroom {
             vec3f m_up;
             vec3f m_right;
 
-            mutable Mat4x4f m_projectionMatrix;
-            mutable Mat4x4f m_viewMatrix;
-            mutable Mat4x4f m_matrix;
-            mutable Mat4x4f m_inverseMatrix;
+            mutable mat4x4f m_projectionMatrix;
+            mutable mat4x4f m_viewMatrix;
+            mutable mat4x4f m_matrix;
+            mutable mat4x4f m_inverseMatrix;
         protected:
             typedef enum {
                 Projection_Orthographic,
@@ -102,10 +102,10 @@ namespace TrenchBroom {
             const vec3f& position() const;
             const vec3f& up() const;
             const vec3f& right() const;
-            const Mat4x4f& projectionMatrix() const;
-            const Mat4x4f& viewMatrix() const;
-            const Mat4x4f orthogonalBillboardMatrix() const;
-            const Mat4x4f verticalBillboardMatrix() const;
+            const mat4x4f& projectionMatrix() const;
+            const mat4x4f& viewMatrix() const;
+            const mat4x4f orthogonalBillboardMatrix() const;
+            const mat4x4f verticalBillboardMatrix() const;
             void frustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
             
             Ray3f viewRay() const;
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         private:
             virtual ProjectionType doGetProjectionType() const = 0;
             
-            virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
+            virtual void doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const = 0;
             virtual Ray3f doGetPickRay(const vec3f& point) const = 0;
             virtual void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
             

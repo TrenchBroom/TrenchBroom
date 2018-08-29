@@ -38,7 +38,7 @@ namespace TrenchBroom {
         private:
             ProjectionType doGetProjectionType() const override;
 
-            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const override;
+            void doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const override;
             Ray3f doGetPickRay(const vec3f& point) const override;
             void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const override;
             

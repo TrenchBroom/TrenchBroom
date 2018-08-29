@@ -28,12 +28,12 @@ namespace TrenchBroom {
         private:
             static const size_t Center = 4;
             
-            static const Vec2 MoveOffsets[];
+            static const vec2 MoveOffsets[];
             
             const Plane3& m_plane;
             const FloatType m_frequency;
             
-            Vec2 m_position;
+            vec2 m_position;
             FloatType m_errors[9];
         public:
             GridSearchCursor(const Plane3& plane, const FloatType frequency) :
@@ -48,10 +48,10 @@ namespace TrenchBroom {
                     m_position[i] = Math::round(initialPosition[i]);
                 
                 findLocalMinimum();
-                const Vec2 localMinPos = m_position;
+                const vec2 localMinPos = m_position;
                 const FloatType localMinErr = m_errors[Center];
                 
-                Vec2 globalMinPos = localMinPos;
+                vec2 globalMinPos = localMinPos;
                 FloatType globalMinErr = localMinErr;
                 
                 if (globalMinErr > 0.0) {
@@ -111,10 +111,10 @@ namespace TrenchBroom {
             }
         };
 
-        const Vec2 GridSearchCursor::MoveOffsets[] = {
-            Vec2(-1.0,  1.0), Vec2( 0.0,  1.0), Vec2( 1.0,  1.0),
-            Vec2(-1.0,  0.0), Vec2( 0.0,  0.0), Vec2( 1.0,  0.0),
-            Vec2(-1.0, -1.0), Vec2( 0.0, -1.0), Vec2( 1.0, -1.0)
+        const vec2 GridSearchCursor::MoveOffsets[] = {
+            vec2(-1.0,  1.0), vec2( 0.0,  1.0), vec2( 1.0,  1.0),
+            vec2(-1.0,  0.0), vec2( 0.0,  0.0), vec2( 1.0,  0.0),
+            vec2(-1.0, -1.0), vec2( 0.0, -1.0), vec2( 1.0, -1.0)
         };
 
         FloatType computePlaneFrequency(const Plane3& plane);

@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TransformObjectVisitor::TransformObjectVisitor(const Mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
+        TransformObjectVisitor::TransformObjectVisitor(const mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
         m_transformation(transformation),
         m_lockTextures(lockTextures),
         m_worldBounds(worldBounds) {}

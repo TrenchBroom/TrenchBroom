@@ -242,7 +242,7 @@ namespace TrenchBroom {
                 const Model::BrushFace* face = m_helper.face();
                 const vec2f& offset = face->offset();
                 const vec2f& scale = face->scale();
-                const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
+                const mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const Assets::Texture* texture = face->texture();
                 ensure(texture != nullptr, "texture is null");

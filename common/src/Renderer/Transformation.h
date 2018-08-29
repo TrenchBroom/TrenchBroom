@@ -26,23 +26,23 @@ namespace TrenchBroom {
     namespace Renderer {
         class Transformation {
         private:
-            Mat4x4f::List m_projectionStack;
-            Mat4x4f::List m_viewStack;
-            Mat4x4f::List m_modelStack;
+            mat4x4f::List m_projectionStack;
+            mat4x4f::List m_viewStack;
+            mat4x4f::List m_modelStack;
         public:
-            Transformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::identity);
+            Transformation(const mat4x4f& projection, const mat4x4f& view, const mat4x4f& model = mat4x4f::identity);
             ~Transformation();
             
             Transformation slice() const;
             
-            void pushTransformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::identity);
+            void pushTransformation(const mat4x4f& projection, const mat4x4f& view, const mat4x4f& model = mat4x4f::identity);
             void popTransformation();
-            void pushModelMatrix(const Mat4x4f& matrix);
-            void replaceAndPushModelMatrix(const Mat4x4f& matrix);
+            void pushModelMatrix(const mat4x4f& matrix);
+            void replaceAndPushModelMatrix(const mat4x4f& matrix);
             void popModelMatrix();
         private:
-            void loadProjectionMatrix(const Mat4x4f& matrix);
-            void loadModelViewMatrix(const Mat4x4f& matrix);
+            void loadProjectionMatrix(const mat4x4f& matrix);
+            void loadModelViewMatrix(const mat4x4f& matrix);
         private:
             Transformation(const Transformation& other);
             Transformation& operator=(const Transformation& other);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         protected:
             Transformation& m_transformation;
         public:
-            ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix = Mat4x4f::identity);
+            ReplaceTransformation(Transformation& transformation, const mat4x4f& projectionMatrix, const mat4x4f& viewMatrix, const mat4x4f& modelMatrix = mat4x4f::identity);
             ~ReplaceTransformation();
         private:
             ReplaceTransformation(const ReplaceTransformation& other);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         protected:
             Transformation& m_transformation;
         public:
-            MultiplyModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
+            MultiplyModelMatrix(Transformation& transformation, const mat4x4f& modelMatrix);
             ~MultiplyModelMatrix();
         private:
             MultiplyModelMatrix(const ReplaceTransformation& other);
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         protected:
             Transformation& m_transformation;
         public:
-            ReplaceModelMatrix(Transformation& transformation, const Mat4x4f& modelMatrix);
+            ReplaceModelMatrix(Transformation& transformation, const mat4x4f& modelMatrix);
             ~ReplaceModelMatrix();
         private:
             ReplaceModelMatrix(const ReplaceTransformation& other);

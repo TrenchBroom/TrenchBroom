@@ -95,7 +95,7 @@ namespace TrenchBroom {
             const FloatType distance = boundary.intersectWithRay(ray);
             const vec3 hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true);
+            const mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true);
             return vec2f(transform * hitPoint);
         }
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 return round(delta);
             }
 
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
+            const mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
             vec2f distance = vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {

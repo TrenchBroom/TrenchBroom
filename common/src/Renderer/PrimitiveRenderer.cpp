@@ -221,9 +221,9 @@ namespace TrenchBroom {
             const float len = length(vec);
             const vec3f dir = vec / len;
             
-            const Mat4x4f translation = translationMatrix(start);
-            const Mat4x4f rotation    = rotationMatrix(vec3f::pos_z, dir);
-            const Mat4x4f transform   = translation * rotation;
+            const mat4x4f translation = translationMatrix(start);
+            const mat4x4f rotation    = rotationMatrix(vec3f::pos_z, dir);
+            const mat4x4f transform   = translation * rotation;
             
             const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
             const vec3f::List vertices = transform * cylinder.vertices;

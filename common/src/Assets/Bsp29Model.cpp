@@ -52,7 +52,7 @@ namespace TrenchBroom {
         faces(i_faces),
         bounds(i_bounds) {}
 
-        BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
+        BBox3f Bsp29Model::SubModel::transformedBounds(const mat4x4f& transformation) const {
             BBox3f result;
             result.min = result.max = faces.front().vertices().front().v1;
             
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             return model.bounds;
         }
 
-        BBox3f Bsp29Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        BBox3f Bsp29Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             const SubModel& model = m_subModels.front();
             return model.transformedBounds(transformation);
         }

@@ -1244,11 +1244,11 @@ const Mat<T,R,C> Mat<T,R,C>::rgb_to_yiq   = Mat<T,R,C>(+static_cast<T>(0.299),  
                                                        +static_cast<T>(0.595716),+static_cast<T>(-0.274453),+static_cast<T>(-0.321263),
                                                        +static_cast<T>(0.211456),+static_cast<T>(-0.522591),+static_cast<T>( 0.311135));
 
-using Mat2x2f = Mat<float,2,2>;
-using Mat3x3f = Mat<float,3,3>;
-using Mat4x4f = Mat<float,4,4>;
-using Mat2x2d = Mat<double,2,2>;
-using Mat3x3d = Mat<double,3,3>;
-using Mat4x4d = Mat<double,4,4>;
+using mat2x2f = Mat<float,2,2>;
+using mat3x3f = Mat<float,3,3>;
+using mat4x4f = Mat<float,4,4>;
+using mat2x2d = Mat<double,2,2>;
+using mat3x3d = Mat<double,3,3>;
+using mat4x4d = Mat<double,4,4>;
 
 #endif

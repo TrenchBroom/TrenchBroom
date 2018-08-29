@@ -109,31 +109,31 @@ namespace TrenchBroom {
             return m_right;
         }
         
-        const Mat4x4f& Camera::projectionMatrix() const {
+        const mat4x4f& Camera::projectionMatrix() const {
             if (!m_valid)
                 validateMatrices();
             return m_projectionMatrix;
         }
         
-        const Mat4x4f& Camera::viewMatrix() const {
+        const mat4x4f& Camera::viewMatrix() const {
             if (!m_valid)
                 validateMatrices();
             return m_viewMatrix;
         }
 
-        const Mat4x4f Camera::orthogonalBillboardMatrix() const {
+        const mat4x4f Camera::orthogonalBillboardMatrix() const {
             vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbUp = m_up;
             bbRight = cross(bbUp, bbLook);
             
-            return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
+            return mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
                            bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
                            bbRight.z(),   bbUp.z(),   bbLook.z(), 0.0f,
                            0.0f,          0.0f,       0.0f,       1.0f);
         }
         
-        const Mat4x4f Camera::verticalBillboardMatrix() const {
+        const mat4x4f Camera::verticalBillboardMatrix() const {
             vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbLook[2] = 0.0f;
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             bbUp = vec3f::pos_z;
             bbRight = cross(bbUp, bbLook);
             
-            return Mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
+            return mat4x4f(bbRight.x(),   bbUp.x(),   bbLook.x(), 0.0f,
                            bbRight.y(),   bbUp.y(),   bbLook.y(), 0.0f,
                            bbRight.z(),   bbUp.z(),   bbLook.z(), 0.0f,
                            0.0f,          0.0f,       0.0f,       1.0f);

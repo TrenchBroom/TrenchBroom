@@ -189,12 +189,12 @@ namespace TrenchBroom {
 
         void TextRenderer::doRender(RenderContext& renderContext) {
             const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
-            const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
+            const mat4x4f projection = orthoMatrix(0.0f, 1.0f,
                                                    static_cast<float>(viewport.x),
                                                    static_cast<float>(viewport.height),
                                                    static_cast<float>(viewport.width),
                                                    static_cast<float>(viewport.y));
-            const Mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
+            const mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             
             render(m_entries, renderContext);

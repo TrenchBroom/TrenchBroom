@@ -50,11 +50,11 @@ namespace TrenchBroom {
             bool hasPointEntityModel() const;
 
             vec3 origin() const;
-            Mat4x4 rotation() const;
+            mat4x4 rotation() const;
             FloatType area(Math::Axis::Type axis) const;
         private:
             void setOrigin(const vec3& origin);
-            void applyRotation(const Mat4x4& transformation);
+            void applyRotation(const mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
         private: // implement Node interface
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

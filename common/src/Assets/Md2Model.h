@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 BBox3f m_bounds;
             public:
                 Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices);
-                BBox3f transformedBounds(const Mat4x4f& transformation) const;
+                BBox3f transformedBounds(const mat4x4f& transformation) const;
                 
                 const VertexList& vertices() const;
                 const Renderer::IndexRangeMap& indices() const;
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const override;
+            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

@@ -220,7 +220,7 @@ namespace TrenchBroom {
             void intersect(const BBox3& worldBounds, const Brush* brush);
 
             // transformation
-            bool canTransform(const Mat4x4& transformation, const BBox3& worldBounds) const;
+            bool canTransform(const mat4x4& transformation, const BBox3& worldBounds) const;
         private:
             Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
 
             class Contains;
             bool doContains(const Node* node) const override;

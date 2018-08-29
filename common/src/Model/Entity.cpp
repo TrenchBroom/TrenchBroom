@@ -73,7 +73,7 @@ namespace TrenchBroom {
             return vec3::parse(attribute(AttributeNames::Origin, ""));
         }
 
-        Mat4x4 Entity::rotation() const {
+        mat4x4 Entity::rotation() const {
             return EntityRotationPolicy::getRotation(this);
         }
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
         
-        void Entity::applyRotation(const Mat4x4& transformation) {
+        void Entity::applyRotation(const mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
         }
 
@@ -279,11 +279,11 @@ namespace TrenchBroom {
 
         class TransformEntity : public NodeVisitor {
         private:
-            const Mat4x4d& m_transformation;
+            const mat4x4d& m_transformation;
             bool m_lockTextures;
             const BBox3& m_worldBounds;
         public:
-            TransformEntity(const Mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
+            TransformEntity(const mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
             m_transformation(transformation),
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
@@ -295,7 +295,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush) override   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
-        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        void Entity::doTransform(const mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
                 TransformEntity visitor(transformation, lockTextures, worldBounds);
@@ -309,8 +309,8 @@ namespace TrenchBroom {
                 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
-                const Mat4x4 rotation = stripTranslation(transformation);
-                if (rotation != Mat4x4::identity) {
+                const mat4x4 rotation = stripTranslation(transformation);
+                if (rotation != mat4x4::identity) {
                     applyRotation(rotation);
                 }
             }

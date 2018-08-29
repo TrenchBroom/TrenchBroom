@@ -36,7 +36,7 @@ namespace TrenchBroom {
         m_indices(indices),
         m_bounds(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1()) {}
 
-        BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
+        BBox3f Md2Model::Frame::transformedBounds(const mat4x4f& transformation) const {
             BBox3f transformedBounds;
             
             VertexList::const_iterator it = std::begin(m_vertices);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return frame->bounds();
         }
         
-        BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
             

@@ -77,7 +77,7 @@ namespace TrenchBroom {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant) {
+        void TexCoordSystem::transform(const Plane3& oldBoundary, const Plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant) {
             doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
         }
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         void TexCoordSystem::moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vec2f& offset, BrushFaceAttributes& attribs) const {
             const auto toPlane = planeProjectionMatrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
-            const auto transform = fromPlane * Mat4x4::zero_z * toPlane;
+            const auto transform = fromPlane * mat4x4::zero_z * toPlane;
             const auto texX = normalize(transform * getXAxis());
             const auto texY = normalize(transform * getYAxis());
             assert(invertible); unused(invertible);
@@ -180,12 +180,12 @@ namespace TrenchBroom {
             doShearTexture(normal, factors);
         }
 
-        Mat4x4 TexCoordSystem::toMatrix(const vec2f& o, const vec2f& s) const {
+        mat4x4 TexCoordSystem::toMatrix(const vec2f& o, const vec2f& s) const {
             const vec3 x = safeScaleAxis(getXAxis(), s.x());
             const vec3 y = safeScaleAxis(getYAxis(), s.y());
             const vec3 z = getZAxis();
             
-            return Mat4x4(x[0], x[1], x[2], o[0],
+            return mat4x4(x[0], x[1], x[2], o[0],
                           y[0], y[1], y[2], o[1],
                           z[0], z[1], z[2],  0.0,
                            0.0,  0.0,  0.0,  1.0);
@@ -199,7 +199,7 @@ namespace TrenchBroom {
  */
         }
 
-        Mat4x4 TexCoordSystem::fromMatrix(const vec2f& offset, const vec2f& scale) const {
+        mat4x4 TexCoordSystem::fromMatrix(const vec2f& offset, const vec2f& scale) const {
             const auto [invertible, result] = invert(toMatrix(offset, scale));
             assert(invertible); unused(invertible);
             return result;

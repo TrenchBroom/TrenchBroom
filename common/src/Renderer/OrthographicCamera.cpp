@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return Projection_Orthographic;
         }
 
-        void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
+        void OrthographicCamera::doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const {
             const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
             const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             

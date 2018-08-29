@@ -57,9 +57,9 @@ namespace TrenchBroom {
             void set(const String& name, const vec2f& value);
             void set(const String& name, const vec3f& value);
             void set(const String& name, const vec4f& value);
-            void set(const String& name, const Mat2x2f& value);
-            void set(const String& name, const Mat3x3f& value);
-            void set(const String& name, const Mat4x4f& value);
+            void set(const String& name, const mat2x2f& value);
+            void set(const String& name, const mat3x3f& value);
+            void set(const String& name, const mat4x4f& value);
         private:
             void link();
             GLint findUniformLocation(const String& name) const;

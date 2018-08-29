@@ -110,17 +110,17 @@ namespace TrenchBroom {
             glAssert(glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w()));
         }
 
-        void ShaderProgram::set(const String& name, const Mat2x2f& value) {
+        void ShaderProgram::set(const String& name, const mat2x2f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix2fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const Mat3x3f& value) {
+        void ShaderProgram::set(const String& name, const mat3x3f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix3fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const Mat4x4f& value) {
+        void ShaderProgram::set(const String& name, const mat4x4f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix4fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }

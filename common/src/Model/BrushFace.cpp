@@ -451,7 +451,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
+        void BrushFace::transform(const mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
             const vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
@@ -517,22 +517,22 @@ namespace TrenchBroom {
             setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
-        Mat4x4 BrushFace::projectToBoundaryMatrix() const {
+        mat4x4 BrushFace::projectToBoundaryMatrix() const {
             const auto texZAxis = m_texCoordSystem->fromMatrix(vec2f::zero, vec2f::one) * vec3::pos_z;
             const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
             const auto [invertible, planeToWorldMatrix] = ::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
-            return planeToWorldMatrix * Mat4x4::zero_z * worldToPlaneMatrix;
+            return planeToWorldMatrix * mat4x4::zero_z * worldToPlaneMatrix;
         }
 
-        Mat4x4 BrushFace::toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
+        mat4x4 BrushFace::toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
             if (project) {
-                return Mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
+                return mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
             } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
             }
         }
 
-        Mat4x4 BrushFace::fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
+        mat4x4 BrushFace::fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
             if (project) {
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
             } else {

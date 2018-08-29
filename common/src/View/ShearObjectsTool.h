@@ -79,7 +79,7 @@ namespace TrenchBroom {
 
             const Model::Hit& dragStartHit() const;
 
-            Mat4x4 bboxShearMatrix() const;
+            mat4x4 bboxShearMatrix() const;
             Polygon3f shearHandle() const;
 
             void updatePickedSide(const Model::PickResult& pickResult);

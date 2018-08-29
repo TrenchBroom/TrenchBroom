@@ -44,7 +44,7 @@ namespace TrenchBroom {
             } Action;
             
             Action m_action;
-            Mat4x4 m_transform;
+            mat4x4 m_transform;
             bool m_lockTextures;
         public:
             static Ptr translate(const vec3& delta, bool lockTextures);
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             static Ptr shearBBox(const BBox3& box, const vec3& sideToShear, const vec3& delta, const bool lockTextures);
             static Ptr flip(const vec3& center, Math::Axis::Type axis, bool lockTextures);
         private:
-            TransformObjectsCommand(Action action, const String& name, const Mat4x4& transform, bool lockTextures);
+            TransformObjectsCommand(Action action, const String& name, const mat4x4& transform, bool lockTextures);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 

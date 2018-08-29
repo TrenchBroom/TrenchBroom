@@ -108,12 +108,12 @@ namespace TrenchBroom {
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
             
-            void renderNames(Layout& layout, float y, float height, const Mat4x4f& projection);
+            void renderNames(Layout& layout, float y, float height, const mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
+            mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
             
             wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };

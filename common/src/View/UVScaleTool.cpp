@@ -204,7 +204,7 @@ namespace TrenchBroom {
 
             const auto xIndex = xHandleHit.target<int>();
             const auto yIndex = yHandleHit.target<int>();
-            const auto pos = stripeSize * Vec2(xIndex, yIndex);
+            const auto pos = stripeSize * vec2(xIndex, yIndex);
 
             vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);

@@ -188,7 +188,7 @@ namespace TrenchBroom {
                 BBox3f rotatedBounds;
                 if (model != nullptr) {
                     const vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
-                    const Mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
+                    const mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
@@ -214,8 +214,8 @@ namespace TrenchBroom {
             const float viewRight     = static_cast<float>(GetClientRect().GetRight());
             const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
 
-            const Mat4x4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const Mat4x4f view = viewMatrix(vec3f::neg_x, vec3f::pos_z) * translationMatrix(vec3f(256.0f, 0.0f, 0.0f));
+            const mat4x4f projection = orthoMatrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const mat4x4f view = viewMatrix(vec3f::neg_x, vec3f::pos_z) * translationMatrix(vec3f(256.0f, 0.0f, 0.0f));
             Renderer::Transformation transformation(projection, view);
             
             renderBounds(layout, y, height);
@@ -229,11 +229,11 @@ namespace TrenchBroom {
 
         template <typename Vertex>
         struct CollectBoundsVertices {
-            const Mat4x4f& transformation;
+            const mat4x4f& transformation;
             const Color& color;
             typename Vertex::List& vertices;
             
-            CollectBoundsVertices(const Mat4x4f& i_transformation, const Color& i_color, typename Vertex::List& i_vertices) :
+            CollectBoundsVertices(const mat4x4f& i_transformation, const Color& i_color, typename Vertex::List& i_vertices) :
             transformation(i_transformation),
             color(i_color),
             vertices(i_vertices) {}
@@ -260,7 +260,7 @@ namespace TrenchBroom {
                                 EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer == nullptr) {
-                                    const Mat4x4f itemTrans = itemTransformation(cell, y, height);
+                                    const mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     const Color& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
                                     eachBBoxEdge(definition->bounds(), collect);
@@ -301,7 +301,7 @@ namespace TrenchBroom {
                                 EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer != nullptr) {
-                                    const Mat4x4f itemTrans = itemTransformation(cell, y, height);
+                                    const mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     Renderer::MultiplyModelMatrix multMatrix(transformation, itemTrans);
                                     modelRenderer->render();
                                 }
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection) {
+        void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const mat4x4f& projection) {
             Renderer::Transformation transformation(projection, viewMatrix(vec3f::neg_z, vec3f::pos_y) * translationMatrix(vec3f(0.0f, 0.0f, -1.0f)));
             
             Renderer::ActivateVbo activate(vertexVbo());
@@ -420,7 +420,7 @@ namespace TrenchBroom {
             return stringVertices;
         }
         
-        Mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
+        mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
             Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
             
             const vec3f offset = vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));

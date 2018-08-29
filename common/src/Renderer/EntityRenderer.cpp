@@ -243,7 +243,7 @@ namespace TrenchBroom {
                     continue;
                 }
 
-                const Mat4x4f rotation(entity->rotation());
+                const mat4x4f rotation(entity->rotation());
                 const vec3f direction = rotation * vec3f::pos_x;
                 const vec3f center(entity->bounds().center());
                 
@@ -261,7 +261,7 @@ namespace TrenchBroom {
 
                 const vec3f rotZ = rotation * vec3f::pos_z;
                 const float angle = -angleBetween(rotZ, onPlane, direction);
-                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vec3f::pos_x);
+                const mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vec3f::pos_x);
                 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];

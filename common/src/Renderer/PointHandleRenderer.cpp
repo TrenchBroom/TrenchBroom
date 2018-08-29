@@ -54,12 +54,12 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.unzoomedViewport();
             
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f,
+            const mat4x4f projection = orthoMatrix(-1.0f, 1.0f,
                                                    static_cast<float>(viewport.x),
                                                    static_cast<float>(viewport.height),
                                                    static_cast<float>(viewport.width),
                                                    static_cast<float>(viewport.y));
-            const Mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
+            const mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             glAssert(glDisable(GL_DEPTH_TEST));

@@ -241,8 +241,8 @@ namespace TrenchBroom {
             const float viewRight     = static_cast<float>(GetClientRect().GetRight());
             const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
             
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const Mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y) * translationMatrix(vec3f(0.0f, 0.0f, 0.1f));
+            const mat4x4f projection = orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const mat4x4f view = viewMatrix(vec3f::neg_z, vec3f::pos_y) * translationMatrix(vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
             
             Renderer::ActivateVbo activate(vertexVbo());

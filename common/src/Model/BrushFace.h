@@ -164,16 +164,16 @@ namespace TrenchBroom {
             void rotateTexture(float angle);
             void shearTexture(const vec2f& factors);
             
-            void transform(const Mat4x4& transform, const bool lockTexture);
+            void transform(const mat4x4& transform, const bool lockTexture);
             void invert();
 
             void updatePointsFromVertices();
             void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
             
-            Mat4x4 projectToBoundaryMatrix() const;
-            Mat4x4 toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
-            Mat4x4 fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
+            mat4x4 projectToBoundaryMatrix() const;
+            mat4x4 toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
+            mat4x4 fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
             float measureTextureAngle(const vec2f& center, const vec2f& point) const;
             
             size_t vertexCount() const;

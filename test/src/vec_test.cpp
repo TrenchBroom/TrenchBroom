@@ -48,37 +48,37 @@ TEST(VecTest, constructVec4fFrom3Floats) {
     ASSERT_EQ(vec4f(1.0f, 2.0f, 3.0f, 0.0f), vec4f(1.0f, 2.0f, 3.0f));
 }
 
-TEST(VecTest, constructVec2fFromVec2f) {
+TEST(VecTest, constructvec2fFromvec2f) {
     const vec2f v(2.0f, 3.0f);
     ASSERT_EQ(v, vec2f(v));
 }
 
-TEST(VecTest, constructVec2fFromVec3f) {
+TEST(VecTest, constructvec2fFromVec3f) {
     const vec3f v(3.0f, 5.0f, 78.0f);
     ASSERT_EQ(vec2f(v[0], v[1]), vec2f(v));
 }
 
-TEST(VecTest, constructVec2fFromVec4f) {
+TEST(VecTest, constructvec2fFromVec4f) {
     const vec4f v(3.0f, 5.0f, 2.0f, 7.0f);
     ASSERT_EQ(vec2f(v[0], v[1]), vec2f(v));
 }
 
-TEST(VecTest, constructVec3fFromVec2f) {
+TEST(VecTest, constructVec3fFromvec2f) {
     const vec2f v(2.0f, 3.0f);
     ASSERT_EQ(vec3f(v[0], v[1], 0.0f), vec3f(v));
 }
 
-TEST(VecTest, constructVec4fFromVec2f) {
+TEST(VecTest, constructVec4fFromvec2f) {
     const vec2f v(2.0f, 3.0f);
     ASSERT_EQ(vec4f(v[0], v[1], 0.0f, 0.0f), vec4f(v));
 }
 
-TEST(VecTest, constructVec4fFromVec2fWithLast1) {
+TEST(VecTest, constructVec4fFromvec2fWithLast1) {
     const vec2f v(3.0f, 5.0f);
     ASSERT_EQ(vec4f(v[0], v[1], 0.0f, 2.0f), vec4f(v, 2.0f));
 }
 
-TEST(VecTest, constructVec4fFromVec2fWithLast2) {
+TEST(VecTest, constructVec4fFromvec2fWithLast2) {
     const vec2f v(3.0f, 5.0f);
     ASSERT_EQ(vec4f(v[0], v[1], 3.0f, 2.0f), vec4f(v, 3.0f, 2.0f));
 }
@@ -93,7 +93,7 @@ TEST(VecTest, constructVec3fFromVec3fWithLast2) {
     ASSERT_EQ(vec3f(v[0], 2.0f, 4.0f), vec3f(v, 2.0f, 4.0f));
 }
 
-TEST(VecTest, assignVec2fToVec3f) {
+TEST(VecTest, assignvec2fToVec3f) {
     const vec2f t(2.0f, 3.0f);
     vec3f v;
     ASSERT_EQ(vec3f(t), (v = t));

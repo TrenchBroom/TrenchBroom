@@ -65,7 +65,7 @@ namespace TrenchBroom {
             void cameraViewportChanged();
 
             const vec2i& subDivisions() const;
-            Vec2 stripeSize() const;
+            vec2 stripeSize() const;
             void setSubDivisions(const vec2i& subDivisions);
             
             const vec3 origin() const;
@@ -82,8 +82,8 @@ namespace TrenchBroom {
             vec2f computeDistanceFromTextureGrid(const vec3& position) const;
 
             void computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
-            void computeScaleHandleVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
-            void computeLineVertices(const Vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
+            void computeScaleHandleVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
+            void computeLineVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const;
         private:
             void resetOrigin();
             void resetCamera();

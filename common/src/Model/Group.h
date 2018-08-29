@@ -93,7 +93,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

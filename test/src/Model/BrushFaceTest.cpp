@@ -120,7 +120,7 @@ namespace TrenchBroom {
         
         static void getFaceVertsAndTexCoords(const BrushFace *face,
                                              std::vector<vec3> *vertPositions,
-                                             std::vector<Vec2> *vertTexCoords) {
+                                             std::vector<vec2> *vertTexCoords) {
             BrushFace::VertexList::const_iterator it;
             BrushFace::VertexList verts = face->vertices();
             for (it = std::begin(verts); it != std::end(verts); ++it) {
@@ -143,8 +143,8 @@ namespace TrenchBroom {
         /**
          * Assumes the UV's have been divided by the texture size.
          */
-        static void checkUVListsEqual(const std::vector<Vec2> &uvs,
-                                      const std::vector<Vec2> &transformedVertUVs,
+        static void checkUVListsEqual(const std::vector<vec2> &uvs,
+                                      const std::vector<vec2> &transformedVertUVs,
                                       const BrushFace* face) {
             ASSERT_EQ(uvs.size(), transformedVertUVs.size());
             ASSERT_GE(uvs.size(), 3U);
@@ -160,8 +160,8 @@ namespace TrenchBroom {
                 // note, just checking:
                 //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
                 // would be too lenient.
-                const Vec2 expected = uvs[i] - uvs[0];
-                const Vec2 actual = transformedVertUVs[i] - transformedVertUVs[0];
+                const vec2 expected = uvs[i] - uvs[0];
+                const vec2 actual = transformedVertUVs[i] - transformedVertUVs[0];
                 EXPECT_VEC_EQ(expected, actual);
             }
         }
@@ -172,7 +172,7 @@ namespace TrenchBroom {
          * It only tests that texture lock off works when the face's texture
          * alignment is reset before applying the transform.
          */
-        static void checkTextureLockOffWithTransform(const Mat4x4 &transform,
+        static void checkTextureLockOffWithTransform(const mat4x4 &transform,
                                                      const BrushFace *origFace) {
             
             // reset alignment, transform the face (texture lock off)
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             }
             
             // get UV of each transformed vert using `face` and `resetFace`
-            std::vector<Vec2> face_UVs, resetFace_UVs;
+            std::vector<vec2> face_UVs, resetFace_UVs;
             for (size_t i=0; i<verts.size(); i++) {
                 face_UVs.push_back(face->textureCoords(transformedVerts[i]));
                 resetFace_UVs.push_back(resetFace->textureCoords(transformedVerts[i]));
@@ -218,10 +218,10 @@ namespace TrenchBroom {
          * are equivelant to the UV coordinates of the non-transformed verts,
          * i.e. checks that texture lock worked.
          */
-        static void checkTextureLockOnWithTransform(const Mat4x4 &transform,
+        static void checkTextureLockOnWithTransform(const mat4x4 &transform,
                                                     const BrushFace *origFace) {
             std::vector<vec3> verts;
-            std::vector<Vec2> uvs;
+            std::vector<vec2> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
             ASSERT_GE(verts.size(), 3U);
 
@@ -237,7 +237,7 @@ namespace TrenchBroom {
             }
             
             // ask the transformed face for the UVs at the transformed verts
-            std::vector<Vec2> transformedVertUVs;
+            std::vector<vec2> transformedVertUVs;
             for (size_t i=0; i<verts.size(); i++) {
                 transformedVertUVs.push_back(face->textureCoords(transformedVerts[i]));
             }
@@ -263,7 +263,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace *origFace) {
             for (int i=0; i<(1 << 7); i++) {
-                Mat4x4 xform;
+                mat4x4 xform;
                 
                 const bool translate = (i & (1 << 0)) != 0;
                 
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             const double rotateRadians = Math::radians(degrees);
             
             for (int i=0; i<(1 << 3); i++) {
-                Mat4x4 xform;
+                mat4x4 xform;
                 
                 const bool testRoll    = (i & (1 << 0)) != 0;
                 const bool testPitch   = (i & (1 << 1)) != 0;
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             const double rotateRadians = Math::radians(degrees);
             
             for (int i=0; i<6; i++) {
-                Mat4x4 xform;
+                mat4x4 xform;
                 
                 switch (i) {
                     case 0: xform = rotationMatrix(rotateRadians, 0.0, 0.0) * xform; break;
@@ -348,18 +348,18 @@ namespace TrenchBroom {
         }
         
         static void checkTextureLockOffWithTranslation(const BrushFace *origFace) {
-            Mat4x4 xform = translationMatrix(vec3(100.0, 100.0, 100.0));
+            mat4x4 xform = translationMatrix(vec3(100.0, 100.0, 100.0));
             checkTextureLockOffWithTransform(xform, origFace);
         }
         
         static void checkTextureLockWithScale(const BrushFace *origFace, const vec3& scaleFactors) {
-            Mat4x4 xform = scalingMatrix(scaleFactors);
+            mat4x4 xform = scalingMatrix(scaleFactors);
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
         static void checkTextureLockWithShear(const BrushFace *origFace) {
             // shear the x axis towards the y axis
-            Mat4x4 xform = shearMatrix(1, 0, 0, 0, 0, 0);
+            mat4x4 xform = shearMatrix(1, 0, 0, 0, 0, 0);
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
@@ -386,7 +386,7 @@ namespace TrenchBroom {
          * when texture lock is off.
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
-            const Mat4x4 transform = mirrorMatrix<double>(Math::Axis::AZ);
+            const mat4x4 transform = mirrorMatrix<double>(Math::Axis::AZ);
             const BrushFace* origFace = cube->findFace(vec3::pos_x);
             
             // transform the face (texture lock off)
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             // UVs of the verts of `face` and `origFace` should be the same now
 
             // get UV of each vert using `face` and `resetFace`
-            std::vector<Vec2> face_UVs, origFace_UVs;
+            std::vector<vec2> face_UVs, origFace_UVs;
             for (const auto vert : origFace->vertices()) {
                 face_UVs.push_back(face->textureCoords(vert->position()));
                 origFace_UVs.push_back(origFace->textureCoords(vert->position()));
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             const vec3 mins(cube->bounds().min);
             
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
-            const Mat4x4 transform = translationMatrix(mins) * scalingMatrix(vec3(2.0, 1.0, 1.0)) * translationMatrix(-1.0 * mins);
+            const mat4x4 transform = translationMatrix(mins) * scalingMatrix(vec3(2.0, 1.0, 1.0)) * translationMatrix(-1.0 * mins);
             const BrushFace* origFace = cube->findFace(vec3::neg_y);
             
             // transform the face (texture lock off)
@@ -421,17 +421,17 @@ namespace TrenchBroom {
             face->resetTexCoordSystemCache();
             
             // get UV at mins; should be equal
-            const Vec2 left_origTC = origFace->textureCoords(mins);
-            const Vec2 left_transformedTC = face->textureCoords(mins);
+            const vec2 left_origTC = origFace->textureCoords(mins);
+            const vec2 left_transformedTC = face->textureCoords(mins);
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const Vec2 right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
-            const Vec2 right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            const vec2 right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
+            const vec2 right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
             
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
-            const Vec2 orig_U_width = right_origTC - left_origTC;
-            const Vec2 transformed_U_width = right_transformedTC - left_transformedTC;
+            const vec2 orig_U_width = right_origTC - left_origTC;
+            const vec2 transformed_U_width = right_transformedTC - left_transformedTC;
             
             EXPECT_FLOAT_EQ(orig_U_width.x() * 2.0, transformed_U_width.x());
             EXPECT_FLOAT_EQ(orig_U_width.y(), transformed_U_width.y());

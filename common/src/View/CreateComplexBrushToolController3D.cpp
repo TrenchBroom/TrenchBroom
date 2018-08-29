@@ -108,10 +108,10 @@ namespace TrenchBroom {
                 const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
                 const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
                 
-                const Vec2     topLeft2(theMin.x(), theMin.y());
-                const Vec2    topRight2(theMax.x(), theMin.y());
-                const Vec2  bottomLeft2(theMin.x(), theMax.y());
-                const Vec2 bottomRight2(theMax.x(), theMax.y());
+                const vec2     topLeft2(theMin.x(), theMin.y());
+                const vec2    topRight2(theMax.x(), theMin.y());
+                const vec2  bottomLeft2(theMin.x(), theMax.y());
+                const vec2 bottomRight2(theMax.x(), theMax.y());
                 
                 const auto     topLeft3 = unswizzle(vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
                 const auto    topRight3 = unswizzle(vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);

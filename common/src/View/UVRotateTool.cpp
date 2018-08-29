@@ -64,10 +64,10 @@ namespace TrenchBroom {
                 return;
 
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
             const Plane3& boundary = face->boundary();
-            const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+            const mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
 
             const Ray3& pickRay = inputState.pickRay();
             const FloatType distanceToFace = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
-            const Mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
             const vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
@@ -118,8 +118,8 @@ namespace TrenchBroom {
             const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
             const vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
             
-            const Mat4x4 toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
             const vec2f curPointInFaceCoords(toFaceOld * curPoint);
             const float curAngle = measureAngle(curPointInFaceCoords);
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             document->setFaceAttributes(request);
             
             // Correct the offsets.
-            const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
 
             const vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             };
             float minDelta = std::numeric_limits<float>::max();
             
-            const Mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             for (const Model::BrushEdge* edge : face->edges()) {
                 const vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
                 const vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();

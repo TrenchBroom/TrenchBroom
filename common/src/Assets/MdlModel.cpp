@@ -72,7 +72,7 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        BBox3f MdlFrame::transformedBounds(const Mat4x4f& transformation) const {
+        BBox3f MdlFrame::transformedBounds(const mat4x4f& transformation) const {
             if (m_triangles.empty())
                 return BBox3f(-8.0f, 8.0f);
             
@@ -148,7 +148,7 @@ namespace TrenchBroom {
             return frame->bounds();
         }
 
-        BBox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        BBox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             if (frameIndex >= m_frames.size())
                 return BBox3f(-8.0f, 8.0f);
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();

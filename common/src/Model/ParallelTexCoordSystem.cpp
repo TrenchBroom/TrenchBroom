@@ -132,7 +132,7 @@ namespace TrenchBroom {
             m_yAxis = rot * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
+        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
 
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 return;
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
-            const auto worldToTexSpace = toMatrix(Vec2(0, 0), Vec2(1, 1));
+            const auto worldToTexSpace = toMatrix(vec2(0, 0), vec2(1, 1));
             
             // The formula for texturing is:
             //
@@ -194,21 +194,21 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
         }
 
-        float ParallelTexCoordSystem::computeTextureAngle(const Plane3& oldBoundary, const Mat4x4& transformation) const {
-            const Mat4x4& rotationScale = stripTranslation(transformation);
+        float ParallelTexCoordSystem::computeTextureAngle(const Plane3& oldBoundary, const mat4x4& transformation) const {
+            const mat4x4& rotationScale = stripTranslation(transformation);
             const vec3& oldNormal = oldBoundary.normal;
             const vec3  newNormal = normalize(rotationScale * oldNormal);
 
-            const Mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
+            const mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
             const vec3 newXAxis = normalize(rotationScale * m_xAxis);
             const vec3 nonXAxis = normalize(nonRotation * m_xAxis);
             const FloatType angle = Math::degrees(angleBetween(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
         }
 
-        Mat4x4 ParallelTexCoordSystem::computeNonTextureRotation(const vec3& oldNormal, const vec3& newNormal, const Mat4x4& rotation) const {
+        mat4x4 ParallelTexCoordSystem::computeNonTextureRotation(const vec3& oldNormal, const vec3& newNormal, const mat4x4& rotation) const {
             if (oldNormal == newNormal) {
-                return Mat4x4::identity;
+                return mat4x4::identity;
             } else if (oldNormal == -newNormal) {
                 const vec3 minorAxis = majorAxis(oldNormal, 2);
                 const vec3 axis = normalize(cross(oldNormal, minorAxis));
@@ -292,7 +292,7 @@ namespace TrenchBroom {
         }
 
         void ParallelTexCoordSystem::doShearTexture(const vec3& normal, const vec2f& f) {
-            const Mat4x4 shear( 1.0, f[0], 0.0, 0.0,
+            const mat4x4 shear( 1.0, f[0], 0.0, 0.0,
                                f[1],  1.0, 0.0, 0.0,
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);

@@ -127,9 +127,9 @@ namespace TrenchBroom {
                 
                 TexturedIndexRangeRenderer* renderer = entry.second;
                 
-                const Mat4x4f translation(translationMatrix(entity->origin()));
-                const Mat4x4f rotation(entity->rotation());
-                const Mat4x4f matrix = translation * rotation;
+                const mat4x4f translation(translationMatrix(entity->origin()));
+                const mat4x4f rotation(entity->rotation());
+                const mat4x4f matrix = translation * rotation;
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
                 
                 renderer->render();
