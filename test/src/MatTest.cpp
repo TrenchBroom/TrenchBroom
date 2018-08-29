@@ -513,10 +513,10 @@ TEST(MatTest, minor) {
     const Mat3x3d m21( 1.0,  3.0,  4.0,
                        5.0,  7.0,  8.0,
                       13.0, 15.0, 16.0);
-    ASSERT_MAT_EQ(m00, minor(m, 0, 0));
-    ASSERT_MAT_EQ(m33, minor(m, 3, 3));
-    ASSERT_MAT_EQ(m12, minor(m, 1, 2));
-    ASSERT_MAT_EQ(m21, minor(m, 2, 1));
+    ASSERT_MAT_EQ(m00, extractMinor(m, 0, 0));
+    ASSERT_MAT_EQ(m33, extractMinor(m, 3, 3));
+    ASSERT_MAT_EQ(m12, extractMinor(m, 1, 2));
+    ASSERT_MAT_EQ(m21, extractMinor(m, 2, 1));
 }
 
 TEST(MatTest, determinant) {
@@ -532,11 +532,11 @@ TEST(MatTest, determinant) {
                       2.0,  1.0,  5.0,  7.0,
                       0.0,  5.0,  2.0, -6.0,
                      -1.0,  2.0,  1.0,  0.0);
-    ASSERT_DOUBLE_EQ(0.0, determinant(Mat4x4d::Null));
-    ASSERT_DOUBLE_EQ(1.0, determinant(Mat4x4d::Identity));
-    ASSERT_DOUBLE_EQ(0.0, determinant(m1));
-    ASSERT_DOUBLE_EQ(15661.0, determinant(m2));
-    ASSERT_DOUBLE_EQ(-418.0, determinant(m3));
+    ASSERT_DOUBLE_EQ(0.0, computeDeterminant(Mat4x4d::Null));
+    ASSERT_DOUBLE_EQ(1.0, computeDeterminant(Mat4x4d::Identity));
+    ASSERT_DOUBLE_EQ(0.0, computeDeterminant(m1));
+    ASSERT_DOUBLE_EQ(15661.0, computeDeterminant(m2));
+    ASSERT_DOUBLE_EQ(-418.0, computeDeterminant(m3));
 }
 
 TEST(MatTest, adjugate) {
@@ -565,11 +565,11 @@ TEST(MatTest, adjugate) {
                       65.0, -68.0, -36.0,   59.0,
                      -25.0,  -6.0,  46.0,  -87.0);
 
-    ASSERT_MAT_EQ(Mat4x4d::Identity, adjugate(Mat4x4d::Identity));
-    ASSERT_MAT_EQ(Mat4x4d::Null, adjugate(Mat4x4d::Null));
-    ASSERT_MAT_EQ(r1, adjugate(m1));
-    ASSERT_MAT_EQ(r2, adjugate(m2));
-    ASSERT_MAT_EQ(r3, adjugate(m3));
+    ASSERT_MAT_EQ(Mat4x4d::Identity, computeAdjugate(Mat4x4d::Identity));
+    ASSERT_MAT_EQ(Mat4x4d::Null, computeAdjugate(Mat4x4d::Null));
+    ASSERT_MAT_EQ(r1, computeAdjugate(m1));
+    ASSERT_MAT_EQ(r2, computeAdjugate(m2));
+    ASSERT_MAT_EQ(r3, computeAdjugate(m3));
 }
 
 template <typename T, size_t S>

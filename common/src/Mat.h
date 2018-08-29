@@ -600,7 +600,7 @@ Mat<T,S,S> transpose(const Mat<T,S,S>& mat) {
  * @return the minor matrix
  */
 template <typename T, size_t S>
-const Mat<T,S-1,S-1> minor(const Mat<T,S,S>& m, const size_t row, const size_t col) {
+const Mat<T,S-1,S-1> extractMinor(const Mat<T,S,S>& m, const size_t row, const size_t col) {
     Mat<T,S-1,S-1> min;
     size_t minC, minR;
     minC = 0;
@@ -634,7 +634,7 @@ struct MatrixDeterminant {
         auto det = static_cast<T>(0.0);
         for (size_t r = 0; r < S; r++) {
             const auto f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
-            det += f * m[0][r] * MatrixDeterminant<T,S-1>()(minor(m, r, 0));
+            det += f * m[0][r] * MatrixDeterminant<T,S-1>()(extractMinor(m, r, 0));
         }
         return det;
     }
@@ -699,7 +699,7 @@ struct MatrixDeterminant<T,1> {
  * @return the determinant of the given matrix
  */
 template <typename T, size_t S>
-T determinant(const Mat<T,S,S>& m) {
+T computeDeterminant(const Mat<T,S,S>& m) {
     return MatrixDeterminant<T,S>()(m);
 }
 
@@ -712,12 +712,12 @@ T determinant(const Mat<T,S,S>& m) {
  * @return the adjugate of the given matrix
  */
 template <typename T, size_t S>
-Mat<T,S,S> adjugate(const Mat<T,S,S>& m) {
+Mat<T,S,S> computeAdjugate(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
     for (size_t c = 0; c < S; c++) {
         for (size_t r = 0; r < S; r++) {
             const T f = static_cast<T>((c + r) % 2 == 0 ? 1.0 : -1.0);
-            result[r][c] = f * determinant(minor(m, r, c)); // transpose the matrix on the fly
+            result[r][c] = f * computeDeterminant(extractMinor(m, r, c)); // transpose the matrix on the fly
         }
     }
     return result;
@@ -734,12 +734,12 @@ Mat<T,S,S> adjugate(const Mat<T,S,S>& m) {
  */
 template <typename T, size_t S>
 std::tuple<bool, Mat<T,S,S>> invert(const Mat<T,S,S>& m) {
-    const auto det = determinant(m);
+    const auto det = computeDeterminant(m);
     const auto invertible = (det != static_cast<T>(0.0));
     if (!invertible) {
         return std::make_tuple(false, Mat<T,S,S>::Identity);
     } else {
-        return std::make_tuple(true, adjugate(m) / det);
+        return std::make_tuple(true, computeAdjugate(m) / det);
     }
 }
 
