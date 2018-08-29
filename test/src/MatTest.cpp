@@ -582,7 +582,7 @@ void ASSERT_INVERTIBLE(const Mat<T,S,S>& expected, const Mat<T,S,S>& actual) {
 template <typename T, size_t S>
 void ASSERT_NOT_INVERTIBLE(const Mat<T,S,S>& actual) {
     auto [invertible, inverse] = invert(actual);
-    ASSERT_FALSE(invertible);
+    ASSERT_FALSE(invertible); unused(inverse);
 }
 
 TEST(MatTest, invertedMatrix) {
