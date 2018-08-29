@@ -184,7 +184,7 @@ public:
         HalfEdge* previousIncident() const;
         HalfEdge* nextIncident() const;
         bool hasOrigins(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
-        String asString() const;
+        std::string asString() const;
     private:
         Math::PointStatus::Type pointStatus(const V& faceNormal, const V& point) const;
         bool isLeavingEdge() const;

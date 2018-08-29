@@ -24,8 +24,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "vec_functions.h" // TODO 2201: remove this when free functions were moved to separate plane_extras.h
 #include "Line.h"
 #include "MathUtils.h"
-#include "Mat.h"
+#include "mat_forward.h"
 #include "Ray.h"
+
+#include <set>
 #include <vector>
 
 template <typename T, size_t S>
@@ -195,14 +197,14 @@ public:
         return Plane<T,S>(*this).flip();
     }
     
-    Plane<T,S>& transform(const Mat<T,S+1,S+1>& transform) {
+    Plane<T,S>& transform(const mat<T,S+1,S+1>& transform) {
         const vec<T,3> oldAnchor = anchor();
         normal = normalize(stripTranslation(transform) * normal);
         distance = dot(transform * oldAnchor, normal);
         return *this;
     }
             
-    Plane<T,S> transformed(const Mat<T,S+1,S+1>& transform) const {
+    Plane<T,S> transformed(const mat<T,S+1,S+1>& transform) const {
         return Plane<T,S>(*this).transform(transform);
     }
     

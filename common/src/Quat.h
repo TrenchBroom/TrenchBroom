@@ -22,6 +22,7 @@
 
 #include "MathUtils.h"
 #include "vec_type.h"
+#include "vec_functions.h"
 
 #include <cassert>
 

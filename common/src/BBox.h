@@ -21,13 +21,15 @@
 #define TrenchBroom_BBox_h
 
 #include "Algorithms.h"
-#include "Mat.h"
+#include "mat_forward.h"
 #include "Plane.h"
 #include "Quat.h"
 #include "vec_type.h"
 
 #include <algorithm>
 #include <array>
+#include <string>
+#include <sstream>
 
 template <typename T, size_t S>
 class BBox {
@@ -413,8 +415,8 @@ public:
         return BBox<T,S>(*this).translate(delta);
     }
 
-    String asString() const {
-        StringStream result;
+    std::string asString() const {
+        std::stringstream result;
         result << "[ (" << min << ") - (" << max << ") ]";
         return result.str();
     }
@@ -535,11 +537,11 @@ BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Quat<T>& rotation, const vec<T
 
 template <typename T>
 struct TransformBBox {
-    Mat<T,4,4> transformation;
+    mat<T,4,4> transformation;
     bool first;
     BBox<T,3> bbox;
     
-    TransformBBox(const Mat<T,4,4>& i_transformation) :
+    TransformBBox(const mat<T,4,4>& i_transformation) :
     transformation(i_transformation),
     first(true) {}
     
@@ -554,7 +556,7 @@ struct TransformBBox {
 };
 
 template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
+BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const mat<T,4,4>& transformation) {
     TransformBBox<T> transformator(transformation);
     eachBBoxVertex(bbox, transformator);
     return transformator.bbox;
@@ -571,30 +573,30 @@ auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
 }
 
 template <typename T>
-Mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
+mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
     const vec<T,3>& oldSize = oldBBox.size();
     const vec<T,3>& newSize = newBBox.size();
     const vec<T,3> scaleFactors = newSize / oldSize;
     
-    const Mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+    const mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
     return transform;
 }
 
 template <typename T>
-Mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
+mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
     const vec<T,3>& oldSize = oldBBox.size();
     const vec<T,3> scaleFactors = newSize / oldSize;
 
-    const Mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
+    const mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
     return transform;
 }
 
 template <typename T>
-Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
+mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
     const auto oldSize = box.size();
     
     // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
-    Mat<T,4,4> shearMat;
+    mat<T,4,4> shearMat;
     if (sideToShear == vec<T,3>::pos_x) {
         const auto relativeDelta = delta / oldSize.x();
         shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
@@ -633,7 +635,7 @@ Mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, co
     eachBBoxFace(box, visitor);
     assert(didGrab);
     
-    const Mat<T,4,4> transform = translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
+    const mat<T,4,4> transform = translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
     return transform;
 }
 

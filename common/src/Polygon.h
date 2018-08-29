@@ -151,7 +151,7 @@ namespace TrenchBroom {
             return *this;
         }
         
-        Polygon<T,S> transformed(const Mat<T,S+1,S+1>& mat) const {
+        Polygon<T,S> transformed(const mat<T,S+1,S+1>& mat) const {
             return Polygon<T,S>(mat * vertices());
         }
     public:

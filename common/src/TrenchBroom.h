@@ -29,7 +29,7 @@ using vec3 = vec<FloatType, 3>;
 using vec2 = vec<FloatType, 2>;
 using Plane3 = Plane<FloatType, 3>;
 using Quat3 = Quat<FloatType>;
-using mat4x4 = Mat<FloatType, 4, 4>;
+using mat4x4 = mat<FloatType, 4, 4>;
 using Line3 = Line<FloatType, 3>;
 using Ray3 = Ray<FloatType, 3>;
 

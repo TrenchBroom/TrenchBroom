@@ -17,18 +17,15 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_Vec_h
-#define TrenchBroom_Vec_h
+#ifndef TRENCHBROOM_VEC_TYPE_H
+#define TRENCHBROOM_VEC_TYPE_H
 
 #include "MathUtils.h"
-#include "StringUtils.h"
 
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
 #include <ostream>
-#include <type_traits>
 #include <vector>
 
 template <typename T, size_t S>

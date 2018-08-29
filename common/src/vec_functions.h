@@ -17,8 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_vec_extras_h
-#define TrenchBroom_vec_extras_h
+#ifndef TRENCHBROOM_VEC_FUNCTIONS_H
+#define TRENCHBROOM_VEC_FUNCTIONS_H
 
 #include "vec_type.h"
 

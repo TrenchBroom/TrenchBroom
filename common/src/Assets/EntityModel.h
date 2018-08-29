@@ -21,6 +21,7 @@
 #define TrenchBroom_EntityModel
 
 #include "VecMath.h"
+#include "mat_type.h"
 
 namespace TrenchBroom {
     namespace Renderer {

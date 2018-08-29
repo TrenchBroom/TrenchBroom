@@ -22,7 +22,7 @@
 
 #include "StringUtils.h"
 #include "vec_type.h"
-#include "Mat.h"
+#include "mat.h"
 #include "Renderer/GL.h"
 
 #include <map>

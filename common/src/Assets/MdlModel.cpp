@@ -20,6 +20,8 @@
 #include "MdlModel.h"
 
 #include "CollectionUtils.h"
+#include "mat_type.h"
+#include "mat_functions.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
 #include "Renderer/TexturedIndexRangeMap.h"

@@ -480,7 +480,7 @@ TEST(MatTest, fill) {
 }
 
 TEST(MatTest, transpose) {
-    Mat<double, 4, 4> m;
+    mat<double, 4, 4> m;
     for (size_t c = 0; c < 4; ++c) {
         for (size_t r = 0; r < 4; ++r) {
             m[c][r] = static_cast<double>(c * 4 + r);
@@ -573,14 +573,14 @@ TEST(MatTest, adjugate) {
 }
 
 template <typename T, size_t S>
-void ASSERT_INVERTIBLE(const Mat<T,S,S>& expected, const Mat<T,S,S>& actual) {
+void ASSERT_INVERTIBLE(const mat<T,S,S>& expected, const mat<T,S,S>& actual) {
     auto [invertible, inverse] = invert(actual);
     ASSERT_MAT_EQ(expected, inverse);
     ASSERT_TRUE(invertible);
 }
 
 template <typename T, size_t S>
-void ASSERT_NOT_INVERTIBLE(const Mat<T,S,S>& actual) {
+void ASSERT_NOT_INVERTIBLE(const mat<T,S,S>& actual) {
     auto [invertible, inverse] = invert(actual);
     ASSERT_FALSE(invertible); unused(inverse);
 }
