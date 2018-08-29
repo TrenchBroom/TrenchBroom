@@ -743,6 +743,18 @@ std::tuple<bool, Mat<T,S,S>> invert(const Mat<T,S,S>& m) {
     }
 }
 
+/**
+ * Returns a perspective camera transformation with the given parameters. The returned matrix transforms from eye
+ * coordinates to clip coordinates.
+ *
+ * @tparam T the component type
+ * @param fov the field of view, in degrees
+ * @param nearPlane the distance to the near plane
+ * @param farPlane the distance to the far plane
+ * @param width the viewport width
+ * @param height the viewport height
+ * @return the perspective transformation matrix
+ */
 template <typename T>
 Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
     const auto vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
@@ -759,6 +771,19 @@ Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, c
                       zero,                 zero,                   -one,                                zero);
 }
 
+/**
+ * Returns an orthographic camera transformation with the given parameters. The origin of the given screen coordinates
+ * is at the center. The returned matrix transforms from eye coordinates to clip coordinates.
+ *
+ * @tparam T the component type
+ * @param nearPlane the distance to the near plane
+ * @param farPlane the distance to the far plane
+ * @param left the screen coordinate of the left border of the viewport
+ * @param top the screen coordinate of the top border of the viewport
+ * @param right the screen coordinate of the right border of the viewport
+ * @param bottom the screen coordinate of the bottom border of the viewport
+ * @return the orthographic transformation matrix
+ */
 template <typename T>
 Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const T top, const T right, const T bottom) {
     const auto width = right - left;
@@ -775,6 +800,14 @@ Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const 
                       zero,         zero,            zero,           one);
 }
 
+/**
+ * Returns a view transformation matrix which transforms normalized device coordinates to window coordinates.
+ *
+ * @tparam T the component type
+ * @param direction the view direction
+ * @param up the up vector
+ * @return the view transformation matrix
+ */
 template <typename T>
 Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
     const auto& f = direction;
@@ -791,7 +824,14 @@ Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
 }
 
 /**
- Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
+ * Returns a matrix that will rotate a point counter clockwise by the given angles. The rotation is applied in the same
+ * order the parameters are given: first roll, then pitch, then yaw.
+ *
+ * @tparam T the component type
+ * @param roll the roll angle (in radians)
+ * @param pitch the pitch angle (in radians)
+ * @param yaw the yaw angle (in radians)
+ * @return the rotation matrix
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
@@ -823,15 +863,12 @@ Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
 }
 
 /**
- Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
- */
-template <typename T>
-Mat<T,4,4> rotationMatrix(const vec<T,3>& a) {
-    return rotationMatrix(a.x(), a.y(), a.z());
-}
-
-/**
- Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
+ * Returns a matrix that will rotate a point counter clockwise about the given axis by the given angle.
+ *
+ * @tparam T the component type
+ * @param axis the axis to rotate about
+ * @param angle the rotation angle (in radians)
+ * @return the rotation matrix
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
@@ -870,10 +907,17 @@ Mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
     return rotation;
 }
 
+/**
+ * Returns a rotation matrix that performs the same rotation as the given quaternion.
+ *
+ * @see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
+ *
+ * @tparam T the component type
+ * @param quat the quaternion
+ * @return the rotation matrix
+ */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
-    // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
-    
     const auto x = quat.v[0];
     const auto y = quat.v[1];
     const auto z = quat.v[2];
@@ -900,14 +944,27 @@ Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
 }
 
 /**
- Returns a matrix that will rotate the given from vector onto the given to vector
- about their perpendicular axis. The vectors are expected to be normalized.
+ * Returns a matrix that will rotate the first given vector onto the second given vector about their perpendicular
+ * axis. The vectors are expected to be normalized.
+ *
+ * @tparam T the component type
+ * @param from the vector to rotate
+ * @param to the vector to rotate onto
+ * @return the rotation matrix
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const vec<T,3>& from, const vec<T,3>& to) {
     return rotationMatrix(Quat<T>(from, to));
 }
 
+/**
+ * Returns a matrix that translates by the given delta.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param delta the deltas by which to translate
+ * @return the translation matrix
+ */
 template <typename T, size_t S>
 Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
@@ -917,6 +974,14 @@ Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
     return translation;
 }
 
+/**
+ * Returns a matrix that contains only the translation part of the given transformation matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the transformation matrix
+ * @return the translation matrix
+ */
 template <typename T, size_t S>
 Mat<T,S,S> translationMatrix(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
@@ -926,6 +991,14 @@ Mat<T,S,S> translationMatrix(const Mat<T,S,S>& m) {
     return result;
 }
 
+/**
+ * Strips the translation part from the given transformation matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the transformation matrix
+ * @return the transformation matrix without its translation part
+ */
 template <typename T, size_t S>
 Mat<T,S,S> stripTranslation(const Mat<T,S,S>& m) {
     Mat<T,S,S> result(m);
@@ -935,6 +1008,14 @@ Mat<T,S,S> stripTranslation(const Mat<T,S,S>& m) {
     return result;
 }
 
+/**
+ * Returns a scaling matrix with the given scaling factors.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param factors the scaling factors
+ * @return the scaling matrix
+ */
 template <typename T, size_t S>
 Mat<T,S+1,S+1> scalingMatrix(const vec<T,S>& factors) {
     Mat<T,S+1,S+1> scaling;
@@ -944,15 +1025,13 @@ Mat<T,S+1,S+1> scalingMatrix(const vec<T,S>& factors) {
     return scaling;
 }
 
-template <size_t S, typename T>
-Mat<T,S,S> scalingMatrix(const T f) {
-    Mat<T,S,S> scaling;
-    for (size_t i = 0; i < S-1; ++i) {
-        scaling[i][i] = f;
-    }
-    return scaling;
-}
-
+/**
+ * Returns a matrix that mirrors along the given axis.
+ *
+ * @tparam T the component type
+ * @param axis the axis along which to mirror
+ * @return the mirroring axis
+ */
 template <typename T>
 const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
     switch (axis) {
@@ -967,6 +1046,16 @@ const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
     }
 }
 
+/**
+ * Returns a matrix that transforms to a coordinate system specified by the given axes and offset.
+ *
+ * @tparam T the component type
+ * @param x the X axis of the target coordinate system, expressed relative to the source coordinate system
+ * @param y the Y axis of the target coordinate system, expressed relative to the source coordinate system
+ * @param z the Z axis of the target coordinate system, expressed relative to the source coordinate system
+ * @param o the offset of the target coordinate system, expressed relative to the source coordinate system
+ * @return the transformation matrix
+ */
 template <typename T>
 Mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const vec<T,3>& z, const vec<T,3>& o) {
     const auto [invertible, result] = invert(Mat<T,4,4>(x[0], y[0], z[0], o[0],
@@ -978,9 +1067,15 @@ Mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const ve
 }
 
 /**
- Returns a matrix that will transform a point to a coordinate system where the X and
- Y axes are in the given plane and the Z axis is parallel to the given direction. This is useful for
- projecting points onto a plane along a particular direction.
+ * Returns a matrix that will transform a point to a coordinate system where the X and
+ * Y axes are in the given plane and the Z axis is parallel to the given direction. This is useful for
+ * projecting points onto a plane along a particular direction.
+ *
+ * @tparam T the component type
+ * @param distance the distance of the plane
+ * @param normal the normal of the plane
+ * @param direction the projection direction
+ * @return the transformation matrix
  */
 template <typename T>
 Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const vec<T,3>& direction) {
@@ -1010,27 +1105,45 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const
  Returns the inverse of a matrix that will transform a point to a coordinate system where the X and
  Y axes are in the given plane and the Z axis is the given normal.
  */
+
+/**
+ * Returns a matrix that will transform a point to a coordinate system where the X and
+ * Y axes are in the given plane and the Z axis is the plane normal. This is useful for vertically
+ * projecting points onto a plane.
+ *
+ * @tparam T the component type
+ * @param distance the distance of the plane
+ * @param normal the normal of the plane
+ * @return the transformation matrix
+ */
 template <typename T>
 Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal) {
     return planeProjectionMatrix(distance, normal, normal);
 }
 
 /**
- Returns a matrix that rotates a 3D vector in counter clockwise direction about the Z axis by the given angle
- (in radians).
- */
-template <typename T>
-Mat<T,3,3> rotationMatrix(const T angle) {
-    const auto sin = std::sin(angle);
-    const auto cos = std::cos(angle);
-    return Mat<T,3,3>(cos, -sin, 0.0,
-                      sin,  cos, 0.0,
-                      0.0,  0.0, 1.0);
-}
-
-/**
 From: http://web.archive.org:80/web/20041029003853/http://www.j3d.org/matrix_faq/matrfaq_latest.html#Q43
 */
+
+/**
+ * Returns a matrix that performs a shearing transformation. In 3D, six shearing directions are possible:
+ *
+ * - X in direction of Y
+ * - X in direction of Z
+ * - Y in direction of X
+ * - Y in direction of Z
+ * - Z in direction of X
+ * - Z in direction of Y
+ *
+ * @tparam T the component type
+ * @param Sxy amount by which to share the X axis in direction of the Y axis
+ * @param Sxz amount by which to share the X axis in direction of the Z axis
+ * @param Syx amount by which to share the Y axis in direction of the X axis
+ * @param Syz amount by which to share the Y axis in direction of the Z axis
+ * @param Szx amount by which to share the Z axis in direction of the X axis
+ * @param Szy amount by which to share the Z axis in direction of the Y axis
+ * @return the shearing matrix
+ */
 template <typename T>
 Mat<T,4,4> shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
     return Mat<T,4,4>(1.0, Syx, Szx, 0.0,

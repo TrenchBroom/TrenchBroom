@@ -67,18 +67,20 @@ namespace TrenchBroom {
         }
         
         void Compass::doRender(RenderContext& renderContext) {
-            const Camera& camera = renderContext.camera();
-            const Camera::Viewport& viewport = camera.unzoomedViewport();
-            const int viewWidth = viewport.width;
-            const int viewHeight = viewport.height;
+            const auto& camera = renderContext.camera();
+            const auto& viewport = camera.unzoomedViewport();
+            const auto viewWidth = viewport.width;
+            const auto viewHeight = viewport.height;
             
-            const Mat4x4f projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
-            const Mat4x4f view = viewMatrix(vec3f::pos_y, vec3f::pos_z) * translationMatrix(500.0f * vec3f::pos_y);
+            const auto projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
+            const auto view = viewMatrix(vec3f::pos_y, vec3f::pos_z) * translationMatrix(500.0f * vec3f::pos_y);
             const ReplaceTransformation ortho(renderContext.transformation(), projection, view);
-            
-            const Mat4x4f compassTransformation = translationMatrix(vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f)) * scalingMatrix<4>(2.0f);
+
+            const auto translation = translationMatrix(vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f));
+            const auto scaling = scalingMatrix(vec3f::fill(2.0f));
+            const auto compassTransformation = translation * scaling;
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
-            const Mat4x4f cameraTransformation = cameraRotationMatrix(camera);
+            const auto cameraTransformation = cameraRotationMatrix(camera);
 
             glAssert(glClear(GL_DEPTH_BUFFER_BIT));
             renderBackground(renderContext);
