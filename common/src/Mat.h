@@ -21,7 +21,7 @@
 #define TrenchBroom_Mat_h
 
 #include "Quat.h"
-#include "Vec.h"
+#include "vec_type.h"
 
 #include <algorithm>
 #include <cassert>
@@ -30,7 +30,7 @@
 template <typename T, size_t R, size_t C>
 class Mat {
 public:
-    typedef T Type;
+    using Type = T;
     static const size_t Rows = R;
     static const size_t Cols = C;
     
@@ -53,15 +53,51 @@ public:
     static const Mat<T,R,C> ZerZ;
     static const Mat<T,R,C> YIQToRGB;
     static const Mat<T,R,C> RGBToYIQ;
+
+    using List = std::vector<Mat<T,R,C>>;
     
-    typedef std::vector<Mat<T,R,C> > List;
-    
-    // we store in column-major format
-    // every vector is one column
-    Vec<T,R> v[C];
-    
+    /**
+     * The matrix components in column major format.
+     */
+    vec<T,R> v[C];
+public:
+    /**
+     * Returns a matrix where all components are set to the given value.
+     *
+     * @param value the value to set
+     * @return the newly created matrix
+     */
+    static Mat<T,R,C> fill(const T value) {
+        Mat<T,R,C> result;
+        for (size_t c = 0; c < C; c++) {
+            result[c] = vec<T,R>::fill(value);
+        }
+        return result;
+    }
+
+    /**
+     * Returns an identity matrix.
+     *
+     * @return a matrix with all values of the diagonal set to 1 and all other values set to 0
+     */
+    static Mat<T,R,C> identity() {
+        Mat<T,R,C> result;
+        for (size_t c = 0; c < C; c++) {
+            for (size_t r = 0; r < R; r++) {
+                if (c == r) {
+                    result[c][r] = static_cast<T>(1.0);
+                }
+            }
+        }
+        return result;
+    }
+public:
     Mat<T,R,C>() {
-        setIdentity();
+        for (size_t c = 0; c < C; c++) {
+            for (size_t r = 0; r < R; r++) {
+                v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
+            }
+        }
     }
     
     // Copy and move constructors
@@ -71,8 +107,14 @@ public:
     // Assignment operators
     Mat<T,R,C>& operator=(const Mat<T,R,C>& other) = default;
     Mat<T,R,C>& operator=(Mat<T,R,C>&& other) = default;
-    
-    // Conversion constructor
+
+    /**
+     * Sets the values of the newly created matrix to the values of the given matrix and casts each value of the given
+     * matrix to the component type of the newly created matrix.
+     *
+     * @tparam U the component type of the source matrix
+     * @param other the source matrix
+     */
     template <typename U>
     Mat(const Mat<U,R,C>& other) {
         for (size_t c = 0; c < C; ++c) {
@@ -82,17 +124,52 @@ public:
         }
     }
 
+    /**
+     * Sets the values of the newly created matrix to the given values, and all other values to 0.
+     *
+     * @param v11 the value at column 1 and row 1
+     * @param v12 the value at column 2 and row 1
+     * @param v13 the value at column 3 and row 1
+     * @param v21 the value at column 1 and row 2
+     * @param v22 the value at column 2 and row 2
+     * @param v23 the value at column 3 and row 2
+     * @param v31 the value at column 1 and row 3
+     * @param v32 the value at column 2 and row 3
+     * @param v33 the value at column 3 and row 3
+     */
     Mat<T,R,C>(const T v11, const T v12, const T v13,
                const T v21, const T v22, const T v23,
                const T v31, const T v32, const T v33) {
         v[0][0] = v11; v[1][0] = v12; v[2][0] = v13;
         v[0][1] = v21; v[1][1] = v22; v[2][1] = v23;
         v[0][2] = v31; v[1][2] = v32; v[2][2] = v33;
-        for (size_t c = 3; c < C; c++)
-            for (size_t r = 3; r < R; r++)
+        for (size_t c = 3; c < C; c++) {
+            for (size_t r = 3; r < R; r++) {
                 v[c][r] = static_cast<T>(0.0);
+            }
+        }
     }
-    
+
+    /**
+     * Sets the values of the newly created matrix to the given values, and all other values to 0.
+     *
+     * @param v11 the value at column 1 and row 1
+     * @param v12 the value at column 2 and row 1
+     * @param v13 the value at column 3 and row 1
+     * @param v14 the value at column 4 and row 1
+     * @param v21 the value at column 1 and row 2
+     * @param v22 the value at column 2 and row 2
+     * @param v23 the value at column 3 and row 2
+     * @param v24 the value at column 4 and row 2
+     * @param v31 the value at column 1 and row 3
+     * @param v32 the value at column 2 and row 3
+     * @param v33 the value at column 3 and row 3
+     * @param v34 the value at column 4 and row 3
+     * @param v41 the value at column 1 and row 4
+     * @param v42 the value at column 2 and row 4
+     * @param v43 the value at column 3 and row 4
+     * @param v44 the value at column 4 and row 4
+     */
     Mat<T,R,C>(const T v11, const T v12, const T v13, const T v14,
                const T v21, const T v22, const T v23, const T v24,
                const T v31, const T v32, const T v33, const T v34,
@@ -101,262 +178,463 @@ public:
         v[0][1] = v21; v[1][1] = v22; v[2][1] = v23; v[3][1] = v24;
         v[0][2] = v31; v[1][2] = v32; v[2][2] = v33; v[3][2] = v34;
         v[0][3] = v41; v[1][3] = v42; v[2][3] = v43; v[3][3] = v44;
-        for (size_t c = 4; c < C; c++)
-            for (size_t r = 4; r < R; r++)
+        for (size_t c = 4; c < C; c++) {
+            for (size_t r = 4; r < R; r++) {
                 v[c][r] = static_cast<T>(0.0);
+            }
+        }
     }
-    
-    const Mat<T,R,C> operator-() const {
-        Mat<T,R,C> result;
-        for (size_t c = 0; c < C; c++)
-            result[c] = -v[c];
-        return result;
-    }
-    
-    bool operator==(const Mat<T,R,C>& right) const {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                if (v[c][r] != right[c][r])
-                    return false;
-        return true;
-    }
-    
-    // Matrix addition and subtraction
-    const Mat<T,R,C> operator+(const Mat<T,R,C>& right) const {
-        Mat<T,R,C> result(*this);
-        return result += right;
-    }
-    
-    Mat<T,R,C>& operator+= (const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] += right[c];
-        return *this;
-    }
-    
-    const Mat<T,R,C> operator-(const Mat<T,R,C>& right) const {
-        Mat<T,R,C> result(*this);
-        return result -= right;
-    }
-    
-    Mat<T,R,C>& operator-= (const Mat<T,R,C>& right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] -= right[c];
-        return *this;
-    }
-    
-    // Matrix multiplication
-    const Mat<T,R,C> operator*(const Mat<T,C,R>& right) const {
-        Mat<T,R,C> result(Mat<T,R,C>::Null);
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                for (size_t i = 0; i < C; ++i)
-                    result[c][r] += v[i][r] * right[c][i];
-        return result;
-    }
-    
-    Mat<T,R,C>& operator*= (const Mat<T,C,R>& right) {
-        return *this = *this * right;
-    }
-    
-    // Scalar multiplication
-    const Mat<T,R,C> operator*(const T right) const {
-        Mat<T,R,C> result(*this);
-        return result *= right;
-    }
-    
-    Mat<T,R,C>& operator*= (const T right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] *= right;
-        return *this;
-    }
-    
-    const Mat<T,R,C> operator/(const T right) const {
-        Mat<T,R,C> result(*this);
-        return result /= right;
-    }
-    
-    Mat<T,R,C>& operator/= (const T right) {
-        for (size_t c = 0; c < C; c++)
-            v[c] /= right;
-        return *this;
-    }
-    
-    // Vector right multiplication
-    const Vec<T,C> operator*(const Vec<T,C>& right) const {
-        Vec<T,C> result;
-        for (size_t r = 0; r < R; r++)
-            for (size_t c = 0; c < C; ++c)
-                result[r] += v[c][r] * right[c];
-        return result;
-    }
-    
-    const Vec<T,C-1> operator*(const Vec<T,C-1>& right) const {
-        const Vec<T,C> t(right, static_cast<T>(1.0));
-        return (*this * t).overLast();
-    }
-    
-    // Vector list right multiplication
-    const typename Vec<T,C>::List operator*(const typename Vec<T,C>::List& right) const {
-        typename Vec<T,C>::List result;
-        result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C>& elem) { return *this * elem; });
-        return result;
-    }
-    
-    const typename Vec<T,C-1>::List operator*(const typename Vec<T,C-1>::List& right) const {
-        typename Vec<T,C-1>::List result;
-        result.reserve(right.size());
-        std::transform(std::begin(right), std::end(right), std::back_inserter(result), [this](const Vec<T,C-1>& elem) { return *this * elem; });
-        return result;
-    }
-    
-    // indexed access, returns one column
-    Vec<T,R>& operator[] (const size_t index) {
+
+    /**
+     * Returns the column at the given index.
+     *
+     * @param index the index of the column to return
+     * @return the column at the given index
+     */
+    vec<T,R>& operator[] (const size_t index) {
         assert(index < C);
         return v[index];
     }
-    
-    const Vec<T,R>& operator[] (const size_t index) const {
+
+    /**
+     * Returns the column at the given index.
+     *
+     * @param index the index of the column to return
+     * @return the column at the given index
+     */
+    const vec<T,R>& operator[] (const size_t index) const {
         assert(index < C);
         return v[index];
-    }
-    
-    bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
-        for (size_t c = 0; c < C; c++)
-            if (!v[c].equals(other[c], epsilon))
-                return false;
-        return true;
-    }
-    
-    bool null() const {
-        return equals(Null);
-    }
-    
-    Mat<T,R,C>& setIdentity() {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
-        return *this;
-    }
-    
-    Mat<T,R,C>& setNull() {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                v[c][r] = static_cast<T>(0.0);
-        return *this;
-    }
-    
-    const Mat<T,C,R> transposed() const {
-        Mat<T,C,R> result;
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                result[r][c] = v[c][r];
-        return result;
-    }
-    
-    void write(T* buffer) const {
-        for (size_t c = 0; c < C; c++)
-            for (size_t r = 0; r < R; r++)
-                buffer[(c*C + r)] = v[c][r];
     }
 };
 
+/**
+ * Compares the given two matrices column wise.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @param epsilon the epsilon value
+ * @return a negative value if there is a column in the left matrix that compares less than its corresponding
+ * column of the right matrix, a positive value in the opposite case, and 0 if all columns compare equal
+ */
 template <typename T, size_t R, size_t C>
-Mat<T,R,C> operator*(const T left, const Mat<T,R,C>& right) {
-    return right * left;
+int compare(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs, const T epsilon) {
+    for (size_t c = 0; c < C; c++) {
+        const auto cmp = compare(lhs[c], rhs[c], epsilon);
+        if (cmp != 0) {
+            return cmp;
+        }
+    }
+    return 0;
 }
 
-// Vector left multiplication with vector of dimension R
+/**
+ * Checks whether the given matrices have identical components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return true if all components of the given matrices are equal, and false otherwise
+ */
 template <typename T, size_t R, size_t C>
-const Vec<T,R> operator*(const Vec<T,R>& left, const Mat<T,R,C>& right) {
-    Vec<T,R> result;
-    for (size_t c = 0; c < C; c++)
-        result[c] = left.dot(right[c]);
+bool operator==(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    return compare(lhs, rhs, static_cast<T>(0.0)) == 0;
+}
+
+/**
+ * Checks whether the given matrices have identical components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return false if all components of the given matrices are equal, and true otherwise
+ */
+template <typename T, size_t R, size_t C>
+bool operator!=(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    return compare(lhs, rhs, static_cast<T>(0.0)) != 0;
+}
+
+/**
+ * Checks whether the given matrices have equal components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @param epsilon the epsilon value
+ * @return true if all components of the given matrices are equal, and false otherwise
+ */
+template <typename T, size_t R, size_t C>
+bool equal(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs, const T epsilon) {
+    return compare(lhs, rhs, epsilon) == 0;
+}
+
+/**
+ * Checks whether all columns of the given matrix are zero.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param m the matrix to check
+ * @param epsilon the epsilon value
+ * @return true if all columsn of the given matrix are zero
+ */
+template <typename T, size_t R, size_t C>
+bool isZero(const Mat<T,R,C>& m, const T epsilon = Math::Constants<T>::almostZero()) {
+    for (size_t c = 0; c < C; ++c) {
+        if (!isZero(m[c], epsilon)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Returns a matrix with the negated components of the given matrix.
+ *
+ * @param m the matrix to negate
+ * @return the negated matrix
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator-(const Mat<T,R,C>& m) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = -m[c];
+    }
     return result;
 }
 
+/**
+ * Computes the sum of two matrices by adding the corresponding components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return a matrix where each component is the sum of the two corresponding components of the given matrices
+ */
 template <typename T, size_t R, size_t C>
-Vec<T,R>& operator*= (Vec<T,R>& left, const Mat<T,R,C>& right) {
-    return left = left * right;
-}
-
-// Vector left multiplication with list of vectors of dimension R
-template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List operator*(const typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R>::List result;
-    result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R>& elem) { return elem * right; });
+Mat<T,R,C> operator+(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = lhs[c] + rhs[c];
+    }
     return result;
 }
 
+/**
+ * Computes the difference of two matrices by subtracting the corresponding components.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return a matrix where each component is the difference of the two corresponding components of the given matrices
+ */
 template <typename T, size_t R, size_t C>
-const typename Vec<T,R>::List& operator*= (typename Vec<T,R>::List& left, const Mat<T,R,C>& right) {
-    for (Vec<T,R>& elem : left)
-        elem *= right;
-    return left;
-}
-
-// Vector left multiplication with vector of dimension R-1
-template <typename T, size_t R, size_t C>
-const Vec<T,R-1> operator*(const Vec<T,R-1>& left, const Mat<T,R,C>& right) {
-    return (Vec<T,R>(left, static_cast<T>(1.0)) * right).overLast();
-}
-
-template <typename T, size_t R, size_t C>
-Vec<T,R-1>& operator*= (Vec<T,R-1>& left, const Mat<T,R,C>& right) {
-    return left = left * right;
-}
-
-// Vector left multiplication with list of vectors of dimension R-1
-template <typename T, size_t R, size_t C>
-const typename Vec<T,R-1>::List operator*(const typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    typename Vec<T,R-1>::List result;
-    result.reserve(left.size());
-    std::transform(std::begin(left), std::end(left), std::back_inserter(result), [right](const Vec<T,R-1>& elem) { return elem * right; });
+Mat<T,R,C> operator-(const Mat<T,R,C>& lhs, const Mat<T,R,C>& rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = lhs[c] - rhs[c];
+    }
     return result;
 }
 
+/**
+ * Computes the product of the given two matrices.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the first matrix
+ * @param rhs the second matrix
+ * @return the product of the given matrices
+ */
 template <typename T, size_t R, size_t C>
-typename Vec<T,R-1>::List& operator*= (typename Vec<T,R-1>::List& left, const Mat<T,R,C>& right) {
-    for (Vec<T,R-1>& elem : left)
-        elem *= right;
-    return left;
+Mat<T,R,C> operator*(const Mat<T,C,R>& lhs, const Mat<T,C,R>& rhs) {
+    auto result = Mat<T,R,C>::Null;
+    for (size_t c = 0; c < C; c++) {
+        for (size_t r = 0; r < R; r++) {
+            for (size_t i = 0; i < C; ++i) {
+                result[c][r] += lhs[i][r] * rhs[c][i];
+            }
+        }
+    }
+    return result;
 }
 
+/**
+ * Computes the scalar product of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the scalar
+ * @return the product of the given matrix and the given value
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator*(const Mat<T,R,C>& lhs, const T rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; ++c) {
+        result[c] = lhs[c] * rhs;
+    }
+    return result;
+}
+
+/**
+ * Computes the scalar product of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the scalar
+ * @param rhs the matrix
+ * @return the product of the given matrix and the given value
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator*(const T lhs, const Mat<T,R,C>& rhs) {
+    return rhs * lhs;
+}
+
+/**
+ * Computes the scalar division of the given matrix and the given value.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the scalar
+ * @return the division of the given matrix and the given value
+ */
+template <typename T, size_t R, size_t C>
+Mat<T,R,C> operator/(const Mat<T,R,C>& lhs, const T rhs) {
+    Mat<T,R,C> result;
+    for (size_t c = 0; c < C; ++c) {
+        result[c] = lhs[c] / rhs;
+    }
+    return result;
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the vector
+ * @param rhs the matrix
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+const vec<T,R> operator*(const vec<T,R>& lhs, const Mat<T,R,C>& rhs) {
+    vec<T,R> result;
+    for (size_t c = 0; c < C; c++) {
+        result[c] = dot(lhs, rhs[c]);
+    }
+    return result;
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the vector
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+vec<T,R> operator*(const Mat<T,R,C>& lhs, const vec<T,C>& rhs) {
+    vec<T,C> result;
+    for (size_t r = 0; r < R; r++) {
+        for (size_t c = 0; c < C; ++c) {
+            result[r] += lhs[c][r] * rhs[c];
+        }
+    }
+    return result;
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the matrix
+ * @param rhs the vector
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+vec<T,C-1> operator*(const Mat<T,R,C>& lhs, const vec<T,C-1>& rhs) {
+    return toCartesianCoords(lhs * toHomogeneousCoords(rhs));
+}
+
+/**
+ * Multiplies the given vector by the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the vector
+ * @param rhs the matrix
+ * @return the product of the given vector and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+const vec<T,R-1> operator*(const vec<T,R-1>& lhs, const Mat<T,R,C>& rhs) {
+    return toCartesianCoords(toHomogeneousCoords(lhs) * rhs);
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,R>::List operator*(const typename vec<T,R>::List& lhs, const Mat<T,R,C>& rhs) {
+    typename vec<T,R>::List result;
+    result.reserve(lhs.size());
+    std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R>& elem) { return elem * rhs; });
+    return result;
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,R-1>::List operator*(const typename vec<T,R-1>::List& lhs, const Mat<T,R,C>& rhs) {
+    typename vec<T,R-1>::List result;
+    result.reserve(lhs.size());
+    std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R-1>& elem) { return elem * rhs; });
+    return result;
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,C>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,C>::List& rhs) {
+    typename vec<T,C>::List result;
+    result.reserve(rhs.size());
+    std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C>& elem) { return lhs * elem; });
+    return result;
+}
+
+/**
+ * Multiplies the given list of vectors with the given matrix.
+ *
+ * @tparam T the component type
+ * @tparam R the number of rows
+ * @tparam C the number of columns
+ * @param lhs the list of vectors
+ * @param rhs the matrix
+ * @return a list of the the products of the given vectors and the given matrix
+ */
+template <typename T, size_t R, size_t C>
+typename vec<T,C-1>::List operator*(const Mat<T,R,C>& lhs, const typename vec<T,C-1>::List& rhs) {
+    typename vec<T,C-1>::List result;
+    result.reserve(rhs.size());
+    std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C-1>& elem) { return lhs * elem; });
+    return result;
+}
+
+/**
+ * Transposes the given square matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of rows and columns
+ * @param mat the matrix to transpose
+ * @return the transposed matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& transposeMatrix(Mat<T,S,S>& mat) {
+Mat<T,S,S> transpose(const Mat<T,S,S>& mat) {
     using std::swap;
-    for (size_t c = 0; c < S; c++)
-        for (size_t r = c + 1; r < S; r++)
-            swap(mat[c][r], mat[r][c]);
-    return mat;
+    Mat<T,S,S> result(mat);
+    for (size_t c = 0; c < S; c++) {
+        for (size_t r = c + 1; r < S; r++) {
+            swap(result[c][r], result[r][c]);
+        }
+    }
+    return result;
 }
 
+/**
+ * Computes a minor of the given square matrix. The minor of a matrix is obtained by erasing one column
+ * and one row from that matrix. Thus, any minor matrix of an n*n matrix is a (n-1)*(n-1) matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of rows and columns of the given matrix
+ * @param m the matrix to compute a minor of
+ * @param row the row to strike
+ * @param col the column to strike
+ * @return the minor matrix
+ */
 template <typename T, size_t S>
-const Mat<T,S-1,S-1> minorMatrix(const Mat<T,S,S>& mat, const size_t row, const size_t col) {
+const Mat<T,S-1,S-1> extractMinor(const Mat<T,S,S>& m, const size_t row, const size_t col) {
     Mat<T,S-1,S-1> min;
     size_t minC, minR;
     minC = 0;
     for (size_t c = 0; c < S; c++) {
         if (c != col) {
             minR = 0;
-            for (size_t r = 0; r < S; r++)
-                if (r != row)
-                    min[minC][minR++] = mat[c][r];
+            for (size_t r = 0; r < S; r++) {
+                if (r != row) {
+                    min[minC][minR++] = m[c][r];
+                }
+            }
             minC++;
         }
     }
     return min;
 }
 
+/**
+ * Helper template to compute the determinant of any square matrix using Laplace expansion
+ * after the first column.
+ *
+ * @see https://en.wikipedia.org/wiki/Laplace_expansion
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ */
 template <typename T, size_t S>
 struct MatrixDeterminant {
-    T operator() (const Mat<T,S,S>& mat) const {
+    T operator() (const Mat<T,S,S>& m) const {
         // Laplace after first col
-        T det = static_cast<T>(0.0);
+        auto det = static_cast<T>(0.0);
         for (size_t r = 0; r < S; r++) {
-            const T f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
-            det += f * mat[0][r] * MatrixDeterminant<T,S-1>()(minorMatrix(mat, r, 0));
+            const auto f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
+            det += f * m[0][r] * MatrixDeterminant<T,S-1>()(extractMinor(m, r, 0));
         }
         return det;
     }
@@ -364,96 +642,116 @@ struct MatrixDeterminant {
 
 // TODO: implement faster block-matrix based method for NxN matrices where N = 2^n
 
+/**
+ * Partial specialization helper template to compute the determinant of a 3*3 matrix using the
+ * rule of Sarrus.
+ *
+ * @see https://en.wikipedia.org/wiki/Rule_of_Sarrus
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,3> {
-    T operator() (const Mat<T,3,3>& mat) const {
-        return (  mat[0][0]*mat[1][1]*mat[2][2]
-                + mat[1][0]*mat[2][1]*mat[0][2]
-                + mat[2][0]*mat[0][1]*mat[1][2]
-                - mat[2][0]*mat[1][1]*mat[0][2]
-                - mat[1][0]*mat[0][1]*mat[2][2]
-                - mat[0][0]*mat[2][1]*mat[1][2]);
+    T operator() (const Mat<T,3,3>& m) const {
+        return (  m[0][0]*m[1][1]*m[2][2]
+                + m[1][0]*m[2][1]*m[0][2]
+                + m[2][0]*m[0][1]*m[1][2]
+                - m[2][0]*m[1][1]*m[0][2]
+                - m[1][0]*m[0][1]*m[2][2]
+                - m[0][0]*m[2][1]*m[1][2]);
     }
 };
 
+/**
+ * Partial specialization helper template to compute the determinant of a 2*2 matrix using the
+ * rule of Sarrus.
+ *
+ * @see https://en.wikipedia.org/wiki/Rule_of_Sarrus
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,2> {
-    T operator() (const Mat<T,2,2>& mat) const {
-        return mat[0][0]*mat[1][1] - mat[1][0]*mat[0][1];
+    T operator() (const Mat<T,2,2>& m) const {
+        return (  m[0][0]*m[1][1]
+                - m[1][0]*m[0][1]);
     }
 };
 
+/**
+ * Partial specialization helper template to compute the determinant of a 1*1 matrix.
+ *
+ * @tparam T the component type
+ */
 template <typename T>
 struct MatrixDeterminant<T,1> {
-    T operator() (const Mat<T,1,1>& mat) const {
-        return mat[0][0];
+    T operator() (const Mat<T,1,1>& m) const {
+        return m[0][0];
     }
 };
 
+/**
+ * Computes the determinant of the given square matrix.
+ * 
+ * @tparam T the component type 
+ * @tparam S the number of components
+ * @param m the matrix to compute the determinant of
+ * @return the determinant of the given matrix
+ */
 template <typename T, size_t S>
-T matrixDeterminant(const Mat<T,S,S>& mat) {
-    return MatrixDeterminant<T,S>()(mat);
+T computeDeterminant(const Mat<T,S,S>& m) {
+    return MatrixDeterminant<T,S>()(m);
 }
 
+/**
+ * Computes the adjugate of the given square matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the matrix to compute the adjugate of
+ * @return the adjugate of the given matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& adjoinMatrix(Mat<T,S,S>& mat) {
-    mat = adjointMatrix(mat);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> adjointMatrix(const Mat<T,S,S>& mat) {
+Mat<T,S,S> computeAdjugate(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
     for (size_t c = 0; c < S; c++) {
         for (size_t r = 0; r < S; r++) {
             const T f = static_cast<T>((c + r) % 2 == 0 ? 1.0 : -1.0);
-            result[r][c] = f * matrixDeterminant(minorMatrix(mat, r, c)); // transpose the matrix on the fly
+            result[r][c] = f * computeDeterminant(extractMinor(m, r, c)); // transpose the matrix on the fly
         }
     }
     return result;
 }
 
+/**
+ * Inverts the given square matrix if possible.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param m the matrix to invert
+ * @return a pair of a boolean and a matrix such that the boolean indicates whether the
+ * matrix is invertible, and if so, the matrix is the inverted given matrix
+ */
 template <typename T, size_t S>
-Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat, bool& invertible) {
-    mat = invertedMatrix(mat, invertible);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S>& invertMatrix(Mat<T,S,S>& mat) {
-    bool invertible = true;
-    invertMatrix(mat, invertible);
-    assert(invertible);
-    return mat;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
-    const T det = matrixDeterminant(mat);
-    invertible = det != 0.0;
-    if (!invertible)
-        return mat;
-    
-    return adjointMatrix(mat) / det;
-}
-
-template <typename T, size_t S>
-Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat) {
-    bool invertible = true;
-    const Mat<T,S,S> inverted = invertedMatrix(mat, invertible);
-    assert(invertible);
-    return inverted;
+std::tuple<bool, Mat<T,S,S>> invert(const Mat<T,S,S>& m) {
+    const auto det = computeDeterminant(m);
+    const auto invertible = (det != static_cast<T>(0.0));
+    if (!invertible) {
+        return std::make_tuple(false, Mat<T,S,S>::Identity);
+    } else {
+        return std::make_tuple(true, computeAdjugate(m) / det);
+    }
 }
 
 template <typename T>
 Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
-    const T vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
-    const T hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
-    const T depth = farPlane - nearPlane;
+    const auto vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
+    const auto hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
+    const auto depth = farPlane - nearPlane;
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
-    static const T two  = static_cast<T>(2.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
+    static const auto two  = static_cast<T>(2.0);
     
     return Mat<T,4,4>(nearPlane / hFrustum, zero,                    zero,                               zero,
                       zero,                 nearPlane / vFrustum,    zero,                               zero,
@@ -463,13 +761,13 @@ Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, c
 
 template <typename T>
 Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const T top, const T right, const T bottom) {
-    const T width = right - left;
-    const T height = top - bottom;
-    const T depth = farPlane - nearPlane;
+    const auto width = right - left;
+    const auto height = top - bottom;
+    const auto depth = farPlane - nearPlane;
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
-    static const T two  = static_cast<T>(2.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
+    static const auto two  = static_cast<T>(2.0);
     
     return Mat<T,4,4>(two / width,  zero,            zero,          -(left + right) / width,
                       zero,         two / height,    zero,          -(top + bottom) / height,
@@ -478,18 +776,18 @@ Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, const 
 }
 
 template <typename T>
-Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
-    const Vec<T,3>& f = direction;
-    const Vec<T,3> s = crossed(f, up);
-    const Vec<T,3> u = crossed(s, f);
+Mat<T,4,4> viewMatrix(const vec<T,3>& direction, const vec<T,3>& up) {
+    const auto& f = direction;
+    const auto  s = cross(f, up);
+    const auto  u = cross(s, f);
     
-    static const T zero = static_cast<T>(0.0);
-    static const T one  = static_cast<T>(1.0);
+    static const auto zero = static_cast<T>(0.0);
+    static const auto one  = static_cast<T>(1.0);
     
     return Mat<T,4,4>( s[0],  s[1],  s[2], zero,
-                      u[0],  u[1],  u[2], zero,
+                       u[0],  u[1],  u[2], zero,
                       -f[0], -f[1], -f[2], zero,
-                      zero,  zero,  zero, one);
+                       zero,  zero,  zero, one);
 }
 
 /**
@@ -497,25 +795,25 @@ Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
  */
 template <typename T>
 Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
-    static const T I = static_cast<T>(1.0);
-    static const T O = static_cast<T>(0.0);
+    static const auto I = static_cast<T>(1.0);
+    static const auto O = static_cast<T>(0.0);
     
-    const T Cr = std::cos(roll);
-    const T Sr = std::sin(roll);
+    const auto Cr = std::cos(roll);
+    const auto Sr = std::sin(roll);
     const  Mat<T,4,4> R( +I,  +O,  +O,  +O,
                          +O, +Cr, -Sr,  +O,
                          +O, +Sr, +Cr,  +O,
                          +O,  +O,  +O,  +I);
     
-    const T Cp = std::cos(pitch);
-    const T Sp = std::sin(pitch);
+    const auto Cp = std::cos(pitch);
+    const auto Sp = std::sin(pitch);
     const Mat<T,4,4> P(+Cp,  +O, +Sp,  +O,
                         +O,  +I,  +O,  +O,
                        -Sp,  +O, +Cp,  +O,
                         +O,  +O,  +O,  +I);
     
-    const T Cy = std::cos(yaw);
-    const T Sy = std::sin(yaw);
+    const auto Cy = std::cos(yaw);
+    const auto Sy = std::sin(yaw);
     const Mat<T,4,4> Y(+Cy, -Sy,  +O,  +O,
                        +Sy, +Cy,  +O,  +O,
                         +O,  +O,  +I,  +O,
@@ -528,7 +826,7 @@ Mat<T,4,4> rotationMatrix(const T roll, const T pitch, const T yaw) {
  Returns a matrix that will rotate any point counter-clockwise about the given angles (in radians).
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& a) {
+Mat<T,4,4> rotationMatrix(const vec<T,3>& a) {
     return rotationMatrix(a.x(), a.y(), a.z());
 }
 
@@ -536,25 +834,25 @@ Mat<T,4,4> rotationMatrix(const Vec<T,3>& a) {
  Returns a matrix that will rotate any point counter-clockwise about the given axis by the given angle (in radians).
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& axis, const T angle) {
-    const T s = std::sin(-angle);
-    const T c = std::cos(-angle);
-    const T i = static_cast<T>(1.0 - c);
+Mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
+    const auto s = std::sin(-angle);
+    const auto c = std::cos(-angle);
+    const auto i = static_cast<T>(1.0 - c);
     
-    const T ix  = i  * axis[0];
-    const T ix2 = ix * axis[0];
-    const T ixy = ix * axis[1];
-    const T ixz = ix * axis[2];
+    const auto ix  = i  * axis[0];
+    const auto ix2 = ix * axis[0];
+    const auto ixy = ix * axis[1];
+    const auto ixz = ix * axis[2];
     
-    const T iy  = i  * axis[1];
-    const T iy2 = iy * axis[1];
-    const T iyz = iy * axis[2];
+    const auto iy  = i  * axis[1];
+    const auto iy2 = iy * axis[1];
+    const auto iyz = iy * axis[2];
     
-    const T iz2 = i  * axis[2] * axis[2];
+    const auto iz2 = i  * axis[2] * axis[2];
     
-    const T sx = s * axis[0];
-    const T sy = s * axis[1];
-    const T sz = s * axis[2];
+    const auto sx = s * axis[0];
+    const auto sy = s * axis[1];
+    const auto sz = s * axis[2];
     
     Mat<T,4,4> rotation;
     rotation[0][0] = ix2 + c;
@@ -576,14 +874,14 @@ template <typename T>
 Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
     // see http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/
     
-    const T x = quat.v[0];
-    const T y = quat.v[1];
-    const T z = quat.v[2];
-    const T w = quat.r;
+    const auto x = quat.v[0];
+    const auto y = quat.v[1];
+    const auto z = quat.v[2];
+    const auto w = quat.r;
     
-    const T x2 = x*x;
-    const T y2 = y*y;
-    const T z2 = z*z;
+    const auto x2 = x*x;
+    const auto y2 = y*y;
+    const auto z2 = z*z;
     
     Mat<T,4,4> rotation;
     rotation[0][0] = static_cast<T>(1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
@@ -606,47 +904,52 @@ Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
  about their perpendicular axis. The vectors are expected to be normalized.
  */
 template <typename T>
-Mat<T,4,4> rotationMatrix(const Vec<T,3>& from, const Vec<T,3>& to) {
+Mat<T,4,4> rotationMatrix(const vec<T,3>& from, const vec<T,3>& to) {
     return rotationMatrix(Quat<T>(from, to));
 }
 
 template <typename T, size_t S>
-Mat<T,S+1,S+1> translationMatrix(const Vec<T,S>& delta) {
+Mat<T,S+1,S+1> translationMatrix(const vec<T,S>& delta) {
     Mat<T,S+1,S+1> translation;
-    for (size_t i = 0; i < S; ++i)
+    for (size_t i = 0; i < S; ++i) {
         translation[S][i] = delta[i];
+    }
     return translation;
 }
 
 template <typename T, size_t S>
-Mat<T,S,S> translationMatrix(const Mat<T,S,S>& mat) {
+Mat<T,S,S> translationMatrix(const Mat<T,S,S>& m) {
     Mat<T,S,S> result;
-    for (size_t i = 0; i < S-1; ++i)
-        result[S-1][i] = mat[S-1][i];
+    for (size_t i = 0; i < S-1; ++i) {
+        result[S-1][i] = m[S-1][i];
+    }
     return result;
 }
 
 template <typename T, size_t S>
-Mat<T,S,S> stripTranslation(const Mat<T,S,S>& mat) {
-    Mat<T,S,S> result(mat);
-    for (size_t i = 0; i < S-1; ++i)
+Mat<T,S,S> stripTranslation(const Mat<T,S,S>& m) {
+    Mat<T,S,S> result(m);
+    for (size_t i = 0; i < S-1; ++i) {
         result[S-1][i] = static_cast<T>(0.0);
+    }
     return result;
 }
 
 template <typename T, size_t S>
-Mat<T,S+1,S+1> scalingMatrix(const Vec<T,S>& factors) {
+Mat<T,S+1,S+1> scalingMatrix(const vec<T,S>& factors) {
     Mat<T,S+1,S+1> scaling;
-    for (size_t i = 0; i < S; ++i)
+    for (size_t i = 0; i < S; ++i) {
         scaling[i][i] = factors[i];
+    }
     return scaling;
 }
 
 template <size_t S, typename T>
 Mat<T,S,S> scalingMatrix(const T f) {
     Mat<T,S,S> scaling;
-    for (size_t i = 0; i < S-1; ++i)
+    for (size_t i = 0; i < S-1; ++i) {
         scaling[i][i] = f;
+    }
     return scaling;
 }
 
@@ -665,11 +968,13 @@ const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
 }
 
 template <typename T>
-Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, const Vec<T,3>& z, const Vec<T,3>& o) {
-    return invertedMatrix(Mat<T,4,4>(x[0], y[0], z[0], o[0],
-                                     x[1], y[1], z[1], o[1],
-                                     x[2], y[2], z[2], o[2],
-                                     0.0,  0.0,  0.0,  1.0));
+Mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const vec<T,3>& z, const vec<T,3>& o) {
+    const auto [invertible, result] = invert(Mat<T,4,4>(x[0], y[0], z[0], o[0],
+                                                        x[1], y[1], z[1], o[1],
+                                                        x[2], y[2], z[2], o[2],
+                                                        0.0,  0.0,  0.0,  1.0));
+    assert(invertible); unused(invertible);
+    return result;
 }
 
 /**
@@ -678,25 +983,25 @@ Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, const Ve
  projecting points onto a plane along a particular direction.
  */
 template <typename T>
-Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const Vec<T,3>& direction) {
+Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal, const vec<T,3>& direction) {
     // create some coordinate system where the X and Y axes are contained within the plane
     // and the Z axis is the projection direction
-    Vec<T,3> xAxis;
+    vec<T,3> xAxis;
     
-    switch (normal.firstComponent()) {
+    switch (firstComponent(normal)) {
         case Math::Axis::AX:
-            xAxis = crossed(normal, Vec<T,3>::PosZ).normalized();
+            xAxis = normalize(cross(normal, vec<T, 3>::pos_z));
             break;
         default:
-            xAxis = crossed(normal, Vec<T,3>::PosX).normalized();
+            xAxis = normalize(cross(normal, vec<T, 3>::pos_x));
             break;
     }
-    const Vec<T,3>  yAxis = crossed(normal, xAxis).normalized();
-    const Vec<T,3>& zAxis = direction;
+    const auto  yAxis = normalize(cross(normal, xAxis));
+    const auto& zAxis = direction;
     
-    assert(Math::eq(xAxis.length(), 1.0));
-    assert(Math::eq(yAxis.length(), 1.0));
-    assert(Math::eq(zAxis.length(), 1.0));
+    assert(Math::eq(length(xAxis), 1.0));
+    assert(Math::eq(length(yAxis), 1.0));
+    assert(Math::eq(length(zAxis), 1.0));
     
     return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
 }
@@ -706,7 +1011,7 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal, const
  Y axes are in the given plane and the Z axis is the given normal.
  */
 template <typename T>
-Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal) {
+Mat<T,4,4> planeProjectionMatrix(const T distance, const vec<T,3>& normal) {
     return planeProjectionMatrix(distance, normal, normal);
 }
 
@@ -716,8 +1021,8 @@ Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal) {
  */
 template <typename T>
 Mat<T,3,3> rotationMatrix(const T angle) {
-    const T sin = std::sin(angle);
-    const T cos = std::cos(angle);
+    const auto sin = std::sin(angle);
+    const auto cos = std::cos(angle);
     return Mat<T,3,3>(cos, -sin, 0.0,
                       sin,  cos, 0.0,
                       0.0,  0.0, 1.0);
@@ -736,10 +1041,10 @@ Mat<T,4,4> shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const
 
 
 template <typename T, size_t R, size_t C>
-const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
+const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>::identity();
 
 template <typename T, size_t R, size_t C>
-const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
+const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>::fill(static_cast<T>(0.0));
 
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90XCW    = Mat<T,R,C>(+static_cast<T>(1.0), +static_cast<T>(0.0), +static_cast<T>(0.0), +static_cast<T>(0.0),
