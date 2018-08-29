@@ -208,7 +208,7 @@ namespace TrenchBroom {
 
         Mat4x4 ParallelTexCoordSystem::computeNonTextureRotation(const vec3& oldNormal, const vec3& newNormal, const Mat4x4& rotation) const {
             if (oldNormal == newNormal) {
-                return Mat4x4::Identity;
+                return Mat4x4::identity;
             } else if (oldNormal == -newNormal) {
                 const vec3 minorAxis = majorAxis(oldNormal, 2);
                 const vec3 axis = normalize(cross(oldNormal, minorAxis));

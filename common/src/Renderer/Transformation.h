@@ -30,12 +30,12 @@ namespace TrenchBroom {
             Mat4x4f::List m_viewStack;
             Mat4x4f::List m_modelStack;
         public:
-            Transformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::Identity);
+            Transformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::identity);
             ~Transformation();
             
             Transformation slice() const;
             
-            void pushTransformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::Identity);
+            void pushTransformation(const Mat4x4f& projection, const Mat4x4f& view, const Mat4x4f& model = Mat4x4f::identity);
             void popTransformation();
             void pushModelMatrix(const Mat4x4f& matrix);
             void replaceAndPushModelMatrix(const Mat4x4f& matrix);
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         protected:
             Transformation& m_transformation;
         public:
-            ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix = Mat4x4f::Identity);
+            ReplaceTransformation(Transformation& transformation, const Mat4x4f& projectionMatrix, const Mat4x4f& viewMatrix, const Mat4x4f& modelMatrix = Mat4x4f::identity);
             ~ReplaceTransformation();
         private:
             ReplaceTransformation(const ReplaceTransformation& other);

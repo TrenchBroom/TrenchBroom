@@ -122,7 +122,7 @@ namespace TrenchBroom {
             template <typename T, size_t S>
             vec<T,S> offset(const vec<T,S>& p) const {
                 if (!snap())
-                    return vec<T,S>::Null;
+                    return vec<T,S>::zero;
                 return p - snap(p);
             }
             

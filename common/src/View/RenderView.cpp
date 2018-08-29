@@ -185,7 +185,7 @@ namespace TrenchBroom {
             glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
 
             const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
-            Renderer::Transformation transformation(projection, Mat4x4f::Identity);
+            Renderer::Transformation transformation(projection, Mat4x4f::identity);
             
             glAssert(glDisable(GL_DEPTH_TEST));
             Renderer::VertexArray array = Renderer::VertexArray::swap(vertices);

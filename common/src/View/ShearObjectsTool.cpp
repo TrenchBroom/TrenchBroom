@@ -208,12 +208,12 @@ namespace TrenchBroom {
 
         Mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return Mat4x4::Identity;
+                return Mat4x4::identity;
             }
 
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return Mat4x4::Identity;
+                return Mat4x4::identity;
             }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();

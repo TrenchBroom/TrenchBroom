@@ -102,14 +102,14 @@ namespace TrenchBroom {
             
             VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
             for (size_t i = 0; i < shaftCap.vertices.size(); ++i) {
-                shaftCap.vertices[i] = Mat4x4f::Rot180X * shaftCap.vertices[i] + shaftOffset;
-                shaftCap.normals[i] = Mat4x4f::Rot180X * shaftCap.normals[i];
+                shaftCap.vertices[i] = Mat4x4f::rot_180_x * shaftCap.vertices[i] + shaftOffset;
+                shaftCap.normals[i] = Mat4x4f::rot_180_x * shaftCap.normals[i];
             }
             
             VertsAndNormals headCap = circle3D(m_headRadius, m_segments);
             for (size_t i = 0; i < headCap.vertices.size(); ++i) {
-                headCap.vertices[i] = Mat4x4f::Rot180X * headCap.vertices[i] + headOffset;
-                headCap.normals[i] = Mat4x4f::Rot180X * headCap.normals[i];
+                headCap.vertices[i] = Mat4x4f::rot_180_x * headCap.vertices[i] + headOffset;
+                headCap.normals[i] = Mat4x4f::rot_180_x * headCap.normals[i];
             }
             
             typedef VertexSpecs::P3N::Vertex Vertex;
@@ -169,7 +169,7 @@ namespace TrenchBroom {
         void Compass::renderBackground(RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
-            const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::Rot90XCCW);
+            const MultiplyModelMatrix rotate(renderContext.transformation(), Mat4x4f::rot_90_x_ccw);
             ActiveShader shader(renderContext.shaderManager(), Shaders::CompassBackgroundShader);
             shader.set("Color", prefs.get(Preferences::CompassBackgroundColor));
             m_backgroundRenderer.render();

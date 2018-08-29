@@ -40,19 +40,19 @@ namespace TrenchBroom {
                 case RotationType_Angle: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
                     if (angleValue.empty())
-                        return Mat4x4::Identity;
+                        return Mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     return rotationMatrix(vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_AngleUpDown: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
                     if (angleValue.empty())
-                        return Mat4x4::Identity;
+                        return Mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     if (angle == -1.0)
-                        return Mat4x4::Rot90YCW;
+                        return Mat4x4::rot_90_y_cw;
                     if (angle == -2.0)
-                        return Mat4x4::Rot90YCCW;
+                        return Mat4x4::rot_90_y_ccw;
                     return rotationMatrix(vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_Euler: {
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     return rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
-                    return Mat4x4::Identity;
+                    return Mat4x4::identity;
                 switchDefault()
             }
         }
