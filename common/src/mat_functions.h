@@ -1,4 +1,4 @@
-vec/*
+/*
  Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
@@ -448,14 +448,16 @@ const mat<T,S-1,S-1> extractMinor(const mat<T,S,S>& m, const size_t row, const s
  */
 template <typename T, size_t S>
 struct MatrixDeterminant {
-    T operator() (const mat<T,S,S>& m) const {
+    T operator()(const mat<T,S,S>& m) const {
         // Laplace after first col
-        auto det = static_cast<T>(0.0);
+        MatrixDeterminant<T,S-1> determinant;
+
+        auto result = static_cast<T>(0.0);
         for (size_t r = 0; r < S; r++) {
             const auto f = static_cast<T>(r % 2 == 0 ? 1.0 : -1.0);
-            det += f * m[0][r] * MatrixDeterminant<T,S-1>()(extractMinor(m, r, 0));
+            result += f * m[0][r] * determinant(extractMinor(m, r, 0));
         }
-        return det;
+        return result;
     }
 };
 

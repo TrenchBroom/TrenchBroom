@@ -25,6 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <cassert>
 #include <cstddef>
+#include <limits>
 #include <ostream>
 #include <vector>
 
