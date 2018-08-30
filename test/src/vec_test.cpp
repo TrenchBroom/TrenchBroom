@@ -93,20 +93,8 @@ TEST(VecTest, constructVec3fFromVec3fWithLast2) {
     ASSERT_EQ(vec3f(v[0], 2.0f, 4.0f), vec3f(v, 2.0f, 4.0f));
 }
 
-TEST(VecTest, assignvec2fToVec3f) {
-    const vec2f t(2.0f, 3.0f);
-    vec3f v;
-    ASSERT_EQ(vec3f(t), (v = t));
-}
-
 TEST(VecTest, assignVec3fToVec3f) {
     const vec3f t(2.0f, 3.0f, 5.0f);
-    vec3f v;
-    ASSERT_EQ(vec3f(t), (v = t));
-}
-
-TEST(VecTest, assignVec4fToVec3f) {
-    const vec4f t(2.0f, 3.0f, 5.0f, 6.0f);
     vec3f v;
     ASSERT_EQ(vec3f(t), (v = t));
 }

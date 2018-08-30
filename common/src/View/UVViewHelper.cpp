@@ -100,7 +100,7 @@ namespace TrenchBroom {
 
         const vec2f UVViewHelper::originInFaceCoords() const {
             const mat4x4 toFace = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            return toFace * origin();
+            return vec2f(toFace * origin());
         }
         
         const vec2f UVViewHelper::originInTexCoords() const {
@@ -172,9 +172,9 @@ namespace TrenchBroom {
         void UVViewHelper::computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const {
             assert(valid());
             
-            const mat4x4 toTex   = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            computeLineVertices(originInFaceCoords(), x1, x2, y1, y2, toTex, toWorld);
+            const auto toTex   = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toWorld = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            computeLineVertices(vec2(originInFaceCoords()), x1, x2, y1, y2, toTex, toWorld);
         }
 
         void UVViewHelper::computeScaleHandleVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const {
@@ -225,7 +225,7 @@ namespace TrenchBroom {
         void UVViewHelper::resetCamera() {
             assert(valid());
 
-            const vec3& normal = m_face->boundary().normal;
+            const auto& normal = m_face->boundary().normal;
             vec3 right;
             
             if (Math::lt(Math::abs(dot(vec3::pos_z, normal)), 1.0)) {
@@ -233,14 +233,14 @@ namespace TrenchBroom {
             } else {
                 right = vec3::pos_x;
             }
-            const vec3 up = normalize(cross(normal, right));
+            const auto up = normalize(cross(normal, right));
             
-            m_camera.setNearPlane(-1.0);
-            m_camera.setFarPlane(1.0);
-            m_camera.setDirection(-normal, up);
+            m_camera.setNearPlane(-1.0f);
+            m_camera.setFarPlane( +1.0f);
+            m_camera.setDirection(vec3f(-normal), vec3f(up));
 
-            const vec3 position = m_face->boundsCenter();
-            m_camera.moveTo(position);
+            const auto position = m_face->boundsCenter();
+            m_camera.moveTo(vec3f(position));
             resetZoom();
         }
         
@@ -273,7 +273,7 @@ namespace TrenchBroom {
         BBox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
-            const mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
+            const auto transform = coordinateSystemMatrix(vec3(m_camera.right()), vec3(m_camera.up()), vec3(-m_camera.direction()), vec3(m_camera.position()));
 
             BBox3 result;
             const Model::BrushFace::VertexList vertices = m_face->vertices();
@@ -281,8 +281,9 @@ namespace TrenchBroom {
             Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
-            while (it != end)
+            while (it != end) {
                 result.mergeWith(transform * (*it++)->position());
+            }
             return result;
         }
     }

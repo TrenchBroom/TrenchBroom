@@ -91,10 +91,10 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
-            const Model::BrushFace* face = m_helper.face();
-            const mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto* face = m_helper.face();
+            const auto toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             
-            const vec3 origin = m_helper.originInFaceCoords();
+            const auto origin = vec3(m_helper.originInFaceCoords());
             xHandle.point = yHandle.point = toWorld * origin;
             
             xHandle.direction = normalize(toWorld * (origin + vec3::pos_y) - xHandle.point);
@@ -274,9 +274,9 @@ namespace TrenchBroom {
                 const auto& handleColor = pref(Preferences::HandleColor);
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
-                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
+                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), mat4x4f(fromPlane));
                 const auto translation = translationMatrix(vec3(originPosition));
-                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), mat4x4f(translation));
                 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_highlight ? highlightColor : handleColor);

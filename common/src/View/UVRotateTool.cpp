@@ -156,7 +156,7 @@ namespace TrenchBroom {
         }
         
         float UVRotateTool::snapAngle(const float angle) const {
-            const Model::BrushFace* face = m_helper.face();
+            const auto* face = m_helper.face();
             
             const float angles[] = {
                 Math::mod(angle +   0.0f, 360.0f),
@@ -164,22 +164,24 @@ namespace TrenchBroom {
                 Math::mod(angle + 180.0f, 360.0f),
                 Math::mod(angle + 270.0f, 360.0f),
             };
-            float minDelta = std::numeric_limits<float>::max();
+            auto minDelta = std::numeric_limits<float>::max();
             
-            const mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            for (const Model::BrushEdge* edge : face->edges()) {
-                const vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
-                const vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
-                const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+            const auto toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            for (const auto* edge : face->edges()) {
+                const auto startInFaceCoords = vec2f(toFace * edge->firstVertex()->position());
+                const auto endInFaceCoords   = vec2f(toFace * edge->secondVertex()->position());
+                const auto edgeAngle         = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {
-                    if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta))
+                    if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta)) {
                         minDelta = angles[i] - edgeAngle;
+                    }
                 }
             }
             
-            if (std::abs(minDelta) < 3.0f)
+            if (std::abs(minDelta) < 3.0f) {
                 return angle - minDelta;
+            }
             return angle;
         }
 
@@ -232,10 +234,10 @@ namespace TrenchBroom {
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
+                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), mat4x4f(fromPlane));
                 {
                     const auto translation = translationMatrix(vec3(originPosition));
-                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);
                     } else {
@@ -246,7 +248,7 @@ namespace TrenchBroom {
                 
                 {
                     const auto translation = translationMatrix(vec3(faceCenterPosition));
-                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), mat4x4f(translation));
                     shader.set("Color", highlightColor);
                     m_center.render();
                 }

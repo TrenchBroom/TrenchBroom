@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const Plane3 plane(bounds.min, firstAxis(camera.direction()));
+            const Plane3 plane(bounds.min, vec3(firstAxis(camera.direction())));
             
             const auto distance = plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance)) {
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
-            bounds.mix(refBounds, abs(firstAxis(camera.direction())));
+            bounds.mix(refBounds, vec3(abs(firstAxis(camera.direction()))));
         }
     }
 }

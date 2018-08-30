@@ -156,7 +156,7 @@ namespace TrenchBroom {
             assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
-            const auto worldToTexSpace = toMatrix(vec2(0, 0), vec2(1, 1));
+            const auto worldToTexSpace = toMatrix(vec2f(0, 0), vec2f(1, 1));
             
             // The formula for texturing is:
             //

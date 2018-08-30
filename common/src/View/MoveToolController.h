@@ -161,16 +161,17 @@ namespace TrenchBroom {
             }
             
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                const vec3& start = m_moveTraceOrigin;
-                const vec3& end = m_moveTraceCurPoint;
+                const auto& start = m_moveTraceOrigin;
+                const auto& end = m_moveTraceCurPoint;
                 if (end != start) {
-                    const vec3 vec = end - start;
+                    const auto vec = end - start;
                     
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setShowOccludedObjects();
-                    if (m_restricted)
+                    if (m_restricted) {
                         renderService.setLineWidth(2.0f);
-                    
+                    }
+
                     vec3::List stages(3);
                     stages[0] = vec * vec3::pos_x;
                     stages[1] = vec * vec3::pos_y;
@@ -181,13 +182,13 @@ namespace TrenchBroom {
                     colors[1] = pref(Preferences::YAxisColor);
                     colors[2] = pref(Preferences::ZAxisColor);
                     
-                    vec3 lastPos = start;
+                    auto lastPos = start;
                     for (size_t i = 0; i < 3; ++i) {
-                        const vec3& stage = stages[i];
-                        const vec3 curPos = lastPos + stage;
+                        const auto& stage = stages[i];
+                        const auto curPos = lastPos + stage;
                         
                         renderService.setForegroundColor(colors[i]);
-                        renderService.renderLine(lastPos, curPos);
+                        renderService.renderLine(vec3f(lastPos), vec3f(curPos));
                         lastPos = curPos;
                     }
                     

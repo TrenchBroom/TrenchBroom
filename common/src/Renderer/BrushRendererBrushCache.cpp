@@ -80,7 +80,7 @@ namespace TrenchBroom {
                     vertex->setPayload(static_cast<GLuint>(currentIndex));
 
                     const vec3& position = vertex->position();
-                    m_cachedVertices.emplace_back(position, face->boundary().normal, face->textureCoords(position));
+                    m_cachedVertices.emplace_back(vec3f(position), vec3f(face->boundary().normal), face->textureCoords(position));
 
                     // The boundary is in CCW order, but the renderer expects CW order:
                     current = current->previous();

@@ -623,12 +623,12 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::NodeList parents = collectParents(std::begin(changedNodes), std::end(changedNodes));
+            const auto parents = collectParents(std::begin(changedNodes), std::end(changedNodes));
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 
-            for (Model::BrushFace* face : faces) {
-                Model::Brush* brush = face->brush();
+            for (auto* face : faces) {
+                auto* brush = face->brush();
                 assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
                 result.push_back(face->polygon());
@@ -640,31 +640,35 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) {
-            for (Model::BrushFace* face : m_selectedBrushFaces)
-                face->moveTexture(cameraUp, cameraRight, delta);
+            for (auto* face : m_selectedBrushFaces) {
+                face->moveTexture(vec3(cameraUp), vec3(cameraRight), delta);
+            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
         void MapDocumentCommandFacade::performRotateTextures(const float angle) {
-            for (Model::BrushFace* face : m_selectedBrushFaces)
+            for (auto* face : m_selectedBrushFaces) {
                 face->rotateTexture(angle);
+            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
         void MapDocumentCommandFacade::performShearTextures(const vec2f& factors) {
-            for (Model::BrushFace* face : m_selectedBrushFaces)
+            for (auto* face : m_selectedBrushFaces) {
                 face->shearTexture(factors);
+            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
         void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            for (Model::BrushFace* face : m_selectedBrushFaces)
+            for (auto* face : m_selectedBrushFaces) {
                 face->copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+            }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
         
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            const Model::BrushFaceList& faces = allSelectedBrushFaces();
+            const auto& faces = allSelectedBrushFaces();
             request.evaluate(faces);
             setTextures(faces);
             brushFacesDidChangeNotifier(faces);

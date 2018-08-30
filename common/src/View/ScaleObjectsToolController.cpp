@@ -219,8 +219,8 @@ namespace TrenchBroom {
                 }
 
                 // corner handles
-                for (const vec3 &corner : m_tool->cornerHandles()) {
-                    const auto ray = renderContext.camera().pickRay(corner);
+                for (const auto& corner : m_tool->cornerHandles()) {
+                    const auto ray = Ray3(renderContext.camera().pickRay(vec3f(corner)));
 
                     if (renderContext.camera().perspectiveProjection()) {
                         Model::PickResult pr;
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
+                    renderService.renderHandle(vec3f(corner));
                 }
             }
 

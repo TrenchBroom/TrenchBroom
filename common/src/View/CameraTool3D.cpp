@@ -89,11 +89,12 @@ namespace TrenchBroom {
         
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
-                if (hit.isMatch())
-                    m_orbitCenter = hit.hitPoint();
-                else
-                    m_orbitCenter = inputState.camera().defaultPoint(inputState.pickRay());
+                const auto& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
+                if (hit.isMatch()) {
+                    m_orbitCenter = vec3f(hit.hitPoint());
+                } else {
+                    m_orbitCenter = vec3f(inputState.camera().defaultPoint(inputState.pickRay()));
+                }
                 m_orbit = true;
                 return true;
             } else if (look(inputState)) {
@@ -106,17 +107,17 @@ namespace TrenchBroom {
         
         bool CameraTool3D::doMouseDrag(const InputState& inputState) {
             if (m_orbit) {
-                const float hAngle = inputState.mouseDX() * lookSpeedH();
-                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = inputState.mouseDX() * lookSpeedH();
+                const auto vAngle = inputState.mouseDY() * lookSpeedV();
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
-                const float hAngle = inputState.mouseDX() * lookSpeedH();
-                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = inputState.mouseDX() * lookSpeedH();
+                const auto vAngle = inputState.mouseDY() * lookSpeedV();
                 m_camera.rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
-                const bool altMove = pref(Preferences::CameraEnableAltMove);
+                const auto altMove = pref(Preferences::CameraEnableAltMove);
                 vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
                     delta += inputState.mouseDX() * panSpeedH() * m_camera.right();

@@ -246,11 +246,13 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushToolController3D::doShouldHandleMouseDrag(const InputState& inputState) const {
-            if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsDown(MouseButtons::MBLeft)) {
                 return false;
-            if (!inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
+            } else if (!inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare)) {
                 return false;
-            return true;
+            } else {
+                return true;
+            }
         }
 
         void CreateComplexBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -262,21 +264,24 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
-                for (const Polyhedron3::Edge* edge : polyhedron.edges())
-                    renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
-                
-                for (const Polyhedron3::Vertex* vertex : polyhedron.vertices())
-                    renderService.renderHandle(vertex->position());
-                
+                for (const auto* edge : polyhedron.edges()) {
+                    renderService.renderLine(vec3f(edge->firstVertex()->position()), vec3f(edge->secondVertex()->position()));
+                }
+
+                for (const auto* vertex : polyhedron.vertices()) {
+                    renderService.renderHandle(vec3f(vertex->position()));
+                }
+
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
-                    const Polyhedron3::FaceHit hit = polyhedron.pickFace(inputState.pickRay());
+                    const auto hit = polyhedron.pickFace(inputState.pickRay());
                     if (hit.isMatch()) {
-                        const Polyhedron3::Face* face = polyhedron.faces().front();
-                        const vec3::List pos3 = face->vertexPositions();
+                        const auto* face = polyhedron.faces().front();
+                        const auto pos3 = face->vertexPositions();
                         vec3f::List pos3f(pos3.size());
-                        for (size_t i = 0; i < pos3.size(); ++i)
+                        for (size_t i = 0; i < pos3.size(); ++i) {
                             pos3f[i] = vec3f(pos3[i]);
-                        
+                        }
+
                         renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));
                         renderService.renderFilledPolygon(pos3f);
                         
@@ -289,11 +294,12 @@ namespace TrenchBroom {
 
         bool CreateComplexBrushToolController3D::doCancel() {
             const Polyhedron3& polyhedron = m_tool->polyhedron();
-            if (polyhedron.empty())
+            if (polyhedron.empty()) {
                 return false;
-            
-            m_tool->update(Polyhedron3());
-            return true;
+            } else {
+                m_tool->update(Polyhedron3());
+                return true;
+            }
         }
     }
 }

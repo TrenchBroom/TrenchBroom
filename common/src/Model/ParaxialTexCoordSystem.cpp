@@ -241,7 +241,7 @@ namespace TrenchBroom {
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
             const vec3& zAxis = vec3::pos_z; //m_index == 5 ? vec3::neg_z : 	vec3::pos_z;
             const Quat3 rot(zAxis, -Math::radians(currentAngle));
-            const vec3 vec = rot * (point - center);
+            const vec3 vec = rot * vec3(point - center);
 
             const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), vec3::pos_x, zAxis);
             return static_cast<float>(Math::degrees(angleInRadians));

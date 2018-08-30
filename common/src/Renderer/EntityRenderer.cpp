@@ -51,7 +51,7 @@ namespace TrenchBroom {
             m_entity(entity) {}
         private:
             vec3f basePosition() const override {
-                vec3f position = m_entity->bounds().center();
+                auto position = vec3f(m_entity->bounds().center());
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -286,10 +286,10 @@ namespace TrenchBroom {
             color(i_color) {}
             
             void operator()(const vec3& v1, const vec3& v2, const vec3& v3, const vec3& v4, const vec3& n) {
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vec3f(v1), vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vec3f(v2), vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vec3f(v3), vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vec3f(v4), vec3f(n), color));
             }
         };
 
@@ -302,8 +302,8 @@ namespace TrenchBroom {
             color(i_color) {}
             
             void operator()(const vec3& v1, const vec3& v2) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vec3f(v1), color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vec3f(v2), color));
             }
         };
         
@@ -314,8 +314,8 @@ namespace TrenchBroom {
             vertices(i_vertices) {}
             
             void operator()(const vec3& v1, const vec3& v2) {
-                vertices.push_back(VertexSpecs::P3::Vertex(v1));
-                vertices.push_back(VertexSpecs::P3::Vertex(v2));
+                vertices.push_back(VertexSpecs::P3::Vertex(vec3f(v1)));
+                vertices.push_back(VertexSpecs::P3::Vertex(vec3f(v2)));
             }
         };
         
@@ -396,9 +396,11 @@ namespace TrenchBroom {
 
         const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition == nullptr)
+            if (definition == nullptr) {
                 return m_boundsColor;
-            return definition->color();
+            } else {
+                return definition->color();
+            }
         }
     }
 }

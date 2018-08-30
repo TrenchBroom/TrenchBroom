@@ -120,13 +120,13 @@ namespace TrenchBroom {
         
         static void getFaceVertsAndTexCoords(const BrushFace *face,
                                              std::vector<vec3> *vertPositions,
-                                             std::vector<vec2> *vertTexCoords) {
+                                             std::vector<vec2f> *vertTexCoords) {
             BrushFace::VertexList::const_iterator it;
             BrushFace::VertexList verts = face->vertices();
             for (it = std::begin(verts); it != std::end(verts); ++it) {
                 vertPositions->push_back(it->position());
                 if (vertTexCoords != nullptr) {
-                    vertTexCoords->push_back(face->textureCoords(it->position()));
+                    vertTexCoords->push_back(face->textureCoords(vec3(it->position())));
                 }
             }
         }
@@ -143,8 +143,8 @@ namespace TrenchBroom {
         /**
          * Assumes the UV's have been divided by the texture size.
          */
-        static void checkUVListsEqual(const std::vector<vec2> &uvs,
-                                      const std::vector<vec2> &transformedVertUVs,
+        static void checkUVListsEqual(const std::vector<vec2f> &uvs,
+                                      const std::vector<vec2f> &transformedVertUVs,
                                       const BrushFace* face) {
             ASSERT_EQ(uvs.size(), transformedVertUVs.size());
             ASSERT_GE(uvs.size(), 3U);
@@ -160,8 +160,8 @@ namespace TrenchBroom {
                 // note, just checking:
                 //   EXPECT_TC_EQ(uvs[i], transformedVertUVs[i]);
                 // would be too lenient.
-                const vec2 expected = uvs[i] - uvs[0];
-                const vec2 actual = transformedVertUVs[i] - transformedVertUVs[0];
+                const vec2f expected = uvs[i] - uvs[0];
+                const vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
                 EXPECT_VEC_EQ(expected, actual);
             }
         }
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             }
             
             // get UV of each transformed vert using `face` and `resetFace`
-            std::vector<vec2> face_UVs, resetFace_UVs;
+            std::vector<vec2f> face_UVs, resetFace_UVs;
             for (size_t i=0; i<verts.size(); i++) {
                 face_UVs.push_back(face->textureCoords(transformedVerts[i]));
                 resetFace_UVs.push_back(resetFace->textureCoords(transformedVerts[i]));
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         static void checkTextureLockOnWithTransform(const mat4x4 &transform,
                                                     const BrushFace *origFace) {
             std::vector<vec3> verts;
-            std::vector<vec2> uvs;
+            std::vector<vec2f> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
             ASSERT_GE(verts.size(), 3U);
 
@@ -237,7 +237,7 @@ namespace TrenchBroom {
             }
             
             // ask the transformed face for the UVs at the transformed verts
-            std::vector<vec2> transformedVertUVs;
+            std::vector<vec2f> transformedVertUVs;
             for (size_t i=0; i<verts.size(); i++) {
                 transformedVertUVs.push_back(face->textureCoords(transformedVerts[i]));
             }
@@ -359,7 +359,7 @@ namespace TrenchBroom {
         
         static void checkTextureLockWithShear(const BrushFace *origFace) {
             // shear the x axis towards the y axis
-            mat4x4 xform = shearMatrix(1, 0, 0, 0, 0, 0);
+            mat4x4 xform = shearMatrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             // UVs of the verts of `face` and `origFace` should be the same now
 
             // get UV of each vert using `face` and `resetFace`
-            std::vector<vec2> face_UVs, origFace_UVs;
+            std::vector<vec2f> face_UVs, origFace_UVs;
             for (const auto vert : origFace->vertices()) {
                 face_UVs.push_back(face->textureCoords(vert->position()));
                 origFace_UVs.push_back(origFace->textureCoords(vert->position()));
@@ -421,19 +421,19 @@ namespace TrenchBroom {
             face->resetTexCoordSystemCache();
             
             // get UV at mins; should be equal
-            const vec2 left_origTC = origFace->textureCoords(mins);
-            const vec2 left_transformedTC = face->textureCoords(mins);
+            const vec2f left_origTC = origFace->textureCoords(mins);
+            const vec2f left_transformedTC = face->textureCoords(mins);
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const vec2 right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
-            const vec2 right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            const vec2f right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
+            const vec2f right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
             
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
-            const vec2 orig_U_width = right_origTC - left_origTC;
-            const vec2 transformed_U_width = right_transformedTC - left_transformedTC;
+            const vec2f orig_U_width = right_origTC - left_origTC;
+            const vec2f transformed_U_width = right_transformedTC - left_transformedTC;
             
-            EXPECT_FLOAT_EQ(orig_U_width.x() * 2.0, transformed_U_width.x());
+            EXPECT_FLOAT_EQ(orig_U_width.x() * 2.0f, transformed_U_width.x());
             EXPECT_FLOAT_EQ(orig_U_width.y(), transformed_U_width.y());
             
             delete face;
@@ -557,20 +557,20 @@ namespace TrenchBroom {
             ASSERT_EQ(vec3::neg_z, negXFace->textureYAxis());
 
             // This face's texture normal is in the same direction as the face normal
-            const vec3f textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
-            ASSERT_GT(dot(textureNormal, vec3f(negXFace->boundary().normal)), 0.0f);
+            const vec3 textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
+            ASSERT_GT(dot(textureNormal, vec3(negXFace->boundary().normal)), 0.0);
 
-            const Quat3 rot45(textureNormal, Math::radians(45.0f));
-            const vec3f newXAxis(rot45 * negXFace->textureXAxis());
-            const vec3f newYAxis(rot45 * negXFace->textureYAxis());
+            const Quat3 rot45(textureNormal, Math::radians(45.0));
+            const vec3 newXAxis(rot45 * negXFace->textureXAxis());
+            const vec3 newYAxis(rot45 * negXFace->textureYAxis());
 
             // Rotate by 45 degrees CCW
             ASSERT_FLOAT_EQ(0.0f, negXFace->attribs().rotation());
             negXFace->rotateTexture(45.0);
             ASSERT_FLOAT_EQ(45.0f, negXFace->attribs().rotation());
 
-            ASSERT_VEC_EQ(vec3d(newXAxis), negXFace->textureXAxis());
-            ASSERT_VEC_EQ(vec3d(newYAxis), negXFace->textureYAxis());
+            ASSERT_VEC_EQ(newXAxis, negXFace->textureXAxis());
+            ASSERT_VEC_EQ(newYAxis, negXFace->textureYAxis());
 
             VectorUtils::clearAndDelete(nodes);
         }

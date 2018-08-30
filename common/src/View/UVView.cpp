@@ -206,30 +206,30 @@ namespace TrenchBroom {
             }
         private:
             Vertex::List getVertices() {
-                const Model::BrushFace* face = m_helper.face();
-                const vec3& normal = face->boundary().normal;
+                const auto* face = m_helper.face();
+                const auto normal = vec3f(face->boundary().normal);
                 
                 Vertex::List vertices;
                 vertices.reserve(4);
                 
-                const Renderer::Camera& camera = m_helper.camera();
-                const Renderer::Camera::Viewport& v = camera.zoomedViewport();
-                const float w2 = static_cast<float>(v.width) / 2.0f;
-                const float h2 = static_cast<float>(v.height) / 2.0f;
+                const auto& camera = m_helper.camera();
+                const auto& v = camera.zoomedViewport();
+                const auto w2 = static_cast<float>(v.width) / 2.0f;
+                const auto h2 = static_cast<float>(v.height) / 2.0f;
                 
-                const vec3f& p = camera.position();
-                const vec3f& r = camera.right();
-                const vec3f& u = camera.up();
+                const auto& p = camera.position();
+                const auto& r = camera.right();
+                const auto& u = camera.up();
                 
-                const vec3f pos1 = -w2 * r +h2 * u + p;
-                const vec3f pos2 = +w2 * r +h2 * u + p;
-                const vec3f pos3 = +w2 * r -h2 * u + p;
-                const vec3f pos4 = -w2 * r -h2 * u + p;
+                const auto pos1 = -w2 * r +h2 * u + p;
+                const auto pos2 = +w2 * r +h2 * u + p;
+                const auto pos3 = +w2 * r -h2 * u + p;
+                const auto pos4 = -w2 * r -h2 * u + p;
                 
-                vertices.push_back(Vertex(pos1, normal, face->textureCoords(pos1)));
-                vertices.push_back(Vertex(pos2, normal, face->textureCoords(pos2)));
-                vertices.push_back(Vertex(pos3, normal, face->textureCoords(pos3)));
-                vertices.push_back(Vertex(pos4, normal, face->textureCoords(pos4)));
+                vertices.push_back(Vertex(pos1, normal, face->textureCoords(vec3(pos1))));
+                vertices.push_back(Vertex(pos2, normal, face->textureCoords(vec3(pos2))));
+                vertices.push_back(Vertex(pos3, normal, face->textureCoords(vec3(pos3))));
+                vertices.push_back(Vertex(pos4, normal, face->textureCoords(vec3(pos4))));
                 
                 return vertices;
             }
@@ -239,12 +239,12 @@ namespace TrenchBroom {
             }
             
             void doRender(Renderer::RenderContext& renderContext) override {
-                const Model::BrushFace* face = m_helper.face();
-                const vec2f& offset = face->offset();
-                const vec2f& scale = face->scale();
-                const mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
+                const auto* face = m_helper.face();
+                const auto& offset = face->offset();
+                const auto& scale = face->scale();
+                const auto toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
-                const Assets::Texture* texture = face->texture();
+                const auto* texture = face->texture();
                 ensure(texture != nullptr, "texture is null");
 
                 texture->activate();
@@ -257,7 +257,7 @@ namespace TrenchBroom {
                 shader.set("GridSizes", vec2f(texture->width(), texture->height()));
                 shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
-                shader.set("GridMatrix", toTex);
+                shader.set("GridMatrix", mat4x4f(toTex));
                 shader.set("GridDivider", vec2f(m_helper.subDivisions()));
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
@@ -280,15 +280,15 @@ namespace TrenchBroom {
         void UVView::renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid()); 
             
-            const Model::BrushFace* face = m_helper.face();
-            const Model::BrushFace::VertexList faceVertices = face->vertices();
+            const auto* face = m_helper.face();
+            const auto faceVertices = face->vertices();
             
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3::Vertex;
             Vertex::List edgeVertices;
             edgeVertices.reserve(faceVertices.size());
             
             std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
-                           [](const Model::BrushVertex* vertex) { return Vertex(vertex->position()); });
+                           [](const Model::BrushVertex* vertex) { return Vertex(vec3f(vertex->position())); });
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             
@@ -299,18 +299,18 @@ namespace TrenchBroom {
         void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
             
-            const Model::BrushFace* face = m_helper.face();
-            const vec3& normal = face->boundary().normal;
+            const auto* face = m_helper.face();
+            const auto& normal = face->boundary().normal;
             
-            const vec3 xAxis = face->textureXAxis() - dot(face->textureXAxis(), normal) * normal;
-            const vec3 yAxis = face->textureYAxis() - dot(face->textureYAxis(), normal) * normal;
-            const vec3 center = face->boundsCenter();
+            const auto xAxis  = vec3f(face->textureXAxis() - dot(face->textureXAxis(), normal) * normal);
+            const auto yAxis  = vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
+            const auto center = vec3f(face->boundsCenter());
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
             vertices.reserve(4);
             
-            const FloatType length = 32.0 / FloatType(m_helper.cameraZoom());
+            const auto length = 32.0f / m_helper.cameraZoom();
             
             vertices.push_back(Vertex(center, pref(Preferences::XAxisColor)));
             vertices.push_back(Vertex(center + length * xAxis, pref(Preferences::XAxisColor)));

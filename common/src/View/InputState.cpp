@@ -178,11 +178,11 @@ namespace TrenchBroom {
         }
         
         const vec3 InputState::defaultPoint() const {
-            return camera().defaultPoint();
+            return vec3(camera().defaultPoint());
         }
 
         const vec3 InputState::defaultPointUnderMouse() const {
-            return camera().defaultPoint(pickRay());
+            return vec3(camera().defaultPoint(pickRay()));
         }
 
         const Renderer::Camera& InputState::camera() const {

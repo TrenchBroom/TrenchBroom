@@ -204,8 +204,8 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                 const auto mat = m_tool->bboxShearMatrix();
-                const auto op = [&](const vec3 &start, const vec3 &end) {
-                    renderService.renderLine(mat * start, mat * end);
+                const auto op = [&](const vec3& start, const vec3& end) {
+                    renderService.renderLine(vec3f(mat * start), vec3f(mat * end));
                 };
                 eachBBoxEdge(m_tool->bboxAtDragStart(), op);
             }

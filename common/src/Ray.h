@@ -45,9 +45,9 @@ public:
     
     // Conversion constructor
     template <typename U>
-    Ray(const Ray<U,S>& other) :
-    origin(other.origin),
-    direction(other.direction) {}
+    explicit Ray(const Ray<U,S>& other) :
+    origin(vec<T,S>(other.origin)),
+    direction(vec<T,S>(other.direction)) {}
 
     Ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction) :
     origin(i_origin),

@@ -134,19 +134,19 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const Renderer::Camera& camera = renderContext.camera();
-            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            const auto& camera = renderContext.camera();
+            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
             
             renderService.setForegroundColor(pref(Preferences::axisColor(firstComponent(camera.direction()))));
-            renderService.renderCircle(m_position, firstComponent(camera.direction()), 64, radius);
+            renderService.renderCircle(vec3f(m_position), firstComponent(camera.direction()), 64, radius);
             
             renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.renderHandle(m_position);
+            renderService.renderHandle(vec3f(m_position));
             
-            const vec3 viewDirection = camera.direction();
+            const auto viewDirection = camera.direction();
             switch (firstComponent(viewDirection)) {
                 case Math::Axis::AX:
                 case Math::Axis::AZ:
@@ -160,7 +160,7 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
 
             vec3f xAxis, yAxis, zAxis;
             computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
             
-            renderService.renderCoordinateSystem(BBox3f(radius).translated(m_position));
+            renderService.renderCoordinateSystem(BBox3f(radius).translated(vec3f(m_position)));
             
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
             renderService.renderCircle(vec3f(m_position), Math::Axis::AX, 64, radius, zAxis, yAxis);
@@ -204,8 +204,8 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsHandle::renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
-            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            const Renderer::Camera& camera = renderContext.camera();
+            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            const auto& camera = renderContext.camera();
 
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
@@ -229,7 +229,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsHandle::renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea area) {
-            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            const auto radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
             vec3f xAxis, yAxis, zAxis;
             computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
 
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                     renderService.renderHandleHighlight(vec3f(m_position));
                     renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
                     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
-                    renderService.renderString(StringUtils::toString(m_position), m_position);
+                    renderService.renderString(StringUtils::toString(m_position), vec3f(m_position));
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                     renderService.renderHandleHighlight(vec3f(m_position) + radius * xAxis);
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                     break;
                 case RotateObjectsHandle::HitArea_None:
                     break;
-                    switchDefault()
+                switchDefault()
             };
         }
 

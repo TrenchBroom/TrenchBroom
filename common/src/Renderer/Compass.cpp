@@ -157,9 +157,9 @@ namespace TrenchBroom {
 
         mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const {
             mat4x4f rotation;
-            rotation[0] = camera.right();
-            rotation[1] = camera.direction();
-            rotation[2] = camera.up();
+            rotation[0] = vec4f(camera.right());
+            rotation[1] = vec4f(camera.direction());
+            rotation[2] = vec4f(camera.up());
 
             const auto [invertible, inverseRotation] = invert(rotation);
             assert(invertible); unused(invertible);

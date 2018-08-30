@@ -286,24 +286,24 @@ namespace TrenchBroom {
             void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle, const Color& color) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(color);
-                renderService.renderHandle(handle);
+                renderService.renderHandle(typename HH::float_type(handle));
             }
             
             template <typename HH>
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(handle);
+                renderService.renderHandleHighlight(typename HH::float_type(handle));
             }
             
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(handle);
+                renderService.renderHandleHighlight(vec3f(handle));
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(StringUtils::toString(handle), handle);
+                renderService.renderString(StringUtils::toString(handle), vec3f(handle));
             }
 
             template <typename HH>

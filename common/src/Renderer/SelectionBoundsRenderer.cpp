@@ -81,9 +81,9 @@ namespace TrenchBroom {
             m_camera(camera) {}
         private:
             vec3f basePosition() const override {
-                const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
+                const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
                 vec3 pos;
-                const vec3 half = m_bounds.size() / 2.0;
+                const auto half = m_bounds.size() / 2.0;
                 
                 if (m_axis == Math::Axis::AZ) {
                     if ((camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Less) ||
@@ -146,35 +146,43 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    if (camPos[2] == BBox3::RelativePosition::Range_Less)
+                    if (camPos[2] == BBox3::RelativePosition::Range_Less) {
                         pos[2] = m_bounds.min.z();
-                    else
+                    } else {
                         pos[2] = m_bounds.max.z();
+                    }
                 }
                 
                 return vec3f(pos);
             }
             
             TextAlignment::Type alignment() const override {
-                if (m_axis == Math::Axis::AZ)
+                if (m_axis == Math::Axis::AZ) {
                     return TextAlignment::Right;
-                
-                const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
-                if (camPos[2] == BBox3::RelativePosition::Range_Less)
+                }
+
+                const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
+                if (camPos[2] == BBox3::RelativePosition::Range_Less) {
                     return TextAlignment::Top;
-                return TextAlignment::Bottom;
+                } else {
+                    return TextAlignment::Bottom;
+                }
             }
             
             vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
                 vec2f result;
-                if (alignment & TextAlignment::Top)
+                if (alignment & TextAlignment::Top) {
                     result[1] -= 8.0f;
-                if (alignment & TextAlignment::Bottom)
+                }
+                if (alignment & TextAlignment::Bottom) {
                     result[1] += 8.0f;
-                if (alignment & TextAlignment::Left)
+                }
+                if (alignment & TextAlignment::Left) {
                     result[0] += 8.0f;
-                if (alignment & TextAlignment::Right)
+                }
+                if (alignment & TextAlignment::Right) {
                     result[0] -= 8.0f;
+                }
                 return result;
             }
         };
@@ -191,13 +199,15 @@ namespace TrenchBroom {
             m_camera(camera) {}
         private:
             vec3f basePosition() const override {
-                if (m_minMax == BBox3::Corner_Min)
-                    return m_bounds.min;
-                return m_bounds.max;
+                if (m_minMax == BBox3::Corner_Min) {
+                    return vec3f(m_bounds.min);
+                } else {
+                    return vec3f(m_bounds.max);
+                }
             }
             
             TextAlignment::Type alignment() const override {
-                const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
+                const BBox3::RelativePosition camPos = m_bounds.relativePosition(vec3(m_camera.position()));
                 if (m_minMax == BBox3::Corner_Min) {
                     if ((camPos[1] == BBox3::RelativePosition::Range_Less) ||
                         (camPos[1] == BBox3::RelativePosition::Range_Within &&

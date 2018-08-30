@@ -80,26 +80,28 @@ namespace TrenchBroom {
         }
         
         bool UVShearTool::doMouseDrag(const InputState& inputState) {
-            const vec2f currentHit = getHit(inputState.pickRay());
-            const vec2f delta = currentHit - m_lastHit;
+            const auto currentHit = getHit(inputState.pickRay());
+            const auto delta = currentHit - m_lastHit;
 
-            Model::BrushFace* face = m_helper.face();
-            const vec3 origin = m_helper.origin();
-            const vec2f oldCoords = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin;
+            auto* face = m_helper.face();
+            const auto origin = m_helper.origin();
+            const auto oldCoords = vec2f(face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin);
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (m_selector[0]) {
                 const vec2f factors = vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                if (!isZero(factors))
+                if (!isZero(factors)) {
                     document->shearTextures(factors);
+                }
             } else if (m_selector[1]) {
                 const vec2f factors = vec2f(0.0f, -delta.x() / m_initialHit.y());
-                if (!isZero(factors))
+                if (!isZero(factors)) {
                     document->shearTextures(factors);
+                }
             }
             
-            const vec2f newCoords = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin;
-            const vec2f newOffset = face->offset() + oldCoords - newCoords;
+            const auto newCoords = vec2f(face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin);
+            const auto newOffset = face->offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);

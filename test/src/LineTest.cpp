@@ -38,6 +38,6 @@ TEST(LineTest, constructWithPointAndDirection) {
 }
 
 TEST(LineTest, pointOnLineClosestToPoint) {
-    const Line3f l(vec3f(10,0,0), vec3::pos_z);
+    const Line3f l(vec3f(10,0,0), vec3f::pos_z);
     ASSERT_VEC_EQ(vec3f(10,0,5), l.pointOnLineClosestToPoint(vec3f(100,100,5)));
 }

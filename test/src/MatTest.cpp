@@ -425,9 +425,9 @@ TEST(MatTest, rightMultiplyWithListOfVectorsOneLessDimension) {
 
 TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
     vec3d::List v;
-    v.push_back(vec4d(1.0, 2.0, 3.0));
-    v.push_back(vec4d(2.0, 3.0, 4.0));
-    v.push_back(vec4d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
+    v.push_back(vec3d(1.0, 2.0, 3.0));
+    v.push_back(vec3d(2.0, 3.0, 4.0));
+    v.push_back(vec3d(3.0 / 23.0, 2.0 / 23.0, 3.0 / 23.0));
 
     const mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                      5.0,  6.0,  7.0,  8.0,
@@ -440,8 +440,9 @@ TEST(MatTest, leftMultiplyWithListOfVectorsOneLessDimension) {
     r.push_back(toCartesianCoords(vec4d(339.0, 370.0, 401.0, 432.0)));
 
     const vec3d::List o = v * m;
-    for (size_t i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++) {
         ASSERT_VEC_EQ(r[i], o[i]);
+    }
 }
 
 TEST(MatTest, indexedAccess) {

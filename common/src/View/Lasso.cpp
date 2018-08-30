@@ -37,14 +37,8 @@ namespace TrenchBroom {
         }
 
         bool Lasso::selects(const vec3& point, const Plane3& plane, const BBox2& box) const {
-            const Ray3 ray(m_camera.pickRay(point));
-            const FloatType hitDistance = plane.intersectWithRay(ray);
-            if (Math::isnan(hitDistance))
-                return false;
-            
-            const vec3 hitPoint = ray.pointAtDistance(hitDistance);
-            const vec3 projected = m_transform * hitPoint;
-            return box.contains(projected);
+            const auto projected = project(point, plane);
+            return !isNaN(projected) && box.contains(vec2(projected));
         }
         
         bool Lasso::selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const {
@@ -56,12 +50,13 @@ namespace TrenchBroom {
         }
         
         vec3 Lasso::project(const vec3& point, const Plane3& plane) const {
-            const Ray3 ray(m_camera.pickRay(point));
-            const FloatType hitDistance = plane.intersectWithRay(ray);
-            if (Math::isnan(hitDistance))
+            const auto ray = Ray3(m_camera.pickRay(vec3f(point)));
+            const auto hitDistance = plane.intersectWithRay(ray);
+            if (Math::isnan(hitDistance)) {
                 return vec3::NaN;
-            
-            const vec3 hitPoint = ray.pointAtDistance(hitDistance);
+            }
+
+            const auto hitPoint = ray.pointAtDistance(hitDistance);
             return m_transform * hitPoint;
         }
 
@@ -71,10 +66,10 @@ namespace TrenchBroom {
             assert(invertible); unused(invertible);
 
             vec3f::List polygon(4);
-            polygon[0] = inverseTransform * vec3(box.min.x(), box.min.y(), 0.0);
-            polygon[1] = inverseTransform * vec3(box.min.x(), box.max.y(), 0.0);
-            polygon[2] = inverseTransform * vec3(box.max.x(), box.max.y(), 0.0);
-            polygon[3] = inverseTransform * vec3(box.max.x(), box.min.y(), 0.0);
+            polygon[0] = vec3f(inverseTransform * vec3(box.min.x(), box.min.y(), 0.0));
+            polygon[1] = vec3f(inverseTransform * vec3(box.min.x(), box.max.y(), 0.0));
+            polygon[2] = vec3f(inverseTransform * vec3(box.max.x(), box.max.y(), 0.0));
+            polygon[3] = vec3f(inverseTransform * vec3(box.max.x(), box.min.y(), 0.0));
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
@@ -86,16 +81,16 @@ namespace TrenchBroom {
         }
 
         Plane3 Lasso::plane() const {
-            return Plane3(m_camera.defaultPoint(static_cast<float>(m_distance)), m_camera.direction());
+            return Plane3(vec3(m_camera.defaultPoint(static_cast<float>(m_distance))), vec3(m_camera.direction()));
         }
         
         BBox2 Lasso::box() const {
-            const vec3 start = m_transform * m_start;
-            const vec3 cur   = m_transform * m_cur;
+            const auto start = m_transform * m_start;
+            const auto cur   = m_transform * m_cur;
             
-            const vec3 min = ::min(start, cur);
-            const vec3 max = ::max(start, cur);
-            return BBox2(min, max);
+            const auto min = ::min(start, cur);
+            const auto max = ::max(start, cur);
+            return BBox2(vec2(min), vec2(max));
         }
     }
 }

@@ -72,7 +72,7 @@ namespace TrenchBroom {
             const auto facePoint = pickRay.pointAtDistance(facePointDist);
             
             const auto toTex = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            return toTex * facePoint;
+            return vec2f(toTex * facePoint);
         }
 
         bool UVScaleTool::doStartMouseDrag(const InputState& inputState) {

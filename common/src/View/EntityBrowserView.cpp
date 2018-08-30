@@ -263,7 +263,7 @@ namespace TrenchBroom {
                                     const mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     const Color& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
-                                    eachBBoxEdge(definition->bounds(), collect);
+                                    eachBBoxEdge(BBox3f(definition->bounds()), collect);
                                 }
                             }
                         }
@@ -421,13 +421,13 @@ namespace TrenchBroom {
         }
         
         mat4x4f EntityBrowserView::itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const {
-            Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
+            auto* definition = cell.item().entityDefinition;
             
-            const vec3f offset = vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
-            const float scaling = cell.scale();
-            const BBox3f& rotatedBounds = cell.item().bounds;
-            const vec3f rotationOffset = vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            const vec3f center = definition->bounds().center();
+            const auto offset = vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+            const auto scaling = cell.scale();
+            const auto& rotatedBounds = cell.item().bounds;
+            const auto rotationOffset = vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
+            const auto center = vec3f(definition->bounds().center());
             
             return (translationMatrix(offset) *
                     scalingMatrix(vec3f::fill(scaling)) *

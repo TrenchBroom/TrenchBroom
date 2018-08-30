@@ -240,7 +240,9 @@ namespace TrenchBroom {
             Callback(tool) {}
             
             DragRestricter* createDragRestricter(const InputState& inputState, const vec3& initialPoint) const override {
-                return new PlaneDragRestricter(Plane3(initialPoint, firstAxis(inputState.camera().direction())));
+                const auto& camera = inputState.camera();
+                const auto camDir = vec3(camera.direction());
+                return new PlaneDragRestricter(Plane3(initialPoint, firstAxis(camDir)));
             }
             
             DragSnapper* createDragSnapper(const InputState& inputState) const override {
@@ -248,22 +250,21 @@ namespace TrenchBroom {
             }
             
             vec3::List getHelpVectors(const InputState& inputState) const override {
-                return vec3::List(1, inputState.camera().direction());
+                return vec3::List(1, vec3(inputState.camera().direction()));
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, vec3& position) const override {
-                const Renderer::Camera& camera = inputState.camera();
-                const vec3 viewDir = firstAxis(camera.direction());
+                const auto& camera = inputState.camera();
+                const auto viewDir = firstAxis(vec3(camera.direction()));
                 
-                const Ray3& pickRay = inputState.pickRay();
-                const vec3 defaultPos = m_tool->defaultClipPointPos();
-                const FloatType distance = pickRay.intersectWithPlane(viewDir, defaultPos);
+                const auto& pickRay = inputState.pickRay();
+                const auto defaultPos = m_tool->defaultClipPointPos();
+                const auto distance = pickRay.intersectWithPlane(viewDir, defaultPos);
                 if (Math::isnan(distance))
                     return false;
                 
-                position = pickRay.pointAtDistance(distance);
-                const Grid& grid = m_tool->grid();
-                position = grid.snap(position);
+                const auto& grid = m_tool->grid();
+                position = grid.snap(pickRay.pointAtDistance(distance));
                 return true;
             }
         };

@@ -233,43 +233,44 @@ namespace TrenchBroom {
         }
         
         void MapView2D::doMoveCameraToPosition(const vec3& position, const bool animate) {
-            if (animate)
+            if (animate) {
                 animateCamera(vec3f(position), m_camera.direction(), m_camera.up());
-            else
-                m_camera.moveTo(position);
+            } else {
+                m_camera.moveTo(vec3f(position));
+            }
         }
         
         void MapView2D::animateCamera(const vec3f& position, const vec3f& direction, const vec3f& up, const wxLongLong duration) {
-            const vec3f actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
-            CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
+            const auto actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
+            auto* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
             m_animationManager->runAnimation(animation, true);
         }
         
         void MapView2D::doMoveCameraToCurrentTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             
             assert(document->isPointFileLoaded());
-            Model::PointFile* pointFile = document->pointFile();
+            auto* pointFile = document->pointFile();
             assert(pointFile->hasNextPoint());
             
-            const vec3f position = pointFile->currentPoint();
+            const auto position = vec3(pointFile->currentPoint());
             moveCameraToPosition(position, true);
         }
 
         vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward:
-                    return firstAxis(m_camera.direction());
+                    return vec3(firstAxis(m_camera.direction()));
                 case Math::Direction_Backward:
-                    return -firstAxis(m_camera.direction());
+                    return vec3(-firstAxis(m_camera.direction()));
                 case Math::Direction_Left:
-                    return -firstAxis(m_camera.right());
+                    return vec3(-firstAxis(m_camera.right()));
                 case Math::Direction_Right:
-                    return firstAxis(m_camera.right());
+                    return vec3(firstAxis(m_camera.right()));
                 case Math::Direction_Up:
-                    return firstAxis(m_camera.up());
+                    return vec3(firstAxis(m_camera.up()));
                 case Math::Direction_Down:
-                    return -firstAxis(m_camera.up());
+                    return vec3(-firstAxis(m_camera.up()));
                 switchDefault()
             }
         }

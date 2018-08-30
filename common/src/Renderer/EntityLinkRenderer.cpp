@@ -198,12 +198,12 @@ namespace TrenchBroom {
             virtual void visitEntity(Model::Entity* entity) = 0;
         protected:
             void addLink(const Model::AttributableNode* source, const Model::AttributableNode* target) {
-                const bool anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
-                const Color& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
-                Color targetColor = anySelected ? m_selectedColor : m_defaultColor;
+                const auto anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
+                const auto& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
+                const auto targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor));
-                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor));
+                m_links.push_back(Vertex(vec3f(source->linkSourceAnchor()), sourceColor));
+                m_links.push_back(Vertex(vec3f(target->linkTargetAnchor()), targetColor));
             }
         };
         

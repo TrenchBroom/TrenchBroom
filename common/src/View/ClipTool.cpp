@@ -142,10 +142,10 @@ namespace TrenchBroom {
         private:
             void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    const vec3& point = m_points[i].point;
-                    const FloatType distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                    const auto& point = m_points[i].point;
+                    const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
                     if (!Math::isnan(distance)) {
-                        const vec3 hitPoint = pickRay.pointAtDistance(distance);
+                        const auto hitPoint = pickRay.pointAtDistance(distance);
                         pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
                     }
                 }
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const override {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
-                renderService.renderHandle(point);
+                renderService.renderHandle(vec3f(point));
             }
 
             bool doComputeThirdPoint(vec3& point) const override {
@@ -350,10 +350,10 @@ namespace TrenchBroom {
                 renderService.setShowOccludedObjects();
                 
                 if (m_numPoints > 1) {
-                    renderService.renderLine(m_points[0].point, m_points[1].point);
+                    renderService.renderLine(vec3f(m_points[0].point), vec3f(m_points[1].point));
                     if (m_numPoints > 2) {
-                        renderService.renderLine(m_points[1].point, m_points[2].point);
-                        renderService.renderLine(m_points[2].point, m_points[0].point);
+                        renderService.renderLine(vec3f(m_points[1].point), vec3f(m_points[2].point));
+                        renderService.renderLine(vec3f(m_points[2].point), vec3f(m_points[0].point));
                     }
                 }
                 
@@ -361,13 +361,13 @@ namespace TrenchBroom {
                 renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
                 
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    const vec3& point = m_points[i].point;
-                    renderService.renderHandle(point);
+                    const auto& point = m_points[i].point;
+                    renderService.renderHandle(vec3f(point));
                     
                     StringStream str;
                     str << (i+1) << ": " << point;
                     
-                    renderService.renderString(str.str(), point);
+                    renderService.renderString(str.str(), vec3f(point));
                 }
             }
             
@@ -375,9 +375,9 @@ namespace TrenchBroom {
                 if (m_dragIndex < m_numPoints) {
                     renderHighlight(renderContext, renderBatch, m_dragIndex);
                 } else {
-                    const Model::Hit& hit = pickResult.query().type(PointHit).occluded().first();
+                    const auto& hit = pickResult.query().type(PointHit).occluded().first();
                     if (hit.isMatch()) {
-                        const size_t index = hit.target<size_t>();
+                        const auto index = hit.target<size_t>();
                         renderHighlight(renderContext, renderBatch, index);
                     }
                 }
@@ -386,7 +386,7 @@ namespace TrenchBroom {
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const size_t index) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(m_points[index].point);
+                renderService.renderHandleHighlight(vec3f(m_points[index].point));
             }
         };
         
@@ -403,14 +403,15 @@ namespace TrenchBroom {
                 if (m_face != nullptr) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     
-                    const Model::BrushFace::VertexList vertices = m_face->vertices();
+                    const auto vertices = m_face->vertices();
                     
                     vec3f::List positions;
                     positions.reserve(vertices.size());
                     
-                    for (const Model::BrushVertex* vertex : vertices)
-                        positions.push_back(vertex->position());
-                    
+                    for (const Model::BrushVertex* vertex : vertices) {
+                        positions.push_back(vec3f(vertex->position()));
+                    }
+
                     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                     renderService.renderPolygonOutline(positions);
 
@@ -449,10 +450,11 @@ namespace TrenchBroom {
             }
             
             size_t doGetPoints(vec3& point1, vec3& point2, vec3& point3) const override {
-                if (m_face == nullptr)
+                if (m_face == nullptr) {
                     return 0;
-                
-                const Model::BrushFace::Points& points = m_face->points();
+                }
+
+                const auto& points = m_face->points();
                 point1 = points[0];
                 point2 = points[1];
                 point3 = points[2];
