@@ -19,9 +19,7 @@
 
 #include "Entity.h"
 
-#include "vec_type.h"
-#include "vec_functions.h"
-
+#include "VecMath.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"

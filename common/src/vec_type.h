@@ -75,8 +75,9 @@ public:
      */
     static vec<T,S> fill(const T value) {
         vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
+        for (size_t i = 0; i < S; ++i) {
             result[i] = value;
+        }
         return result;
     }
 
@@ -134,11 +135,13 @@ private:
 
         const char* cstr = str.c_str();
         for (size_t i = 0; i < S; ++i) {
-            if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
+            if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) {
                 return false;
+            }
             result[i] = static_cast<T>(std::atof(cstr + pos));
-            if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
-                return false;;
+            if ((pos = str.find_first_of(blank, pos)) == std::string::npos) {
+                return false;
+            }
         }
         return true;
     }
@@ -171,7 +174,7 @@ public:
      * @param other the vector to copy the values from
      */
     template <typename U, size_t V>
-    vec(const vec<U,V>& other) {
+    explicit vec(const vec<U,V>& other) {
         for (size_t i = 0; i < std::min(S,V); ++i) {
             v[i] = static_cast<T>(other[i]);
         }

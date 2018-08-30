@@ -19,9 +19,7 @@
 
 #include "ParaxialTexCoordSystem.h"
 
-#include "vec_type.h"
-#include "vec_functions.h"
-
+#include "VecMath.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 

@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_MdlParser
 #define TrenchBroom_MdlParser
 
-#include "vec_forward.h"
-#include "vec_type.h"
-
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "ByteBuffer.h"
 #include "Assets/AssetTypes.h"

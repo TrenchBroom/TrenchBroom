@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_Bsp29Parser
 #define TrenchBroom_Bsp29Parser
 
-#include "vec_forward.h"
-#include "vec_type.h"
-
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"

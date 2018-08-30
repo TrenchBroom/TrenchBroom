@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_Bsp29Model
 #define TrenchBroom_Bsp29Model
 
-#include "vec_forward.h"
-
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/AssetTypes.h"

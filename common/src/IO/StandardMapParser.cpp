@@ -19,9 +19,7 @@
 
 #include "StandardMapParser.h"
 
-#include "vec_type.h"
-#include "vec_functions.h"
-
+#include "VecMath.h"
 #include "Logger.h"
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"

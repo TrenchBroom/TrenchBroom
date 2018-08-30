@@ -19,10 +19,7 @@
 
 #include "Md2Model.h"
 #include "CollectionUtils.h"
-#include "mat_type.h"
-#include "mat_functions.h"
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "VecMath.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/VertexArray.h"

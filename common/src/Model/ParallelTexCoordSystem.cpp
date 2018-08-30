@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "VecMath.h"
 #include "ParallelTexCoordSystem.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"

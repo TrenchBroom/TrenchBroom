@@ -22,6 +22,10 @@
 
 #include "VecMath.h"
 
+#include "Polyhedron.h"
+#include "Polyhedron_BrushGeometryPayload.h"
+#include "Polyhedron_DefaultPayload.h"
+
 using FloatType = double;
 using BBox3 = BBox<FloatType, 3>;
 using BBox2 = BBox<FloatType, 2>;
@@ -33,9 +37,6 @@ using mat4x4 = mat<FloatType, 4, 4>;
 using Line3 = Line<FloatType, 3>;
 using Ray3 = Ray<FloatType, 3>;
 
-#include "Polyhedron.h"
-#include "Polyhedron_BrushGeometryPayload.h"
-#include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Instantiation.h"
 
 template<typename T, typename FP, typename VB> class Polyhedron;

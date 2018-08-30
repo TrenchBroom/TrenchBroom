@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_VertexSpec
 #define TrenchBroom_VertexSpec
 
-#include "vec_type.h"
+#include "VecMath.h"
 #include "Renderer/GL.h"
 #include "Renderer/AttributeSpec.h"
 #include "Renderer/Vertex.h"

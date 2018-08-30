@@ -20,8 +20,7 @@
 #ifndef TrenchBroom_MapFacade
 #define TrenchBroom_MapFacade
 
-#include "vec_forward.h"
-
+#include "VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"

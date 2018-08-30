@@ -19,7 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "Mat.h"
+#include "mat_forward.h"
+#include "mat_type.h"
+#include "mat_functions.h"
 #include "Quat.h"
 #include "vec_type.h"
 #include "TrenchBroom.h"

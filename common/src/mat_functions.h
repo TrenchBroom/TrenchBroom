@@ -23,6 +23,7 @@ vec/*
 #include "mat_type.h"
 #include "vec_type.h"
 #include "vec_functions.h"
+#include "Quat.h"
 
 #include <cassert>
 
@@ -880,7 +881,7 @@ mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const ve
                                                         x[1], y[1], z[1], o[1],
                                                         x[2], y[2], z[2], o[2],
                                                         0.0,  0.0,  0.0,  1.0));
-    assert(invertible); unused(invertible);
+    assert(invertible);
     return result;
 }
 

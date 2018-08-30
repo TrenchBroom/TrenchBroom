@@ -19,8 +19,7 @@
 
 #include "RotateObjectsToolController.h"
 
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "VecMath.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"

@@ -19,9 +19,7 @@
 
 #include "BrushFace.h"
 
-#include "vec_type.h"
-#include "vec_functions.h"
-
+#include "VecMath.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"

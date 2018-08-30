@@ -20,9 +20,7 @@
 #ifndef TrenchBroom_EntityRenderer
 #define TrenchBroom_EntityRenderer
 
-#include "vec_forward.h"
-#include "vec_type.h"
-
+#include "VecMath.h"
 #include "AttrString.h"
 #include "Color.h"
 #include "Model/ModelTypes.h"

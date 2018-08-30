@@ -100,11 +100,11 @@ public:
     
     // Copy and move constructors
     mat(const mat<T,R,C>& other) = default;
-    mat(mat<T,R,C>&& other) = default;
+    mat(mat<T,R,C>&& other) noexcept = default;
     
     // Assignment operators
     mat<T,R,C>& operator=(const mat<T,R,C>& other) = default;
-    mat<T,R,C>& operator=(mat<T,R,C>&& other) = default;
+    mat<T,R,C>& operator=(mat<T,R,C>&& other) noexcept = default;
 
     /**
      * Sets the values of the newly created matrix to the values of the given matrix and casts each value of the given
@@ -114,7 +114,7 @@ public:
      * @param other the source matrix
      */
     template <typename U>
-    mat(const mat<U,R,C>& other) {
+    explicit mat(const mat<U,R,C>& other) {
         for (size_t c = 0; c < C; ++c) {
             for (size_t r = 0; r < R; ++r) {
                 v[c][r] = static_cast<T>(other[c][r]);

@@ -22,7 +22,7 @@
 
 #include "Algorithms.h"
 #include "CollectionUtils.h"
-#include "vec_type.h"
+#include "VecMath.h"
 
 #include <algorithm>
 #include <cassert>
