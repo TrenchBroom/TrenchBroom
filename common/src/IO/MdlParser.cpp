@@ -356,7 +356,7 @@ namespace TrenchBroom {
             
             for (size_t i = 1; i < skinVertices.size(); ++i) {
                 positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
-                bounds.mergeWith(positions[i]);
+                bounds = merge(bounds, positions[i]);
             }
             
             Assets::MdlFrame::VertexList frameTriangles;

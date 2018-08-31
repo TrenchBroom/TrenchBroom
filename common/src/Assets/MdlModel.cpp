@@ -75,9 +75,10 @@ namespace TrenchBroom {
         }
 
         BBox3f MdlFrame::transformedBounds(const mat4x4f& transformation) const {
-            if (m_triangles.empty())
+            if (m_triangles.empty()) {
                 return BBox3f(-8.0f, 8.0f);
-            
+            }
+
             VertexList::const_iterator it = std::begin(m_triangles);
             VertexList::const_iterator end = std::end(m_triangles);
             
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             ++it;
             
             while (it != end) {
-                bounds.mergeWith(transformation * it->v1);
+                bounds = merge(bounds, transformation * it->v1);
                 ++it;
             }
             

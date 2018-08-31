@@ -51,7 +51,7 @@ namespace TrenchBroom {
             m_entity(entity) {}
         private:
             vec3f basePosition() const override {
-                auto position = vec3f(m_entity->bounds().center());
+                auto position = vec3f(center(m_entity->bounds()));
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -225,41 +225,42 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_showAngles)
+            if (!m_showAngles) {
                 return;
-            
-            static const float maxDistance2 = 500.0f * 500.0f;
-            const vec3f::List arrow = arrowHead(9.0f, 6.0f);
+            }
+
+            static const auto maxDistance2 = 500.0f * 500.0f;
+            const auto arrow = arrowHead(9.0f, 6.0f);
             
             RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjectsTransparent();
             renderService.setForegroundColor(m_angleColor);
             
             vec3f::List vertices(3);
-            for (const Model::Entity* entity : m_entities) {
+            for (const auto* entity : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
                 }
 
-                const mat4x4f rotation(entity->rotation());
-                const vec3f direction = rotation * vec3f::pos_x;
-                const vec3f center(entity->bounds().center());
+                const auto rotation = mat4x4f(entity->rotation());
+                const auto direction = rotation * vec3f::pos_x;
+                const auto center = vec3f(::center(entity->bounds()));
                 
-                const vec3f toCam = renderContext.camera().position() - center;
+                const auto toCam = renderContext.camera().position() - center;
                 if (squaredLength(toCam) > maxDistance2) {
                     continue;
                 }
 
-                vec3f onPlane = toCam - dot(toCam, direction) * direction;
+                auto onPlane = toCam - dot(toCam, direction) * direction;
                 if (isZero(onPlane)) {
                     continue;
                 }
 
                 onPlane = normalize(onPlane);
 
-                const vec3f rotZ = rotation * vec3f::pos_z;
-                const float angle = -angleBetween(rotZ, onPlane, direction);
-                const mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vec3f::pos_x);
+                const auto rotZ = rotation * vec3f::pos_z;
+                const auto angle = -angleBetween(rotZ, onPlane, direction);
+                const auto matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vec3f::pos_x);
                 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];

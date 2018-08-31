@@ -35,7 +35,7 @@ namespace TrenchBroom {
         Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
-        m_bounds(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1()) {}
+        m_bounds(BBox3f::mergeAll(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1())) {}
 
         BBox3f Md2Model::Frame::transformedBounds(const mat4x4f& transformation) const {
             BBox3f transformedBounds;
@@ -44,8 +44,9 @@ namespace TrenchBroom {
             VertexList::const_iterator end = std::end(m_vertices);
             
             transformedBounds.min = transformedBounds.max = transformation * it->v1;
-            while (++it != end)
-                transformedBounds.mergeWith(transformation * it->v1);
+            while (++it != end) {
+                transformedBounds = merge(transformedBounds, transformation * it->v1);
+            }
             return transformedBounds;
         }
 

@@ -36,19 +36,19 @@ namespace TrenchBroom {
         }
         
         void coordinateSystemVerticesX(const BBox3f& bounds, vec3f& start, vec3f& end) {
-            const vec3f center = bounds.center();
+            const auto center = ::center(bounds);
             start = vec3f(bounds.min.x(), center.y(),     center.z());
             end   = vec3f(bounds.max.x(), center.y(),     center.z());
         }
         
         void coordinateSystemVerticesY(const BBox3f& bounds, vec3f& start, vec3f& end) {
-            const vec3f center = bounds.center();
+            const auto center = ::center(bounds);
             start = vec3f(center.x(),     bounds.min.y(), center.z());
             end   = vec3f(center.x(),     bounds.max.y(), center.z());
         }
         
         void coordinateSystemVerticesZ(const BBox3f& bounds, vec3f& start, vec3f& end) {
-            const vec3f center = bounds.center();
+            const auto center = ::center(bounds);
             start = vec3f(center.x(),     center.y(),     bounds.min.z());
             end   = vec3f(center.x(),     center.y(),     bounds.max.z());
         }

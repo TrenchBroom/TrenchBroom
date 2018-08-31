@@ -30,19 +30,25 @@
 #include "vec_type.h"
 #include "vec_functions.h"
 
+#include "MathUtils.h"
+
 #include <algorithm>
 #include <array>
 #include <string>
 #include <sstream>
 
+/**
+ * An axis aligned bounding box that is represented by a min point and a max point. The min and max point are
+ * constrained by the following invariant:
+ *
+ * For each component i < S, it holds that min[i] <= max[i].
+ *
+ * @tparam T the component type
+ * @tparam S the number of components of the min and max points
+ */
 template <typename T, size_t S>
 class BBox {
 public:
-    typedef enum {
-        Corner_Min,
-        Corner_Max
-    } Corner;
-
     class RelativePosition {
     public:
         typedef enum {
@@ -66,140 +72,100 @@ public:
     
     vec<T,S> min;
     vec<T,S> max;
-    
+public:
+    /**
+     * Creates a new bounding box at the origin with size 0.
+     */
     BBox() :
     min(vec<T,S>::zero),
     max(vec<T,S>::zero) {}
     
     // Copy and move constructors
     BBox(const BBox<T,S>& other) = default;
-    BBox(BBox<T,S>&& other) = default;
+    BBox(BBox<T,S>&& other) noexcept = default;
     
     // Assignment operators
     BBox<T,S>& operator=(const BBox<T,S>& other) = default;
-    BBox<T,S>& operator=(BBox<T,S>&& other) = default;
-    
-    // Conversion constructor
+    BBox<T,S>& operator=(BBox<T,S>&& other) noexcept = default;
+
+    /**
+     * Creates a new bounding box by copying the values from the given bounding box. If the given box has a different
+     * component type, the values are converted by calling the appropriate conversion constructor of the two vectors.
+     *
+     * @tparam U the component type of the given bounding box
+     * @param other the bounding box to convert
+     */
     template <typename U>
-    BBox(const BBox<U,S>& other) :
+    explicit BBox(const BBox<U,S>& other) :
     min(other.min),
-    max(other.max) {}
-    
+    max(other.max) {
+        assert(isValid(*this));
+    }
+
+    /**
+     * Creates a new bounding box with the given min and max values. The values are assumed to be correct, that is, for
+     * each component, the corresponding value of the min point is smaller than or equal to the corresponding value of
+     * the max point.
+     *
+     * @param i_min the min point of the bounding box
+     * @param i_max the max point of the bounding box
+     */
     BBox(const vec<T,S>& i_min, const vec<T,S>& i_max) :
     min(i_min),
-    max(i_max) {}
-    
+    max(i_max) {
+        assert(isValid(*this));
+    }
+
+    /**
+     * Creates a new bounding box with the coordinate system origin at its center by setting the min point to
+     * the negated given value, and the max point to the given value.
+     *
+     * The value is assumed to be correct, that is, none of its components must have a negative value.
+     *
+     * @param i_minMax the min and max point
+     */
     BBox(const T i_minMax) :
     min(vec<T,S>::fill(-i_minMax)),
-    max(vec<T,S>::fill(+i_minMax)) {}
-    
+    max(vec<T,S>::fill(+i_minMax)) {
+        assert(isValid(*this));
+    }
+
+    /**
+     * Creates a new bounding box by setting each component of the min point to the given min value, and each component of
+     * the max point to the given max value. This constructor assumes that the given min value does not exceed the given
+     * max value.
+     *
+     * @param i_min the min point of the bounding box
+     * @param i_max the max point of the bounding box
+     */
     BBox(const T i_min, const T i_max) :
     min(vec<T,S>::fill(i_min)),
-    max(vec<T,S>::fill(i_max)) {}
-    
-    BBox(const vec<T,S>& center, const T size) {
-        for (size_t i = 0; i < S; ++i) {
-            min[i] = center[i] - size;
-            max[i] = center[i] + size;
-        }
+    max(vec<T,S>::fill(i_max)) {
+        assert(isValid(*this));
     }
-    
-    BBox(const typename vec<T,S>::List& vertices) {
-        assert(vertices.size() > 0);
-        min = max = vertices[0];
-        for (size_t i = 0; i < vertices.size(); ++i)
-            mergeWith(vertices[i]);
-    }
-    
-    template <typename I, typename G>
-    BBox(I cur, I end, G get) {
+public:
+    /**
+     * Creates the smallest bounding box that contains all points in the given range. Optionally accepts a transformation
+     * that is applied to each element of the range. The given range must not be empty.
+     *
+     * @tparam I the range iterator type
+     * @tparam G type of the transformation
+     * @param cur the start of the range
+     * @param end the end of the range
+     * @param get the transformation
+     * @return the bounding box
+     */
+    template <typename I, typename G = Math::Identity>
+    static BBox<T,S> mergeAll(I cur, I end, const G& get = G()) {
         assert(cur != end);
-        min = max = get(*cur++);
-        while (cur != end)
-            mergeWith(get(*cur++));
-    }
-
-    bool operator==(const BBox<T,S>& right) const {
-        return min == right.min && max == right.max;
-    }
-    
-    bool operator!= (const BBox<T,S>& right) const {
-        return min != right.min || max != right.max;
-    }
-    
-    bool empty() const {
-        for (size_t i = 0; i < S; ++i)
-            if (min[i] >= max[i])
-                return true;
-        return false;
-    }
-    
-    vec<T,S> center() const {
-        return (min + max) / static_cast<T>(2.0);
-    }
-    
-    vec<T,S> size() const {
-        return max - min;
-    }
-
-    T volume() const {
-        const auto size = this->size();
-        T result = 1.0;
-        for (size_t i = 0; i < S; ++i) {
-            result *= size[i];
+        const auto first = get(*cur++);
+        BBox<T,S> result(first, first);
+        while (cur != end) {
+            result = merge(result, get(*cur++));
         }
         return result;
     }
-
-    vec<T,S> vertex(const Corner c[S]) const {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i)
-            result[i] = c[i] == Corner_Min ? min[i] : max[i];
-        return result;
-    }
-    
-    vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
-        Corner c[] = { x, y, z };
-        return vertex(c);
-    }
-
-    BBox<T,S>& mergeWith(const BBox<T,S>& right) {
-        for (size_t i = 0; i < S; ++i) {
-            min[i] = std::min(min[i], right.min[i]);
-            max[i] = std::max(max[i], right.max[i]);
-        }
-        return *this;
-    }
-    
-    BBox<T,S> mergedWith(const BBox<T,S>& right) const {
-        return BBox<T,S>(*this).mergeWith(right);
-    }
-    
-    
-    BBox<T,S>& mergeWith(const vec<T,S>& right) {
-        for (size_t i = 0; i < S; ++i) {
-            min[i] = std::min(min[i], right[i]);
-            max[i] = std::max(max[i], right[i]);
-        }
-        return *this;
-    }
-    
-    BBox<T,S> mergedWith(const vec<T,S>& right) const {
-        return BBox<T,S>(*this).mergeWith(right);
-    }
-    
-    BBox<T,S>& intersectWith(const BBox<T,S>& right) {
-        for (size_t i = 0; i < S; ++i) {
-            min[i] = std::max(min[i], right.min[i]);
-            max[i] = std::min(max[i], right.max[i]);
-        }
-        return *this;
-    }
-    
-    BBox<T,S> intersectedWith(const BBox<T,S>& right) const {
-        return BBox<T,S>(*this).insersectWith(right);
-    }
-
+public:
     BBox<T,S>& mix(const BBox<T,S>& box, const vec<T,S>& factor) {
         min = ::mix(min, box.min, factor);
         max = ::mix(max, box.max, factor);
@@ -211,7 +177,7 @@ public:
     }
     
     BBox<T,S>& translateToOrigin() {
-        const vec<T,S> c = center();
+        const vec<T,S> c = center(*this);
         min -= c;
         max -= c;
         return *this;
@@ -426,12 +392,221 @@ public:
     }
 };
 
+/**
+ * Checks whether the two given bounding boxes are identical.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first bounding box
+ * @param rhs the second bounding box
+ * @return true if the two bounding boxes are identical, and false otherwise
+ */
+template <typename T, size_t S>
+bool operator==(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+    return lhs.min == rhs.min && lhs.max == rhs.max;
+}
+
+/**
+ * Checks whether the two given bounding boxes are identical.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first bounding box
+ * @param rhs the second bounding box
+ * @return false if the two bounding boxes are identical, and true otherwise
+ */
+template <typename T, size_t S>
+bool operator!=(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+    return lhs.min != rhs.min || lhs.max != rhs.max;
+}
+
+/**
+ * Checks whether a bounding box with the given min and max points satisfies its invariant. The invariant states that
+ * for each component, the corresponding value of the min point must not exceed the corresponding value of the max
+ * point.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param min the min point of the bounding box to check
+ * @param max the max point of the bounding box to check
+ * @return true if the given bounding box is valid and false otherwise
+ */
+template <typename T, size_t S>
+bool isValidBBox(const vec<T,S>& min, const vec<T,S>& max) {
+    for (size_t i = 0; i < S; ++i) {
+        if (min[i] > max[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Checks whether the given bounding box satisfies its invariant. The invariant states that for each component,
+ * the corresponding value of the min point must not exceed the corresponding value of the max point.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param b the bounding box to check
+ * @return true if the given bounding box is valid and false otherwise
+ */
+template <typename T, size_t S>
+bool isValid(const BBox<T,S>& b) {
+    return isValidBBox(b.min, b.max);
+}
+
+/**
+ * Checks whether the given bounding box has an empty volume.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param b the bounding box to check
+ * @return true if the given bounding box has an empty volume and false otherwise
+ */
+template <typename T, size_t S>
+bool isEmpty(const BBox<T,S>& b) {
+    for (size_t i = 0; i < S; ++i) {
+        if (b.min[i] >= b.max[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Computes the center of the given bounding box.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param b the bounding box
+ * @return the center of the bounding box
+ */
+template <typename T, size_t S>
+vec<T,S> center(const BBox<T,S>& b) {
+    return (b.min + b.max) / static_cast<T>(2.0);
+}
+
+/**
+ * Computes the size of the given bounding box.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param b the bounding box
+ * @return the size of the bounding box
+ */
+template <typename T, size_t S>
+vec<T,S> size(const BBox<T,S>& b) {
+    return b.max - b.min;
+}
+
+/**
+ * Computes the volume of the given bounding box.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @return the volumen of the bounding box
+ */
+template <typename T, size_t S>
+T volume(const BBox<T,S>& b) {
+    const auto boxSize = size(b);
+    T result = boxSize[0];
+    for (size_t i = 1; i < S; ++i) {
+        result *= boxSize[i];
+    }
+    return result;
+}
+
+enum class BBoxCorner { min, max };
+
+/**
+ * Returns the position of a corner of the given bounding box according to the given spec.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param b the bounding box
+ * @param c the corner to return
+ * @return the position of the given corner
+ */
+template <typename T, size_t S>
+vec<T,S> corner(const BBox<T,S>& b, const BBoxCorner c[S]) {
+    vec<T,S> result;
+    for (size_t i = 0; i < S; ++i) {
+        result[i] = c[i] == BBoxCorner::min ? b.min[i] : b.max[i];
+    }
+    return result;
+}
+
+/**
+ * Returns the position of a corner of the given bounding box according to the given spec.
+ *
+ * @tparam T the component type
+ * @param b the bounding box
+ * @param x the X position of the corner
+ * @param y the Y position of the corner
+ * @param z the Z position of the corner
+ * @return the position of the given corner
+ */
+template <typename T>
+vec<T,3> corner(const BBox<T,3>& b, const BBoxCorner x, const BBoxCorner y, const BBoxCorner z) {
+    BBoxCorner c[] = { x, y, z };
+    return corner(b, c);
+}
+
+/**
+ * Returns the smallest bounding box that contains the two given bounding boxes.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first bounding box
+ * @param rhs the second bounding box
+ * @return the smallest bounding box that contains the given bounding boxes
+ */
+template <typename T, size_t S>
+BBox<T,S> merge(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+    return BBox<T,S>(min(lhs.min, rhs.min), max(lhs.max, rhs.max));
+}
+
+/**
+ * Returns the smallest bounding box that contains the given bounding box and the given point.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the bounding box
+ * @param rhs the point
+ * @return the smallest bounding box that contains the given bounding box and point
+ */
+template <typename T, size_t S>
+BBox<T,S> merge(const BBox<T,S>& lhs, const vec<T,S>& rhs) {
+    return BBox<T,S>(min(lhs.min, rhs), max(lhs.max, rhs));
+}
+
+/**
+ * Returns the smallest bounding box that contains the intersection of the given bounding boxes.
+ * If the intersection is empty, then an empty bounding box at the origin is returned.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first bounding box
+ * @param rhs the second bounding box
+ * @return the smallest bounding box that contains the intersection of the given bounding boxes
+ */
+template <typename T, size_t S>
+BBox<T,S> intersect(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+    const auto min = ::max(lhs.min, rhs.min);
+    const auto max = ::min(lhs.max, rhs.max);
+    if (isValidBBox(min, max)) {
+        return BBox<T,S>(min, max);
+    } else {
+        return BBox<T,S>(vec<T,S>::zero, vec<T,S>::zero);
+    }
+}
+
 template <typename T, class Op>
 void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> size = bbox.size();
-    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> boxSize = size(bbox);
+    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
     
     op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x, vec<T,3>( 0.0,  0.0, +1.0)); // top
     op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y, vec<T,3>( 0.0,  0.0, -1.0)); // bottom
@@ -443,10 +618,10 @@ void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
 
 template <typename T, class Op>
 void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> size = bbox.size();
-    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> boxSize = size(bbox);
+    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
     
     vec<T,3> v1, v2;
     
@@ -471,10 +646,10 @@ void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
 
 template <typename T>
 typename vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
-    const vec<T,3> size = bbox.size();
-    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> boxSize = size(bbox);
+    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
 
     typename vec<T,3>::List vertices(8);
     
@@ -494,10 +669,10 @@ typename vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
 
 template <typename T, class Op>
 void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> size = bbox.size();
-    const vec<T,3> x(size.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), size.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), size.z());
+    const vec<T,3> boxSize = size(bbox);
+    const vec<T,3> x(boxSize.x(),         static_cast<T>(0.0), static_cast<T>(0.0));
+    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(),         static_cast<T>(0.0));
+    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
     
     // top vertices clockwise (viewed from above)
     op(bbox.max);
@@ -527,7 +702,7 @@ struct RotateBBox {
             bbox.min = bbox.max = rotation * vertex;
             first = false;
         } else {
-            bbox.mergeWith(rotation * vertex);
+            bbox = merge(bbox, rotation * vertex);
         }
     }
 };
@@ -554,7 +729,7 @@ struct TransformBBox {
             bbox.min = bbox.max = transformation * vertex;
             first = false;
         } else {
-            bbox.mergeWith(transformation * vertex);
+            bbox = merge(bbox, transformation * vertex);
         }
     }
 };
@@ -571,15 +746,16 @@ auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
     assert(cur != end);
     auto result = getBounds(*cur); ++cur;
     while (cur != end) {
-        result.mergeWith(getBounds(*cur)); ++cur;
+        result = merge(result, getBounds(*cur));
+        ++cur;
     };
     return result;
 }
 
 template <typename T>
 mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
-    const vec<T,3>& oldSize = oldBBox.size();
-    const vec<T,3>& newSize = newBBox.size();
+    const vec<T,3>& oldSize = size(oldBBox);
+    const vec<T,3>& newSize = size(newBBox);
     const vec<T,3> scaleFactors = newSize / oldSize;
     
     const mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
@@ -588,7 +764,7 @@ mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
 
 template <typename T>
 mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
-    const vec<T,3>& oldSize = oldBBox.size();
+    const vec<T,3>& oldSize = size(oldBBox);
     const vec<T,3> scaleFactors = newSize / oldSize;
 
     const mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
@@ -597,7 +773,7 @@ mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& n
 
 template <typename T>
 mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
-    const auto oldSize = box.size();
+    const auto oldSize = size(box);
     
     // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
     mat<T,4,4> shearMat;

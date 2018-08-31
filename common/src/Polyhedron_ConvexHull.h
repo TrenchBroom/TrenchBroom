@@ -196,21 +196,23 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
             break;
         case 1:
             result = addSecondPoint(position, callback);
-            m_bounds.mergeWith(position);
+            m_bounds = ::merge(m_bounds, position);
             break;
         case 2:
             result = addThirdPoint(position, callback);
-            m_bounds.mergeWith(position);
+            m_bounds = ::merge(m_bounds, position);
             break;
         default:
             result = addFurtherPoint(position, callback);
-            if (result != nullptr)
-                m_bounds.mergeWith(position);
+            if (result != nullptr) {
+                m_bounds = ::merge(m_bounds, position);
+            }
             break;
     }
     assert(checkInvariant());
-    if (result != nullptr)
+    if (result != nullptr) {
         callback.vertexWasAdded(result);
+    }
     return result;
 }
 

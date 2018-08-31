@@ -1339,7 +1339,7 @@ void Polyhedron<T,FP,VP>::updateBounds() {
         
         current = current->next();
         while (current != first) {
-            m_bounds.mergeWith(current->position());
+            m_bounds = ::merge(m_bounds, current->position());
             current = current->next();
         }
     }

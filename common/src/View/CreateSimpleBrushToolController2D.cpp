@@ -79,7 +79,7 @@ namespace TrenchBroom {
         }
         
         void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
-            if (!m_bounds.empty())
+            if (!isEmpty(m_bounds))
                 m_tool->createBrush();
         }
         
@@ -99,13 +99,13 @@ namespace TrenchBroom {
 
         bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vec3& currentPoint) {
             BBox3 bounds(m_initialPoint, m_initialPoint);
-            bounds.mergeWith(currentPoint);
+            bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
             MapDocumentSPtr document = lock(m_document);
-            bounds.intersectWith(document->worldBounds());
+            bounds = intersect(bounds, document->worldBounds());
             
-            if (bounds.empty() || bounds == m_bounds)
+            if (isEmpty(bounds) || bounds == m_bounds)
                 return false;
             
             using std::swap;

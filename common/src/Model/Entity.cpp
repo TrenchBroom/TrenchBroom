@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(Math::Axis::Type axis) const {
-            const vec3 size = bounds().size();
+            const vec3 size = ::size(bounds());
             switch (axis) {
                 case Math::Axis::AX:
                     return size.y() * size.z();
@@ -250,11 +250,11 @@ namespace TrenchBroom {
         }
 
         vec3 Entity::doGetLinkSourceAnchor() const {
-            return bounds().center();
+            return center(bounds());
         }
         
         vec3 Entity::doGetLinkTargetAnchor() const {
-            return bounds().center();
+            return center(bounds());
         }
 
         Node* Entity::doGetContainer() const {
@@ -300,14 +300,14 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const vec3 center = bounds().center();
-                const vec3 offset = center - origin();
-                const vec3 transformedCenter = transformation * center;
+                const auto center = ::center(bounds());
+                const auto offset = center - origin();
+                const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
                 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
-                const mat4x4 rotation = stripTranslation(transformation);
+                const auto rotation = stripTranslation(transformation);
                 if (rotation != mat4x4::identity) {
                     applyRotation(rotation);
                 }

@@ -177,30 +177,30 @@ namespace TrenchBroom {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
                 
-                const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
-                const vec2f actualSize = fontManager().font(actualFont).measure(definition->name());
+                const auto maxCellWidth = layout.maxCellWidth();
+                const auto actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
+                const auto actualSize = fontManager().font(actualFont).measure(definition->name());
                 
-                const Assets::ModelSpecification spec = definition->defaultModel();
-                Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
+                const auto spec = definition->defaultModel();
+                auto* model = safeGetModel(m_entityModelManager, spec, m_logger);
                 EntityRenderer* modelRenderer = nullptr;
                 
                 BBox3f rotatedBounds;
                 if (model != nullptr) {
-                    const vec3f center = model->bounds(spec.skinIndex, spec.frameIndex).center();
-                    const mat4x4f transformation = translationMatrix(center) * rotationMatrix(m_rotation) * translationMatrix(-center);
+                    const auto boundsCenter = center(model->bounds(spec.skinIndex, spec.frameIndex));
+                    const mat4x4f transformation = translationMatrix(boundsCenter) * rotationMatrix(m_rotation) * translationMatrix(-boundsCenter);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = BBox3f(definition->bounds());
-                    const vec3f center = rotatedBounds.center();
-                    rotatedBounds = rotateBBox(rotatedBounds, m_rotation, center);
+                    const vec3f boundsCenter = center(rotatedBounds);
+                    rotatedBounds = rotateBBox(rotatedBounds, m_rotation, boundsCenter);
                 }
                 
-                const vec3f size = rotatedBounds.size();
+                const vec3f boundsSize = size(rotatedBounds);
                 layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
-                               size.y(),
-                               size.z(),
+                               boundsSize.y(),
+                               boundsSize.z(),
                                actualSize.x(),
                                font.size() + 2.0f);
             }
@@ -427,14 +427,14 @@ namespace TrenchBroom {
             const auto scaling = cell.scale();
             const auto& rotatedBounds = cell.item().bounds;
             const auto rotationOffset = vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            const auto center = vec3f(definition->bounds().center());
+            const auto boundsCenter = vec3f(center(definition->bounds()));
             
             return (translationMatrix(offset) *
                     scalingMatrix(vec3f::fill(scaling)) *
                     translationMatrix(rotationOffset) *
-                    translationMatrix(center) *
+                    translationMatrix(boundsCenter) *
                     rotationMatrix(m_rotation) *
-                    translationMatrix(-center));
+                    translationMatrix(-boundsCenter));
         }
         
         wxString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {

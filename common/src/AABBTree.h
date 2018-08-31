@@ -196,7 +196,7 @@ private:
         size_t m_height;
     public:
         InnerNode(Node* left, Node* right) :
-        Node(left->bounds().mergedWith(right->bounds())),
+        Node(merge(left->bounds(), right->bounds())),
         m_left(left),
         m_right(right),
         m_height(0) {
@@ -305,12 +305,12 @@ private:
          */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
-            const auto new1 = node1->bounds().mergedWith(bounds);
-            const auto new2 = node2->bounds().mergedWith(bounds);
-            const auto vol1 = node1->bounds().volume();
-            const auto vol2 = node2->bounds().volume();
-            const auto diff1 = new1.volume() - vol1;
-            const auto diff2 = new2.volume() - vol2;
+            const auto new1 = merge(node1->bounds(), bounds);
+            const auto new2 = merge(node2->bounds(), bounds);
+            const auto vol1 = volume(node1->bounds());
+            const auto vol2 = volume(node2->bounds());
+            const auto diff1 = volume(new1) - vol1;
+            const auto diff2 = volume(new2) - vol2;
 
             if (diff1 < diff2) {
                 return node1;
@@ -331,7 +331,7 @@ private:
         }
 
         void updateBounds() {
-            this->setBounds(m_left->bounds().mergedWith(m_right->bounds()));
+            this->setBounds(merge(m_left->bounds(), m_right->bounds()));
         }
 
         void updateHeight() {

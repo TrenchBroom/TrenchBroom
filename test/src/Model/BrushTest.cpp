@@ -833,7 +833,7 @@ namespace TrenchBroom {
 
             brush.moveBoundary(worldBounds, top, vec3(0.0, 0.0, 1.0), false);
             ASSERT_EQ(6u, brush.faces().size());
-            ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
+            ASSERT_DOUBLE_EQ(7.0, size(brush.bounds()).z());
         }
 
         TEST(BrushTest, moveVertex) {
@@ -2620,8 +2620,8 @@ namespace TrenchBroom {
             const BBox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             
-            const BBox3 brush1Bounds(vec3::zero, 8);
-            const BBox3 brush2Bounds(vec3(128, 128, 0), 8);
+            const BBox3 brush1Bounds(vec3::fill(-8.0), vec3::fill(+8.0));
+            const BBox3 brush2Bounds(vec3(124.0, 124.0, -4.0), vec3(132.0, 132.0, +4.0));
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
             
             BrushBuilder builder(&world, worldBounds);

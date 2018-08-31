@@ -254,7 +254,7 @@ namespace TrenchBroom {
                            const vec3 &delta,
                            ProportionalAxes proportional,
                            AnchorPos anchorType) {
-            FloatType sideLengthDelta = dot(side.normal, delta);
+            auto sideLengthDelta = dot(side.normal, delta);
 
             // when using a center anchor, we're stretching both sides
             // at once, so multiply the delta by 2.
@@ -262,25 +262,25 @@ namespace TrenchBroom {
                 sideLengthDelta *= 2.0;
             }
 
-            const size_t axis = firstComponent(side.normal);
-            const FloatType inSideLenth = in.max[axis] - in.min[axis];
-            const FloatType sideLength = inSideLenth + sideLengthDelta;
+            const auto axis = firstComponent(side.normal);
+            const auto inSideLenth = in.max[axis] - in.min[axis];
+            const auto sideLength = inSideLenth + sideLengthDelta;
 
             if (sideLength <= 0) {
                 return BBox3();
             }
 
-            const vec3 n = side.normal;
-            const size_t axis1 = firstComponent(n);
-            const size_t axis2 = secondComponent(n);
-            const size_t axis3 = thirdComponent(n);
+            const auto n = side.normal;
+            const auto axis1 = firstComponent(n);
+            const auto axis2 = secondComponent(n);
+            const auto axis3 = thirdComponent(n);
 
-            vec3 newSize = in.size();
+            auto newSize = size(in);
 
             newSize[axis1] = sideLength;
 
             // optionally apply proportional scaling to axis2/axis3
-            const FloatType ratio = sideLength / in.size()[axis1];
+            const auto ratio = sideLength / size(in)[axis1];
             if (proportional.isAxisProportional(axis2)) {
                 newSize[axis2] *= ratio;
             }
@@ -288,8 +288,8 @@ namespace TrenchBroom {
                 newSize[axis3] *= ratio;
             }
 
-            const vec3 anchor = (anchorType == AnchorPos::Center)
-                ? in.center()
+            const auto anchor = (anchorType == AnchorPos::Center)
+                ? center(in)
                 : centerForBBoxSide(in, oppositeSide(side));
 
             const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
@@ -303,30 +303,32 @@ namespace TrenchBroom {
                              const vec3& delta,
                              const AnchorPos anchorType) {
 
-            const BBoxCorner opposite = oppositeCorner(corner);
-            const vec3 oppositePoint = pointForBBoxCorner(in, opposite);
-            const vec3 anchor = (anchorType == AnchorPos::Center)
-                                ? in.center()
+            const auto opposite = oppositeCorner(corner);
+            const auto oppositePoint = pointForBBoxCorner(in, opposite);
+            const auto anchor = (anchorType == AnchorPos::Center)
+                                ? center(in)
                                 : oppositePoint;
-            const vec3 oldCorner = pointForBBoxCorner(in, corner);
-            const vec3 newCorner = oldCorner + delta;
+            const auto oldCorner = pointForBBoxCorner(in, corner);
+            const auto newCorner = oldCorner + delta;
 
             // check for inverting the box
             for (size_t i = 0; i < 3; ++i) {
                 if (newCorner[i] == anchor[i]) {
                     return BBox3();
                 }
-                const bool oldPositive = oldCorner[i] > anchor[i];
-                const bool newPositive = newCorner[i] > anchor[i];
+                const auto oldPositive = oldCorner[i] > anchor[i];
+                const auto newPositive = newCorner[i] > anchor[i];
                 if (oldPositive != newPositive) {
                     return BBox3();
                 }
             }
 
             if (anchorType == AnchorPos::Center) {
-                return BBox3(vec3::List{anchor - (newCorner - anchor), newCorner});
+                const auto points = vec3::List{ anchor - (newCorner - anchor), newCorner };
+                return BBox3::mergeAll(std::begin(points), std::end(points));
             } else {
-                return BBox3(vec3::List{oppositePoint, newCorner});
+                const auto points = vec3::List{ oppositePoint, newCorner };
+                return BBox3::mergeAll(std::begin(points), std::end(points));
             }
         }
 
@@ -336,16 +338,16 @@ namespace TrenchBroom {
                            const ProportionalAxes proportional,
                            const AnchorPos anchorType) {
 
-            const BBoxEdge opposite = oppositeEdge(edge);
-            const vec3 edgeMid = pointsForBBoxEdge(in, edge).center();
-            const vec3 oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
+            const auto opposite = oppositeEdge(edge);
+            const auto edgeMid = pointsForBBoxEdge(in, edge).center();
+            const auto oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
 
-            const vec3 anchor = (anchorType == AnchorPos::Center)
-                                ? in.center()
+            const auto anchor = (anchorType == AnchorPos::Center)
+                                ? center(in)
                                 : oppositeEdgeMid;
 
-            const vec3 oldAnchorDist = edgeMid - anchor;
-            const vec3 newAnchorDist = oldAnchorDist + delta;
+            const auto oldAnchorDist = edgeMid - anchor;
+            const auto newAnchorDist = oldAnchorDist + delta;
 
             // check for crossing over the anchor
             for (size_t i = 0; i < 3; ++i) {
@@ -357,25 +359,24 @@ namespace TrenchBroom {
                 }
             }
 
-            const size_t nonMovingAxis = thirdComponent(oldAnchorDist);
+            const auto nonMovingAxis = thirdComponent(oldAnchorDist);
 
-            const vec3 corner1 = (anchorType == AnchorPos::Center)
+            const auto corner1 = (anchorType == AnchorPos::Center)
                                  ? anchor - newAnchorDist
                                  : anchor;
-            const vec3 corner2 = anchor + newAnchorDist;
+            const auto corner2 = anchor + newAnchorDist;
 
 
-            BBox3 result(corner1, corner2);
-            result.repair();
+            BBox3 result(min(corner1, corner2), max(corner1, corner2));
 
             // the only type of proportional scaling we support is optionally
             // scaling the nonMovingAxis.
             if (proportional.isAxisProportional(nonMovingAxis)) {
-                const size_t axis1 = firstComponent(oldAnchorDist);
-                const FloatType ratio = result.size()[axis1] / in.size()[axis1];
+                const auto axis1 = firstComponent(oldAnchorDist);
+                const auto ratio = size(result)[axis1] / size(in)[axis1];
 
-                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
-                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (in.size()[nonMovingAxis] * ratio * 0.5);
+                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (size(in)[nonMovingAxis] * ratio * 0.5);
+                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (size(in)[nonMovingAxis] * ratio * 0.5);
             } else {
                 result.min[nonMovingAxis] = in.min[nonMovingAxis];
                 result.max[nonMovingAxis] = in.max[nonMovingAxis];
@@ -385,7 +386,7 @@ namespace TrenchBroom {
 
             // check for zero size
             for (size_t i = 0; i < 3; ++i) {
-                if (Math::zero(result.size()[i], Math::Constants<FloatType>::almostZero())) {
+                if (Math::zero(size(result)[i], Math::Constants<FloatType>::almostZero())) {
                     return BBox3();
                 }
             }
@@ -764,7 +765,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
-            if (bounds().empty()) {
+            if (isEmpty(bounds())) {
                 return false;
             }
 
@@ -776,7 +777,7 @@ namespace TrenchBroom {
 
         vec3f ScaleObjectsTool::dragAnchor() const {
             if (m_anchorPos == AnchorPos::Center) {
-                return vec3f(bounds().center());
+                return vec3f(center(bounds()));
             }
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
@@ -809,7 +810,7 @@ namespace TrenchBroom {
         }
 
         vec3::List ScaleObjectsTool::cornerHandles() const {
-            if (bounds().empty()) {
+            if (isEmpty(bounds())) {
                 return {};
             }
 
@@ -888,7 +889,7 @@ namespace TrenchBroom {
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
 
-            if (!newBox.empty()) {
+            if (!isEmpty(newBox)) {
                 document->scaleObjects(bounds(), newBox);
             }
         }

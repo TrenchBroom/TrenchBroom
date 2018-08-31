@@ -118,22 +118,24 @@ namespace TrenchBroom {
         vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const vec3& position) const {
             
             // First, compute the snapped position under the mouse:
-            const FloatType dist = dragPlane.intersectWithRay(ray);
-            const vec3 hitPoint = ray.pointAtDistance(dist);
-            const vec3 newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
-            const vec3 offset = newPos - hitPoint;
+            const auto dist = dragPlane.intersectWithRay(ray);
+            const auto hitPoint = ray.pointAtDistance(dist);
+            const auto newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
+            const auto offset = newPos - hitPoint;
             
-            const vec3 normal = dragPlane.normal;
-            const vec3 size = bounds.size();
+            const auto normal = dragPlane.normal;
+            const auto size = ::size(bounds);
             
-            vec3 newMinPos = newPos;
+            auto newMinPos = newPos;
             for (size_t i = 0; i < 3; ++i) {
                 if (Math::zero(offset[i])) {
-                    if (normal[i] < 0.0)
+                    if (normal[i] < 0.0) {
                         newMinPos[i] -= size[i];
+                    }
                 } else {
-                    if ((size[i] >= 0.0) != (ray.direction[i] >= 0.0))
+                    if ((size[i] >= 0.0) != (ray.direction[i] >= 0.0)) {
                         newMinPos[i] -= size[i];
+                    }
                 }
             }
 
@@ -282,13 +284,15 @@ namespace TrenchBroom {
         }
         
         vec3 Grid::combineDeltas(const vec3& delta1, const vec3& delta2) const {
-            if (squaredLength(delta1) < squaredLength(delta2))
+            if (squaredLength(delta1) < squaredLength(delta2)) {
                 return delta1;
-            return delta2;
+            } else {
+                return delta2;
+            }
         }
         
         vec3 Grid::referencePoint(const BBox3& bounds) const {
-            return snap(bounds.center());
+            return snap(center(bounds));
         }
     }
 }

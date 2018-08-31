@@ -251,7 +251,7 @@ namespace TrenchBroom {
                         totalVertexCount += faceVertexCount;
                     }
                     
-                    const BBox3f bounds(modelVertices);
+                    const auto bounds = BBox3f::mergeAll(std::begin(modelVertices), std::end(modelVertices));
                     model->addModel(faces, bounds);
                 }
             } catch (...) {

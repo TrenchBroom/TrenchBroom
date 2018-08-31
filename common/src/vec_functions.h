@@ -1152,8 +1152,8 @@ bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end) {
  * @param get the transformation function, defaults to identity
  * @return the average of the vectors obtained from the given range of elements
  */
-template <typename I, typename G>
-auto average(I cur, I end, const G& get = Math::Identity()) -> typename std::remove_reference<decltype(get(*cur))>::type {
+template <typename I, typename G = Math::Identity>
+auto average(I cur, I end, const G& get = G()) -> typename std::remove_reference<decltype(get(*cur))>::type {
     assert(cur != end);
 
     auto result = get(*cur++);

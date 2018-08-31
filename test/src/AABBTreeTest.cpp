@@ -71,7 +71,7 @@ O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
+    ASSERT_EQ(merge(bounds1, bounds2), tree.bounds());
     ASSERT_TRUE(tree.contains(bounds1, 1u));
     ASSERT_TRUE(tree.contains(bounds2, 2u));
 }
@@ -95,7 +95,7 @@ O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(bounds1.mergedWith(bounds2).mergedWith(bounds3), tree.bounds());
+    ASSERT_EQ(merge(merge(bounds1, bounds2), bounds3), tree.bounds());
     ASSERT_TRUE(tree.contains(bounds1, 1u));
     ASSERT_TRUE(tree.contains(bounds2, 2u));
     ASSERT_TRUE(tree.contains(bounds3, 3u));
@@ -136,7 +136,7 @@ O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(bounds1.mergedWith(bounds2), tree.bounds());
+    ASSERT_EQ(merge(bounds1, bounds2), tree.bounds());
 
     ASSERT_FALSE(tree.remove(bounds3, 3u));
     ASSERT_TRUE(tree.remove(bounds2, 2u));
@@ -205,7 +205,7 @@ O [ ( -2 -2 -1 ) ( 1 1 1 ) ]
 )" , tree);
 
     ASSERT_FALSE(tree.empty());
-    ASSERT_EQ(bounds2.mergedWith(bounds3), tree.bounds());
+    ASSERT_EQ(merge(bounds2, bounds3), tree.bounds());
 
     ASSERT_FALSE(tree.remove(bounds1, 1u));
     ASSERT_TRUE(tree.remove(bounds2, 2u));

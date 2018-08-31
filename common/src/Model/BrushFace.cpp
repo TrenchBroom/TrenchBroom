@@ -205,10 +205,10 @@ namespace TrenchBroom {
 
             current = current->next();
             while (current != first) {
-                bounds.mergeWith(toPlane * current->origin()->position());
+                bounds = merge(bounds, toPlane * current->origin()->position());
                 current = current->next();
             }
-            return fromPlane * bounds.center();
+            return fromPlane * ::center(bounds);
         }
 
         FloatType BrushFace::area(const Math::Axis::Type axis) const {

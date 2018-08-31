@@ -905,7 +905,7 @@ namespace TrenchBroom {
                 const BBox3& worldBounds = document->worldBounds();
                 
                 Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.renderCoordinateSystem(worldBounds);
+                renderService.renderCoordinateSystem(BBox3f(worldBounds));
             }
         }
 

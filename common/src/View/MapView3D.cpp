@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 }
             } else {
                 const auto oldMin = bounds.min;
-                const auto oldCenter = bounds.center();
+                const auto oldCenter = center(bounds);
                 const auto newCenter = vec3(m_camera.defaultPoint());
                 const auto newMin = oldMin + (newCenter - oldCenter);
                 return grid.snap(newMin);
@@ -539,28 +539,30 @@ namespace TrenchBroom {
         }
 
         vec3 MapView3D::doComputePointEntityPosition(const BBox3& bounds) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             
             vec3 delta;
-            View::Grid& grid = document->grid();
+            auto& grid = document->grid();
             
-            const BBox3& worldBounds = document->worldBounds();
+            const auto& worldBounds = document->worldBounds();
             
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
+                const auto* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
             } else {
-                const vec3 newPosition = Renderer::Camera::defaultPoint(pickRay());
-                const vec3 defCenter = bounds.center();
+                const auto newPosition = Renderer::Camera::defaultPoint(pickRay());
+                const auto defCenter = center(bounds);
                 return grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
             }
         }
 
         ActionContext MapView3D::doGetActionContext() const {
-            if (cameraFlyModeActive())
+            if (cameraFlyModeActive()) {
                 return ActionContext_FlyMode;
-            return ActionContext_Default;
+            } else {
+                return ActionContext_Default;
+            }
         }
         
         wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {

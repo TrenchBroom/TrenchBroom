@@ -114,8 +114,8 @@ namespace TrenchBroom {
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
             
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
             bounds.min = correct(bounds.min);
@@ -126,15 +126,18 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < 3; i++) {
                 if (Math::lte(bounds.max[i], bounds.min[i])) {
-                    if (bounds.min[i] < cameraPosition[i])
+                    if (bounds.min[i] < cameraPosition[i]) {
                         bounds.max[i] = bounds.min[i] + grid.actualSize();
-                    else
+                    } else {
                         bounds.min[i] = bounds.max[i] - grid.actualSize();
+                    }
                 }
             }
 
-            bounds.intersectWith(document->worldBounds());
-            m_tool->update(bounds);
+            bounds = intersect(bounds, document->worldBounds());
+            if (!isEmpty(bounds)) {
+                m_tool->update(bounds);
+            }
         }
     }
 }

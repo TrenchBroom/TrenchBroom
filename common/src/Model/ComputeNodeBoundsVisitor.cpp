@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 m_bounds = bounds;
                 m_initialized = true;
             } else {
-                m_bounds.mergeWith(bounds);
+                m_bounds = merge(m_bounds, bounds);
             }
         }
 

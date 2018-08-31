@@ -426,8 +426,8 @@ namespace TrenchBroom {
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const vec2f right_origTC = origFace->textureCoords(mins + vec3(cube->bounds().size().x(), 0, 0));
-            const vec2f right_transformedTC = face->textureCoords(mins + vec3(2.0 * cube->bounds().size().x(), 0, 0));
+            const vec2f right_origTC = origFace->textureCoords(mins + vec3(size(cube->bounds()).x(), 0, 0));
+            const vec2f right_transformedTC = face->textureCoords(mins + vec3(2.0 * size(cube->bounds()).x(), 0, 0));
             
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
             const vec2f orig_U_width = right_origTC - left_origTC;

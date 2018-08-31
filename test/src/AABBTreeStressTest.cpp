@@ -58,7 +58,7 @@ namespace TrenchBroom {
                     const auto oldBounds = m_tree.bounds();
 
                     m_tree.insert(node->bounds(), node);
-                    m_bounds.mergeWith(node->bounds());
+                    m_bounds = merge(m_bounds, node->bounds());
 
                     if (!m_tree.bounds().contains(oldBounds)) {
                         cancel();

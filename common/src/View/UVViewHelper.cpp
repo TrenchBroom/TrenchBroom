@@ -186,10 +186,10 @@ namespace TrenchBroom {
         }
         
         void UVViewHelper::computeLineVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const {
-            const vec3::List viewportVertices = toTex * m_camera.viewportVertices();
-            const BBox3 viewportBounds(viewportVertices);
-            const vec3& min = viewportBounds.min;
-            const vec3& max = viewportBounds.max;
+            const auto viewportVertices = toTex * m_camera.viewportVertices();
+            const auto viewportBounds = BBox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
+            const auto& min = viewportBounds.min;
+            const auto& max = viewportBounds.max;
             
             x1 = toWorld * vec3(pos.x(), min.y(), 0.0);
             x2 = toWorld * vec3(pos.x(), max.y(), 0.0);
@@ -200,21 +200,22 @@ namespace TrenchBroom {
         void UVViewHelper::resetOrigin() {
             assert(valid());
 
-            const mat4x4 toTex = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const BBox3 bounds(toTex * m_face->vertexPositions());
+            const auto toTex = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto transformedVertices = toTex * m_face->vertexPositions();
+            const auto bounds = BBox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
             
             const vec3 vertices[] = {
-                bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
-                bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Min),
-                bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Min),
-                bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Min)
+                corner(bounds, BBoxCorner::min, BBoxCorner::min, BBoxCorner::min),
+                corner(bounds, BBoxCorner::min, BBoxCorner::max, BBoxCorner::min),
+                corner(bounds, BBoxCorner::max, BBoxCorner::max, BBoxCorner::min),
+                corner(bounds, BBoxCorner::max, BBoxCorner::min, BBoxCorner::min)
             };
             
-            const mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const mat4x4 toCam(m_camera.viewMatrix());
+            const auto fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toCam = mat4x4(m_camera.viewMatrix());
             
             for (size_t i = 0; i < 4; ++i) {
-                const vec3 vertex = toCam * fromTex * vertices[i];
+                const auto vertex = toCam * fromTex * vertices[i];
                 if (vertex.x() < 0.0 && vertex.y() < 0.0) {
                     setOriginInFaceCoords(vec2f(vertices[i]));
                     break;
@@ -247,23 +248,26 @@ namespace TrenchBroom {
         void UVViewHelper::resetZoom() {
             assert(valid());
             
-            float w = static_cast<float>(m_camera.unzoomedViewport().width);
-            float h = static_cast<float>(m_camera.unzoomedViewport().height);
+            auto w = static_cast<float>(m_camera.unzoomedViewport().width);
+            auto h = static_cast<float>(m_camera.unzoomedViewport().height);
             
-            if (w <= 1.0f || h <= 1.0f)
+            if (w <= 1.0f || h <= 1.0f) {
                 return;
-            
-            if (w > 80.0f)
-                w -= 80.0f;
-            if (h > 80.0f)
-                h -= 80.0f;
-            
-            const BBox3 bounds = computeFaceBoundsInCameraCoords();
-            const vec3f size(bounds.size());
+            }
 
-            float zoom = 3.0f;
-            zoom = Math::min(zoom, w / size.x());
-            zoom = Math::min(zoom, h / size.y());
+            if (w > 80.0f) {
+                w -= 80.0f;
+            }
+            if (h > 80.0f) {
+                h -= 80.0f;
+            }
+
+            const auto bounds = computeFaceBoundsInCameraCoords();
+            const auto boundsSize = vec3f(size(bounds));
+
+            auto zoom = 3.0f;
+            zoom = Math::min(zoom, w / boundsSize.x());
+            zoom = Math::min(zoom, h / boundsSize.y());
             if (zoom > 0.0f) {
                 m_camera.setZoom(zoom);
                 m_zoomValid = true;
@@ -282,7 +286,7 @@ namespace TrenchBroom {
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end) {
-                result.mergeWith(transform * (*it++)->position());
+                result = merge(result, transform * (*it++)->position());
             }
             return result;
         }

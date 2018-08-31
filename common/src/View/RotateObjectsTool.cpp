@@ -70,9 +70,9 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsTool::resetRotationCenter() {
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& bounds = document->selectionBounds();
-            const vec3 position = document->grid().snap(bounds.center());
+            auto document = lock(m_document);
+            const auto& bounds = document->selectionBounds();
+            const auto position = document->grid().snap(center(bounds));
             setRotationCenter(position);
         }
         

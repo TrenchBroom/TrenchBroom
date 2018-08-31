@@ -210,12 +210,12 @@ namespace TrenchBroom {
 
             // bounds and corner handles
 
-            if (!m_tool->bounds().empty())  {
+            if (!isEmpty(m_tool->bounds()))  {
                 // bounds
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(m_tool->bounds());
+                    renderService.renderBounds(BBox3f(m_tool->bounds()));
                 }
 
                 // corner handles

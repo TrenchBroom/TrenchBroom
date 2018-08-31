@@ -595,8 +595,8 @@ namespace TrenchBroom {
         }
         
         vec3 ClipTool::defaultClipPointPos() const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->selectionBounds().center();
+            auto document = lock(m_document);
+            return center(document->selectionBounds());
         }
         
         bool ClipTool::canAddPoint(const vec3& point) const {
@@ -609,9 +609,10 @@ namespace TrenchBroom {
 
         void ClipTool::addPoint(const vec3& point, const vec3::List& helpVectors) {
             assert(canAddPoint(point));
-            if (m_strategy == nullptr)
+            if (m_strategy == nullptr) {
                 m_strategy = new PointClipStrategy();
-            
+            }
+
             m_strategy->addPoint(point, helpVectors);
             update();
         }

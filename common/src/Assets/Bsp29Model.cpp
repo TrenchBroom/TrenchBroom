@@ -57,8 +57,9 @@ namespace TrenchBroom {
             result.min = result.max = faces.front().vertices().front().v1;
             
             for (const Face& face : faces) {
-                for (const Face::Vertex& vertex : face.vertices())
-                    result.mergeWith(vertex.v1);
+                for (const Face::Vertex& vertex : face.vertices()) {
+                    result = merge(result, vertex.v1);
+                }
             }
             
             return result;

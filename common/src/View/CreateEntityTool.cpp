@@ -112,19 +112,19 @@ namespace TrenchBroom {
         void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
             ensure(m_entity != nullptr, "entity is null");
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             
             vec3 delta;
-            const Grid& grid = document->grid();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const auto& grid = document->grid();
+            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                const auto* face = Model::hitToFace(hit);
+                const auto dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
-                const vec3 newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
-                const vec3 center = m_entity->bounds().center();
-                delta = grid.moveDeltaForPoint(center, document->worldBounds(), newPosition - center);
+                const auto newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
+                const auto boundsCenter = center(m_entity->bounds());
+                delta = grid.moveDeltaForPoint(boundsCenter, document->worldBounds(), newPosition - boundsCenter);
             }
             
             if (!isZero(delta)) {
