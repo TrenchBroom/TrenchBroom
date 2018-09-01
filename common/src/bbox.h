@@ -22,11 +22,10 @@
 
 #include "Algorithms.h"
 #include "mat_forward.h"
-#include "mat_type.h"
-#include "mat_functions.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
 #include "Plane.h"
 #include "Quat.h"
-#include "vec_forward.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
 
