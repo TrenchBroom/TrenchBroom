@@ -22,10 +22,10 @@
 #define TrenchBroom_ScaleObjectsTool
 
 #include "TrenchBroom.h"
+#include "VecMath.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsToolPage.h"
-#include "bbox.h"
 
 #include <bitset>
 #include <vector>

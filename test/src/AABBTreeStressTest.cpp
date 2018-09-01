@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
-#include "bbox.h"
+#include "bbox_decl.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"

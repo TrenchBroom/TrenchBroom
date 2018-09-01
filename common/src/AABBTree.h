@@ -22,7 +22,8 @@
 
 #include "NodeTree.h"
 #include "Exceptions.h"
-#include "bbox.h"
+#include "bbox_decl.h"
+#include "bbox_impl.h"
 #include "Ray.h"
 #include "MathUtils.h"
 
