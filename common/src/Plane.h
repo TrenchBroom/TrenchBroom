@@ -28,6 +28,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Ray.h"
 
 #include <set>
+#include <tuple>
 #include <vector>
 
 template <typename T, size_t S>
