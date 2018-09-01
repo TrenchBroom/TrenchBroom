@@ -1400,10 +1400,10 @@ namespace TrenchBroom {
             
             wxTextEntryDialog dialog(this, "Enter bounding box size", "Create Cube", "");
             if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
+                const auto str = dialog.GetValue();
                 double size; str.ToDouble(&size);
                 const BBox3 bounds(size / 2.0);
-                const vec3::List positions = bBoxVertices(bounds);
+                const auto positions = bounds.vertices();
                 m_document->createBrush(positions);
             }
         }

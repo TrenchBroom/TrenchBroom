@@ -62,7 +62,7 @@ namespace TrenchBroom {
 
                     if (!m_tree.bounds().contains(oldBounds)) {
                         cancel();
-                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds.asString() << " -> " << m_tree.bounds().asString();
+                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds();
                     }
                 } else {
                     m_tree.insert(node->bounds(), node);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 if (!m_tree.contains(node->bounds(), node)) {
                     cancel();
                     m_tree.print(std::cout);
-                    ASSERT_TRUE(m_tree.contains(node->bounds(), node)) << "Node " << node << " with bounds " << node->bounds().asString() << " at line " << node->lineNumber() << " not found in tree after insertion";
+                    ASSERT_TRUE(m_tree.contains(node->bounds(), node)) << "Node " << node << " with bounds " << node->bounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
                 }
 
                 if (m_bounds != m_tree.bounds()) {

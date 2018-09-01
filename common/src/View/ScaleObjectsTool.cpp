@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return normal == other.normal;
         }
 
-        // BBoxCorner
+        // Corner
 
         bool BBoxCorner::validCorner(const vec3& c) {
             // all components must be either +1 or -1
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         BBoxCorner::BBoxCorner(const vec3& c) : corner(c) {
             if (!validCorner(c)) {
-                throw std::invalid_argument("BBoxCorner created with invalid corner " + StringUtils::toString(c));
+                throw std::invalid_argument("Corner created with invalid corner " + StringUtils::toString(c));
             }
         }
 
@@ -150,8 +150,8 @@ namespace TrenchBroom {
             auto op = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& normal) {
                 result.push_back(BBoxSide(normal));
             };
-            eachBBoxFace(box, op);
-            
+            box.forEachFace(op);
+
             assert(result.size() == 6);
             return result;
         }
@@ -164,8 +164,8 @@ namespace TrenchBroom {
             auto op = [&](const vec3& p0, const vec3& p1) {
                 result.push_back(BBoxEdge(p0, p1));
             };
-            eachBBoxEdge(box, op);
-            
+            box.forEachEdge(op);
+
             assert(result.size() == 12);
             return result;
         }
@@ -178,8 +178,8 @@ namespace TrenchBroom {
             auto op = [&](const vec3& point) {
                 result.push_back(BBoxCorner(point));
             };
-            eachBBoxVertex(box, op);
-            
+            box.forEachVertex(op);
+
             assert(result.size() == 8);
             return result;
         }
@@ -224,8 +224,8 @@ namespace TrenchBroom {
                     res = poly;
                 }
             };
-            eachBBoxFace(box, visitor);
-            
+            box.forEachFace(visitor);
+
             assert(res.vertexCount() == 4);
             return res;
         }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                     setResult = true;
                 }
             };
-            eachBBoxFace(box, visitor);
+            box.forEachFace(visitor);
             assert(setResult);
             return result;
         }
@@ -367,31 +367,30 @@ namespace TrenchBroom {
             const auto corner2 = anchor + newAnchorDist;
 
 
-            BBox3 result(min(corner1, corner2), max(corner1, corner2));
+            auto p1 = min(corner1, corner2);
+            auto p2 = max(corner1, corner2);
 
             // the only type of proportional scaling we support is optionally
             // scaling the nonMovingAxis.
             if (proportional.isAxisProportional(nonMovingAxis)) {
                 const auto axis1 = firstComponent(oldAnchorDist);
-                const auto ratio = result.size()[axis1] / in.size()[axis1];
+                const auto ratio = (p2 - p1)[axis1] / in.size()[axis1];
 
-                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
-                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (in.size()[nonMovingAxis] * ratio * 0.5);
+                p1[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
+                p2[nonMovingAxis] = anchor[nonMovingAxis] + (in.size()[nonMovingAxis] * ratio * 0.5);
             } else {
-                result.min[nonMovingAxis] = in.min[nonMovingAxis];
-                result.max[nonMovingAxis] = in.max[nonMovingAxis];
+                p1[nonMovingAxis] = in.min[nonMovingAxis];
+                p2[nonMovingAxis] = in.max[nonMovingAxis];
             }
 
-            result.repair();
+            const auto result = BBox3(min(p1, p2), max(p1, p2));
 
             // check for zero size
-            for (size_t i = 0; i < 3; ++i) {
-                if (Math::zero(result.size()[i], Math::Constants<FloatType>::almostZero())) {
-                    return BBox3();
-                }
+            if (result.empty()) {
+                return BBox3();
+            } else {
+                return result;
             }
-
-            return result;
         }
 
         Line3 handleLineForHit(const BBox3& bboxAtDragStart, const Model::Hit& hit) {
@@ -504,7 +503,7 @@ namespace TrenchBroom {
                     }
                 }
             };
-            eachBBoxFace(box, visitor);
+            box.forEachFace(visitor);
 
             // The hit point is the closest point on the pick ray to one of the edges of the face.
             // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
@@ -662,7 +661,7 @@ namespace TrenchBroom {
                 }
                 
             };
-            eachBBoxFace(box, visitor);
+            box.forEachFace(visitor);
             assert(result.size() == 2);
             
             return result;
@@ -819,7 +818,7 @@ namespace TrenchBroom {
             auto op = [&](const vec3& point) {
                 result.push_back(point);
             };
-            eachBBoxVertex(bounds(), op);
+            bounds().forEachVertex(op);
             return result;
         }
 

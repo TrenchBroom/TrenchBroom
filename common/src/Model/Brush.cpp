@@ -1167,7 +1167,7 @@ namespace TrenchBroom {
         void Brush::buildGeometry(const BBox3& worldBounds) {
             assert(m_geometry == nullptr);
 
-            m_geometry = new BrushGeometry(worldBounds.expanded(1.0));
+            m_geometry = new BrushGeometry(worldBounds.expand(1.0));
 
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
             updateFacesFromGeometry(worldBounds, *m_geometry);
@@ -1345,7 +1345,7 @@ namespace TrenchBroom {
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const Ray3& ray) const {
-            if (Math::isnan(bounds().intersectWithRay(ray))) {
+            if (Math::isnan(::intersect(ray, bounds()))) {
                 return BrushFaceHit();
             }
 
@@ -1404,8 +1404,7 @@ namespace TrenchBroom {
                     return true;
                 }
 
-                const auto vertices = bBoxVertices(bounds);
-                for (const auto& vertex : vertices) {
+                for (const auto& vertex : bounds.vertices()) {
                     if (!m_this->containsPoint(vertex)) {
                         return false;
                     }

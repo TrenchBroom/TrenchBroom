@@ -49,27 +49,6 @@
 template <typename T, size_t S>
 class BBox {
 public:
-    class RelativePosition {
-    public:
-        typedef enum {
-            Range_Less,
-            Range_Within,
-            Range_Greater
-        } Range;
-    private:
-        Range m_positions[S];
-    public:
-        RelativePosition(const Range positions[S]) {
-            for (size_t i = 0; i < S; ++i)
-                m_positions[i] = positions[i];
-        }
-        
-        const Range& operator[] (const size_t index) const {
-            assert(index >= 0 && index < S);
-            return m_positions[index];
-        }
-    };
-
     vec<T,S> min;
     vec<T,S> max;
 public:
@@ -199,6 +178,7 @@ public:
      * @return true if this bounding box has an empty volume and false otherwise
      */
     bool empty() const {
+        assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (min[i] >= max[i]) {
                 return true;
@@ -233,51 +213,13 @@ public:
      * @return the volumen of this bounding box
      */
     T volume() const {
+        assert(valid());
         const auto boxSize = size();
         T result = boxSize[0];
         for (size_t i = 1; i < S; ++i) {
             result *= boxSize[i];
         }
         return result;
-    }
-
-    enum class BBoxCorner { min, max };
-
-    /**
-     * Returns the position of a corner of this bounding box according to the given spec.
-     *
-     * @param c the corner to return
-     * @return the position of the given corner
-     */
-    vec<T,S> corner(const BBoxCorner c[S]) const {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = c[i] == BBoxCorner::min ? min[i] : max[i];
-        }
-        return result;
-    }
-
-    /**
-     * Returns the position of a corner of this bounding box according to the given spec.
-     *
-     * @param x the X position of the corner
-     * @param y the Y position of the corner
-     * @param z the Z position of the corner
-     * @return the position of the given corner
-     */
-    vec<T,3> corner(const BBoxCorner x, const BBoxCorner y, const BBoxCorner z) const {
-        BBoxCorner c[] = { x, y, z };
-        return corner(c);
-    }
-
-    /**
-     * Returns a bounding box with its min point set to the component wise minimum of the min and max points of this
-     * bounding box, and its max point set to the component wise maximum of the min and max points of this bounding box.
-     *
-     * @return the repaired bounding box
-     */
-    BBox<T,S> repair() const {
-        return BBox<T,S>(::min(min, max), ::max(min, max));
     }
 
     /**
@@ -288,6 +230,7 @@ public:
      * @return true if the given point is contained in the given bounding box and false otherwise
      */
     bool contains(const vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
+        assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(point[i], min[i], epsilon) ||
                 Math::gt(point[i], max[i], epsilon)) {
@@ -305,6 +248,7 @@ public:
      * @return true if the given bounding box is contained in this bounding box
      */
     bool contains(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+        assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(b.min[i], min[i], epsilon) ||
                 Math::gt(b.max[i], max[i], epsilon)) {
@@ -323,6 +267,7 @@ public:
      * @return true if the given bounding box is enclosed in this bounding box
      */
     bool encloses(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+        assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (Math::lte(b.min[i], min[i], epsilon) ||
                 Math::gte(b.max[i], max[i], epsilon)) {
@@ -332,19 +277,21 @@ public:
         return true;
     }
 
+    /**
+     * Checks whether the given bounding box intersects with this bounding box.
 
-    RelativePosition relativePosition(const vec<T,S>& point) const {
-        typename RelativePosition::Range p[S];
+     * @param b the second bounding box
+     * @param epsilon an epsilon value
+     * @return true if the given bounding box intersects with this bounding box and false otherwise
+     */
+    bool intersects(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
-            if (point[i] < min[i])
-                p[i] = RelativePosition::Range_Less;
-            else if (point[i] > max[i])
-                p[i] = RelativePosition::Range_Greater;
-            else
-                p[i] = RelativePosition::Range_Within;
+            if (Math::lt(b.max[i], min[i], epsilon) ||
+                Math::gt(b.min[i], max[i], epsilon)) {
+                return false;
+            }
         }
-        
-        return RelativePosition(p);
+        return true;
     }
 
     /**
@@ -354,131 +301,218 @@ public:
      * @return the constrained point
      */
     vec<T,S> constrain(const vec<T,S>& point) const {
-        vec<T,S> result(point);
+        assert(valid());
+        return ::max(min, ::min(max, point));
+    }
+
+    enum class Corner { min, max };
+
+    /**
+     * Returns the position of a corner of this bounding box according to the given spec.
+     *
+     * @param c the corner to return
+     * @return the position of the given corner
+     */
+    vec<T,S> corner(const Corner c[S]) const {
+        assert(valid());
+        vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::min(max[i], Math::max(min[i], result[i]));
+            result[i] = c[i] == Corner::min ? min[i] : max[i];
         }
         return result;
     }
 
-    bool intersects(const BBox<T,S>& bounds, const T epsilon = static_cast<T>(0.0)) const {
-        for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(bounds.max[i], min[i], epsilon) ||
-                Math::gt(bounds.min[i], max[i], epsilon)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    bool touches(const vec<T,S>& start, const vec<T,S>& end, const T epsilon = static_cast<T>(0.0)) const {
-        if (contains(start, epsilon) || contains(end, epsilon))
-            return true;
-
-        const Ray<T,S> ray(start, normalize(end - start));
-        return !Math::isnan(intersectWithRay(ray));
+    /**
+     * Returns the position of a corner of this bounding box according to the given spec.
+     *
+     * @param x the X position of the corner
+     * @param y the Y position of the corner
+     * @param z the Z position of the corner
+     * @return the position of the given corner
+     */
+    vec<T,3> corner(const Corner x, const Corner y, const Corner z) const {
+        Corner c[] = { x, y, z };
+        return corner(c);
     }
 
-    T intersectWithRay(const Ray<T,S>& ray) const {
-        // Compute candidate planes
-        std::array<T, S> origins;
-        std::array<bool, S> inside;
-        bool allInside = true;
+    enum class Range {
+        less, within, greater
+    };
+
+    /**
+     * Returns the relative position of the given point. For each component, the returned array contains a
+     * value of the Range enum which indicates one of the following three cases:
+     *
+     * - the component of the point is less than the corresponding component of the min point
+     * - the component of the point is greater than the corresponding component of the max point
+     * - the component of the point is in the range defined by the corresponding components of the min and max point (inclusive)
+     *
+     * @param point the point to check
+     * @return the relative position
+     */
+    std::array<Range, S> relativePosition(const vec<T,S>& point) const {
+        assert(valid());
+
+        std::array<Range, S> result;
         for (size_t i = 0; i < S; ++i) {
-            if (ray.origin[i] < min[i]) {
-                origins[i] = min[i];
-                allInside = inside[i] = false;
-            } else if (ray.origin[i] > max[i]) {
-                origins[i] = max[i];
-                allInside = inside[i] = false;
+            if (point[i] < min[i]) {
+                result[i] = Range::less;
+            } else if (point[i] > max[i]) {
+                result[i] = Range::greater;
             } else {
-                if (ray.direction[i] < static_cast<T>(0.0)) {
-                    origins[i] = min[i];
-                } else {
-                    origins[i] = max[i];
-                }
-                inside[i] = true;
+                result[i] = Range::within;
             }
         }
 
-        // Intersect candidate planes with ray
-        std::array<T, S> distances;
-        for (size_t i = 0; i < S; ++i) {
-            if (ray.direction[i] != static_cast<T>(0.0)) {
-                distances[i] = (origins[i] - ray.origin[i]) / ray.direction[i];
-            } else {
-                distances[i] = static_cast<T>(-1.0);
-            }
-        }
-
-        size_t bestPlane = 0;
-        if (allInside) {
-            // find the closest plane that was hit
-            for (size_t i = 1; i < S; ++i) {
-                if (distances[i] < distances[bestPlane]) {
-                    bestPlane = i;
-                }
-            }
-        } else {
-            // find the farthest plane that was hit
-            for (size_t i = 0; i < S; ++i) {
-                if (!inside[i]) {
-                    bestPlane = i;
-                    break;
-                }
-            }
-            for (size_t i = bestPlane + 1; i < S; ++i) {
-                if (!inside[i] && distances[i] > distances[bestPlane]) {
-                    bestPlane = i;
-                }
-            }
-        }
-
-        // Check if the final candidate actually hits the box
-        if (distances[bestPlane] < static_cast<T>(0.0)) {
-            return std::numeric_limits<T>::quiet_NaN();
-        }
-
-        for (size_t i = 0; i < S; ++i) {
-            if (bestPlane != i) {
-                const T coord = ray.origin[i] + distances[bestPlane] * ray.direction[i];
-                if (coord < min[i] || coord > max[i]) {
-                    return std::numeric_limits<T>::quiet_NaN();
-                }
-            }
-        }
-
-        return distances[bestPlane];
-    }
-    
-    BBox<T,S>& expand(const T f) {
-        for (size_t i = 0; i < S; ++i) {
-            min[i] -= f;
-            max[i] += f;
-        }
-        return *this;
-    }
-    
-    BBox<T,S> expanded(const T f) const {
-        return BBox<T,S>(*this).expand(f);
-    }
-    
-    BBox<T,S>& translate(const vec<T,S>& delta) {
-        min += delta;
-        max += delta;
-        return *this;
-    }
-    
-    BBox<T,S> translated(const vec<T,S>& delta) const {
-        return BBox<T,S>(*this).translate(delta);
+        return result;
     }
 
-    std::string asString() const {
-        std::stringstream result;
-        result << "[ (" << min << ") - (" << max << ") ]";
-        return result.str();
+    /**
+     * Expands this bounding box by the given delta.
+     *
+     * @param f the value by which to expand this bounding box
+     * @return the expanded bounding box
+     */
+    BBox<T,S> expand(const T f) const {
+        assert(valid());
+        return BBox<T,S>(min - vec<T,S>::fill(f), max + vec<T,S>::fill(f));
+    }
+
+    /**
+     * Translates this bounding box by the given delta.
+     *
+     * @param delta the delta by which to translate
+     * @return the translated bounding box
+     */
+    BBox<T,S> translate(const vec<T,S>& delta) const {
+        assert(valid());
+        return BBox<T,S>(min + delta, max + delta);
+    }
+
+    /**
+     * Transforms this bounding box by applying the given transformation to each corner vertex. The result is the
+     * smallest bounding box that contains the transformed vertices.
+     *
+     * @param transform the transformation
+     * @return the transformed bounding box
+     */
+    BBox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+        const auto vertices = this->vertices();
+        const auto first = vertices[0] * transform;
+        auto result = BBox<T,3>(first, first);
+        for (size_t i = 1; i < vertices.size(); ++i) {
+            result = merge(result, vertices[i] * transform);
+        }
+        return result;
+    }
+    /**
+     * Executes the given operation on every face of this bounding box. For each face, its four vertices
+     * are passed to the given operation in a clock wise manner.
+     * 
+     * @tparam Op the type of the operation 
+     * @param op the operation
+     */
+    template <typename Op>
+    void forEachFace(Op&& op) const {
+        const vec<T,3> boxSize = size();
+        const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+        const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
+        const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
+
+        op(max, max - y, max - y - x, max - x, vec<T,3>( 0.0,  0.0, +1.0)); // top
+        op(min, min + x, min + x + y, min + y, vec<T,3>( 0.0,  0.0, -1.0)); // bottom
+        op(min, min + z, min + z + x, min + x, vec<T,3>( 0.0, -1.0,  0.0)); // front
+        op(max, max - x, max - x - z, max - z, vec<T,3>( 0.0, +1.0,  0.0)); // back
+        op(min, min + y, min + y + z, min + z, vec<T,3>(-1.0,  0.0,  0.0)); // left
+        op(max, max - z, max - z - y, max - y, vec<T,3>(+1.0,  0.0,  0.0)); // right
+    }
+
+    /**
+     * Executes the given operation for each edge of this bounding box. For each edge, the two vertices
+     * which are connected by that edge are passed to the operation.
+     *
+     * @tparam Op the type of the operation
+     * @param op the operation
+     */
+    template <typename Op>
+    void forEachEdge(Op&& op) const {
+        const vec<T,3> boxSize = size();
+        const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
+        const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
+        const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
+
+        // top edges clockwise (viewed from above)
+        op(max,         max - y    );
+        op(max - y,     max - y - x);
+        op(max - y - x, max - x    );
+        op(max - x,     max        );
+
+        // bottom edges clockwise (viewed from below)
+        op(min,         min + x    );
+        op(min + x,     min + x + y);
+        op(min + x + y, min + y    );
+        op(min + y,     min        );
+
+        // side edges clockwise (viewed from above)
+        op(min,         min + z        );
+        op(min + y,     min + y + z    );
+        op(min + x + y, min + x + y + z);
+        op(min + x,     min + x + z    );
+    }
+
+    /**
+     * Executes the given operation for each vertex of this bounding box.
+     *
+     * @tparam Op the type of the operation
+     * @param op the operation
+     */
+    template <class Op>
+    void forEachVertex(Op&& op) const {
+        const vec<T,3> boxSize = size();
+        const vec<T,3> x(boxSize.x(),         static_cast<T>(0.0), static_cast<T>(0.0));
+        const vec<T,3> y(static_cast<T>(0.0), boxSize.y(),         static_cast<T>(0.0));
+        const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
+
+        // top vertices clockwise (viewed from above)
+        op(max);
+        op(max-y);
+        op(min+z);
+        op(max-x);
+
+        // bottom vertices clockwise (viewed from below)
+        op(min);
+        op(min+x);
+        op(max-z);
+        op(min+y);
+    }
+
+    /**
+     * Returns a list containing all 8 corner vertices of this bounding box.
+     *
+     * @return a list of vertices
+     */
+    typename vec<T,S>::List vertices() const {
+        typename vec<T,S>::List result;
+        result.reserve(8);
+        forEachVertex([&](const vec<T,S>& v){ result.push_back(v); });
+        return result;
     }
 };
+
+/**
+ * Prints a textual representation of the given bounding box onto the given stream.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param stream the stream to print to
+ * @param bbox the bounding box to print
+ * @return the given stream
+ */
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
+    stream << "[ (" << bbox.min << ") - (" << bbox.max << ") ]";
+    return stream;
+}
 
 /**
  * Checks whether the two given bounding boxes are identical.
@@ -506,23 +540,6 @@ bool operator==(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
 template <typename T, size_t S>
 bool operator!=(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
     return lhs.min != rhs.min || lhs.max != rhs.max;
-}
-
-/**
- * Computes the volume of the given bounding box.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @return the volumen of the bounding box
- */
-template <typename T, size_t S>
-T volume(const BBox<T,S>& b) {
-    const auto boxSize = b.size();
-    T result = boxSize[0];
-    for (size_t i = 1; i < S; ++i) {
-        result *= boxSize[i];
-    }
-    return result;
 }
 
 /**
@@ -574,207 +591,128 @@ BBox<T,S> intersect(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
     }
 }
 
-template <typename T, class Op>
-void eachBBoxFace(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> boxSize = bbox.size();
-    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
-    
-    op(bbox.max, bbox.max - y, bbox.max - y - x, bbox.max - x, vec<T,3>( 0.0,  0.0, +1.0)); // top
-    op(bbox.min, bbox.min + x, bbox.min + x + y, bbox.min + y, vec<T,3>( 0.0,  0.0, -1.0)); // bottom
-    op(bbox.min, bbox.min + z, bbox.min + z + x, bbox.min + x, vec<T,3>( 0.0, -1.0,  0.0)); // front
-    op(bbox.max, bbox.max - x, bbox.max - x - z, bbox.max - z, vec<T,3>( 0.0, +1.0,  0.0)); // back
-    op(bbox.min, bbox.min + y, bbox.min + y + z, bbox.min + z, vec<T,3>(-1.0,  0.0,  0.0)); // left
-    op(bbox.max, bbox.max - z, bbox.max - z - y, bbox.max - y, vec<T,3>(+1.0,  0.0,  0.0)); // right
-}
 
-template <typename T, class Op>
-void eachBBoxEdge(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> boxSize = bbox.size();
-    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
-    
-    vec<T,3> v1, v2;
-    
-    // top edges clockwise (viewed from above)
-    op(bbox.max,         bbox.max - y    );
-    op(bbox.max - y,     bbox.max - y - x);
-    op(bbox.max - y - x, bbox.max - x    );
-    op(bbox.max - x,     bbox.max        );
-    
-    // bottom edges clockwise (viewed from below)
-    op(bbox.min,         bbox.min + x    );
-    op(bbox.min + x,     bbox.min + x + y);
-    op(bbox.min + x + y, bbox.min + y    );
-    op(bbox.min + y,     bbox.min        );
-    
-    // side edges clockwise (viewed from above)
-    op(bbox.min,         bbox.min + z        );
-    op(bbox.min + y,     bbox.min + y + z    );
-    op(bbox.min + x + y, bbox.min + x + y + z);
-    op(bbox.min + x,     bbox.min + x + z    );
-}
-
-template <typename T>
-typename vec<T,3>::List bBoxVertices(const BBox<T,3>& bbox) {
-    const vec<T,3> boxSize = bbox.size();
-    const vec<T,3> x(boxSize.x(), static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(), static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
-
-    typename vec<T,3>::List vertices(8);
-    
-    // top vertices clockwise (viewed from above)
-    vertices[0] = bbox.max;
-    vertices[1] = bbox.max-y;
-    vertices[2] = bbox.min+z;
-    vertices[3] = bbox.max-x;
-    
-    // bottom vertices clockwise (viewed from below)
-    vertices[4] = bbox.min;
-    vertices[5] = bbox.min+x;
-    vertices[6] = bbox.max-z;
-    vertices[7] = bbox.min+y;
-    return vertices;
-}
-
-template <typename T, class Op>
-void eachBBoxVertex(const BBox<T,3>& bbox, Op& op) {
-    const vec<T,3> boxSize = bbox.size();
-    const vec<T,3> x(boxSize.x(),         static_cast<T>(0.0), static_cast<T>(0.0));
-    const vec<T,3> y(static_cast<T>(0.0), boxSize.y(),         static_cast<T>(0.0));
-    const vec<T,3> z(static_cast<T>(0.0), static_cast<T>(0.0), boxSize.z());
-    
-    // top vertices clockwise (viewed from above)
-    op(bbox.max);
-    op(bbox.max-y);
-    op(bbox.min+z);
-    op(bbox.max-x);
-    
-    // bottom vertices clockwise (viewed from below)
-    op(bbox.min);
-    op(bbox.min+x);
-    op(bbox.max-z);
-    op(bbox.min+y);
-}
-
-template <typename T>
-struct RotateBBox {
-    Quat<T> rotation;
-    bool first;
-    BBox<T,3> bbox;
-    
-    RotateBBox(const Quat<T>& i_rotation) :
-    rotation(i_rotation),
-    first(true) {}
-    
-    void operator()(const vec<T,3>& vertex) {
-        if (first) {
-            bbox.min = bbox.max = rotation * vertex;
-            first = false;
+/**
+ * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
+ * on the given ray from the ray's origin to that point.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param r the ray
+ * @param b the bounding box
+ * @return the distance to the intersection point, or NaN if the ray does not intersect the bounding box
+ */
+template <typename T, size_t S>
+T intersect(const Ray<T,S>& r, const BBox<T,S>& b) {
+    // Compute candidate planes
+    std::array<T, S> origins;
+    std::array<bool, S> inside;
+    bool allInside = true;
+    for (size_t i = 0; i < S; ++i) {
+        if (r.origin[i] < b.min[i]) {
+            origins[i] = b.min[i];
+            allInside = inside[i] = false;
+        } else if (r.origin[i] > b.max[i]) {
+            origins[i] = b.max[i];
+            allInside = inside[i] = false;
         } else {
-            bbox = merge(bbox, rotation * vertex);
+            if (r.direction[i] < static_cast<T>(0.0)) {
+                origins[i] = b.min[i];
+            } else {
+                origins[i] = b.max[i];
+            }
+            inside[i] = true;
         }
     }
-};
 
-template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Quat<T>& rotation, const vec<T,3>& center = vec<T,3>::zero) {
-    RotateBBox<T> rotator(rotation);
-    eachBBoxVertex(bbox.translated(-center), rotator);
-    return rotator.bbox.translated(center);
-}
-
-template <typename T>
-struct TransformBBox {
-    mat<T,4,4> transformation;
-    bool first;
-    BBox<T,3> bbox;
-    
-    TransformBBox(const mat<T,4,4>& i_transformation) :
-    transformation(i_transformation),
-    first(true) {}
-    
-    void operator()(const vec<T,3>& vertex) {
-        if (first) {
-            bbox.min = bbox.max = transformation * vertex;
-            first = false;
+    // Intersect candidate planes with ray
+    std::array<T, S> distances;
+    for (size_t i = 0; i < S; ++i) {
+        if (r.direction[i] != static_cast<T>(0.0)) {
+            distances[i] = (origins[i] - r.origin[i]) / r.direction[i];
         } else {
-            bbox = merge(bbox, transformation * vertex);
+            distances[i] = static_cast<T>(-1.0);
         }
     }
-};
 
-template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const mat<T,4,4>& transformation) {
-    TransformBBox<T> transformator(transformation);
-    eachBBoxVertex(bbox, transformator);
-    return transformator.bbox;
-}
+    size_t bestPlane = 0;
+    if (allInside) {
+        // find the closest plane that was hit
+        for (size_t i = 1; i < S; ++i) {
+            if (distances[i] < distances[bestPlane]) {
+                bestPlane = i;
+            }
+        }
+    } else {
+        // find the farthest plane that was hit
+        for (size_t i = 0; i < S; ++i) {
+            if (!inside[i]) {
+                bestPlane = i;
+                break;
+            }
+        }
+        for (size_t i = bestPlane + 1; i < S; ++i) {
+            if (!inside[i] && distances[i] > distances[bestPlane]) {
+                bestPlane = i;
+            }
+        }
+    }
 
-template <typename I, typename Get = Identity>
-auto mergeBounds(I cur, I end, const Get& getBounds = Get()) {
-    assert(cur != end);
-    auto result = getBounds(*cur); ++cur;
-    while (cur != end) {
-        result = merge(result, getBounds(*cur));
-        ++cur;
-    };
-    return result;
+    // Check if the final candidate actually hits the box
+    if (distances[bestPlane] < static_cast<T>(0.0)) {
+        return std::numeric_limits<T>::quiet_NaN();
+    }
+
+    for (size_t i = 0; i < S; ++i) {
+        if (bestPlane != i) {
+            const T coord = r.origin[i] + distances[bestPlane] * r.direction[i];
+            if (coord < b.min[i] || coord > b.max[i]) {
+                return std::numeric_limits<T>::quiet_NaN();
+            }
+        }
+    }
+
+    return distances[bestPlane];
 }
 
 template <typename T>
 mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
-    const vec<T,3>& oldSize = oldBBox.size();
-    const vec<T,3>& newSize = newBBox.size();
-    const vec<T,3> scaleFactors = newSize / oldSize;
-    
-    const mat<T,4,4> transform = translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
-    return transform;
+    const auto scaleFactors = newBBox.size() / oldBBox.size();
+    return translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
 }
 
 template <typename T>
 mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
-    const vec<T,3>& oldSize = oldBBox.size();
-    const vec<T,3> scaleFactors = newSize / oldSize;
-
-    const mat<T,4,4> transform = translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
-    return transform;
+    const auto scaleFactors = newSize / oldBBox.size();
+    return translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
 }
 
 template <typename T>
 mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
     const auto oldSize = box.size();
-    
+
     // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
     mat<T,4,4> shearMat;
     if (sideToShear == vec<T,3>::pos_x) {
         const auto relativeDelta = delta / oldSize.x();
         shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
-    }
-    if (sideToShear == vec<T,3>::neg_x) {
+    } else if (sideToShear == vec<T,3>::neg_x) {
         const auto relativeDelta = delta / oldSize.x();
         shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
-    }
-    if (sideToShear == vec<T,3>::pos_y) {
+    } else if (sideToShear == vec<T,3>::pos_y) {
         const auto relativeDelta = delta / oldSize.y();
         shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
-    }
-    if (sideToShear == vec<T,3>::neg_y) {
+    } else if (sideToShear == vec<T,3>::neg_y) {
         const auto relativeDelta = delta / oldSize.y();
         shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
-    }
-    if (sideToShear == vec<T,3>::pos_z) {
+    } else if (sideToShear == vec<T,3>::pos_z) {
         const auto relativeDelta = delta / oldSize.z();
         shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
-    }
-    if (sideToShear == vec<T,3>::neg_z) {
+    } else if (sideToShear == vec<T,3>::neg_z) {
         const auto relativeDelta = delta / oldSize.z();
         shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
     }
-    
+
     // grab any vertex on side that is opposite the one being sheared.
     const auto sideOppositeToShearSide = -sideToShear;
     vec<T,3> vertOnOppositeSide;
@@ -785,17 +723,10 @@ mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, co
             didGrab = true;
         }
     };
-    eachBBoxFace(box, visitor);
+    box.forEachFace(visitor);
     assert(didGrab);
-    
-    const mat<T,4,4> transform = translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
-    return transform;
-}
 
-template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
-    stream << "{min:" << bbox.min << " max:" << bbox.max << "}";
-    return stream;
+    return translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
 }
 
 typedef BBox<float,1> BBox1f;

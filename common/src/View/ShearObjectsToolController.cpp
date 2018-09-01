@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 const auto op = [&](const vec3& start, const vec3& end) {
                     renderService.renderLine(vec3f(mat * start), vec3f(mat * end));
                 };
-                eachBBoxEdge(m_tool->bboxAtDragStart(), op);
+                m_tool->bboxAtDragStart().forEachEdge(op);
             }
 
             // render shear handle

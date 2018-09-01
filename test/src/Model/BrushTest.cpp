@@ -3464,7 +3464,7 @@ namespace TrenchBroom {
             const BBox3 expandedBBox(vec3(-70, -70, -70), vec3(70, 70, 70));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
-            EXPECT_EQ(SetUtils::makeSet(bBoxVertices(expandedBBox)), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
         
         TEST(BrushTest, contract) {
@@ -3479,7 +3479,7 @@ namespace TrenchBroom {
             const BBox3 expandedBBox(vec3(-32, -32, -32), vec3(32, 32, 32));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
-            EXPECT_EQ(SetUtils::makeSet(bBoxVertices(expandedBBox)), SetUtils::makeSet(brush1->vertexPositions()));
+            EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
         
         TEST(BrushTest, contractToZero) {

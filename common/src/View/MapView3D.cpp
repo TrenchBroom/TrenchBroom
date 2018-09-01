@@ -389,15 +389,15 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i)
-                        addPoint(vertices[i]);
+                    const auto& bounds = entity->bounds();
+                    bounds.forEachVertex([&](const vec3& v) { addPoint(v); });
                 }
             }
             
             void doVisit(const Model::Brush* brush) override   {
-                for (const Model::BrushVertex* vertex : brush->vertices())
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
                     addPoint(vertex->position());
+                }
             }
             
             void addPoint(const vec3& point) {
@@ -433,18 +433,20 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const auto vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i) {
-                        for (size_t j = 0; j < 4; ++j)
-                            addPoint(vec3f(vertices[i]), m_frustumPlanes[j]);
-                    }
+                    const auto& bounds = entity->bounds();
+                    bounds.forEachVertex([&](const vec3& v) {
+                        for (size_t j = 0; j < 4; ++j) {
+                            addPoint(vec3f(v), m_frustumPlanes[j]);
+                        }
+                    });
                 }
             }
             
             void doVisit(const Model::Brush* brush) override   {
                 for (const auto* vertex : brush->vertices()) {
-                    for (size_t j = 0; j < 4; ++j)
+                    for (size_t j = 0; j < 4; ++j) {
                         addPoint(vec3f(vertex->position()), m_frustumPlanes[j]);
+                    }
                 }
             }
             

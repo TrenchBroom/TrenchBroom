@@ -205,10 +205,10 @@ namespace TrenchBroom {
             const auto bounds = BBox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
             
             const vec3 vertices[] = {
-                bounds.corner(BBox3::BBoxCorner::min, BBox3::BBoxCorner::min, BBox3::BBoxCorner::min),
-                bounds.corner(BBox3::BBoxCorner::min, BBox3::BBoxCorner::max, BBox3::BBoxCorner::min),
-                bounds.corner(BBox3::BBoxCorner::max, BBox3::BBoxCorner::max, BBox3::BBoxCorner::min),
-                bounds.corner(BBox3::BBoxCorner::max, BBox3::BBoxCorner::min, BBox3::BBoxCorner::min)
+                bounds.corner(BBox3::Corner::min, BBox3::Corner::min, BBox3::Corner::min),
+                bounds.corner(BBox3::Corner::min, BBox3::Corner::max, BBox3::Corner::min),
+                bounds.corner(BBox3::Corner::max, BBox3::Corner::max, BBox3::Corner::min),
+                bounds.corner(BBox3::Corner::max, BBox3::Corner::min, BBox3::Corner::min)
             };
             
             const auto fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);

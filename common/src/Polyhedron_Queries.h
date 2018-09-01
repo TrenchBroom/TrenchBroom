@@ -59,12 +59,14 @@ bool Polyhedron<T,FP,VP>::contains(const Polyhedron& other, const Callback& call
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& callback) const {
-    if (!bounds().intersects(other.bounds()))
+    if (!bounds().intersects(other.bounds())) {
         return false;
+    }
 
-    if (empty() || other.empty())
+    if (empty() || other.empty()) {
         return false;
-    
+    }
+
     if (point()) {
         if (other.point()) {
             return pointIntersectsPoint(*this, other, callback);

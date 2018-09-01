@@ -168,7 +168,7 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
             
-            renderService.renderCoordinateSystem(BBox3f(radius).translated(vec3f(m_position)));
+            renderService.renderCoordinateSystem(BBox3f(radius).translate(vec3f(m_position)));
             
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
             renderService.renderCircle(vec3f(m_position), Math::Axis::AX, 64, radius, zAxis, yAxis);

@@ -307,10 +307,10 @@ private:
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
             const auto new1 = merge(node1->bounds(), bounds);
             const auto new2 = merge(node2->bounds(), bounds);
-            const auto vol1 = volume(node1->bounds());
-            const auto vol2 = volume(node2->bounds());
-            const auto diff1 = volume(new1) - vol1;
-            const auto diff2 = volume(new2) - vol2;
+            const auto vol1 = node1->bounds().volume();
+            const auto vol2 = node2->bounds().volume();
+            const auto diff1 = new1.volume() - vol1;
+            const auto diff2 = new2.volume() - vol2;
 
             if (diff1 < diff2) {
                 return node1;
@@ -541,10 +541,10 @@ public:
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {
-                        return innerNode->bounds().contains(ray.origin) || !Math::isnan(innerNode->bounds().intersectWithRay(ray));
+                        return innerNode->bounds().contains(ray.origin) || !Math::isnan(intersect(ray, innerNode->bounds()));
                     },
                     [&](const LeafNode* leaf) {
-                        if (leaf->bounds().contains(ray.origin) || !Math::isnan(leaf->bounds().intersectWithRay(ray))) {
+                        if (leaf->bounds().contains(ray.origin) || !Math::isnan(intersect(ray, leaf->bounds()))) {
                             out = leaf->data();
                             ++out;
                         }

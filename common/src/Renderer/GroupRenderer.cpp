@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        eachBBoxEdge(group->bounds(), boundsBuilder);
+                        group->bounds().forEachEdge(boundsBuilder);
                     }
                 }
                 
@@ -192,7 +192,7 @@ namespace TrenchBroom {
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
-                        eachBBoxEdge(group->bounds(), boundsBuilder);
+                        group->bounds().forEachEdge(boundsBuilder);
                     }
                 }
                 

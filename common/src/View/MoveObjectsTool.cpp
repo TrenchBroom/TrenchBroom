@@ -56,7 +56,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             const BBox3 bounds = document->selectionBounds();
-            if (!worldBounds.contains(bounds.translated(delta)))
+            if (!worldBounds.contains(bounds.translate(delta)))
                 return MR_Deny;
             
             if (m_duplicateObjects) {

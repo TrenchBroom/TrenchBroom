@@ -178,7 +178,7 @@ namespace TrenchBroom {
             if (!hasChildren()) {
                 const BBox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
-                    const FloatType distance = myBounds.intersectWithRay(ray);
+                    const FloatType distance = intersect(ray, myBounds);
                     if (!Math::isnan(distance)) {
                         const vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
@@ -200,19 +200,24 @@ namespace TrenchBroom {
         FloatType Entity::doIntersectWithRay(const Ray3& ray) const {
             if (hasChildren()) {
                 const BBox3& myBounds = bounds();
-                if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
+                if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
                     return Math::nan<FloatType>();
-                
+                }
+
                 IntersectNodeWithRayVisitor visitor(ray);
                 iterate(visitor);
-                if (!visitor.hasResult())
+                if (!visitor.hasResult()) {
                     return Math::nan<FloatType>();
-                return visitor.result();
+                } else {
+                    return visitor.result();
+                }
             } else {
-                const BBox3& myBounds = bounds();
-                if (!myBounds.contains(ray.origin))
-                    return myBounds.intersectWithRay(ray);
-                return Math::nan<FloatType>();
+                const auto& myBounds = bounds();
+                if (!myBounds.contains(ray.origin)) {
+                    return intersect(ray, myBounds);
+                } else {
+                    return Math::nan<FloatType>();
+                }
             }
         }
 
@@ -340,10 +345,10 @@ namespace TrenchBroom {
                 m_bounds = visitor.bounds();
             } else if (def != nullptr && def->type() == Assets::EntityDefinition::Type_PointEntity) {
                 m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                m_bounds.translate(origin());
+                m_bounds = m_bounds.translate(origin());
             } else {
                 m_bounds = DefaultBounds;
-                m_bounds.translate(origin());
+                m_bounds = m_bounds.translate(origin());
             }
             m_boundsValid = true;
         }

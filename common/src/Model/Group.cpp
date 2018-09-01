@@ -185,15 +185,18 @@ namespace TrenchBroom {
         }
 
         FloatType Group::doIntersectWithRay(const Ray3& ray) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
+            const auto& myBounds = bounds();
+            if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
                 return Math::nan<FloatType>();
-            
+            }
+
             IntersectNodeWithRayVisitor visitor(ray);
             iterate(visitor);
-            if (!visitor.hasResult())
+            if (!visitor.hasResult()) {
                 return Math::nan<FloatType>();
-            return visitor.result();
+            } else {
+                return visitor.result();
+            }
         }
         
         void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {

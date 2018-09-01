@@ -342,11 +342,11 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
-                        eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+                        entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
 
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            eachBBoxFace(entity->bounds(), solidBoundsBuilder);
+                            entity->bounds().forEachFace(solidBoundsBuilder);
                         }
                     }
                 }
@@ -366,12 +366,12 @@ namespace TrenchBroom {
 
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            eachBBoxFace(entity->bounds(), solidBoundsBuilder);
+                            entity->bounds().forEachFace(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
-                            eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+                            entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
                         }
                     }
                 }

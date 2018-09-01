@@ -193,10 +193,11 @@ namespace TrenchBroom {
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = BBox3f(definition->bounds());
-                    const vec3f boundsCenter = rotatedBounds.center();
-                    rotatedBounds = rotateBBox(rotatedBounds, m_rotation, boundsCenter);
+                    const auto center = rotatedBounds.center();
+                    const auto transform = translationMatrix(-center) * rotationMatrix(m_rotation) * translationMatrix(center);
+                    rotatedBounds = rotatedBounds.transform(transform);
                 }
-                
+
                 const vec3f boundsSize = rotatedBounds.size();
                 layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
                                boundsSize.y(),
@@ -263,7 +264,7 @@ namespace TrenchBroom {
                                     const mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     const Color& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
-                                    eachBBoxEdge(BBox3f(definition->bounds()), collect);
+                                    BBox3f(definition->bounds()).forEachEdge(collect);
                                 }
                             }
                         }
