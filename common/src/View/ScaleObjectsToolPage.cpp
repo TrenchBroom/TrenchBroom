@@ -73,7 +73,7 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             const auto box = document->selectionBounds();
 
-            document->scaleObjects(center(box), scaleFactors);
+            document->scaleObjects(box.center(), scaleFactors);
         }
     }
 }

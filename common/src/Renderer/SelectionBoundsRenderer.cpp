@@ -41,7 +41,7 @@ namespace TrenchBroom {
             m_camera(camera) {}
         private:
             vec3f basePosition() const override {
-                const auto half = size(m_bounds) / 2.0;
+                const auto half = m_bounds.size() / 2.0;
                 auto pos = m_bounds.min;
                 pos[m_axis] += half[m_axis];
                 return vec3f(pos);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             vec3f basePosition() const override {
                 const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
                 vec3 pos;
-                const auto half = size(m_bounds) / 2.0;
+                const auto half = m_bounds.size() / 2.0;
                 
                 if (m_axis == Math::Axis::AZ) {
                     if ((camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Less) ||
@@ -196,16 +196,16 @@ namespace TrenchBroom {
         class SelectionBoundsRenderer::MinMaxTextAnchor3D : public TextAnchor3D {
         private:
             const BBox3& m_bounds;
-            const BBoxCorner m_minMax;
+            const BBox3::BBoxCorner m_minMax;
             const Renderer::Camera& m_camera;
         public:
-            MinMaxTextAnchor3D(const BBox3& bounds, const BBoxCorner minMax, const Renderer::Camera& camera) :
+            MinMaxTextAnchor3D(const BBox3& bounds, const BBox3::BBoxCorner minMax, const Renderer::Camera& camera) :
             m_bounds(bounds),
             m_minMax(minMax),
             m_camera(camera) {}
         private:
             vec3f basePosition() const override {
-                if (m_minMax == BBoxCorner::min) {
+                if (m_minMax == BBox3::BBoxCorner::min) {
                     return vec3f(m_bounds.min);
                 } else {
                     return vec3f(m_bounds.max);
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             
             TextAlignment::Type alignment() const override {
                 const BBox3::RelativePosition camPos = m_bounds.relativePosition(vec3(m_camera.position()));
-                if (m_minMax == BBoxCorner::min) {
+                if (m_minMax == BBox3::BBoxCorner::min) {
                     if ((camPos[1] == BBox3::RelativePosition::Range_Less) ||
                         (camPos[1] == BBox3::RelativePosition::Range_Within &&
                          camPos[0] != BBox3::RelativePosition::Range_Less)) {
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const vec3f& direction = camera.direction();
             
-            const vec3 boundsSize = correct(size(m_bounds));
+            const vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
                     buffer << labels[i] << ": " << boundsSize[i];
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
             
-            const vec3 boundsSize = correct(size(m_bounds));
+            const vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << boundsSize[i];
                 
@@ -317,11 +317,11 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjects();
 
             buffer << "Min: " << correct(m_bounds.min);
-            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBoxCorner::min, renderContext.camera()));
+            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::BBoxCorner::min, renderContext.camera()));
             buffer.str("");
             
             buffer << "Max: " << correct(m_bounds.max);
-            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBoxCorner::max, renderContext.camera()));
+            renderService.renderString(buffer.str(), MinMaxTextAnchor3D(m_bounds, BBox3::BBoxCorner::max, renderContext.camera()));
         }
     }
 }

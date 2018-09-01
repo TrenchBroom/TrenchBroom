@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(Math::Axis::Type axis) const {
-            const vec3 size = ::size(bounds());
+            const vec3 size = bounds().size();
             switch (axis) {
                 case Math::Axis::AX:
                     return size.y() * size.z();
@@ -250,11 +250,11 @@ namespace TrenchBroom {
         }
 
         vec3 Entity::doGetLinkSourceAnchor() const {
-            return center(bounds());
+            return bounds().center();
         }
         
         vec3 Entity::doGetLinkTargetAnchor() const {
-            return center(bounds());
+            return bounds().center();
         }
 
         Node* Entity::doGetContainer() const {
@@ -300,7 +300,7 @@ namespace TrenchBroom {
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
-                const auto center = ::center(bounds());
+                const auto center = bounds().center();
                 const auto offset = center - origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);

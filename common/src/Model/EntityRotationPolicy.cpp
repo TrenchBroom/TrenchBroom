@@ -186,7 +186,7 @@ namespace TrenchBroom {
                         // point entity
                         
                         // if the origin of the definition's bounding box is not in its center, don't apply the rotation
-                        const vec3 offset = entity->origin() - center(entity->bounds());
+                        const vec3 offset = entity->origin() - entity->bounds().center();
                         if (offset.x() == 0.0 && offset.y() == 0.0) {
                             if (entity->hasAttribute(AttributeNames::Angles)) {
                                 type = RotationType_Euler;

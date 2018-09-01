@@ -54,7 +54,7 @@ TEST(BBoxTest, getCenter) {
     const vec3f max( 1.0f,  3.0f,  5.0f);
     const BBox3f bounds(min, max);
     
-    ASSERT_EQ(vec3f(0.0f, 0.5f, 1.0f), center(bounds));
+    ASSERT_EQ(vec3f(0.0f, 0.5f, 1.0f), bounds.center());
 }
 
 TEST(BBoxTest, getSize) {
@@ -62,7 +62,7 @@ TEST(BBoxTest, getSize) {
     const vec3f max( 1.0f,  3.0f,  5.0f);
     const BBox3f bounds(min, max);
     
-    ASSERT_EQ(vec3f(2.0f, 5.0f, 8.0f), size(bounds));
+    ASSERT_EQ(vec3f(2.0f, 5.0f, 8.0f), bounds.size());
 }
 
 TEST(BBoxTest, corner) {
@@ -70,14 +70,14 @@ TEST(BBoxTest, corner) {
     const vec3f max( 1.0f,  3.0f,  5.0f);
     const BBox3f bounds(min, max);
 
-    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f, -3.0f), corner(bounds, BBoxCorner::min, BBoxCorner::min, BBoxCorner::min));
-    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f,  5.0f), corner(bounds, BBoxCorner::min, BBoxCorner::min, BBoxCorner::max));
-    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f, -3.0f), corner(bounds, BBoxCorner::min, BBoxCorner::max, BBoxCorner::min));
-    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f,  5.0f), corner(bounds, BBoxCorner::min, BBoxCorner::max, BBoxCorner::max));
-    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f, -3.0f), corner(bounds, BBoxCorner::max, BBoxCorner::min, BBoxCorner::min));
-    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f,  5.0f), corner(bounds, BBoxCorner::max, BBoxCorner::min, BBoxCorner::max));
-    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f, -3.0f), corner(bounds, BBoxCorner::max, BBoxCorner::max, BBoxCorner::min));
-    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f,  5.0f), corner(bounds, BBoxCorner::max, BBoxCorner::max, BBoxCorner::max));
+    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f, -3.0f), bounds.corner(BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::min));
+    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f,  5.0f), bounds.corner(BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::max));
+    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f, -3.0f), bounds.corner(BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::min));
+    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f,  5.0f), bounds.corner(BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::max));
+    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f, -3.0f), bounds.corner(BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::min));
+    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f,  5.0f), bounds.corner(BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::min, BBox3f::BBoxCorner::max));
+    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f, -3.0f), bounds.corner(BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::min));
+    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f,  5.0f), bounds.corner(BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::max, BBox3f::BBoxCorner::max));
 }
 
 TEST(BBoxTest, mergeWithBBox) {
@@ -94,18 +94,6 @@ TEST(BBoxTest, mergeWithVec) {
     const BBox3f merged(vec3f(-12.0f, -6.0f, 4.0f), vec3f(7.0f, 8.0f, 10.0f));
 
     ASSERT_EQ(merged, merge(bounds, vec));
-}
-
-TEST(BBoxTest, translateToOrigin) {
-          BBox3f bounds    (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
-    const BBox3f translated(vec3f(-10.0f, -6.0f, -2.0f), vec3f(10.0f, 6.0f, 2.0f));
-    ASSERT_EQ(translated, bounds.translateToOrigin());
-}
-
-TEST(BBoxTest, translatedToOrigin) {
-    const BBox3f bounds    (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
-    const BBox3f translated(vec3f(-10.0f, -6.0f, -2.0f), vec3f(10.0f, 6.0f, 2.0f));
-    ASSERT_EQ(translated, bounds.translatedToOrigin());
 }
 
 TEST(BBoxTest, containsPoint) {

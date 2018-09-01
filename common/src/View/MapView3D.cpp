@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 }
             } else {
                 const auto oldMin = bounds.min;
-                const auto oldCenter = center(bounds);
+                const auto oldCenter = bounds.center();
                 const auto newCenter = vec3(m_camera.defaultPoint());
                 const auto newMin = oldMin + (newCenter - oldCenter);
                 return grid.snap(newMin);
@@ -552,7 +552,7 @@ namespace TrenchBroom {
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
             } else {
                 const auto newPosition = Renderer::Camera::defaultPoint(pickRay());
-                const auto defCenter = center(bounds);
+                const auto defCenter = bounds.center();
                 return grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
             }
         }

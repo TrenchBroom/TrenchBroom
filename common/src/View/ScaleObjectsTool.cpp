@@ -275,12 +275,12 @@ namespace TrenchBroom {
             const auto axis2 = secondComponent(n);
             const auto axis3 = thirdComponent(n);
 
-            auto newSize = size(in);
+            auto newSize = in.size();
 
             newSize[axis1] = sideLength;
 
             // optionally apply proportional scaling to axis2/axis3
-            const auto ratio = sideLength / size(in)[axis1];
+            const auto ratio = sideLength / in.size()[axis1];
             if (proportional.isAxisProportional(axis2)) {
                 newSize[axis2] *= ratio;
             }
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             }
 
             const auto anchor = (anchorType == AnchorPos::Center)
-                ? center(in)
+                ? in.center()
                 : centerForBBoxSide(in, oppositeSide(side));
 
             const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
@@ -306,7 +306,7 @@ namespace TrenchBroom {
             const auto opposite = oppositeCorner(corner);
             const auto oppositePoint = pointForBBoxCorner(in, opposite);
             const auto anchor = (anchorType == AnchorPos::Center)
-                                ? center(in)
+                                ? in.center()
                                 : oppositePoint;
             const auto oldCorner = pointForBBoxCorner(in, corner);
             const auto newCorner = oldCorner + delta;
@@ -343,7 +343,7 @@ namespace TrenchBroom {
             const auto oppositeEdgeMid = pointsForBBoxEdge(in, opposite).center();
 
             const auto anchor = (anchorType == AnchorPos::Center)
-                                ? center(in)
+                                ? in.center()
                                 : oppositeEdgeMid;
 
             const auto oldAnchorDist = edgeMid - anchor;
@@ -373,10 +373,10 @@ namespace TrenchBroom {
             // scaling the nonMovingAxis.
             if (proportional.isAxisProportional(nonMovingAxis)) {
                 const auto axis1 = firstComponent(oldAnchorDist);
-                const auto ratio = size(result)[axis1] / size(in)[axis1];
+                const auto ratio = result.size()[axis1] / in.size()[axis1];
 
-                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (size(in)[nonMovingAxis] * ratio * 0.5);
-                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (size(in)[nonMovingAxis] * ratio * 0.5);
+                result.min[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
+                result.max[nonMovingAxis] = anchor[nonMovingAxis] + (in.size()[nonMovingAxis] * ratio * 0.5);
             } else {
                 result.min[nonMovingAxis] = in.min[nonMovingAxis];
                 result.max[nonMovingAxis] = in.max[nonMovingAxis];
@@ -386,7 +386,7 @@ namespace TrenchBroom {
 
             // check for zero size
             for (size_t i = 0; i < 3; ++i) {
-                if (Math::zero(size(result)[i], Math::Constants<FloatType>::almostZero())) {
+                if (Math::zero(result.size()[i], Math::Constants<FloatType>::almostZero())) {
                     return BBox3();
                 }
             }
@@ -765,7 +765,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
-            if (isEmpty(bounds())) {
+            if (bounds().empty()) {
                 return false;
             }
 
@@ -777,7 +777,7 @@ namespace TrenchBroom {
 
         vec3f ScaleObjectsTool::dragAnchor() const {
             if (m_anchorPos == AnchorPos::Center) {
-                return vec3f(center(bounds()));
+                return vec3f(bounds().center());
             }
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
@@ -810,7 +810,7 @@ namespace TrenchBroom {
         }
 
         vec3::List ScaleObjectsTool::cornerHandles() const {
-            if (isEmpty(bounds())) {
+            if (bounds().empty()) {
                 return {};
             }
 
@@ -889,7 +889,7 @@ namespace TrenchBroom {
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
 
-            if (!isEmpty(newBox)) {
+            if (!newBox.empty()) {
                 document->scaleObjects(bounds(), newBox);
             }
         }

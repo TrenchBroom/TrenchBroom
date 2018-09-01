@@ -72,7 +72,7 @@ namespace TrenchBroom {
         void RotateObjectsTool::resetRotationCenter() {
             auto document = lock(m_document);
             const auto& bounds = document->selectionBounds();
-            const auto position = document->grid().snap(center(bounds));
+            const auto position = document->grid().snap(bounds.center());
             setRotationCenter(position);
         }
         

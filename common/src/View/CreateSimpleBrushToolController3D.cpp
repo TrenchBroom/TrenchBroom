@@ -135,7 +135,7 @@ namespace TrenchBroom {
             }
 
             bounds = intersect(bounds, document->worldBounds());
-            if (!isEmpty(bounds)) {
+            if (!bounds.empty()) {
                 m_tool->update(bounds);
             }
         }

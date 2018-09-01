@@ -112,7 +112,7 @@ namespace TrenchBroom {
             brushes.push_back(brush2);
             document->select(brushes);
             
-            vec3 boundsCenter = center(document->selectionBounds());
+            vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vec3(15.5, 15.5, 15.5), boundsCenter);
             
             document->flipObjects(boundsCenter, Math::Axis::AX);
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             brushes.push_back(brush2);
             document->select(brushes);
             
-            vec3 boundsCenter = center(document->selectionBounds());
+            vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vec3(15.5, 15.5, 15.5), boundsCenter);
             
             // 90 degrees CCW about the Z axis through the center of the selection
@@ -250,16 +250,16 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{brush1});
 
-            ASSERT_EQ(vec3(200,200,200), size(brush1->bounds()));
+            ASSERT_EQ(vec3(200,200,200), brush1->bounds().size());
             ASSERT_EQ(Plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
-            ASSERT_EQ(vec3(200,200,200), size(brush1->bounds()));
+            ASSERT_EQ(vec3(200,200,200), brush1->bounds().size());
             ASSERT_EQ(Plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
-            ASSERT_EQ(vec3(400,400,400), size(brush1->bounds()));
+            ASSERT_EQ(vec3(400,400,400), brush1->bounds().size());
             ASSERT_EQ(Plane3(200.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
         }
 
@@ -273,7 +273,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(Model::NodeList{brush1});
 
-            const vec3 boundsCenter = center(initialBBox);
+            const vec3 boundsCenter = initialBBox.center();
             ASSERT_TRUE(document->scaleObjects(boundsCenter, vec3(2.0, 1.0, 1.0)));
             ASSERT_EQ(expectedBBox, brush1->bounds());
         }
@@ -529,7 +529,7 @@ namespace TrenchBroom {
             const auto origin = ent1->origin();
             const auto bounds = ent1->bounds();
 
-            const auto rayOrigin = origin + vec3(-32.0, size(bounds).y() / 2.0, size(bounds).z() / 2.0);
+            const auto rayOrigin = origin + vec3(-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0);
 
             Model::PickResult pickResult;
             document->pick(Ray3(rayOrigin, vec3::pos_x), pickResult);
@@ -538,7 +538,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, hits.size());
 
             ASSERT_EQ(ent1, hits.front().target<Model::Entity*>());
-            ASSERT_DOUBLE_EQ(32.0 - size(bounds).x() / 2.0, hits.front().distance());
+            ASSERT_DOUBLE_EQ(32.0 - bounds.size().x() / 2.0, hits.front().distance());
 
             pickResult.clear();
             document->pick(Ray3(vec3(-32, 0, 0), vec3::neg_x), pickResult);

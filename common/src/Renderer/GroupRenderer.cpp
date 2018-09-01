@@ -39,7 +39,7 @@ namespace TrenchBroom {
             m_group(group) {}
         private:
             vec3f basePosition() const override {
-                auto position = vec3f(center(m_group->bounds()));
+                auto position = vec3f(m_group->bounds().center());
                 position[2] = float(m_group->bounds().max.z());
                 position[2] += 2.0f;
                 return position;

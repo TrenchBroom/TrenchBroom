@@ -833,7 +833,7 @@ namespace TrenchBroom {
 
             brush.moveBoundary(worldBounds, top, vec3(0.0, 0.0, 1.0), false);
             ASSERT_EQ(6u, brush.faces().size());
-            ASSERT_DOUBLE_EQ(7.0, size(brush.bounds()).z());
+            ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
         }
 
         TEST(BrushTest, moveVertex) {

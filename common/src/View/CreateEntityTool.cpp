@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
                 const auto newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
-                const auto boundsCenter = center(m_entity->bounds());
+                const auto boundsCenter = m_entity->bounds().center();
                 delta = grid.moveDeltaForPoint(boundsCenter, document->worldBounds(), newPosition - boundsCenter);
             }
             

@@ -210,7 +210,7 @@ namespace TrenchBroom {
 
             // bounds and corner handles
 
-            if (!isEmpty(m_tool->bounds()))  {
+            if (!m_tool->bounds().empty())  {
                 // bounds
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);

@@ -187,17 +187,17 @@ namespace TrenchBroom {
                 
                 BBox3f rotatedBounds;
                 if (model != nullptr) {
-                    const auto boundsCenter = center(model->bounds(spec.skinIndex, spec.frameIndex));
+                    const auto boundsCenter = model->bounds(spec.skinIndex, spec.frameIndex).center();
                     const mat4x4f transformation = translationMatrix(boundsCenter) * rotationMatrix(m_rotation) * translationMatrix(-boundsCenter);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
                     rotatedBounds = BBox3f(definition->bounds());
-                    const vec3f boundsCenter = center(rotatedBounds);
+                    const vec3f boundsCenter = rotatedBounds.center();
                     rotatedBounds = rotateBBox(rotatedBounds, m_rotation, boundsCenter);
                 }
                 
-                const vec3f boundsSize = size(rotatedBounds);
+                const vec3f boundsSize = rotatedBounds.size();
                 layout.addItem(EntityCellData(definition, modelRenderer, actualFont, rotatedBounds),
                                boundsSize.y(),
                                boundsSize.z(),
@@ -427,7 +427,7 @@ namespace TrenchBroom {
             const auto scaling = cell.scale();
             const auto& rotatedBounds = cell.item().bounds;
             const auto rotationOffset = vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-            const auto boundsCenter = vec3f(center(definition->bounds()));
+            const auto boundsCenter = vec3f(definition->bounds().center());
             
             return (translationMatrix(offset) *
                     scalingMatrix(vec3f::fill(scaling)) *

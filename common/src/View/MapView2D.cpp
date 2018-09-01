@@ -227,7 +227,7 @@ namespace TrenchBroom {
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const auto document = lock(m_document);
             const auto& bounds = document->referenceBounds();
-            const auto diff = center(bounds) - vec3(m_camera.position());
+            const auto diff = bounds.center() - vec3(m_camera.position());
             const auto delta = diff * vec3(m_camera.up() + m_camera.right());
             moveCameraToPosition(vec3(m_camera.position()) + delta, animate);
         }

@@ -208,7 +208,7 @@ namespace TrenchBroom {
                 bounds = merge(bounds, toPlane * current->origin()->position());
                 current = current->next();
             }
-            return fromPlane * ::center(bounds);
+            return fromPlane * bounds.center();
         }
 
         FloatType BrushFace::area(const Math::Axis::Type axis) const {

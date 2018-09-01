@@ -269,10 +269,6 @@ namespace TrenchBroom {
             return skins;
         }
 
-        // GCC may complain about the name member of Md2Frame being unitialized, but this is wrong. The vector
-        // constructor will construct the Md2Frames, which will reserve sufficient memory for the name char array.
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         Md2Parser::Md2FrameList Md2Parser::parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount) {
             Md2FrameList frames(frameCount, Md2Frame(frameVertexCount));
 
@@ -286,7 +282,6 @@ namespace TrenchBroom {
             
             return frames;
         }
-#pragma GCC diagnostic pop
 
         Md2Parser::Md2MeshList Md2Parser::parseMeshes(const char* begin, const size_t commandCount) {
             Md2MeshList meshes;

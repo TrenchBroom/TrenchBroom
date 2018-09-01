@@ -124,7 +124,7 @@ namespace TrenchBroom {
             const auto offset = newPos - hitPoint;
             
             const auto normal = dragPlane.normal;
-            const auto size = ::size(bounds);
+            const auto size = bounds.size();
             
             auto newMinPos = newPos;
             for (size_t i = 0; i < 3; ++i) {
@@ -292,7 +292,7 @@ namespace TrenchBroom {
         }
         
         vec3 Grid::referencePoint(const BBox3& bounds) const {
-            return snap(center(bounds));
+            return snap(bounds.center());
         }
     }
 }

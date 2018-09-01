@@ -596,7 +596,7 @@ namespace TrenchBroom {
         
         vec3 ClipTool::defaultClipPointPos() const {
             auto document = lock(m_document);
-            return center(document->selectionBounds());
+            return document->selectionBounds().center();
         }
         
         bool ClipTool::canAddPoint(const vec3& point) const {

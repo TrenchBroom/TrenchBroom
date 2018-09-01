@@ -205,10 +205,10 @@ namespace TrenchBroom {
             const auto bounds = BBox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
             
             const vec3 vertices[] = {
-                corner(bounds, BBoxCorner::min, BBoxCorner::min, BBoxCorner::min),
-                corner(bounds, BBoxCorner::min, BBoxCorner::max, BBoxCorner::min),
-                corner(bounds, BBoxCorner::max, BBoxCorner::max, BBoxCorner::min),
-                corner(bounds, BBoxCorner::max, BBoxCorner::min, BBoxCorner::min)
+                bounds.corner(BBox3::BBoxCorner::min, BBox3::BBoxCorner::min, BBox3::BBoxCorner::min),
+                bounds.corner(BBox3::BBoxCorner::min, BBox3::BBoxCorner::max, BBox3::BBoxCorner::min),
+                bounds.corner(BBox3::BBoxCorner::max, BBox3::BBoxCorner::max, BBox3::BBoxCorner::min),
+                bounds.corner(BBox3::BBoxCorner::max, BBox3::BBoxCorner::min, BBox3::BBoxCorner::min)
             };
             
             const auto fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             }
 
             const auto bounds = computeFaceBoundsInCameraCoords();
-            const auto boundsSize = vec3f(size(bounds));
+            const auto boundsSize = vec3f(bounds.size());
 
             auto zoom = 3.0f;
             zoom = Math::min(zoom, w / boundsSize.x());

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             m_entity(entity) {}
         private:
             vec3f basePosition() const override {
-                auto position = vec3f(center(m_entity->bounds()));
+                auto position = vec3f(m_entity->bounds().center());
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -244,7 +244,7 @@ namespace TrenchBroom {
 
                 const auto rotation = mat4x4f(entity->rotation());
                 const auto direction = rotation * vec3f::pos_x;
-                const auto center = vec3f(::center(entity->bounds()));
+                const auto center = vec3f(entity->bounds().center());
                 
                 const auto toCam = renderContext.camera().position() - center;
                 if (squaredLength(toCam) > maxDistance2) {
