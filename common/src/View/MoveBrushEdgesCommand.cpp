@@ -68,7 +68,7 @@ namespace TrenchBroom {
                 return false;
 
             m_newEdgePositions = other->m_newEdgePositions;
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
 
             return true;
         }

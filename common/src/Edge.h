@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Edge_h
 #define TrenchBroom_Edge_h
 
-#include "vec_type.h"
+#include "vec_decl.h"
 
 #include <vector>
 

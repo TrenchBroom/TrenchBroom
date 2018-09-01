@@ -21,8 +21,8 @@
 #define TRENCHBROOM_MAT_FUNCTIONS_H
 
 #include "mat_type.h"
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "vec_decl.h"
+#include "vec_impl.h"
 #include "Quat.h"
 
 #include <cassert>

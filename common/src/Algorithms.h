@@ -21,7 +21,7 @@
 #define TrenchBroom_Algorithms_h
 
 #include "CoordinatePlane.h"
-#include "vec_type.h"
+#include "vec_decl.h"
 #include "Plane.h"
 #include "Ray.h"
 

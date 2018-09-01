@@ -50,7 +50,7 @@ namespace TrenchBroom {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
             if (other->m_faces == m_newFaces) {
                 m_newFaces = other->m_newFaces;
-                m_delta += other->m_delta;
+                m_delta = m_delta + other->m_delta;
                 return true;
             } else {
                 return false;

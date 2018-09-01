@@ -126,8 +126,9 @@ namespace TrenchBroom {
         vec<T,S> center() const {
             assert(!m_vertices.empty());
             vec<T,S> center = m_vertices[0];
-            for (size_t i = 1; i < m_vertices.size(); ++i)
-                center += m_vertices[i];
+            for (size_t i = 1; i < m_vertices.size(); ++i) {
+                center = center + m_vertices[i];
+            }
             return center / static_cast<T>(m_vertices.size());
         }
 

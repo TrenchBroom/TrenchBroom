@@ -117,7 +117,7 @@ namespace TrenchBroom {
 					if (!result.hasRemainingVertices) {
 						return MR_Cancel;
 					} else {
-						m_dragHandlePosition += delta;
+						m_dragHandlePosition = m_dragHandlePosition + delta;
 						return MR_Continue;
 					}
 				} else {
@@ -144,7 +144,7 @@ namespace TrenchBroom {
                         m_mode = Mode_Move;
                         m_edgeHandles.deselectAll();
                         m_faceHandles.deselectAll();
-                        m_dragHandlePosition += delta;
+                        m_dragHandlePosition = m_dragHandlePosition + delta;
                         m_vertexHandles.select(m_dragHandlePosition);
                     }
                     return MR_Continue;

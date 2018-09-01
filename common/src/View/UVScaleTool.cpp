@@ -136,7 +136,7 @@ namespace TrenchBroom {
             request.addOffset(originDelta);
             document->setFaceAttributes(request);
             
-            m_lastHitPoint += (dragDeltaFaceCoords - newHandlePosFaceCoords + newHandlePosSnapped);
+            m_lastHitPoint = m_lastHitPoint + (dragDeltaFaceCoords - newHandlePosFaceCoords + newHandlePosSnapped);
             return true;
         }
         

@@ -21,7 +21,7 @@
 #define TrenchBroom_CoordinatePlane_h
 
 #include "MathUtils.h"
-#include "vec_type.h"
+#include "vec_decl.h"
 
 template <typename T, size_t S>
 class CoordinatePlane {

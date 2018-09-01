@@ -19,8 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "vec_decl.h"
+#include "vec_impl.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
@@ -124,26 +124,6 @@ TEST(VecTest, multiplyVec3fWithScalar) {
 TEST(VecTest, divideVec3fByScalar) {
     ASSERT_EQ(vec3f(1.0f, 18.0f, 2.0f),
               vec3f(2.0f, 36.0f, 4.0f) / 2.0f);
-}
-
-TEST(VecTest, addVec3fAndAssign) {
-    vec3f v(1.0f, 2.0f, 3.0f);
-    ASSERT_EQ(vec3f(4.0f, 4.0f, 4.0f), (v += vec3f(3.0f, 2.0f, 1.0f)));
-}
-
-TEST(VecTest, substractVec3fAndAssign) {
-    vec3f v(2.0f, 3.0f, 1.0f);
-    ASSERT_EQ(vec3f(1.0f, 1.0f, -1.0f), (v -= vec3f(1.0f, 2.0f, 2.0f)));
-}
-
-TEST(VecTest, multiplyVec3fWithScalarAndAssign) {
-    vec3f v(2.0f, 3.0f, 1.0f);
-    ASSERT_EQ(vec3f(6.0f, 9.0f, 3.0f), (v *= 3.0f));
-}
-
-TEST(VecTest, divideVec3fByScalarAndAssign) {
-    vec3f v(2.0f, 36.0f, 4.0f);
-    ASSERT_EQ(vec3f(1.0f, 18.0f, 2.0f), (v /= 2.0f));
 }
 
 TEST(VecTest, subscriptAccess) {

@@ -20,8 +20,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_Plane_h
 #define TrenchBroom_Plane_h
 
-#include "vec_type.h"
-#include "vec_functions.h" // TODO 2201: remove this when free functions were moved to separate plane_extras.h
+#include "vec_decl.h"
+#include "vec_impl.h"
 #include "Line.h"
 #include "MathUtils.h"
 #include "mat_forward.h"

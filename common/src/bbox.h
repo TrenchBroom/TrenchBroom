@@ -27,8 +27,8 @@
 #include "Plane.h"
 #include "Quat.h"
 #include "vec_forward.h"
-#include "vec_type.h"
-#include "vec_functions.h"
+#include "vec_decl.h"
+#include "vec_impl.h"
 
 #include "MathUtils.h"
 

@@ -23,7 +23,7 @@
 #include "mat_type.h"
 #include "mat_functions.h"
 #include "Quat.h"
-#include "vec_type.h"
+#include "vec_decl.h"
 #include "TrenchBroom.h"
 #include "TestUtils.h"
 

@@ -245,14 +245,14 @@ namespace TrenchBroom {
             
             if (m_splitBrushes) {
                 if (splitBrushes(faceDelta)) {
-                    m_totalDelta += faceDelta;
-                    m_dragOrigin += faceDelta;
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
                 }
             } else {
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
-                    m_totalDelta += faceDelta;
-                    m_dragOrigin += faceDelta;
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
                 }
             }
             

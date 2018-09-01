@@ -69,7 +69,7 @@ namespace TrenchBroom {
                 return false;
 
             m_newFacePositions = other->m_newFacePositions;
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
 
             return true;
         }

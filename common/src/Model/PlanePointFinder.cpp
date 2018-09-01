@@ -85,14 +85,15 @@ namespace TrenchBroom {
             }
             
             size_t moveCursor(const size_t direction) {
-                m_position += MoveOffsets[direction];
+                m_position = m_position + MoveOffsets[direction];
                 updateErrors();
                 return findSmallestError();
             }
             
             void updateErrors() {
-                for (size_t i = 0; i < 9; ++i)
+                for (size_t i = 0; i < 9; ++i) {
                     m_errors[i] = computeError(i);
+                }
             }
             
             FloatType computeError(const size_t location) const {
@@ -103,8 +104,9 @@ namespace TrenchBroom {
             size_t findSmallestError() {
                 size_t smallest = Center;
                 for (size_t i = 0; i < 9; ++i) {
-                    if (m_errors[i] < m_errors[smallest])
+                    if (m_errors[i] < m_errors[smallest]) {
                         smallest = i;
+                    }
                 }
                 return smallest;
             }

@@ -93,13 +93,15 @@ namespace TrenchBroom {
             const vec3f headOffset = vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
             
             VertsAndNormals shaft = cylinder3D(m_shaftRadius, m_shaftLength, m_segments);
-            for (size_t i = 0; i < shaft.vertices.size(); ++i)
-                shaft.vertices[i] += shaftOffset;
-            
+            for (size_t i = 0; i < shaft.vertices.size(); ++i) {
+                shaft.vertices[i] = shaft.vertices[i] + shaftOffset;
+            }
+
             VertsAndNormals head = cone3D(m_headRadius, m_headLength, m_segments);
-            for (size_t i = 0; i < head.vertices.size(); ++i)
-                head.vertices[i] += headOffset;
-            
+            for (size_t i = 0; i < head.vertices.size(); ++i) {
+                head.vertices[i] = head.vertices[i] + headOffset;
+            }
+
             VertsAndNormals shaftCap = circle3D(m_shaftRadius, m_segments);
             for (size_t i = 0; i < shaftCap.vertices.size(); ++i) {
                 shaftCap.vertices[i] = mat4x4f::rot_180_x * shaftCap.vertices[i] + shaftOffset;

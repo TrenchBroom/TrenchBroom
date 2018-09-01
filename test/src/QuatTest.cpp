@@ -21,7 +21,7 @@
 
 #include "MathUtils.h"
 #include "Quat.h"
-#include "vec_type.h"
+#include "vec_decl.h"
 #include "TestUtils.h"
 
 TEST(QuatTest, defaultConstructor) {

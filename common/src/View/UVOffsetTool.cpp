@@ -74,7 +74,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->setFaceAttributes(request);
             
-            m_lastPoint += snapped;
+            m_lastPoint = m_lastPoint + snapped;
             return true;
         }
         

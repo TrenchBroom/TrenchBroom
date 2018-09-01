@@ -58,7 +58,7 @@ namespace TrenchBroom {
         
         bool ShearTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
             ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command.get());
-            m_factors += other->m_factors;
+            m_factors = m_factors + other->m_factors;
             return true;
         }
     }

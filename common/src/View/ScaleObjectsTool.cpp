@@ -881,7 +881,7 @@ namespace TrenchBroom {
         void ScaleObjectsTool::scaleByDelta(const vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
-            m_dragCumulativeDelta += delta;
+            m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
             MapDocumentSPtr document = lock(m_document);
 

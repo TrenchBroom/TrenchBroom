@@ -51,16 +51,16 @@ namespace TrenchBroom {
             
             vec3f delta;
             if (forward) {
-                delta += m_camera.direction() * dist;
+                delta = delta + m_camera.direction() * dist;
             }
             if (backward) {
-                delta -= m_camera.direction() * dist;
+                delta = delta - m_camera.direction() * dist;
             }
             if (left) {
-                delta -= m_camera.right() * dist;
+                delta = delta - m_camera.right() * dist;
             }
             if (right) {
-                delta += m_camera.right() * dist;
+                delta = delta + m_camera.right() * dist;
             }
             m_camera.moveBy(delta);
             
@@ -120,11 +120,11 @@ namespace TrenchBroom {
                 const auto altMove = pref(Preferences::CameraEnableAltMove);
                 vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
+                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
+                    delta = delta + inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
                 } else {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * panSpeedV() * m_camera.up();
+                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
+                    delta = delta + inputState.mouseDY() * panSpeedV() * m_camera.up();
                 }
                 m_camera.moveBy(delta);
                 return true;

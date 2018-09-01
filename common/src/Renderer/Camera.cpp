@@ -258,7 +258,7 @@ namespace TrenchBroom {
         void Camera::moveBy(const vec3f& delta) {
             if (isZero(delta))
                 return;
-            m_position += delta;
+            m_position = m_position + delta;
             m_valid = false;
             cameraDidChangeNotifier(this);
         }

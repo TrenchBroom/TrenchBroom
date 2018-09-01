@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_MAT_TYPE_H
 #define TRENCHBROOM_MAT_TYPE_H
 
-#include "vec_type.h"
+#include "vec_decl.h"
 
 #include <cassert>
 #include <vector>

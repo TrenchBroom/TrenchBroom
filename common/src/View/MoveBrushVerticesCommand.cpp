@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 return false;
 
             m_newVertexPositions = other->m_newVertexPositions;
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
 
             return true;
         }

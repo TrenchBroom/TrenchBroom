@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 other->m_cameraRight != m_cameraRight)
                 return false;
             
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
             return true;
         }
     }

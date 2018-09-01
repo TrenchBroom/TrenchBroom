@@ -246,18 +246,24 @@ namespace TrenchBroom {
             const float dist = moveSpeed() * time;
 
             vec3f delta;
-            if (m_forward)
-                delta += m_camera.direction() * dist;
-            if (m_backward)
-                delta -= m_camera.direction() * dist;
-            if (m_left)
-                delta -= m_camera.right() * dist;
-            if (m_right)
-                delta += m_camera.right() * dist;
-            if (m_up)
-                delta += vec3f::pos_z * dist;
-            if (m_down)
-                delta += vec3f::neg_z * dist;
+            if (m_forward) {
+                delta = delta + m_camera.direction() * dist;
+            }
+            if (m_backward) {
+                delta = delta - m_camera.direction() * dist;
+            }
+            if (m_left) {
+                delta = delta - m_camera.right() * dist;
+            }
+            if (m_right) {
+                delta = delta + m_camera.right() * dist;
+            }
+            if (m_up) {
+                delta = delta + vec3f::pos_z * dist;
+            }
+            if (m_down) {
+                delta = delta - vec3f::pos_z * dist;
+            }
             return delta;
         }
 
@@ -276,9 +282,10 @@ namespace TrenchBroom {
 
         vec2f FlyModeHelper::lookSpeed() const {
             vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
-            speed /= -50.0f;
-            if (pref(Preferences::CameraFlyInvertV))
+            speed = speed / -50.0f;
+            if (pref(Preferences::CameraFlyInvertV)) {
                 speed[1] *= -1.0f;
+            }
             return speed;
         }
 

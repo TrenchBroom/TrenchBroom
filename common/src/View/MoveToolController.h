@@ -142,7 +142,7 @@ namespace TrenchBroom {
             RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
                 const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == RestrictedDragPolicy::DR_Continue) {
-                    m_moveTraceCurPoint += (nextHandlePosition - lastHandlePosition);
+                    m_moveTraceCurPoint = m_moveTraceCurPoint + (nextHandlePosition - lastHandlePosition);
                 }
                 return result;
             }

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "vec_type.h"
+#include "vec_decl.h"
 #include "Ray.h"
 #include "AABBTree.h"
 
