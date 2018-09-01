@@ -879,10 +879,12 @@ const mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
  */
 template <typename T>
 mat<T,4,4> coordinateSystemMatrix(const vec<T,3>& x, const vec<T,3>& y, const vec<T,3>& z, const vec<T,3>& o) {
-    const auto [invertible, result] = invert(mat<T,4,4>(x[0], y[0], z[0], o[0],
-                                                        x[1], y[1], z[1], o[1],
-                                                        x[2], y[2], z[2], o[2],
-                                                        0.0,  0.0,  0.0,  1.0));
+    [[maybe_unused]] bool invertible;
+    mat<T,4,4> result;
+    std::tie(invertible, result) = invert(mat<T,4,4>(x[0], y[0], z[0], o[0],
+                                                     x[1], y[1], z[1], o[1],
+                                                     x[2], y[2], z[2], o[2],
+                                                      0.0,  0.0,  0.0,  1.0));
     assert(invertible);
     return result;
 }
