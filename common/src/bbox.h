@@ -47,7 +47,7 @@
  * @tparam S the number of components of the min and max points
  */
 template <typename T, size_t S>
-class BBox {
+class bbox {
 public:
     vec<T,S> min;
     vec<T,S> max;
@@ -55,17 +55,17 @@ public:
     /**
      * Creates a new bounding box at the origin with size 0.
      */
-    BBox() :
+    bbox() :
     min(vec<T,S>::zero),
     max(vec<T,S>::zero) {}
     
     // Copy and move constructors
-    BBox(const BBox<T,S>& other) = default;
-    BBox(BBox<T,S>&& other) noexcept = default;
+    bbox(const bbox<T,S>& other) = default;
+    bbox(bbox<T,S>&& other) noexcept = default;
     
     // Assignment operators
-    BBox<T,S>& operator=(const BBox<T,S>& other) = default;
-    BBox<T,S>& operator=(BBox<T,S>&& other) noexcept = default;
+    bbox<T,S>& operator=(const bbox<T,S>& other) = default;
+    bbox<T,S>& operator=(bbox<T,S>&& other) noexcept = default;
 
     /**
      * Creates a new bounding box by copying the values from the given bounding box. If the given box has a different
@@ -75,7 +75,7 @@ public:
      * @param other the bounding box to convert
      */
     template <typename U>
-    explicit BBox(const BBox<U,S>& other) :
+    explicit bbox(const bbox<U,S>& other) :
     min(other.min),
     max(other.max) {
         assert(valid());
@@ -89,7 +89,7 @@ public:
      * @param i_min the min point of the bounding box
      * @param i_max the max point of the bounding box
      */
-    BBox(const vec<T,S>& i_min, const vec<T,S>& i_max) :
+    bbox(const vec<T,S>& i_min, const vec<T,S>& i_max) :
     min(i_min),
     max(i_max) {
         assert(valid());
@@ -103,7 +103,7 @@ public:
      *
      * @param i_minMax the min and max point
      */
-    BBox(const T i_minMax) :
+    bbox(const T i_minMax) :
     min(vec<T,S>::fill(-i_minMax)),
     max(vec<T,S>::fill(+i_minMax)) {
         assert(valid());
@@ -117,7 +117,7 @@ public:
      * @param i_min the min point of the bounding box
      * @param i_max the max point of the bounding box
      */
-    BBox(const T i_min, const T i_max) :
+    bbox(const T i_min, const T i_max) :
     min(vec<T,S>::fill(i_min)),
     max(vec<T,S>::fill(i_max)) {
         assert(valid());
@@ -135,10 +135,10 @@ public:
      * @return the bounding box
      */
     template <typename I, typename G = Math::Identity>
-    static BBox<T,S> mergeAll(I cur, I end, const G& get = G()) {
+    static bbox<T,S> mergeAll(I cur, I end, const G& get = G()) {
         assert(cur != end);
         const auto first = get(*cur++);
-        BBox<T,S> result(first, first);
+        bbox<T,S> result(first, first);
         while (cur != end) {
             result = merge(result, get(*cur++));
         }
@@ -247,7 +247,7 @@ public:
      * @param epsilon an epsilon value
      * @return true if the given bounding box is contained in this bounding box
      */
-    bool contains(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+    bool contains(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
         assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(b.min[i], min[i], epsilon) ||
@@ -266,7 +266,7 @@ public:
      * @param epsilon an epsilon value
      * @return true if the given bounding box is enclosed in this bounding box
      */
-    bool encloses(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+    bool encloses(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
         assert(valid());
         for (size_t i = 0; i < S; ++i) {
             if (Math::lte(b.min[i], min[i], epsilon) ||
@@ -284,7 +284,7 @@ public:
      * @param epsilon an epsilon value
      * @return true if the given bounding box intersects with this bounding box and false otherwise
      */
-    bool intersects(const BBox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+    bool intersects(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
         for (size_t i = 0; i < S; ++i) {
             if (Math::lt(b.max[i], min[i], epsilon) ||
                 Math::gt(b.min[i], max[i], epsilon)) {
@@ -373,9 +373,9 @@ public:
      * @param f the value by which to expand this bounding box
      * @return the expanded bounding box
      */
-    BBox<T,S> expand(const T f) const {
+    bbox<T,S> expand(const T f) const {
         assert(valid());
-        return BBox<T,S>(min - vec<T,S>::fill(f), max + vec<T,S>::fill(f));
+        return bbox<T,S>(min - vec<T,S>::fill(f), max + vec<T,S>::fill(f));
     }
 
     /**
@@ -384,9 +384,9 @@ public:
      * @param delta the delta by which to translate
      * @return the translated bounding box
      */
-    BBox<T,S> translate(const vec<T,S>& delta) const {
+    bbox<T,S> translate(const vec<T,S>& delta) const {
         assert(valid());
-        return BBox<T,S>(min + delta, max + delta);
+        return bbox<T,S>(min + delta, max + delta);
     }
 
     /**
@@ -396,10 +396,10 @@ public:
      * @param transform the transformation
      * @return the transformed bounding box
      */
-    BBox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+    bbox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
         const auto vertices = this->vertices();
         const auto first = vertices[0] * transform;
-        auto result = BBox<T,3>(first, first);
+        auto result = bbox<T,3>(first, first);
         for (size_t i = 1; i < vertices.size(); ++i) {
             result = merge(result, vertices[i] * transform);
         }
@@ -509,7 +509,7 @@ public:
  * @return the given stream
  */
 template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
+std::ostream& operator<<(std::ostream& stream, const bbox<T,S>& bbox) {
     stream << "[ (" << bbox.min << ") - (" << bbox.max << ") ]";
     return stream;
 }
@@ -524,7 +524,7 @@ std::ostream& operator<<(std::ostream& stream, const BBox<T,S>& bbox) {
  * @return true if the two bounding boxes are identical, and false otherwise
  */
 template <typename T, size_t S>
-bool operator==(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+bool operator==(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
     return lhs.min == rhs.min && lhs.max == rhs.max;
 }
 
@@ -538,7 +538,7 @@ bool operator==(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
  * @return false if the two bounding boxes are identical, and true otherwise
  */
 template <typename T, size_t S>
-bool operator!=(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+bool operator!=(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
     return lhs.min != rhs.min || lhs.max != rhs.max;
 }
 
@@ -552,8 +552,8 @@ bool operator!=(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
  * @return the smallest bounding box that contains the given bounding boxes
  */
 template <typename T, size_t S>
-BBox<T,S> merge(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
-    return BBox<T,S>(min(lhs.min, rhs.min), max(lhs.max, rhs.max));
+bbox<T,S> merge(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
+    return bbox<T,S>(min(lhs.min, rhs.min), max(lhs.max, rhs.max));
 }
 
 /**
@@ -566,8 +566,8 @@ BBox<T,S> merge(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
  * @return the smallest bounding box that contains the given bounding box and point
  */
 template <typename T, size_t S>
-BBox<T,S> merge(const BBox<T,S>& lhs, const vec<T,S>& rhs) {
-    return BBox<T,S>(min(lhs.min, rhs), max(lhs.max, rhs));
+bbox<T,S> merge(const bbox<T,S>& lhs, const vec<T,S>& rhs) {
+    return bbox<T,S>(min(lhs.min, rhs), max(lhs.max, rhs));
 }
 
 /**
@@ -581,13 +581,13 @@ BBox<T,S> merge(const BBox<T,S>& lhs, const vec<T,S>& rhs) {
  * @return the smallest bounding box that contains the intersection of the given bounding boxes
  */
 template <typename T, size_t S>
-BBox<T,S> intersect(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
+bbox<T,S> intersect(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
     const auto min = ::max(lhs.min, rhs.min);
     const auto max = ::min(lhs.max, rhs.max);
-    if (BBox<T,S>::valid(min, max)) {
-        return BBox<T,S>(min, max);
+    if (bbox<T,S>::valid(min, max)) {
+        return bbox<T,S>(min, max);
     } else {
-        return BBox<T,S>(vec<T,S>::zero, vec<T,S>::zero);
+        return bbox<T,S>(vec<T,S>::zero, vec<T,S>::zero);
     }
 }
 
@@ -603,7 +603,7 @@ BBox<T,S> intersect(const BBox<T,S>& lhs, const BBox<T,S>& rhs) {
  * @return the distance to the intersection point, or NaN if the ray does not intersect the bounding box
  */
 template <typename T, size_t S>
-T intersect(const Ray<T,S>& r, const BBox<T,S>& b) {
+T intersect(const Ray<T,S>& r, const bbox<T,S>& b) {
     // Compute candidate planes
     std::array<T, S> origins;
     std::array<bool, S> inside;
@@ -676,19 +676,19 @@ T intersect(const Ray<T,S>& r, const BBox<T,S>& b) {
 }
 
 template <typename T>
-mat<T,4,4> scaleBBoxMatrix(const BBox<T,3>& oldBBox, const BBox<T,3>& newBBox) {
+mat<T,4,4> scaleBBoxMatrix(const bbox<T,3>& oldBBox, const bbox<T,3>& newBBox) {
     const auto scaleFactors = newBBox.size() / oldBBox.size();
     return translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
 }
 
 template <typename T>
-mat<T,4,4> scaleBBoxMatrixWithAnchor(const BBox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
+mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
     const auto scaleFactors = newSize / oldBBox.size();
     return translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
 }
 
 template <typename T>
-mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
+mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
     const auto oldSize = box.size();
 
     // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
@@ -729,11 +729,11 @@ mat<T,4,4> shearBBoxMatrix(const BBox<T,3>& box, const vec<T,3>& sideToShear, co
     return translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
 }
 
-typedef BBox<float,1> BBox1f;
-typedef BBox<double,1> BBox1d;
-typedef BBox<float,2> BBox2f;
-typedef BBox<double,2> BBox2d;
-typedef BBox<float,3> BBox3f;
-typedef BBox<double,3> BBox3d;
+typedef bbox<float,1> BBox1f;
+typedef bbox<double,1> BBox1d;
+typedef bbox<float,2> BBox2f;
+typedef bbox<double,2> BBox2d;
+typedef bbox<float,3> BBox3f;
+typedef bbox<double,3> BBox3d;
 
 #endif

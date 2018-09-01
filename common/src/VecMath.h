@@ -28,7 +28,7 @@
 #undef min
 #endif
 
-#include "BBox.h"
+#include "bbox.h"
 #include "Line.h"
 #include "mat_forward.h"
 #include "mat_type.h"

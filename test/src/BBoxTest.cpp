@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "BBox.h"
+#include "bbox.h"
 #include "vec_type.h"
 
 #include "TestUtils.h"

@@ -285,7 +285,7 @@ protected:
     VertexList m_vertices;
     EdgeList m_edges;
     FaceList m_faces;
-    BBox<T,3> m_bounds;
+    bbox<T,3> m_bounds;
 public: // Constructors
     Polyhedron();
     
@@ -295,8 +295,8 @@ public: // Constructors
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
 
-    Polyhedron(const BBox<T,3>& bounds);
-    Polyhedron(const BBox<T,3>& bounds, Callback& callback);
+    Polyhedron(const bbox<T,3>& bounds);
+    Polyhedron(const bbox<T,3>& bounds, Callback& callback);
     
     Polyhedron(const typename V::List& positions);
     Polyhedron(const typename V::List& positions, Callback& callback);
@@ -305,7 +305,7 @@ public: // Constructors
     Polyhedron(Polyhedron<T,FP,VP>&& other);
 private: // Constructor helpers
     void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, Callback& callback);
-    void setBounds(const BBox<T,3>& bounds, Callback& callback);
+    void setBounds(const bbox<T,3>& bounds, Callback& callback);
 private: // Copy helper
     class Copy;
 public: // Destructor
@@ -341,7 +341,7 @@ public: // Accessors
     const FaceList& faces() const;
     bool hasFace(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
     
-    const BBox<T,3>& bounds() const;
+    const bbox<T,3>& bounds() const;
     
     bool empty() const;
     bool point() const;

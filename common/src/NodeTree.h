@@ -20,7 +20,7 @@
 #ifndef NodeTree_h
 #define NodeTree_h
 
-#include "BBox.h"
+#include "bbox.h"
 #include "Ray.h"
 
 #include <functional>
@@ -31,7 +31,7 @@ class NodeTree {
 public:
     using List = std::list<U>;
     using Array = std::vector<U>;
-    using Box = BBox<T,S>;
+    using Box = bbox<T,S>;
     using DataType = U;
     using FloatType = T;
     static const size_t Components = S;

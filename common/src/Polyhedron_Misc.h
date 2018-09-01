@@ -142,13 +142,13 @@ Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& 
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds) {
+Polyhedron<T,FP,VP>::Polyhedron(const bbox<T,3>& bounds) {
     Callback c;
     setBounds(bounds, c);
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const BBox<T,3>& bounds, Callback& callback) {
+Polyhedron<T,FP,VP>::Polyhedron(const bbox<T,3>& bounds, Callback& callback) {
     setBounds(bounds, callback);
 }
 
@@ -184,7 +184,7 @@ void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::setBounds(const BBox<T,3>& bounds, Callback& callback) {
+void Polyhedron<T,FP,VP>::setBounds(const bbox<T,3>& bounds, Callback& callback) {
     if (bounds.min == bounds.max) {
         addPoint(bounds.min);
         return;
@@ -589,7 +589,7 @@ bool Polyhedron<T,FP,VP>::hasFace(const typename V::List& positions, const T eps
 }
 
 template <typename T, typename FP, typename VP>
-const BBox<T,3>& Polyhedron<T,FP,VP>::bounds() const {
+const bbox<T,3>& Polyhedron<T,FP,VP>::bounds() const {
     return m_bounds;
 }
 

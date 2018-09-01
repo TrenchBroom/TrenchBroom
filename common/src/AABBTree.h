@@ -22,7 +22,7 @@
 
 #include "NodeTree.h"
 #include "Exceptions.h"
-#include "BBox.h"
+#include "bbox.h"
 #include "Ray.h"
 #include "MathUtils.h"
 

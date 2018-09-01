@@ -27,8 +27,8 @@
 #include "Polyhedron_DefaultPayload.h"
 
 using FloatType = double;
-using BBox3 = BBox<FloatType, 3>;
-using BBox2 = BBox<FloatType, 2>;
+using BBox3 = bbox<FloatType, 3>;
+using BBox2 = bbox<FloatType, 2>;
 using vec3 = vec<FloatType, 3>;
 using vec2 = vec<FloatType, 2>;
 using Plane3 = Plane<FloatType, 3>;

@@ -26,7 +26,7 @@
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
-#include "BBox.h"
+#include "bbox.h"
 
 namespace TrenchBroom {
     namespace Model {
