@@ -30,11 +30,11 @@
  commented out because it breaks the release build process
  */
 TEST(PlaneTest, planePointFinder) {
-    Plane3 plane;
     const vec3 points[3] = {vec3(48, 16, 28), vec3(16.0, 16.0, 27.9980487823486328125), vec3(48, 18, 22)};
     ASSERT_FALSE(isIntegral(points[1]));
-    ASSERT_TRUE(setPlanePoints(plane, points[0], points[1], points[2]));
-    
+
+    auto [valid, plane] = fromPoints(points[0], points[1], points[2]);
+    ASSERT_TRUE(valid);
     
     // Some verts that should lie (very close to) on the plane
     std::vector<vec3> verts;
@@ -59,15 +59,12 @@ TEST(PlaneTest, planePointFinder) {
     ASSERT_TRUE(isIntegral(intpoints[0], 0.001));
     ASSERT_TRUE(isIntegral(intpoints[1], 0.001));
     ASSERT_TRUE(isIntegral(intpoints[2], 0.001));
-    
-    Plane3 intplane;
-    ASSERT_TRUE(setPlanePoints(intplane, intpoints[0], intpoints[1], intpoints[2]));
-    //	ASSERT_FALSE(intplane.equals(plane)); no longer fails
-    
+
+    std::tie(valid, plane) = fromPoints(intpoints[0], intpoints[1], intpoints[2]);
+
     // Check that the verts are still close to the new integer plane
-    
     for (size_t i=0; i<verts.size(); i++) {
-        FloatType dist = Math::abs(intplane.pointDistance(verts[i]));
+        FloatType dist = Math::abs(plane.pointDistance(verts[i]));
         ASSERT_LT(dist, 0.01);
     }
 }

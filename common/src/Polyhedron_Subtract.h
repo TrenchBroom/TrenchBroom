@@ -208,8 +208,8 @@ private:
             return;
         }
         
-        const Plane<T,3> curPlane = *curPlaneIt;
-        const Plane<T,3> curPlaneInv = curPlane.flipped();
+        const auto curPlane = *curPlaneIt;
+        const auto curPlaneInv = curPlane.flip();
         
         // clip the list of minutendFragments into a list of those in front of the
         // currentPlane, and those behind

@@ -72,8 +72,6 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     const HalfEdgeList& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
-    Plane<T,3> plane;
-    
     const HalfEdge* firstEdge = boundary.front();
     const HalfEdge* curEdge = firstEdge;
     do {
@@ -84,16 +82,18 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
         const V& p1 = e1->origin()->position();
         const V& p2 = e2->origin()->position();
         const V& p3 = e3->origin()->position();
-        
-        if (setPlanePoints(plane, p2, p1, p3))
+
+        const auto [valid, plane] = fromPoints(p2, p1, p3);
+        if (valid) {
             return plane;
-        
+        }
+
         curEdge = curEdge->next();
     } while (curEdge != firstEdge);
     
-    // TODO: We should really through an exception here.
+    // TODO: We should really throw an exception here.
     assert(false);
-    return plane; // Ooops!
+    return Plane<T,3>(); // Ooops!
 }
 
 template <typename T, typename FP, typename VP>

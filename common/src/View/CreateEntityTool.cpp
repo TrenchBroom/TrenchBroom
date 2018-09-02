@@ -88,21 +88,22 @@ namespace TrenchBroom {
         void CreateEntityTool::updateEntityPosition2D(const Ray3& pickRay) {
             ensure(m_entity != nullptr, "entity is null");
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
-            const vec3 toMin = m_referenceBounds.min - pickRay.origin;
-            const vec3 toMax = m_referenceBounds.max - pickRay.origin;
-            const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
-            const Plane3 dragPlane(anchor, -pickRay.direction);
+            const auto toMin = m_referenceBounds.min - pickRay.origin;
+            const auto toMax = m_referenceBounds.max - pickRay.origin;
+            const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
+            const auto dragPlane = Plane3(anchor, -pickRay.direction);
             
-            const FloatType distance = dragPlane.intersectWithRay(pickRay);
-            if (Math::isnan(distance))
+            const auto distance = intersect(pickRay, dragPlane);
+            if (Math::isnan(distance)) {
                 return;
+            }
+
+            const auto hitPoint = pickRay.pointAtDistance(distance);
             
-            const vec3 hitPoint = pickRay.pointAtDistance(distance);
-            
-            const Grid& grid = document->grid();
-            const vec3 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
+            const auto& grid = document->grid();
+            const auto delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
             
             if (!isZero(delta)) {
                 document->translateObjects(delta);

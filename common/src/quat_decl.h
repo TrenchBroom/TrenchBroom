@@ -114,9 +114,6 @@ public:
     quat<T> conjugate() const;
 };
 
-typedef quat<float> Quatf;
-typedef quat<double> Quatd;
-
 /**
  * Negates this quaternion by negating its real component.
  *

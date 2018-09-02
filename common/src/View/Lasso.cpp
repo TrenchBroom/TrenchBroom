@@ -51,7 +51,7 @@ namespace TrenchBroom {
         
         vec3 Lasso::project(const vec3& point, const Plane3& plane) const {
             const auto ray = Ray3(m_camera.pickRay(vec3f(point)));
-            const auto hitDistance = plane.intersectWithRay(ray);
+            const auto hitDistance = intersect(ray, plane);;
             if (Math::isnan(hitDistance)) {
                 return vec3::NaN;
             }

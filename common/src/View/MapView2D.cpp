@@ -161,23 +161,24 @@ namespace TrenchBroom {
         }
 
         vec3 MapView2D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
-            MapDocumentSPtr document = lock(m_document);
-            View::Grid& grid = document->grid();
-            const bbox3& worldBounds = document->worldBounds();
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
+            const auto& worldBounds = document->worldBounds();
 
-            const Ray3& pickRay = MapView2D::pickRay();
+            const auto& pickRay = MapView2D::pickRay();
             
-            const vec3 toMin = referenceBounds.min - pickRay.origin;
-            const vec3 toMax = referenceBounds.max - pickRay.origin;
-            const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-            const Plane3 dragPlane(anchor, -pickRay.direction);
+            const auto toMin = referenceBounds.min - pickRay.origin;
+            const auto toMax = referenceBounds.max - pickRay.origin;
+            const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const auto dragPlane = Plane3(anchor, -pickRay.direction);
             
-            const FloatType distance = dragPlane.intersectWithRay(pickRay);
-            if (Math::isnan(distance))
+            const auto distance = intersect(pickRay, dragPlane);;
+            if (Math::isnan(distance)) {
                 return vec3::zero;
-            
-            const vec3 hitPoint = pickRay.pointAtDistance(distance);
-            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            } else {
+                const auto hitPoint = pickRay.pointAtDistance(distance);
+                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+            }
         }
         
         bool MapView2D::doCanSelectTall() {
@@ -276,32 +277,33 @@ namespace TrenchBroom {
         }
 
         vec3 MapView2D::doComputePointEntityPosition(const bbox3& bounds) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
             vec3 delta;
-            View::Grid& grid = document->grid();
+            const auto& grid = document->grid();
             
-            const bbox3& worldBounds = document->worldBounds();
+            const auto& worldBounds = document->worldBounds();
             
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
+            const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
+                const auto* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
             } else {
-                const bbox3 referenceBounds = document->referenceBounds();
-                const Ray3& pickRay = MapView2D::pickRay();
+                const auto referenceBounds = document->referenceBounds();
+                const auto& pickRay = MapView2D::pickRay();
                 
-                const vec3 toMin = referenceBounds.min - pickRay.origin;
-                const vec3 toMax = referenceBounds.max - pickRay.origin;
-                const vec3 anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-                const Plane3 dragPlane(anchor, -pickRay.direction);
+                const auto toMin = referenceBounds.min - pickRay.origin;
+                const auto toMax = referenceBounds.max - pickRay.origin;
+                const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+                const auto dragPlane = Plane3(anchor, -pickRay.direction);
                 
-                const FloatType distance = dragPlane.intersectWithRay(pickRay);
-                if (Math::isnan(distance))
+                const auto distance = intersect(pickRay, dragPlane);
+                if (Math::isnan(distance)) {
                     return vec3::zero;
-                
-                const vec3 hitPoint = pickRay.pointAtDistance(distance);
-                return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+                } else {
+                    const auto hitPoint = pickRay.pointAtDistance(distance);
+                    return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+                }
             }
         }
 

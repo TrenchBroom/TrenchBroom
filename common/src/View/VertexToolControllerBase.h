@@ -142,7 +142,7 @@ namespace TrenchBroom {
                     const auto& camera = inputState.camera();
                     const auto distance = 64.0f;
                     const auto plane = orthogonalDragPlane(vec3(camera.defaultPoint(distance)), vec3(camera.direction()));
-                    const auto initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
+                    const auto initialPoint = inputState.pickRay().pointAtDistance(intersect(inputState.pickRay(), plane));
                     
                     m_lasso = new Lasso(camera, distance, initialPoint);
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);

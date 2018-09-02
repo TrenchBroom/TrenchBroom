@@ -45,9 +45,8 @@ namespace TrenchBroom {
         m_orbit(false) {}
         
         void CameraTool3D::fly(int dx, int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
-            
-            static const float speed = 256.0f / 1000.0f; // 64 units per second
-            const float dist  = speed * time;
+            static const auto speed = 256.0f / 1000.0f; // 64 units per second
+            const auto dist  = speed * time;
             
             vec3f delta;
             if (forward) {
@@ -64,8 +63,8 @@ namespace TrenchBroom {
             }
             m_camera.moveBy(delta);
             
-            const float hAngle = static_cast<float>(dx) * lookSpeedH();
-            const float vAngle = static_cast<float>(dy) * lookSpeedV();
+            const auto hAngle = static_cast<float>(dx) * lookSpeedH();
+            const auto vAngle = static_cast<float>(dy) * lookSpeedV();
             m_camera.rotate(hAngle, vAngle);
         }
         
@@ -74,15 +73,15 @@ namespace TrenchBroom {
         }
         
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
-            const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             if (m_orbit) {
-                const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
-                const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
-                const float distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
+                const auto orbitPlane = Plane3f(m_orbitCenter, m_camera.direction());
+                const auto maxDistance = std::max(intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
+                const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                const vec3f moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vec3f(inputState.pickRay().direction) : m_camera.direction();
-                const float distance = inputState.scrollY() * moveSpeed(false);
+                const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const auto distance = inputState.scrollY() * moveSpeed(false);
                 m_camera.moveBy(factor * distance * moveDirection);
             }
         }

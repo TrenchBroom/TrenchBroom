@@ -451,9 +451,9 @@ namespace TrenchBroom {
             }
             
             void addPoint(const vec3f point, const Plane3f& plane) {
-                const Ray3f ray(m_cameraPosition, -m_cameraDirection);
-                const Plane3f newPlane(point + 64.0f * plane.normal, plane.normal);
-                const float dist = newPlane.intersectWithRay(ray);
+                const auto ray = Ray3f(m_cameraPosition, -m_cameraDirection);
+                const auto newPlane = Plane3f(point + 64.0f * plane.normal, plane.normal);
+                const auto dist = intersect(ray, newPlane);;
                 if (!Math::isnan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }

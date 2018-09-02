@@ -435,20 +435,6 @@ bbox<T,S> merge(const bbox<T,S>& lhs, const vec<T,S>& rhs);
 template <typename T, size_t S>
 bbox<T,S> intersect(const bbox<T,S>& lhs, const bbox<T,S>& rhs);
 
-
-/**
- * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
- * on the given ray from the ray's origin to that point.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param r the ray
- * @param b the bounding box
- * @return the distance to the intersection point, or NaN if the ray does not intersect the bounding box
- */
-template <typename T, size_t S>
-T intersect(const Ray<T,S>& r, const bbox<T,S>& b);
-
 template <typename T>
 mat<T,4,4> scaleBBoxMatrix(const bbox<T,3>& oldBBox, const bbox<T,3>& newBBox);
 
@@ -457,12 +443,5 @@ mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& n
 
 template <typename T>
 mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta);
-
-typedef bbox<float,1> bbox1f;
-typedef bbox<double,1> bbox1d;
-typedef bbox<float,2> bbox2f;
-typedef bbox<double,2> bbox2d;
-typedef bbox<float,3> bbox3f;
-typedef bbox<double,3> bbox3d;
 
 #endif

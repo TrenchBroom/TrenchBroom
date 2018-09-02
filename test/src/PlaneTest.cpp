@@ -24,6 +24,8 @@
 #include "MathUtils.h"
 #include "TestUtils.h"
 
+#include <array>
+
 TEST(PlaneTest, constructDefault) {
     const Plane3f p;
     ASSERT_EQ(0.0f, p.distance);
@@ -59,61 +61,6 @@ TEST(PlaneTest, anchor) {
 TEST(PlaneTest, intersectWithRay) {
 }
 
-TEST(PlaneTest, intersectWithLine) {
-    const Plane3f p(5.0f, vec3f::pos_z);
-    const line3f l(vec3f(0, 0, 15), normalize(vec3f(1,0,-1)));
-    
-    const vec3f intersection = l.pointAtDistance(p.intersectWithLine(l));
-    ASSERT_FLOAT_EQ(10, intersection.x());
-    ASSERT_FLOAT_EQ(0, intersection.y());
-    ASSERT_FLOAT_EQ(5, intersection.z());
-}
-
-TEST(PlaneTest, intersectWithPlane_parallel) {
-    const Plane3f p1(10.0f, vec3f::pos_z);
-    const Plane3f p2(11.0f, vec3f::pos_z);
-    const line3f line = p1.intersectWithPlane(p2);
-    
-    ASSERT_EQ(vec3f::zero, line.direction);
-    ASSERT_EQ(vec3f::zero, line.point);
-}
-
-TEST(PlaneTest, intersectWithPlane_too_similar) {
-    const vec3f anchor(100,100,100);
-    const Plane3f p1(anchor, vec3f::pos_x);
-    const Plane3f p2(anchor, Quatf(vec3f::neg_y, Math::radians(0.0001f)) * vec3f::pos_x); // p1 rotated by 0.0001 degrees
-    const line3f line = p1.intersectWithPlane(p2);
-    
-    ASSERT_EQ(vec3f::zero, line.direction);
-    ASSERT_EQ(vec3f::zero, line.point);
-}
-
-static bool lineOnPlane(const Plane3f& plane, const line3f& line) {
-    if (plane.pointStatus(line.point) != Math::PointStatus::PSInside)
-        return false;
-    if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside)
-        return false;
-    return true;
-}
-
-TEST(PlaneTest, intersectWithPlane) {
-    const Plane3f p1(10.0f, vec3f::pos_z);
-    const Plane3f p2(20.0f, vec3f::pos_x);
-    const line3f line = p1.intersectWithPlane(p2);
-    
-    ASSERT_TRUE(lineOnPlane(p1, line));
-    ASSERT_TRUE(lineOnPlane(p2, line));
-}
-
-TEST(PlaneTest, intersectWithPlane_similar) {
-    const vec3f anchor(100,100,100);
-    const Plane3f p1(anchor, vec3f::pos_x);
-    const Plane3f p2(anchor, Quatf(vec3f::neg_y, Math::radians(0.5f)) * vec3f::pos_x); // p1 rotated by 0.5 degrees
-    const line3f line = p1.intersectWithPlane(p2);
-
-    ASSERT_TRUE(lineOnPlane(p1, line));
-    ASSERT_TRUE(lineOnPlane(p2, line));
-}
 
 TEST(PlaneTest, pointStatus) {
     const Plane3f p(10.0f, vec3f::pos_z);
@@ -166,12 +113,12 @@ TEST(PlaneTest, xYZValueAt) {
     ASSERT_FLOAT_EQ(p.at(point1, Math::Axis::AZ), p.zAt(point1));
 }
 
-TEST(PlaneTest, equals) {
-    ASSERT_TRUE(Plane3f(0.0f, vec3f::pos_x).equals(Plane3f(0.0f, vec3f::pos_x)));
-    ASSERT_TRUE(Plane3f(0.0f, vec3f::pos_y).equals(Plane3f(0.0f, vec3f::pos_y)));
-    ASSERT_TRUE(Plane3f(0.0f, vec3f::pos_z).equals(Plane3f(0.0f, vec3f::pos_z)));
-    ASSERT_FALSE(Plane3f(0.0f, vec3f::pos_x).equals(Plane3f(0.0f, vec3f::neg_x)));
-    ASSERT_FALSE(Plane3f(0.0f, vec3f::pos_x).equals(Plane3f(0.0f, vec3f::pos_y)));
+TEST(PlaneTest, equal) {
+    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::pos_x), Math::Constants<float>::almostZero()));
+    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_y), Plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
+    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_z), Plane3f(0.0f, vec3f::pos_z), Math::Constants<float>::almostZero()));
+    ASSERT_FALSE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::neg_x), Math::Constants<float>::almostZero()));
+    ASSERT_FALSE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
 }
 
 TEST(PlaneTest, transform) {
@@ -191,15 +138,18 @@ TEST(PlaneTest, project) {
     ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 2.0f), Plane3f(2.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
 }
 
-TEST(PlaneTest, setPlanePoints) {
+TEST(PlaneTest, fromPoints) {
+    bool valid;
     Plane3f plane;
-    vec3f points[3];
+    std::array<vec3f, 3> points;
     const float epsilon = Math::Constants<float>::pointStatusEpsilon();
-    
+
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(0.0f, 1.0f, 0.0f);
     points[2] = vec3f(1.0f, 0.0f, 0.0f);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
 
@@ -207,7 +157,9 @@ TEST(PlaneTest, setPlanePoints) {
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(0.0f, epsilon, 0.0f);
     points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
 
@@ -215,7 +167,9 @@ TEST(PlaneTest, setPlanePoints) {
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(epsilon, epsilon, 0.0f);
     points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
     
@@ -223,7 +177,9 @@ TEST(PlaneTest, setPlanePoints) {
     points[0] = vec3f(0.0f, 0.0f, epsilon);
     points[1] = vec3f(0.0f, epsilon, epsilon);
     points[2] = vec3f(epsilon, 0.0f, epsilon);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
     ASSERT_FLOAT_EQ(epsilon, plane.distance);
     
@@ -231,7 +187,9 @@ TEST(PlaneTest, setPlanePoints) {
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(1000.0f, epsilon, 0.0f);
     points[2] = vec3f(1000.0f, 0.0f, 0.0f);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_VEC_EQ(vec3f::pos_z, plane.normal);
     ASSERT_FLOAT_EQ(0.0f, plane.distance);
     
@@ -239,32 +197,42 @@ TEST(PlaneTest, setPlanePoints) {
     points[0] = vec3f(224.0f, -400.0f, 1648.0f);
     points[1] = vec3f(304.0f, -432.0f, 1248.0f + epsilon);
     points[2] = vec3f(304.0f, -432.0f, 1248.0f);
-    ASSERT_TRUE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_TRUE(valid);
     ASSERT_FLOAT_EQ(1.0f, length(plane.normal));
     
     // too-small angle (triangle 1000 units wide, length/100 units tall)
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(1000.0f, epsilon/100.0f, 0.0f);
     points[2] = vec3f(1000.0f, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
-    
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_FALSE(valid);
+
     // all zero
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(0.0f, 0.0f, 0.0f);
     points[2] = vec3f(0.0f, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_FALSE(valid);
     
     // same direction, short vectors
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(2*epsilon, 0.0f, 0.0f);
     points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_FALSE(valid);
     
     // opposite, short vectors
     points[0] = vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vec3f(-epsilon, 0.0f, 0.0f);
     points[2] = vec3f(epsilon, 0.0f, 0.0f);
-    ASSERT_FALSE(setPlanePoints(plane, points));
+
+    std::tie(valid, plane) = fromPoints(std::begin(points), std::end(points));
+    ASSERT_FALSE(valid);
 }
 
 TEST(PlaneTest, horizontalDragPlane) {

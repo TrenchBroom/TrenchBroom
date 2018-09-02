@@ -33,27 +33,13 @@ struct Identity {
 };
 
 template <typename T, typename I, typename F = Identity>
-bool getPlane(I cur, I end, Plane<T,3>& plane, const F& getPosition = F()) {
-    if (cur == end)
-        return false;
-    const vec<T,3> p2 = *cur++;
-    if (cur == end)
-        return false;
-    const vec<T,3> p0 = *cur++;
-    if (cur == end)
-        return false;
-    const vec<T,3> p1 = *cur++;
-    return setPlanePoints(plane, p0, p1, p2);
-}
-
-template <typename T, typename I, typename F = Identity>
-T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I end, const F& getPosition = F()) {
-    const T distance = plane.intersectWithRay(ray);
+T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3>& plane, I cur, I end, const F& getPosition = F()) {
+    const auto distance = intersect(ray, plane);
     if (Math::isnan(distance)) {
         return distance;
     }
 
-    const vec<T,3> point = ray.pointAtDistance(distance);
+    const auto point = ray.pointAtDistance(distance);
     if (polygonContainsPoint(point, plane.normal, cur, end, getPosition)) {
         return distance;
     }
@@ -62,11 +48,12 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
 
 template <typename T, typename I, typename F = Identity>
 T intersectPolygonWithRay(const Ray<T,3>& ray, I cur, I end, const F& getPosition = F()) {
-    Plane<T,3> plane;
-    if (!getPlane(cur, end, plane, getPosition)) {
+    const auto [valid, plane] = fromPoints(cur, end, getPosition);
+    if (!valid) {
         return Math::nan<T>();
+    } else {
+        return intersectPolygonWithRay(ray, plane, cur, end, getPosition);
     }
-    return intersectPolygonWithRay(ray, plane, cur, end, getPosition);
 }
 
 

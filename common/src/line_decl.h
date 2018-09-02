@@ -87,7 +87,40 @@ public:
      * @return the projected point
      */
     vec<T,S> project(const vec<T,S>& i_point) const;
+
+    /**
+     * Returns a canonical representation of the given line. Since a line could be represented by any point on it
+     * plus its direction, every line has an infinite number of representations. This function maps each representation
+     * onto a unique representation.
+     *
+     * @return the canonical representation of this line
+     */
+    line<T,S> makeCanonical() const;
 };
+
+/**
+ * Checks whether the two given lines are identical.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first line
+ * @param rhs the second line
+ * @return true if the given lines are identical, and false otherwise
+ */
+template <typename T, size_t S>
+bool operator==(const line<T,S>& lhs, const line<T,S>& rhs);
+
+/**
+ * Checks whether the two given lines are identical.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param lhs the first line
+ * @param rhs the second line
+ * @return false if the given lines are identical, and true otherwise
+ */
+template <typename T, size_t S>
+bool operator!=(const line<T,S>& lhs, const line<T,S>& rhs);
 
 /**
  * Prints a textual representation of the given line to the given stream.
@@ -100,8 +133,5 @@ public:
  */
 template <typename T, size_t S>
 std::ostream& operator<<(std::ostream& stream, const line<T,S>& line);
-
-typedef line<float,3> line3f;
-typedef line<double,3> line3d;
 
 #endif

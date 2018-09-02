@@ -112,21 +112,21 @@ namespace TrenchBroom {
         }
         
         void UVShearTool::doEndMouseDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
         }
         
         void UVShearTool::doCancelMouseDrag() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
 
         vec2f UVShearTool::getHit(const Ray3& pickRay) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType hitPointDist = boundary.intersectWithRay(pickRay);
-            const vec3 hitPoint = pickRay.pointAtDistance(hitPointDist);
-            const vec3 hitVec = hitPoint - m_helper.origin();
+            const auto* face = m_helper.face();
+            const auto& boundary = face->boundary();
+            const auto hitPointDist = intersect(pickRay, boundary);
+            const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
+            const auto hitVec = hitPoint - m_helper.origin();
             
             return vec2f(dot(hitVec, m_xAxis),
                          dot(hitVec, m_yAxis));

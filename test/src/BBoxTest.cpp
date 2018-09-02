@@ -144,25 +144,6 @@ TEST(BBoxTest, intersectsBBox) {
     ASSERT_FALSE(bounds1.intersects(bounds5));
 }
 
-TEST(BBoxTest, intersectWithRay) {
-    const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
-
-    float distance = intersect(Ray3f(vec3f::zero, vec3f::neg_z), bounds);
-    ASSERT_TRUE(Math::isnan(distance));
-    
-    distance = intersect(Ray3f(vec3f::zero, vec3f::pos_z), bounds);
-    ASSERT_FALSE(Math::isnan(distance));
-    ASSERT_FLOAT_EQ(4.0f, distance);
-
-    const vec3f origin = vec3f(-10.0f, -7.0f, 14.0f);
-    const vec3f diff = vec3f(-2.0f, 3.0f, 8.0f) - origin;
-    const vec3f dir = normalize(diff);
-    distance = intersect(Ray3f(origin, dir), bounds);
-    ASSERT_FALSE(Math::isnan(distance));
-    ASSERT_FLOAT_EQ(length(diff), distance);
-
-}
-
 TEST(BBoxTest, expand) {
           bbox3f bounds  (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f,  9.0f,  8.0f));
     const bbox3f expanded(vec3f(-14.0f, -5.0f,  2.0f), vec3f(10.0f, 11.0f, 10.0f));

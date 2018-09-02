@@ -114,20 +114,21 @@ namespace TrenchBroom {
         const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
 
         void FaceHandleManager::pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const Polygon3& position = entry.first;
-                
-                Plane3 plane;
-                if (!getPlane(std::begin(position), std::end(position), plane))
+            for (const auto& entry : m_handles) {
+                const auto& position = entry.first;
+
+                const auto [valid, plane] = fromPoints(std::begin(position), std::end(position));
+                if (!valid) {
                     continue;
-                
-                const FloatType distance = intersectPolygonWithRay(pickRay, plane, std::begin(position), std::end(position));
+                }
+
+                const auto distance = intersectPolygonWithRay(pickRay, plane, std::begin(position), std::end(position));
                 if (!Math::isnan(distance)) {
-                    const vec3 pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
+                    const auto pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
                     
-                    const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                    const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                     if (!Math::isnan(pointDist)) {
-                        const vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                        const auto hitPoint = pickRay.pointAtDistance(pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
                     }
                 }
@@ -136,12 +137,12 @@ namespace TrenchBroom {
 
         void FaceHandleManager::pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
-                const Polygon3& position = entry.first;
-                const vec3 pointHandle = position.center();
+                const auto& position = entry.first;
+                const auto pointHandle = position.center();
 
-                const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
+                const auto pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                 if (!Math::isnan(pointDist)) {
-                    const vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                    const auto hitPoint = pickRay.pointAtDistance(pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }
             }

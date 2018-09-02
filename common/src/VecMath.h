@@ -28,21 +28,22 @@
 #undef min
 #endif
 
-#include "bbox_decl.h"
-#include "bbox_impl.h"
-#include "line_decl.h"
-#include "line_impl.h"
-#include "mat_forward.h"
-#include "mat_decl.h"
-#include "mat_impl.h"
-#include "Plane.h"
-#include "quat_decl.h"
-#include "quat_impl.h"
-#include "vec_forward.h"
+#include "forward.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
+#include "quat_decl.h"
+#include "quat_impl.h"
+#include "bbox_decl.h"
+#include "bbox_impl.h"
+#include "Ray.h"
+#include "line_decl.h"
+#include "line_impl.h"
+#include "Plane.h"
 #include "CoordinatePlane.h"
 #include "Edge.h"
 #include "Polygon.h"
+#include "intersection.h"
 
 #endif

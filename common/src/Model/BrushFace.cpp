@@ -138,20 +138,20 @@ namespace TrenchBroom {
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
-            const line3 seam = sourceFacePlane.intersectWithPlane(m_boundary);
-            const vec3 refPoint = seam.project(center());
+            const auto seam = intersect(sourceFacePlane, m_boundary);
+            const auto refPoint = seam.project(center());
             
             coordSystemSnapshot->restore(m_texCoordSystem);
             
             // Get the texcoords at the refPoint using the source face's attribs and tex coord system
-            const vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
+            const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
             
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
             
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!isZero(seam.direction)) {
-                const vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
-                const vec2f offsetChange = desriedCoords - currentCoords;
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
             }
         }
@@ -455,10 +455,11 @@ namespace TrenchBroom {
             const vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
             const Plane3 oldBoundary = m_boundary;
 
-            m_boundary.transform(transform);
-            for (size_t i = 0; i < 3; ++i)
+            m_boundary = m_boundary.transform(transform);
+            for (size_t i = 0; i < 3; ++i) {
                 m_points[i] = transform * m_points[i];
-
+            }
+            
             if (dot(cross(m_points[2] - m_points[0], m_points[1] - m_points[0]), m_boundary.normal) < 0.0) {
                 swap(m_points[1], m_points[2]);
             }
@@ -471,7 +472,7 @@ namespace TrenchBroom {
         void BrushFace::invert() {
             using std::swap;
 
-            m_boundary.flip();
+            m_boundary = m_boundary.flip();
             swap(m_points[1], m_points[2]);
             invalidateVertexCache();
         }
@@ -479,26 +480,26 @@ namespace TrenchBroom {
         void BrushFace::updatePointsFromVertices() {
             ensure(m_geometry != nullptr, "geometry is null");
 
-            const BrushHalfEdge* first = m_geometry->boundary().front();
-            const Plane3 oldPlane = m_boundary;
+            const auto* first = m_geometry->boundary().front();
+            const auto oldPlane = m_boundary;
             setPoints(first->next()->origin()->position(),
                       first->origin()->position(),
                       first->previous()->origin()->position());
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
-            const line3 seam = oldPlane.intersectWithPlane(m_boundary);
+            const auto seam = intersect(oldPlane, m_boundary);
             if (!isZero(seam.direction)) {
-                const vec3 refPoint = seam.project(center());
+                const auto refPoint = seam.project(center());
                 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
-                const vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 
                 m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
                 
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-                const vec2f currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
-                const vec2f offsetChange = desriedCoords - currentCoords;
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
             }
         }
@@ -648,13 +649,16 @@ namespace TrenchBroom {
             m_points[2] = point2;
             correctPoints();
 
-            if (!setPlanePoints(m_boundary, m_points)) {
+            const auto [result, plane] = fromPoints(m_points[0], m_points[1], m_points[2]);
+            if (!result) {
                 GeometryException e;
                 e << "Colinear face points: (" <<
                 m_points[0] << ") (" <<
                 m_points[1] << ") (" <<
                 m_points[2] << ")";
                 throw e;
+            } else {
+                m_boundary = plane;
             }
 
             invalidateVertexCache();

@@ -19,7 +19,6 @@
 
 #include <gtest/gtest.h>
 
-#include "mat_forward.h"
 #include "mat_decl.h"
 #include "mat_impl.h"
 #include "vec_decl.h"
@@ -633,9 +632,9 @@ TEST(MatTest, rotationMatrixWithAngleAndAxis) {
 }
 
 TEST(MatTest, rotationMatrixWithQuaternion) {
-    ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(Quatd(vec3d::pos_x, Math::radians(90.0))));
-    ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(Quatd(vec3d::pos_y, Math::radians(90.0))));
-    ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(Quatd(vec3d::pos_z, Math::radians(90.0))));
+    ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(quatd(vec3d::pos_x, Math::radians(90.0))));
+    ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(quatd(vec3d::pos_y, Math::radians(90.0))));
+    ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(quatd(vec3d::pos_z, Math::radians(90.0))));
 
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -645,7 +644,7 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
             axis[j] = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
         axis = normalize(axis);
         const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*Math::Cd::pi();
-        ASSERT_MAT_EQ(rotationMatrix(axis, angle), rotationMatrix(Quatd(axis, angle)));
+        ASSERT_MAT_EQ(rotationMatrix(axis, angle), rotationMatrix(quatd(axis, angle)));
     }
 }
 

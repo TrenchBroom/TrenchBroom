@@ -57,7 +57,7 @@ namespace TrenchBroom {
             const auto& camera = inputState.camera();
             const Plane3 plane(bounds.min, vec3(firstAxis(camera.direction())));
             
-            const auto distance = plane.intersectWithRay(inputState.pickRay());
+            const auto distance = intersect(inputState.pickRay(), plane);
             if (Math::isnan(distance)) {
                 return DragInfo();
             }

@@ -356,7 +356,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const Plane3& boundary) const {
             for (auto* face : m_faces) {
-                if (face->boundary().equals(boundary)) {
+                if (equal(face->boundary(), boundary, Math::Constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
@@ -503,7 +503,7 @@ namespace TrenchBroom {
 
         void Brush::cloneInvertedFaceAttributesFrom(const Brush* brush) {
             for (auto* destination : m_faces) {
-                const auto* source = brush->findFace(destination->boundary().flipped());
+                const auto* source = brush->findFace(destination->boundary().flip());
                 if (source != nullptr) {
                     // Todo: invert the face attributes?
                     destination->setAttribs(source->attribs());

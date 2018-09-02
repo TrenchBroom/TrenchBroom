@@ -802,25 +802,28 @@ template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
 public:
     bool operator()(const Seam& seam) const {
-        const Edge* first = seam.first();
-        const Edge* second = seam.second();
+        const auto* first = seam.first();
+        const auto* second = seam.second();
         
-        if (first->firstFace() == second->firstFace())
+        if (first->firstFace() == second->firstFace()) {
             return false;
-        
-        const Vertex* v1 = first->firstVertex();
-        const Vertex* v2 = first->secondVertex();
-        const Vertex* v3 = second->firstVertex();
-        
-        Plane<T,3> plane;
-        if (!setPlanePoints(plane, v1->position(), v2->position(), v3->position()))
+        }
+
+        const auto* v1 = first->firstVertex();
+        const auto* v2 = first->secondVertex();
+        const auto* v3 = second->firstVertex();
+
+        const auto [valid, plane] = fromPoints(v1->position(), v2->position(), v3->position());
+        if (!valid) {
             return false;
-        
-        const Edge* last = seam.last();
-        const Vertex* v4 = last->secondVertex();
-        if (plane.pointStatus(v4->position()) != Math::PointStatus::PSBelow)
+        }
+
+        const auto* last = seam.last();
+        const auto* v4 = last->secondVertex();
+        if (plane.pointStatus(v4->position()) != Math::PointStatus::PSBelow) {
             return false;
-        
+        }
+
         return checkRemainingPoints(plane, seam);
     }
 private:
@@ -882,21 +885,22 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
     while (!seam.empty()) {
         assert(seam.size() >= 3);
         
-        if (seam.size() > 3)
+        if (seam.size() > 3) {
             seam.shift(ShiftSeamForSealing());
+        }
 
         HalfEdgeList boundary;
 
-        typename Seam::List::iterator firstIt = std::begin(seam);
-        typename Seam::List::iterator endIt = firstIt;
-        Edge* firstEdge = *endIt;
+        auto firstIt = std::begin(seam);
+        auto endIt = firstIt;
+        auto* firstEdge = *endIt;
         ++endIt;
         
-        Edge* secondEdge = *endIt;
+        auto* secondEdge = *endIt;
         ++endIt;
         
-        HalfEdge* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
-        HalfEdge* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
+        auto* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
+        auto* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
         
         boundary.append(firstBoundaryEdge, 1);
         boundary.append(secondBoundaryEdge, 1);
@@ -907,19 +911,19 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         // try to add more points as long as they all lie on the same plane
         // as the first three points
         
-        Vertex* v1 = firstEdge->firstVertex();
-        Vertex* v2 = firstEdge->secondVertex();
-        Vertex* v3 = secondEdge->firstVertex();
-        
-        Plane<T,3> plane;
-        assertResult(setPlanePoints(plane, v1->position(), v2->position(), v3->position()));
+        auto* v1 = firstEdge->firstVertex();
+        auto* v2 = firstEdge->secondVertex();
+        auto* v3 = secondEdge->firstVertex();
 
-        Vertex* lastVertex = v3;
+        const auto [valid, plane] = fromPoints(v1->position(), v2->position(), v3->position());
+        assert(valid); unused(valid);
+
+        auto* lastVertex = v3;
         while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
-            Edge* curEdge = *endIt;
+            auto* curEdge = *endIt;
             ++endIt;
             
-            HalfEdge* curBoundaryEdge = new HalfEdge(curEdge->secondVertex());
+            auto* curBoundaryEdge = new HalfEdge(curEdge->secondVertex());
             boundary.append(curBoundaryEdge, 1);
             curEdge->setSecondEdge(curBoundaryEdge);
             
@@ -927,17 +931,17 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         }
         
         if (endIt != std::end(seam)) {
-            HalfEdge* lastBoundaryEdge = new HalfEdge(lastVertex);
+            auto* lastBoundaryEdge = new HalfEdge(lastVertex);
             boundary.append(lastBoundaryEdge, 1);
 
-            Edge* newEdge = new Edge(lastBoundaryEdge);
+            auto* newEdge = new Edge(lastBoundaryEdge);
             m_edges.append(newEdge, 1);
             seam.replace(firstIt, endIt, newEdge);
         } else {
             seam.clear();
         }
         
-        Face* newFace = new Face(boundary);
+        auto* newFace = new Face(boundary);
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
     }
@@ -953,19 +957,19 @@ public:
     ShiftSeamForWeaving(const V& position) : m_position(position) {}
 public:
     bool operator()(const Seam& seam) const {
-        const Edge* last = seam.last();
-        const Edge* first = seam.first();
+        const auto* last = seam.last();
+        const auto* first = seam.first();
         
-        const Vertex* v1 = last->firstVertex();
-        const Vertex* v2 = last->secondVertex();
-        const Vertex* v3 = first->firstVertex();
+        const auto* v1 = last->firstVertex();
+        const auto* v2 = last->secondVertex();
+        const auto* v3 = first->firstVertex();
         assert(v3 != v1);
         assert(v3 != v2);
-        
-        Plane<T,3> lastPlane;
-        assertResult(setPlanePoints(lastPlane, m_position, v1->position(), v2->position()));
-        
-        const Math::PointStatus::Type status = lastPlane.pointStatus(v3->position());
+
+        const auto [valid, lastPlane] = fromPoints(m_position, v1->position(), v2->position());
+        assert(valid); unused(valid);
+
+        const auto status = lastPlane.pointStatus(v3->position());
         return status == Math::PointStatus::PSBelow;
     }
 };
@@ -980,24 +984,23 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
-    Plane<T,3> plane;
-    Vertex* top = new Vertex(position);
+    auto* top = new Vertex(position);
     
     HalfEdge* first = nullptr;
     HalfEdge* last = nullptr;
     
     typename Seam::const_iterator it = std::begin(seam);
     while (it != std::end(seam)) {
-        Edge* edge = *it++;
+        auto* edge = *it++;
         
         assert(!edge->fullySpecified());
-        Vertex* v1 = edge->secondVertex();
-        Vertex* v2 = edge->firstVertex();
+        auto* v1 = edge->secondVertex();
+        auto* v2 = edge->firstVertex();
 
-        HalfEdge* h1 = new HalfEdge(top);
-        HalfEdge* h2 = new HalfEdge(v1);
-        HalfEdge* h3 = new HalfEdge(v2);
-        HalfEdge* h = h3;
+        auto* h1 = new HalfEdge(top);
+        auto* h2 = new HalfEdge(v1);
+        auto* h3 = new HalfEdge(v2);
+        auto* h = h3;
         
         HalfEdgeList boundary;
         boundary.append(h1, 1);
@@ -1006,19 +1009,22 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         edge->setSecondEdge(h2);
         
         if (it != std::end(seam)) {
-            assertResult(setPlanePoints(plane, top->position(), v2->position(), v1->position()));
-            Edge* next = *it;
+            const auto [valid, plane] = fromPoints(top->position(), v2->position(), v1->position());
+            assert(valid); unused(valid);
+
+            auto* next = *it;
             
             // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
             while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
                 next->setSecondEdge(h);
 
-                Vertex* v = next->firstVertex();
+                auto* v = next->firstVertex();
                 h = new HalfEdge(v);
                 boundary.append(h, 1);
                 
-				if (++it != std::end(seam))
-					next = *it;
+				if (++it != std::end(seam)) {
+                    next = *it;
+                }
             }
         }
         

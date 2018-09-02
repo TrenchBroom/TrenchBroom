@@ -89,12 +89,12 @@ namespace TrenchBroom {
         }
 
         vec2f UVOffsetTool::computeHitPoint(const Ray3& ray) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType distance = boundary.intersectWithRay(ray);
-            const vec3 hitPoint = ray.pointAtDistance(distance);
+            const auto* face = m_helper.face();
+            const auto& boundary = face->boundary();
+            const auto distance = intersect(ray, boundary);
+            const auto hitPoint = ray.pointAtDistance(distance);
             
-            const mat4x4 transform = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true);
+            const auto transform = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true);
             return vec2f(transform * hitPoint);
         }
 

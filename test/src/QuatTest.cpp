@@ -26,7 +26,7 @@
 #include "TestUtils.h"
 
 TEST(QuatTest, defaultConstructor) {
-    const Quatf q;
+    const quatf q;
     ASSERT_FLOAT_EQ(0.0f, q.r);
     ASSERT_TRUE(isZero(q.v));
 }
@@ -34,7 +34,7 @@ TEST(QuatTest, defaultConstructor) {
 TEST(QuatTest, rotationConstructor) {
     const float angle(Math::radians(15.0f));
     const vec3f axis(normalize(vec<float,3>(1.0f, 2.0f, 3.0f)));
-    const Quatf q(axis, angle);
+    const quatf q(axis, angle);
     
     ASSERT_FLOAT_EQ(std::cos(angle / 2.0f), q.r);
     ASSERT_VEC_EQ(axis * std::sin(angle / 2.0f), q.v);
@@ -43,7 +43,7 @@ TEST(QuatTest, rotationConstructor) {
 TEST(QuatTest, rotateVecConstructor) {
     const vec3d from(0.0, 1.0, 0.0);
     const vec3d to(1.0, 0.0, 0.0);
-    const Quatd q(from, to);
+    const quatd q(from, to);
     ASSERT_VEC_EQ(to, q * from);
 }
 
@@ -55,7 +55,7 @@ TEST(QuatTest, rotateVecConstructor_oppositeVectors) {
         from[i] = 1.0;
         to[i] = -1.0;
 
-        const Quatd q(from, to);
+        const quatd q(from, to);
         EXPECT_VEC_EQ(to, q * from);
 
         // The quaternion axis should be perpendicular to both from and to vectors
@@ -70,37 +70,37 @@ TEST(QuatTest, rotateVecConstructor_equalVectors) {
         from[i] = 1.0;
 
         const vec3d to = from;
-        const Quatd q(from, to);
+        const quatd q(from, to);
         EXPECT_VEC_EQ(to, q * from);
     }
 }
 
 TEST(QuatTest, negation) {
-    const Quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
-    const Quatf nq = -q;
+    const quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
+    const quatf nq = -q;
     
     ASSERT_FLOAT_EQ(-(q.r), nq.r);
     ASSERT_VEC_EQ(q.v, nq.v);
 }
 
 TEST(QuatTest, scalarRightMultiplication) {
-    const Quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
-    const Quatf p = q * 2.0f;
+    const quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
+    const quatf p = q * 2.0f;
     ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
 }
 
 TEST(QuatTest, scalarLeftMultiplication) {
-    const Quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
-    const Quatf p = 2.0f * q;
+    const quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
+    const quatf p = 2.0f * q;
     ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
 }
 
 TEST(QuatTest, multiplication) {
     const float angle1 = Math::radians(15.0f);
-    const Quatf q1(vec<float,3>::pos_z, angle1);
+    const quatf q1(vec<float,3>::pos_z, angle1);
     const float angle2 = Math::radians(10.0f);
-    const Quatf q2(vec<float,3>::pos_z, angle2);
-    const Quatf q = q1 * q2;
+    const quatf q2(vec<float,3>::pos_z, angle2);
+    const quatf q = q1 * q2;
     const vec3f v = vec3f::pos_x;
     const vec3f w = q * v;
 
@@ -109,7 +109,7 @@ TEST(QuatTest, multiplication) {
 
 TEST(QuatTest, vectorMultiplication) {
     const float angle = Math::radians(15.0f);
-    const Quatf q(vec<float,3>::pos_z, angle);
+    const quatf q(vec<float,3>::pos_z, angle);
     const vec3f v = vec3f::pos_x;
     const vec3f w = q * v;
     
@@ -118,7 +118,7 @@ TEST(QuatTest, vectorMultiplication) {
 
 TEST(QuatTest, angle) {
     const float angle = Math::radians(15.0f);
-    const Quatf q(vec<float,3>::pos_z, angle);
+    const quatf q(vec<float,3>::pos_z, angle);
     
     ASSERT_NEAR(angle, q.angle(), 0.001f);
 }
@@ -126,7 +126,7 @@ TEST(QuatTest, angle) {
 TEST(QuatTest, axis) {
     const vec3f axis = vec<float,3>::pos_z;
     const float angle = Math::radians(15.0f);
-    const Quatf q(axis, angle);
+    const quatf q(axis, angle);
     
     ASSERT_VEC_EQ(axis, q.axis());
 }
@@ -134,8 +134,8 @@ TEST(QuatTest, axis) {
 TEST(QuatTest, conjugate) {
     const vec3f axis = vec<float,3>::pos_z;
     const float angle = Math::radians(15.0f);
-    const Quatf q(axis, angle);
-    Quatf p = q;
+    const quatf q(axis, angle);
+    quatf p = q;
     p = p.conjugate();
     
     ASSERT_VEC_EQ(-q.v, p.v);

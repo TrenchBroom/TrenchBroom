@@ -67,7 +67,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
-            Quatf m_rotation;
+            quatf m_rotation;
             
             bool m_group;
             bool m_hideUnused;

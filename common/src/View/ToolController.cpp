@@ -64,22 +64,26 @@ namespace TrenchBroom {
         m_plane(plane) {}
         
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
-            const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            const auto distance = intersect(inputState.pickRay(), m_plane);
+            if (Math::isnan(distance)) {
                 return false;
-            point = inputState.pickRay().pointAtDistance(distance);
-            return true;
+            } else {
+                point = inputState.pickRay().pointAtDistance(distance);
+                return true;
+            }
         }
 
         LineDragRestricter::LineDragRestricter(const line3& line) :
         m_line(line) {}
 
         bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
-            const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
-            if (lineDist.parallel)
+            const auto lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
+            if (lineDist.parallel) {
                 return false;
-            point = m_line.point + m_line.direction * lineDist.lineDistance;
-            return true;
+            } else {
+                point = m_line.point + m_line.direction * lineDist.lineDistance;
+                return true;
+            }
         }
         
         CircleDragRestricter::CircleDragRestricter(const vec3& center, const vec3& normal, const FloatType radius) :
@@ -90,15 +94,16 @@ namespace TrenchBroom {
         }
         
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
-            const Plane3 plane(m_center, m_normal);
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+            const auto plane = Plane3(m_center, m_normal);
+            const auto distance = intersect(inputState.pickRay(), plane);
+            if (Math::isnan(distance)) {
                 return false;
-            
-            const vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
-            const vec3 direction = normalize(hitPoint - m_center);
-            point = m_center + m_radius * direction;
-            return true;
+            } else {
+                const auto hitPoint = inputState.pickRay().pointAtDistance(distance);
+                const auto direction = normalize(hitPoint - m_center);
+                point = m_center + m_radius * direction;
+                return true;
+            }
         }
 
         SurfaceDragHelper::SurfaceDragHelper() :

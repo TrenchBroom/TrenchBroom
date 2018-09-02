@@ -27,6 +27,7 @@
 #include "TestUtils.h"
 
 #include <iterator>
+#include <tuple>
 
 typedef Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3d;
 typedef Polyhedron3d::Vertex PVertex;
@@ -1952,15 +1953,15 @@ TEST(PolyhedronTest, clipWithInvalidSeam) {
         8192.0 * vec3d(+1.0, +1.0, +1.0),
     };
 
-    poly.clip(fromPlanePoints(vec3d(-459.0, 1579.0, -115.0), vec3d(-483.0, 1371.0, 131.0), vec3d(-184.0, 1428.0, 237.0)));
-    poly.clip(fromPlanePoints(vec3d(-184.0, 1428.0, 237.0), vec3d(-184.0, 1513.0, 396.0), vec3d(-184.0, 1777.0, 254.0)));
-    poly.clip(fromPlanePoints(vec3d(-484.0, 1513.0, 395.0), vec3d(-483.0, 1371.0, 131.0), vec3d(-483.0, 1777.0, 253.0)));
-    poly.clip(fromPlanePoints(vec3d(-483.0, 1371.0, 131.0), vec3d(-459.0, 1579.0, -115.0), vec3d(-483.0, 1777.0, 253.0)));
-    poly.clip(fromPlanePoints(vec3d(-184.0, 1513.0, 396.0), vec3d(-484.0, 1513.0, 395.0), vec3d(-184.0, 1777.0, 254.0)));
-    poly.clip(fromPlanePoints(vec3d(-184.0, 1777.0, 254.0), vec3d(-483.0, 1777.0, 253.0), vec3d(-183.0, 1692.0, 95.0)));
-    poly.clip(fromPlanePoints(vec3d(-483.0, 1777.0, 253.0), vec3d(-459.0, 1579.0, -115.0), vec3d(-183.0, 1692.0, 95.0))); //  Assertion failure here!
-    poly.clip(fromPlanePoints(vec3d(-483.0, 1371.0, 131.0), vec3d(-484.0, 1513.0, 395.0), vec3d(-184.0, 1513.0, 396.0)));
-    poly.clip(fromPlanePoints(vec3d(-483.0, 1371.0, 131.0), vec3d(-184.0, 1513.0, 396.0), vec3d(-184.0, 1428.0, 237.0)));
+    poly.clip(std::get<1>(fromPoints(vec3d(-459.0, 1579.0, -115.0), vec3d(-483.0, 1371.0, 131.0),  vec3d(-184.0, 1428.0, 237.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-184.0, 1428.0, 237.0),  vec3d(-184.0, 1513.0, 396.0),  vec3d(-184.0, 1777.0, 254.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-484.0, 1513.0, 395.0),  vec3d(-483.0, 1371.0, 131.0),  vec3d(-483.0, 1777.0, 253.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-483.0, 1371.0, 131.0),  vec3d(-459.0, 1579.0, -115.0), vec3d(-483.0, 1777.0, 253.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-184.0, 1513.0, 396.0),  vec3d(-484.0, 1513.0, 395.0),  vec3d(-184.0, 1777.0, 254.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-184.0, 1777.0, 254.0),  vec3d(-483.0, 1777.0, 253.0),  vec3d(-183.0, 1692.0,  95.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-483.0, 1777.0, 253.0),  vec3d(-459.0, 1579.0, -115.0), vec3d(-183.0, 1692.0,  95.0)))); //  Assertion failure here!
+    poly.clip(std::get<1>(fromPoints(vec3d(-483.0, 1371.0, 131.0),  vec3d(-484.0, 1513.0, 395.0),  vec3d(-184.0, 1513.0, 396.0))));
+    poly.clip(std::get<1>(fromPoints(vec3d(-483.0, 1371.0, 131.0),  vec3d(-184.0, 1513.0, 396.0),  vec3d(-184.0, 1428.0, 237.0))));
 }
 
 bool findAndRemove(Polyhedron3d::SubtractResult& result, const vec3d::List& vertices);

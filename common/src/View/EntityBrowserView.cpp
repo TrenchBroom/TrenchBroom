@@ -63,8 +63,8 @@ namespace TrenchBroom {
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::EntityDefinition::Name) {
-            const Quatf hRotation = Quatf(vec3f::pos_z, Math::radians(-30.0f));
-            const Quatf vRotation = Quatf(vec3f::pos_y, Math::radians(20.0f));
+            const quatf hRotation = quatf(vec3f::pos_z, Math::radians(-30.0f));
+            const quatf vRotation = quatf(vec3f::pos_y, Math::radians(20.0f));
             m_rotation = vRotation * hRotation;
             
             m_entityDefinitionManager.usageCountDidChangeNotifier.addObserver(this, &EntityBrowserView::usageCountDidChange);

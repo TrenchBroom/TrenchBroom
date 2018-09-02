@@ -286,12 +286,13 @@ namespace TrenchBroom {
         }
         
         void Camera::rotate(const float yaw, const float pitch) {
-            if (yaw == 0.0f && pitch == 0.0f)
+            if (yaw == 0.0f && pitch == 0.0f) {
                 return;
-            
-            const Quatf rotation = Quatf(vec3f::pos_z, yaw) * Quatf(m_right, pitch);
-            vec3f newDirection = rotation * m_direction;
-            vec3f newUp = rotation * m_up;
+            }
+
+            const auto rotation = quatf(vec3f::pos_z, yaw) * quatf(m_right, pitch);
+            auto newDirection = rotation * m_direction;
+            auto newUp = rotation * m_up;
             
             if (newUp[2] < 0.0f) {
                 newUp[2] = 0.0f;
@@ -306,13 +307,14 @@ namespace TrenchBroom {
         }
         
         void Camera::orbit(const vec3f& center, const float horizontal, const float vertical) {
-            if (horizontal == 0.0f && vertical == 0.0f)
+            if (horizontal == 0.0f && vertical == 0.0f) {
                 return;
-            
-            Quatf rotation = Quatf(vec3f::pos_z, horizontal) * Quatf(m_right, vertical);
-            vec3f newDirection = rotation * m_direction;
-            vec3f newUp = rotation * m_up;
-            vec3f offset = m_position - center;
+            }
+
+            auto rotation = quatf(vec3f::pos_z, horizontal) * quatf(m_right, vertical);
+            auto newDirection = rotation * m_direction;
+            auto newUp = rotation * m_up;
+            auto offset = m_position - center;
             
             if (newUp[2] < 0.0f) {
                 newUp[2] = 0.0f;
@@ -323,11 +325,11 @@ namespace TrenchBroom {
                 newDirection = normalize(newDirection);
 
                 // correct rounding errors
-                const float cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
-                const float angle = acosf(cos);
+                const auto cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
+                const auto angle = acosf(cos);
                 if (!Math::zero(angle)) {
-                    const vec3f axis = normalize(cross(m_direction, newDirection));
-                    rotation = Quatf(axis, angle);
+                    const auto axis = normalize(cross(m_direction, newDirection));
+                    rotation = quatf(axis, angle);
                     offset = rotation * offset;
                     newUp = rotation * newUp;
                 }

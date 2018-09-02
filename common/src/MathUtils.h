@@ -560,6 +560,7 @@ namespace Math {
         RotationAxis_Yaw
     } RotationAxis;
 
+    // TODO: 2201 make this an enum
     namespace PointStatus {
         typedef size_t Type;
         static const Type PSAbove = 0;
