@@ -20,7 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "vec_decl.h"
-#include "plane.h"
+#include "plane_decl.h"
+#include "plane_impl.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 

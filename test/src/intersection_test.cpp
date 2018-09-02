@@ -30,7 +30,8 @@
 #include "Ray.h"
 #include "line_decl.h"
 #include "line_impl.h"
-#include "plane.h"
+#include "plane_decl.h"
+#include "plane_impl.h"
 #include "intersection.h"
 
 TEST(IntersectionTest, intersectRayAndBBox) {

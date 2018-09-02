@@ -22,7 +22,7 @@
 
 #include "CoordinatePlane.h"
 #include "vec_decl.h"
-#include "plane.h"
+#include "plane_decl.h"
 #include "Ray.h"
 
 struct Identity {

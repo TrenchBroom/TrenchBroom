@@ -37,11 +37,11 @@ public:
     
     // Copy and move constructors
     line(const line<T,S>& line) = default;
-    line(line<T,S>&& other) = default;
+    line(line<T,S>&& other) noexcept = default;
     
     // Assignment operators
     line<T,S>& operator=(const line<T,S>& other) = default;
-    line<T,S>& operator=(line<T,S>&& other) = default;
+    line<T,S>& operator=(line<T,S>&& other) noexcept = default;
 
     /**
      * Converts the given line by converting its component type using static_cast.
@@ -50,7 +50,7 @@ public:
      * @param line the line to convert
      */
     template <typename U>
-    line(const line<U,S>& line) :
+    explicit line(const line<U,S>& line) :
     point(line.point),
     direction(line.direction) {}
 

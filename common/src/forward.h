@@ -85,4 +85,10 @@ class line;
 using line3f = line<float,3>;
 using line3d = line<double,3>;
 
+template <typename T, size_t S>
+class plane;
+
+using plane3f = plane<float,3>;
+using plane3d = plane<double,3>;
+
 #endif //TRENCHBROOM_FORWARD_H

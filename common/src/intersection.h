@@ -26,7 +26,7 @@
 #include "Ray.h"
 #include "bbox_decl.h"
 #include "line_decl.h"
-#include "plane.h"
+#include "plane_decl.h"
 
 #include <array>
 
