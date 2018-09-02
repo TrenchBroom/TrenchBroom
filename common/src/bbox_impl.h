@@ -22,13 +22,13 @@
 
 #include "bbox_decl.h"
 
-#include "mat_forward.h"
-#include "mat_decl.h"
-#include "mat_impl.h"
-#include "Plane.h"
-#include "Quat.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
+#include "quat_decl.h"
+#include "quat_impl.h"
+#include "Plane.h"
 #include "MathUtils.h"
 
 #include <algorithm>

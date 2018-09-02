@@ -23,7 +23,8 @@
 #include "mat_decl.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
-#include "Quat.h"
+#include "quat_decl.h"
+#include "quat_impl.h"
 
 #include <cassert>
 
@@ -570,7 +571,7 @@ mat<T,4,4> rotationMatrix(const vec<T,3>& axis, const T angle) {
 }
 
 template <typename T>
-mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
+mat<T,4,4> rotationMatrix(const quat<T>& quat) {
     const auto x = quat.v[0];
     const auto y = quat.v[1];
     const auto z = quat.v[2];
@@ -598,7 +599,7 @@ mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
 
 template <typename T>
 mat<T,4,4> rotationMatrix(const vec<T,3>& from, const vec<T,3>& to) {
-    return rotationMatrix(Quat<T>(from, to));
+    return rotationMatrix(quat<T>(from, to));
 }
 
 template <typename T, size_t S>

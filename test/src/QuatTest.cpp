@@ -20,7 +20,8 @@
 #include <gtest/gtest.h>
 
 #include "MathUtils.h"
-#include "Quat.h"
+#include "quat_decl.h"
+#include "quat_impl.h"
 #include "vec_decl.h"
 #include "TestUtils.h"
 
@@ -94,13 +95,6 @@ TEST(QuatTest, scalarLeftMultiplication) {
     ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
 }
 
-TEST(QuatTest, scalarRightMultiplicationAndAssign) {
-    const Quatf q(vec<float,3>::pos_x, Math::radians(15.0f));
-    Quatf p = q;
-    p *= 2.0f;
-    ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
-}
-
 TEST(QuatTest, multiplication) {
     const float angle1 = Math::radians(15.0f);
     const Quatf q1(vec<float,3>::pos_z, angle1);
@@ -110,18 +104,6 @@ TEST(QuatTest, multiplication) {
     const vec3f v = vec3f::pos_x;
     const vec3f w = q * v;
 
-    ASSERT_VEC_EQ(vec3f(std::cos(angle1 + angle2), std::sin(angle1 + angle2), 0.0f), w);
-}
-
-TEST(QuatTest, multiplicationAndAssign) {
-    const float angle1 = Math::radians(15.0f);
-    Quatf q1(vec<float,3>::pos_z, angle1);
-    const float angle2 = Math::radians(10.0f);
-    const Quatf q2(vec<float,3>::pos_z, angle2);
-    q1 *= q2;
-    const vec3f v = vec3f::pos_x;
-    const vec3f w = q1 * v;
-    
     ASSERT_VEC_EQ(vec3f(std::cos(angle1 + angle2), std::sin(angle1 + angle2), 0.0f), w);
 }
 
@@ -154,16 +136,8 @@ TEST(QuatTest, conjugate) {
     const float angle = Math::radians(15.0f);
     const Quatf q(axis, angle);
     Quatf p = q;
-    p.conjugate();
+    p = p.conjugate();
     
     ASSERT_VEC_EQ(-q.v, p.v);
 }
 
-TEST(QuatTest, conjugated) {
-    const vec3f axis = vec<float,3>::pos_z;
-    const float angle = Math::radians(15.0f);
-    const Quatf q(axis, angle);
-    const Quatf p = q.conjugated();
-    
-    ASSERT_VEC_EQ(-q.v, p.v);
-}

@@ -210,14 +210,14 @@ public:
     }
     
     /*
-    Plane<T>& rotate(const Quat<T>& rotation, const vec<T,3>& center) {
+    Plane<T>& rotate(const quat<T>& rotation, const vec<T,3>& center) {
         const vec<T,3> oldAnchor = anchor();
         normal = rotation * normal;
         distance = (rotation * (oldAnchor - center) + center).dot(normal);
         return *this;
     }
     
-    const Plane<T> rotated(const Quat<T>& rotation, const vec<T,3>& center) const {
+    const Plane<T> rotated(const quat<T>& rotation, const vec<T,3>& center) const {
         const vec<T,3> oldAnchor = anchor();
         return Plane(rotation * normal, rotation * (oldAnchor - center) + center);
     }

@@ -21,7 +21,7 @@
 #define TRENCHBROOM_MAT_DECL_H
 
 #include "vec_decl.h"
-#include "Quat.h" // TODO 2201: replace by quat_decl.h
+#include "quat_decl.h"
 
 #include <cassert>
 #include <vector>
@@ -557,7 +557,7 @@ mat<T,4,4> rotationMatrix(const vec<T,3>& axis, T angle);
  * @return the rotation matrix
  */
 template <typename T>
-mat<T,4,4> rotationMatrix(const Quat<T>& quat);
+mat<T,4,4> rotationMatrix(const quat<T>& quat);
 
 /**
  * Returns a matrix that will rotate the first given vector onto the second given vector about their perpendicular

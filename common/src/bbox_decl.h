@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_BBox_h
 #define TrenchBroom_BBox_h
 
-#include "mat_decl.h"
-#include "Plane.h" // TODO: 2201: replace with plane_decl.h
-#include "Quat.h" // TODO: 2201: replace with quat_decl.h
 #include "vec_decl.h"
+#include "mat_decl.h"
+#include "quat_decl.h"
+#include "Plane.h" // TODO: 2201: replace with plane_decl.h
 
 #include <array>
 #include <iostream>
