@@ -187,7 +187,7 @@ namespace TrenchBroom {
         
         void UVViewHelper::computeLineVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const {
             const auto viewportVertices = toTex * m_camera.viewportVertices();
-            const auto viewportBounds = BBox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
+            const auto viewportBounds = bbox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
             const auto& min = viewportBounds.min;
             const auto& max = viewportBounds.max;
             
@@ -202,13 +202,13 @@ namespace TrenchBroom {
 
             const auto toTex = m_face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             const auto transformedVertices = toTex * m_face->vertexPositions();
-            const auto bounds = BBox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
+            const auto bounds = bbox3::mergeAll(std::begin(transformedVertices), std::end(transformedVertices));
             
             const vec3 vertices[] = {
-                bounds.corner(BBox3::Corner::min, BBox3::Corner::min, BBox3::Corner::min),
-                bounds.corner(BBox3::Corner::min, BBox3::Corner::max, BBox3::Corner::min),
-                bounds.corner(BBox3::Corner::max, BBox3::Corner::max, BBox3::Corner::min),
-                bounds.corner(BBox3::Corner::max, BBox3::Corner::min, BBox3::Corner::min)
+                bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::min),
+                bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::min),
+                bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::min),
+                bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::min)
             };
             
             const auto fromTex = m_face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
@@ -274,12 +274,12 @@ namespace TrenchBroom {
             }
         }
 
-        BBox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
+        bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
             const auto transform = coordinateSystemMatrix(vec3(m_camera.right()), vec3(m_camera.up()), vec3(-m_camera.direction()), vec3(m_camera.position()));
 
-            BBox3 result;
+            bbox3 result;
             const Model::BrushFace::VertexList vertices = m_face->vertices();
             Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
             Model::BrushFace::VertexList::const_iterator end = std::end(vertices);

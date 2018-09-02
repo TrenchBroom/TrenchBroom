@@ -220,7 +220,7 @@ namespace TrenchBroom {
             // Snapping on an a line means finding the closest point on a line such that at least one coordinate
             // is on the grid, ignoring a coordinate if the line direction is identical to the corresponding axis.
             template <typename T>
-            vec<T,3> snap(const vec<T,3>& p, const Line<T,3> line) const {
+            vec<T,3> snap(const vec<T,3>& p, const line<T,3> line) const {
                 // Project the point onto the line.
                 const vec<T,3> pr = line.project(p);
                 const T prDist = line.distance(pr);
@@ -252,7 +252,7 @@ namespace TrenchBroom {
                 const vec<T,3> orig = edge.start();
                 const vec<T,3> dir = v / len;
                 
-                const vec<T,3> snapped = snap(p, Line<T,3>(orig, dir));
+                const vec<T,3> snapped = snap(p, line<T,3>(orig, dir));
                 const T dist = dot(dir, snapped - orig);
                 if (dist < 0.0 || dist > len)
                     return vec<T,3>::NaN;
@@ -300,14 +300,14 @@ namespace TrenchBroom {
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
              * Otherwise, returns the original point for that axis.
              */
-            vec3 moveDeltaForPoint(const vec3& point, const BBox3& worldBounds, const vec3& delta) const;
+            vec3 moveDeltaForPoint(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
             /**
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vec3 moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const vec3& position) const;
-            vec3 moveDelta(const BBox3& bounds, const BBox3& worldBounds, const vec3& delta) const;
-            vec3 moveDelta(const vec3& point, const BBox3& worldBounds, const vec3& delta) const;
+            vec3 moveDeltaForBounds(const Plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const Ray3& ray, const vec3& position) const;
+            vec3 moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vec3& delta) const;
+            vec3 moveDelta(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
             vec3 moveDelta(const vec3& delta) const;
             /**
              * Given `delta`, a vector in the direction of the face's normal,
@@ -315,7 +315,7 @@ namespace TrenchBroom {
              */
             vec3 moveDelta(const Model::BrushFace* face, const vec3& delta) const;
             vec3 combineDeltas(const vec3& delta1, const vec3& delta2) const;
-            vec3 referencePoint(const BBox3& bounds) const;
+            vec3 referencePoint(const bbox3& bounds) const;
         };
     }
 }

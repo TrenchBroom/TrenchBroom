@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BoundsContainsNodeVisitor::BoundsContainsNodeVisitor(const BBox3& bounds) :
+        BoundsContainsNodeVisitor::BoundsContainsNodeVisitor(const bbox3& bounds) :
         m_bounds(bounds) {}
 
         void BoundsContainsNodeVisitor::doVisit(const World* world)   { setResult(false); }

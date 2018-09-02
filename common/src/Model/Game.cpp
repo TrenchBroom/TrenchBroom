@@ -65,11 +65,11 @@ namespace TrenchBroom {
             return doMaxPropertyLength();
         }
 
-        World* Game::newMap(const MapFormat::Type format, const BBox3& worldBounds) const {
+        World* Game::newMap(const MapFormat::Type format, const bbox3& worldBounds) const {
             return doNewMap(format, worldBounds);
         }
         
-        World* Game::loadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* Game::loadMap(const MapFormat::Type format, const bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             return doLoadMap(format, worldBounds, path, logger);
         }
 
@@ -83,11 +83,11 @@ namespace TrenchBroom {
             doExportMap(world, format, path);
         }
 
-        NodeList Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeList Game::parseNodes(const String& str, World* world, const bbox3& worldBounds, Logger* logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
         
-        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const bbox3& worldBounds, Logger* logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 

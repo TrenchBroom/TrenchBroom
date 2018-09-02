@@ -36,7 +36,7 @@
 namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Entity::EntityHit = Hit::freeHitType();
-        const BBox3 Entity::DefaultBounds(8.0);
+        const bbox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :
         AttributableNode(),
@@ -104,13 +104,13 @@ namespace TrenchBroom {
             return pointDefinition->model(m_attributes);
         }
 
-        const BBox3& Entity::doGetBounds() const {
+        const bbox3& Entity::doGetBounds() const {
             if (!m_boundsValid)
                 validateBounds();
             return m_bounds;
         }
         
-        Node* Entity::doClone(const BBox3& worldBounds) const {
+        Node* Entity::doClone(const bbox3& worldBounds) const {
             Entity* entity = new Entity();
             cloneAttributes(entity);
             entity->setDefinition(definition());
@@ -158,12 +158,12 @@ namespace TrenchBroom {
             nodeBoundsDidChange(bounds());
         }
 
-        void Entity::doNodeBoundsDidChange(const BBox3& oldBounds) {
+        void Entity::doNodeBoundsDidChange(const bbox3& oldBounds) {
             invalidateBounds();
         }
         
-        void Entity::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
-            const BBox3 myOldBounds = bounds();
+        void Entity::doChildBoundsDidChange(Node* node, const bbox3& oldBounds) {
+            const bbox3 myOldBounds = bounds();
             invalidateBounds();
             if (bounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
@@ -176,7 +176,7 @@ namespace TrenchBroom {
 
         void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
             if (!hasChildren()) {
-                const BBox3& myBounds = bounds();
+                const bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = intersect(ray, myBounds);
                     if (!Math::isnan(distance)) {
@@ -199,7 +199,7 @@ namespace TrenchBroom {
 
         FloatType Entity::doIntersectWithRay(const Ray3& ray) const {
             if (hasChildren()) {
-                const BBox3& myBounds = bounds();
+                const bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
                     return Math::nan<FloatType>();
                 }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Entity::doAttributesDidChange(const BBox3& oldBounds) {
+        void Entity::doAttributesDidChange(const bbox3& oldBounds) {
             nodeBoundsDidChange(oldBounds);
         }
         
@@ -284,9 +284,9 @@ namespace TrenchBroom {
         private:
             const mat4x4d& m_transformation;
             bool m_lockTextures;
-            const BBox3& m_worldBounds;
+            const bbox3& m_worldBounds;
         public:
-            TransformEntity(const mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
+            TransformEntity(const mat4x4d& transformation, const bool lockTextures, const bbox3& worldBounds) :
             m_transformation(transformation),
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush) override   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
-        void Entity::doTransform(const mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        void Entity::doTransform(const mat4x4& transformation, const bool lockTextures, const bbox3& worldBounds) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
                 TransformEntity visitor(transformation, lockTextures, worldBounds);

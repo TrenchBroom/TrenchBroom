@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             String m_name;
             EditState m_editState;
-            mutable BBox3 m_bounds;
+            mutable bbox3 m_bounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);
@@ -64,9 +64,9 @@ namespace TrenchBroom {
             bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const override;
-            const BBox3& doGetBounds() const override;
+            const bbox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
@@ -76,8 +76,8 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
+            void doNodeBoundsDidChange(const bbox3& oldBounds) override;
+            void doChildBoundsDidChange(Node* node, const bbox3& oldBounds) override;
 
             bool doSelectable() const override;
             
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

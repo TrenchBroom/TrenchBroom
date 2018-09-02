@@ -19,12 +19,12 @@
 
 #include <gtest/gtest.h>
 
-#include "Line.h"
+#include "line.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
 TEST(LineTest, constructDefault) {
-    const Line3f p;
+    const line3f p;
     ASSERT_EQ(vec3f::zero, p.point);
     ASSERT_EQ(vec3f::zero, p.direction);
 }
@@ -32,12 +32,19 @@ TEST(LineTest, constructDefault) {
 TEST(LineTest, constructWithPointAndDirection) {
     const vec3f p(10,20,30);
     const vec3f n = normalize(vec3f(1.0f, 2.0f, 3.0f));
-    const Line3f l(p, n);
+    const line3f l(p, n);
     ASSERT_VEC_EQ(p, l.point);
     ASSERT_VEC_EQ(n, l.direction);
 }
 
-TEST(LineTest, pointOnLineClosestToPoint) {
-    const Line3f l(vec3f(10,0,0), vec3f::pos_z);
-    ASSERT_VEC_EQ(vec3f(10,0,5), l.pointOnLineClosestToPoint(vec3f(100,100,5)));
+TEST(LineTest, distance) {
+    const line3f l(vec3f(10,0,0), vec3f::pos_z);
+    ASSERT_FLOAT_EQ(0.0f, l.distance(vec3f(10,0,0)));
+    ASSERT_FLOAT_EQ(10.0f, l.distance(vec3f(10,0,10)));
+    ASSERT_FLOAT_EQ(10.0f, l.distance(vec3f(10,10,10)));
+}
+
+TEST(LineTest, project) {
+    const line3f l(vec3f(10,0,0), vec3f::pos_z);
+    ASSERT_VEC_EQ(vec3f(10,0,5), l.project(vec3f(100,100,5)));
 }

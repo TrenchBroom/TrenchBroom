@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
                 const vec3::List& vertices = entry.second;

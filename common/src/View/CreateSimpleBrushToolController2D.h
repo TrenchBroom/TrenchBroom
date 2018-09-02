@@ -33,7 +33,7 @@ namespace TrenchBroom {
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
             vec3 m_initialPoint;
-            BBox3 m_bounds;
+            bbox3 m_bounds;
         public:
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             bool doCancel() override;
         private:
             bool updateBounds(const InputState& inputState, const vec3& currentPoint);
-            void snapBounds(const InputState& inputState, BBox3& bounds);
+            void snapBounds(const InputState& inputState, bbox3& bounds);
         };
     }
 }

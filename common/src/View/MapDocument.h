@@ -66,10 +66,10 @@ namespace TrenchBroom {
         
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
-            static const BBox3 DefaultWorldBounds;
+            static const bbox3 DefaultWorldBounds;
             static const String DefaultDocumentName;
         protected:
-            BBox3 m_worldBounds;
+            bbox3 m_worldBounds;
             Model::GameSPtr m_game;
             Model::World* m_world;
             Model::Layer* m_currentLayer;
@@ -95,8 +95,8 @@ namespace TrenchBroom {
             Model::BrushFaceList m_selectedBrushFaces;
             
             String m_currentTextureName;
-            BBox3 m_lastSelectionBounds;
-            mutable BBox3 m_selectionBounds;
+            bbox3 m_lastSelectionBounds;
+            mutable bbox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
             
             ViewEffectsService* m_viewEffectsService;
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             virtual ~MapDocument() override;
         public: // accessors and such
             Model::GameSPtr game() const;
-            const BBox3& worldBounds() const;
+            const bbox3& worldBounds() const;
             Model::World* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
@@ -177,8 +177,8 @@ namespace TrenchBroom {
             
             void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
-            void newDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game);
-            void loadDocument(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void newDocument(Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game);
+            void loadDocument(Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
@@ -214,9 +214,9 @@ namespace TrenchBroom {
             const Model::BrushFaceList allSelectedBrushFaces() const override;
             const Model::BrushFaceList& selectedBrushFaces() const override;
 
-            const BBox3& referenceBounds() const override;
-            const BBox3& lastSelectionBounds() const override;
-            const BBox3& selectionBounds() const override;
+            const bbox3& referenceBounds() const override;
+            const bbox3& lastSelectionBounds() const override;
+            const bbox3& selectionBounds() const override;
             const String& currentTextureName() const override;
             void setCurrentTextureName(const String& currentTextureName);
             
@@ -294,9 +294,9 @@ namespace TrenchBroom {
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const vec3& delta) override;
             bool rotateObjects(const vec3& center, const vec3& axis, FloatType angle) override;
-            bool scaleObjects(const BBox3& oldBBox, const BBox3& newBBox) override;
+            bool scaleObjects(const bbox3& oldBBox, const bbox3& newBBox) override;
             bool scaleObjects(const vec3& center, const vec3& scaleFactors) override;
-            bool shearObjects(const BBox3& box, const vec3& sideToShear, const vec3& delta) override;
+            bool shearObjects(const bbox3& box, const vec3& sideToShear, const vec3& delta) override;
             bool flipObjects(const vec3& center, Math::Axis::Type axis) override;
         public:
             bool createBrush(const vec3::List& points);
@@ -384,10 +384,10 @@ namespace TrenchBroom {
             void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
             Model::NodeList findNodesContaining(const vec3& point) const;
         private: // world management
-            void createWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game);
-            void loadWorld(Model::MapFormat::Type mapFormat, const BBox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
+            void createWorld(Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game);
+            void loadWorld(Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path);
             void clearWorld();
-            void initializeWorld(const BBox3& worldBounds);
+            void initializeWorld(const bbox3& worldBounds);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;

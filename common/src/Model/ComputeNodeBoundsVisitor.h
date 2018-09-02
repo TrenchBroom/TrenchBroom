@@ -31,22 +31,22 @@ namespace TrenchBroom {
         private:
             bool m_initialized;
         public:
-            BBox3 m_bounds;
-            ComputeNodeBoundsVisitor(const BBox3& defaultBounds = BBox3());
-            const BBox3& bounds() const;
+            bbox3 m_bounds;
+            ComputeNodeBoundsVisitor(const bbox3& defaultBounds = bbox3());
+            const bbox3& bounds() const;
         private:
             void doVisit(const World* world) override;
             void doVisit(const Layer* layer) override;
             void doVisit(const Group* group) override;
             void doVisit(const Entity* entity) override;
             void doVisit(const Brush* brush) override;
-            void mergeWith(const BBox3& bounds);
+            void mergeWith(const bbox3& bounds);
         };
         
-        BBox3 computeBounds(const Model::NodeList& nodes);
+        bbox3 computeBounds(const Model::NodeList& nodes);
         
         template <typename I>
-        BBox3 computeBounds(I cur, I end) {
+        bbox3 computeBounds(I cur, I end) {
             ComputeNodeBoundsVisitor visitor;
             Node::accept(cur, end, visitor);
             return visitor.bounds();

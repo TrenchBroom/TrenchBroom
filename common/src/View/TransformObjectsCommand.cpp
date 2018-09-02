@@ -36,7 +36,7 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const BBox3& oldBBox, const BBox3& newBBox, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const bbox3& oldBBox, const bbox3& newBBox, const bool lockTextures) {
             const mat4x4 transform = scaleBBoxMatrix(oldBBox, newBBox);
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const BBox3& box, const vec3& sideToShear, const vec3& delta, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const bbox3& box, const vec3& sideToShear, const vec3& delta, const bool lockTextures) {
             const mat4x4 transform = shearBBoxMatrix(box, sideToShear, delta);
             return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
         }

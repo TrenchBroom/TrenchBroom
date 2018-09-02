@@ -30,11 +30,11 @@ namespace TrenchBroom {
             return doBuildRenderer(skinIndex, frameIndex);
         }
 
-        BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
+        bbox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
             return doGetBounds(skinIndex, frameIndex);
         }
 
-        BBox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
+        bbox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             return doGetTransformedBounds(skinIndex, frameIndex, transformation);
         }
 

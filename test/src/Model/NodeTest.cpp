@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
         private: // implement Node interface
-            Node* doClone(const BBox3& worldBounds) const override {
+            Node* doClone(const bbox3& worldBounds) const override {
                 return new MockNode();
             }
             
@@ -38,8 +38,8 @@ namespace TrenchBroom {
                 return name;
             }
             
-            const BBox3& doGetBounds() const override {
-                static const BBox3 bounds;
+            const bbox3& doGetBounds() const override {
+                static const bbox3 bounds;
                 return bounds;
             }
             
@@ -116,7 +116,7 @@ namespace TrenchBroom {
         
         class TestNode : public Node {
         private: // implement Node interface
-            Node* doClone(const BBox3& worldBounds) const override {
+            Node* doClone(const bbox3& worldBounds) const override {
                 return new TestNode();
             }
             
@@ -125,8 +125,8 @@ namespace TrenchBroom {
                 return name;
             }
             
-            const BBox3& doGetBounds() const override {
-                static const BBox3 bounds;
+            const bbox3& doGetBounds() const override {
+                static const bbox3 bounds;
                 return bounds;
             }
             

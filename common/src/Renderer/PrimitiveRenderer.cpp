@@ -162,7 +162,7 @@ namespace TrenchBroom {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::fromLists(positions, positions.size()));
         }
 
-        void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const OcclusionPolicy occlusionPolicy, const BBox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const OcclusionPolicy occlusionPolicy, const bbox3f& bounds) {
             vec3f start, end;
 
             coordinateSystemVerticesX(bounds, start, end);
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             renderLine(y, lineWidth, occlusionPolicy, start, end);
         }
         
-        void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const BBox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const bbox3f& bounds) {
             vec3f start, end;
             
             coordinateSystemVerticesX(bounds, start, end);
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
         
-        void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const BBox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const bbox3f& bounds) {
             vec3f start, end;
             
             coordinateSystemVerticesY(bounds, start, end);
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const OcclusionPolicy occlusionPolicy, const BBox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const OcclusionPolicy occlusionPolicy, const bbox3f& bounds) {
             vec3f start, end;
             
             coordinateSystemVerticesX(bounds, start, end);

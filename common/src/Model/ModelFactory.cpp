@@ -27,11 +27,11 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        World* ModelFactory::createWorld(const BBox3& worldBounds) const {
+        World* ModelFactory::createWorld(const bbox3& worldBounds) const {
             return doCreateWorld(worldBounds);
         }
         
-        Layer* ModelFactory::createLayer(const String& name, const BBox3& worldBounds) const {
+        Layer* ModelFactory::createLayer(const String& name, const bbox3& worldBounds) const {
             return doCreateLayer(name, worldBounds);
         }
         
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return doCreateEntity();
         }
         
-        Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactory::createBrush(const bbox3& worldBounds, const BrushFaceList& faces) const {
             return doCreateBrush(worldBounds, faces);
         }
         

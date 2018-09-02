@@ -541,9 +541,9 @@ namespace TrenchBroom {
             return vec;
         }
         
-        BBox3 FgdParser::parseSize(ParserStatus& status) {
+        bbox3 FgdParser::parseSize(ParserStatus& status) {
             Token token;
-            BBox3 size;
+            bbox3 size;
             expect(status, FgdToken::OParenthesis, token = m_tokenizer.nextToken());
             size.min = parseVector(status);
             expect(status, FgdToken::CParenthesis | FgdToken::Comma, token = m_tokenizer.nextToken());

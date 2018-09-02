@@ -26,7 +26,7 @@
 #include "TestUtils.h"
 
 TEST(BBoxTest, constructBBox3fWithDefaults) {
-    const BBox3f bounds;
+    const bbox3f bounds;
     ASSERT_EQ(vec3f::zero, bounds.min);
     ASSERT_EQ(vec3f::zero, bounds.max);
 }
@@ -35,7 +35,7 @@ TEST(BBoxTest, constructBBox3fWithMinAndMax) {
     const vec3f min(-1.0f, -2.0f, -3.0f);
     const vec3f max( 1.0f,  2.0f,  3.0f);
     
-    const BBox3f bounds(min, max);
+    const bbox3f bounds(min, max);
     ASSERT_EQ(min, bounds.min);
     ASSERT_EQ(max, bounds.max);
 }
@@ -44,8 +44,8 @@ TEST(BBoxTest, operatorEquals) {
     const vec3f min(-1.0f, -2.0f, -3.0f);
     const vec3f max( 1.0f,  2.0f,  3.0f);
     
-    const BBox3f bounds1(min, max);
-    const BBox3f bounds2(min, max);
+    const bbox3f bounds1(min, max);
+    const bbox3f bounds2(min, max);
 
     ASSERT_TRUE(bounds1 == bounds2);
 }
@@ -53,7 +53,7 @@ TEST(BBoxTest, operatorEquals) {
 TEST(BBoxTest, getCenter) {
     const vec3f min(-1.0f, -2.0f, -3.0f);
     const vec3f max( 1.0f,  3.0f,  5.0f);
-    const BBox3f bounds(min, max);
+    const bbox3f bounds(min, max);
     
     ASSERT_EQ(vec3f(0.0f, 0.5f, 1.0f), bounds.center());
 }
@@ -61,7 +61,7 @@ TEST(BBoxTest, getCenter) {
 TEST(BBoxTest, getSize) {
     const vec3f min(-1.0f, -2.0f, -3.0f);
     const vec3f max( 1.0f,  3.0f,  5.0f);
-    const BBox3f bounds(min, max);
+    const bbox3f bounds(min, max);
     
     ASSERT_EQ(vec3f(2.0f, 5.0f, 8.0f), bounds.size());
 }
@@ -69,74 +69,74 @@ TEST(BBoxTest, getSize) {
 TEST(BBoxTest, corner) {
     const vec3f min(-1.0f, -2.0f, -3.0f);
     const vec3f max( 1.0f,  3.0f,  5.0f);
-    const BBox3f bounds(min, max);
+    const bbox3f bounds(min, max);
 
-    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f, -3.0f), bounds.corner(BBox3f::Corner::min, BBox3f::Corner::min, BBox3f::Corner::min));
-    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f,  5.0f), bounds.corner(BBox3f::Corner::min, BBox3f::Corner::min, BBox3f::Corner::max));
-    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f, -3.0f), bounds.corner(BBox3f::Corner::min, BBox3f::Corner::max, BBox3f::Corner::min));
-    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f,  5.0f), bounds.corner(BBox3f::Corner::min, BBox3f::Corner::max, BBox3f::Corner::max));
-    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f, -3.0f), bounds.corner(BBox3f::Corner::max, BBox3f::Corner::min, BBox3f::Corner::min));
-    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f,  5.0f), bounds.corner(BBox3f::Corner::max, BBox3f::Corner::min, BBox3f::Corner::max));
-    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f, -3.0f), bounds.corner(BBox3f::Corner::max, BBox3f::Corner::max, BBox3f::Corner::min));
-    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f,  5.0f), bounds.corner(BBox3f::Corner::max, BBox3f::Corner::max, BBox3f::Corner::max));
+    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f, -3.0f), bounds.corner(bbox3f::Corner::min, bbox3f::Corner::min, bbox3f::Corner::min));
+    ASSERT_VEC_EQ(vec3f(-1.0f, -2.0f,  5.0f), bounds.corner(bbox3f::Corner::min, bbox3f::Corner::min, bbox3f::Corner::max));
+    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f, -3.0f), bounds.corner(bbox3f::Corner::min, bbox3f::Corner::max, bbox3f::Corner::min));
+    ASSERT_VEC_EQ(vec3f(-1.0f,  3.0f,  5.0f), bounds.corner(bbox3f::Corner::min, bbox3f::Corner::max, bbox3f::Corner::max));
+    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f, -3.0f), bounds.corner(bbox3f::Corner::max, bbox3f::Corner::min, bbox3f::Corner::min));
+    ASSERT_VEC_EQ(vec3f( 1.0f, -2.0f,  5.0f), bounds.corner(bbox3f::Corner::max, bbox3f::Corner::min, bbox3f::Corner::max));
+    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f, -3.0f), bounds.corner(bbox3f::Corner::max, bbox3f::Corner::max, bbox3f::Corner::min));
+    ASSERT_VEC_EQ(vec3f( 1.0f,  3.0f,  5.0f), bounds.corner(bbox3f::Corner::max, bbox3f::Corner::max, bbox3f::Corner::max));
 }
 
 TEST(BBoxTest, mergeWithBBox) {
-    const BBox3f bounds1(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f, 9.0f));
-    const BBox3f bounds2(vec3f(-10.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 5.0f));
-    const BBox3f merged( vec3f(-12.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 9.0f));
+    const bbox3f bounds1(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f, 9.0f));
+    const bbox3f bounds2(vec3f(-10.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 5.0f));
+    const bbox3f merged( vec3f(-12.0f, -5.0f, 3.0f), vec3f(9.0f, 9.0f, 9.0f));
     
     ASSERT_EQ(merged, merge(bounds1, bounds2));
 }
 
 TEST(BBoxTest, mergeWithVec) {
-    BBox3f bounds(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f,  9.0f));
+    bbox3f bounds(vec3f(-12.0f, -3.0f, 4.0f), vec3f(7.0f, 8.0f,  9.0f));
     const vec3f  vec(-10.0f, -6.0f, 10.0f);
-    const BBox3f merged(vec3f(-12.0f, -6.0f, 4.0f), vec3f(7.0f, 8.0f, 10.0f));
+    const bbox3f merged(vec3f(-12.0f, -6.0f, 4.0f), vec3f(7.0f, 8.0f, 10.0f));
 
     ASSERT_EQ(merged, merge(bounds, vec));
 }
 
 TEST(BBoxTest, containsPoint) {
-    const BBox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
+    const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
     ASSERT_TRUE(bounds.contains(vec3f(2.0f, 1.0f, 7.0f)));
     ASSERT_TRUE(bounds.contains(vec3f(-12.0f, -3.0f, 7.0f)));
     ASSERT_FALSE(bounds.contains(vec3f(-13.0f, -3.0f, 7.0f)));
 }
 
 TEST(BBoxTest, relativePosition) {
-    const BBox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
+    const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
     const vec3f point1(-1.0f, 0.0f, 0.0f);
     const auto pos1 = bounds.relativePosition(point1);
-    ASSERT_EQ(BBox3f::Range::within, pos1[0]);
-    ASSERT_EQ(BBox3f::Range::within, pos1[1]);
-    ASSERT_EQ(BBox3f::Range::less,   pos1[2]);
+    ASSERT_EQ(bbox3f::Range::within, pos1[0]);
+    ASSERT_EQ(bbox3f::Range::within, pos1[1]);
+    ASSERT_EQ(bbox3f::Range::less,   pos1[2]);
 }
 
 TEST(BBoxTest, containsBBox) {
-    const BBox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
-    const BBox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
-    const BBox3f bounds3(vec3f(-13.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
+    const bbox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
+    const bbox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
+    const bbox3f bounds3(vec3f(-13.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
     ASSERT_TRUE(bounds1.contains(bounds1));
     ASSERT_TRUE(bounds1.contains(bounds2));
     ASSERT_FALSE(bounds1.contains(bounds3));
 }
 
 TEST(BBoxTest, enclosesBBox) {
-    const BBox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
-    const BBox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
-    const BBox3f bounds3(vec3f(-10.0f, -3.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
+    const bbox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
+    const bbox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
+    const bbox3f bounds3(vec3f(-10.0f, -3.0f,  5.0f), vec3f( 7.0f, 8.0f, 7.0f));
     ASSERT_FALSE(bounds1.encloses(bounds1));
     ASSERT_TRUE(bounds1.encloses(bounds2));
     ASSERT_FALSE(bounds1.encloses(bounds3));
 }
 
 TEST(BBoxTest, intersectsBBox) {
-    const BBox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
-    const BBox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
-    const BBox3f bounds3(vec3f(-13.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
-    const BBox3f bounds4(vec3f(-15.0f, 10.0f,  9.0f), vec3f(-13.0f, 12.0f, 10.0f));
-    const BBox3f bounds5(vec3f(-15.0f, 10.0f,  9.0f), vec3f(-12.0f, 12.0f, 10.0f));
+    const bbox3f bounds1(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
+    const bbox3f bounds2(vec3f(-10.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
+    const bbox3f bounds3(vec3f(-13.0f, -2.0f,  5.0f), vec3f(  7.0f,  8.0f,  7.0f));
+    const bbox3f bounds4(vec3f(-15.0f, 10.0f,  9.0f), vec3f(-13.0f, 12.0f, 10.0f));
+    const bbox3f bounds5(vec3f(-15.0f, 10.0f,  9.0f), vec3f(-12.0f, 12.0f, 10.0f));
     ASSERT_TRUE(bounds1.intersects(bounds1));
     ASSERT_TRUE(bounds1.intersects(bounds2));
     ASSERT_TRUE(bounds1.intersects(bounds3));
@@ -145,7 +145,7 @@ TEST(BBoxTest, intersectsBBox) {
 }
 
 TEST(BBoxTest, intersectWithRay) {
-    const BBox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
+    const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
 
     float distance = intersect(Ray3f(vec3f::zero, vec3f::neg_z), bounds);
     ASSERT_TRUE(Math::isnan(distance));
@@ -164,19 +164,19 @@ TEST(BBoxTest, intersectWithRay) {
 }
 
 TEST(BBoxTest, expand) {
-          BBox3f bounds  (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f,  9.0f,  8.0f));
-    const BBox3f expanded(vec3f(-14.0f, -5.0f,  2.0f), vec3f(10.0f, 11.0f, 10.0f));
+          bbox3f bounds  (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f,  9.0f,  8.0f));
+    const bbox3f expanded(vec3f(-14.0f, -5.0f,  2.0f), vec3f(10.0f, 11.0f, 10.0f));
     ASSERT_EQ(expanded, bounds.expand(2.0f));
 }
 
 TEST(BBoxTest, translate) {
-          BBox3f bounds    (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
-    const BBox3f translated(vec3f(-10.0f, -4.0f,  1.0f), vec3f(10.0f, 8.0f, 5.0f));
+          bbox3f bounds    (vec3f(-12.0f, -3.0f,  4.0f), vec3f( 8.0f, 9.0f, 8.0f));
+    const bbox3f translated(vec3f(-10.0f, -4.0f,  1.0f), vec3f(10.0f, 8.0f, 5.0f));
     ASSERT_EQ(translated, bounds.translate(vec3f(2.0f, -1.0f, -3.0f)));
 }
 
 TEST(BBoxTest, constrain) {
-    const BBox3d bounds (1024.0);
+    const bbox3d bounds (1024.0);
     ASSERT_VEC_EQ(vec3d::zero, bounds.constrain(vec3d::zero));
     ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min));
     ASSERT_VEC_EQ(bounds.min, bounds.constrain(bounds.min + vec3d::neg_x));

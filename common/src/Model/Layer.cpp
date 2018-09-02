@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Layer::Layer(const String& name, const BBox3& worldBounds) :
+        Layer::Layer(const String& name, const bbox3& worldBounds) :
         m_name(name),
         m_boundsValid(false) {}
         
@@ -40,14 +40,14 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const BBox3& Layer::doGetBounds() const {
+        const bbox3& Layer::doGetBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
             return m_bounds;
         }
 
-        Node* Layer::doClone(const BBox3& worldBounds) const {
+        Node* Layer::doClone(const bbox3& worldBounds) const {
             Layer* layer = new Layer(m_name, worldBounds);
             cloneAttributes(layer);
             layer->addChildren(clone(worldBounds, children()));
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void Layer::doNodeBoundsDidChange(const BBox3& oldBounds) {
+        void Layer::doNodeBoundsDidChange(const bbox3& oldBounds) {
             invalidateBounds();
         }
 
@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
 
         void Layer::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(BBox3(0.0));
+            ComputeNodeBoundsVisitor visitor(bbox3(0.0));
             iterate(visitor);
             m_bounds = visitor.bounds();
             m_boundsValid = true;

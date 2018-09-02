@@ -60,7 +60,7 @@ namespace TrenchBroom {
         getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
                                                 const Grid& grid,
                                                 const Model::Hit& dragStartHit,
-                                                const BBox3& bboxAtDragStart) {
+                                                const bbox3& bboxAtDragStart) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             DragRestricter* restricter = nullptr;
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
 
-                const Line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+                const line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
                 restricter = new LineDragRestricter(handleLine);
                 snapper = new LineDragSnapper(grid, handleLine);
@@ -215,7 +215,7 @@ namespace TrenchBroom {
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(BBox3f(m_tool->bounds()));
+                    renderService.renderBounds(bbox3f(m_tool->bounds()));
                 }
 
                 // corner handles

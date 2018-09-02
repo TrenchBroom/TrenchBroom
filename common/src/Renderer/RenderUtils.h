@@ -38,9 +38,9 @@ namespace TrenchBroom {
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
 
-        void coordinateSystemVerticesX(const BBox3f& bounds, vec3f& start, vec3f& end);
-        void coordinateSystemVerticesY(const BBox3f& bounds, vec3f& start, vec3f& end);
-        void coordinateSystemVerticesZ(const BBox3f& bounds, vec3f& start, vec3f& end);
+        void coordinateSystemVerticesX(const bbox3f& bounds, vec3f& start, vec3f& end);
+        void coordinateSystemVerticesY(const bbox3f& bounds, vec3f& start, vec3f& end);
+        void coordinateSystemVerticesZ(const bbox3f& bounds, vec3f& start, vec3f& end);
         
         class TextureRenderFunc {
         public:

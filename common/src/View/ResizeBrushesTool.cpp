@@ -288,7 +288,7 @@ namespace TrenchBroom {
 
         bool ResizeBrushesTool::splitBrushes(const vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
             
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved

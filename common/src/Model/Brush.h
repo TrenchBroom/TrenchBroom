@@ -85,12 +85,12 @@ namespace TrenchBroom {
             mutable bool m_contentTypeValid;
             mutable Renderer::BrushRendererBrushCache m_brushRendererBrushCache;
         public:
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const bbox3& worldBounds, const BrushFaceList& faces);
             ~Brush() override;
         private:
             void cleanup();
         public:
-            Brush* clone(const BBox3& worldBounds) const;
+            Brush* clone(const bbox3& worldBounds) const;
             
             AttributableNode* entity() const;
         public: // face management:
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             
             size_t faceCount() const;
             const BrushFaceList& faces() const;
-            void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
+            void setFaces(const bbox3& worldBounds, const BrushFaceList& faces);
 
             bool closed() const;
             bool fullySpecified() const;
@@ -141,16 +141,16 @@ namespace TrenchBroom {
             void cloneInvertedFaceAttributesFrom(const BrushList& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
         public: // clipping
-            bool clip(const BBox3& worldBounds, BrushFace* face);
+            bool clip(const bbox3& worldBounds, BrushFace* face);
         public: // move face along normal
-            bool canMoveBoundary(const BBox3& worldBounds, const BrushFace* face, const vec3& delta) const;
-            void moveBoundary(const BBox3& worldBounds, BrushFace* face, const vec3& delta, const bool lockTexture);
-            bool canExpand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture) const;
+            bool canMoveBoundary(const bbox3& worldBounds, const BrushFace* face, const vec3& delta) const;
+            void moveBoundary(const bbox3& worldBounds, BrushFace* face, const vec3& delta, const bool lockTexture);
+            bool canExpand(const bbox3& worldBounds, const FloatType delta, const bool lockTexture) const;
             /**
              * Moves all faces by `delta` units along their normals; negative values shrink the brush.
              * Returns true if the brush is valid after the modification, false if the brush is invalid.
              */
-            bool expand(const BBox3& worldBounds, const FloatType delta, const bool lockTexture);
+            bool expand(const bbox3& worldBounds, const FloatType delta, const bool lockTexture);
         public:
             // geometry access
             size_t vertexCount() const;
@@ -176,25 +176,25 @@ namespace TrenchBroom {
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
-            bool canMoveVertices(const BBox3& worldBounds, const vec3::List& vertices, const vec3& delta) const;
-            vec3::List moveVertices(const BBox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
+            bool canMoveVertices(const bbox3& worldBounds, const vec3::List& vertices, const vec3& delta) const;
+            vec3::List moveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
 
-            bool canAddVertex(const BBox3& worldBounds, const vec3& position) const;
-            BrushVertex* addVertex(const BBox3& worldBounds, const vec3& position);
+            bool canAddVertex(const bbox3& worldBounds, const vec3& position) const;
+            BrushVertex* addVertex(const bbox3& worldBounds, const vec3& position);
             
-            bool canRemoveVertices(const BBox3& worldBounds, const vec3::List& vertexPositions) const;
-            void removeVertices(const BBox3& worldBounds, const vec3::List& vertexPositions);
+            bool canRemoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions) const;
+            void removeVertices(const bbox3& worldBounds, const vec3::List& vertexPositions);
             
-            bool canSnapVertices(const BBox3& worldBounds, FloatType snapTo);
-            void snapVertices(const BBox3& worldBounds, FloatType snapTo);
+            bool canSnapVertices(const bbox3& worldBounds, FloatType snapTo);
+            void snapVertices(const bbox3& worldBounds, FloatType snapTo);
 
             // edge operations
-            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const vec3& delta) const;
-            Edge3::List moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const vec3& delta);
+            bool canMoveEdges(const bbox3& worldBounds, const Edge3::List& edgePositions, const vec3& delta) const;
+            Edge3::List moveEdges(const bbox3& worldBounds, const Edge3::List& edgePositions, const vec3& delta);
 
             // face operations
-            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta) const;
-            Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta);
+            bool canMoveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta) const;
+            Polygon3::List moveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta);
         private:
             struct CanMoveVerticesResult {
             public:
@@ -209,31 +209,31 @@ namespace TrenchBroom {
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
             
-            CanMoveVerticesResult doCanMoveVertices(const BBox3& worldBounds, const vec3::List& vertexPositions, vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const BBox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
-            void doSetNewGeometry(const BBox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
+            CanMoveVerticesResult doCanMoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, vec3 delta, bool allowVertexRemoval) const;
+            void doMoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
+            void doSetNewGeometry(const bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
             
             static VertexSet createVertexSet(const vec3::List& vertices = vec3::EmptyList);
         public:
             // CSG operations
-            BrushList subtract(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
-            void intersect(const BBox3& worldBounds, const Brush* brush);
+            BrushList subtract(const ModelFactory& factory, const bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
+            void intersect(const bbox3& worldBounds, const Brush* brush);
 
             // transformation
-            bool canTransform(const mat4x4& transformation, const BBox3& worldBounds) const;
+            bool canTransform(const mat4x4& transformation, const bbox3& worldBounds) const;
         private:
-            Brush* createBrush(const ModelFactory& factory, const BBox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
+            Brush* createBrush(const ModelFactory& factory, const bbox3& worldBounds, const String& defaultTextureName, const BrushGeometry& geometry, const Brush* subtrahend) const;
         private:
-            void updateFacesFromGeometry(const BBox3& worldBounds, const BrushGeometry& geometry);
-            void updatePointsFromVertices(const BBox3& worldBounds);
+            void updateFacesFromGeometry(const bbox3& worldBounds, const BrushGeometry& geometry);
+            void updatePointsFromVertices(const bbox3& worldBounds);
         public: // brush geometry
-            void rebuildGeometry(const BBox3& worldBounds);
+            void rebuildGeometry(const bbox3& worldBounds);
         private:
-            void buildGeometry(const BBox3& worldBounds);
+            void buildGeometry(const bbox3& worldBounds);
             void deleteGeometry();
             bool checkGeometry() const;
         public:
-            void findIntegerPlanePoints(const BBox3& worldBounds);
+            void findIntegerPlanePoints(const bbox3& worldBounds);
         public: // content type
             bool transparent() const;
             bool hasContentType(const BrushContentType& contentType) const;
@@ -245,9 +245,9 @@ namespace TrenchBroom {
             void validateContentType() const;
         private: // implement Node interface
             const String& doGetName() const override;
-            const BBox3& doGetBounds() const override;
+            const bbox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
             
             bool doCanAddChild(const Node* child) const override;
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const bbox3& worldBounds) override;
 
             class Contains;
             bool doContains(const Node* node) const override;

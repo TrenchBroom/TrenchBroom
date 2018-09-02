@@ -52,9 +52,9 @@ namespace TrenchBroom {
             Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
-            BBox3f bounds;
+            bbox3f bounds;
             
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds);
+            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {

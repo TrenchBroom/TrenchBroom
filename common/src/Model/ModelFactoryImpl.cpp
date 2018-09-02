@@ -47,12 +47,12 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        World* ModelFactoryImpl::doCreateWorld(const BBox3& worldBounds) const {
+        World* ModelFactoryImpl::doCreateWorld(const bbox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
             return new World(m_format, m_brushContentTypeBuilder, worldBounds);
         }
 
-        Layer* ModelFactoryImpl::doCreateLayer(const String& name, const BBox3& worldBounds) const {
+        Layer* ModelFactoryImpl::doCreateLayer(const String& name, const bbox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
             return new Layer(name, worldBounds);
         }
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return new Entity();
         }
         
-        Brush* ModelFactoryImpl::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactoryImpl::doCreateBrush(const bbox3& worldBounds, const BrushFaceList& faces) const {
             assert(m_format != MapFormat::Unknown);
             Brush* brush = new Brush(worldBounds, faces);
             brush->setContentTypeBuilder(m_brushContentTypeBuilder);

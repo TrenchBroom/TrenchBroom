@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        static const BBox3 worldBounds(8192.0);
+        static const bbox3 worldBounds(8192.0);
 
         TEST(GridTest, size) {
             for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
@@ -115,7 +115,7 @@ namespace TrenchBroom {
         }
 
         TEST(GridTest, snapOnLine) {
-            const Line3d X(vec3d(5.0, 0.0, 0.0), vec3d::pos_x);
+            const line3d X(vec3d(5.0, 0.0, 0.0), vec3d::pos_x);
 
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3d::zero, X));
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), X));
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vec3(3.0, 1.0, 0.0), X));
             ASSERT_VEC_EQ(vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vec3(3.0, 1.0, 2.0), X));
 
-            const Line3d L(vec3d::zero, normalize(vec3d(1.0, 2.0, 0.0)));
+            const line3d L(vec3d::zero, normalize(vec3d(1.0, 2.0, 0.0)));
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3d::zero, L));
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), L));
             ASSERT_VEC_EQ(vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(10.0, 0.0, 0.0), L));

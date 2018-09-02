@@ -175,7 +175,7 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
 
-        void RenderService::renderCoordinateSystem(const BBox3f& bounds) {
+        void RenderService::renderCoordinateSystem(const bbox3f& bounds) {
             const Color& x = pref(Preferences::XAxisColor);
             const Color& y = pref(Preferences::YAxisColor);
             const Color& z = pref(Preferences::ZAxisColor);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
         }
 
-        void RenderService::renderBounds(const BBox3f& bounds) {
+        void RenderService::renderBounds(const bbox3f& bounds) {
             const vec3f p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
             const vec3f p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
             const vec3f p3(bounds.min.x(), bounds.max.y(), bounds.min.z());

@@ -50,10 +50,10 @@ namespace TrenchBroom {
         private:
             struct SubModel {
                 FaceList faces;
-                BBox3f bounds;
-                SubModel(const FaceList& i_faces, const BBox3f& i_bounds);
+                bbox3f bounds;
+                SubModel(const FaceList& i_faces, const bbox3f& i_bounds);
                 
-                BBox3f transformedBounds(const mat4x4f& transformation) const;
+                bbox3f transformedBounds(const mat4x4f& transformation) const;
             };
 
             typedef std::vector<SubModel> SubModelList;
@@ -64,11 +64,11 @@ namespace TrenchBroom {
             Bsp29Model(const String& name, TextureCollection* textureCollection);
             ~Bsp29Model() override;
             
-            void addModel(const FaceList& faces, const BBox3f& bounds);
+            void addModel(const FaceList& faces, const bbox3f& bounds);
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
+            bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
+            bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

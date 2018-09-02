@@ -54,8 +54,8 @@ namespace TrenchBroom {
         
         MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
-            const BBox3 bounds = document->selectionBounds();
+            const bbox3& worldBounds = document->worldBounds();
+            const bbox3 bounds = document->selectionBounds();
             if (!worldBounds.contains(bounds.translate(delta)))
                 return MR_Deny;
             

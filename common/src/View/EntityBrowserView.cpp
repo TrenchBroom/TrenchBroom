@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityCellData::EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds) :
+        EntityCellData::EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const bbox3f& i_bounds) :
         entityDefinition(i_entityDefinition),
         modelRenderer(i_modelRenderer),
         fontDescriptor(i_fontDescriptor),
@@ -185,14 +185,14 @@ namespace TrenchBroom {
                 auto* model = safeGetModel(m_entityModelManager, spec, m_logger);
                 EntityRenderer* modelRenderer = nullptr;
                 
-                BBox3f rotatedBounds;
+                bbox3f rotatedBounds;
                 if (model != nullptr) {
                     const auto boundsCenter = model->bounds(spec.skinIndex, spec.frameIndex).center();
                     const mat4x4f transformation = translationMatrix(boundsCenter) * rotationMatrix(m_rotation) * translationMatrix(-boundsCenter);
                     rotatedBounds = model->transformedBounds(spec.skinIndex, spec.frameIndex, transformation);
                     modelRenderer = m_entityModelManager.renderer(spec);
                 } else {
-                    rotatedBounds = BBox3f(definition->bounds());
+                    rotatedBounds = bbox3f(definition->bounds());
                     const auto center = rotatedBounds.center();
                     const auto transform = translationMatrix(-center) * rotationMatrix(m_rotation) * translationMatrix(center);
                     rotatedBounds = rotatedBounds.transform(transform);
@@ -264,7 +264,7 @@ namespace TrenchBroom {
                                     const mat4x4f itemTrans = itemTransformation(cell, y, height);
                                     const Color& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
-                                    BBox3f(definition->bounds()).forEachEdge(collect);
+                                    bbox3f(definition->bounds()).forEachEdge(collect);
                                 }
                             }
                         }

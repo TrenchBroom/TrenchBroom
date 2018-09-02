@@ -141,11 +141,11 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
+        World* GameImpl::doNewMap(const MapFormat::Type format, const bbox3& worldBounds) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
 
-        World* GameImpl::doLoadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* GameImpl::doLoadMap(const MapFormat::Type format, const bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder());
@@ -172,13 +172,13 @@ namespace TrenchBroom {
             }
         }
 
-        NodeList GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeList GameImpl::doParseNodes(const String& str, World* world, const bbox3& worldBounds, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, parserStatus);
         }
 
-        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const bbox3& worldBounds, Logger* logger) const {
             IO::SimpleParserStatus parserStatus(logger);
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, parserStatus);

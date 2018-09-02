@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             Model::Entity* m_entity;
-            BBox3 m_referenceBounds;
+            bbox3 m_referenceBounds;
         public:
             CreateEntityTool(MapDocumentWPtr document);
             

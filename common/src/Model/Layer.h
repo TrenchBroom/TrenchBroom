@@ -30,21 +30,21 @@ namespace TrenchBroom {
         private:
             String m_name;
 
-            mutable BBox3 m_bounds;
+            mutable bbox3 m_bounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const String& name, const BBox3& worldBounds);
+            Layer(const String& name, const bbox3& worldBounds);
             
             void setName(const String& name);
         private: // implement Node interface
             const String& doGetName() const override;
-            const BBox3& doGetBounds() const override;
+            const bbox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const bbox3& worldBounds) const override;
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
-            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
+            void doNodeBoundsDidChange(const bbox3& oldBounds) override;
             bool doSelectable() const override;
 
             void doPick(const Ray3& ray, PickResult& pickResult) const override;

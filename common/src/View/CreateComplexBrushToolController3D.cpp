@@ -152,7 +152,7 @@ namespace TrenchBroom {
                 const vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
                 const vec3 direction = hit.face->normal();
                 
-                const Line3 line(origin, direction);
+                const line3 line(origin, direction);
                 m_dragDir = line.direction;
                 
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);

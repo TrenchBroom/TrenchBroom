@@ -458,11 +458,11 @@ mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& n
 template <typename T>
 mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta);
 
-typedef bbox<float,1> BBox1f;
-typedef bbox<double,1> BBox1d;
-typedef bbox<float,2> BBox2f;
-typedef bbox<double,2> BBox2d;
-typedef bbox<float,3> BBox3f;
-typedef bbox<double,3> BBox3d;
+typedef bbox<float,1> bbox1f;
+typedef bbox<double,1> bbox1d;
+typedef bbox<float,2> bbox2f;
+typedef bbox<double,2> bbox2d;
+typedef bbox<float,3> bbox3f;
+typedef bbox<double,3> bbox3d;
 
 #endif

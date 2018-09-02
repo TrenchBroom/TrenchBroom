@@ -36,16 +36,16 @@ namespace TrenchBroom {
             m_cur = point;
         }
 
-        bool Lasso::selects(const vec3& point, const Plane3& plane, const BBox2& box) const {
+        bool Lasso::selects(const vec3& point, const Plane3& plane, const bbox2& box) const {
             const auto projected = project(point, plane);
             return !isNaN(projected) && box.contains(vec2(projected));
         }
         
-        bool Lasso::selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const {
+        bool Lasso::selects(const Edge3& edge, const Plane3& plane, const bbox2& box) const {
             return selects(edge.center(), plane, box);
         }
         
-        bool Lasso::selects(const Polygon3& polygon, const Plane3& plane, const BBox2& box) const {
+        bool Lasso::selects(const Polygon3& polygon, const Plane3& plane, const bbox2& box) const {
             return selects(polygon.center(), plane, box);
         }
         
@@ -84,13 +84,13 @@ namespace TrenchBroom {
             return Plane3(vec3(m_camera.defaultPoint(static_cast<float>(m_distance))), vec3(m_camera.direction()));
         }
         
-        BBox2 Lasso::box() const {
+        bbox2 Lasso::box() const {
             const auto start = m_transform * m_start;
             const auto cur   = m_transform * m_cur;
             
             const auto min = ::min(start, cur);
             const auto max = ::max(start, cur);
-            return BBox2(vec2(min), vec2(max));
+            return bbox2(vec2(min), vec2(max));
         }
     }
 }

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             ensure(m_factory != nullptr, "factory is null");
         }
         
-        const Model::BrushFaceList& BrushFaceReader::read(const BBox3& worldBounds, ParserStatus& status) {
+        const Model::BrushFaceList& BrushFaceReader::read(const bbox3& worldBounds, ParserStatus& status) {
             try {
                 readBrushFaces(m_factory->format(), worldBounds, status);
                 return m_brushFaces;
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             }
         }
         
-        Model::ModelFactory* BrushFaceReader::initialize(const Model::MapFormat::Type format, const BBox3& worldBounds) {
+        Model::ModelFactory* BrushFaceReader::initialize(const Model::MapFormat::Type format, const bbox3& worldBounds) {
             assert(format == m_factory->format());
             return m_factory;
         }

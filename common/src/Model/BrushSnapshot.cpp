@@ -42,7 +42,7 @@ namespace TrenchBroom {
             }
         }
         
-        void BrushSnapshot::doRestore(const BBox3& worldBounds) {
+        void BrushSnapshot::doRestore(const bbox3& worldBounds) {
             m_brush->setFaces(worldBounds, m_faces);
             m_faces.clear();
         }

@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "vec_decl.h"
 #include "vec_impl.h"
-#include "Line.h"
+#include "line.h"
 #include "MathUtils.h"
 #include "mat_forward.h"
 #include "Ray.h"
@@ -113,19 +113,19 @@ public:
         return ray.intersectWithPlane(normal, anchor());
     }
     
-    T intersectWithLine(const Line<T,S>& line) const {
+    T intersectWithLine(const line<T,S>& line) const {
         const T f = dot(line.direction, normal);
         if (Math::zero(f))
             return Math::nan<T>();
         return dot(distance * normal - line.point, normal) / f;
     }
     
-    Line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
+    line<T,S> intersectWithPlane(const Plane<T,S>& other) const {
         const vec<T,S> lineDirection = normalize(cross(normal, other.normal));
         
         if (isNaN(lineDirection)) {
             // the planes are parallel
-            return Line<T,S>();
+            return line<T,S>();
         }
         
         // Now we need to find a point that is on both planes.
@@ -135,14 +135,14 @@ public:
         // This will give us a line direction from this plane's anchor that
         // intersects the other plane.
         
-        const Line<T,S> lineToOtherPlane{anchor(), normalize(projectVector(other.normal))};
+        const line<T,S> lineToOtherPlane{anchor(), normalize(projectVector(other.normal))};
         const T dist = other.intersectWithLine(lineToOtherPlane);
         const vec<T,S> point = lineToOtherPlane.pointAtDistance(dist);
         
         if (isNaN(point)) {
-            return Line<T,S>();
+            return line<T,S>();
         }
-        return Line<T,S>(point, lineDirection);
+        return line<T,S>(point, lineDirection);
     }
     
     Math::PointStatus::Type pointStatus(const vec<T,S>& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {

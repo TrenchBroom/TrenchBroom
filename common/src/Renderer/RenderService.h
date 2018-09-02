@@ -90,12 +90,12 @@ namespace TrenchBroom {
             void renderLine(const vec3f& start, const vec3f& end);
             void renderLines(const vec3f::List& positions);
             void renderLineStrip(const vec3f::List& positions);
-            void renderCoordinateSystem(const BBox3f& bounds);
+            void renderCoordinateSystem(const bbox3f& bounds);
             
             void renderPolygonOutline(const vec3f::List& positions);
             void renderFilledPolygon(const vec3f::List& positions);
             
-            void renderBounds(const BBox3f& bounds);
+            void renderBounds(const bbox3f& bounds);
             
             void renderCircle(const vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const vec3f& startAxis, const vec3f& endAxis);
             void renderCircle(const vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());

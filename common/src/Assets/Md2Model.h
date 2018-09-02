@@ -43,14 +43,14 @@ namespace TrenchBroom {
             private:
                 VertexList m_vertices;
                 Renderer::IndexRangeMap m_indices;
-                BBox3f m_bounds;
+                bbox3f m_bounds;
             public:
                 Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices);
-                BBox3f transformedBounds(const mat4x4f& transformation) const;
+                bbox3f transformedBounds(const mat4x4f& transformation) const;
                 
                 const VertexList& vertices() const;
                 const Renderer::IndexRangeMap& indices() const;
-                const BBox3f& bounds() const;
+                const bbox3f& bounds() const;
             };
 
             typedef std::vector<Frame*> FrameList;
@@ -63,8 +63,8 @@ namespace TrenchBroom {
             ~Md2Model() override;
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
+            bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
+            bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

@@ -63,13 +63,13 @@ namespace TrenchBroom {
         private:
             String m_name;
             VertexList m_triangles;
-            BBox3f m_bounds;
+            bbox3f m_bounds;
         public:
-            MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds);
+            MdlFrame(const String& name, const VertexList& triangles, const bbox3f& bounds);
             const MdlFrame* firstFrame() const override;
             const VertexList& triangles() const;
-            BBox3f bounds() const;
-            BBox3f transformedBounds(const mat4x4f& transformation) const;
+            bbox3f bounds() const;
+            bbox3f transformedBounds(const mat4x4f& transformation) const;
         };
         
         class MdlFrameGroup : public MdlBaseFrame {
@@ -100,8 +100,8 @@ namespace TrenchBroom {
             void addFrame(MdlBaseFrame* frame);
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
+            bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
+            bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

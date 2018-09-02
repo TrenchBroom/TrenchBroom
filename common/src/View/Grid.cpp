@@ -105,7 +105,7 @@ namespace TrenchBroom {
             return dist;
         }
         
-        vec3 Grid::moveDeltaForPoint(const vec3& point, const BBox3& worldBounds, const vec3& delta) const {
+        vec3 Grid::moveDeltaForPoint(const vec3& point, const bbox3& worldBounds, const vec3& delta) const {
             const vec3 newPoint = snap(point + delta);
             vec3 actualDelta = newPoint - point;
             
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const vec3& position) const {
+        vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const Ray3& ray, const vec3& position) const {
             
             // First, compute the snapped position under the mouse:
             const auto dist = dragPlane.intersectWithRay(ray);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             return newMinPos - bounds.min;
         }
         
-        vec3 Grid::moveDelta(const BBox3& bounds, const BBox3& worldBounds, const vec3& delta) const {
+        vec3 Grid::moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vec3& delta) const {
             vec3 actualDelta = vec3::zero;
             for (size_t i = 0; i < 3; ++i) {
                 if (!Math::zero(delta[i])) {
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        vec3 Grid::moveDelta(const vec3& point, const BBox3& worldBounds, const vec3& delta) const {
+        vec3 Grid::moveDelta(const vec3& point, const bbox3& worldBounds, const vec3& delta) const {
             vec3 actualDelta = vec3::zero;
             for (size_t i = 0; i < 3; ++i)
                 if (!Math::zero(delta[i]))
@@ -291,7 +291,7 @@ namespace TrenchBroom {
             }
         }
         
-        vec3 Grid::referencePoint(const BBox3& bounds) const {
+        vec3 Grid::referencePoint(const bbox3& bounds) const {
             return snap(bounds.center());
         }
     }

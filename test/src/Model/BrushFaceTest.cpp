@@ -440,7 +440,7 @@ namespace TrenchBroom {
         }
         
         TEST(BrushFaceTest, testTextureLock_Paraxial) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Standard, nullptr, worldBounds);
             
@@ -461,7 +461,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushFaceTest, testTextureLock_Parallel) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Valve, nullptr, worldBounds);
             
@@ -482,7 +482,7 @@ namespace TrenchBroom {
         }
         
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Valve, nullptr, worldBounds);
             
@@ -533,7 +533,7 @@ namespace TrenchBroom {
                                       "}\n"
                                       "}\n");
 
-            const BBox3 worldBounds(4096.0);
+            const bbox3 worldBounds(4096.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -589,7 +589,7 @@ namespace TrenchBroom {
                                       "    }\n"
                                       "}\n");
 
-            const BBox3 worldBounds(4096.0);
+            const bbox3 worldBounds(4096.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;

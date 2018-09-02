@@ -138,8 +138,8 @@ namespace TrenchBroom {
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
-            const Line3 seam = sourceFacePlane.intersectWithPlane(m_boundary);
-            const vec3 refPoint = seam.pointOnLineClosestToPoint(center());
+            const line3 seam = sourceFacePlane.intersectWithPlane(m_boundary);
+            const vec3 refPoint = seam.project(center());
             
             coordSystemSnapshot->restore(m_texCoordSystem);
             
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             const auto* first = m_geometry->boundary().front();
             const auto* current = first;
             
-            BBox3 bounds;
+            bbox3 bounds;
             bounds.min = bounds.max = toPlane * current->origin()->position();
 
             current = current->next();
@@ -487,9 +487,9 @@ namespace TrenchBroom {
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
-            const Line3 seam = oldPlane.intersectWithPlane(m_boundary);
+            const line3 seam = oldPlane.intersectWithPlane(m_boundary);
             if (!isZero(seam.direction)) {
-                const vec3 refPoint = seam.pointOnLineClosestToPoint(center());
+                const vec3 refPoint = seam.project(center());
                 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
                 const vec2f desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();

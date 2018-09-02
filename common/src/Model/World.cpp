@@ -37,7 +37,7 @@ namespace TrenchBroom {
             m_world->enableNodeTreeUpdates();
         }
 
-        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
+        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const bbox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(nullptr),
         // m_nodeTree(VecCodeComputer<vec3>(worldBounds)),
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return visitor.layers();
         }
 
-        void World::createDefaultLayer(const BBox3& worldBounds) {
+        void World::createDefaultLayer(const bbox3& worldBounds) {
             m_defaultLayer = createLayer("Default Layer", worldBounds);
             addChild(m_defaultLayer);
         }
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override { doRemove(entity, entity->bounds()); }
             void doVisit(Brush* brush) override   { doRemove(brush, brush->bounds()); }
             
-            void doRemove(Node* node, const BBox3& bounds) {
+            void doRemove(Node* node, const bbox3& bounds) {
                 if (!m_nodeTree.remove(bounds, node)) {
                     NodeTreeException ex;
                     ex << "Node not found with bounds [ (" << bounds.min << ") (" << bounds.max << ") ]: " << node;
@@ -130,9 +130,9 @@ namespace TrenchBroom {
         class World::UpdateNodeInNodeTree : public NodeVisitor {
         private:
             NodeTree& m_nodeTree;
-            const BBox3 m_oldBounds;
+            const bbox3 m_oldBounds;
         public:
-            UpdateNodeInNodeTree(NodeTree& nodeTree, const BBox3& oldBounds) :
+            UpdateNodeInNodeTree(NodeTree& nodeTree, const bbox3& oldBounds) :
             m_nodeTree(nodeTree),
             m_oldBounds(oldBounds) {}
         private:
@@ -185,19 +185,19 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
-        const BBox3& World::doGetBounds() const {
+        const bbox3& World::doGetBounds() const {
             // TODO: this should probably return the world bounds, as it does in Layer::doGetBounds
-            static const BBox3 bounds;
+            static const bbox3 bounds;
             return bounds;
         }
 
-        Node* World::doClone(const BBox3& worldBounds) const {
+        Node* World::doClone(const bbox3& worldBounds) const {
             World* world = m_factory.createWorld(worldBounds);
             cloneAttributes(world);
             return world;
         }
 
-        Node* World::doCloneRecursively(const BBox3& worldBounds) const {
+        Node* World::doCloneRecursively(const bbox3& worldBounds) const {
             const NodeList& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
             
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             }
         }
 
-        void World::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
+        void World::doDescendantBoundsDidChange(Node* node, const bbox3& oldBounds, const size_t depth) {
             if (m_updateNodeTree && depth > 1) { // ignore layers
                 UpdateNodeInNodeTree visitor(m_nodeTree, oldBounds);
                 node->accept(visitor);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 
-        void World::doAttributesDidChange(const BBox3& oldBounds) {}
+        void World::doAttributesDidChange(const bbox3& oldBounds) {}
 
         bool World::doIsAttributeNameMutable(const AttributeName& name) const {
             if (name == AttributeNames::Classname)
@@ -364,11 +364,11 @@ namespace TrenchBroom {
             return m_factory.format();
         }
 
-        World* World::doCreateWorld(const BBox3& worldBounds) const {
+        World* World::doCreateWorld(const bbox3& worldBounds) const {
             return m_factory.createWorld(worldBounds);
         }
         
-        Layer* World::doCreateLayer(const String& name, const BBox3& worldBounds) const {
+        Layer* World::doCreateLayer(const String& name, const bbox3& worldBounds) const {
             return m_factory.createLayer(name, worldBounds);
         }
         
@@ -380,7 +380,7 @@ namespace TrenchBroom {
             return m_factory.createEntity();
         }
         
-        Brush* World::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* World::doCreateBrush(const bbox3& worldBounds, const BrushFaceList& faces) const {
             return m_factory.createBrush(worldBounds, faces);
         }
         

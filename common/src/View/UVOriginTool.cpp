@@ -56,7 +56,7 @@ namespace TrenchBroom {
         
         void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
-                Line3 xHandle, yHandle;
+                line3 xHandle, yHandle;
                 computeOriginHandles(xHandle, yHandle);
 
                 const Model::BrushFace* face = m_helper.face();
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             }
         }
 
-        void UVOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
+        void UVOriginTool::computeOriginHandles(line3& xHandle, line3& yHandle) const {
             const auto* face = m_helper.face();
             const auto toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
             

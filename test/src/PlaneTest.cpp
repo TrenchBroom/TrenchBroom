@@ -61,7 +61,7 @@ TEST(PlaneTest, intersectWithRay) {
 
 TEST(PlaneTest, intersectWithLine) {
     const Plane3f p(5.0f, vec3f::pos_z);
-    const Line3f l(vec3f(0, 0, 15), normalize(vec3f(1,0,-1)));
+    const line3f l(vec3f(0, 0, 15), normalize(vec3f(1,0,-1)));
     
     const vec3f intersection = l.pointAtDistance(p.intersectWithLine(l));
     ASSERT_FLOAT_EQ(10, intersection.x());
@@ -72,7 +72,7 @@ TEST(PlaneTest, intersectWithLine) {
 TEST(PlaneTest, intersectWithPlane_parallel) {
     const Plane3f p1(10.0f, vec3f::pos_z);
     const Plane3f p2(11.0f, vec3f::pos_z);
-    const Line3f line = p1.intersectWithPlane(p2);
+    const line3f line = p1.intersectWithPlane(p2);
     
     ASSERT_EQ(vec3f::zero, line.direction);
     ASSERT_EQ(vec3f::zero, line.point);
@@ -82,13 +82,13 @@ TEST(PlaneTest, intersectWithPlane_too_similar) {
     const vec3f anchor(100,100,100);
     const Plane3f p1(anchor, vec3f::pos_x);
     const Plane3f p2(anchor, Quatf(vec3f::neg_y, Math::radians(0.0001f)) * vec3f::pos_x); // p1 rotated by 0.0001 degrees
-    const Line3f line = p1.intersectWithPlane(p2);
+    const line3f line = p1.intersectWithPlane(p2);
     
     ASSERT_EQ(vec3f::zero, line.direction);
     ASSERT_EQ(vec3f::zero, line.point);
 }
 
-static bool lineOnPlane(const Plane3f& plane, const Line3f& line) {
+static bool lineOnPlane(const Plane3f& plane, const line3f& line) {
     if (plane.pointStatus(line.point) != Math::PointStatus::PSInside)
         return false;
     if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside)
@@ -99,7 +99,7 @@ static bool lineOnPlane(const Plane3f& plane, const Line3f& line) {
 TEST(PlaneTest, intersectWithPlane) {
     const Plane3f p1(10.0f, vec3f::pos_z);
     const Plane3f p2(20.0f, vec3f::pos_x);
-    const Line3f line = p1.intersectWithPlane(p2);
+    const line3f line = p1.intersectWithPlane(p2);
     
     ASSERT_TRUE(lineOnPlane(p1, line));
     ASSERT_TRUE(lineOnPlane(p2, line));
@@ -109,7 +109,7 @@ TEST(PlaneTest, intersectWithPlane_similar) {
     const vec3f anchor(100,100,100);
     const Plane3f p1(anchor, vec3f::pos_x);
     const Plane3f p2(anchor, Quatf(vec3f::neg_y, Math::radians(0.5f)) * vec3f::pos_x); // p1 rotated by 0.5 degrees
-    const Line3f line = p1.intersectWithPlane(p2);
+    const line3f line = p1.intersectWithPlane(p2);
 
     ASSERT_TRUE(lineOnPlane(p1, line));
     ASSERT_TRUE(lineOnPlane(p2, line));

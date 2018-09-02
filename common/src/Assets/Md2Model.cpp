@@ -35,10 +35,10 @@ namespace TrenchBroom {
         Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
-        m_bounds(BBox3f::mergeAll(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1())) {}
+        m_bounds(bbox3f::mergeAll(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1())) {}
 
-        BBox3f Md2Model::Frame::transformedBounds(const mat4x4f& transformation) const {
-            BBox3f transformedBounds;
+        bbox3f Md2Model::Frame::transformedBounds(const mat4x4f& transformation) const {
+            bbox3f transformedBounds;
             
             VertexList::const_iterator it = std::begin(m_vertices);
             VertexList::const_iterator end = std::end(m_vertices);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return m_indices;
         }
         
-        const BBox3f& Md2Model::Frame::bounds() const {
+        const bbox3f& Md2Model::Frame::bounds() const {
             return m_bounds;
         }
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             return new Renderer::TexturedIndexRangeRenderer(vertexArray, texturedIndices);
         }
         
-        BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
+        bbox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
             ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
             
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             return frame->bounds();
         }
         
-        BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
+        bbox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
             

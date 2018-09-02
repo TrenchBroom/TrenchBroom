@@ -37,9 +37,9 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3::Vertex Vertex;
             VertexArray m_vertexArray;
         public:
-            GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds);
+            GridRenderer(const OrthographicCamera& camera, const bbox3& worldBounds);
         private:
-            static Vertex::List vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
+            static Vertex::List vertices(const OrthographicCamera& camera, const bbox3& worldBounds);
             
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

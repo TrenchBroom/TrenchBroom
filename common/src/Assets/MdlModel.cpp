@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
         MdlBaseFrame::~MdlBaseFrame() {}
 
-        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds) :
+        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const bbox3f& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_bounds(bounds) {}
@@ -69,19 +69,19 @@ namespace TrenchBroom {
             return m_triangles;
         }
 
-        BBox3f MdlFrame::bounds() const {
+        bbox3f MdlFrame::bounds() const {
             return m_bounds;
         }
 
-        BBox3f MdlFrame::transformedBounds(const mat4x4f& transformation) const {
+        bbox3f MdlFrame::transformedBounds(const mat4x4f& transformation) const {
             if (m_triangles.empty()) {
-                return BBox3f(-8.0f, 8.0f);
+                return bbox3f(-8.0f, 8.0f);
             }
 
             VertexList::const_iterator it = std::begin(m_triangles);
             VertexList::const_iterator end = std::end(m_triangles);
             
-            BBox3f bounds;
+            bbox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;
             ++it;
             
@@ -143,16 +143,16 @@ namespace TrenchBroom {
             return new Renderer::TexturedIndexRangeRenderer(vertexArray, indexArray);
         }
 
-        BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
+        bbox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
             if (frameIndex >= m_frames.size())
-                return BBox3f(-8.0f, 8.0f);
+                return bbox3f(-8.0f, 8.0f);
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
             return frame->bounds();
         }
 
-        BBox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
+        bbox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const {
             if (frameIndex >= m_frames.size())
-                return BBox3f(-8.0f, 8.0f);
+                return bbox3f(-8.0f, 8.0f);
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
             return frame->transformedBounds(transformation);
         }

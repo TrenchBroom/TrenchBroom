@@ -160,10 +160,10 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vec3 MapView2D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
             MapDocumentSPtr document = lock(m_document);
             View::Grid& grid = document->grid();
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
 
             const Ray3& pickRay = MapView2D::pickRay();
             
@@ -186,7 +186,7 @@ namespace TrenchBroom {
         
         void MapView2D::doSelectTall() {
             const MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
             
             const FloatType min = dot(worldBounds.min, vec3(m_camera.direction()));
             const FloatType max = dot(worldBounds.max, vec3(m_camera.direction()));
@@ -275,20 +275,20 @@ namespace TrenchBroom {
             }
         }
 
-        vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
+        vec3 MapView2D::doComputePointEntityPosition(const bbox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
 
             vec3 delta;
             View::Grid& grid = document->grid();
             
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
             
             const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
             } else {
-                const BBox3 referenceBounds = document->referenceBounds();
+                const bbox3 referenceBounds = document->referenceBounds();
                 const Ray3& pickRay = MapView2D::pickRay();
                 
                 const vec3 toMin = referenceBounds.min - pickRay.origin;
@@ -336,7 +336,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
-                const BBox3& bounds = document->selectionBounds();
+                const bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
             }

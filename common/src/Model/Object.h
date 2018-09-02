@@ -43,7 +43,7 @@ namespace TrenchBroom {
             bool grouped() const;
             bool groupOpened() const;
         
-            void transform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
+            void transform(const mat4x4& transformation, bool lockTextures, const bbox3& worldBounds);
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
         private: // subclassing interface
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             virtual Layer* doGetLayer() const = 0;
             virtual Group* doGetGroup() const = 0;
 
-            virtual void doTransform(const mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) = 0;
+            virtual void doTransform(const mat4x4& transformation, bool lockTextures, const bbox3& worldBounds) = 0;
             virtual bool doContains(const Node* node) const = 0;
             virtual bool doIntersects(const Node* node) const = 0;
         };

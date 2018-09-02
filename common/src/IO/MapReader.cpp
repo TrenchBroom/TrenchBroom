@@ -71,18 +71,18 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
         }
 
-        void MapReader::readEntities(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readEntities(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
             resolveNodes(status);
         }
         
-        void MapReader::readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushes(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
         }
         
-        void MapReader::readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushFaces(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushFaces(format, status);
         }

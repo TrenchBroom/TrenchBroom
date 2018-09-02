@@ -23,169 +23,99 @@
 #include "vec_decl.h"
 
 template <typename T, size_t S>
-class Line {
+class line {
 public:
-    typedef std::vector<Line<T,S> > List;
+    typedef std::vector<line<T,S> > List;
     static const List EmptyList;
     
     vec<T,S> point;
     vec<T,S> direction;
 
-    Line() :
+    line() :
     point(vec<T,S>::zero),
     direction(vec<T,S>::zero) {}
     
     // Copy and move constructors
-    Line(const Line<T,S>& other) = default;
-    Line(Line<T,S>&& other) = default;
+    line(const line<T,S>& line) = default;
+    line(line<T,S>&& other) = default;
     
     // Assignment operators
-    Line<T,S>& operator=(const Line<T,S>& other) = default;
-    Line<T,S>& operator=(Line<T,S>&& other) = default;
-    
-    // Conversion constructor
+    line<T,S>& operator=(const line<T,S>& other) = default;
+    line<T,S>& operator=(line<T,S>&& other) = default;
+
+    /**
+     * Converts the given line by converting its component type using static_cast.
+     *
+     * @tparam U the component type of the given line
+     * @param line the line to convert
+     */
     template <typename U>
-    Line(const Line<U,S>& other) :
-    point(other.point),
-    direction(static_cast<T>(other.direction)) {}
-    
-    Line(const vec<T,S>& i_point, const vec<T,S>& i_direction) :
+    line(const line<U,S>& line) :
+    point(line.point),
+    direction(line.direction) {}
+
+    /**
+     * Creates a new line with the given point and direction.
+     *
+     * @param i_point the point
+     * @param i_direction the direction
+     */
+    line(const vec<T,S>& i_point, const vec<T,S>& i_direction) :
     point(i_point),
     direction(i_direction) {}
-    
-    Line<T,S> makeCanonical() const {
-        // choose the point such that its support vector is orthogonal to
-        // the direction of this line
-        const T d = point.dot(direction);
-        const vec<T,S> newPoint(point - d * direction);
-        
-        // make sure the first nonzero component of the direction is positive
-        vec<T,S> newDirection(direction);
-        for (size_t i = 0; i < S; ++i) {
-            if (direction[i] != 0.0) {
-                if (direction[i] < 0.0)
-                    newDirection = -newDirection;
-                break;
-            }
-        }
-        
-        return Line<T,S>(newPoint, newDirection);
-    }
-    
-    int compare(const Line<T,S>& other, const T epsilon = static_cast<T>(0.0)) const {
-        assert(isCanonical() && other.isCanonical());
-
-        const int pointCmp = point.compare(other.point, epsilon);
-        if (pointCmp < 0)
-            return -1;
-        if (pointCmp > 0)
-            return 1;
-        return direction.compare(other.direction, epsilon);
-    }
-    
-    bool operator==(const Line<T,S>& other) const {
-        return compare(other) == 0;
-    }
-    
-    bool operator!= (const Line<T,S>& other) const {
-        return compare(other) != 0;
-    }
-    
-    bool operator<(const Line<T,S>& other) const {
-        return compare(other) < 0;
-    }
-    
-    bool operator<= (const Line<T,S>& other) const {
-        return compare(other) <= 0;
-    }
-    
-    bool operator>(const Line<T,S>& other) const {
-        return compare(other) > 0;
-    }
-    
-    bool operator>= (const Line<T,S>& other) const {
-        return compare(other) >= 0;
-    }
-    
+public:
+    /**
+     * Projects the given point orthogonally onto this line and computes the distance from the line anchor point to
+     * the projected point.
+     *
+     * @param i_point the point to project
+     * @return the distance
+     */
     T distance(const vec<T,S>& i_point) const {
         return dot(i_point - point, direction);
     }
-    
+
+    /**
+     * Returns a point on this line at the given distance from its anchor point.
+     *
+     * @param distance the distance of the point (along the direction)
+     * @return the point at the given distance
+     */
     const vec<T,S> pointAtDistance(const T distance) const {
         return point + direction * distance;
     }
     
 
+    /**
+     * Orthogonally projects the given point onto this line.
+     *
+     * @param i_point the point to project
+     * @return the projected point
+     */
     const vec<T,S> project(const vec<T,S>& i_point) const {
         return pointAtDistance(distance(i_point));
     }
-
-    T distanceOnLineClosestToPoint(const vec<T,S>& otherPoint) const {
-        return dot(otherPoint - point, direction);
-    }
-
-    const vec<T,S> pointOnLineClosestToPoint(const vec<T,S>& otherPoint) const {
-        return pointAtDistance(distanceOnLineClosestToPoint(otherPoint));
-    }
-private:
-    bool isCanonical() const {
-        const T d = point.dot(direction);
-        if (!Math::zero(d))
-            return false;
-
-        for (size_t i = 0; i < S; ++i) {
-            if (direction[i] != 0.0) {
-                if (direction[i] < 0.0)
-                    return false;
-                break;
-            }
-        }
-        
-        return true;
-    }
 };
 
-template <typename TT>
-const TT intersectLineWithTriangle(const Line<TT,3>& L, const vec<TT,3>& V0, const vec<TT,3>& V1, const vec<TT,3>& V2) {
-    // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
-    
-    const vec<TT,3>& O  = L.point;
-    const vec<TT,3>& D  = L.direction;
-    const vec<TT,3>  E1 = V1 - V0;
-    const vec<TT,3>  E2 = V2 - V0;
-    const vec<TT,3>  P  = cross(D, E2);
-    const TT         a  = P.dot(E1);
-    if (Math::zero(a))
-        return Math::nan<TT>();
-    
-    const vec<TT,3>  T  = O - V0;
-    const vec<TT,3>  Q  = cross(T, E1);
-    
-    const TT t = Q.dot(E2) / a;
-    const TT u = P.dot(T) / a;
-    if (Math::neg(u))
-        return Math::nan<TT>();
-    
-    const TT v = Q.dot(D) / a;
-    if (Math::neg(v))
-        return Math::nan<TT>();
-    
-    if (Math::gt(u+v, static_cast<TT>(1.0)))
-        return Math::nan<TT>();
-    
-    return t;
-}
-
 template <typename T, size_t S>
-const typename Line<T,S>::List Line<T,S>::EmptyList = Line<T,S>::List();
+const typename line<T,S>::List line<T,S>::EmptyList = line<T,S>::List();
 
+/**
+ * Prints a textual representation of the given line to the given stream.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param stream the stream to print to
+ * @param line the line to print
+ * @return the given stream
+ */
 template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const Line<T,S>& line) {
-    stream << "{point:" << line.point << " direction:" << line.direction << "}";
+std::ostream& operator<<(std::ostream& stream, const line<T,S>& line) {
+    stream << "{ point: (" << line.point << "), direction: (" << line.direction << ") }";
     return stream;
 }
 
-typedef Line<float,3> Line3f;
-typedef Line<double,3> Line3d;
+typedef line<float,3> line3f;
+typedef line<double,3> line3d;
 
 #endif

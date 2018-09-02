@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(NodeWriterTest, writeEmptyMap) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeWorldspawn) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -96,7 +96,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -178,7 +178,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -230,7 +230,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -293,7 +293,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -352,7 +352,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writeFaces) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             Model::BrushBuilder builder(&map, worldBounds);
@@ -376,7 +376,7 @@ namespace TrenchBroom {
 
         
         TEST(NodeWriterTest, writePropertiesWithQuotationMarks) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -395,7 +395,7 @@ namespace TrenchBroom {
         }
         
         TEST(NodeWriterTest, writePropertiesWithEscapedQuotationMarks) {
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -415,7 +415,7 @@ namespace TrenchBroom {
         
         // https://github.com/kduske/TrenchBroom/issues/1739
         TEST(NodeWriterTest, writePropertiesWithNewlineEscapeSequence) {            
-            const BBox3 worldBounds(8192.0);
+            const bbox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, nullptr, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");

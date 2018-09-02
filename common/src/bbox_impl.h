@@ -233,7 +233,7 @@ typename vec<T,S>::List bbox<T,S>::vertices() const {
 
 template <typename T, size_t S>
 std::ostream& operator<<(std::ostream& stream, const bbox<T,S>& bbox) {
-    stream << "[ (" << bbox.min << ") - (" << bbox.max << ") ]";
+    stream << "{ min: (" << bbox.min << "), max: (" << bbox.max << ") }";
     return stream;
 }
 

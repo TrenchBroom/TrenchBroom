@@ -98,7 +98,7 @@ namespace TrenchBroom {
         }
 
         bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vec3& currentPoint) {
-            BBox3 bounds(m_initialPoint, m_initialPoint);
+            bbox3 bounds(m_initialPoint, m_initialPoint);
             bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, BBox3& bounds) {
+        void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, bbox3& bounds) {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             auto min = grid.snapDown(bounds.min);
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             min = mix(min, refBounds.min, factors);
             max = mix(max, refBounds.max, factors);
 
-            bounds = BBox3(min, max);
+            bounds = bbox3(min, max);
         }
     }
 }

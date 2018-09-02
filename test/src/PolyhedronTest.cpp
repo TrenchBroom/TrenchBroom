@@ -1786,7 +1786,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
 }
 
 TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
-    Polyhedron3d p(BBox3d(64.0));
+    Polyhedron3d p(bbox3d(64.0));
     
     const Plane3d plane(vec3d(64.0, 64.0, 0.0), normalize(vec3d(1.0, 1.0, 1.0)));
     ClipCallback callback;
@@ -1844,7 +1844,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
 }
 
 TEST(PolyhedronTest, clipCubeDiagonally) {
-    Polyhedron3d p(BBox3d(64.0));
+    Polyhedron3d p(bbox3d(64.0));
     
     const Plane3d plane(vec3d::zero, normalize(vec3d(1.0, 1.0, 0.0)));
     ClipCallback callback;
@@ -1886,7 +1886,7 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
 }
 
 TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
-    Polyhedron3d p(BBox3d(64.0));
+    Polyhedron3d p(bbox3d(64.0));
     
     const Plane3d plane(vec3d(  0.0, -64.0, 0.0), normalize(vec3d(2.0, 1.0, 0.0)));
     ClipCallback callback;
@@ -1977,8 +1977,8 @@ bool findAndRemove(Polyhedron3d::SubtractResult& result, const vec3d::List& vert
 }
 
 TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
-    const Polyhedron3d minuend(BBox3d(32.0));
-    const Polyhedron3d subtrahend(BBox3d(16.0));
+    const Polyhedron3d minuend(bbox3d(32.0));
+    const Polyhedron3d subtrahend(bbox3d(16.0));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
@@ -2004,8 +2004,8 @@ TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
 }
 
 TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
-    const Polyhedron3d minuend(BBox3d(64.0));
-    const Polyhedron3d subtrahend(BBox3d(vec3d(96.0, 96.0, 96.0), vec3d(128.0, 128.0, 128.0)));
+    const Polyhedron3d minuend(bbox3d(64.0));
+    const Polyhedron3d subtrahend(bbox3d(vec3d(96.0, 96.0, 96.0), vec3d(128.0, 128.0, 128.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(1, result.size());
@@ -2015,24 +2015,24 @@ TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
 }
 
 TEST(PolyhedronTest, subtractCuboidFromInnerCuboid) {
-    const Polyhedron3d minuend(BBox3d(32.0));
-    const Polyhedron3d subtrahend(BBox3d(64.0));
+    const Polyhedron3d minuend(bbox3d(32.0));
+    const Polyhedron3d subtrahend(bbox3d(64.0));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_TRUE(result.empty());
 }
 
 TEST(PolyhedronTest, subtractCuboidFromIdenticalCuboid) {
-    const Polyhedron3d minuend(BBox3d(64.0));
-    const Polyhedron3d subtrahend(BBox3d(64.0));
+    const Polyhedron3d minuend(bbox3d(64.0));
+    const Polyhedron3d subtrahend(bbox3d(64.0));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_TRUE(result.empty());
 }
 
 TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
-    const Polyhedron3d    minuend(BBox3d(vec3d(-32.0, -32.0, -16.0), vec3d(32.0, 32.0, 16.0)));
-    const Polyhedron3d subtrahend(BBox3d(vec3d(-16.0, -16.0, -32.0), vec3d(16.0, 16.0, 32.0)));
+    const Polyhedron3d    minuend(bbox3d(vec3d(-32.0, -32.0, -16.0), vec3d(32.0, 32.0, 16.0)));
+    const Polyhedron3d subtrahend(bbox3d(vec3d(-16.0, -16.0, -32.0), vec3d(16.0, 16.0, 32.0)));
 
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(4u, result.size());
@@ -2100,8 +2100,8 @@ TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid) {
         |____|
      */
     
-    const Polyhedron3d    minuend(BBox3d(vec3d(-32.0, -16.0, -32.0), vec3d(32.0, 16.0, 32.0)));
-    const Polyhedron3d subtrahend(BBox3d(vec3d(-16.0, -32.0, -64.0), vec3d(16.0, 32.0,  0.0)));
+    const Polyhedron3d    minuend(bbox3d(vec3d(-32.0, -16.0, -32.0), vec3d(32.0, 16.0, 32.0)));
+    const Polyhedron3d subtrahend(bbox3d(vec3d(-16.0, -32.0, -64.0), vec3d(16.0, 32.0,  0.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(3u, result.size());
@@ -2116,8 +2116,8 @@ TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid2) {
      |__|____|__|
      */
     
-    const Polyhedron3d    minuend(BBox3d(vec3d(-64.0, -64.0, -16.0), vec3d(64.0, 64.0, 16.0)));
-    const Polyhedron3d subtrahend(BBox3d(vec3d(-32.0, -64.0, -32.0), vec3d(32.0,  0.0, 32.0)));
+    const Polyhedron3d    minuend(bbox3d(vec3d(-64.0, -64.0, -16.0), vec3d(64.0, 64.0, 16.0)));
+    const Polyhedron3d subtrahend(bbox3d(vec3d(-32.0, -64.0, -32.0), vec3d(32.0,  0.0, 32.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(3u, result.size());
@@ -2151,7 +2151,7 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
         vec3d(-32.0, +8.0, 32.0)
     };
     
-    const Polyhedron3d subtrahend(BBox3d(vec3d(-16.0, -8.0, 0.0), vec3d(16.0, 8.0, 32.0)));
+    const Polyhedron3d subtrahend(bbox3d(vec3d(-16.0, -8.0, 0.0), vec3d(16.0, 8.0, 32.0)));
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
@@ -2181,7 +2181,7 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
     vec3d::List subtrahendVertices;
     vec3d::parseAll("(-32.0 0.0 +96.0) (0.0 -32.0 +96.0) (+32.0 0.0 +96.0) (0.0 +32.0 +96.0) (-32.0 0.0 -96.0) (0.0 -32.0 -96.0) (+32.0 0.0 -96.0) (0.0 +32.0 -96.0)", std::back_inserter(subtrahendVertices));
     
-    const Polyhedron3d minuend(BBox3d(64.0));
+    const Polyhedron3d minuend(bbox3d(64.0));
     const Polyhedron3d subtrahend(subtrahendVertices);
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);

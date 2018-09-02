@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         static std::tuple<DragRestricter*, DragSnapper*>
-        getDragRestricterAndSnapper(const BBoxSide& side, const BBox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
+        getDragRestricterAndSnapper(const BBoxSide& side, const bbox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
@@ -68,12 +68,12 @@ namespace TrenchBroom {
                     restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const Line3 sideways(sideCenter, normalize(cross(side.normal, vec3::pos_z)));
+                    const line3 sideways(sideCenter, normalize(cross(side.normal, vec3::pos_z)));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const Line3 verticalLine(sideCenter, vec3::pos_z);
+                    const line3 verticalLine(sideCenter, vec3::pos_z);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             } else {
                 assert(camera.orthographicProjection());
 
-                const Line3 sideways(sideCenter, normalize(cross(side.normal, vec3(camera.direction()))));
+                const line3 sideways(sideCenter, normalize(cross(side.normal, vec3(camera.direction()))));
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(grid, sideways);
             }

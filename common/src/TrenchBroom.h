@@ -27,14 +27,14 @@
 #include "Polyhedron_DefaultPayload.h"
 
 using FloatType = double;
-using BBox3 = bbox<FloatType, 3>;
-using BBox2 = bbox<FloatType, 2>;
+using bbox3 = bbox<FloatType, 3>;
+using bbox2 = bbox<FloatType, 2>;
 using vec3 = vec<FloatType, 3>;
 using vec2 = vec<FloatType, 2>;
 using Plane3 = Plane<FloatType, 3>;
 using Quat3 = Quat<FloatType>;
 using mat4x4 = mat<FloatType, 4, 4>;
-using Line3 = Line<FloatType, 3>;
+using line3 = line<FloatType, 3>;
 using Ray3 = Ray<FloatType, 3>;
 
 #include "Polyhedron_Instantiation.h"

@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
         
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const BBox3& worldBounds = document->worldBounds();
+            const bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
                 Model::Brush* brush = entry.first;
                 const Polygon3::List& faces = entry.second;

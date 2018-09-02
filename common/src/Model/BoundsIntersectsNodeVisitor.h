@@ -29,9 +29,9 @@ namespace TrenchBroom {
     namespace Model {
         class BoundsIntersectsNodeVisitor : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            const BBox3& m_bounds;
+            const bbox3& m_bounds;
         public:
-            BoundsIntersectsNodeVisitor(const BBox3& bounds);
+            BoundsIntersectsNodeVisitor(const bbox3& bounds);
         private:
             void doVisit(const World* world) override;
             void doVisit(const Layer* layer) override;

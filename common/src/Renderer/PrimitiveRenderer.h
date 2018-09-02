@@ -93,10 +93,10 @@ namespace TrenchBroom {
             void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const vec3f::List& positions);
             void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const vec3f::List& positions);
             
-            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
+            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const bbox3f& bounds);
+            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const bbox3f& bounds);
+            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const bbox3f& bounds);
+            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const bbox3f& bounds);
             
             void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const vec3f::List& positions);
             void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vec3f::List& positions);

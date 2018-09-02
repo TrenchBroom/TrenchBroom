@@ -29,7 +29,7 @@ namespace TrenchBroom {
         m_column(0),
         m_hasDescription(false),
         m_hasColor(false),
-        m_size(BBox3(-8.0, 8.0)),
+        m_size(bbox3(-8.0, 8.0)),
         m_hasSize(false),
         m_hasModelDefinition(false) {}
         
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_hasDescription(false),
         m_color(defaultColor),
         m_hasColor(false),
-        m_size(BBox3(-8.0, 8.0)),
+        m_size(bbox3(-8.0, 8.0)),
         m_hasSize(false),
         m_hasModelDefinition(false) {}
         
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             return m_hasColor;
         }
         
-        const BBox3& EntityDefinitionClassInfo::size() const {
+        const bbox3& EntityDefinitionClassInfo::size() const {
             return m_size;
         }
         
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             m_hasColor = true;
         }
         
-        void EntityDefinitionClassInfo::setSize(const BBox3& size) {
+        void EntityDefinitionClassInfo::setSize(const bbox3& size) {
             m_size = size;
             m_hasSize = true;
         }

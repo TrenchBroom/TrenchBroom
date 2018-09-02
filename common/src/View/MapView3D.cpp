@@ -316,7 +316,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vec3 MapView3D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vec3 MapView3D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             
@@ -540,7 +540,7 @@ namespace TrenchBroom {
             }
         }
 
-        vec3 MapView3D::doComputePointEntityPosition(const BBox3& bounds) const {
+        vec3 MapView3D::doComputePointEntityPosition(const bbox3& bounds) const {
             auto document = lock(m_document);
             
             vec3 delta;
@@ -595,7 +595,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
-                const BBox3& bounds = document->selectionBounds();
+                const bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
                 

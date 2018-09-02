@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                    setRestricter(inputState, new LineDragRestricter(Line3(currentHandlePosition(), vec3::pos_z)), true);
+                    setRestricter(inputState, new LineDragRestricter(line3(currentHandlePosition(), vec3::pos_z)), true);
                 } else {
                     setRestricter(inputState, new PlaneDragRestricter(horizontalDragPlane(currentHandlePosition())), true);
                 }
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController3D::updateBounds(const vec3& point, const vec3 cameraPosition) {
-            BBox3 bounds;
+            bbox3 bounds;
             
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);

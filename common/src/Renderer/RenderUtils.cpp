@@ -35,19 +35,19 @@ namespace TrenchBroom {
             glAssert(glDepthRange(EdgeOffset, 1.0f));
         }
         
-        void coordinateSystemVerticesX(const BBox3f& bounds, vec3f& start, vec3f& end) {
+        void coordinateSystemVerticesX(const bbox3f& bounds, vec3f& start, vec3f& end) {
             const auto center = bounds.center();
             start = vec3f(bounds.min.x(), center.y(),     center.z());
             end   = vec3f(bounds.max.x(), center.y(),     center.z());
         }
         
-        void coordinateSystemVerticesY(const BBox3f& bounds, vec3f& start, vec3f& end) {
+        void coordinateSystemVerticesY(const bbox3f& bounds, vec3f& start, vec3f& end) {
             const auto center = bounds.center();
             start = vec3f(center.x(),     bounds.min.y(), center.z());
             end   = vec3f(center.x(),     bounds.max.y(), center.z());
         }
         
-        void coordinateSystemVerticesZ(const BBox3f& bounds, vec3f& start, vec3f& end) {
+        void coordinateSystemVerticesZ(const bbox3f& bounds, vec3f& start, vec3f& end) {
             const auto center = bounds.center();
             start = vec3f(center.x(),     center.y(),     bounds.min.z());
             end   = vec3f(center.x(),     center.y(),     bounds.max.z());

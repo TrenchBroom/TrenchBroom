@@ -39,7 +39,7 @@ namespace TrenchBroom {
             ~BrushSnapshot() override;
         private:
             void takeSnapshot(Brush* brush);
-            void doRestore(const BBox3& worldBounds) override;
+            void doRestore(const bbox3& worldBounds) override;
         };
     }
 }
