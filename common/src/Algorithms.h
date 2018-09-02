@@ -22,7 +22,7 @@
 
 #include "CoordinatePlane.h"
 #include "vec_decl.h"
-#include "Plane.h"
+#include "plane.h"
 #include "Ray.h"
 
 struct Identity {
@@ -33,7 +33,7 @@ struct Identity {
 };
 
 template <typename T, typename I, typename F = Identity>
-T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3>& plane, I cur, I end, const F& getPosition = F()) {
+T intersectPolygonWithRay(const Ray<T,3>& ray, const plane<T,3>& plane, I cur, I end, const F& getPosition = F()) {
     const auto distance = intersect(ray, plane);
     if (Math::isnan(distance)) {
         return distance;

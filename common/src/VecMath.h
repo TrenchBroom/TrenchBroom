@@ -40,7 +40,7 @@
 #include "Ray.h"
 #include "line_decl.h"
 #include "line_impl.h"
-#include "Plane.h"
+#include "plane.h"
 #include "CoordinatePlane.h"
 #include "Edge.h"
 #include "Polygon.h"

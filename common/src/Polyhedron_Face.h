@@ -310,17 +310,17 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
         return false;
     }
 
-    const Plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
+    const plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
     if (!other->verticesOnPlane(myPlane)) {
         return false;
     }
 
-    const Plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
+    const plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
     return verticesOnPlane(otherPlane);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const Plane<T,3>& plane) const {
+bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const plane<T,3>& plane) const {
     auto* firstEdge = m_boundary.front();
     auto* currentEdge = firstEdge;
     do {
@@ -525,7 +525,7 @@ public:
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray) const {
-    const Plane<T,3> plane(origin(), normal());
+    const plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     
     if (Math::zero(cos)) {

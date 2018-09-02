@@ -23,7 +23,7 @@
 #include "vec_decl.h"
 #include "mat_decl.h"
 #include "quat_decl.h"
-#include "Plane.h" // TODO: 2201: replace with plane_decl.h
+#include "plane.h" // TODO: 2201: replace with plane_decl.h
 
 #include <array>
 #include <iostream>

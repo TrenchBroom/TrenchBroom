@@ -170,7 +170,7 @@ namespace TrenchBroom {
             const auto toMin = referenceBounds.min - pickRay.origin;
             const auto toMax = referenceBounds.max - pickRay.origin;
             const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-            const auto dragPlane = Plane3(anchor, -pickRay.direction);
+            const auto dragPlane = plane3(anchor, -pickRay.direction);
             
             const auto distance = intersect(pickRay, dragPlane);;
             if (Math::isnan(distance)) {
@@ -192,8 +192,8 @@ namespace TrenchBroom {
             const FloatType min = dot(worldBounds.min, vec3(m_camera.direction()));
             const FloatType max = dot(worldBounds.max, vec3(m_camera.direction()));
             
-            const Plane3 minPlane(min, vec3(m_camera.direction()));
-            const Plane3 maxPlane(max, vec3(m_camera.direction()));
+            const plane3 minPlane(min, vec3(m_camera.direction()));
+            const plane3 maxPlane(max, vec3(m_camera.direction()));
             
             const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
@@ -295,7 +295,7 @@ namespace TrenchBroom {
                 const auto toMin = referenceBounds.min - pickRay.origin;
                 const auto toMax = referenceBounds.max - pickRay.origin;
                 const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? referenceBounds.min : referenceBounds.max;
-                const auto dragPlane = Plane3(anchor, -pickRay.direction);
+                const auto dragPlane = plane3(anchor, -pickRay.direction);
                 
                 const auto distance = intersect(pickRay, dragPlane);
                 if (Math::isnan(distance)) {

@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return doComputeHitPoint(inputState, point);
         }
 
-        PlaneDragRestricter::PlaneDragRestricter(const Plane3& plane) :
+        PlaneDragRestricter::PlaneDragRestricter(const plane3& plane) :
         m_plane(plane) {}
         
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
@@ -94,7 +94,7 @@ namespace TrenchBroom {
         }
         
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
-            const auto plane = Plane3(m_center, m_normal);
+            const auto plane = plane3(m_center, m_normal);
             const auto distance = intersect(inputState.pickRay(), plane);
             if (Math::isnan(distance)) {
                 return false;
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             const FloatType angle = angleBetween(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
             const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());
-            const Quat3 rotation(m_normal, canonical);
+            const quat3 rotation(m_normal, canonical);
             const vec3 rot = rotation * ref;
             curPoint = m_center + m_radius * rot;
             return true;
@@ -259,7 +259,7 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 return false;
 
-            const Plane3& plane = doGetPlane(inputState, hit);
+            const plane3& plane = doGetPlane(inputState, hit);
             curPoint = m_grid.snap(hit.hitPoint(), plane);
             return true;
         }

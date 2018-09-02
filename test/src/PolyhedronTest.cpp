@@ -1632,7 +1632,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
     
     Polyhedron3d p(positions);
     
-    const Plane3d plane(vec3d::zero, vec3d::pos_z);
+    const plane3d plane(vec3d::zero, vec3d::pos_z);
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1682,7 +1682,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
     
     Polyhedron3d p(positions);
     
-    const Plane3d plane(vec3d(0.0, 0.0, 64.0), vec3d::pos_z);
+    const plane3d plane(vec3d(0.0, 0.0, 64.0), vec3d::pos_z);
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).unchanged());
@@ -1731,7 +1731,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
     
     Polyhedron3d p(positions);
     
-    const Plane3d plane(vec3d(0.0, 0.0, 72.0), vec3d::pos_z);
+    const plane3d plane(vec3d(0.0, 0.0, 72.0), vec3d::pos_z);
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).unchanged());
@@ -1780,7 +1780,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
     
     Polyhedron3d p(positions);
     
-    const Plane3d plane(vec3d(0.0, 0.0, -64.0), vec3d::pos_z);
+    const plane3d plane(vec3d(0.0, 0.0, -64.0), vec3d::pos_z);
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).empty());
@@ -1789,7 +1789,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
 TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     Polyhedron3d p(bbox3d(64.0));
     
-    const Plane3d plane(vec3d(64.0, 64.0, 0.0), normalize(vec3d(1.0, 1.0, 1.0)));
+    const plane3d plane(vec3d(64.0, 64.0, 0.0), normalize(vec3d(1.0, 1.0, 1.0)));
     ClipCallback callback;
     
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1847,7 +1847,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
 TEST(PolyhedronTest, clipCubeDiagonally) {
     Polyhedron3d p(bbox3d(64.0));
     
-    const Plane3d plane(vec3d::zero, normalize(vec3d(1.0, 1.0, 0.0)));
+    const plane3d plane(vec3d::zero, normalize(vec3d(1.0, 1.0, 0.0)));
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1889,7 +1889,7 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
 TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     Polyhedron3d p(bbox3d(64.0));
     
-    const Plane3d plane(vec3d(  0.0, -64.0, 0.0), normalize(vec3d(2.0, 1.0, 0.0)));
+    const plane3d plane(vec3d(  0.0, -64.0, 0.0), normalize(vec3d(2.0, 1.0, 0.0)));
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).success());
@@ -1933,7 +1933,7 @@ TEST(PolyhedronTest, badClip) {
     vec3d::parseAll("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)", std::back_inserter(polyVertices));
     
     Polyhedron3d poly(polyVertices);
-    const Plane3d plane(-19.170582845718307, vec3d(0.88388309419256438, 0.30618844562885328, -0.35355241699635576));
+    const plane3d plane(-19.170582845718307, vec3d(0.88388309419256438, 0.30618844562885328, -0.35355241699635576));
     
     ASSERT_NO_THROW(poly.clip(plane));
 }

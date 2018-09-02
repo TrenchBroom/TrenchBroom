@@ -160,22 +160,22 @@ namespace TrenchBroom {
             }
         public: // Snapping on a plane! Surprise, motherfucker!
             template <typename T>
-            vec<T,3> snap(const vec<T,3>& p, const Plane<T,3>& onPlane) const {
+            vec<T,3> snap(const vec<T,3>& p, const plane<T,3>& onPlane) const {
                 return snap(p, onPlane, SnapDir_None, false);
             }
             
             template <typename T>
-            vec<T,3> snapUp(const vec<T,3>& p, const Plane<T,3>& onPlane, const bool skip = false) const {
+            vec<T,3> snapUp(const vec<T,3>& p, const plane<T,3>& onPlane, const bool skip = false) const {
                 return snap(p, onPlane, SnapDir_Up, skip);
             }
             
             template <typename T>
-            vec<T,3> snapDown(const vec<T,3>& p, const Plane<T,3>& onPlane, const bool skip = false) const {
+            vec<T,3> snapDown(const vec<T,3>& p, const plane<T,3>& onPlane, const bool skip = false) const {
                 return snap(p, onPlane, SnapDir_Down, skip);
             }
 
             template <typename T, size_t S>
-            vec<T,S> snapTowards(const vec<T,S>& p, const Plane<T,3>& onPlane, const vec<T,S>& d, const bool skip = false) const {
+            vec<T,S> snapTowards(const vec<T,S>& p, const plane<T,3>& onPlane, const vec<T,S>& d, const bool skip = false) const {
                 
                 SnapDir snapDirs[S];
                 for (size_t i = 0; i < S; ++i)
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             }
         private:
             template <typename T, size_t S>
-            vec<T,3> snap(const vec<T,S>& p, const Plane<T,S>& onPlane, const SnapDir snapDir, const bool skip = false) const {
+            vec<T,3> snap(const vec<T,S>& p, const plane<T,S>& onPlane, const SnapDir snapDir, const bool skip = false) const {
                 SnapDir snapDirs[S];
                 for (size_t i = 0; i < S; ++i)
                     snapDirs[i] = snapDir;
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             }
             
             template <typename T, size_t S>
-            vec<T,S> snap(const vec<T,S>& p, const Plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
+            vec<T,S> snap(const vec<T,S>& p, const plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
                 
                 vec<T,3> result;
                 switch(firstComponent(onPlane.normal)) {
@@ -264,7 +264,7 @@ namespace TrenchBroom {
             vec<T,3> snap(const vec<T,3>& p, const Polygon<T,3>& polygon, const vec<T,3>& normal) const {
                 ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
                 
-                const Plane<T,3> plane(polygon.vertices().front(), normal);
+                const plane<T,3> plane(polygon.vertices().front(), normal);
                 vec<T,3> ps = snap(p, plane);
                 T err = squaredLength(p - ps);
                 
@@ -305,7 +305,7 @@ namespace TrenchBroom {
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vec3 moveDeltaForBounds(const Plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const Ray3& ray, const vec3& position) const;
+            vec3 moveDeltaForBounds(const plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const Ray3& ray, const vec3& position) const;
             vec3 moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vec3& delta) const;
             vec3 moveDelta(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
             vec3 moveDelta(const vec3& delta) const;

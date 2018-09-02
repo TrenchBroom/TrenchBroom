@@ -40,7 +40,7 @@ private:
     const Callback& m_callback;
     List m_fragments;
     
-    typedef std::list<Plane<T,3>> PlaneList;
+    typedef std::list<plane<T,3>> PlaneList;
     typedef typename PlaneList::const_iterator PlaneIt;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
@@ -92,7 +92,7 @@ private:
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
         do {
-            const Plane<T,3> plane = m_callback.plane(currentFace);
+            const plane<T,3> plane = m_callback.plane(currentFace);
             result.push_back(plane);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);

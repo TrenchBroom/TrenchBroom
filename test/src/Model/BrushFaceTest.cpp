@@ -560,7 +560,7 @@ namespace TrenchBroom {
             const vec3 textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
             ASSERT_GT(dot(textureNormal, vec3(negXFace->boundary().normal)), 0.0);
 
-            const Quat3 rot45(textureNormal, Math::radians(45.0));
+            const quat3 rot45(textureNormal, Math::radians(45.0));
             const vec3 newXAxis(rot45 * negXFace->textureXAxis());
             const vec3 newYAxis(rot45 * negXFace->textureYAxis());
 

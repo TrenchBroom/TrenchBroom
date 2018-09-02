@@ -242,7 +242,7 @@ namespace TrenchBroom {
             DragRestricter* createDragRestricter(const InputState& inputState, const vec3& initialPoint) const override {
                 const auto& camera = inputState.camera();
                 const auto camDir = vec3(camera.direction());
-                return new PlaneDragRestricter(Plane3(initialPoint, firstAxis(camDir)));
+                return new PlaneDragRestricter(plane3(initialPoint, firstAxis(camDir)));
             }
             
             DragSnapper* createDragSnapper(const InputState& inputState) const override {
@@ -325,7 +325,7 @@ namespace TrenchBroom {
                 ClipPointSnapper(const Grid& grid) :
                 SurfaceDragSnapper(grid) {}
             private:
-                Plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const override {
+                plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const override {
                     ensure(hit.type() == Model::Brush::BrushHit, "invalid hit type");
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     return face->boundary();

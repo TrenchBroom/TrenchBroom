@@ -77,7 +77,7 @@ namespace TrenchBroom {
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
-            Plane3 m_boundary;
+            plane3 m_boundary;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -104,14 +104,14 @@ namespace TrenchBroom {
             BrushFaceSnapshot* takeSnapshot();
             TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const plane3& sourceFacePlane, const WrapStyle wrapStyle);
 
             Brush* brush() const;
             void setBrush(Brush* brush);
             
             const BrushFace::Points& points() const;
-            bool arePointsOnPlane(const Plane3& plane) const;
-            const Plane3& boundary() const;
+            bool arePointsOnPlane(const plane3& plane) const;
+            const plane3& boundary() const;
             const vec3& normal() const;
             vec3 center() const;
             vec3 boundsCenter() const;

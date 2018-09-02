@@ -20,14 +20,14 @@
 #include <gtest/gtest.h>
 
 #include "vec_decl.h"
-#include "Plane.h"
+#include "plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 
 #include <array>
 
 TEST(PlaneTest, constructDefault) {
-    const Plane3f p;
+    const plane3f p;
     ASSERT_EQ(0.0f, p.distance);
     ASSERT_EQ(vec3f::zero, p.normal);
 }
@@ -35,7 +35,7 @@ TEST(PlaneTest, constructDefault) {
 TEST(PlaneTest, constructWithDistanceAndNormal) {
     const float d = 123.0f;
     const vec3f n = normalize(vec3f(1.0f, 2.0f, 3.0f));
-    const Plane3f p(d, n);
+    const plane3f p(d, n);
     ASSERT_FLOAT_EQ(d, p.distance);
     ASSERT_VEC_EQ(n, p.normal);
 }
@@ -43,7 +43,7 @@ TEST(PlaneTest, constructWithDistanceAndNormal) {
 TEST(PlaneTest, constructWithAnchorAndNormal) {
     const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
     const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-    const Plane3f p(a, n);
+    const plane3f p(a, n);
     ASSERT_FLOAT_EQ(dot(a, n), p.distance);
     ASSERT_VEC_EQ(n, p.normal);
 }
@@ -54,7 +54,7 @@ TEST(PlaneTest, constructPlaneContainingVector) {
 TEST(PlaneTest, anchor) {
     const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
     const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-    const Plane3f p(a, n);
+    const plane3f p(a, n);
     ASSERT_VEC_EQ(p.distance * n, p.anchor());
 }
 
@@ -63,7 +63,7 @@ TEST(PlaneTest, intersectWithRay) {
 
 
 TEST(PlaneTest, pointStatus) {
-    const Plane3f p(10.0f, vec3f::pos_z);
+    const plane3f p(10.0f, vec3f::pos_z);
     ASSERT_EQ(Math::PointStatus::PSAbove, p.pointStatus(vec3f(0.0f, 0.0f, 11.0f)));
     ASSERT_EQ(Math::PointStatus::PSBelow, p.pointStatus(vec3f(0.0f, 0.0f, 9.0f)));
     ASSERT_EQ(Math::PointStatus::PSInside, p.pointStatus(vec3f(0.0f, 0.0f, 10.0f)));
@@ -72,13 +72,13 @@ TEST(PlaneTest, pointStatus) {
 TEST(PlaneTest, pointDistance) {
     const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
     const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-    const Plane3f p(a, n);
+    const plane3f p(a, n);
     const vec3f point(1.0f, -32.37873f, 32.0f);
     ASSERT_EQ(dot(point, p.normal) - p.distance, p.pointDistance(point));
 }
 
 TEST(PlaneTest, valueAtParallelPlanes) {
-    const Plane3f p1(10.0f, vec3f::pos_x);
+    const plane3f p1(10.0f, vec3f::pos_x);
     
     ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(2.0f, 1.0f), Math::Axis::AX));
     ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(22.0f, -34322.0232f), Math::Axis::AX));
@@ -91,7 +91,7 @@ TEST(PlaneTest, valueAtParallelPlanes) {
 TEST(PlaneTest, valueAt) {
     const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
     const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-    const Plane3f p(a, n);
+    const plane3f p(a, n);
     const vec2f point1(27.022f, -12.0123223f);
     
     ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[Math::Axis::AX],
@@ -105,7 +105,7 @@ TEST(PlaneTest, valueAt) {
 TEST(PlaneTest, xYZValueAt) {
     const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
     const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-    const Plane3f p(a, n);
+    const plane3f p(a, n);
     const vec2f point1(27.022f, -12.0123223f);
     
     ASSERT_FLOAT_EQ(p.at(point1, Math::Axis::AX), p.xAt(point1));
@@ -114,11 +114,11 @@ TEST(PlaneTest, xYZValueAt) {
 }
 
 TEST(PlaneTest, equal) {
-    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::pos_x), Math::Constants<float>::almostZero()));
-    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_y), Plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
-    ASSERT_TRUE(equal(Plane3f(0.0f, vec3f::pos_z), Plane3f(0.0f, vec3f::pos_z), Math::Constants<float>::almostZero()));
-    ASSERT_FALSE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::neg_x), Math::Constants<float>::almostZero()));
-    ASSERT_FALSE(equal(Plane3f(0.0f, vec3f::pos_x), Plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
+    ASSERT_TRUE(equal(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::pos_x), Math::Constants<float>::almostZero()));
+    ASSERT_TRUE(equal(plane3f(0.0f, vec3f::pos_y), plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
+    ASSERT_TRUE(equal(plane3f(0.0f, vec3f::pos_z), plane3f(0.0f, vec3f::pos_z), Math::Constants<float>::almostZero()));
+    ASSERT_FALSE(equal(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::neg_x), Math::Constants<float>::almostZero()));
+    ASSERT_FALSE(equal(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::pos_y), Math::Constants<float>::almostZero()));
 }
 
 TEST(PlaneTest, transform) {
@@ -127,20 +127,14 @@ TEST(PlaneTest, transform) {
 TEST(PlaneTest, transformed) {
 }
 
-TEST(PlaneTest, rotate) {
-}
-
-TEST(PlaneTest, rotated) {
-}
-
 TEST(PlaneTest, project) {
-    ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 0.0f), Plane3f(0.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
-    ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 2.0f), Plane3f(2.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
+    ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 0.0f), plane3f(0.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
+    ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 2.0f), plane3f(2.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
 }
 
 TEST(PlaneTest, fromPoints) {
     bool valid;
-    Plane3f plane;
+    plane3f plane;
     std::array<vec3f, 3> points;
     const float epsilon = Math::Constants<float>::pointStatusEpsilon();
 
@@ -235,41 +229,25 @@ TEST(PlaneTest, fromPoints) {
     ASSERT_FALSE(valid);
 }
 
-TEST(PlaneTest, horizontalDragPlane) {
+TEST(PlaneTest, horizontalPlane) {
     const vec3f position(322.0f, -122.2392f, 34.0f);
-    const Plane3f p = horizontalDragPlane(position);
+    const plane3f p = horizontalPlane(position);
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(vec3f::pos_z, p.normal);
 }
 
-TEST(PlaneTest, verticalDragPlane) {
-    const vec3f position(322.0f, -122.2392f, 34.0f);
-    const vec3f direction = normalize(vec3f(1.0f, 3.0f, -2.0f));
-    const Plane3f p = verticalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
-    ASSERT_VEC_EQ(vec3f::pos_y, p.normal);
-}
-
-TEST(PlaneTest, verticalDragPlaneWithZDirection) {
+TEST(PlaneTest, orthogonalPlane) {
     const vec3f position(322.0f, -122.2392f, 34.0f);
     const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
-    const Plane3f p = verticalDragPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
-    ASSERT_VEC_EQ(vec3f::pos_y, p.normal);
-}
-
-TEST(PlaneTest, orthogonalDragPlane) {
-    const vec3f position(322.0f, -122.2392f, 34.0f);
-    const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
-    const Plane3f p = orthogonalDragPlane(position, direction);
+    const plane3f p = orthogonalPlane(position, direction);
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(direction, p.normal);
 }
 
-TEST(PlaneTest, alignedOrthogonalDragPlane) {
+TEST(PlaneTest, alignedOrthogonalPlane) {
     const vec3f position(322.0f, -122.2392f, 34.0f);
     const vec3f direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
-    const Plane3f p = alignedOrthogonalDragPlane(position, direction);
+    const plane3f p = alignedOrthogonalPlane(position, direction);
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(firstAxis(direction), p.normal);
 }

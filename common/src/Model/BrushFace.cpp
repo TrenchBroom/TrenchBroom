@@ -136,7 +136,7 @@ namespace TrenchBroom {
             coordSystemSnapshot->restore(m_texCoordSystem);
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const WrapStyle wrapStyle) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
             const auto seam = intersect(sourceFacePlane, m_boundary);
             const auto refPoint = seam.project(center());
@@ -169,14 +169,14 @@ namespace TrenchBroom {
             return m_points;
         }
 
-        bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
+        bool BrushFace::arePointsOnPlane(const plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
                 if (plane.pointStatus(m_points[i]) != Math::PointStatus::PSInside)
                     return false;
             return true;
         }
 
-        const Plane3& BrushFace::boundary() const {
+        const plane3& BrushFace::boundary() const {
             return m_boundary;
         }
 
@@ -453,7 +453,7 @@ namespace TrenchBroom {
             using std::swap;
 
             const vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
-            const Plane3 oldBoundary = m_boundary;
+            const plane3 oldBoundary = m_boundary;
 
             m_boundary = m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i) {

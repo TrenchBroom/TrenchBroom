@@ -58,15 +58,15 @@ namespace TrenchBroom {
             return Ray3f(o, direction());
         }
         
-        void OrthographicCamera::doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
+        void OrthographicCamera::doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const {
             const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
             const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
             const vec3f& center = position();
-            topPlane    = Plane3f(center + h2 * up(), up());
-            rightPlane  = Plane3f(center + w2 * right(), right());
-            bottomPlane = Plane3f(center - h2 * up(), -up());
-            leftPlane   = Plane3f(center - w2 * right(), -right());
+            topPlane    = plane3f(center + h2 * up(), up());
+            rightPlane  = plane3f(center + w2 * right(), right());
+            bottomPlane = plane3f(center - h2 * up(), -up());
+            leftPlane   = plane3f(center - w2 * right(), -right());
         }
         
         void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {

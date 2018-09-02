@@ -28,7 +28,7 @@
 #include "mat_impl.h"
 #include "quat_decl.h"
 #include "quat_impl.h"
-#include "Plane.h"
+#include "plane.h"
 #include "MathUtils.h"
 
 #include <algorithm>

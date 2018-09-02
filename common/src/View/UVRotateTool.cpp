@@ -65,7 +65,7 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             const mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
-            const Plane3& boundary = face->boundary();
+            const plane3& boundary = face->boundary();
             const mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
 
             const Ray3& pickRay = inputState.pickRay();
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             
             Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
+            const plane3& boundary = face->boundary();
             const Ray3& pickRay = inputState.pickRay();
             const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
             const vec3 curPoint = pickRay.pointAtDistance(curPointDistance);

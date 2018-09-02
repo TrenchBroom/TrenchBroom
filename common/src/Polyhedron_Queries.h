@@ -31,7 +31,7 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {
-        const Plane<T,3> plane = callback.plane(currentFace);
+        const plane<T,3> plane = callback.plane(currentFace);
         if (plane.pointStatus(point) == Math::PointStatus::PSAbove)
             return false;
         currentFace = currentFace->next();
@@ -383,7 +383,7 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
             const V direction = cross(lhsEdgeVec, rhsEdgeVec);
             
             if (!isZero(direction)) {
-                const Plane<T,3> plane(lhsEdgeOrigin, direction);
+                const plane<T,3> plane(lhsEdgeOrigin, direction);
                 
                 const Math::PointStatus::Type lhsStatus = pointStatus(plane, lhs.m_vertices.front());
                 if (lhsStatus != Math::PointStatus::PSInside) {
@@ -407,7 +407,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVertex, const Callback& callback) {
     const Face* currentFace = firstFace;
     do {
-        const Plane<T,3> plane = callback.plane(currentFace);
+        const plane<T,3> plane = callback.plane(currentFace);
         if (pointStatus(plane, firstVertex) == Math::PointStatus::PSAbove)
             return true;
         currentFace = currentFace->next();
@@ -416,7 +416,7 @@ bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVer
 }
 
 template <typename T, typename FP, typename VP>
-Math::PointStatus::Type Polyhedron<T,FP,VP>::pointStatus(const Plane<T,3>& plane, const Vertex* firstVertex) {
+Math::PointStatus::Type Polyhedron<T,FP,VP>::pointStatus(const plane<T,3>& plane, const Vertex* firstVertex) {
     size_t above = 0;
     size_t below = 0;
     const Vertex* currentVertex = firstVertex;

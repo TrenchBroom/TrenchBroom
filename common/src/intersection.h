@@ -26,7 +26,7 @@
 #include "Ray.h"
 #include "bbox_decl.h"
 #include "line_decl.h"
-#include "Plane.h"
+#include "plane.h"
 
 #include <array>
 
@@ -41,7 +41,7 @@
  * @return the distance to the intersection point, or NaN if the ray does not intersect the plane
  */
 template <typename T, size_t S>
-T intersect(const Ray<T,S>& r, const Plane<T,S>& p) {
+T intersect(const Ray<T,S>& r, const plane<T,S>& p) {
     const auto d = dot(r.direction, p.normal);
     if (Math::zero(d)) {
         return Math::nan<T>();
@@ -150,7 +150,7 @@ T intersect(const Ray<T,S>& r, const bbox<T,S>& b) {
  * @return the distance to the intersection point, or NaN if the line does not intersect the plane
  */
 template <typename T, size_t S>
-T intersect(const line<T,S>& l, const Plane<T,3>& p) {
+T intersect(const line<T,S>& l, const plane<T,3>& p) {
     const auto f = dot(l.direction, p.normal);
     if (Math::zero(f)) {
         return Math::nan<T>();
@@ -169,7 +169,7 @@ T intersect(const line<T,S>& l, const Plane<T,3>& p) {
  * @return the line of intersection, or an uninitialized plane (with normal 0) if the planes are parallel
  */
 template <typename T, size_t S>
-line<T,S> intersect(const Plane<T,S>& p1, const Plane<T,S>& p2) {
+line<T,S> intersect(const plane<T,S>& p1, const plane<T,S>& p2) {
     const auto lineDirection = normalize(cross(p1.normal, p2.normal));
 
     if (isNaN(lineDirection)) {

@@ -129,7 +129,7 @@ namespace TrenchBroom {
             const Assets::Texture* texture = m_face->texture();
             if (texture != nullptr) {
                 
-                const Plane3& boundary = m_face->boundary();
+                const plane3& boundary = m_face->boundary();
                 const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());
                 const vec3 hitPointInWorldCoords = ray.pointAtDistance(rayDistance);
                 const vec3 hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;

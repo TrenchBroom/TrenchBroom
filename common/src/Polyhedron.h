@@ -147,7 +147,7 @@ public:
         Edge* next() const;
         Edge* previous() const;
     private:
-        Edge* split(const Plane<T,3>& plane);
+        Edge* split(const plane<T,3>& plane);
         Edge* splitAtCenter();
         Edge* insertVertex(const V& position);
         void flip();
@@ -236,7 +236,7 @@ public:
         typename Vertex::Set vertexSet() const;
         
         bool coplanar(const Face* other) const;
-        bool verticesOnPlane(const Plane<T,3>& plane) const;
+        bool verticesOnPlane(const plane<T,3>& plane) const;
         void flip();
         void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge);
         void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge);
@@ -273,7 +273,7 @@ public:
         virtual void vertexWillBeDeleted(Vertex* vertex);
         virtual void vertexWasAdded(Vertex* vertex);
         virtual void vertexWillBeRemoved(Vertex* vertex);
-        virtual Plane<T,3> plane(const Face* face) const;
+        virtual plane<T,3> plane(const Face* face) const;
         virtual void faceWasCreated(Face* face);
         virtual void faceWillBeDeleted(Face* face);
         virtual void faceDidChange(Face* face);
@@ -476,12 +476,12 @@ public: // Clipping
      
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
-    ClipResult clip(const Plane<T,3>& plane);
+    ClipResult clip(const plane<T,3>& plane);
     
     /**
      May throw a GeometryException if the polyhedron cannot be intersected with the given plane.
      */
-    ClipResult clip(const Plane<T,3>& plane, Callback& callback);
+    ClipResult clip(const plane<T,3>& plane, Callback& callback);
 
     /**
      Clips this polyhedron using all faces of the given polyhedron.
@@ -492,18 +492,18 @@ public: // Intersection
     Polyhedron intersect(const Polyhedron& other) const;
     Polyhedron intersect(Polyhedron other, const Callback& callback) const;
 private:
-    ClipResult checkIntersects(const Plane<T,3>& plane) const;
+    ClipResult checkIntersects(const plane<T,3>& plane) const;
     
     class NoSeamException;
 
     /**
      May throw a NoSeamException if the polyhedron cannot be intersected with the given plane due.
      */
-    Seam intersectWithPlane(const Plane<T,3>& plane, Callback& callback);
-    HalfEdge* findInitialIntersectingEdge(const Plane<T,3>& plane) const;
-    HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, Callback& callback);
+    Seam intersectWithPlane(const plane<T,3>& plane, Callback& callback);
+    HalfEdge* findInitialIntersectingEdge(const plane<T,3>& plane) const;
+    HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const plane<T,3>& plane, Callback& callback);
     void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, Callback& callback);
-    HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
+    HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const plane<T,3>& plane) const;
 public: // Subtraction
     typedef std::list<Polyhedron> SubtractResult;
     
@@ -541,7 +541,7 @@ private:
     static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
     static bool separate(const Face* faces, const Vertex* vertices, const Callback& callback);
-    static Math::PointStatus::Type pointStatus(const Plane<T,3>& plane, const Vertex* vertices);
+    static Math::PointStatus::Type pointStatus(const plane<T,3>& plane, const Vertex* vertices);
 };
 
 #endif

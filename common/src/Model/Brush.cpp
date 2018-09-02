@@ -272,7 +272,7 @@ namespace TrenchBroom {
 
         class Brush::QueryCallback : public BrushGeometry::Callback {
         public:
-            Plane3 plane(const BrushFaceGeometry* face) const override {
+            plane3 plane(const BrushFaceGeometry* face) const override {
                 return face->payload()->boundary();
             }
         };
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const Plane3& boundary) const {
+        BrushFace* Brush::findFace(const plane3& boundary) const {
             for (auto* face : m_faces) {
                 if (equal(face->boundary(), boundary, Math::Constants<FloatType>::almostZero())) {
                     return face;

@@ -251,16 +251,16 @@ namespace TrenchBroom {
             document->select(Model::NodeList{brush1});
 
             ASSERT_EQ(vec3(200,200,200), brush1->bounds().size());
-            ASSERT_EQ(Plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
+            ASSERT_EQ(plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
             ASSERT_EQ(vec3(200,200,200), brush1->bounds().size());
-            ASSERT_EQ(Plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
+            ASSERT_EQ(plane3(100.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
             ASSERT_EQ(vec3(400,400,400), brush1->bounds().size());
-            ASSERT_EQ(Plane3(200.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
+            ASSERT_EQ(plane3(200.0, vec3::pos_z), brush1->findFace(vec3::pos_z)->boundary());
         }
 
         TEST_F(MapDocumentTest, scaleObjectsWithCenter) {

@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             if (camera.perspectiveProjection()) {
                 if (side.normal == vec3::pos_z || side.normal == vec3::neg_z) {
-                    restricter = new PlaneDragRestricter(Plane3(sideCenter, side.normal));
+                    restricter = new PlaneDragRestricter(plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
                     const line3 sideways(sideCenter, normalize(cross(side.normal, vec3::pos_z)));

@@ -39,9 +39,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  * @tparam S the number of components
  */
 template <typename T, size_t S>
-class Plane {
+class plane {
 public:
-    using List = std::vector<Plane>;
+    using List = std::vector<plane>;
 
     T distance;
     vec<T,S> normal;
@@ -49,17 +49,17 @@ public:
     /**
      * Creates a new plane by setting all components to 0.
      */
-    Plane() :
+    plane() :
     distance(static_cast<T>(0.0)),
     normal(vec<T,S>::zero) {}
     
     // Copy and move constructors
-    Plane(const Plane<T,S>& other) = default;
-    Plane(Plane<T,S>&& other) = default;
+    plane(const plane<T,S>& other) = default;
+    plane(plane<T,S>&& other) = default;
     
     // Assignment operators
-    Plane<T,S>& operator=(const Plane<T,S>& other) = default;
-    Plane<T,S>& operator=(Plane<T,S>&& other) = default;
+    plane<T,S>& operator=(const plane<T,S>& other) = default;
+    plane<T,S>& operator=(plane<T,S>&& other) = default;
 
     /**
      * Converts the given plane by converting its components.
@@ -68,7 +68,7 @@ public:
      * @param other the plane to convert
      */
     template <typename U>
-    Plane(const Plane<U,S>& other) :
+    plane(const plane<U,S>& other) :
     distance(static_cast<T>(other.distance)),
     normal(other.normal) {}
 
@@ -78,7 +78,7 @@ public:
      * @param i_distance the distance
      * @param i_normal the normal vector
      */
-    Plane(const T i_distance, const vec<T,S>& i_normal) :
+    plane(const T i_distance, const vec<T,S>& i_normal) :
     distance(i_distance),
     normal(i_normal) {}
 
@@ -88,7 +88,7 @@ public:
      * @param i_anchor the anchor point (any point on the plane)
      * @param i_normal the normal vector
      */
-    Plane(const vec<T,S>& i_anchor, const vec<T,S>& i_normal) :
+    plane(const vec<T,S>& i_anchor, const vec<T,S>& i_normal) :
     distance(dot(i_anchor, i_normal)),
     normal(i_normal) {}
 
@@ -176,9 +176,9 @@ public:
      *
      * @return the flipped plane
      */
-    Plane<T,S> flip() const {
+    plane<T,S> flip() const {
         // Distance must also be flipped to compensate for the changed sign of the normal. The location of the plane does not change!
-        return Plane<T,S>(-distance, -normal);
+        return plane<T,S>(-distance, -normal);
     }
 
     /**
@@ -188,16 +188,29 @@ public:
      * @param transform the transformation to apply
      * @return the transformed plane
      */
-    Plane<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+    plane<T,S> transform(const mat<T,S+1,S+1>& transform) const {
         const auto newNormal   = normalize(stripTranslation(transform) * normal);
         const auto newDistance = dot(transform * anchor(), newNormal);
-        return Plane<T,S>(newDistance, newNormal);
+        return plane<T,S>(newDistance, newNormal);
     }
 
+    /**
+     * Projects the given point onto this plane along the plane normal.
+     *
+     * @param point the point to project
+     * @return the projected point
+     */
     vec<T,S> projectPoint(const vec<T,S>& point) const {
         return point - dot(point, normal) * normal + distance * normal;
     }
 
+    /**
+     * Projects the given point onto this plane along the given direction.
+     *
+     * @param point the point to project
+     * @param direction the projection direction
+     * @return the projected point
+     */
     vec<T,S> projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
         const auto cos = dot(direction, normal);
         if (Math::zero(cos)) {
@@ -206,11 +219,24 @@ public:
         const auto d = dot(distance * normal - point, normal) / cos;
         return point + direction * d;
     }
-    
+
+    /**
+     * Projects the given vector originating at the anchor point onto this plane along the plane normal.
+     *
+     * @param vector the vector to project
+     * @return the projected vector
+     */
     vec<T,S> projectVector(const vec<T,S>& vector) const {
         return projectPoint(anchor() + vector) - anchor();
     }
-    
+
+    /**
+     * Projects the given vector originating at the anchor point onto this plane along the given direction.
+     *
+     * @param vector the vector to project
+     * @param direction the projection direction
+     * @return the projected vector
+     */
     vec<T,S> projectVector(const vec<T,S>& vector, const vec<T,S>& direction) const {
         return projectPoint(anchor() + vector, direction) - anchor();
     }
@@ -226,7 +252,7 @@ public:
  * @return true if the given planes are identical and false otherwise
  */
 template <typename T, size_t S>
-bool operator==(const Plane<T,S>& lhs, const Plane<T,S>& rhs) {
+bool operator==(const plane<T,S>& lhs, const plane<T,S>& rhs) {
     return lhs.distance == rhs.distance && lhs.normal == rhs.normal;
 }
 
@@ -240,8 +266,14 @@ bool operator==(const Plane<T,S>& lhs, const Plane<T,S>& rhs) {
  * @return false if the given planes are identical and true otherwise
  */
 template <typename T, size_t S>
-bool operator!=(const Plane<T,S>& lhs, const Plane<T,S>& rhs) {
+bool operator!=(const plane<T,S>& lhs, const plane<T,S>& rhs) {
     return lhs.distance != rhs.distance || lhs.normal != rhs.normal;
+}
+
+template <typename T, size_t S>
+std::ostream& operator<<(std::ostream& stream, const plane<T,S>& plane) {
+    stream << "{ normal: (" << plane.normal << ") distance: " << plane.distance << " }";
+    return stream;
 }
 
 /**
@@ -255,7 +287,7 @@ bool operator!=(const Plane<T,S>& lhs, const Plane<T,S>& rhs) {
  * @return bool if the two planes are considered equal and false otherwise
  */
 template <typename T, size_t S>
-bool equal(const Plane<T,S>& lhs, const Plane<T,S>& rhs, const T epsilon) {
+bool equal(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
     return Math::eq(lhs.distance, rhs.distance, epsilon) && equal(lhs.normal, rhs.normal, epsilon);
 }
 
@@ -323,12 +355,12 @@ std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, c
  * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
  */
 template <typename T>
-std::tuple<bool, Plane<T,3>> fromPoints(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
+std::tuple<bool, plane<T,3>> fromPoints(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
     const auto [valid, normal] = planeNormal(p1, p2, p3);
     if (!valid) {
-        return std::make_tuple(false, Plane<T,3>());
+        return std::make_tuple(false, plane<T,3>());
     } else {
-        return std::make_tuple(true, Plane<T,3>(p1, normal));
+        return std::make_tuple(true, plane<T,3>(p1, normal));
     }
 }
 
@@ -356,64 +388,64 @@ std::tuple<bool, Plane<T,3>> fromPoints(const vec<T,3>& p1, const vec<T,3>& p2, 
  * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
  */
 template <typename I, typename G = Math::Identity>
-auto fromPoints(I cur, I end, const G& get = G()) -> std::tuple<bool, Plane<typename std::remove_reference<decltype(get(*cur))>::type::type,3>> {
+auto fromPoints(I cur, I end, const G& get = G()) -> std::tuple<bool, plane<typename std::remove_reference<decltype(get(*cur))>::type::type,3>> {
     using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
 
     if (cur == end) {
-        return std::make_tuple(false, Plane<T,3>());
+        return std::make_tuple(false, plane<T,3>());
     }
     const auto p1 = *cur; ++cur;
     if (cur == end) {
-        return std::make_tuple(false, Plane<T,3>());
+        return std::make_tuple(false, plane<T,3>());
     }
     const auto p2 = *cur; ++cur;
     if (cur == end) {
-        return std::make_tuple(false, Plane<T,3>());
+        return std::make_tuple(false, plane<T,3>());
     }
     const auto p3 = *cur;
 
     return fromPoints(p1, p2, p3);
 }
 
-
+/**
+ * Creates a plane with the given point as its anchor and the positive Z axis as its normal.
+ *
+ * @tparam T the component type
+ * @param position the position of the plane
+ * @return the plane
+ */
 template <typename T>
-Plane<T,3> horizontalDragPlane(const vec<T,3>& position) {
-    return Plane<T,3>(position, vec<T,3>::pos_z);
+plane<T,3> horizontalPlane(const vec<T, 3> &position) {
+    return plane<T,3>(position, vec<T,3>::pos_z);
 }
 
+/**
+ * Creates a plane at the given position and with its normal set to the normalized direction.
+ *
+ * @tparam T the component type
+ * @param position the position of the plane
+ * @param direction the direction to derive the normal from
+ * @return the plane
+ */
 template <typename T>
-Plane<T,3> verticalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
-    if (firstComponent(direction) != Math::Axis::AZ) {
-        return Plane<T,3>(position, firstAxis(direction));
-    } else {
-        return Plane<T, 3>(position, secondAxis(direction));
-    }
+plane<T,3> orthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction) {
+    return plane<T,3>(position, normalize(direction));
 }
 
+/**
+ * Creates a plane at the given position and with its normal set to the major axis of the given direction.
+ *
+ * @tparam T the component type
+ * @param position the position of the plane
+ * @param direction the direction to derive the normal from
+ * @return the plane
+ */
 template <typename T>
-Plane<T,3> orthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
-    return Plane<T,3>(position, normalize(direction));
+plane<T,3> alignedOrthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction) {
+    return plane<T,3>(position, firstAxis(direction));
 }
 
-template <typename T>
-Plane<T,3> alignedOrthogonalDragPlane(const vec<T,3>& position, const vec<T,3>& direction) {
-    return Plane<T,3>(position, firstAxis(direction));
-}
-
-template <typename T>
-Plane<T,3> containingDragPlane(const vec<T,3>& position, const vec<T,3>& normal, const vec<T,3>& cameraPosition) {
-    const vec<T,3> fromCamera = normalize(position - cameraPosition);
-    const vec<T,3> vertical = cross(normal, fromCamera);
-    return Plane<T,3>(position, cross(normal, vertical));
-}
-
-template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const Plane<T,S>& plane) {
-    stream << "{normal:" << plane.normal << " distance:" << plane.distance << "}";
-    return stream;
-}
-
-typedef Plane<float,3> Plane3f;
-typedef Plane<double,3> Plane3d;
+using plane3f = plane<float,3>;
+using plane3d = plane<double,3>;
 
 #endif

@@ -268,7 +268,7 @@ namespace TrenchBroom {
             
             const vec3f rotationAxis(getRotationAxis(handle));
             const vec3f startAxis(getPointHandleAxis(handle));
-            const vec3f endAxis(Quat3(rotationAxis, angle) * startAxis);
+            const vec3f endAxis(quat3(rotationAxis, angle) * startAxis);
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();

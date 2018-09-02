@@ -36,20 +36,20 @@ namespace TrenchBroom {
             m_cur = point;
         }
 
-        bool Lasso::selects(const vec3& point, const Plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const vec3& point, const plane3& plane, const bbox2& box) const {
             const auto projected = project(point, plane);
             return !isNaN(projected) && box.contains(vec2(projected));
         }
         
-        bool Lasso::selects(const Edge3& edge, const Plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const Edge3& edge, const plane3& plane, const bbox2& box) const {
             return selects(edge.center(), plane, box);
         }
         
-        bool Lasso::selects(const Polygon3& polygon, const Plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const Polygon3& polygon, const plane3& plane, const bbox2& box) const {
             return selects(polygon.center(), plane, box);
         }
         
-        vec3 Lasso::project(const vec3& point, const Plane3& plane) const {
+        vec3 Lasso::project(const vec3& point, const plane3& plane) const {
             const auto ray = Ray3(m_camera.pickRay(vec3f(point)));
             const auto hitDistance = intersect(ray, plane);;
             if (Math::isnan(hitDistance)) {
@@ -80,8 +80,8 @@ namespace TrenchBroom {
             renderService.renderFilledPolygon(polygon);
         }
 
-        Plane3 Lasso::plane() const {
-            return Plane3(vec3(m_camera.defaultPoint(static_cast<float>(m_distance))), vec3(m_camera.direction()));
+        plane3 Lasso::plane() const {
+            return plane3(vec3(m_camera.defaultPoint(static_cast<float>(m_distance))), vec3(m_camera.direction()));
         }
         
         bbox2 Lasso::box() const {

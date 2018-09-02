@@ -68,24 +68,24 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
 
 template <typename T, typename FP, typename VP>
-Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
-    const HalfEdgeList& boundary = face->boundary();
+plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
+    const auto& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
-    const HalfEdge* firstEdge = boundary.front();
-    const HalfEdge* curEdge = firstEdge;
+    const auto* firstEdge = boundary.front();
+    const auto* curEdge = firstEdge;
     do {
-        const HalfEdge* e1 = curEdge;
-        const HalfEdge* e2 = e1->next();
-        const HalfEdge* e3 = e2->next();
+        const auto* e1 = curEdge;
+        const auto* e2 = e1->next();
+        const auto* e3 = e2->next();
         
-        const V& p1 = e1->origin()->position();
-        const V& p2 = e2->origin()->position();
-        const V& p3 = e3->origin()->position();
+        const auto& p1 = e1->origin()->position();
+        const auto& p2 = e2->origin()->position();
+        const auto& p3 = e3->origin()->position();
 
-        const auto [valid, plane] = fromPoints(p2, p1, p3);
+        const auto [valid, result] = fromPoints(p2, p1, p3);
         if (valid) {
-            return plane;
+            return result;
         }
 
         curEdge = curEdge->next();
@@ -93,7 +93,7 @@ Plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
     
     // TODO: We should really throw an exception here.
     assert(false);
-    return Plane<T,3>(); // Ooops!
+    return ::plane<T,3>(); // Ooops!
 }
 
 template <typename T, typename FP, typename VP>

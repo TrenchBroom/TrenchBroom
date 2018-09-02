@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
                     setRestricter(inputState, new LineDragRestricter(line3(currentHandlePosition(), vec3::pos_z)), true);
                 } else {
-                    setRestricter(inputState, new PlaneDragRestricter(horizontalDragPlane(currentHandlePosition())), true);
+                    setRestricter(inputState, new PlaneDragRestricter(horizontalPlane(currentHandlePosition())), true);
                 }
             }
         }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             refreshViews();
                 
             
-            const Plane3 plane = Plane3(m_initialPoint, vec3::pos_z);
+            const plane3 plane = plane3(m_initialPoint, vec3::pos_z);
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         

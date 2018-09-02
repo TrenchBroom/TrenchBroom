@@ -151,7 +151,7 @@ namespace TrenchBroom {
                            0.0f,          0.0f,       0.0f,       1.0f);
         }
 
-        void Camera::frustumPlanes(Plane3f& top, Plane3f& right, Plane3f& bottom, Plane3f& left) const {
+        void Camera::frustumPlanes(plane3f& top, plane3f& right, plane3f& bottom, plane3f& left) const {
             doComputeFrustumPlanes(top, right, bottom, left);
         }
 

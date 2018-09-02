@@ -93,7 +93,7 @@ namespace TrenchBroom {
             const auto toMin = m_referenceBounds.min - pickRay.origin;
             const auto toMax = m_referenceBounds.max - pickRay.origin;
             const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
-            const auto dragPlane = Plane3(anchor, -pickRay.direction);
+            const auto dragPlane = plane3(anchor, -pickRay.direction);
             
             const auto distance = intersect(pickRay, dragPlane);
             if (Math::isnan(distance)) {
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
-                const auto dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
                 const auto newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);

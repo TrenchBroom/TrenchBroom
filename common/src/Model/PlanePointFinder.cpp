@@ -29,13 +29,13 @@ namespace TrenchBroom {
             
             static const vec2 MoveOffsets[];
             
-            const Plane3& m_plane;
+            const plane3& m_plane;
             const FloatType m_frequency;
             
             vec2 m_position;
             FloatType m_errors[9];
         public:
-            GridSearchCursor(const Plane3& plane, const FloatType frequency) :
+            GridSearchCursor(const plane3& plane, const FloatType frequency) :
             m_plane(plane),
             m_frequency(frequency) {
                 for (size_t i = 0; i < 9; ++i)
@@ -118,10 +118,10 @@ namespace TrenchBroom {
             vec2(-1.0, -1.0), vec2( 0.0, -1.0), vec2( 1.0, -1.0)
         };
 
-        FloatType computePlaneFrequency(const Plane3& plane);
-        void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points);
+        FloatType computePlaneFrequency(const plane3& plane);
+        void setDefaultPlanePoints(const plane3& plane, BrushFace::Points& points);
 
-        FloatType computePlaneFrequency(const Plane3& plane) {
+        FloatType computePlaneFrequency(const plane3& plane) {
             static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
             const vec3& axis = firstAxis(plane.normal);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             return (1.0 - cos) / c;
         }
         
-        void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points) {
+        void setDefaultPlanePoints(const plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
             switch (firstComponent(plane.normal)) {
                 case Math::Axis::AX:
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             }
         }
 
-        void PlanePointFinder::findPoints(const Plane3& plane, BrushFace::Points& points, const size_t numPoints) {
+        void PlanePointFinder::findPoints(const plane3& plane, BrushFace::Points& points, const size_t numPoints) {
             using std::swap;
             
             assert(numPoints <= 3);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             }
             
             const Math::Axis::Type axis = firstComponent(plane.normal);
-            const Plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
+            const plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i)
                 points[i] = swizzle(points[i], axis);
             

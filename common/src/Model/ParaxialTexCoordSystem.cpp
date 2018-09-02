@@ -121,7 +121,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
+        void ParaxialTexCoordSystem::doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
             const vec3 offset     = transformation * vec3::zero;
             const vec3& oldNormal = oldBoundary.normal;
                   vec3 newNormal  = newBoundary.normal;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
 
-            const Plane3 newTexturePlane(0.0, newProjectionAxis);
+            const plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
             const vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);
@@ -240,7 +240,7 @@ namespace TrenchBroom {
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
             const vec3& zAxis = vec3::pos_z; //m_index == 5 ? vec3::neg_z : 	vec3::pos_z;
-            const Quat3 rot(zAxis, -Math::radians(currentAngle));
+            const quat3 rot(zAxis, -Math::radians(currentAngle));
             const vec3 vec = rot * vec3(point - center);
 
             const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), vec3::pos_x, zAxis);
@@ -249,7 +249,7 @@ namespace TrenchBroom {
 
         void ParaxialTexCoordSystem::rotateAxes(vec3& xAxis, vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
             const vec3 rotAxis = cross(BaseAxes[planeNormIndex * 3 + 2], BaseAxes[planeNormIndex * 3 + 1]);
-            const Quat3 rot(rotAxis, angleInRadians);
+            const quat3 rot(rotAxis, angleInRadians);
             xAxis = correct(rot * xAxis);
             yAxis = correct(rot * yAxis);
         }

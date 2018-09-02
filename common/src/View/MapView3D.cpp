@@ -334,11 +334,11 @@ namespace TrenchBroom {
                 
                 if (hit.isMatch()) {
                     const auto* face = Model::hitToFace(hit);
-                    const auto dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                    const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
                     const auto point = vec3(grid.snap(m_camera.defaultPoint(pickRay)));
-                    const auto dragPlane = alignedOrthogonalDragPlane(point, -vec3(firstAxis(m_camera.direction())));
+                    const auto dragPlane = alignedOrthogonalPlane(point, -vec3(firstAxis(m_camera.direction())));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
@@ -412,10 +412,10 @@ namespace TrenchBroom {
         private:
             const vec3f m_cameraPosition;
             const vec3f m_cameraDirection;
-            Plane3f m_frustumPlanes[4];
+            plane3f m_frustumPlanes[4];
             float m_offset;
         public:
-            ComputeCameraCenterOffsetVisitor(const vec3f& cameraPosition, const vec3f& cameraDirection, const Plane3f frustumPlanes[4]) :
+            ComputeCameraCenterOffsetVisitor(const vec3f& cameraPosition, const vec3f& cameraDirection, const plane3f frustumPlanes[4]) :
             m_cameraPosition(cameraPosition),
             m_cameraDirection(cameraDirection),
             m_offset(std::numeric_limits<float>::min()) {
@@ -450,9 +450,9 @@ namespace TrenchBroom {
                 }
             }
             
-            void addPoint(const vec3f point, const Plane3f& plane) {
+            void addPoint(const vec3f point, const plane3f& plane) {
                 const auto ray = Ray3f(m_cameraPosition, -m_cameraDirection);
-                const auto newPlane = Plane3f(point + 64.0f * plane.normal, plane.normal);
+                const auto newPlane = plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;
                 if (!Math::isnan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
@@ -470,7 +470,7 @@ namespace TrenchBroom {
             const auto oldPosition = m_camera.position();
             m_camera.moveTo(vec3f(newPosition));
             
-            Plane3f frustumPlanes[4];
+            plane3f frustumPlanes[4];
             m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
             ComputeCameraCenterOffsetVisitor offset(m_camera.position(), m_camera.direction(), frustumPlanes);
@@ -509,7 +509,7 @@ namespace TrenchBroom {
         vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
-                    const auto plane = Plane3(vec3(m_camera.position()), vec3::pos_z);
+                    const auto plane = plane3(vec3(m_camera.position()), vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vec3(m_camera.direction()));
                     if (isZero(projectedDirection)) {
                         // camera is looking straight down or up

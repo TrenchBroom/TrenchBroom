@@ -75,7 +75,7 @@ namespace TrenchBroom {
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             if (m_orbit) {
-                const auto orbitPlane = Plane3f(m_orbitCenter, m_camera.direction());
+                const auto orbitPlane = plane3f(m_orbitCenter, m_camera.direction());
                 const auto maxDistance = std::max(intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
                 const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());

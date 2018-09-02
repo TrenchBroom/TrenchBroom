@@ -126,12 +126,12 @@ namespace TrenchBroom {
          * Rotate CCW by `angle` radians about `normal`.
          */
         void ParallelTexCoordSystem::applyRotation(const vec3& normal, const FloatType angle) {
-            const Quat3 rot(normal, angle);
+            const quat3 rot(normal, angle);
             m_xAxis = rot * m_xAxis;
             m_yAxis = rot * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
+        void ParallelTexCoordSystem::doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& oldInvariant) {
 
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 return;
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
         }
 
-        float ParallelTexCoordSystem::computeTextureAngle(const Plane3& oldBoundary, const mat4x4& transformation) const {
+        float ParallelTexCoordSystem::computeTextureAngle(const plane3& oldBoundary, const mat4x4& transformation) const {
             const mat4x4& rotationScale = stripTranslation(transformation);
             const vec3& oldNormal = oldBoundary.normal;
             const vec3  newNormal = normalize(rotationScale * oldNormal);
@@ -233,13 +233,13 @@ namespace TrenchBroom {
             std::vector<std::pair<vec3, vec3>> possibleTexAxes;
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
-            const std::vector<Quat3> rotations {
-                Quat3(normalize(m_xAxis), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                Quat3(normalize(m_xAxis), Math::radians(-90.0)), // possibleTexAxes[3] = top
-                Quat3(normalize(m_yAxis), Math::radians(90.0)),  // possibleTexAxes[4] = left
-                Quat3(normalize(m_yAxis), Math::radians(-90.0)), // possibleTexAxes[5] = right
+            const std::vector<quat3> rotations {
+                quat3(normalize(m_xAxis), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                quat3(normalize(m_xAxis), Math::radians(-90.0)), // possibleTexAxes[3] = top
+                quat3(normalize(m_yAxis), Math::radians(90.0)),  // possibleTexAxes[4] = left
+                quat3(normalize(m_yAxis), Math::radians(-90.0)), // possibleTexAxes[5] = right
             };
-            for (const Quat3& rotation : rotations) {
+            for (const quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
             }
             assert(possibleTexAxes.size() == 6);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
         }
         
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) {
-            Quat3 rotation;
+            quat3 rotation;
             vec3 axis = ::cross(oldNormal, newNormal);
             if (axis == vec3::zero) {
                 // oldNormal and newNormal are either the same or opposite.
@@ -284,7 +284,7 @@ namespace TrenchBroom {
             }
             
             const FloatType angle = angleBetween(newNormal, oldNormal, axis);
-            rotation = Quat3(axis, angle);
+            rotation = quat3(axis, angle);
 
             m_xAxis = rotation * m_xAxis;
             m_yAxis = rotation * m_yAxis;

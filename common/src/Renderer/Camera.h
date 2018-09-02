@@ -104,7 +104,7 @@ namespace TrenchBroom {
             const mat4x4f& viewMatrix() const;
             const mat4x4f orthogonalBillboardMatrix() const;
             const mat4x4f verticalBillboardMatrix() const;
-            void frustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;
+            void frustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const;
             
             Ray3f viewRay() const;
             Ray3f pickRay(int x, int y) const;
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             
             virtual void doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const = 0;
             virtual Ray3f doGetPickRay(const vec3f& point) const = 0;
-            virtual void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
+            virtual void doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const = 0;
             
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
             virtual float doPickFrustum(float size, const Ray3f& ray) const = 0;

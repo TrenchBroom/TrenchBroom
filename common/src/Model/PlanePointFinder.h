@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         class PlanePointFinder {
         public:
-            static void findPoints(const Plane3& plane, BrushFace::Points& points, size_t numPoints);
+            static void findPoints(const plane3& plane, BrushFace::Points& points, size_t numPoints);
         };
     }
 }

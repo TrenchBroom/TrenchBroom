@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "vec_decl.h"
-#include "Plane.h"
+#include "plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 #include "Model/PlanePointFinder.h"

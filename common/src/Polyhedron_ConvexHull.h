@@ -416,7 +416,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     assert(polygon());
     
     Face* face = m_faces.front();
-    Plane<T,3> facePlane = callback.plane(face);
+    plane<T,3> facePlane = callback.plane(face);
     
     HalfEdge* firstVisibleEdge = nullptr;
     HalfEdge* lastVisibleEdge = nullptr;
@@ -827,7 +827,7 @@ public:
         return checkRemainingPoints(plane, seam);
     }
 private:
-    bool checkRemainingPoints(const Plane<T,3>& plane, const Seam& seam) const {
+    bool checkRemainingPoints(const plane<T,3>& plane, const Seam& seam) const {
         if (seam.size() < 5)
             return true;
         
