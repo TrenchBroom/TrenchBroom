@@ -71,7 +71,7 @@ private:
         Face* first = m_minuend.faces().front();
         Face* current = first;
         do {
-            const ClipResult result = m_subtrahend.clip(m_callback.plane(current));
+            const ClipResult result = m_subtrahend.clip(m_callback.getPlane(current));
             if (result.empty())
                 return false;
             current = current->next();
@@ -92,7 +92,7 @@ private:
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
         do {
-            const plane<T,3> plane = m_callback.plane(currentFace);
+            const plane<T,3> plane = m_callback.getPlane(currentFace);
             result.push_back(plane);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);

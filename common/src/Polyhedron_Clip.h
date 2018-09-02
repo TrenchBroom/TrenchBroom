@@ -103,7 +103,7 @@ typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const Polyhed
     Face* first = polyhedron.faces().front();
     Face* current = first;
     do {
-        const ClipResult result = clip(callback.plane(current), callback);
+        const ClipResult result = clip(callback.getPlane(current), callback);
         if (result.empty())
             return result;
         current = current->next();

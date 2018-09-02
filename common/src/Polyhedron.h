@@ -273,7 +273,7 @@ public:
         virtual void vertexWillBeDeleted(Vertex* vertex);
         virtual void vertexWasAdded(Vertex* vertex);
         virtual void vertexWillBeRemoved(Vertex* vertex);
-        virtual plane<T,3> plane(const Face* face) const;
+        virtual plane<T,3> getPlane(const Face* face) const;
         virtual void faceWasCreated(Face* face);
         virtual void faceWillBeDeleted(Face* face);
         virtual void faceDidChange(Face* face);

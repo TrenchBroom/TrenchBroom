@@ -416,7 +416,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     assert(polygon());
     
     Face* face = m_faces.front();
-    plane<T,3> facePlane = callback.plane(face);
+    plane<T,3> facePlane = callback.getPlane(face);
     
     HalfEdge* firstVisibleEdge = nullptr;
     HalfEdge* lastVisibleEdge = nullptr;

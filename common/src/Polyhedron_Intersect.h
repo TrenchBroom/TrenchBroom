@@ -34,7 +34,7 @@ Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callb
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {
-        const plane<T,3> plane = callback.plane(currentFace);
+        const plane<T,3> plane = callback.getPlane(currentFace);
         const ClipResult result = other.clip(plane);
         if (result.empty())
             return Polyhedron();

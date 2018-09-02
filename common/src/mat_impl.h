@@ -27,6 +27,7 @@
 #include "quat_impl.h"
 
 #include <cassert>
+#include <tuple>
 
 template <typename T, size_t R, size_t C>
 mat<T,R,C> mat<T,R,C>::fill(const T value) {

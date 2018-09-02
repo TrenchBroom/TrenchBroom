@@ -68,7 +68,7 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
 
 template <typename T, typename FP, typename VP>
-plane<T,3> Polyhedron<T,FP,VP>::Callback::plane(const Face* face) const {
+plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
     const auto& boundary = face->boundary();
     assert(boundary.size() >= 3);
     

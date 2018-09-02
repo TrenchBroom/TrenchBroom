@@ -272,7 +272,7 @@ namespace TrenchBroom {
 
         class Brush::QueryCallback : public BrushGeometry::Callback {
         public:
-            plane3 plane(const BrushFaceGeometry* face) const override {
+            plane3 getPlane(const BrushFaceGeometry* face) const override {
                 return face->payload()->boundary();
             }
         };

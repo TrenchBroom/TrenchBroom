@@ -31,7 +31,7 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
     const Face* firstFace = m_faces.front();
     const Face* currentFace = firstFace;
     do {
-        const plane<T,3> plane = callback.plane(currentFace);
+        const plane<T,3> plane = callback.getPlane(currentFace);
         if (plane.pointStatus(point) == Math::PointStatus::PSAbove)
             return false;
         currentFace = currentFace->next();
@@ -140,7 +140,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsPolygon(const Polyhedron& lhs, const Po
     
     const V& lhsPos = lhs.m_vertices.front()->position();
     const Face* rhsFace = rhs.m_faces.front();
-    const V rhsNormal = callback.plane(rhsFace).normal;
+    const V rhsNormal = callback.getPlane(rhsFace).normal;
     const HalfEdgeList& rhsBoundary = rhsFace->boundary();
     
     return polygonContainsPoint(lhsPos, rhsNormal, std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition());
@@ -407,7 +407,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVertex, const Callback& callback) {
     const Face* currentFace = firstFace;
     do {
-        const plane<T,3> plane = callback.plane(currentFace);
+        const plane<T,3> plane = callback.getPlane(currentFace);
         if (pointStatus(plane, firstVertex) == Math::PointStatus::PSAbove)
             return true;
         currentFace = currentFace->next();
