@@ -19,7 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "line.h"
+#include "line_decl.h"
+#include "line_impl.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
 

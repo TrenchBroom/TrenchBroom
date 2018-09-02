@@ -30,7 +30,8 @@
 
 #include "bbox_decl.h"
 #include "bbox_impl.h"
-#include "line.h"
+#include "line_decl.h"
+#include "line_impl.h"
 #include "mat_forward.h"
 #include "mat_decl.h"
 #include "mat_impl.h"

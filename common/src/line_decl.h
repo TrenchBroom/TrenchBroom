@@ -17,10 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Line_h
-#define TrenchBroom_Line_h
+#ifndef TRENCHBROOM_LINE_DECL
+#define TRENCHBROOM_LINE_DECL
 
 #include "vec_decl.h"
+
+#include <vector>
 
 template <typename T, size_t S>
 class line {
@@ -31,9 +33,7 @@ public:
     vec<T,S> point;
     vec<T,S> direction;
 
-    line() :
-    point(vec<T,S>::zero),
-    direction(vec<T,S>::zero) {}
+    line();
     
     // Copy and move constructors
     line(const line<T,S>& line) = default;
@@ -60,9 +60,7 @@ public:
      * @param i_point the point
      * @param i_direction the direction
      */
-    line(const vec<T,S>& i_point, const vec<T,S>& i_direction) :
-    point(i_point),
-    direction(i_direction) {}
+    line(const vec<T,S>& i_point, const vec<T,S>& i_direction);
 public:
     /**
      * Projects the given point orthogonally onto this line and computes the distance from the line anchor point to
@@ -71,9 +69,7 @@ public:
      * @param i_point the point to project
      * @return the distance
      */
-    T distance(const vec<T,S>& i_point) const {
-        return dot(i_point - point, direction);
-    }
+    T distance(const vec<T,S>& i_point) const;
 
     /**
      * Returns a point on this line at the given distance from its anchor point.
@@ -81,9 +77,7 @@ public:
      * @param distance the distance of the point (along the direction)
      * @return the point at the given distance
      */
-    const vec<T,S> pointAtDistance(const T distance) const {
-        return point + direction * distance;
-    }
+    vec<T,S> pointAtDistance(T distance) const;
     
 
     /**
@@ -92,13 +86,8 @@ public:
      * @param i_point the point to project
      * @return the projected point
      */
-    const vec<T,S> project(const vec<T,S>& i_point) const {
-        return pointAtDistance(distance(i_point));
-    }
+    vec<T,S> project(const vec<T,S>& i_point) const;
 };
-
-template <typename T, size_t S>
-const typename line<T,S>::List line<T,S>::EmptyList = line<T,S>::List();
 
 /**
  * Prints a textual representation of the given line to the given stream.
@@ -110,10 +99,7 @@ const typename line<T,S>::List line<T,S>::EmptyList = line<T,S>::List();
  * @return the given stream
  */
 template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const line<T,S>& line) {
-    stream << "{ point: (" << line.point << "), direction: (" << line.direction << ") }";
-    return stream;
-}
+std::ostream& operator<<(std::ostream& stream, const line<T,S>& line);
 
 typedef line<float,3> line3f;
 typedef line<double,3> line3d;

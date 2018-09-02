@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "vec_decl.h"
 #include "vec_impl.h"
-#include "line.h"
+#include "line_decl.h"
 #include "MathUtils.h"
 #include "mat_forward.h"
 #include "Ray.h"
