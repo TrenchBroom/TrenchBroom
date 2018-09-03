@@ -849,14 +849,14 @@ else()
 endif()
 
 if(wxWidgets_FOUND)
-  find_file(_filename wx/version.h PATHS ${wxWidgets_INCLUDE_DIRS} NO_DEFAULT_PATH)
-  dbg_msg("_filename:  ${_filename}")
+  find_file(version_filename wx/version.h PATHS ${wxWidgets_INCLUDE_DIRS} NO_DEFAULT_PATH)
+  dbg_msg("version_filename:  ${version_filename}")
 
-  if(NOT _filename)
+  if(NOT version_filename)
     message(FATAL_ERROR "wxWidgets wx/version.h file not found in ${wxWidgets_INCLUDE_DIRS}.")
   endif()
 
-  file(READ ${_filename} _wx_version_h)
+  file(READ ${version_filename} _wx_version_h)
 
   string(REGEX REPLACE "^(.*\n)?#define +wxMAJOR_VERSION +([0-9]+).*"
     "\\2" wxWidgets_VERSION_MAJOR "${_wx_version_h}" )
