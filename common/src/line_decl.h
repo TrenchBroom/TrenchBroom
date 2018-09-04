@@ -24,6 +24,13 @@
 
 #include <vector>
 
+/**
+ * An infinite line represented by a point and a direction.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ */
+// TODO 2201: introduce abstract_line concept with origin, direction, positiveLength, negativeLength
 template <typename T, size_t S>
 class line {
 public:
