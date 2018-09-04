@@ -57,7 +57,7 @@ namespace TrenchBroom {
             class ClipStrategy {
             public:
                 virtual ~ClipStrategy();
-                void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+                void pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
                 void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
                 void renderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const;
                 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 void reset();
                 size_t getPoints(vec3& point1, vec3& point2, vec3& point3) const;
             private:
-                virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
+                virtual void doPick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
                 virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
 
                 virtual void doRenderFeedback(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& point) const = 0;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             
             void toggleSide();
             
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
         private:

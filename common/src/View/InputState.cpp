@@ -173,7 +173,7 @@ namespace TrenchBroom {
             m_anyToolDragging = anyToolDragging;
         }
 
-        const Ray3& InputState::pickRay() const {
+        const ray3& InputState::pickRay() const {
             return m_pickRequest.pickRay();
         }
         

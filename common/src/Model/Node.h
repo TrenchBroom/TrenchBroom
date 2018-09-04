@@ -251,9 +251,9 @@ namespace TrenchBroom {
             LockState lockState() const;
             bool setLockState(LockState lockState);
         public: // picking
-            void pick(const Ray3& ray, PickResult& result) const;
+            void pick(const ray3& ray, PickResult& result) const;
             void findNodesContaining(const vec3& point, NodeList& result);
-            FloatType intersectWithRay(const Ray3& ray) const;
+            FloatType intersectWithRay(const ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
@@ -443,9 +443,9 @@ namespace TrenchBroom {
             
             virtual bool doSelectable() const = 0;
             
-            virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
+            virtual void doPick(const ray3& ray, PickResult& pickResult) const = 0;
             virtual void doFindNodesContaining(const vec3& point, NodeList& result) = 0;
-            virtual FloatType doIntersectWithRay(const Ray3& ray) const = 0;
+            virtual FloatType doIntersectWithRay(const ray3& ray) const = 0;
             
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
             

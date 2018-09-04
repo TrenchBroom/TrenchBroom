@@ -47,14 +47,14 @@ namespace TrenchBroom {
             void doNodeBoundsDidChange(const bbox3& oldBounds) override;
             bool doSelectable() const override;
 
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doPick(const ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vec3& point, NodeList& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
 
-            FloatType doIntersectWithRay(const Ray3& ray) const override;
+            FloatType doIntersectWithRay(const ray3& ray) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

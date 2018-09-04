@@ -294,7 +294,7 @@ namespace TrenchBroom {
                 return ps;
             }
         public:
-            FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;
+            FloatType intersectWithRay(const ray3& ray, const size_t skip) const;
             
             /**
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
@@ -305,7 +305,7 @@ namespace TrenchBroom {
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vec3 moveDeltaForBounds(const plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const Ray3& ray, const vec3& position) const;
+            vec3 moveDeltaForBounds(const plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const ray3& ray, const vec3& position) const;
             vec3 moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vec3& delta) const;
             vec3 moveDelta(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
             vec3 moveDelta(const vec3& delta) const;

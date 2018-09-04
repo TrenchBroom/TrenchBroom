@@ -51,11 +51,11 @@ namespace TrenchBroom {
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
-        Ray3f OrthographicCamera::doGetPickRay(const vec3f& point) const {
+        ray3f OrthographicCamera::doGetPickRay(const vec3f& point) const {
             const vec3f v = point - position();
             const float d = dot(v, direction());
             const vec3f o = point - d * direction();
-            return Ray3f(o, direction());
+            return ray3f(o, direction());
         }
         
         void OrthographicCamera::doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const {
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
         }
         
-        float OrthographicCamera::doPickFrustum(const float size, const Ray3f& ray) const {
+        float OrthographicCamera::doPickFrustum(const float size, const ray3f& ray) const {
             return Math::nan<float>();
         }
 

@@ -63,7 +63,7 @@ namespace TrenchBroom {
             void cameraDidChange(const Renderer::Camera* camera);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const override;
-            Model::PickResult doPick(const Ray3& pickRay) const override;
+            Model::PickResult doPick(const ray3& pickRay) const override;
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface

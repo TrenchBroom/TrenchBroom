@@ -59,31 +59,31 @@ namespace TrenchBroom {
                 line3 xHandle, yHandle;
                 computeOriginHandles(xHandle, yHandle);
 
-                const Model::BrushFace* face = m_helper.face();
-                const mat4x4 fromTex = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-                const vec3 origin = fromTex * vec3(m_helper.originInFaceCoords());
+                const auto* face = m_helper.face();
+                const auto fromTex = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+                const auto origin = fromTex * vec3(m_helper.originInFaceCoords());
                 
-                const Ray3& pickRay = inputState.pickRay();
-                const Ray3::PointDistance oDistance = pickRay.distanceToPoint(origin);
+                const auto& pickRay = inputState.pickRay();
+                const auto oDistance = distance(pickRay, origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
-                    const vec3 hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
+                    const auto hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
                     pickResult.addHit(Model::Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                     pickResult.addHit(Model::Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                 } else {
-                    const Ray3::LineDistance xDistance = pickRay.distanceToLine(xHandle.point, xHandle.direction);
-                    const Ray3::LineDistance yDistance = pickRay.distanceToLine(yHandle.point, yHandle.direction);
-                    
+                    const auto xDistance = distance(pickRay, xHandle);
+                    const auto yDistance = distance(pickRay, yHandle);
+
                     assert(!xDistance.parallel);
                     assert(!yDistance.parallel);
                     
-                    const FloatType maxDistance  = MaxPickDistance / m_helper.cameraZoom();
+                    const auto maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                     if (xDistance.distance <= maxDistance) {
-                        const vec3 hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
+                        const auto hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
                         pickResult.addHit(Model::Hit(XHandleHit, xDistance.rayDistance, hitPoint, xHandle, xDistance.distance));
                     }
                     
                     if (yDistance.distance <= maxDistance) {
-                        const vec3 hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
+                        const auto hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
                         pickResult.addHit(Model::Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, yDistance.distance));
                     }
                 }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             }
         }
         
-        vec2f UVOriginTool::computeHitPoint(const Ray3& ray) const {
+        vec2f UVOriginTool::computeHitPoint(const ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto distance = intersect(ray, boundary);

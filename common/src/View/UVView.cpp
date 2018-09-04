@@ -326,10 +326,10 @@ namespace TrenchBroom {
         }
 
         PickRequest UVView::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
-        Model::PickResult UVView::doPick(const Ray3& pickRay) const {
+        Model::PickResult UVView::doPick(const ray3& pickRay) const {
             Model::PickResult pickResult = Model::PickResult::byDistance(lock(m_document)->editorContext());
             if (!m_helper.valid())
                 return pickResult;

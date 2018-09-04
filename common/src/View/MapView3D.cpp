@@ -300,10 +300,10 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(ray3(m_camera.pickRay(x, y)), m_camera);
         }
 
-        Model::PickResult MapView3D::doPick(const Ray3& pickRay) const {
+        Model::PickResult MapView3D::doPick(const ray3& pickRay) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             const auto clientCoords = ScreenToClient(mouseState.GetPosition());
             
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const auto pickRay = Ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
+                const auto pickRay = ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
                 
                 const auto& editorContext = document->editorContext();
                 auto pickResult = Model::PickResult::byDistance(editorContext);
@@ -451,7 +451,7 @@ namespace TrenchBroom {
             }
             
             void addPoint(const vec3f point, const plane3f& plane) {
-                const auto ray = Ray3f(m_cameraPosition, -m_cameraDirection);
+                const auto ray = ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;
                 if (!Math::isnan(dist) && dist > 0.0f) {

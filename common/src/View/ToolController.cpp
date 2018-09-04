@@ -77,11 +77,11 @@ namespace TrenchBroom {
         m_line(line) {}
 
         bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, vec3& point) const {
-            const auto lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
-            if (lineDist.parallel) {
+            const auto dist = distance(inputState.pickRay(), m_line);
+            if (dist.parallel) {
                 return false;
             } else {
-                point = m_line.point + m_line.direction * lineDist.lineDistance;
+                point = m_line.point + m_line.direction * dist.lineDistance;
                 return true;
             }
         }

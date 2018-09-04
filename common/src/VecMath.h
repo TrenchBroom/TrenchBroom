@@ -37,7 +37,8 @@
 #include "quat_impl.h"
 #include "bbox_decl.h"
 #include "bbox_impl.h"
-#include "Ray.h"
+#include "ray_decl.h"
+#include "ray_impl.h"
 #include "line_decl.h"
 #include "line_impl.h"
 #include "plane_decl.h"
@@ -45,6 +46,7 @@
 #include "CoordinatePlane.h"
 #include "Edge.h"
 #include "Polygon.h"
+#include "distance.h"
 #include "intersection.h"
 
 #endif

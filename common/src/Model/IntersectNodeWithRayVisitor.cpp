@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        IntersectNodeWithRayVisitor::IntersectNodeWithRayVisitor(const Ray3& ray) :
+        IntersectNodeWithRayVisitor::IntersectNodeWithRayVisitor(const ray3& ray) :
         NodeQuery(Math::nan<FloatType>()),
         m_ray(ray) {}
 

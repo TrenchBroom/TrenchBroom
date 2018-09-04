@@ -561,7 +561,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
 
             PickResult hits1;
-            brush.pick(Ray3(vec3(8.0, -8.0, 8.0), vec3::pos_y), hits1);
+            brush.pick(ray3(vec3(8.0, -8.0, 8.0), vec3::pos_y), hits1);
             ASSERT_EQ(1u, hits1.size());
 
             Hit hit1 = hits1.all().front();
@@ -570,7 +570,7 @@ namespace TrenchBroom {
             ASSERT_EQ(front, face1);
 
             PickResult hits2;
-            brush.pick(Ray3(vec3(8.0, -8.0, 8.0), vec3::neg_y), hits2);
+            brush.pick(ray3(vec3(8.0, -8.0, 8.0), vec3::neg_y), hits2);
             ASSERT_TRUE(hits2.empty());
         }
 

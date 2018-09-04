@@ -49,7 +49,7 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        Model::Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Model::Hit RotateObjectsHandle::pick2D(const ray3& pickRay, const Renderer::Camera& camera) const {
             vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             return hit;
         }
         
-        Model::Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Model::Hit RotateObjectsHandle::pick3D(const ray3& pickRay, const Renderer::Camera& camera) const {
             vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
@@ -301,7 +301,7 @@ namespace TrenchBroom {
         }
         */
         
-        Model::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const {
+        Model::Hit RotateObjectsHandle::pickPointHandle(const ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
             if (Math::isnan(distance))
                 return Model::Hit::NoHit;

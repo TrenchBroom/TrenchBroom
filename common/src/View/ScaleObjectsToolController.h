@@ -53,7 +53,7 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
-            virtual void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
+            virtual void doPick(const ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
 
             void doModifierKeyChange(const InputState& inputState) override;
             
@@ -79,14 +79,14 @@ namespace TrenchBroom {
         public:
             explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
+            void doPick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
         
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
             explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
+            void doPick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
     }
 }

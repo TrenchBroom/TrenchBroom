@@ -76,7 +76,7 @@ namespace TrenchBroom {
             const Renderer::Camera& camera() const;
             float cameraZoom() const;
 
-            void pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
+            void pickTextureGrid(const ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
             vec2f snapDelta(const vec2f& delta, const vec2f& distance) const;
             vec2f computeDistanceFromTextureGrid(const vec3& position) const;

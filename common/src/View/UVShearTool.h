@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
             
-            vec2f getHit(const Ray3& pickRay) const;
+            vec2f getHit(const ray3& pickRay) const;
             
             bool doCancel() override;
         };

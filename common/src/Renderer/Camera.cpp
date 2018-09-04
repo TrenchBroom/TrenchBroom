@@ -155,15 +155,15 @@ namespace TrenchBroom {
             doComputeFrustumPlanes(top, right, bottom, left);
         }
 
-        Ray3f Camera::viewRay() const {
-            return Ray3f(m_position, m_direction);
+        ray3f Camera::viewRay() const {
+            return ray3f(m_position, m_direction);
         }
 
-        Ray3f Camera::pickRay(const int x, const int y) const {
+        ray3f Camera::pickRay(const int x, const int y) const {
             return doGetPickRay(unproject(static_cast<float>(x), static_cast<float>(y), 0.5f));
         }
 
-        Ray3f Camera::pickRay(const vec3f& point) const {
+        ray3f Camera::pickRay(const vec3f& point) const {
             return doGetPickRay(point);
         }
 
@@ -184,7 +184,7 @@ namespace TrenchBroom {
         }
         
         vec3f Camera::defaultPoint(const int x, const int y) const {
-            const Ray3f ray = pickRay(x, y);
+            const ray3f ray = pickRay(x, y);
             return defaultPoint(ray);
         }
 
@@ -345,21 +345,22 @@ namespace TrenchBroom {
             doRenderFrustum(renderContext, vbo, size, color);
         }
 
-        float Camera::pickFrustum(const float size, const Ray3f& ray) const {
+        float Camera::pickFrustum(const float size, const ray3f& ray) const {
             return doPickFrustum(size, ray);
         }
 
-        FloatType Camera::pickPointHandle(const Ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const {
-            const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(vec3f(handlePosition)));
-            return pickRay.intersectWithSphere(handlePosition, 2.0 * handleRadius * scaling);
+        FloatType Camera::pickPointHandle(const ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const {
+            const auto scaling = static_cast<FloatType>(perspectiveScalingFactor(vec3f(handlePosition)));
+            return intersect(pickRay, handlePosition, 2.0 * handleRadius * scaling);
         }
 
-        FloatType Camera::pickLineSegmentHandle(const Ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const {
-            const Ray3::LineDistance distance = pickRay.distanceToSegment(handlePosition.start(), handlePosition.end());
-            if (distance.parallel)
+        FloatType Camera::pickLineSegmentHandle(const ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const {
+            const auto dist = distance(pickRay, handlePosition.start(), handlePosition.end());
+            if (dist.parallel) {
                 return Math::nan<FloatType>();
-            
-            const vec3 pointHandlePosition = handlePosition.pointAtDistance(distance.lineDistance);
+            }
+
+            const auto pointHandlePosition = handlePosition.pointAtDistance(dist.lineDistance);
             return pickPointHandle(pickRay, pointHandlePosition, handleRadius);
         }
 

@@ -165,35 +165,36 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
     assert(lhs.edge());
     assert(rhs.edge());
 
-    const Edge* lhsEdge = lhs.m_edges.front();
-    const V& lhsStart = lhsEdge->firstVertex()->position();
-    const V& lhsEnd = lhsEdge->secondVertex()->position();
+    const auto* lhsEdge = lhs.m_edges.front();
+    const auto& lhsStart = lhsEdge->firstVertex()->position();
+    const auto& lhsEnd = lhsEdge->secondVertex()->position();
 
-    const Edge* rhsEdge = rhs.m_edges.front();
-    if (rhsEdge->hasPosition(lhsStart) || rhsEdge->hasPosition(lhsEnd))
+    const auto* rhsEdge = rhs.m_edges.front();
+    if (rhsEdge->hasPosition(lhsStart) || rhsEdge->hasPosition(lhsEnd)) {
         return true;
-    
-    const V& rhsStart = rhsEdge->firstVertex()->position();
-    const V& rhsEnd = rhsEdge->secondVertex()->position();
-    
-    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
-    const typename Ray<T,3>::LineDistance dist = lhsRay.squaredDistanceToSegment(rhsStart, rhsEnd);
+    }
 
-    const T rayLen = lhsRay.distanceToPointOnRay(lhsEnd);
+    const auto& rhsStart = rhsEdge->firstVertex()->position();
+    const auto& rhsEnd = rhsEdge->secondVertex()->position();
+    
+    const auto lhsRay = ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
+    const auto dist = squaredDistance(lhsRay, rhsStart, rhsEnd);
+    const auto rayLen = lhsRay.distanceToPointOnRay(lhsEnd);
     
     if (dist.parallel) {
         if (dist.colinear()) {
-            const T rhsStartDist = lhsRay.distanceToPointOnRay(rhsStart);
-            const T rhsEndDist   = lhsRay.distanceToPointOnRay(rhsEnd);
+            const auto rhsStartDist = lhsRay.distanceToPointOnRay(rhsStart);
+            const auto rhsEndDist   = lhsRay.distanceToPointOnRay(rhsEnd);
             
             return (Math::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
                     Math::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
                     (rhsStartDist > 0.0) != (rhsEndDist > 0.0)); // rhs contains lhs
+        } else {
+            return false;
         }
-        return false;
     }
 
-    static const T epsilon2 = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
+    static const auto epsilon2 = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
     return dist.distance < epsilon2 && dist.rayDistance <= rayLen;
 }
 
@@ -217,7 +218,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const 
     const V& lhsStart = lhsEdge->firstVertex()->position();
     const V& lhsEnd = lhsEdge->secondVertex()->position();
 
-    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
+    const ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
     const T rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
     
     bool frontHit = false;
@@ -245,33 +246,35 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsPolyhedron(const Polyhedron& lhs, const 
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rhsFace) {
-    const V& lhsStart = lhsEdge->firstVertex()->position();
-    const V& lhsEnd = lhsEdge->secondVertex()->position();
-    const Ray<T,3> lhsRay(lhsStart, normalize(lhsEnd - lhsStart));
+    const auto& lhsStart = lhsEdge->firstVertex()->position();
+    const auto& lhsEnd = lhsEdge->secondVertex()->position();
+    const auto lhsRay = ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
     
-    const T dist = rhsFace->intersectWithRay(lhsRay, Math::Side_Both);
+    const auto dist = rhsFace->intersectWithRay(lhsRay, Math::Side_Both);
     if (Math::isnan(dist)) {
-        const V& edgeDir = lhsRay.direction;
-        const V faceNorm = rhsFace->normal();
+        const auto& edgeDir = lhsRay.direction;
+        const auto faceNorm = rhsFace->normal();
         if (Math::zero(dot(faceNorm, edgeDir))) {
             // ray and face are parallel, intersect with edges
 
-            static const T MaxDistance = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
+            static const auto MaxDistance = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
             
-            const HalfEdge* rhsFirstEdge = rhsFace->boundary().front();
-            const HalfEdge* rhsCurEdge = rhsFirstEdge;
+            const auto* rhsFirstEdge = rhsFace->boundary().front();
+            const auto* rhsCurEdge = rhsFirstEdge;
             do {
-                const V& start = rhsCurEdge->origin()->position();
-                const V& end   = rhsCurEdge->destination()->position();
-                if (lhsRay.squaredDistanceToSegment(start, end).distance <= MaxDistance)
+                const auto& start = rhsCurEdge->origin()->position();
+                const auto& end   = rhsCurEdge->destination()->position();
+                if (distance(lhsRay, start, end).distance <= MaxDistance) {
                     return true;
+                }
                 rhsCurEdge = rhsCurEdge->next();
             } while (rhsCurEdge != rhsFirstEdge);
+        } else {
+            return false;
         }
-        return false;
     }
     
-    const T rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
+    const auto rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
     return dist <= rayLen;
 }
 

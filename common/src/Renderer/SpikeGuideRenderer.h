@@ -55,14 +55,14 @@ namespace TrenchBroom {
             SpikeGuideRenderer();
             
             void setColor(const Color& color);
-            void add(const Ray3& ray, FloatType length, View::MapDocumentSPtr document);
+            void add(const ray3& ray, FloatType length, View::MapDocumentSPtr document);
             void clear();
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void addPoint(const vec3& position);
-            void addSpike(const Ray3& ray, FloatType length, FloatType maxLength);
+            void addSpike(const ray3& ray, FloatType length, FloatType maxLength);
             
             void validate();
         };

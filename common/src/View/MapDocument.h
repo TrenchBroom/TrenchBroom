@@ -381,7 +381,7 @@ namespace TrenchBroom {
         public: // asset state management
             void commitPendingAssets();
         public: // picking
-            void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
+            void pick(const ray3& pickRay, Model::PickResult& pickResult) const;
             Model::NodeList findNodesContaining(const vec3& point) const;
         private: // world management
             void createWorld(Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game);

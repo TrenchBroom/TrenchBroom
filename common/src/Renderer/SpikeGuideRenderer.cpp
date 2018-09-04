@@ -38,7 +38,7 @@ namespace TrenchBroom {
             m_valid = false;
         }
         
-        void SpikeGuideRenderer::add(const Ray3& ray, const FloatType length, View::MapDocumentSPtr document) {
+        void SpikeGuideRenderer::add(const ray3& ray, const FloatType length, View::MapDocumentSPtr document) {
             Model::PickResult pickResult = Model::PickResult::byDistance(document->editorContext());
             document->pick(ray, pickResult);
             
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_pointVertices.push_back(PointVertex(vec3f(position), m_color));
         }
         
-        void SpikeGuideRenderer::addSpike(const Ray3& ray, const FloatType length, const FloatType maxLength) {
+        void SpikeGuideRenderer::addSpike(const ray3& ray, const FloatType length, const FloatType maxLength) {
             const float mix = static_cast<float>(maxLength / length / 2.0);
             
             m_spikeVertices.push_back(SpikeVertex(vec3f(ray.origin), m_color));

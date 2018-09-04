@@ -227,7 +227,7 @@ public:
         T distanceTo(const typename V::List& positions, T maxDistance = std::numeric_limits<T>::max()) const;
         V normal() const;
         V center() const;
-        T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const;
+        T intersectWithRay(const ray<T,3>& ray, const Math::Side side) const;
         Math::PointStatus::Type pointStatus(const V& point, T epsilon = Math::Constants<T>::pointStatusEpsilon()) const;
     private:
         // Template methods must remain private!
@@ -255,7 +255,7 @@ public:
         size_t countSharedVertices(const Face* other) const;
         
         class RayIntersection;
-        RayIntersection intersectWithRay(const Ray<T,3>& ray) const;
+        RayIntersection intersectWithRay(const ray<T,3>& ray) const;
     };
 private:
     class Seam;
@@ -361,7 +361,7 @@ public: // Accessors
         bool isMatch() const;
     };
     
-    FaceHit pickFace(const Ray<T,3>& ray) const;
+    FaceHit pickFace(const ray<T,3>& ray) const;
 public: // General purpose methods
     Vertex* findVertexByPosition(const V& position, const Vertex* except = nullptr, T epsilon = static_cast<T>(0.0)) const;
     Vertex* findClosestVertex(const V& position, T maxDistance = std::numeric_limits<T>::max()) const;

@@ -121,7 +121,7 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vec2f UVShearTool::getHit(const Ray3& pickRay) const {
+        vec2f UVShearTool::getHit(const ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto hitPointDist = intersect(pickRay, boundary);

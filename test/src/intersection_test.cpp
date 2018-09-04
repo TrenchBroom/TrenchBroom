@@ -27,7 +27,8 @@
 #include "quat_impl.h"
 #include "bbox_decl.h"
 #include "bbox_impl.h"
-#include "Ray.h"
+#include "ray_decl.h"
+#include "ray_impl.h"
 #include "line_decl.h"
 #include "line_impl.h"
 #include "plane_decl.h"
@@ -37,21 +38,57 @@
 TEST(IntersectionTest, intersectRayAndBBox) {
     const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
 
-    float distance = intersect(Ray3f(vec3f::zero, vec3f::neg_z), bounds);
+    float distance = intersect(ray3f(vec3f::zero, vec3f::neg_z), bounds);
     ASSERT_TRUE(Math::isnan(distance));
 
-    distance = intersect(Ray3f(vec3f::zero, vec3f::pos_z), bounds);
+    distance = intersect(ray3f(vec3f::zero, vec3f::pos_z), bounds);
     ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(4.0f, distance);
 
     const vec3f origin = vec3f(-10.0f, -7.0f, 14.0f);
     const vec3f diff = vec3f(-2.0f, 3.0f, 8.0f) - origin;
     const vec3f dir = normalize(diff);
-    distance = intersect(Ray3f(origin, dir), bounds);
+    distance = intersect(ray3f(origin, dir), bounds);
     ASSERT_FALSE(Math::isnan(distance));
     ASSERT_FLOAT_EQ(length(diff), distance);
 
 }
+
+TEST(IntersectionTest, intersectRayAndPlane) {
+    const ray3f ray(vec3f::zero, vec3f::pos_z);
+    ASSERT_TRUE(Math::isnan(intersect(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z))));
+    ASSERT_FLOAT_EQ(0.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  0.0f), vec3f::pos_z)));
+    ASSERT_FLOAT_EQ(1.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  1.0f), vec3f::pos_z)));
+}
+
+TEST(IntersectionTest, intersectRayAndSphere) {
+    const ray3f ray(vec3f::zero, vec3f::pos_z);
+
+    // ray originates inside sphere and hits at north pole
+    ASSERT_FLOAT_EQ(2.0f, intersect(ray, vec3f::zero, 2.0f));
+
+    // ray originates outside sphere and hits at south pole
+    ASSERT_FLOAT_EQ(3.0f, intersect(ray, vec3f(0.0f, 0.0f, 5.0f), 2.0f));
+
+    // miss
+    ASSERT_TRUE(Math::isnan(intersect(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+}
+
+TEST(IntersectionTest, intersectRayAndTriangle) {
+    const vec3d p0(2.0, 5.0, 2.0);
+    const vec3d p1(4.0, 7.0, 2.0);
+    const vec3d p2(3.0, 2.0, 2.0);
+
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_x), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_y), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_z), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y), p0, p1, p2)));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(2.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(4.0, 7.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 2.0, 0.0), vec3d::pos_z), p0, p1, p2));
+}
+
 
 TEST(IntersectionTest, intersectLineAndPlane) {
     const plane3f p(5.0f, vec3f::pos_z);

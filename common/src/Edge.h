@@ -24,6 +24,7 @@
 
 #include <vector>
 
+// TODO 2201: Rename to segment
 namespace TrenchBroom {
     template <typename T, size_t S>
     class Edge {

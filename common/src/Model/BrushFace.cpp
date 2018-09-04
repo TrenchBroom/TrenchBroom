@@ -624,11 +624,11 @@ namespace TrenchBroom {
             if (!Math::zero(dot(toPoint, m_boundary.normal)))
                 return false;
 
-            const Ray3 ray(point + m_boundary.normal, -m_boundary.normal);
+            const ray3 ray(point + m_boundary.normal, -m_boundary.normal);
             return !Math::isnan(intersectWithRay(ray));
         }
 
-        FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
+        FloatType BrushFace::intersectWithRay(const ray3& ray) const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);

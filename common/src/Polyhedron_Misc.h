@@ -640,7 +640,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != nullptr; }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const Ray<T,3>& ray) const {
+typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const ray<T,3>& ray) const {
     const auto side = polygon() ? Math::Side_Both : Math::Side_Front;
     auto* firstFace = m_faces.front();
     auto* currentFace = firstFace;

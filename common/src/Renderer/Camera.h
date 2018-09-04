@@ -106,9 +106,9 @@ namespace TrenchBroom {
             const mat4x4f verticalBillboardMatrix() const;
             void frustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const;
             
-            Ray3f viewRay() const;
-            Ray3f pickRay(int x, int y) const;
-            Ray3f pickRay(const vec3f& point) const;
+            ray3f viewRay() const;
+            ray3f pickRay(int x, int y) const;
+            ray3f pickRay(const vec3f& point) const;
             float distanceTo(const vec3f& point) const;
             float squaredDistanceTo(const vec3f& point) const;
             float perpendicularDistanceTo(const vec3f& point) const;
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             vec3f defaultPoint(int x, int y) const;
             
             template <typename T>
-            static vec<T,3> defaultPoint(const Ray<T,3>& ray, const T distance = T(DefaultPointDistance)) {
+            static vec<T,3> defaultPoint(const ray<T,3>& ray, const T distance = T(DefaultPointDistance)) {
                 return ray.pointAtDistance(float(distance));
             }
 
@@ -136,10 +136,10 @@ namespace TrenchBroom {
             void orbit(const vec3f& center, float horizontal, float vertical);
             
             void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
-            float pickFrustum(float size, const Ray3f& ray) const;
+            float pickFrustum(float size, const ray3f& ray) const;
             
-            FloatType pickPointHandle(const Ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const;
-            FloatType pickLineSegmentHandle(const Ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const;
+            FloatType pickPointHandle(const ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const;
+            FloatType pickLineSegmentHandle(const ray3& pickRay, const Edge3& handlePosition, const FloatType handleRadius) const;
         protected:
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const vec3f& position, const vec3f& direction, const vec3f& up);
@@ -152,11 +152,11 @@ namespace TrenchBroom {
             virtual ProjectionType doGetProjectionType() const = 0;
             
             virtual void doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const = 0;
-            virtual Ray3f doGetPickRay(const vec3f& point) const = 0;
+            virtual ray3f doGetPickRay(const vec3f& point) const = 0;
             virtual void doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const = 0;
             
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
-            virtual float doPickFrustum(float size, const Ray3f& ray) const = 0;
+            virtual float doPickFrustum(float size, const ray3f& ray) const = 0;
             virtual float doGetPerspectiveScalingFactor(const vec3f& position) const = 0;
         };
     }

@@ -54,8 +54,8 @@ namespace TrenchBroom {
             const vec3& position() const;
             void setPosition(const vec3& position);
             
-            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
-            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
+            Model::Hit pick2D(const ray3& pickRay, const Renderer::Camera& camera) const;
+            Model::Hit pick3D(const ray3& pickRay, const Renderer::Camera& camera) const;
 
             vec3 pointHandlePosition(const HitArea area, const vec3& cameraPos) const;
             FloatType handleRadius() const;
@@ -82,7 +82,7 @@ namespace TrenchBroom {
                 zAxis = Math::pos(viewDir.z()) ? vec<T,3>::neg_z : vec<T,3>::pos_z;
             }
 
-            Model::Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const;
+            Model::Hit pickPointHandle(const ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const;
             Model::Hit selectHit(const Model::Hit& closest, const Model::Hit& hit) const;
             
             vec3 getPointHandlePosition(const vec3& axis) const;

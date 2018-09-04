@@ -67,8 +67,8 @@ namespace TrenchBroom {
             FloatType snapRotationAngle(FloatType angle) const;
             void applyRotation(const vec3& center, const vec3& axis, FloatType angle);
             
-            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
-            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
+            Model::Hit pick2D(const ray3& pickRay, const Renderer::Camera& camera);
+            Model::Hit pick3D(const ray3& pickRay, const Renderer::Camera& camera);
             
             vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
             vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const vec3& cameraPos) const;

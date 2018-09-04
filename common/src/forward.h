@@ -91,4 +91,10 @@ class plane;
 using plane3f = plane<float,3>;
 using plane3d = plane<double,3>;
 
+template <typename T, size_t S>
+class ray;
+
+using ray3f = ray<float,3>;
+using ray3d = ray<double,3>;
+
 #endif //TRENCHBROOM_FORWARD_H

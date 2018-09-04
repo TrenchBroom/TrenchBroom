@@ -21,8 +21,7 @@
 #define NodeTree_h
 
 #include "bbox_decl.h"
-#include "bbox_impl.h"
-#include "Ray.h"
+#include "ray_decl.h"
 
 #include <functional>
 #include <list>
@@ -129,7 +128,7 @@ public:
      * @param ray the ray to test
      * @return a list containing all found data items
      */
-    virtual List findIntersectors(const Ray<T,S>& ray) const = 0;
+    virtual List findIntersectors(const ray<T,S>& ray) const = 0;
 
     /**
      * Finds every data item in this tree whose bounding box contains the given point and returns a list of those items.

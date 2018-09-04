@@ -83,13 +83,13 @@ namespace TrenchBroom {
             inputState.mouseDown(MouseButtons::MBLeft);
             
             const vec3 origin = vec3(camera.position());
-            inputState.setPickRequest(PickRequest(Ray3(origin, vec3::neg_z), camera));
+            inputState.setPickRequest(PickRequest(ray3(origin, vec3::neg_z), camera));
 
             EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vec3::zero)));
             controller.startMouseDrag(inputState);
             
             inputState.mouseMove(9, 0, 9, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(vec3(9.0, 0.0, 0.0) - origin)), camera));
+            inputState.setPickRequest(PickRequest(ray3(origin, normalize(vec3(9.0, 0.0, 0.0) - origin)), camera));
             
             EXPECT_CALL(controller, mockDoMove(Ref(inputState), vec3(0.0, 0.0, 0.0), vec3(16.0, 0.0, 0.0))).Times(1).WillOnce(Return(MockMoveToolController::DR_Continue));
             controller.mouseDrag(inputState);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             inputState.mouseDown(MouseButtons::MBLeft);
             
             const vec3 origin = vec3(camera.position());
-            inputState.setPickRequest(PickRequest(Ray3(origin, vec3::neg_z), camera));
+            inputState.setPickRequest(PickRequest(ray3(origin, vec3::neg_z), camera));
             
             EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vec3::zero)));
             controller.startMouseDrag(inputState);
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             // nothing will happen due to grid snapping
             EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
             inputState.mouseMove(1, 0, 1, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(vec3(1.0, 0.0, 0.0) - origin)), camera));
+            inputState.setPickRequest(PickRequest(ray3(origin, normalize(vec3(1.0, 0.0, 0.0) - origin)), camera));
             controller.mouseDrag(inputState);
             
             // trigger switch to vertical move mode
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             
             // must not trigger an actual move
             inputState.mouseMove(2, 0, 1, 0);
-            inputState.setPickRequest(PickRequest(Ray3(origin, normalize(vec3(2.0, 0.0, 0.0) - origin)), camera));
+            inputState.setPickRequest(PickRequest(ray3(origin, normalize(vec3(2.0, 0.0, 0.0) - origin)), camera));
             controller.mouseDrag(inputState);
             
             inputState.mouseUp(MouseButtons::MBLeft);
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             InputState inputState(0, 0);
             inputState.mouseDown(MouseButtons::MBLeft);
             
-            const Ray3 initialPickRay(camera.pickRay(200, 200));
+            const ray3 initialPickRay(camera.pickRay(200, 200));
             inputState.setPickRequest(PickRequest(initialPickRay, camera));
             
             const FloatType initialHitDistance = intersect(initialPickRay, plane3(vec3::zero, vec3::pos_z));
@@ -182,7 +182,7 @@ namespace TrenchBroom {
 
             // drag vertically, but with a bit of an offset to the side
             inputState.mouseMove(20, 50, 20, 50);
-            inputState.setPickRequest(PickRequest(Ray3(camera.pickRay(20, 50)), camera));
+            inputState.setPickRequest(PickRequest(ray3(camera.pickRay(20, 50)), camera));
             controller.mouseDrag(inputState);
             
             // switch to horizontal mode, must not trigger a move, so no expectation set

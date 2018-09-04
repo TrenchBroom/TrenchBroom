@@ -35,7 +35,7 @@ using plane3 = plane<FloatType, 3>;
 using quat3 = quat<FloatType>;
 using mat4x4 = mat<FloatType, 4, 4>;
 using line3 = line<FloatType, 3>;
-using Ray3 = Ray<FloatType, 3>;
+using ray3 = ray<FloatType, 3>;
 
 #include "Polyhedron_Instantiation.h"
 

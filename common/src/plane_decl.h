@@ -25,7 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "vec_decl.h"
 #include "vec_impl.h"
 #include "line_decl.h"
-#include "Ray.h"
+#include "ray_decl.h"
 
 #include <set>
 #include <tuple>

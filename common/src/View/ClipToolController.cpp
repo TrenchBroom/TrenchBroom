@@ -259,13 +259,14 @@ namespace TrenchBroom {
                 
                 const auto& pickRay = inputState.pickRay();
                 const auto defaultPos = m_tool->defaultClipPointPos();
-                const auto distance = pickRay.intersectWithPlane(viewDir, defaultPos);
-                if (Math::isnan(distance))
+                const auto distance = intersect(pickRay, plane3(defaultPos, viewDir));
+                if (Math::isnan(distance)) {
                     return false;
-                
-                const auto& grid = m_tool->grid();
-                position = grid.snap(pickRay.pointAtDistance(distance));
-                return true;
+                } else {
+                    const auto& grid = m_tool->grid();
+                    position = grid.snap(pickRay.pointAtDistance(distance));
+                    return true;
+                }
             }
         };
         

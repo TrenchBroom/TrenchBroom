@@ -23,7 +23,8 @@
 #include "MathUtils.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
-#include "Ray.h"
+#include "ray_decl.h"
+#include "ray_impl.h"
 #include "bbox_decl.h"
 #include "line_decl.h"
 #include "plane_decl.h"
@@ -41,7 +42,7 @@
  * @return the distance to the intersection point, or NaN if the ray does not intersect the plane
  */
 template <typename T, size_t S>
-T intersect(const Ray<T,S>& r, const plane<T,S>& p) {
+T intersect(const ray<T,S>& r, const plane<T,S>& p) {
     const auto d = dot(r.direction, p.normal);
     if (Math::zero(d)) {
         return Math::nan<T>();
@@ -56,6 +57,55 @@ T intersect(const Ray<T,S>& r, const plane<T,S>& p) {
 }
 
 /**
+ * Compute the point of intersection of the given ray and a triangle with the given points as vertices.
+ *
+ * @tparam T the component type
+ * @param r the ray
+ * @param p1 the first point
+ * @param p2 the second point
+ * @param p3 the third point
+ * @return the distance to the point of intersection or NaN if the given ray does not intersect the given triangle
+ */
+template <typename T>
+T intersect(const ray<T,3>& r, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T, 3>& p3) {
+    // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+
+    const auto& o  = r.origin;
+    const auto& d  = r.direction;
+    const auto  e1 = p2 - p1;
+    const auto  e2 = p3 - p1;
+    const auto  p  = cross(d, e2);
+    const auto  a  = dot(p, e1);
+    if (Math::zero(a)) {
+        return Math::nan<T>();
+    }
+
+    const auto  t  = o - p1;
+    const auto  q  = cross(t, e1);
+
+    const auto  u = dot(q, e2) / a;
+    if (Math::neg(u)) {
+        return Math::nan<T>();
+    }
+
+    const auto  v = dot(p, t) / a;
+    if (Math::neg(v)) {
+        return Math::nan<T>();
+    }
+
+    const auto  w = dot(q, d) / a;
+    if (Math::neg(w)) {
+        return Math::nan<T>();
+    }
+
+    if (Math::gt(v+w, static_cast<T>(1.0))) {
+        return Math::nan<T>();
+    }
+
+    return u;
+}
+
+/**
  * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
  * on the given ray from the ray's origin to that point.
  *
@@ -63,10 +113,10 @@ T intersect(const Ray<T,S>& r, const plane<T,S>& p) {
  * @tparam S the number of components
  * @param r the ray
  * @param b the bounding box
- * @return the distance to the intersection point, or NaN if the ray does not intersect the bounding box
+ * @return the distance to the closest intersection point, or NaN if the ray does not intersect the bounding box
  */
 template <typename T, size_t S>
-T intersect(const Ray<T,S>& r, const bbox<T,S>& b) {
+T intersect(const ray<T,S>& r, const bbox<T,S>& b) {
     // Compute candidate planes
     std::array<T, S> origins;
     std::array<bool, S> inside;
@@ -138,6 +188,41 @@ T intersect(const Ray<T,S>& r, const bbox<T,S>& b) {
     return distances[bestPlane];
 }
 
+/**
+ * Computes the point of intersection between the given ray and a sphere centered at the given position and with the
+ * given radius.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param r the ray
+ * @param position the position of the sphere (its center)
+ * @param radius the radius of the sphere
+ * @return the distance to the closest intersection point, or NaN if the given ray does not intersect the given sphere
+ */
+template <typename T, size_t S>
+T intersect(const ray<T,S>& r, const vec<T,S>& position, const T radius) {
+    const auto diff = r.origin - position;
+
+    const auto p = static_cast<T>(2.0) * dot(diff, r.direction);
+    const auto q = squaredLength(diff) - radius * radius;
+
+    const auto d = p * p - static_cast<T>(4.0) * q;
+    if (d < static_cast<T>(0.0)) {
+        return Math::nan<T>();
+    }
+
+    const auto s = std::sqrt(d);
+    const auto t0 = (-p + s) / static_cast<T>(2.0);
+    const auto t1 = (-p - s) / static_cast<T>(2.0);
+
+    if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0)) {
+        return Math::nan<T>();
+    } else if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0)) {
+        return std::min(t0, t1);
+    } else {
+        return std::max(t0, t1);
+    }
+}
 
 /**
  * Computes the point of intersection between the given ray and the given bounding box, and returns the distance

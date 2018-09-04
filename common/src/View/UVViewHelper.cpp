@@ -123,26 +123,26 @@ namespace TrenchBroom {
             return m_camera.zoom();
         }
         
-        void UVViewHelper::pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
+        void UVViewHelper::pickTextureGrid(const ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
             assert(valid());
             
-            const Assets::Texture* texture = m_face->texture();
+            const auto* texture = m_face->texture();
             if (texture != nullptr) {
                 
-                const plane3& boundary = m_face->boundary();
-                const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());
-                const vec3 hitPointInWorldCoords = ray.pointAtDistance(rayDistance);
-                const vec3 hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                const auto& boundary = m_face->boundary();
+                const auto distance = intersect(ray, boundary);
+                const auto hitPointInWorldCoords = ray.pointAtDistance(distance);
+                const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
                 
-                const FloatType maxDistance = 5.0 / cameraZoom();
-                const vec2 stripeSize = UVViewHelper::stripeSize();
+                const auto maxDistance = 5.0 / cameraZoom();
+                const auto stripeSize = UVViewHelper::stripeSize();
                 
                 for (size_t i = 0; i < 2; ++i) {
-                    const FloatType closestStrip = Math::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
-                    const FloatType error = Math::abs(hitPointInTexCoords[i] - closestStrip);
+                    const auto closestStrip = Math::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
+                    const auto error = Math::abs(hitPointInTexCoords[i] - closestStrip);
                     if (error <= maxDistance) {
-                        const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
-                        pickResult.addHit(Model::Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
+                        const auto index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
+                        pickResult.addHit(Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
                     }
                 }
             }

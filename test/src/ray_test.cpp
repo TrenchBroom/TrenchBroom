@@ -17,26 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PickRequest.h"
+#include <gtest/gtest.h>
 
-#include <cassert>
+#include "ray_decl.h"
+#include "ray_impl.h"
+#include "MathUtils.h"
+#include "TestUtils.h"
 
-namespace TrenchBroom {
-    namespace View {
-        PickRequest::PickRequest() :
-        m_camera(nullptr) {}
-        
-        PickRequest::PickRequest(const ray3& pickRay, const Renderer::Camera& camera) :
-        m_pickRay(pickRay),
-        m_camera(&camera) {}
-        
-        const ray3& PickRequest::pickRay() const {
-            return m_pickRay;
-        }
-        
-        const Renderer::Camera& PickRequest::camera() const {
-            ensure(m_camera != nullptr, "camera is null");
-            return *m_camera;
-        }
-    }
+TEST(RayTest, pointAtDistance) {
+    const ray3f ray(vec3f::zero, vec3f::pos_x);
+    ASSERT_VEC_EQ(vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
+}
+
+TEST(RayTest, pointStatus) {
+    const ray3f ray(vec3f::zero, vec3f::pos_z);
+    ASSERT_EQ(Math::PointStatus::PSAbove, ray.pointStatus(vec3f(0.0f, 0.0f, 1.0f)));
+    ASSERT_EQ(Math::PointStatus::PSInside, ray.pointStatus(vec3f(0.0f, 0.0f, 0.0f)));
+    ASSERT_EQ(Math::PointStatus::PSBelow, ray.pointStatus(vec3f(0.0f, 0.0f, -1.0f)));
 }

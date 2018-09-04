@@ -249,7 +249,7 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const {
+T Polyhedron<T,FP,VP>::Face::intersectWithRay(const ray<T,3>& ray, const Math::Side side) const {
     const RayIntersection result = intersectWithRay(ray);
     if (result.none()) {
         return result.distance();
@@ -524,7 +524,7 @@ public:
 };
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const Ray<T,3>& ray) const {
+typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const ray<T,3>& ray) const {
     const plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     

@@ -131,14 +131,14 @@ namespace TrenchBroom {
         ResizeBrushesToolController2D::ResizeBrushesToolController2D(ResizeBrushesTool* tool) :
         ResizeBrushesToolController(tool) {}
 
-        Model::Hit ResizeBrushesToolController2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController2D::doPick(const ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick2D(pickRay, pickResult);
         }
         
         ResizeBrushesToolController3D::ResizeBrushesToolController3D(ResizeBrushesTool* tool) :
         ResizeBrushesToolController(tool) {}
         
-        Model::Hit ResizeBrushesToolController3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController3D::doPick(const ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick3D(pickRay, pickResult);
         }
     }

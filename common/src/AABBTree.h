@@ -25,7 +25,8 @@
 #include "MathUtils.h"
 #include "bbox_decl.h"
 #include "bbox_impl.h"
-#include "Ray.h"
+#include "ray_decl.h"
+#include "ray_impl.h"
 #include "intersection.h"
 
 #include <algorithm>
@@ -524,7 +525,7 @@ public:
         }
     }
 
-    List findIntersectors(const Ray<T,S>& ray) const override {
+    List findIntersectors(const ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
         return std::move(result);
@@ -539,7 +540,7 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findIntersectors(const Ray<T,S>& ray, O out) const {
+    void findIntersectors(const ray<T,S>& ray, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {

@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
             vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
-            vec2f getHitPoint(const Ray3& pickRay) const;
+            vec2f getHitPoint(const ray3& pickRay) const;
             
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;

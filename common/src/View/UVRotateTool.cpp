@@ -62,22 +62,22 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return;
 
-            const Model::BrushFace* face = m_helper.face();
-            const mat4x4 fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto* face = m_helper.face();
+            const auto fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
-            const plane3& boundary = face->boundary();
-            const mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+            const auto& boundary = face->boundary();
+            const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
 
-            const Ray3& pickRay = inputState.pickRay();
-            const FloatType distanceToFace = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
+            const auto& pickRay = inputState.pickRay();
+            const auto distanceToFace = intersect(pickRay, boundary);
             assert(!Math::isnan(distanceToFace));
-            const vec3 hitPoint = pickRay.pointAtDistance(distanceToFace);
+            const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
             
-            const vec3 originOnPlane   = toPlane * fromFace * vec3(m_helper.originInFaceCoords());
-            const vec3 hitPointOnPlane = toPlane * hitPoint;
+            const auto originOnPlane   = toPlane * fromFace * vec3(m_helper.originInFaceCoords());
+            const auto hitPointOnPlane = toPlane * hitPoint;
 
-            const float zoom = m_helper.cameraZoom();
-            const FloatType error = Math::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+            const auto zoom = m_helper.cameraZoom();
+            const auto error = Math::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
             if (error <= RotateHandleWidth / zoom) {
                 pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
             }
@@ -111,36 +111,36 @@ namespace TrenchBroom {
         bool UVRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
-            Model::BrushFace* face = m_helper.face();
-            const plane3& boundary = face->boundary();
-            const Ray3& pickRay = inputState.pickRay();
-            const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
-            const vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
+            auto* face = m_helper.face();
+            const auto& boundary = face->boundary();
+            const auto& pickRay = inputState.pickRay();
+            const auto curPointDistance = intersect(pickRay, boundary);
+            const auto curPoint = pickRay.pointAtDistance(curPointDistance);
             
-            const mat4x4 toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const mat4x4 toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
 
-            const vec2f curPointInFaceCoords(toFaceOld * curPoint);
-            const float curAngle = measureAngle(curPointInFaceCoords);
+            const auto curPointInFaceCoords = vec2f(toFaceOld * curPoint);
+            const auto curAngle = measureAngle(curPointInFaceCoords);
 
-            const float angle = curAngle - m_initalAngle;
-            const float snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
+            const auto angle = curAngle - m_initalAngle;
+            const auto snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
 
-            const vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
-            const vec3 oldCenterInWorldCoords = toWorld * vec3(oldCenterInFaceCoords);
+            const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
+            const auto oldCenterInWorldCoords = toWorld * vec3(oldCenterInFaceCoords);
             
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
             
             // Correct the offsets.
-            const mat4x4 toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
+            const auto toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto newCenterInFaceCoords = vec2f(toFaceNew * oldCenterInWorldCoords);
 
-            const vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const vec2f newOffset = correct(face->offset() + delta, 4, 0.0f);
+            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
+            const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
             
             request.clear();
             request.setOffset(newOffset);

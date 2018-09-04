@@ -36,11 +36,11 @@ namespace TrenchBroom {
             ProjectionType doGetProjectionType() const override;
 
             void doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const override;
-            Ray3f doGetPickRay(const vec3f& point) const override;
+            ray3f doGetPickRay(const vec3f& point) const override;
             void doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const override;
             
             void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const override;
-            float doPickFrustum(float size, const Ray3f& ray) const override;
+            float doPickFrustum(float size, const ray3f& ray) const override;
             float doGetPerspectiveScalingFactor(const vec3f& position) const override;
         };
     }

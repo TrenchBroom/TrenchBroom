@@ -29,13 +29,13 @@ namespace TrenchBroom {
 
         const Model::Hit::HitType VertexHandleManager::HandleHit = Model::Hit::freeHitType();
 
-        void VertexHandleManager::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            for (const HandleEntry& entry : m_handles) {
-                const vec3& position = entry.first;
-                const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
+        void VertexHandleManager::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+            for (const auto& entry : m_handles) {
+                const auto& position = entry.first;
+                const auto distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!Math::isnan(distance)) {
-                    const vec3 hitPoint = pickRay.pointAtDistance(distance);
-                    const FloatType error = pickRay.squaredDistanceToPoint(position).distance;
+                    const auto hitPoint = pickRay.pointAtDistance(distance);
+                    const auto error = squaredDistance(pickRay, position).distance;
                     pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position, error));
                 }
             }
@@ -63,7 +63,7 @@ namespace TrenchBroom {
 
         const Model::Hit::HitType EdgeHandleManager::HandleHit = Model::Hit::freeHitType();
 
-        void EdgeHandleManager::pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+        void EdgeHandleManager::pickGridHandle(const ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const Edge3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EdgeHandleManager::pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void EdgeHandleManager::pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const Edge3& position = entry.first;
                 const vec3 pointHandle = position.center();
@@ -113,7 +113,7 @@ namespace TrenchBroom {
 
         const Model::Hit::HitType FaceHandleManager::HandleHit = Model::Hit::freeHitType();
 
-        void FaceHandleManager::pickGridHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
+        void FaceHandleManager::pickGridHandle(const ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const auto& entry : m_handles) {
                 const auto& position = entry.first;
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceHandleManager::pickCenterHandle(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void FaceHandleManager::pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const auto& position = entry.first;
                 const auto pointHandle = position.center();

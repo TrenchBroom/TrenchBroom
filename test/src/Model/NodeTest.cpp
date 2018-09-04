@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 mockDoAncestorDidChange();
             }
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override {
+            void doPick(const ray3& ray, PickResult& pickResult) const override {
                 mockDoPick(ray, pickResult);
             }
             
@@ -83,7 +83,7 @@ namespace TrenchBroom {
                 mockDoFindNodesContaining(point, result);
             }
 
-            FloatType doIntersectWithRay(const Ray3& ray) const override {
+            FloatType doIntersectWithRay(const ray3& ray) const override {
                 return mockDoIntersectWithRay(ray);
             }
 
@@ -106,9 +106,9 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorWillChange, void());
             MOCK_METHOD0(mockDoAncestorDidChange, void());
             
-            MOCK_CONST_METHOD2(mockDoPick, void(const Ray3&, PickResult&));
+            MOCK_CONST_METHOD2(mockDoPick, void(const ray3&, PickResult&));
             MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vec3&, NodeList&));
-            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const Ray3&));
+            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const ray3&));
             
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
             MOCK_CONST_METHOD1(mockDoAccept, void(ConstNodeVisitor&));
@@ -151,9 +151,9 @@ namespace TrenchBroom {
             void doAncestorWillChange() override {}
             void doAncestorDidChange() override {}
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override {}
+            void doPick(const ray3& ray, PickResult& pickResult) const override {}
             void doFindNodesContaining(const vec3& point, NodeList& result) override {}
-            FloatType doIntersectWithRay(const Ray3& ray) const override { return Math::nan<FloatType>(); }
+            FloatType doIntersectWithRay(const ray3& ray) const override { return Math::nan<FloatType>(); }
 
             void doAccept(NodeVisitor& visitor) override {}
             void doAccept(ConstNodeVisitor& visitor) const override {}

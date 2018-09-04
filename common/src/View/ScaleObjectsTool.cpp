@@ -479,22 +479,22 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
 
-        BackSide pickBackSideOfBox(const Ray3& pickRay, const Renderer::Camera& camera, const bbox3& box) {
-            FloatType closestDistToRay = std::numeric_limits<FloatType>::max();
-            FloatType bestDistAlongRay = std::numeric_limits<FloatType>::max();
+        BackSide pickBackSideOfBox(const ray3& pickRay, const Renderer::Camera& camera, const bbox3& box) {
+            auto closestDistToRay = std::numeric_limits<FloatType>::max();
+            auto bestDistAlongRay = std::numeric_limits<FloatType>::max();
             vec3 bestNormal;
 
             // idea is: find the closest point on an edge of the cube, belonging
             // to a face that's facing away from the pick ray.
             auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
-                const FloatType cosAngle = dot(n, pickRay.direction);
+                const auto cosAngle = dot(n, pickRay.direction);
                 if (cosAngle >= 0.0 && cosAngle < 1.0) {
                     // the face is pointing away from the camera (or exactly perpendicular)
                     // but not equal to the camera direction (important for 2D views)
 
                     const vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
-                        const Ray3::LineDistance result = pickRay.distanceToSegment(points[i], points[(i + 1) % 4]);
+                        const auto result = distance(pickRay, points[i], points[(i + 1) % 4]);
                         if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
@@ -515,7 +515,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ScaleObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pickBackSides(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
                 const auto result = pickBackSideOfBox(pickRay, camera, bounds());
@@ -527,7 +527,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pick2D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const bbox3& myBounds = bounds();
 
             // origin in bbox
@@ -563,7 +563,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ScaleObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ScaleObjectsTool::pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const bbox3& myBounds = bounds();
 
             // origin in bbox

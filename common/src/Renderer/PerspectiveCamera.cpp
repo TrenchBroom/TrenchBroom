@@ -27,6 +27,8 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
+#include <limits>
+
 namespace TrenchBroom {
     namespace Renderer {
         PerspectiveCamera::PerspectiveCamera() :
@@ -52,9 +54,9 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        Ray3f PerspectiveCamera::doGetPickRay(const vec3f& point) const {
+        ray3f PerspectiveCamera::doGetPickRay(const vec3f& point) const {
             const vec3f direction = normalize(point - position());
-            return Ray3f(position(), direction);
+            return ray3f(position(), direction);
         }
         
         Camera::ProjectionType PerspectiveCamera::doGetProjectionType() const {
@@ -93,8 +95,9 @@ namespace TrenchBroom {
             getFrustumVertices(size, verts);
             
             triangleVertices[0] = Vertex(position(), Color(color, 0.7f));
-            for (size_t i = 0; i < 4; ++i)
+            for (size_t i = 0; i < 4; ++i) {
                 triangleVertices[i + 1] = Vertex(verts[i], Color(color, 0.2f));
+            }
             triangleVertices[5] = Vertex(verts[0], Color(color, 0.2f));
             
             for (size_t i = 0; i < 4; ++i) {
@@ -107,8 +110,8 @@ namespace TrenchBroom {
                 lineVertices[8 + 2 * i + 1] = Vertex(verts[Math::succ(i, 4)], color);
             }
             
-            VertexArray triangleArray = VertexArray::ref(triangleVertices);
-            VertexArray lineArray = VertexArray::ref(lineVertices);
+            auto triangleArray = VertexArray::ref(triangleVertices);
+            auto lineArray = VertexArray::ref(lineVertices);
             
             ActivateVbo activate(vbo);
             triangleArray.prepare(vbo);
@@ -119,18 +122,20 @@ namespace TrenchBroom {
             lineArray.render(GL_LINES);
         }
         
-        float PerspectiveCamera::doPickFrustum(const float size, const Ray3f& ray) const {
+        float PerspectiveCamera::doPickFrustum(const float size, const ray3f& ray) const {
             vec3f verts[4];
             getFrustumVertices(size, verts);
             
-            float distance = Math::nan<float>();
-            for (size_t i = 0; i < 4; ++i)
-                distance = Math::selectMin(distance, intersectRayWithTriangle(ray, position(), verts[i], verts[Math::succ(i, 4)]));
-            return distance;
+            auto minDistance = std::numeric_limits<float>::max();
+            for (size_t i = 0; i < 4; ++i) {
+                const auto distance = intersect(ray, position(), verts[i], verts[Math::succ(i, 4)]);
+                minDistance = Math::selectMin(distance, minDistance);
+            }
+            return minDistance;
         }
 
         void PerspectiveCamera::getFrustumVertices(const float size, vec3f (&verts)[4]) const {
-            const vec2f frustum = getFrustum();
+            const auto frustum = getFrustum();
             
             verts[0] = position() + (direction() * nearPlane() + frustum.y() * up() - frustum.x() * right()) / nearPlane() * size; // top left
             verts[1] = position() + (direction() * nearPlane() + frustum.y() * up() + frustum.x() * right()) / nearPlane() * size; // top right
@@ -139,19 +144,19 @@ namespace TrenchBroom {
         }
 
         vec2f PerspectiveCamera::getFrustum() const {
-            const Viewport& viewport = unzoomedViewport();
-            const float v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
-            const float h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
+            const auto& viewport = unzoomedViewport();
+            const auto v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
+            const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return vec2f(h, v);
         }
 
         float PerspectiveCamera::doGetPerspectiveScalingFactor(const vec3f& position) const {
-            const float perpDist = perpendicularDistanceTo(position);
+            const auto perpDist = perpendicularDistanceTo(position);
             return perpDist / viewportFrustumDistance();
         }
 
         float PerspectiveCamera::viewportFrustumDistance() const {
-            const float height = static_cast<float>(unzoomedViewport().height);
+            const auto height = static_cast<float>(unzoomedViewport().height);
             return (height / 2.0f) / std::tan(Math::radians(m_fov) / 2.0f);
         }
     }

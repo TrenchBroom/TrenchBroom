@@ -85,7 +85,7 @@ namespace TrenchBroom {
             m_entity = nullptr;
         }
         
-        void CreateEntityTool::updateEntityPosition2D(const Ray3& pickRay) {
+        void CreateEntityTool::updateEntityPosition2D(const ray3& pickRay) {
             ensure(m_entity != nullptr, "entity is null");
             
             auto document = lock(m_document);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        void CreateEntityTool::updateEntityPosition3D(const ray3& pickRay, const Model::PickResult& pickResult) {
             ensure(m_entity != nullptr, "entity is null");
             
             auto document = lock(m_document);

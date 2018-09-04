@@ -11119,7 +11119,7 @@
 											"height": 13,
 											"autoResize": false,
 											"underline": false,
-											"text": "+pickRay(): const Ray3&",
+											"text": "+pickRay(): const ray3&",
 											"horizontalAlignment": 0,
 											"verticalAlignment": 5
 										},
@@ -21384,7 +21384,7 @@
 									"visibility": "public",
 									"isStatic": false,
 									"isLeaf": false,
-									"type": "const Ray3&",
+									"type": "const ray3&",
 									"isReadOnly": false,
 									"isOrdered": false,
 									"isUnique": false,

@@ -262,9 +262,9 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
+            void doPick(const ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const Ray3& ray) const override;
+            FloatType doIntersectWithRay(const ray3& ray) const override;
 
             struct BrushFaceHit {
                 BrushFace* face;
@@ -273,7 +273,7 @@ namespace TrenchBroom {
                 BrushFaceHit(BrushFace* i_face, FloatType i_distance);
             };
 
-            BrushFaceHit findFaceHit(const Ray3& ray) const;
+            BrushFaceHit findFaceHit(const ray3& ray) const;
             
             Node* doGetContainer() const override;
             Layer* doGetLayer() const override;

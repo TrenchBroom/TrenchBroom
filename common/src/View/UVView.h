@@ -102,7 +102,7 @@ namespace TrenchBroom {
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             PickRequest doGetPickRequest(int x, int y) const override;
-            Model::PickResult doPick(const Ray3& pickRay) const override;
+            Model::PickResult doPick(const ray3& pickRay) const override;
         };
     }
 }
