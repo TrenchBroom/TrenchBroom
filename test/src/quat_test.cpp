@@ -59,8 +59,8 @@ TEST(QuatTest, rotateVecConstructor_oppositeVectors) {
         EXPECT_VEC_EQ(to, q * from);
 
         // The quaternion axis should be perpendicular to both from and to vectors
-        EXPECT_FLOAT_EQ(0.0, dot(q.axis(), from));
-        EXPECT_FLOAT_EQ(0.0, dot(q.axis(), to));
+        EXPECT_DOUBLE_EQ(0.0, dot(q.axis(), from));
+        EXPECT_DOUBLE_EQ(0.0, dot(q.axis(), to));
     }
 }
 
