@@ -40,7 +40,9 @@ namespace TrenchBroom {
         Entity::Entity() :
         AttributableNode(),
         Object(),
-        m_boundsValid(false) {}
+        m_boundsValid(false) {
+            cacheAttributes();
+        }
 
         bool Entity::brushEntity() const {
             return hasChildren();
@@ -66,12 +68,12 @@ namespace TrenchBroom {
             return hasPointEntityDefinition();
         }
         
-        Vec3 Entity::origin() const {
-            return Vec3::parse(attribute(AttributeNames::Origin, ""));
+        const Vec3& Entity::origin() const {
+            return m_cachedOrigin;
         }
 
-        Mat4x4 Entity::rotation() const {
-            return EntityRotationPolicy::getRotation(this);
+        const Mat4x4& Entity::rotation() const {
+            return m_cachedRotation;
         }
 
         FloatType Entity::area(Math::Axis::Type axis) const {
@@ -86,6 +88,11 @@ namespace TrenchBroom {
                 default:
                     return 0.0;
             }
+        }
+
+        void Entity::cacheAttributes() {
+            m_cachedOrigin = Vec3::parse(attribute(AttributeNames::Origin, ""));
+            m_cachedRotation = EntityRotationPolicy::getRotation(this);
         }
 
         void Entity::setOrigin(const Vec3& origin) {
@@ -238,6 +245,7 @@ namespace TrenchBroom {
         
         void Entity::doAttributesDidChange(const BBox3& oldBounds) {
             nodeBoundsDidChange(oldBounds);
+            cacheAttributes();
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {

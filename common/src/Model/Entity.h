@@ -39,6 +39,8 @@ namespace TrenchBroom {
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
+            Vec3 m_cachedOrigin;
+            Mat4x4 m_cachedRotation;
         public:
             Entity();
             
@@ -49,10 +51,11 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
-            Vec3 origin() const;
-            Mat4x4 rotation() const;
+            const Vec3& origin() const;
+            const Mat4x4& rotation() const;
             FloatType area(Math::Axis::Type axis) const;
         private:
+            void cacheAttributes();
             void setOrigin(const Vec3& origin);
             void applyRotation(const Mat4x4& transformation);
         public: // entity model
