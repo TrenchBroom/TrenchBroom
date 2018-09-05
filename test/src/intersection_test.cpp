@@ -35,6 +35,30 @@
 #include "plane_impl.h"
 #include "intersection.h"
 
+bool lineOnPlane(const plane3f& plane, const line3f& line);
+
+TEST(IntersectionTest, intersectRayAndPlane) {
+    const ray3f ray(vec3f::zero, vec3f::pos_z);
+    ASSERT_TRUE(Math::isnan(intersect(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z))));
+    ASSERT_FLOAT_EQ(0.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  0.0f), vec3f::pos_z)));
+    ASSERT_FLOAT_EQ(1.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  1.0f), vec3f::pos_z)));
+}
+
+TEST(IntersectionTest, intersectRayAndTriangle) {
+    const vec3d p0(2.0, 5.0, 2.0);
+    const vec3d p1(4.0, 7.0, 2.0);
+    const vec3d p2(3.0, 2.0, 2.0);
+
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_x), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_y), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_z), p0, p1, p2)));
+    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y), p0, p1, p2)));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(2.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(4.0, 7.0, 0.0), vec3d::pos_z), p0, p1, p2));
+    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 2.0, 0.0), vec3d::pos_z), p0, p1, p2));
+}
+
 TEST(IntersectionTest, intersectRayAndBBox) {
     const bbox3f bounds(vec3f(-12.0f, -3.0f,  4.0f), vec3f(  8.0f,  9.0f,  8.0f));
 
@@ -54,13 +78,6 @@ TEST(IntersectionTest, intersectRayAndBBox) {
 
 }
 
-TEST(IntersectionTest, intersectRayAndPlane) {
-    const ray3f ray(vec3f::zero, vec3f::pos_z);
-    ASSERT_TRUE(Math::isnan(intersect(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z))));
-    ASSERT_FLOAT_EQ(0.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  0.0f), vec3f::pos_z)));
-    ASSERT_FLOAT_EQ(1.0f, intersect(ray, plane3f(vec3f(0.0f, 0.0f,  1.0f), vec3f::pos_z)));
-}
-
 TEST(IntersectionTest, intersectRayAndSphere) {
     const ray3f ray(vec3f::zero, vec3f::pos_z);
 
@@ -73,22 +90,6 @@ TEST(IntersectionTest, intersectRayAndSphere) {
     // miss
     ASSERT_TRUE(Math::isnan(intersect(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
 }
-
-TEST(IntersectionTest, intersectRayAndTriangle) {
-    const vec3d p0(2.0, 5.0, 2.0);
-    const vec3d p1(4.0, 7.0, 2.0);
-    const vec3d p2(3.0, 2.0, 2.0);
-
-    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_x), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_y), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d::zero, vec3d::pos_z), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y), p0, p1, p2)));
-    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
-    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(2.0, 5.0, 0.0), vec3d::pos_z), p0, p1, p2));
-    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(4.0, 7.0, 0.0), vec3d::pos_z), p0, p1, p2));
-    ASSERT_DOUBLE_EQ(2.0, intersect(ray3d(vec3d(3.0, 2.0, 0.0), vec3d::pos_z), p0, p1, p2));
-}
-
 
 TEST(IntersectionTest, intersectLineAndPlane) {
     const plane3f p(5.0f, vec3f::pos_z);
@@ -119,14 +120,6 @@ TEST(IntersectionTest, intersectPlaneAndPlane_too_similar) {
     ASSERT_EQ(vec3f::zero, line.point);
 }
 
-static bool lineOnPlane(const plane3f& plane, const line3f& line) {
-    if (plane.pointStatus(line.point) != Math::PointStatus::PSInside)
-        return false;
-    if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside)
-        return false;
-    return true;
-}
-
 TEST(IntersectionTest, intersectPlaneAndPlane) {
     const plane3f p1(10.0f, vec3f::pos_z);
     const plane3f p2(20.0f, vec3f::pos_x);
@@ -144,4 +137,14 @@ TEST(IntersectionTest, intersectPlaneAndPlane_similar) {
 
     ASSERT_TRUE(lineOnPlane(p1, line));
     ASSERT_TRUE(lineOnPlane(p2, line));
+}
+
+bool lineOnPlane(const plane3f& plane, const line3f& line) {
+    if (plane.pointStatus(line.point) != Math::PointStatus::PSInside){
+        return false;
+    } else if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside) {
+        return false;
+    } else {
+        return true;
+    }
 }
