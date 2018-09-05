@@ -36,10 +36,13 @@
 #include "Model/World.h"
 
 #include <algorithm>
+#include <iterator>
 #include <memory>
 
 namespace TrenchBroom {
     namespace Model {
+        vec3::List asVertexList(const segment3::List& edges);
+
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const bbox3 worldBounds(4096.0);
 
@@ -930,10 +933,10 @@ namespace TrenchBroom {
             assertTexture("top", brush, p2, p6, p8, p4);
             assertTexture("bottom", brush, p1, p3, p7, p5);
 
-            const Edge3 edge(p1, p2);
-            Edge3::List newEdgePositions = brush->moveEdges(worldBounds, Edge3::List(1, edge), p1_2 - p1);
+            const segment3 edge(p1, p2);
+            segment3::List newEdgePositions = brush->moveEdges(worldBounds, segment3::List(1, edge), p1_2 - p1);
             ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(Edge3(p1_2, p2_2), newEdgePositions[0]);
+            ASSERT_EQ(segment3(p1_2, p2_2), newEdgePositions[0]);
 
             assertTexture("left", brush, p1_2, p2_2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -1012,25 +1015,25 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        static void assertCanMoveEdges(const Brush* brush, const Edge3::List edges, const vec3 delta) {
+        static void assertCanMoveEdges(const Brush* brush, const segment3::List edges, const vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
-            Edge3::List expectedMovedEdges;
-            for (const Edge3& edge : edges) {
-                expectedMovedEdges.push_back(Edge3(edge.start() + delta, edge.end() + delta));
+            segment3::List expectedMovedEdges;
+            for (const segment3& edge : edges) {
+                expectedMovedEdges.push_back(segment3(edge.start() + delta, edge.end() + delta));
             }
 
             ASSERT_TRUE(brush->canMoveEdges(worldBounds, edges, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
-            const Edge3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
+            const segment3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
 
             ASSERT_EQ(expectedMovedEdges, movedEdges);
 
             delete brushClone;
         }
 
-        static void assertCanNotMoveEdges(const Brush* brush, const Edge3::List edges, const vec3 delta) {
+        static void assertCanNotMoveEdges(const Brush* brush, const segment3::List edges, const vec3 delta) {
             const bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
@@ -1225,7 +1228,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const Edge3 edge(vec3(-128, 0, -128), vec3(-128, 0, +128));
+            const segment3 edge(vec3(-128, 0, -128), vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1234,13 +1237,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, Edge3::List{edge}, vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, Edge3::List{edge}, vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, Edge3::List{edge}, vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush, segment3::List{edge}, vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush, segment3::List{edge}, vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, segment3::List{edge}, vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List{edge}), vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List{edge}), vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, Edge3::asVertexList(Edge3::List{edge}), vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1251,9 +1254,9 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const Edge3 edge1(vec3(-128, -32, -128), vec3(-128, -32, +128));
-            const Edge3 edge2(vec3(-128, +32, -128), vec3(-128, +32, +128));
-            const Edge3::List movingEdges{edge1, edge2};
+            const segment3 edge1(vec3(-128, -32, -128), vec3(-128, -32, +128));
+            const segment3 edge2(vec3(-128, +32, -128), vec3(-128, +32, +128));
+            const segment3::List movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1268,9 +1271,9 @@ namespace TrenchBroom {
             assertCanNotMoveEdges(brush, movingEdges, vec3(+64, 0, 0)); // On the side of the cube
             assertCanNotMoveEdges(brush, movingEdges, vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, Edge3::asVertexList(movingEdges), vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1508,7 +1511,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
-            const Edge3 edge(vec3(-128, 0, -256), vec3(-128, 0, 0));
+            const segment3 edge(vec3(-128, 0, -256), vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1684,21 +1687,21 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
@@ -1756,21 +1759,21 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1827,20 +1830,20 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1896,19 +1899,19 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1963,18 +1966,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2026,18 +2029,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2092,19 +2095,19 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2157,18 +2160,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2221,18 +2224,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2285,18 +2288,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p8));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p8)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p8)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p8)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p8)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2350,18 +2353,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -2415,18 +2418,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -2482,18 +2485,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p8));
 
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p4, p8)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p6, p8)));
-            ASSERT_TRUE(brush->hasEdge(Edge3d(p7, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p8)));
+            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p8)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -3557,6 +3560,12 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, vec3(16.0, 0.0, 0.0)));
             ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, vec3(16.0, 0.0, 0.0)));
+        }
+
+        vec3::List asVertexList(const segment3::List& edges) {
+            vec3::List result;
+            segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
+            return result;
         }
     }
 }

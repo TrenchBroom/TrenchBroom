@@ -60,7 +60,7 @@ namespace TrenchBroom {
             }
         private:
             bool selects(const vec3& point, const plane3& plane, const bbox2& box) const;
-            bool selects(const Edge3& edge, const plane3& plane, const bbox2& box) const;
+            bool selects(const segment3& edge, const plane3& plane, const bbox2& box) const;
             bool selects(const Polygon3& polygon, const plane3& plane, const bbox2& box) const;
             vec3 project(const vec3& point, const plane3& plane) const;
         public:

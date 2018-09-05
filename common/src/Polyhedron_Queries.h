@@ -178,13 +178,13 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
     const auto& rhsEnd = rhsEdge->secondVertex()->position();
     
     const auto lhsRay = ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
-    const auto dist = squaredDistance(lhsRay, rhsStart, rhsEnd);
-    const auto rayLen = lhsRay.distanceToPointOnRay(lhsEnd);
+    const auto dist = squaredDistance(lhsRay, segment<T,3>(rhsStart, rhsEnd));
+    const auto rayLen = lhsRay.distanceToProjectedPoint(lhsEnd);
     
     if (dist.parallel) {
         if (dist.colinear()) {
-            const auto rhsStartDist = lhsRay.distanceToPointOnRay(rhsStart);
-            const auto rhsEndDist   = lhsRay.distanceToPointOnRay(rhsEnd);
+            const auto rhsStartDist = lhsRay.distanceToProjectedPoint(rhsStart);
+            const auto rhsEndDist   = lhsRay.distanceToProjectedPoint(rhsEnd);
             
             return (Math::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
                     Math::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
@@ -264,7 +264,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
             do {
                 const auto& start = rhsCurEdge->origin()->position();
                 const auto& end   = rhsCurEdge->destination()->position();
-                if (distance(lhsRay, start, end).distance <= MaxDistance) {
+                if (distance(lhsRay, segment<T,3>(start, end)).distance <= MaxDistance) {
                     return true;
                 }
                 rhsCurEdge = rhsCurEdge->next();

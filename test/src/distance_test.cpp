@@ -27,10 +27,12 @@
 #include "quat_impl.h"
 #include "bbox_decl.h"
 #include "bbox_impl.h"
-#include "ray_decl.h"
-#include "ray_impl.h"
 #include "line_decl.h"
 #include "line_impl.h"
+#include "ray_decl.h"
+#include "ray_impl.h"
+#include "segment_decl.h"
+#include "segment_impl.h"
 #include "plane_decl.h"
 #include "plane_impl.h"
 #include "distance.h"
@@ -55,27 +57,27 @@ TEST(DistanceTest, distanceRayAndSegment) {
     const ray3f ray(vec3f::zero, vec3f::pos_z);
     LineDistance<float> segDist;
 
-    segDist = squaredDistance(ray, vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 0.0f, 1.0f));
+    segDist = squaredDistance(ray, segment3f(vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 0.0f, 1.0f)));
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vec3f(1.0f, 1.0f, 0.0f), vec3f(1.0f, 1.0f, 1.0f));
+    segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 1.0f, 0.0f), vec3f(1.0f, 1.0f, 1.0f)));
     ASSERT_TRUE(segDist.parallel);
     ASSERT_FLOAT_EQ(2.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vec3f(1.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f));
+    segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f)));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(0.5f, segDist.distance);
     ASSERT_FLOAT_EQ(0.70710677f, segDist.lineDistance);
 
-    segDist = squaredDistance(ray, vec3f(1.0f, 0.0f, 0.0f), vec3f(2.0f, -1.0f, 0.0f));
+    segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 0.0f, 0.0f), vec3f(2.0f, -1.0f, 0.0f)));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(1.0f, segDist.distance);
     ASSERT_FLOAT_EQ(0.0f, segDist.lineDistance);
 
-    segDist = distance(ray, vec3f(-1.0f, 1.5f, 2.0f), vec3f(+1.0f, 1.5f, 2.0f));
+    segDist = distance(ray, segment3f(vec3f(-1.0f, 1.5f, 2.0f), vec3f(+1.0f, 1.5f, 2.0f)));
     ASSERT_FALSE(segDist.parallel);
     ASSERT_FLOAT_EQ(2.0f, segDist.rayDistance);
     ASSERT_FLOAT_EQ(1.5f, segDist.distance);

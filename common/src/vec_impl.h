@@ -516,6 +516,32 @@ vec<T,S> normalize(const vec<T,S>& vec) {
     return vec / length(vec);
 }
 
+template <typename T>
+vec<T,3> swizzle(const vec<T,3>& point, const size_t axis) {
+    assert(axis <= 3);
+    switch (axis) {
+        case 0: // x y z -> y z x
+            return vec<T,3>(point.y(), point.z(), point.x());
+        case 1: // x y z -> z x y
+            return vec<T,3>(point.z(), point.x(), point.y());
+        default:
+            return point;
+    }
+}
+
+template <typename T>
+vec<T,3> unswizzle(const vec<T,3>& point, const size_t axis) {
+    assert(axis <= 3);
+    switch (axis) {
+        case 0:
+            return vec<T,3>(point.z(), point.x(), point.y());
+        case 1:
+            return vec<T,3>(point.y(), point.z(), point.x());
+        default:
+            return point;
+    }
+}
+
 template <typename T, size_t S>
 bool isUnit(const vec<T,S>& v, const T epsilon) {
     return Math::one(length(v), epsilon);

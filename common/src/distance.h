@@ -22,9 +22,10 @@
 
 #include "vec_decl.h"
 #include "vec_impl.h"
+#include "line_decl.h"
 #include "ray_decl.h"
 #include "ray_impl.h"
-#include "line_decl.h"
+#include "segment_decl.h"
 
 #include <cstddef>
 
@@ -186,13 +187,14 @@ struct LineDistance {
  * @tparam T the component type
  * @tparam S the number of components
  * @param r the ray
- * @param p1 first point of the segment
- * @param p2 second point of the segment
+ * @param s the segment
  * @return the squared minimal distance
  */
- // TODO 2201: use segment type instead of two points
 template <typename T, size_t S>
-LineDistance<T> squaredDistance(const ray<T,S>& r, const vec<T,S>& p1, const vec<T,S>& p2) {
+LineDistance<T> squaredDistance(const ray<T,S>& r, const segment<T,S>& s) {
+    const auto& p1 = s.start();
+    const auto& p2 = s.end();
+
     auto u = p2 - p1;
     auto v = r.direction;
     auto w = p1 - r.origin;
@@ -242,14 +244,12 @@ LineDistance<T> squaredDistance(const ray<T,S>& r, const vec<T,S>& p1, const vec
  * @tparam T the component type
  * @tparam S the number of components
  * @param r the ray
- * @param p1 first point of the segment
- * @param p2 second point of the segment
+ * @param s the segment
  * @return the minimal distance
  */
-// TODO 2201: use segment type instead of two points
 template <typename T, size_t S>
-LineDistance<T> distance(const ray<T,S>& r, const vec<T,S>& p1, const vec<T,S>& p2) {
-    auto distance2 = squaredDistance(r, p1, p2);
+LineDistance<T> distance(const ray<T,S>& r, const segment<T,S>& s) {
+    auto distance2 = squaredDistance(r, s);
     distance2.distance = std::sqrt(distance2.distance);
     return distance2;
 }

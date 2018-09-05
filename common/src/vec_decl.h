@@ -871,6 +871,33 @@ template <typename T, size_t S>
 vec<T,S> normalize(const vec<T,S>& vec);
 
 /**
+ * Rearranges the components of the given vector depending on the value of the axis parameter as follows:
+ *
+ * - 1: x y z -> y z x
+ * - 2: x y z -> z x y
+ * - 3: x y z -> x y z
+ *
+ * @tparam T the component type
+ * @param point the point to swizzle
+ * @param axis the axis
+ * @return the swizzled point
+ */
+template <typename T>
+vec<T,3> swizzle(const vec<T,3>& point, size_t axis);
+
+/**
+ * Rearranges the components of the given vector depending on the value of the axis parameter so that it undoes
+ * the effect of calling swizzle.
+ *
+ * @tparam T the component type
+ * @param point the point to swizzle
+ * @param axis the axis
+ * @return the unswizzled point
+ */
+template <typename T>
+vec<T,3> unswizzle(const vec<T,3>& point, size_t axis);
+
+/**
  * Checks whether the given vector has unit length (1).
  *
  * @tparam T the component type

@@ -38,14 +38,14 @@ TEST(LineTest, constructWithPointAndDirection) {
     ASSERT_VEC_EQ(n, l.direction);
 }
 
-TEST(LineTest, distance) {
+TEST(LineTest, distanceToProjectedPoint) {
     const line3f l(vec3f(10,0,0), vec3f::pos_z);
-    ASSERT_FLOAT_EQ(0.0f, l.distance(vec3f(10,0,0)));
-    ASSERT_FLOAT_EQ(10.0f, l.distance(vec3f(10,0,10)));
-    ASSERT_FLOAT_EQ(10.0f, l.distance(vec3f(10,10,10)));
+    ASSERT_FLOAT_EQ(0.0f, l.distanceToProjectedPoint(vec3f(10,0,0)));
+    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vec3f(10,0,10)));
+    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vec3f(10,10,10)));
 }
 
-TEST(LineTest, project) {
+TEST(LineTest, projectPoint) {
     const line3f l(vec3f(10,0,0), vec3f::pos_z);
-    ASSERT_VEC_EQ(vec3f(10,0,5), l.project(vec3f(100,100,5)));
+    ASSERT_VEC_EQ(vec3f(10,0,5), l.projectPoint(vec3f(100,100,5)));
 }

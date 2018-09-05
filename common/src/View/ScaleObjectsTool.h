@@ -114,7 +114,7 @@ namespace TrenchBroom {
         BBoxSide oppositeSide(const BBoxSide& side);
         BBoxCorner oppositeCorner(const BBoxCorner& corner);
         BBoxEdge oppositeEdge(const BBoxEdge& edge);
-        Edge3 pointsForBBoxEdge(const bbox3& box, const BBoxEdge& edge);
+        segment3 pointsForBBoxEdge(const bbox3& box, const BBoxEdge& edge);
         Polygon3 polygonForBBoxSide(const bbox3& box, const BBoxSide& side);
         vec3 centerForBBoxSide(const bbox3& box, const BBoxSide& side);
 
@@ -234,7 +234,7 @@ namespace TrenchBroom {
             Polygon3f dragSide() const;
             
             bool hasDragEdge() const;
-            Edge3f dragEdge() const;
+            segment3f dragEdge() const;
             
             bool hasDragCorner() const;
             vec3f dragCorner() const;

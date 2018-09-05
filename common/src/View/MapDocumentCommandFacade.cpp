@@ -748,18 +748,18 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
-        Edge3::List MapDocumentCommandFacade::performMoveEdges(const Model::BrushEdgesMap& edges, const vec3& delta) {
+        segment3::List MapDocumentCommandFacade::performMoveEdges(const Model::BrushEdgesMap& edges, const vec3& delta) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Edge3::List newEdgePositions;
+            segment3::List newEdgePositions;
             for (const auto& entry : edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& oldPositions = entry.second;
-                const Edge3::List newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
+                const segment3::List& oldPositions = entry.second;
+                const segment3::List newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newEdgePositions, newPositions);
             }
 

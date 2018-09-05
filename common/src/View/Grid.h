@@ -23,8 +23,6 @@
 #include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Edge.h"
-#include "Polygon.h"
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
 
@@ -222,8 +220,8 @@ namespace TrenchBroom {
             template <typename T>
             vec<T,3> snap(const vec<T,3>& p, const line<T,3> line) const {
                 // Project the point onto the line.
-                const vec<T,3> pr = line.project(p);
-                const T prDist = line.distance(pr);
+                const vec<T,3> pr = line.projectPoint(p);
+                const T prDist = line.distanceToProjectedPoint(pr);
                 
                 vec<T,3> result = pr;
                 T bestDiff = std::numeric_limits<T>::max();
@@ -245,7 +243,7 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            vec<T,3> snap(const vec<T,3>& p, const Edge<T,3> edge) const {
+            vec<T,3> snap(const vec<T,3>& p, const segment<T,3> edge) const {
                 const vec<T,3> v = edge.end() - edge.start();
                 const T len = length(v);
                 
@@ -278,7 +276,7 @@ namespace TrenchBroom {
                 auto end = std::end(polygon);
                 
                 while (cur != end) {
-                    const vec<T,3> cand = snap(p, Edge<T,3>(*last, *cur));
+                    const vec<T,3> cand = snap(p, segment<T,3>(*last, *cur));
                     if (!isNaN(cand)) {
                         const T cerr = squaredLength(p - cand);
                         if (cerr < err) {

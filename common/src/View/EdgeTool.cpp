@@ -24,7 +24,7 @@ namespace TrenchBroom {
         EdgeTool::EdgeTool(MapDocumentWPtr document) :
         VertexToolBase(document) {}
         
-        Model::BrushSet EdgeTool::findIncidentBrushes(const Edge3& handle) const {
+        Model::BrushSet EdgeTool::findIncidentBrushes(const segment3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
 

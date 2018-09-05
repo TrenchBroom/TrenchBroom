@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         void EdgeHandleManager::pickGridHandle(const ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
-                const Edge3& position = entry.first;
+                const segment3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!Math::isnan(edgeDist)) {
                     const vec3 pointHandle = grid.snap(pickRay.pointAtDistance(edgeDist), position);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         void EdgeHandleManager::pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
-                const Edge3& position = entry.first;
+                const segment3& position = entry.first;
                 const vec3 pointHandle = position.center();
 
                 const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
@@ -93,13 +93,13 @@ namespace TrenchBroom {
 
         void EdgeHandleManager::addHandles(const Model::Brush* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
-                add(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                add(segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
             }
         }
 
         void EdgeHandleManager::removeHandles(const Model::Brush* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
-                assertResult(remove(Edge3(edge->firstVertex()->position(), edge->secondVertex()->position())));
+                assertResult(remove(segment3(edge->firstVertex()->position(), edge->secondVertex()->position())));
             }
         }
 

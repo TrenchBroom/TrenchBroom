@@ -31,7 +31,7 @@ namespace TrenchBroom {
         RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const Model::EdgeToBrushesMap& edges) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
+            segment3::List edgePositions;
             
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             Model::BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
@@ -39,11 +39,11 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
         }
 
-        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Edge3::List& edgePositions) :
+        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const segment3::List& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
 
-        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void RemoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }

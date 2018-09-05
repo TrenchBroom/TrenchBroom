@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         TEST(GridTest, snapOnEdge) {
-            const Edge3d E(vec3d::zero, vec3d(1.0, 2.0, 0.0) * 2.0);
+            const segment3d E(vec3d::zero, vec3d(1.0, 2.0, 0.0) * 2.0);
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3d::zero, E));
             ASSERT_VEC_EQ(vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), E));
             ASSERT_VEC_EQ(vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(10.0, 0.0, 0.0), E));

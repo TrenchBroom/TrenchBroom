@@ -411,7 +411,7 @@ namespace TrenchBroom {
             void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
                 static const auto epsilon = 0.001 * 0.001;
                 for (auto& entry : m_handles) {
-                    if (squaredDistance(handle, entry.first) < epsilon * epsilon) {
+                    if (compare(handle, entry.first, epsilon) == 0) {
                         fun(entry.second);
                     }
                 }
@@ -557,10 +557,10 @@ namespace TrenchBroom {
          * intersect with a grid plane. Such handles are not added to this manager explicitly, but are computed on the
          * fly.
          */
-        class EdgeHandleManager : public VertexHandleManagerBaseT<Edge3> {
+        class EdgeHandleManager : public VertexHandleManagerBaseT<segment3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<Edge3, vec3> HitType;
+            typedef std::tuple<segment3, vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

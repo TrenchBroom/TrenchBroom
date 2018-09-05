@@ -38,18 +38,13 @@ point(i_point),
 direction(i_direction) {}
 
 template <typename T, size_t S>
-T line<T,S>::distance(const vec<T,S>& i_point) const {
-    return dot(i_point - point, direction);
+vec<T,S> line<T,S>::getOrigin() const {
+    return point;
 }
 
 template <typename T, size_t S>
-vec<T,S> line<T,S>::pointAtDistance(const T distance) const {
-    return point + direction * distance;
-}
-
-template <typename T, size_t S>
-vec<T,S> line<T,S>::project(const vec<T,S>& i_point) const {
-    return pointAtDistance(distance(i_point));
+vec<T,S> line<T,S>::getDirection() const {
+    return direction;
 }
 
 template <typename T, size_t S>

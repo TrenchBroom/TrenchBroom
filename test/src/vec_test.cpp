@@ -354,3 +354,15 @@ TEST(VecTest, mix) {
     ASSERT_EQ(vec3d::one, mix(vec3d::zero, vec3d::one, vec3d::one));
     ASSERT_EQ(vec3d::one / 2.0, mix(vec3d::zero, vec3d::one, vec3d::one / 2.0));
 }
+
+TEST(VecTest, swizzle) {
+    ASSERT_EQ(vec3d(2, 3, 1), swizzle(vec3d(1, 2, 3), 0));
+    ASSERT_EQ(vec3d(3, 1, 2), swizzle(vec3d(1, 2, 3), 1));
+    ASSERT_EQ(vec3d(1, 2, 3), swizzle(vec3d(1, 2, 3), 2));
+}
+
+TEST(VecTest, unswizzle) {
+    for (size_t i = 0; i < 3; ++i) {
+        ASSERT_EQ(vec3d(1, 2, 3), unswizzle(swizzle(vec3d(1, 2, 3), i), i));
+    }
+}

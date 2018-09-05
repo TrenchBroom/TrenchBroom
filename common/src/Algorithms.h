@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_Algorithms_h
 #define TrenchBroom_Algorithms_h
 
-#include "CoordinatePlane.h"
 #include "vec_decl.h"
 #include "plane_decl.h"
 #include "ray_decl.h"

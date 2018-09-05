@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_LINE_DECL
 #define TRENCHBROOM_LINE_DECL
 
+#include "abstract_line.h"
 #include "vec_decl.h"
 
 #include <vector>
@@ -32,7 +33,7 @@
  */
 // TODO 2201: introduce abstract_line concept with origin, direction, positiveLength, negativeLength
 template <typename T, size_t S>
-class line {
+class line : public abstract_line<T,S> {
 public:
     typedef std::vector<line<T,S> > List;
     static const List EmptyList;
@@ -68,32 +69,9 @@ public:
      * @param i_direction the direction
      */
     line(const vec<T,S>& i_point, const vec<T,S>& i_direction);
-public:
-    /**
-     * Projects the given point orthogonally onto this line and computes the distance from the line anchor point to
-     * the projected point.
-     *
-     * @param i_point the point to project
-     * @return the distance
-     */
-    T distance(const vec<T,S>& i_point) const;
 
-    /**
-     * Returns a point on this line at the given distance from its anchor point.
-     *
-     * @param distance the distance of the point (along the direction)
-     * @return the point at the given distance
-     */
-    vec<T,S> pointAtDistance(T distance) const;
-    
-
-    /**
-     * Orthogonally projects the given point onto this line.
-     *
-     * @param i_point the point to project
-     * @return the projected point
-     */
-    vec<T,S> project(const vec<T,S>& i_point) const;
+    vec<T,S> getOrigin() const override;
+    vec<T,S> getDirection() const override;
 
     /**
      * Returns a canonical representation of the given line. Since a line could be represented by any point on it

@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_RAY_DECL_H
 #define TRENCHBROOM_RAY_DECL_H
 
+#include "abstract_line.h"
 #include "vec_decl.h"
 
 #include "MathUtils.h"
@@ -32,7 +33,7 @@
  */
 // TODO 2201: introduce abstract_line concept with origin, direction, positiveLength, negativeLength
 template <typename T, size_t S>
-class ray {
+class ray : public abstract_line<T,S> {
 public:
     vec<T,S> origin;
     vec<T,S> direction;
@@ -70,13 +71,8 @@ public:
      */
     ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction);
 
-    /**
-     * Computes the point on this ray at the given distance from the ray origin.
-     *
-     * @param distance the distance of the point
-     * @return the point
-     */
-    vec<T,S> pointAtDistance(const T distance) const;
+    vec<T,S> getOrigin() const override;
+    vec<T,S> getDirection() const override;
 
     /**
      * Determines the position of the given point in relation to the origin and direction of this ray. Suppose that the
@@ -91,14 +87,6 @@ public:
      * @return a value indicating the relative position of the given point
      */
     Math::PointStatus::Type pointStatus(const vec<T,S>& point) const;
-
-    /**
-     * Computes the distance from the origin to the orthogonal projection of the given point onto this ray.
-     *
-     * @param point the point
-     * @return the distance from the origin to the orthogonal projection of the given point
-     */
-    T distanceToPointOnRay(const vec<T,S>& point) const;
 };
 
 /**

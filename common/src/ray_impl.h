@@ -39,8 +39,13 @@ origin(i_origin),
 direction(i_direction) {}
 
 template <typename T, size_t S>
-vec<T,S> ray<T,S>::pointAtDistance(const T distance) const {
-    return origin + direction * distance;
+vec<T,S> ray<T,S>::getOrigin() const {
+    return origin;
+}
+
+template <typename T, size_t S>
+vec<T,S> ray<T,S>::getDirection() const {
+    return direction;
 }
 
 template <typename T, size_t S>
@@ -53,11 +58,6 @@ Math::PointStatus::Type ray<T,S>::pointStatus(const vec<T,S>& point) const {
     } else {
         return Math::PointStatus::PSInside;
     }
-}
-
-template <typename T, size_t S>
-T ray<T,S>::distanceToPointOnRay(const vec<T,S>& point) const {
-    return dot(point - origin, direction);
 }
 
 template <typename T, size_t S>

@@ -31,13 +31,13 @@ namespace TrenchBroom {
         MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
+            segment3::List edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
 
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const segment3::List& edgePositions, const vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             const bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edges = entry.second;
+                const segment3::List& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;
             }
@@ -73,11 +73,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const {
             manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
         }
         
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }
