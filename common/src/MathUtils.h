@@ -35,6 +35,7 @@ namespace Math {
         }
     };
 
+    // TODO 2201: Extract this into a separate header
     template <typename T>
     class Constants {
     public:
