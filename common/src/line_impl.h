@@ -23,6 +23,8 @@
 #include "line_decl.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
 
 template <typename T, size_t S>
 const typename line<T,S>::List line<T,S>::EmptyList = line<T,S>::List();
@@ -45,6 +47,12 @@ vec<T,S> line<T,S>::getOrigin() const {
 template <typename T, size_t S>
 vec<T,S> line<T,S>::getDirection() const {
     return direction;
+}
+
+template <typename T, size_t S>
+line<T,S> line<T,S>::transform(const mat<T,S,S>& transform) const {
+    const auto newPoint = point * transform;
+    const auto newDirection = point * stripTranslation(transform);
 }
 
 template <typename T, size_t S>

@@ -141,8 +141,7 @@ public:
     plane<T,S> flip() const;
 
     /**
-     * Transforms this plane using the given transformation. Note that the translational part of the given transformation
-     * is not applied to the plane normal.
+     * Transforms this plane using the given transformation matrix. The translational part is not applied to the normal.
      *
      * @param transform the transformation to apply
      * @return the transformed plane

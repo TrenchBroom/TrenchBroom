@@ -21,6 +21,10 @@
 #define TRENCHBROOM_SEGMENT_IMPL_H
 
 #include "segment_decl.h"
+#include "vec_decl.h"
+#include "vec_impl.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
 
 #include <cstddef>
 
@@ -44,6 +48,11 @@ vec<T,S> segment<T,S>::getOrigin() const {
 template <typename T, size_t S>
 vec<T,S> segment<T,S>::getDirection() const {
     return direction();
+}
+
+template <typename T, size_t S>
+segment<T,S> segment<T,S>::transform(const mat<T,S,S>& transform) const {
+    return segment<T,S>(m_start * transform, m_end * transform);
 }
 
 template <typename T, size_t S>

@@ -22,6 +22,7 @@
 
 #include "abstract_line.h"
 #include "vec_decl.h"
+#include "mat_decl.h"
 
 #include <vector>
 
@@ -70,8 +71,18 @@ public:
      */
     line(const vec<T,S>& i_point, const vec<T,S>& i_direction);
 
+    // implement abstract_line interface
     vec<T,S> getOrigin() const override;
     vec<T,S> getDirection() const override;
+
+    /**
+     * Transforms this line using the given transformation matrix. The translational part is not applied to the
+     * direction.
+     *
+     * @param transform the transformation to apply
+     * @return the transformed line
+     */
+    line<T,S> transform(const mat<T,S,S>& transform) const;
 
     /**
      * Returns a canonical representation of the given line. Since a line could be represented by any point on it

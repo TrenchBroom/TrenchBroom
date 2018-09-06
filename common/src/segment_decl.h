@@ -79,8 +79,17 @@ public:
     m_start(other.start()),
     m_end(other.end()) {}
 
+    // implement abstract_line interface
     vec<T,S> getOrigin() const override;
     vec<T,S> getDirection() const override;
+
+    /**
+     * Transforms this segment using the given transformation matrix.
+     *
+     * @param transform the transformation to apply
+     * @return the transformed segment
+     */
+    segment<T,S> transform(const mat<T,S,S>& transform) const;
 
     /**
      * Returns the start point of this segment.

@@ -22,6 +22,7 @@
 
 #include "abstract_line.h"
 #include "vec_decl.h"
+#include "mat_decl.h"
 
 #include "MathUtils.h"
 
@@ -71,8 +72,18 @@ public:
      */
     ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction);
 
+    // implement abstract_line interface
     vec<T,S> getOrigin() const override;
     vec<T,S> getDirection() const override;
+
+    /**
+     * Transforms this line using the given transformation matrix. The translational part is not applied to the
+     * direction.
+     *
+     * @param transform the transformation to apply
+     * @return the transformed ray
+     */
+    ray<T,S> transform(const mat<T,S,S>& transform) const;
 
     /**
      * Determines the position of the given point in relation to the origin and direction of this ray. Suppose that the

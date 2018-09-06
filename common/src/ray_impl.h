@@ -23,6 +23,8 @@
 #include "ray_decl.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
+#include "mat_decl.h"
+#include "mat_impl.h"
 
 #include "MathUtils.h"
 
@@ -46,6 +48,13 @@ vec<T,S> ray<T,S>::getOrigin() const {
 template <typename T, size_t S>
 vec<T,S> ray<T,S>::getDirection() const {
     return direction;
+}
+
+template <typename T, size_t S>
+ray<T,S> ray<T,S>::transform(const mat<T,S,S>& transform) const {
+    const auto newOrigin = origin * transform;
+    const auto newDirection = direction * stripTranslation(transform);
+    return ray<T,S>(newOrigin, newDirection);
 }
 
 template <typename T, size_t S>
