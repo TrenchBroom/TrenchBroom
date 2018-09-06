@@ -141,7 +141,7 @@ namespace TrenchBroom {
         }
 
         TEST(GridTest, snapOnQuad) {
-            const Polygon3d quad {
+            const polygon3d quad {
                     vec3d(-9.0, -9.0, 0.0),
                     vec3d(+9.0, -9.0, 0.0),
                     vec3d(+9.0, +9.0, 0.0),

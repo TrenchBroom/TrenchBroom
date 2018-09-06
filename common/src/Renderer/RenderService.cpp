@@ -146,19 +146,19 @@ namespace TrenchBroom {
             renderHandleHighlight(position.center());
         }
         
-        void RenderService::renderHandles(const Polygon3f::List& positions) {
-            for (const Polygon3f& position : positions)
+        void RenderService::renderHandles(const polygon3f::List& positions) {
+            for (const polygon3f& position : positions)
                 renderHandle(position);
         }
         
-        void RenderService::renderHandle(const Polygon3f& position) {
+        void RenderService::renderHandle(const polygon3f& position) {
             setShowBackfaces();
             m_primitiveRenderer->renderFilledPolygon(mixAlpha(m_foregroundColor, 0.07f), m_occlusionPolicy, m_cullingPolicy, position.vertices());
             renderHandle(position.center());
             setCullBackfaces();
         }
         
-        void RenderService::renderHandleHighlight(const Polygon3f& position) {
+        void RenderService::renderHandleHighlight(const polygon3f& position) {
             m_primitiveRenderer->renderPolygon(m_foregroundColor, 2.0f * m_lineWidth, m_occlusionPolicy, position.vertices());
             renderHandleHighlight(position.center());
         }

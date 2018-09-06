@@ -363,7 +363,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const Polygon3& vertices) const {
+        BrushFace* Brush::findFace(const polygon3& vertices) const {
             for (auto* face : m_faces) {
                 if (face->hasVertices(vertices)) {
                     return face;
@@ -372,7 +372,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const Polygon3::List& candidates) const {
+        BrushFace* Brush::findFace(const polygon3::List& candidates) const {
             for (const auto& candidate : candidates) {
                 auto* face = findFace(candidate);
                 if (face != nullptr) {
@@ -638,12 +638,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool Brush::hasFace(const Polygon3& face, const FloatType epsilon) const {
+        bool Brush::hasFace(const polygon3& face, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->hasFace(face.vertices(), epsilon);
         }
 
-        bool Brush::hasFaces(const Polygon3::List& faces, const FloatType epsilon) const {
+        bool Brush::hasFaces(const polygon3::List& faces, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& face : faces) {
                 if (!m_geometry->hasFace(face.vertices(), epsilon)) {
@@ -654,15 +654,15 @@ namespace TrenchBroom {
         }
 
         bool Brush::hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const FloatType epsilon) const {
-            return hasFace(Polygon3(VectorUtils::create<vec3>(p1, p2, p3)), epsilon);
+            return hasFace(polygon3(VectorUtils::create<vec3>(p1, p2, p3)), epsilon);
         }
 
         bool Brush::hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4, const FloatType epsilon) const {
-            return hasFace(Polygon3(VectorUtils::create<vec3>(p1, p2, p3, p4)), epsilon);
+            return hasFace(polygon3(VectorUtils::create<vec3>(p1, p2, p3, p4)), epsilon);
         }
 
         bool Brush::hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4, const vec3& p5, const FloatType epsilon) const {
-            return hasFace(Polygon3(VectorUtils::create<vec3>(p1, p2, p3, p4, p5)), epsilon);
+            return hasFace(polygon3(VectorUtils::create<vec3>(p1, p2, p3, p4, p5)), epsilon);
         }
 
 
@@ -861,11 +861,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canMoveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta) const {
+        bool Brush::canMoveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
 
-            const auto vertexPositions = Polygon3::asVertexList(facePositions);
+            const auto vertexPositions = polygon3::asVertexList(facePositions);
             const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
 
             if (!result.success) {
@@ -881,19 +881,19 @@ namespace TrenchBroom {
             return true;
         }
 
-        Polygon3::List Brush::moveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta) {
+        polygon3::List Brush::moveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
-            const auto vertexPositions = Polygon3::asVertexList(facePositions);
+            const auto vertexPositions = polygon3::asVertexList(facePositions);
             doMoveVertices(worldBounds, vertexPositions, delta);
 
-            Polygon3::List result;
+            polygon3::List result;
             result.reserve(facePositions.size());
 
             for (const auto& facePosition : facePositions) {
                 const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, Math::Constants<FloatType>::almostZero());
                 if (newFace != nullptr) {
-                    result.push_back(Polygon3(newFace->vertexPositions()));
+                    result.push_back(polygon3(newFace->vertexPositions()));
                 }
             }
 

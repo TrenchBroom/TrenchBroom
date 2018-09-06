@@ -1212,7 +1212,7 @@ namespace TrenchBroom {
             return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
         }
         
-        bool MapDocument::resizeBrushes(const Polygon3::List& faces, const vec3& delta) {
+        bool MapDocument::resizeBrushes(const polygon3::List& faces, const vec3& delta) {
             return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
         }
         

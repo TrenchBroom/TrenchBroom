@@ -259,7 +259,7 @@ namespace TrenchBroom {
             }
             
             template <typename T>
-            vec<T,3> snap(const vec<T,3>& p, const Polygon<T,3>& polygon, const vec<T,3>& normal) const {
+            vec<T,3> snap(const vec<T,3>& p, const polygon<T,3>& polygon, const vec<T,3>& normal) const {
                 ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
                 
                 const plane<T,3> plane(polygon.vertices().front(), normal);

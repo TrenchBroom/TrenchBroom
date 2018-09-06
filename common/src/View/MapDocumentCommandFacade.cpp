@@ -605,8 +605,8 @@ namespace TrenchBroom {
             setEntityDefinitions(nodes);
         }
 
-        Polygon3::List MapDocumentCommandFacade::performResizeBrushes(const Polygon3::List& polygons, const vec3& delta) {
-            Polygon3::List result;
+        polygon3::List MapDocumentCommandFacade::performResizeBrushes(const polygon3::List& polygons, const vec3& delta) {
+            polygon3::List result;
             
             const Model::BrushList& selectedBrushes = m_selectedNodes.brushes();
             Model::NodeList changedNodes;
@@ -769,18 +769,18 @@ namespace TrenchBroom {
             return newEdgePositions;
         }
 
-        Polygon3::List MapDocumentCommandFacade::performMoveFaces(const Model::BrushFacesMap& faces, const vec3& delta) {
+        polygon3::List MapDocumentCommandFacade::performMoveFaces(const Model::BrushFacesMap& faces, const vec3& delta) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            Polygon3::List newFacePositions;
+            polygon3::List newFacePositions;
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& oldPositions = entry.second;
-                const Polygon3::List newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta);
+                const polygon3::List& oldPositions = entry.second;
+                const polygon3::List newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newFacePositions, newPositions);
             }
             

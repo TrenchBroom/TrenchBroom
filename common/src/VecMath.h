@@ -45,7 +45,7 @@
 #include "plane_impl.h"
 #include "segment_decl.h"
 #include "segment_impl.h"
-#include "Polygon.h"
+#include "polygon.h"
 #include "distance.h"
 #include "intersection.h"
 

@@ -96,8 +96,8 @@ namespace TrenchBroom {
         public: // face management:
             BrushFace* findFace(const vec3& normal) const;
             BrushFace* findFace(const plane3& boundary) const;
-            BrushFace* findFace(const Polygon3& vertices) const;
-            BrushFace* findFace(const Polygon3::List& candidates) const;
+            BrushFace* findFace(const polygon3& vertices) const;
+            BrushFace* findFace(const polygon3::List& candidates) const;
             
             size_t faceCount() const;
             const BrushFaceList& faces() const;
@@ -162,8 +162,8 @@ namespace TrenchBroom {
             bool hasVertices(const vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdges(const segment3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFace(const Polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFaces(const Polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFaces(const polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
             bool hasFace(const vec3& p1, const vec3& p2, const vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -193,8 +193,8 @@ namespace TrenchBroom {
             segment3::List moveEdges(const bbox3& worldBounds, const segment3::List& edgePositions, const vec3& delta);
 
             // face operations
-            bool canMoveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta) const;
-            Polygon3::List moveFaces(const bbox3& worldBounds, const Polygon3::List& facePositions, const vec3& delta);
+            bool canMoveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta) const;
+            polygon3::List moveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta);
         private:
             struct CanMoveVerticesResult {
             public:

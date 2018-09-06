@@ -214,13 +214,13 @@ namespace TrenchBroom {
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
         }
 
-        Polygon3 polygonForBBoxSide(const bbox3& box, const BBoxSide& side) {
+        polygon3 polygonForBBoxSide(const bbox3& box, const BBoxSide& side) {
             const auto wantedNormal = side.normal;
             
-            Polygon3 res;
+            polygon3 res;
             auto visitor = [&](const vec3& p0, const vec3& p1, const vec3& p2, const vec3& p3, const vec3& n){
                 if (n == wantedNormal) {
-                    const Polygon3 poly {p0, p1, p2, p3};
+                    const polygon3 poly {p0, p1, p2, p3};
                     res = poly;
                 }
             };
@@ -667,11 +667,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        static std::vector<Polygon3f> polysForSides(const bbox3& box,
+        static std::vector<polygon3f> polysForSides(const bbox3& box,
                                                     const std::vector<BBoxSide>& sides) {
-            std::vector<Polygon3f> result;
+            std::vector<polygon3f> result;
             for (const auto& side : sides) {
-                result.push_back(Polygon3f(polygonForBBoxSide(box, side)));
+                result.push_back(polygon3f(polygonForBBoxSide(box, side)));
             }
             return result;
         }
@@ -686,7 +686,7 @@ namespace TrenchBroom {
             return std::vector<BBoxSide>(result.begin(), result.end());
         }
 
-        std::vector<Polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
+        std::vector<polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
             std::vector<BBoxSide> sides;
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
@@ -734,13 +734,13 @@ namespace TrenchBroom {
             return dragSide().vertexCount() > 0;
         }
 
-        Polygon3f ScaleObjectsTool::dragSide() const {
+        polygon3f ScaleObjectsTool::dragSide() const {
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return Polygon3f(polygonForBBoxSide(bounds(), side));
+                return polygon3f(polygonForBBoxSide(bounds(), side));
             }
                                                             
-            return Polygon3f();
+            return polygon3f();
         }
         
         bool ScaleObjectsTool::hasDragEdge() const {

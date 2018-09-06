@@ -35,13 +35,13 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FaceTool : public VertexToolBase<Polygon3> {
+        class FaceTool : public VertexToolBase<polygon3> {
         private:
             FaceHandleManager m_faceHandles;
         public:
             FaceTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
+            Model::BrushSet findIncidentBrushes(const polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

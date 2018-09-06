@@ -63,7 +63,7 @@ namespace TrenchBroom {
             bbox3 bounds() const;
 
             bool hasDragPolygon() const;
-            Polygon3f dragPolygon() const;
+            polygon3f dragPolygon() const;
             
             /**
              * If inside a drag, returns the bbox at the start of the drag.
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             const Model::Hit& dragStartHit() const;
 
             mat4x4 bboxShearMatrix() const;
-            Polygon3f shearHandle() const;
+            polygon3f shearHandle() const;
 
             void updatePickedSide(const Model::PickResult& pickResult);
 

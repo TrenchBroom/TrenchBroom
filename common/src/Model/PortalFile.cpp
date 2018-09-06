@@ -33,7 +33,7 @@ namespace TrenchBroom {
             load(path);
         }
         
-        const Polygon3f::List& PortalFile::portals() const {
+        const polygon3f::List& PortalFile::portals() const {
             return m_portals;
         }
         
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                     ptr += 3;
                 }
                 
-                m_portals.push_back(Polygon3f(verts));
+                m_portals.push_back(polygon3f(verts));
             }
         }
     }

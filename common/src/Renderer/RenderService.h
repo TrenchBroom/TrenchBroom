@@ -82,9 +82,9 @@ namespace TrenchBroom {
             void renderHandle(const segment3f& position);
             void renderHandleHighlight(const segment3f& position);
             
-            void renderHandles(const Polygon3f::List& positions);
-            void renderHandle(const Polygon3f& position);
-            void renderHandleHighlight(const Polygon3f& position);
+            void renderHandles(const polygon3f::List& positions);
+            void renderHandle(const polygon3f& position);
+            void renderHandleHighlight(const polygon3f& position);
 
             void renderLine(const vec3f& start, const vec3f& end);
             void renderLines(const vec3f::List& positions);

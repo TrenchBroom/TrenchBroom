@@ -314,7 +314,7 @@ namespace TrenchBroom {
             bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) override;
             bool updateSpawnflag(const Model::AttributeName& name, const size_t flagIndex, const bool setFlag) override;
         public: // brush resizing, declared in MapFacade interface
-            bool resizeBrushes(const Polygon3::List& faces, const vec3& delta) override;
+            bool resizeBrushes(const polygon3::List& faces, const vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface
             void setTexture(Assets::Texture* texture) override;
         private:

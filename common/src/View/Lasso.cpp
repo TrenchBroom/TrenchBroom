@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return selects(edge.center(), plane, box);
         }
         
-        bool Lasso::selects(const Polygon3& polygon, const plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const polygon3& polygon, const plane3& plane, const bbox2& box) const {
             return selects(polygon.center(), plane, box);
         }
         

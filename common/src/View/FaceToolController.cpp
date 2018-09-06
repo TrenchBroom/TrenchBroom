@@ -19,19 +19,19 @@
 
 #include "FaceToolController.h"
 
-#include "Polygon.h"
+#include "polygon.h"
 #include "View/FaceTool.h"
 #include "View/Lasso.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace View {
-        class FaceToolController::SelectFacePart : public SelectPartBase<Polygon3> {
+        class FaceToolController::SelectFacePart : public SelectPartBase<polygon3> {
         public:
             SelectFacePart(FaceTool* tool) :
             SelectPartBase(tool, FaceHandleManager::HandleHit) {}
         private:
-            bool equalHandles(const Polygon3& lhs, const Polygon3& rhs) const override {
+            bool equalHandles(const polygon3& lhs, const polygon3& rhs) const override {
                 return compareUnoriented(lhs, rhs, MaxHandleDistance) == 0;
             }
         };

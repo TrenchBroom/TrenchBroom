@@ -59,11 +59,11 @@ namespace TrenchBroom {
             
             static void extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, vec3::List& vertexPositions);
             static void extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, segment3::List& edgePositions);
-            static void extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions);
+            static void extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, polygon3::List& facePositions);
 
             // TODO 1720: Remove these methods if possible.
             static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, segment3::List& edgePositions);
-            static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions);
+            static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, polygon3::List& facePositions);
             
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
             static Model::BrushVerticesMap brushVertexMap(const Model::BrushFacesMap& faces);
@@ -86,15 +86,15 @@ namespace TrenchBroom {
             void selectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const;
             void selectNewHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const;
             void selectOldHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const;
-            void selectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
-            void selectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
+            void selectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const;
+            void selectOldHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const;
         private:
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const;
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const;
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const;
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const;
-            virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
-            virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const;
+            virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const;
+            virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const;
         };
     }
 }

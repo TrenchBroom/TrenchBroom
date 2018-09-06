@@ -62,7 +62,7 @@ namespace TrenchBroom {
         public:
             Model::BrushSet findIncidentBrushes(const vec3& handle) const;
             Model::BrushSet findIncidentBrushes(const segment3& handle) const;
-            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
+            Model::BrushSet findIncidentBrushes(const polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

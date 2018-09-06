@@ -24,7 +24,7 @@ namespace TrenchBroom {
         FaceTool::FaceTool(MapDocumentWPtr document) :
         VertexToolBase(document) {}
         
-        Model::BrushSet FaceTool::findIncidentBrushes(const Polygon3& handle) const {
+        Model::BrushSet FaceTool::findIncidentBrushes(const polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
         

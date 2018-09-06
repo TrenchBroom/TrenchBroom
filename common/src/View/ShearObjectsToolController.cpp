@@ -212,7 +212,7 @@ namespace TrenchBroom {
 
             // render shear handle
             {
-                const Polygon3f poly = m_tool->shearHandle();
+                const polygon3f poly = m_tool->shearHandle();
                 if (poly.vertexCount() != 0) {
                     // fill
                     {

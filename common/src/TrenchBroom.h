@@ -37,15 +37,13 @@ using mat4x4 = mat<FloatType, 4, 4>;
 using line3 = line<FloatType, 3>;
 using ray3 = ray<FloatType, 3>;
 using segment3 = segment<FloatType, 3>;
+using polygon3 = polygon<FloatType, 3>;
 
 #include "Polyhedron_Instantiation.h"
 
 template<typename T, typename FP, typename VB> class Polyhedron;
 using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
-namespace TrenchBroom {
-    using Polygon3 = Polygon<FloatType, 3>;
-}
 
 namespace Math {
     using C = Constants<FloatType>;

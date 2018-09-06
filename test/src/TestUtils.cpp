@@ -93,10 +93,10 @@ namespace TrenchBroom {
         }
         
         void assertTexture(const String& expected, const Brush* brush, const vec3d::List& vertices) {
-            return assertTexture(expected, brush, Polygon3d(vertices));
+            return assertTexture(expected, brush, polygon3d(vertices));
         }
 
-        void assertTexture(const String& expected, const Brush* brush, const Polygon3d& vertices) {
+        void assertTexture(const String& expected, const Brush* brush, const polygon3d& vertices) {
             assert(brush != nullptr);
             BrushFace* face = brush->findFace(vertices);
             assert(face != nullptr);

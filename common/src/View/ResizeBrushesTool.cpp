@@ -353,8 +353,8 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
-            Polygon3::List result;
+        polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
+            polygon3::List result;
             result.reserve(m_dragFaces.size());
             std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
             return result;
