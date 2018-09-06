@@ -122,8 +122,22 @@ Compiling and linking TrenchBroom requires a working OpenGL installation. [This 
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
 
+  1. 
+  
   ```
   cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/your/wxWidgets/directory/build-release/install
+  ```
+  
+  If you use a system-wide installed wxwidgets, be aware that the CMAKE-script appends `./include/wx-3.1` to the given prefix, so for a wxWidgets installed in `/usr/include/wx-3.1/` use:
+  
+  ```
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DwxWidgets_PREFIX=/usr
+  ```
+  
+  
+  2.
+  
+  ```
   cmake --build . --target TrenchBroom
   ```
 
