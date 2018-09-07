@@ -19,7 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include "polygon.h"
+#include "polygon_decl.h"
+#include "polygon_impl.h"
 
 TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
     polygon3d p1{};

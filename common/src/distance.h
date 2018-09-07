@@ -26,6 +26,7 @@
 #include "ray_decl.h"
 #include "ray_impl.h"
 #include "segment_decl.h"
+#include "polygon_decl.h"
 
 #include <cstddef>
 

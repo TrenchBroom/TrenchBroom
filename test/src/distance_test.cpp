@@ -33,6 +33,8 @@
 #include "ray_impl.h"
 #include "segment_decl.h"
 #include "segment_impl.h"
+#include "polygon_decl.h"
+#include "polygon_impl.h"
 #include "plane_decl.h"
 #include "plane_impl.h"
 #include "distance.h"

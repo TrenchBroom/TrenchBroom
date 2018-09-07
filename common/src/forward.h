@@ -105,4 +105,12 @@ using segment3f = segment<float, 3>;
 using segment2d = segment<double, 2>;
 using segment2f = segment<float, 2>;
 
+template <typename T, size_t S>
+class polygon;
+
+using polygon2f = polygon<float,2>;
+using polygon2d = polygon<double,2>;
+using polygon3f = polygon<float,3>;
+using polygon3d = polygon<double,3>;
+
 #endif //TRENCHBROOM_FORWARD_H

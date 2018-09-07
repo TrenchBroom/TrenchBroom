@@ -26,6 +26,8 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexTool.h"
 
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
@@ -113,8 +115,9 @@ namespace TrenchBroom {
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
                 const polygon3::List& faceList = entry.second;
-                
-                vec3::List vertices = polygon3::asVertexList(faceList);
+
+                vec3::List vertices;
+                polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }

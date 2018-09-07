@@ -42,6 +42,7 @@
 namespace TrenchBroom {
     namespace Model {
         vec3::List asVertexList(const segment3::List& edges);
+        vec3::List asVertexList(const polygon3::List& faces);
 
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const bbox3 worldBounds(4096.0);
@@ -1549,11 +1550,11 @@ namespace TrenchBroom {
             // Move the cube down 64 units, so the top vertex of `edge` is on the same plane as `cubeTop`
             // This will turn `cubeTop` from a quad into a pentagon
             assertCanNotMoveFaces(brush, movingFaces, vec3(0, 0, -64));
-            assertCanMoveVertices(brush, polygon3::asVertexList(movingFaces), vec3(0, 0, -64));
+            assertCanMoveVertices(brush, asVertexList(movingFaces), vec3(0, 0, -64));
 
             // Make edge poke through the top face
             assertCanNotMoveFaces(brush, movingFaces, vec3(-192, 0, -128));
-            assertCanNotMoveVertices(brush, polygon3::asVertexList(movingFaces), vec3(-192, 0, -128));
+            assertCanNotMoveVertices(brush, asVertexList(movingFaces), vec3(-192, 0, -128));
 
             delete brush;
         }
@@ -3565,6 +3566,12 @@ namespace TrenchBroom {
         vec3::List asVertexList(const segment3::List& edges) {
             vec3::List result;
             segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
+            return result;
+        }
+
+        vec3::List asVertexList(const polygon3::List& faces) {
+            vec3::List result;
+            polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(result));
             return result;
         }
     }

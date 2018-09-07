@@ -865,7 +865,8 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
 
-            const auto vertexPositions = polygon3::asVertexList(facePositions);
+            vec3::List vertexPositions;
+            polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
 
             if (!result.success) {
@@ -884,7 +885,8 @@ namespace TrenchBroom {
         polygon3::List Brush::moveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
-            const auto vertexPositions = polygon3::asVertexList(facePositions);
+            vec3::List vertexPositions;
+            polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
 
             polygon3::List result;

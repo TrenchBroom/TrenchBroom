@@ -136,7 +136,7 @@ public:
             out = segment.start(); ++out;
             out = segment.end(); ++out;
             ++cur;
-        };
+        }
     }
 private:
     void flip() {

@@ -19,7 +19,6 @@
 
 #include "FaceToolController.h"
 
-#include "polygon.h"
 #include "View/FaceTool.h"
 #include "View/Lasso.h"
 #include "View/VertexHandleManager.h"
