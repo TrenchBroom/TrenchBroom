@@ -60,7 +60,7 @@ public:
      * @param i_vertices the vertices
      */
     polygon(const typename vec<T,S>::List& i_vertices) :
-            m_vertices(i_vertices) {
+    m_vertices(i_vertices) {
         CollectionUtils::rotateMinToFront(m_vertices);
     }
 
@@ -69,9 +69,8 @@ public:
      *
      * @param i_vertices the vertices
      */
-    polygon(typename vec<T,S>::List& i_vertices) {
-        using std::swap;
-        swap(m_vertices, i_vertices);
+    polygon(typename vec<T,S>::List&& i_vertices) :
+    m_vertices(i_vertices) {
         CollectionUtils::rotateMinToFront(m_vertices);
     }
 
