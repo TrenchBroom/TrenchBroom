@@ -83,7 +83,7 @@ public:
      * @param transform the transformation to apply
      * @return the transformed ray
      */
-    ray<T,S> transform(const mat<T,S,S>& transform) const;
+    ray<T,S> transform(const mat<T,S+1,S+1>& transform) const;
 
     /**
      * Determines the position of the given point in relation to the origin and direction of this ray. Suppose that the

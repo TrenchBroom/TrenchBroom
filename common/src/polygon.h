@@ -90,17 +90,31 @@ public:
      * @param other the polygon to copy the values from
      */
     template <typename U>
-    polygon(const polygon<U,S>& other) {
+    explicit polygon(const polygon<U,S>& other) {
         m_vertices.reserve(other.vertexCount());
         for (const auto& vertex : other.vertices()) {
             m_vertices.push_back(vec<T,S>(vertex));
         }
     }
 public:
+
+    /**
+     * Checks whether this polygon has a vertex with the given coordinates.
+     *
+     * @param vertex the position to check
+     * @return bool if this polygon has a vertex at the given position and false otherwise
+     */
     bool hasVertex(const vec<T,S>& vertex) const {
         return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
     }
 
+    /**
+     * Checks whether this polygon contains the given point.
+     *
+     * @param point the point to check
+     * @param normal the normal of this polygon
+     * @return true if this polygon contains the given point, and false otherwise
+     */
     bool contains(const vec<T,S>& point, const vec<T,3>& normal) const {
         return polygonContainsPoint(point, normal, std::begin(m_vertices), std::end(m_vertices));
     }
@@ -138,24 +152,32 @@ public:
         return result;
     }
 
-    polygon<T,S> inverted() const {
-        polygon<T,S> result(*this);
-        return result.invert();
-    }
-
-    polygon<T,S>& invert() {
-        if (m_vertices.size() > 1) {
-            std::reverse(std::next(std::begin(m_vertices)), std::end(m_vertices));
+    polygon<T,S> invert() {
+        auto vertices = m_vertices;
+        if (vertices.size() > 1) {
+            std::reverse(std::next(std::begin(vertices)), std::end(vertices));
         }
-        return *this;
+        return polygon<T,S>(vertices);
     }
 
-    polygon<T,S> transformed(const mat<T,S+1,S+1>& mat) const {
-        return polygon<T,S>(mat * vertices());
+    /**
+     * Translates this polygon by the given offset.
+     *
+     * @param offset the offset by which to translate
+     * @return the translated polygon
+     */
+    polygon<T,S> translate(const vec<T,S>& offset) const {
+        return polygon<T,S>(m_vertices + offset);
     }
-public:
-    friend polygon<T,S> translate(const polygon<T,S>& p, const vec<T,S>& offset) {
-        return polygon<T,S>(p.vertices() + offset);
+
+    /**
+     * Transforms this polygon using the given transformation matrix.
+     *
+     * @param mat the transformation to apply
+     * @return the transformed polygon
+     */
+    polygon<T,S> transform(const mat<T,S+1,S+1>& mat) const {
+        return polygon<T,S>(mat * vertices());
     }
 };
 

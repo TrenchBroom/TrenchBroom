@@ -233,7 +233,7 @@ namespace TrenchBroom {
             // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
             const polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
             
-            const polygon3 handle = polyAtDragStart.transformed(bboxShearMatrix());
+            const polygon3 handle = polyAtDragStart.transform(bboxShearMatrix());
             return polygon3f(handle);
         }
 

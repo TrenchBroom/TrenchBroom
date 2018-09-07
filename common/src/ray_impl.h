@@ -51,7 +51,7 @@ vec<T,S> ray<T,S>::getDirection() const {
 }
 
 template <typename T, size_t S>
-ray<T,S> ray<T,S>::transform(const mat<T,S,S>& transform) const {
+ray<T,S> ray<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
     const auto newOrigin = origin * transform;
     const auto newDirection = direction * stripTranslation(transform);
     return ray<T,S>(newOrigin, newDirection);

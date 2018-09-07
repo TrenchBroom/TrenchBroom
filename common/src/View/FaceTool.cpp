@@ -46,7 +46,7 @@ namespace TrenchBroom {
             const auto handles = m_faceHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
             if (document->moveFaces(brushMap, delta)) {
-                m_dragHandlePosition = translate(m_dragHandlePosition, delta);
+                m_dragHandlePosition = m_dragHandlePosition.translate(delta);
                 return MR_Continue;
             }
             return MR_Deny;

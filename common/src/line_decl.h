@@ -81,7 +81,7 @@ public:
      * @param transform the transformation to apply
      * @return the transformed line
      */
-    line<T,S> transform(const mat<T,S,S>& transform) const;
+    line<T,S> transform(const mat<T,S+1,S+1>& transform) const;
 
     /**
      * Returns a canonical representation of the given line. Since a line could be represented by any point on it

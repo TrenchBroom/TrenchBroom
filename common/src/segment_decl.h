@@ -89,7 +89,7 @@ public:
      * @param transform the transformation to apply
      * @return the transformed segment
      */
-    segment<T,S> transform(const mat<T,S,S>& transform) const;
+    segment<T,S> transform(const mat<T,S+1,S+1>& transform) const;
 
     /**
      * Returns the start point of this segment.

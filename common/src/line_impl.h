@@ -50,7 +50,7 @@ vec<T,S> line<T,S>::getDirection() const {
 }
 
 template <typename T, size_t S>
-line<T,S> line<T,S>::transform(const mat<T,S,S>& transform) const {
+line<T,S> line<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
     const auto newPoint = point * transform;
     const auto newDirection = point * stripTranslation(transform);
 }

@@ -51,7 +51,7 @@ vec<T,S> segment<T,S>::getDirection() const {
 }
 
 template <typename T, size_t S>
-segment<T,S> segment<T,S>::transform(const mat<T,S,S>& transform) const {
+segment<T,S> segment<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
     return segment<T,S>(m_start * transform, m_end * transform);
 }
 

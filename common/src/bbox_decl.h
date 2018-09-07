@@ -256,12 +256,12 @@ public:
     bbox<T,S> expand(const T f) const;
 
     /**
-     * Translates this bounding box by the given delta.
+     * Translates this bounding box by the given offset.
      *
-     * @param delta the delta by which to translate
+     * @param offset the offset by which to translate
      * @return the translated bounding box
      */
-    bbox<T,S> translate(const vec<T,S>& delta) const;
+    bbox<T,S> translate(const vec<T,S>& offset) const;
 
     /**
      * Transforms this bounding box by applying the given transformation to each corner vertex. The result is the
