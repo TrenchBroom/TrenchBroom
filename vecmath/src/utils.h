@@ -542,29 +542,6 @@ namespace vm {
     }
 
     /**
-     * Returns the smallest power of two greater than the given value.
-     *
-     * @tparam T the argument type, which must be an integral type
-     * @param n the value
-     * @return the smallest power of two greater than the given value
-     */
-    template <typename T>
-    T nextPOT(T n) {
-        static_assert(std::is_integral<T>::value, "T must be an integer type");
-        // see https://en.wikipedia.org/wiki/Power_of_two
-        if (!(n & (n-1))) {
-            return n;
-        }
-
-        while (n & (n-1)) {
-            n = n & (n-1);
-        }
-
-        n = n << 1;
-        return n;
-    }
-
-    /**
      * Normalizes the given angle by constraining it to the interval [0 - 2*PI[.
      *
      * @tparam T the argument type, which must be a floating point type
