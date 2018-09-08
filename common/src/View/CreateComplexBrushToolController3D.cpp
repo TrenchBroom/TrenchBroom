@@ -55,7 +55,7 @@ namespace TrenchBroom {
         
         class CreateComplexBrushToolController3D::DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
         private:
-            plane3 m_plane;
+            vm::plane3 m_plane;
             vm::vec3 m_initialPoint;
         public:
             DrawFacePart(CreateComplexBrushTool* tool) :
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                 const auto& grid = m_tool->grid();
                 
                 const auto axis = firstComponent(m_plane.normal);
-                const plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
+                const vm::plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
                 const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
                 const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
                 

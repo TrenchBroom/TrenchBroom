@@ -80,7 +80,7 @@ namespace TrenchBroom {
             refreshViews();
                 
             
-            const plane3 plane = plane3(m_initialPoint, vm::vec3::pos_z);
+            const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z);
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         

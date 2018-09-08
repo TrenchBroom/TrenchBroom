@@ -30,7 +30,7 @@ namespace TrenchBroom {
         public:
             typedef std::list<BrushFaceReference> List;
         private:
-            plane3 m_facePlane;
+            vm::plane3 m_facePlane;
             Model::Brush* m_brush;
         public:
             BrushFaceReference(Model::BrushFace* face);

@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
+                const vm::plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);

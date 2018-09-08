@@ -112,9 +112,9 @@ namespace TrenchBroom {
 
         class PlaneDragRestricter : public DragRestricter {
         private:
-            const plane3 m_plane;
+            const vm::plane3 m_plane;
         public:
-            PlaneDragRestricter(const plane3& plane);
+            PlaneDragRestricter(const vm::plane3& plane);
         private:
             bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
@@ -258,7 +258,7 @@ namespace TrenchBroom {
         private:
             bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         private:
-            virtual plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
+            virtual vm::plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
         };
         
         class RestrictedDragPolicy : public MouseDragPolicy {

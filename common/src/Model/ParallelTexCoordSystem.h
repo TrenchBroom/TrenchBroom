@@ -71,8 +71,8 @@ namespace TrenchBroom {
             void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
             void applyRotation(const vm::vec3& normal, FloatType angle);
             
-            void doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
-            float computeTextureAngle(const plane3& oldBoundary, const mat4x4& transformation) const;
+            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
+            float computeTextureAngle(const vm::plane3& oldBoundary, const mat4x4& transformation) const;
             mat4x4 computeNonTextureRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const mat4x4& rotation) const;
             
             void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;

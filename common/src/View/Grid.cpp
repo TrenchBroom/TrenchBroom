@@ -94,9 +94,9 @@ namespace TrenchBroom {
                 planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
             }
 
-            const auto distX = intersect(ray, plane3(planeAnchor, vm::vec3::pos_x));
-            const auto distY = intersect(ray, plane3(planeAnchor, vm::vec3::pos_y));
-            const auto distZ = intersect(ray, plane3(planeAnchor, vm::vec3::pos_z));
+            const auto distX = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
+            const auto distY = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
+            const auto distZ = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
             
             auto dist = distX;
             if (!Math::isnan(distY) && (Math::isnan(dist) || std::abs(distY) < std::abs(dist))) {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        vm::vec3 Grid::moveDeltaForBounds(const plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const ray3& ray, const vm::vec3& position) const {
+        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const ray3& ray, const vm::vec3& position) const {
             
             // First, compute the snapped position under the mouse:
             const auto dist = intersect(ray, dragPlane);

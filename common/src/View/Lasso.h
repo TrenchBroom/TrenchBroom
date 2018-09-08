@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             template <typename I, typename O>
             void selected(I cur, I end, O out) const {
-                const plane3 plane = this->plane();
+                const vm::plane3 plane = this->plane();
                 const vm::bbox2 box = this->box();
                 while (cur != end) {
                     if (selects(*cur, plane, box))
@@ -59,14 +59,14 @@ namespace TrenchBroom {
                 return selects(h, plane(), box());
             }
         private:
-            bool selects(const vm::vec3& point, const plane3& plane, const vm::bbox2& box) const;
-            bool selects(const segment3& edge, const plane3& plane, const vm::bbox2& box) const;
-            bool selects(const polygon3& polygon, const plane3& plane, const vm::bbox2& box) const;
-            vm::vec3 project(const vm::vec3& point, const plane3& plane) const;
+            bool selects(const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const;
+            bool selects(const segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const;
+            bool selects(const polygon3& polygon, const vm::plane3& plane, const vm::bbox2& box) const;
+            vm::vec3 project(const vm::vec3& point, const vm::plane3& plane) const;
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:
-            plane3 plane() const;
+            vm::plane3 plane() const;
             vm::bbox2 box() const;
         };
     }

@@ -203,9 +203,9 @@ namespace TrenchBroom {
             virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
                 const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3::pos_z));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             
@@ -214,7 +214,7 @@ namespace TrenchBroom {
                 if (camera.perspectiveProjection()) {
                     return new LineDragRestricter(line3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
+                    return new PlaneDragRestricter(vm::plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             

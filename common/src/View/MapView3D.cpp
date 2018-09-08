@@ -509,7 +509,7 @@ namespace TrenchBroom {
         vm::vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
-                    const auto plane = plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
+                    const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
                     if (isZero(projectedDirection)) {
                         // camera is looking straight down or up

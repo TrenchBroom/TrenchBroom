@@ -2554,11 +2554,11 @@ namespace TrenchBroom {
             Brush* right = nullptr;
 
             for (Brush* brush : result) {
-                if (brush->findFace(plane3(32.0, vm::vec3::neg_x)) != nullptr)
+                if (brush->findFace(vm::plane3(32.0, vm::vec3::neg_x)) != nullptr)
                     left = brush;
-                else if (brush->findFace(plane3(32.0, vm::vec3::pos_x)) != nullptr)
+                else if (brush->findFace(vm::plane3(32.0, vm::vec3::pos_x)) != nullptr)
                     right = brush;
-                else if (brush->findFace(plane3(16.0, vm::vec3::neg_x)) != nullptr)
+                else if (brush->findFace(vm::plane3(16.0, vm::vec3::neg_x)) != nullptr)
                     top = brush;
             }
 
@@ -2566,12 +2566,12 @@ namespace TrenchBroom {
 
             // left brush faces
             ASSERT_EQ(6u, left->faceCount());
-            ASSERT_TRUE(left->findFace(plane3(-16.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z)) != nullptr);
 
             // left brush textures
             ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x)->textureName());
@@ -2583,12 +2583,12 @@ namespace TrenchBroom {
 
             // top brush faces
             ASSERT_EQ(6u, top->faceCount());
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(0.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z)) != nullptr);
 
             // top brush textures
             ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x)->textureName());
@@ -2600,12 +2600,12 @@ namespace TrenchBroom {
 
             // right brush faces
             ASSERT_EQ(6u, right->faceCount());
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(-16.0, vm::vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z)) != nullptr);
 
             // right brush textures
             ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x)->textureName());

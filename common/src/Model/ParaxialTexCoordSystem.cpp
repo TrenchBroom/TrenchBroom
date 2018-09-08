@@ -121,7 +121,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
+        void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
             const vm::vec3 offset     = transformation * vm::vec3::zero;
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
 
-            const plane3 newTexturePlane(0.0, newProjectionAxis);
+            const vm::plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
             const vm::vec3 projectedTransformedXAxis = newTexturePlane.projectPoint(transformedXAxis);

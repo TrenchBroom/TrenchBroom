@@ -131,7 +131,7 @@ namespace TrenchBroom {
             m_yAxis = rot * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
+        void ParallelTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
 
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 return;
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
         }
 
-        float ParallelTexCoordSystem::computeTextureAngle(const plane3& oldBoundary, const mat4x4& transformation) const {
+        float ParallelTexCoordSystem::computeTextureAngle(const vm::plane3& oldBoundary, const mat4x4& transformation) const {
             const mat4x4& rotationScale = stripTranslation(transformation);
             const vm::vec3& oldNormal = oldBoundary.normal;
             const vm::vec3  newNormal = normalize(rotationScale * oldNormal);
