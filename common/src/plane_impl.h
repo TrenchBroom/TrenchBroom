@@ -46,8 +46,8 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    T plane<T,S>::at(const vec<T,S-1>& point, const Math::Axis::Type axis) const {
-        if (Math::zero(normal[axis])) {
+    T plane<T,S>::at(const vec<T,S-1>& point, const Axis::Type axis) const {
+        if (zero(normal[axis])) {
             return static_cast<T>(0.0);
         }
 
@@ -63,17 +63,17 @@ namespace vm {
 
     template <typename T, size_t S>
     T plane<T,S>::xAt(const vec<T,S-1>& point) const {
-        return at(point, Math::Axis::AX);
+        return at(point, Axis::AX);
     }
 
     template <typename T, size_t S>
     T plane<T,S>::yAt(const vec<T,S-1>& point) const {
-        return at(point, Math::Axis::AY);
+        return at(point, Axis::AY);
     }
 
     template <typename T, size_t S>
     T plane<T,S>::zAt(const vec<T,S-1>& point) const {
-        return at(point, Math::Axis::AZ);
+        return at(point, Axis::AZ);
     }
 
     template <typename T, size_t S>
@@ -82,14 +82,14 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    Math::PointStatus::Type plane<T,S>::pointStatus(const vec<T,S>& point, const T epsilon) const {
+    PointStatus::Type plane<T,S>::pointStatus(const vec<T,S>& point, const T epsilon) const {
         const auto dist = pointDistance(point);
         if (dist >  epsilon) {
-            return Math::PointStatus::PSAbove;
+            return PointStatus::PSAbove;
         } else if (dist < -epsilon) {
-            return Math::PointStatus::PSBelow;
+            return PointStatus::PSBelow;
         } else {
-            return Math::PointStatus::PSInside;
+            return PointStatus::PSInside;
         }
     }
 
@@ -114,7 +114,7 @@ namespace vm {
     template <typename T, size_t S>
     vec<T,S> plane<T,S>::projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
         const auto cos = dot(direction, normal);
-        if (Math::zero(cos)) {
+        if (zero(cos)) {
             return vec<T,S>::NaN;
         }
         const auto d = dot(distance * normal - point, normal) / cos;
@@ -149,7 +149,7 @@ namespace vm {
 
     template <typename T, size_t S>
     bool equal(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
-        return Math::eq(lhs.distance, rhs.distance, epsilon) && equal(lhs.normal, rhs.normal, epsilon);
+        return eq(lhs.distance, rhs.distance, epsilon) && equal(lhs.normal, rhs.normal, epsilon);
     }
 
     template <typename T>
@@ -161,9 +161,9 @@ namespace vm {
         // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
         // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives
         // sin_theta below.
-        const auto sin_theta = Math::abs(length(normal) / (length(v1) * length(v2)));
-        if (Math::isnan(sin_theta) ||
-            Math::isinf(sin_theta) ||
+        const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
+        if (isnan(sin_theta) ||
+            isinf(sin_theta) ||
             sin_theta < epsilon) {
             return std::make_tuple(false, vec<T,3>::zero);
         } else {

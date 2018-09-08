@@ -37,13 +37,13 @@ namespace TrenchBroom {
         Preference<Color> PortalFileBorderColor(IO::Path("Renderer/Colors/Portal file border"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> PortalFileFillColor(IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
         
-        Preference<Color>& axisColor(Math::Axis::Type axis) {
+        Preference<Color>& axisColor(vm::Axis::Type axis) {
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     return Preferences::XAxisColor;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     return Preferences::YAxisColor;
-                case Math::Axis::AZ:
+                case vm::Axis::AZ:
                 default:
                     return Preferences::ZAxisColor;
             }

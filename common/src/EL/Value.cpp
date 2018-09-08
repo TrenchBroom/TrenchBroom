@@ -20,10 +20,10 @@
 #include "Value.h"
 
 #include "CollectionUtils.h"
-#include "MathUtils.h"
 #include "EL/ELExceptions.h"
 
 #include <algorithm>
+#include <cmath>
 #include <iterator>
 
 namespace TrenchBroom {
@@ -208,7 +208,7 @@ namespace TrenchBroom {
         
         ValueHolder* NumberValueHolder::clone() const { return new NumberValueHolder(m_value); }
         void NumberValueHolder::appendToStream(std::ostream& str, const bool multiline, const String& indent) const {
-            if (Math::isInteger(m_value)) {
+            if (std::abs(m_value - std::round(m_value)) < 0.00001) {
                 str.precision(0);
                 str.setf(std::ios::fixed);
             } else {

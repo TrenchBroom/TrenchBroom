@@ -129,7 +129,7 @@ namespace TrenchBroom {
             bool doCanSelectTall() override;
             void doSelectTall() override;
             bool doCanFlipObjects() const override;
-            void doFlipObjects(Math::Direction direction) override;
+            void doFlipObjects(vm::Direction direction) override;
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
             void doFocusCameraOnSelection(bool animate) override;
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;

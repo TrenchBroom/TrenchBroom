@@ -32,7 +32,7 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
     const Face* currentFace = firstFace;
     do {
         const vm::plane<T,3> plane = callback.getPlane(currentFace);
-        if (plane.pointStatus(point) == Math::PointStatus::PSAbove)
+        if (plane.pointStatus(point) == vm::PointStatus::PSAbove)
             return false;
         currentFace = currentFace->next();
     } while (currentFace != firstFace);
@@ -186,15 +186,15 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
             const auto rhsStartDist = lhsRay.distanceToProjectedPoint(rhsStart);
             const auto rhsEndDist   = lhsRay.distanceToProjectedPoint(rhsEnd);
             
-            return (Math::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
-                    Math::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
+            return (vm::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
+                    vm::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
                     (rhsStartDist > 0.0) != (rhsEndDist > 0.0)); // rhs contains lhs
         } else {
             return false;
         }
     }
 
-    static const auto epsilon2 = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
+    static const auto epsilon2 = vm::Constants<T>::almostZero() * vm::Constants<T>::almostZero();
     return dist.distance < epsilon2 && dist.rayDistance <= rayLen;
 }
 
@@ -252,14 +252,14 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     const auto& lhsEnd = lhsEdge->secondVertex()->position();
     const auto lhsRay = vm::ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
     
-    const auto dist = rhsFace->intersectWithRay(lhsRay, Math::Side_Both);
-    if (Math::isnan(dist)) {
+    const auto dist = rhsFace->intersectWithRay(lhsRay, vm::Side_Both);
+    if (vm::isnan(dist)) {
         const auto& edgeDir = lhsRay.direction;
         const auto faceNorm = rhsFace->normal();
-        if (Math::zero(dot(faceNorm, edgeDir))) {
+        if (vm::zero(dot(faceNorm, edgeDir))) {
             // ray and face are parallel, intersect with edges
 
-            static const auto MaxDistance = Math::Constants<T>::almostZero() * Math::Constants<T>::almostZero();
+            static const auto MaxDistance = vm::Constants<T>::almostZero() * vm::Constants<T>::almostZero();
             
             const auto* rhsFirstEdge = rhsFace->boundary().front();
             const auto* rhsCurEdge = rhsFirstEdge;
@@ -390,10 +390,10 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
             if (!isZero(direction)) {
                 const vm::plane<T,3> plane(lhsEdgeOrigin, direction);
                 
-                const Math::PointStatus::Type lhsStatus = pointStatus(plane, lhs.m_vertices.front());
-                if (lhsStatus != Math::PointStatus::PSInside) {
-                    const Math::PointStatus::Type rhsStatus = pointStatus(plane, rhs.m_vertices.front());
-                    if (rhsStatus != Math::PointStatus::PSInside) {
+                const vm::PointStatus::Type lhsStatus = pointStatus(plane, lhs.m_vertices.front());
+                if (lhsStatus != vm::PointStatus::PSInside) {
+                    const vm::PointStatus::Type rhsStatus = pointStatus(plane, rhs.m_vertices.front());
+                    if (rhsStatus != vm::PointStatus::PSInside) {
                         if (lhsStatus != rhsStatus) {
                             return false;
                         }
@@ -414,7 +414,7 @@ bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVer
     const Face* currentFace = firstFace;
     do {
         const vm::plane<T,3> plane = callback.getPlane(currentFace);
-        if (pointStatus(plane, firstVertex) == Math::PointStatus::PSAbove) {
+        if (pointStatus(plane, firstVertex) == vm::PointStatus::PSAbove) {
             return true;
         }
         currentFace = currentFace->next();
@@ -423,21 +423,21 @@ bool Polyhedron<T,FP,VP>::separate(const Face* firstFace, const Vertex* firstVer
 }
 
 template <typename T, typename FP, typename VP>
-Math::PointStatus::Type Polyhedron<T,FP,VP>::pointStatus(const vm::plane<T,3>& plane, const Vertex* firstVertex) {
+vm::PointStatus::Type Polyhedron<T,FP,VP>::pointStatus(const vm::plane<T,3>& plane, const Vertex* firstVertex) {
     size_t above = 0;
     size_t below = 0;
     const Vertex* currentVertex = firstVertex;
     do {
-        const Math::PointStatus::Type status = plane.pointStatus(currentVertex->position());
-        if (status == Math::PointStatus::PSAbove)
+        const vm::PointStatus::Type status = plane.pointStatus(currentVertex->position());
+        if (status == vm::PointStatus::PSAbove)
             ++above;
-        else if (status == Math::PointStatus::PSBelow)
+        else if (status == vm::PointStatus::PSBelow)
             ++below;
         if (above > 0 && below > 0)
-            return Math::PointStatus::PSInside;
+            return vm::PointStatus::PSInside;
         currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
-    return above > 0 ? Math::PointStatus::PSAbove : Math::PointStatus::PSBelow;
+    return above > 0 ? vm::PointStatus::PSAbove : vm::PointStatus::PSBelow;
 }
 
 #endif /* Polyhedron_Queries_h */

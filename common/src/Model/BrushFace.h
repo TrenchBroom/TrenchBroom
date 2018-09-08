@@ -114,7 +114,7 @@ namespace TrenchBroom {
             const vm::vec3& normal() const;
             vm::vec3 center() const;
             vm::vec3 boundsCenter() const;
-            FloatType area(Math::Axis::Type axis) const;
+            FloatType area(vm::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
             void setAttribs(const BrushFaceAttributes& attribs);

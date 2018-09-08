@@ -31,13 +31,13 @@ namespace TrenchBroom {
             const auto axis = firstComponent(camera.direction());
             
             auto& prefs = PreferenceManager::instance();
-            if (axis != Math::Axis::AZ) {
+            if (axis != vm::Axis::AZ) {
                 renderSolidAxis(renderContext, transform,                               prefs.get(Preferences::ZAxisColor));
             }
-            if (axis != Math::Axis::AX) {
+            if (axis != vm::Axis::AX) {
                 renderSolidAxis(renderContext, transform * vm::mat4x4f::rot_90_y_ccw,   prefs.get(Preferences::XAxisColor));
             }
-            if (axis != Math::Axis::AY) {
+            if (axis != vm::Axis::AY) {
                 renderSolidAxis(renderContext, transform * vm::mat4x4f::rot_90_x_cw,    prefs.get(Preferences::YAxisColor));
             }
         }

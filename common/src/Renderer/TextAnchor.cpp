@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const vm::vec2f extra = extraOffsets(a, size);
             vm::vec3f offset = camera.project(basePosition());
             for (size_t i = 0; i < 2; i++)
-                offset[i] = Math::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
+                offset[i] = vm::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
             return offset;
         }
         

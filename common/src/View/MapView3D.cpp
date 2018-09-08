@@ -248,7 +248,7 @@ namespace TrenchBroom {
         
         float MapView3D::rotateTextureAngle(const bool clockwise) const {
             const Grid& grid = lock(m_document)->grid();
-            const float gridAngle = static_cast<float>(Math::degrees(grid.angle()));
+            const float gridAngle = static_cast<float>(vm::degrees(grid.angle()));
             float angle = 0.0f;
             
             const wxMouseState mouseState = wxGetMouseState();
@@ -402,7 +402,7 @@ namespace TrenchBroom {
             
             void addPoint(const vm::vec3& point) {
                 const vm::vec3 toPosition = point - m_cameraPosition;
-                m_minDist = Math::min(m_minDist, dot(toPosition, m_cameraDirection));
+                m_minDist = vm::min(m_minDist, dot(toPosition, m_cameraDirection));
                 m_center = m_center + point;
                 ++m_count;
             }
@@ -454,7 +454,7 @@ namespace TrenchBroom {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;
-                if (!Math::isnan(dist) && dist > 0.0f) {
+                if (!vm::isnan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
             }
@@ -506,9 +506,9 @@ namespace TrenchBroom {
             animateCamera(position, direction, vm::vec3f::pos_z);
         }
 
-        vm::vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
+        vm::vec3 MapView3D::doGetMoveDirection(const vm::Direction direction) const {
             switch (direction) {
-                case Math::Direction_Forward: {
+                case vm::Direction_Forward: {
                     const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
                     if (isZero(projectedDirection)) {
@@ -521,20 +521,20 @@ namespace TrenchBroom {
                     }
                     return firstAxis(projectedDirection);
                 }
-                case Math::Direction_Backward:
-                    return -doGetMoveDirection(Math::Direction_Forward);
-                case Math::Direction_Left:
-                    return -doGetMoveDirection(Math::Direction_Right);
-                case Math::Direction_Right: {
+                case vm::Direction_Backward:
+                    return -doGetMoveDirection(vm::Direction_Forward);
+                case vm::Direction_Left:
+                    return -doGetMoveDirection(vm::Direction_Right);
+                case vm::Direction_Right: {
                     auto dir = vm::vec3(firstAxis(m_camera.right()));
-                    if (dir == doGetMoveDirection(Math::Direction_Forward)) {
+                    if (dir == doGetMoveDirection(vm::Direction_Forward)) {
                         dir = cross(dir, vm::vec3::pos_z);
                     }
                     return dir;
                 }
-                case Math::Direction_Up:
+                case vm::Direction_Up:
                     return vm::vec3::pos_z;
-                case Math::Direction_Down:
+                case vm::Direction_Down:
                     return vm::vec3::neg_z;
                 switchDefault()
             }

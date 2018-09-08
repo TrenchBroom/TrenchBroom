@@ -634,19 +634,19 @@ template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::FaceHit::FaceHit(Face* i_face, const T i_distance) : face(i_face), distance(i_distance) {}
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::FaceHit::FaceHit() : face(nullptr), distance(Math::nan<T>()) {}
+Polyhedron<T,FP,VP>::FaceHit::FaceHit() : face(nullptr), distance(vm::nan<T>()) {}
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != nullptr; }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ray<T,3>& ray) const {
-    const auto side = polygon() ? Math::Side_Both : Math::Side_Front;
+    const auto side = polygon() ? vm::Side_Both : vm::Side_Front;
     auto* firstFace = m_faces.front();
     auto* currentFace = firstFace;
     do {
         const auto distance = currentFace->intersectWithRay(ray, side);
-        if (!Math::isnan(distance)) {
+        if (!vm::isnan(distance)) {
             return FaceHit(currentFace, distance);
         }
         currentFace = currentFace->next();
@@ -934,7 +934,7 @@ bool Polyhedron<T,FP,VP>::checkConvex() const {
         const Vertex* firstVertex = m_vertices.front();
         const Vertex* currentVertex = firstVertex;
         do {
-            if (currentFace->pointStatus(currentVertex->position()) == Math::PointStatus::PSAbove)
+            if (currentFace->pointStatus(currentVertex->position()) == vm::PointStatus::PSAbove)
                 return false;
             currentVertex = currentVertex->next();
         } while (currentVertex != firstVertex);

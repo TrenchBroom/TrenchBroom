@@ -104,20 +104,20 @@ namespace TrenchBroom {
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!Math::isnan(result.distance) && result.distance < m_closest) {
+                    if (!vm::isnan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (Math::zero(leftDot)) {
+                            if (vm::zero(leftDot)) {
                                 faces.push_back(left);
-                            } else if (Math::zero(rightDot)) {
+                            } else if (vm::zero(rightDot)) {
                                 faces.push_back(right);
                             } else {
-                                if (Math::abs(leftDot) < 1.0) {
+                                if (vm::abs(leftDot) < 1.0) {
                                     faces.push_back(left);
                                 }
-                                if (Math::abs(rightDot) < 1.0) {
+                                if (vm::abs(rightDot) < 1.0) {
                                     faces.push_back(right);
                                 }
                             }
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && equal(face->boundary(), m_reference->boundary(), Math::Constants<FloatType>::almostZero());
+                return face != m_reference && equal(face->boundary(), m_reference->boundary(), vm::Constants<FloatType>::almostZero());
             }
         };
         
@@ -268,8 +268,8 @@ namespace TrenchBroom {
         vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const FloatType mouseDistance2 = mouseDistance * mouseDistance;
-            return (Math::abs(squaredLength(relativeDelta) - mouseDistance2) <
-                    Math::abs(squaredLength(absoluteDelta) - mouseDistance2) ?
+            return (vm::abs(squaredLength(relativeDelta) - mouseDistance2) <
+                    vm::abs(squaredLength(absoluteDelta) - mouseDistance2) ?
                     relativeDelta :
                     absoluteDelta);
         }
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-                            [&delta](const Model::BrushFace* face) { return Math::pos(dot(face->boundary().normal, delta)); }))
+                            [&delta](const Model::BrushFace* face) { return vm::pos(dot(face->boundary().normal, delta)); }))
                 return false;
 
             Model::BrushList newBrushes;

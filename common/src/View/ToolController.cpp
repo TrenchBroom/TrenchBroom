@@ -65,7 +65,7 @@ namespace TrenchBroom {
         
         bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
             const auto distance = intersect(inputState.pickRay(), m_plane);
-            if (Math::isnan(distance)) {
+            if (vm::isnan(distance)) {
                 return false;
             } else {
                 point = inputState.pickRay().pointAtDistance(distance);
@@ -96,7 +96,7 @@ namespace TrenchBroom {
         bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
             const auto plane = vm::plane3(m_center, m_normal);
             const auto distance = intersect(inputState.pickRay(), plane);
-            if (Math::isnan(distance)) {
+            if (vm::isnan(distance)) {
                 return false;
             } else {
                 const auto hitPoint = inputState.pickRay().pointAtDistance(distance);
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             const vm::vec3 vec = normalize(curPoint - m_center);
             const FloatType angle = angleBetween(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
-            const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());
+            const FloatType canonical = snapped - vm::roundDownToMultiple(snapped, vm::C::twoPi());
             const vm::quat3 rotation(m_normal, canonical);
             const vm::vec3 rot = rotation * ref;
             curPoint = m_center + m_radius * rot;

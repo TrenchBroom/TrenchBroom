@@ -96,11 +96,11 @@ namespace TrenchBroom {
             
             void renderBounds(const vm::bbox3f& bounds);
             
-            void renderCircle(const vm::vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
-            void renderCircle(const vm::vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderCircle(const vm::vec3f& position, vm::Axis::Type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+            void renderCircle(const vm::vec3f& position, vm::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
             
-            void renderFilledCircle(const vm::vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
-            void renderFilledCircle(const vm::vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderFilledCircle(const vm::vec3f& position, vm::Axis::Type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+            void renderFilledCircle(const vm::vec3f& position, vm::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
         private:
             void flush();
         };

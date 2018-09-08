@@ -19,7 +19,7 @@
 
 #include "MathUtils.h"
 
-namespace Math {
+namespace vm {
     size_t succ(const size_t index, const size_t count, const size_t offset) {
         return (index + offset) % count;
     }

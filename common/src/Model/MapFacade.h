@@ -90,7 +90,7 @@ namespace TrenchBroom {
             virtual bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) = 0;
             virtual bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) = 0;
             virtual bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
-            virtual bool flipObjects(const vm::vec3& center, Math::Axis::Type axis) = 0;
+            virtual bool flipObjects(const vm::vec3& center, vm::Axis::Type axis) = 0;
         public: // modifying entity attributes
             virtual bool setAttribute(const AttributeName& name, const AttributeValue& value) = 0;
             virtual bool renameAttribute(const AttributeName& oldName, const AttributeName& newName) = 0;

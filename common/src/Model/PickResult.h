@@ -47,7 +47,7 @@ namespace TrenchBroom {
             PickResult();
 
             static PickResult byDistance(const EditorContext& editorContext);
-            static PickResult bySize(const EditorContext& editorContext, Math::Axis::Type axis);
+            static PickResult bySize(const EditorContext& editorContext, vm::Axis::Type axis);
 
             bool empty() const;
             size_t size() const;

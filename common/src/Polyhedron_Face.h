@@ -249,33 +249,33 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const Math::Side side) const {
+T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const vm::Side side) const {
     const RayIntersection result = intersectWithRay(ray);
     if (result.none()) {
         return result.distance();
     }
 
     switch (side) {
-        case Math::Side_Front:
-            return result.front() ? result.distance() : Math::nan<T>();
-        case Math::Side_Back:
-            return result.back() ? result.distance() : Math::nan<T>();
-        case Math::Side_Both:
+        case vm::Side_Front:
+            return result.front() ? result.distance() : vm::nan<T>();
+        case vm::Side_Back:
+            return result.back() ? result.distance() : vm::nan<T>();
+        case vm::Side_Both:
             return result.distance();
         switchDefault();
     }
 }
 
 template <typename T, typename FP, typename VP>
-Math::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
+vm::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
     const auto norm = normal();
     const auto distance = dot(point - origin(), norm);
     if (distance > epsilon) {
-        return Math::PointStatus::PSAbove;
+        return vm::PointStatus::PSAbove;
     } else if (distance < -epsilon) {
-        return Math::PointStatus::PSBelow;
+        return vm::PointStatus::PSBelow;
     } else {
-        return Math::PointStatus::PSInside;
+        return vm::PointStatus::PSInside;
     }
 }
 
@@ -306,7 +306,7 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     ensure(other != nullptr, "other is null");
 
     // Test if the normals are colinear by checking their enclosed angle.
-    if (1.0 - dot(normal(), other->normal()) >= Math::Constants<T>::colinearEpsilon()) {
+    if (1.0 - dot(normal(), other->normal()) >= vm::Constants<T>::colinearEpsilon()) {
         return false;
     }
 
@@ -325,7 +325,7 @@ bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const vm::plane<T,3>& plane) con
     auto* currentEdge = firstEdge;
     do {
         const auto* vertex = currentEdge->origin();
-        if (plane.pointStatus(vertex->position()) != Math::PointStatus::PSInside) {
+        if (plane.pointStatus(vertex->position()) != vm::PointStatus::PSInside) {
             return false;
         }
         currentEdge = currentEdge->next();
@@ -491,7 +491,7 @@ private:
     RayIntersection(const Type type, const T distance) :
     m_type(type),
     m_distance(distance) {
-        assert(!Math::isnan(m_distance) || m_type == Type_None);
+        assert(!vm::isnan(m_distance) || m_type == Type_None);
     }
 public:
     static RayIntersection Front(const T distance) {
@@ -503,7 +503,7 @@ public:
     }
 
     static RayIntersection None() {
-        return RayIntersection(Type_None, Math::nan<T>());
+        return RayIntersection(Type_None, vm::nan<T>());
     }
     
     bool front() const {
@@ -528,12 +528,12 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     
-    if (Math::zero(cos)) {
+    if (vm::zero(cos)) {
         return RayIntersection::None();
     }
 
     const auto distance = intersectPolygonWithRay(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
-    if (Math::isnan(distance)) {
+    if (vm::isnan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {
         return RayIntersection::Front(distance);

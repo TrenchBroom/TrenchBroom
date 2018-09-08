@@ -40,7 +40,7 @@ namespace TrenchBroom {
             void selectTall();
 
             bool canFlipObjects() const;
-            void flipObjects(Math::Direction direction);
+            void flipObjects(vm::Direction direction);
             
             vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
             
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             virtual void doSelectTall() = 0;
 
             virtual bool doCanFlipObjects() const = 0;
-            virtual void doFlipObjects(Math::Direction direction) = 0;
+            virtual void doFlipObjects(vm::Direction direction) = 0;
             
             virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 

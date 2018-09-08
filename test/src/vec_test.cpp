@@ -214,16 +214,16 @@ TEST(VecTest, vec3fFill) {
 }
 
 TEST(VecTest, vec3fMajorComponent) {
-    ASSERT_EQ(Math::Axis::AX, majorComponent(vm::vec3f::pos_x, 0));
-    ASSERT_EQ(Math::Axis::AX, majorComponent(vm::vec3f::neg_x, 0));
-    ASSERT_EQ(Math::Axis::AY, majorComponent(vm::vec3f::pos_y, 0));
-    ASSERT_EQ(Math::Axis::AY, majorComponent(vm::vec3f::neg_y, 0));
-    ASSERT_EQ(Math::Axis::AZ, majorComponent(vm::vec3f::pos_z, 0));
-    ASSERT_EQ(Math::Axis::AZ, majorComponent(vm::vec3f::neg_z, 0));
+    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f::pos_x, 0));
+    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f::neg_x, 0));
+    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f::pos_y, 0));
+    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f::neg_y, 0));
+    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f::pos_z, 0));
+    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f::neg_z, 0));
     
-    ASSERT_EQ(Math::Axis::AX, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 0));
-    ASSERT_EQ(Math::Axis::AZ, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 1));
-    ASSERT_EQ(Math::Axis::AY, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 2));
+    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 0));
+    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 1));
+    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 2));
 }
 
 TEST(VecTest, vec3fMajorAxis) {
@@ -274,9 +274,9 @@ TEST(VecTest, vec3fCrossProduct) {
 
 TEST(VecTest, angleBetween) {
     ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::pos_x, vm::vec3f::pos_x, vm::vec3f::pos_z), 0.0f);
-    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::pos_y, vm::vec3f::pos_x, vm::vec3f::pos_z), Math::Cf::piOverTwo());
-    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_x, vm::vec3f::pos_x, vm::vec3f::pos_z), Math::Cf::pi());
-    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_y, vm::vec3f::pos_x, vm::vec3f::pos_z), 3.0f * Math::Cf::piOverTwo());
+    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::pos_y, vm::vec3f::pos_x, vm::vec3f::pos_z), vm::Cf::piOverTwo());
+    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_x, vm::vec3f::pos_x, vm::vec3f::pos_z), vm::Cf::pi());
+    ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_y, vm::vec3f::pos_x, vm::vec3f::pos_z), 3.0f * vm::Cf::piOverTwo());
 }
 
 TEST(VecTest, convexHull2dSimple) {

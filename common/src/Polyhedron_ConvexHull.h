@@ -395,15 +395,15 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
     Face* face = m_faces.front();
-    const Math::PointStatus::Type status = face->pointStatus(position);
+    const vm::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
-        case Math::PointStatus::PSInside:
+        case vm::PointStatus::PSInside:
             return addPointToPolygon(position, callback);
-        case Math::PointStatus::PSAbove:
+        case vm::PointStatus::PSAbove:
             face->flip();
             callback.faceWasFlipped(face);
             switchFallthrough();
-        case Math::PointStatus::PSBelow:
+        case vm::PointStatus::PSBelow:
             return makePolyhedron(position, callback);
     }
     // will never be reached
@@ -426,20 +426,20 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     do {
         HalfEdge* prevEdge = curEdge->previous();
         HalfEdge* nextEdge = curEdge->next();
-        const Math::PointStatus::Type prevStatus = prevEdge->pointStatus(facePlane.normal, position);
-        const Math::PointStatus::Type  curStatus =  curEdge->pointStatus(facePlane.normal, position);
-        const Math::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
+        const vm::PointStatus::Type prevStatus = prevEdge->pointStatus(facePlane.normal, position);
+        const vm::PointStatus::Type  curStatus =  curEdge->pointStatus(facePlane.normal, position);
+        const vm::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
         
         // If the current edge contains the point, it will not be added anyway.
-        if (curStatus == Math::PointStatus::PSInside && between(position, curEdge->origin()->position(), curEdge->destination()->position())) {
+        if (curStatus == vm::PointStatus::PSInside && between(position, curEdge->origin()->position(), curEdge->destination()->position())) {
             return nullptr;
         }
 
-        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow) {
+        if (prevStatus == vm::PointStatus::PSBelow &&  curStatus != vm::PointStatus::PSBelow) {
             firstVisibleEdge = curEdge;
         }
 
-        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow) {
+        if ( curStatus != vm::PointStatus::PSBelow && nextStatus == vm::PointStatus::PSBelow) {
             lastVisibleEdge = curEdge;
         }
 
@@ -820,7 +820,7 @@ public:
 
         const auto* last = seam.last();
         const auto* v4 = last->secondVertex();
-        if (plane.pointStatus(v4->position()) != Math::PointStatus::PSBelow) {
+        if (plane.pointStatus(v4->position()) != vm::PointStatus::PSBelow) {
             return false;
         }
 
@@ -840,7 +840,7 @@ private:
         while (it != end) {
             const Edge* edge = *it;
             const Vertex* vertex = edge->firstVertex();
-            if (plane.pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
+            if (plane.pointStatus(vertex->position()) == vm::PointStatus::PSAbove)
                 return false;
             ++it;
         }
@@ -919,7 +919,7 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         assert(valid); unused(valid);
 
         auto* lastVertex = v3;
-        while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
+        while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == vm::PointStatus::PSInside) {
             auto* curEdge = *endIt;
             ++endIt;
             
@@ -970,7 +970,7 @@ public:
         assert(valid); unused(valid);
 
         const auto status = lastPlane.pointStatus(v3->position());
-        return status == Math::PointStatus::PSBelow;
+        return status == vm::PointStatus::PSBelow;
     }
 };
 
@@ -1015,7 +1015,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
             auto* next = *it;
             
             // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-            while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
+            while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == vm::PointStatus::PSInside) {
                 next->setSecondEdge(h);
 
                 auto* v = next->firstVertex();
@@ -1145,7 +1145,7 @@ public:
     m_point(point) {}
 private:
     bool doMatches(const Face* face) const override {
-        return face->pointStatus(m_point) == Math::PointStatus::PSBelow;
+        return face->pointStatus(m_point) == vm::PointStatus::PSBelow;
     }
 };
 

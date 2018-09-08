@@ -177,9 +177,9 @@ namespace vm {
     template <typename T, size_t S>
     int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
         for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(lhs[i], rhs[i], epsilon))
+            if (lt(lhs[i], rhs[i], epsilon))
                 return -1;
-            if (Math::gt(lhs[i], rhs[i], epsilon))
+            if (gt(lhs[i], rhs[i], epsilon))
                 return 1;
         }
         return 0;
@@ -445,7 +445,7 @@ namespace vm {
     vec<T,S> abs(const vec<T,S>& v) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::abs(v[i]);
+            result[i] = abs(v[i]);
         }
         return result;
     }
@@ -454,7 +454,7 @@ namespace vm {
     vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::min(lhs[i], rhs[i]);
+            result[i] = min(lhs[i], rhs[i]);
         }
         return result;
     }
@@ -463,7 +463,7 @@ namespace vm {
     vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::max(lhs[i], rhs[i]);
+            result[i] = max(lhs[i], rhs[i]);
         }
         return result;
     }
@@ -472,7 +472,7 @@ namespace vm {
     vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::absMin(lhs[i], rhs[i]);
+            result[i] = absMin(lhs[i], rhs[i]);
         }
         return result;
     }
@@ -481,7 +481,7 @@ namespace vm {
     vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::absMax(lhs[i], rhs[i]);
+            result[i] = absMax(lhs[i], rhs[i]);
         }
         return result;
     }
@@ -545,13 +545,13 @@ namespace vm {
 
     template <typename T, size_t S>
     bool isUnit(const vec<T,S>& v, const T epsilon) {
-        return Math::one(length(v), epsilon);
+        return one(length(v), epsilon);
     }
 
     template <typename T, size_t S>
     bool isZero(const vec<T,S>& v, const T epsilon) {
         for (size_t i = 0; i < S; ++i) {
-            if (!Math::zero(v[i], epsilon)) {
+            if (!zero(v[i], epsilon)) {
                 return false;
             }
         }
@@ -561,7 +561,7 @@ namespace vm {
     template <typename T, size_t S>
     bool isNaN(const vec<T,S>& v) {
         for (size_t i = 0; i < S; ++i) {
-            if (Math::isnan(v[i])) {
+            if (isnan(v[i])) {
                 return true;
             }
         }
@@ -571,7 +571,7 @@ namespace vm {
     template <typename T, size_t S>
     bool isIntegral(const vec<T,S>& v, const T epsilon) {
         for (size_t i = 0; i < S; ++i) {
-            if (std::abs(v[i] - Math::round(v[i])) >= epsilon) {
+            if (std::abs(v[i] - round(v[i])) >= epsilon) {
                 return false;
             }
         }
@@ -622,13 +622,13 @@ namespace vm {
             l += ba * ba;
         }
 
-        return Math::zero(j * j - k * l, epsilon);
+        return zero(j * j - k * l, epsilon);
     }
 
     template <typename T, size_t S>
     bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
         const T cos = dot(normalize(lhs), normalize(rhs));
-        return Math::one(Math::abs(cos), epsilon);
+        return one(abs(cos), epsilon);
     }
 
     /* ========== rounding and error correction ========== */
@@ -637,7 +637,7 @@ namespace vm {
     vec<T,S> round(const vec<T,S>& v) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::round(v[i]);
+            result[i] = round(v[i]);
         }
         return result;
     }
@@ -646,7 +646,7 @@ namespace vm {
     vec<T,S> roundDownToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::roundDownToMultiple(v[i], m[i]);
+            result[i] = roundDownToMultiple(v[i], m[i]);
         }
         return result;
     }
@@ -655,7 +655,7 @@ namespace vm {
     vec<T,S> roundUpToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::roundUpToMultiple(v[i], m[i]);
+            result[i] = roundUpToMultiple(v[i], m[i]);
         }
         return result;
     }
@@ -664,7 +664,7 @@ namespace vm {
     vec<T,S> roundToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::roundToMultiple(v[i], m[i]);
+            result[i] = roundToMultiple(v[i], m[i]);
         }
         return result;
     }
@@ -673,7 +673,7 @@ namespace vm {
     vec<T,S> correct(const vec<T,S>& v, const size_t decimals, const T epsilon) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = Math::correct(v[i], decimals, epsilon);
+            result[i] = correct(v[i], decimals, epsilon);
         }
         return result;
     }
@@ -685,7 +685,7 @@ namespace vm {
         const vec<T,S> toEnd   =   end - p;
 
         const T d = dot(toEnd, normalize(toStart));
-        return !Math::pos(d);
+        return !pos(d);
     }
 
     template <typename I, typename G>
@@ -704,16 +704,16 @@ namespace vm {
     template <typename T>
     T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
         const auto cos = dot(v, axis);
-        if (Math::one(+cos)) {
+        if (one(+cos)) {
             return static_cast<T>(0.0);
-        } else if (Math::one(-cos)) {
-            return Math::Constants<T>::pi();
+        } else if (one(-cos)) {
+            return Constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);
-            if (!Math::neg(dot(perp, up))) {
+            if (!neg(dot(perp, up))) {
                 return std::acos(cos);
             } else {
-                return Math::Constants<T>::twoPi() - std::acos(cos);
+                return Constants<T>::twoPi() - std::acos(cos);
             }
         }
     }

@@ -45,13 +45,13 @@ namespace vm {
     template <typename T, size_t S>
     T intersect(const ray<T,S>& r, const plane<T,S>& p) {
         const auto d = dot(r.direction, p.normal);
-        if (Math::zero(d)) {
-            return Math::nan<T>();
+        if (zero(d)) {
+            return nan<T>();
         }
 
         const auto s = dot(p.anchor() - r.origin, p.normal) / d;
-        if (Math::neg(s)) {
-            return Math::nan<T>();
+        if (neg(s)) {
+            return nan<T>();
         }
 
         return s;
@@ -77,30 +77,30 @@ namespace vm {
         const auto  e2 = p3 - p1;
         const auto  p  = cross(d, e2);
         const auto  a  = dot(p, e1);
-        if (Math::zero(a)) {
-            return Math::nan<T>();
+        if (zero(a)) {
+            return nan<T>();
         }
 
         const auto  t  = o - p1;
         const auto  q  = cross(t, e1);
 
         const auto  u = dot(q, e2) / a;
-        if (Math::neg(u)) {
-            return Math::nan<T>();
+        if (neg(u)) {
+            return nan<T>();
         }
 
         const auto  v = dot(p, t) / a;
-        if (Math::neg(v)) {
-            return Math::nan<T>();
+        if (neg(v)) {
+            return nan<T>();
         }
 
         const auto  w = dot(q, d) / a;
-        if (Math::neg(w)) {
-            return Math::nan<T>();
+        if (neg(w)) {
+            return nan<T>();
         }
 
-        if (Math::gt(v+w, static_cast<T>(1.0))) {
-            return Math::nan<T>();
+        if (gt(v+w, static_cast<T>(1.0))) {
+            return nan<T>();
         }
 
         return u;
@@ -209,7 +209,7 @@ namespace vm {
 
         const auto d = p * p - static_cast<T>(4.0) * q;
         if (d < static_cast<T>(0.0)) {
-            return Math::nan<T>();
+            return nan<T>();
         }
 
         const auto s = std::sqrt(d);
@@ -217,7 +217,7 @@ namespace vm {
         const auto t1 = (-p - s) / static_cast<T>(2.0);
 
         if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0)) {
-            return Math::nan<T>();
+            return nan<T>();
         } else if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0)) {
             return std::min(t0, t1);
         } else {
@@ -238,8 +238,8 @@ namespace vm {
     template <typename T, size_t S>
     T intersect(const line<T,S>& l, const plane<T,3>& p) {
         const auto f = dot(l.direction, p.normal);
-        if (Math::zero(f)) {
-            return Math::nan<T>();
+        if (zero(f)) {
+            return nan<T>();
         } else {
             return dot(p.distance * p.normal - l.point, p.normal) / f;
         }

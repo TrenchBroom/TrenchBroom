@@ -171,7 +171,7 @@ namespace TrenchBroom {
 
         bool BrushFace::arePointsOnPlane(const vm::plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
-                if (plane.pointStatus(m_points[i]) != Math::PointStatus::PSInside)
+                if (plane.pointStatus(m_points[i]) != vm::PointStatus::PSInside)
                     return false;
             return true;
         }
@@ -211,28 +211,28 @@ namespace TrenchBroom {
             return fromPlane * bounds.center();
         }
 
-        FloatType BrushFace::area(const Math::Axis::Type axis) const {
+        FloatType BrushFace::area(const vm::Axis::Type axis) const {
             const BrushHalfEdge* first = m_geometry->boundary().front();
             const BrushHalfEdge* current = first;
 
             FloatType c1 = 0.0;
             FloatType c2 = 0.0;
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     do {
                         c1 += current->origin()->position().y() * current->next()->origin()->position().z();
                         c2 += current->origin()->position().z() * current->next()->origin()->position().y();
                         current = current->next();
                     } while (current != first);
                     break;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     do {
                         c1 += current->origin()->position().z() * current->next()->origin()->position().x();
                         c2 += current->origin()->position().x() * current->next()->origin()->position().z();
                         current = current->next();
                     } while (current != first);
                     break;
-                case Math::Axis::AZ:
+                case vm::Axis::AZ:
                     do {
                         c1 += current->origin()->position().x() * current->next()->origin()->position().y();
                         c2 += current->origin()->position().y() * current->next()->origin()->position().x();
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                     } while (current != first);
                     break;
             };
-            return Math::abs((c1 - c2) / 2.0);
+            return vm::abs((c1 - c2) / 2.0);
         }
 
         const BrushFaceAttributes& BrushFace::attribs() const {
@@ -621,19 +621,19 @@ namespace TrenchBroom {
 
         bool BrushFace::containsPoint(const vm::vec3& point) const {
             const vm::vec3 toPoint = point - m_boundary.anchor();
-            if (!Math::zero(dot(toPoint, m_boundary.normal)))
+            if (!vm::zero(dot(toPoint, m_boundary.normal)))
                 return false;
 
             const vm::ray3 ray(point + m_boundary.normal, -m_boundary.normal);
-            return !Math::isnan(intersectWithRay(ray));
+            return !vm::isnan(intersectWithRay(ray));
         }
 
         FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);
-            if (!Math::neg(cos))
-                return Math::nan<FloatType>();
+            if (!vm::neg(cos))
+                return vm::nan<FloatType>();
             
             return intersectPolygonWithRay(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
         }

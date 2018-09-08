@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(nullptr),
         m_handle(),
-        m_angle(Math::radians(15.0)) {}
+        m_angle(vm::radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
             resetRotationCenter();
@@ -44,11 +44,11 @@ namespace TrenchBroom {
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
             if (area == RotateObjectsHandle::HitArea_XAxis)
-                m_toolPage->setAxis(Math::Axis::AX);
+                m_toolPage->setAxis(vm::Axis::AX);
             else if (area == RotateObjectsHandle::HitArea_YAxis)
-                m_toolPage->setAxis(Math::Axis::AY);
+                m_toolPage->setAxis(vm::Axis::AY);
             else if (area == RotateObjectsHandle::HitArea_ZAxis)
-                m_toolPage->setAxis(Math::Axis::AZ);
+                m_toolPage->setAxis(vm::Axis::AZ);
         }
         
         double RotateObjectsTool::angle() const {

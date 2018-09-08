@@ -75,7 +75,7 @@ namespace vm {
     template <typename T, size_t S>
     PointDistance<T> squaredDistance(const ray<T,S>& r, const vec<T,S>& p) {
         const auto originToPoint = p - r.origin;
-        const auto rayDistance = Math::max(dot(originToPoint, r.direction), static_cast<T>(0.0));
+        const auto rayDistance = max(dot(originToPoint, r.direction), static_cast<T>(0.0));
         if (rayDistance == static_cast<T>(0.0)) {
             return PointDistance<T>(rayDistance, squaredLength(originToPoint));
         } else {
@@ -149,9 +149,9 @@ namespace vm {
         static LineDistance Parallel(const T distance) {
             LineDistance result;
             result.parallel = true;
-            result.rayDistance = Math::nan<T>();
+            result.rayDistance = nan<T>();
             result.distance = distance;
-            result.lineDistance = Math::nan<T>();
+            result.lineDistance = nan<T>();
             return result;
         }
 
@@ -178,8 +178,8 @@ namespace vm {
          * @param maxDistance the maximal distance
          * @return true if the two segments are colinear and their distance is at most the given value
          */
-        bool colinear(const T maxDistance = Math::Constants<T>::almostZero()) const {
-            return parallel && Math::lte(distance, maxDistance);
+        bool colinear(const T maxDistance = Constants<T>::almostZero()) const {
+            return parallel && lte(distance, maxDistance);
         }
     };
 
@@ -208,7 +208,7 @@ namespace vm {
         const auto e = dot(v, w);
         const auto D = a * c - b * b;
 
-        if (Math::zero(D)) {
+        if (zero(D)) {
             const auto f = dot(w, v);
             const auto z = w - f * v;
             return LineDistance<T>::Parallel(squaredLength(z));
@@ -229,8 +229,8 @@ namespace vm {
             tD = c;
         }
 
-        const auto sc = Math::zero(sN) ? static_cast<T>(0.0) : sN / sD;
-        const auto tc = std::max(Math::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        const auto sc = zero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const auto tc = std::max(zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
 
         u = u * sc; // vector from p1 to the closest point on the segment
         v = v * tc; // vector from ray origin to closest point on the ray
@@ -280,7 +280,7 @@ namespace vm {
         T sN, sD = D;
         T tN, tD = D;
 
-        if (Math::zero(D)) {
+        if (zero(D)) {
             const auto f = w.dot(v);
             const auto z = w - f * v;
             return LineDistance<T>::Parallel(squaredLength(z));
@@ -294,8 +294,8 @@ namespace vm {
             tD = c;
         }
 
-        const auto sc = Math::zero(sN) ? static_cast<T>(0.0) : sN / sD;
-        const auto tc = std::max(Math::zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        const auto sc = zero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const auto tc = std::max(zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
 
         u = u * sc; // vector from the second ray's origin to the closest point on first ray
         v = v * tc; // vector from the first ray's origin to closest point on the first ray
@@ -340,7 +340,7 @@ namespace vm {
         const T e = dot(l.direction, w0);
 
         const T D = a * c - b * b;
-        if (Math::zero(D)) {
+        if (zero(D)) {
             const T f = dot(w0, l.direction);
             const vec<T,S> z = w0 - f * l.direction;
             return LineDistance<T>::Parallel(squaredLength(z));

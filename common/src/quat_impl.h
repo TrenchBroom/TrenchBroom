@@ -44,17 +44,17 @@ namespace vm {
         assert(isUnit(to));
 
         const auto cos = dot(from, to);
-        if (Math::one(cos)) {
+        if (one(cos)) {
             // `from` and `to` are equal.
             setRotation(vec<T,3>::pos_z, static_cast<T>(0.0));
-        } else if (Math::one(-cos)) {
+        } else if (one(-cos)) {
             // `from` and `to` are opposite.
             // We need to find a rotation axis that is perpendicular to `from`.
             auto axis = cross(from, vec<T,3>::pos_z);
-            if (Math::zero(squaredLength(axis))) {
+            if (zero(squaredLength(axis))) {
                 axis = cross(from, vec<T,3>::pos_x);
             }
-            setRotation(normalize(axis), Math::radians(static_cast<T>(180)));
+            setRotation(normalize(axis), radians(static_cast<T>(180)));
         } else {
             const auto axis = normalize(cross(from, to));
             const auto angle = std::acos(cos);

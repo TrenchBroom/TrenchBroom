@@ -75,14 +75,14 @@ namespace TrenchBroom {
             return EntityRotationPolicy::getRotation(this);
         }
 
-        FloatType Entity::area(Math::Axis::Type axis) const {
+        FloatType Entity::area(vm::Axis::Type axis) const {
             const vm::vec3 size = bounds().size();
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     return size.y() * size.z();
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     return size.x() * size.z();
-                case Math::Axis::AZ:
+                case vm::Axis::AZ:
                     return size.y() * size.z();
                 default:
                     return 0.0;
@@ -179,7 +179,7 @@ namespace TrenchBroom {
                 const vm::bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = intersect(ray, myBounds);
-                    if (!Math::isnan(distance)) {
+                    if (!vm::isnan(distance)) {
                         const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                     }
@@ -200,14 +200,14 @@ namespace TrenchBroom {
         FloatType Entity::doIntersectWithRay(const vm::ray3& ray) const {
             if (hasChildren()) {
                 const vm::bbox3& myBounds = bounds();
-                if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
-                    return Math::nan<FloatType>();
+                if (!myBounds.contains(ray.origin) && vm::isnan(intersect(ray, myBounds))) {
+                    return vm::nan<FloatType>();
                 }
 
                 IntersectNodeWithRayVisitor visitor(ray);
                 iterate(visitor);
                 if (!visitor.hasResult()) {
-                    return Math::nan<FloatType>();
+                    return vm::nan<FloatType>();
                 } else {
                     return visitor.result();
                 }
@@ -216,7 +216,7 @@ namespace TrenchBroom {
                 if (!myBounds.contains(ray.origin)) {
                     return intersect(ray, myBounds);
                 } else {
-                    return Math::nan<FloatType>();
+                    return vm::nan<FloatType>();
                 }
             }
         }

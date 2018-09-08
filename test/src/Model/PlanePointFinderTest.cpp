@@ -44,7 +44,7 @@ TEST(PlaneTest, planePointFinder) {
     verts.push_back(vm::vec3(16, 18, 22));
     
     for (size_t i=0; i<verts.size(); i++) {
-        FloatType dist = Math::abs(plane.pointDistance(verts[i]));
+        FloatType dist = vm::abs(plane.pointDistance(verts[i]));
         ASSERT_LT(dist, 0.01);
     }
     
@@ -64,7 +64,7 @@ TEST(PlaneTest, planePointFinder) {
 
     // Check that the verts are still close to the new integer plane
     for (size_t i=0; i<verts.size(); i++) {
-        FloatType dist = Math::abs(plane.pointDistance(verts[i]));
+        FloatType dist = vm::abs(plane.pointDistance(verts[i]));
         ASSERT_LT(dist, 0.01);
     }
 }

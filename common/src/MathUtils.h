@@ -20,6 +20,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_MathUtils_h
 #define TrenchBroom_MathUtils_h
 
+#include "constants.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -27,7 +29,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <type_traits>
 
-namespace Math {
+namespace vm {
     struct Identity {
         template<typename U>
         constexpr auto operator()(U&& v) const noexcept -> decltype(std::forward<U>(v)) {
@@ -35,80 +37,6 @@ namespace Math {
         }
     };
 
-    // TODO 2201: Extract this into a separate header
-    template <typename T>
-    class Constants {
-    public:
-        static T almostZero() {
-            static const T value = static_cast<T>(0.001);
-            return value;
-        }
-        
-        static T pointStatusEpsilon() {
-            // static const T value = static_cast<T>(0.01);
-            static const T value = static_cast<T>(0.0001); // this is what tyrbsp uses
-            return value;
-        }
-        
-        static T correctEpsilon() {
-            static const T value = static_cast<T>(0.001); // this is what QBSP uses
-            return value;
-        }
-        
-        static T colinearEpsilon() {
-            static const T value = static_cast<T>(0.00001); // this value seems to hit a sweet spot in relation to the point status epsilon
-            return value;
-        }
-        
-        static T angleEpsilon() {
-            static const T value = static_cast<T>(0.00000001); // if abs(sin()) of the angle between two vectors is less than this, they are considered to be parallel or opposite
-            return value;
-        }
-        
-        static T pi() {
-            static const T value = static_cast<T>(3.141592653589793);
-            return value;
-        }
-        
-        static T twoPi() {
-            static const T value = static_cast<T>(2.0) * pi();
-            return value;
-        }
-        
-        static T piOverTwo() {
-            static const T value = pi() / static_cast<T>(2.0);
-            return value;
-        }
-        
-        static T piOverFour() {
-            static const T value = pi() / static_cast<T>(4.0);
-            return value;
-        }
-        
-        static T threePiOverTwo() {
-            static const T value = static_cast<T>(3.0) * pi() / static_cast<T>(2.0);
-            return value;
-        }
-        
-        static T piOverStraightAngle() {
-            static const T value = pi() / static_cast<T>(180.0);
-            return value;
-        }
-        
-        static T straightAngleOverPi() {
-            static const T value = static_cast<T>(180.0) / pi();
-            return value;
-        }
-        
-        static T e() {
-            static const T value = static_cast<T>(2.718281828459045);
-            return value;
-        }
-    };
-    
-    typedef Constants<double> Cd;
-    typedef Constants<float> Cf;
-    
     template <typename T>
     bool isnan(const T f) {
 #ifdef _MSC_VER
@@ -158,14 +86,16 @@ namespace Math {
     
     template <typename T>
     T absMax(const T v1, const T v2) {
-        if (abs(v1) > abs(v2))
+        if (abs(v1) > abs(v2)) {
             return v1;
-        return v2;
+        } else {
+            return v2;
+        }
     }
     
     template <typename T>
     T absDifference(const T v1, const T v2) {
-        return Math::abs(Math::abs(v1) - Math::abs(v2));
+        return abs(abs(v1) - abs(v2));
     }
     
     template <typename T>
@@ -211,7 +141,7 @@ namespace Math {
     template <typename T>
     T snap(const T v, const T grid) {
         assert(grid > 0.0);
-        return grid * Math::round(v / grid);
+        return grid * round(v / grid);
     }
 
     template <typename T>
@@ -237,26 +167,30 @@ namespace Math {
     T roundToMultiple(const T v, const T m) {
         const T d = roundDownToMultiple(v, m);
         const T u = roundUpToMultiple(v, m);
-        if (Math::abs(d - v) < Math::abs(u - v))
+        if (abs(d - v) < abs(u - v))
             return d;
         return u;
     }
 
+    // TODO 2201: rename or remove this
     template <typename T>
     bool one(const T v, const T epsilon = Constants<T>::almostZero()) {
-        return Math::abs(v - static_cast<T>(1.0)) <= epsilon;
+        return abs(v - static_cast<T>(1.0)) <= epsilon;
     }
-    
+
+    // TODO 2201: rename or remove this
     template <typename T>
     bool zero(const T v, const T epsilon = Constants<T>::almostZero()) {
         return abs(v) <= epsilon;
     }
-    
+
+    // TODO 2201: rename or remove this
     template <typename T>
     bool pos(const T v, const T epsilon = Constants<T>::almostZero()) {
         return v > epsilon;
     }
-    
+
+    // TODO 2201: rename or remove this
     template <typename T>
     bool neg(const T v, const T epsilon = Constants<T>::almostZero()) {
         return v < -epsilon;
@@ -514,9 +448,9 @@ namespace Math {
         int operator()(const T lhs, const T rhs) const {
             const T l = Abs ? abs(lhs) : lhs;
             const T r = Abs ? abs(rhs) : rhs;
-            if (Math::lt(l, r))
+            if (lt(l, r))
                 return -1;
-            if (Math::gt(l, r))
+            if (gt(l, r))
                 return 1;
             return 0;
         }

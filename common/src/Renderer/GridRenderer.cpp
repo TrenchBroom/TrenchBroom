@@ -40,19 +40,19 @@ namespace TrenchBroom {
 
             const vm::vec3f& p = camera.position();
             switch (firstComponent(camera.direction())) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     result[0] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h));
                     result[1] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h));
                     result[2] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h));
                     result[3] = Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h));
                     break;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     result[0] = Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h));
                     result[1] = Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h));
                     result[2] = Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h));
                     result[3] = Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h));
                     break;
-                case Math::Axis::AZ:
+                case vm::Axis::AZ:
                     result[0] = Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z())));
                     result[1] = Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z())));
                     result[2] = Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z())));

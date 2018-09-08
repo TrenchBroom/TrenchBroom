@@ -57,8 +57,8 @@ namespace TrenchBroom {
 
         vm::vec2f::List circle2D(float radius, size_t segments);
         vm::vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
-        vm::vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);
-        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+        vm::vec3f::List circle2D(float radius, vm::Axis::Type axis, float startAngle, float angleLength, size_t segments);
+        std::pair<float, float> startAngleAndLength(const vm::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
         vm::vec2f::List roundedRect2D(const vm::vec2f& size, const float cornerRadius, const size_t cornerSegments);

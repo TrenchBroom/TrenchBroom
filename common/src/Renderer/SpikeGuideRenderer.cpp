@@ -46,7 +46,7 @@ namespace TrenchBroom {
             if (hit.isMatch()) {
                 if (hit.distance() <= length)
                     addPoint(ray.pointAtDistance(hit.distance() - 0.01));
-                addSpike(ray, Math::min(length, hit.distance()), length);
+                addSpike(ray, vm::min(length, hit.distance()), length);
             } else {
                 addSpike(ray, length, length);
             }

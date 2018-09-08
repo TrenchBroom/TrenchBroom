@@ -115,7 +115,7 @@ namespace TrenchBroom {
             vm::vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vm::vec3(15.5, 15.5, 15.5), boundsCenter);
             
-            document->flipObjects(boundsCenter, Math::Axis::AX);
+            document->flipObjects(boundsCenter, vm::Axis::AX);
             
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(15.5, 15.5, 15.5), boundsCenter);
             
             // 90 degrees CCW about the Z axis through the center of the selection
-            document->rotateObjects(boundsCenter, vm::vec3::pos_z, Math::radians(90.0));
+            document->rotateObjects(boundsCenter, vm::vec3::pos_z, vm::radians(90.0));
             
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);

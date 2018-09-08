@@ -59,14 +59,14 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    Math::PointStatus::Type ray<T,S>::pointStatus(const vec<T,S>& point) const {
+    PointStatus::Type ray<T,S>::pointStatus(const vec<T,S>& point) const {
         const auto scale = dot(direction, point - origin);
-        if (scale >  Math::Constants<T>::pointStatusEpsilon()) {
-            return Math::PointStatus::PSAbove;
-        } else if (scale < -Math::Constants<T>::pointStatusEpsilon()) {
-            return Math::PointStatus::PSBelow;
+        if (scale >  Constants<T>::pointStatusEpsilon()) {
+            return PointStatus::PSAbove;
+        } else if (scale < -Constants<T>::pointStatusEpsilon()) {
+            return PointStatus::PSBelow;
         } else {
-            return Math::PointStatus::PSInside;
+            return PointStatus::PSInside;
         }
     }
 

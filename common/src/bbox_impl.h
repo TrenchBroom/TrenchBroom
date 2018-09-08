@@ -115,8 +115,8 @@ namespace vm {
     bool bbox<T,S>::contains(const vec<T,S>& point, const T epsilon) const {
         assert(valid());
         for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(point[i], min[i], epsilon) ||
-                Math::gt(point[i], max[i], epsilon)) {
+            if (lt(point[i], min[i], epsilon) ||
+                gt(point[i], max[i], epsilon)) {
                 return false;
             }
         }
@@ -127,8 +127,8 @@ namespace vm {
     bool bbox<T,S>::contains(const bbox<T,S>& b, const T epsilon) const {
         assert(valid());
         for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(b.min[i], min[i], epsilon) ||
-                Math::gt(b.max[i], max[i], epsilon)) {
+            if (lt(b.min[i], min[i], epsilon) ||
+                gt(b.max[i], max[i], epsilon)) {
                 return false;
             }
         }
@@ -139,8 +139,8 @@ namespace vm {
     bool bbox<T,S>::encloses(const bbox<T,S>& b, const T epsilon) const {
         assert(valid());
         for (size_t i = 0; i < S; ++i) {
-            if (Math::lte(b.min[i], min[i], epsilon) ||
-                Math::gte(b.max[i], max[i], epsilon)) {
+            if (lte(b.min[i], min[i], epsilon) ||
+                gte(b.max[i], max[i], epsilon)) {
                 return false;
             }
         }
@@ -150,8 +150,8 @@ namespace vm {
     template <typename T, size_t S>
     bool bbox<T,S>::intersects(const bbox<T,S>& b, const T epsilon) const {
         for (size_t i = 0; i < S; ++i) {
-            if (Math::lt(b.max[i], min[i], epsilon) ||
-                Math::gt(b.min[i], max[i], epsilon)) {
+            if (lt(b.max[i], min[i], epsilon) ||
+                gt(b.min[i], max[i], epsilon)) {
                 return false;
             }
         }

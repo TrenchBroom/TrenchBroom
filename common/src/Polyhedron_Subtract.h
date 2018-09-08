@@ -150,7 +150,7 @@ private:
         if (bestIt == end)
             return end;
 
-        if (Math::abs(dot(bestIt->normal, axis)) < 0.5)
+        if (vm::abs(dot(bestIt->normal, axis)) < 0.5)
             return begin;
         
         assert(bestIt != end);
@@ -181,10 +181,10 @@ private:
             return curIt;
 
         const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
-        if (Math::abs(curDot) > Math::abs(bestDot))
+        if (vm::abs(curDot) > vm::abs(bestDot))
             return curIt;
         
-        if (Math::abs(curDot) == Math::abs(bestDot)) {
+        if (vm::abs(curDot) == vm::abs(bestDot)) {
             // Resolve ambiguities.
             
             assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
@@ -197,7 +197,7 @@ private:
             return end;
         }
         
-        // Math::abs(curDot) < Math::abs(bestDot)
+        // vm::abs(curDot) < vm::abs(bestDot)
         return bestIt;
     }
     

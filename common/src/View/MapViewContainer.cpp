@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return current->canFlipObjects();
         }
         
-        void MapViewContainer::doFlipObjects(const Math::Direction direction) {
+        void MapViewContainer::doFlipObjects(const vm::Direction direction) {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
             current->flipObjects(direction);

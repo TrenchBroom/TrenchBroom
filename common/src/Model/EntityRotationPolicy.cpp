@@ -40,7 +40,7 @@ namespace TrenchBroom {
                     if (angleValue.empty())
                         return vm::mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
-                    return vm::rotationMatrix(vm::vec3::pos_z, Math::radians(angle));
+                    return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
                 }
                 case RotationType_AngleUpDown: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                         return vm::mat4x4::rot_90_y_cw;
                     if (angle == -2.0)
                         return vm::mat4x4::rot_90_y_ccw;
-                    return vm::rotationMatrix(vm::vec3::pos_z, Math::radians(angle));
+                    return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
                 }
                 case RotationType_Euler: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -62,9 +62,9 @@ namespace TrenchBroom {
                     // z =  roll
                     // pitch is applied with an inverted sign
                     // see QuakeSpasm sources gl_rmain R_RotateForEntity function
-                    const FloatType roll  = +Math::radians(angles.z());
-                    const FloatType pitch = -Math::radians(angles.x());
-                    const FloatType yaw   = +Math::radians(angles.y());
+                    const FloatType roll  = +vm::radians(angles.z());
+                    const FloatType pitch = -vm::radians(angles.x());
+                    const FloatType yaw   = +vm::radians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Euler_PositivePitchDown: {
@@ -74,9 +74,9 @@ namespace TrenchBroom {
                     // x = pitch
                     // y = yaw
                     // z = roll
-                    const FloatType roll  = +Math::radians(angles.z());
-                    const FloatType pitch = +Math::radians(angles.x());
-                    const FloatType yaw   = +Math::radians(angles.y());
+                    const FloatType roll  = +vm::radians(angles.z());
+                    const FloatType pitch = +vm::radians(angles.x());
+                    const FloatType yaw   = +vm::radians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Mangle: {
@@ -86,9 +86,9 @@ namespace TrenchBroom {
                     // x = yaw
                     // y = -pitch
                     // z = roll
-                    const FloatType roll  = +Math::radians(angles.z());
-                    const FloatType pitch = -Math::radians(angles.y());
-                    const FloatType yaw   = +Math::radians(angles.x());
+                    const FloatType roll  = +vm::radians(angles.z());
+                    const FloatType pitch = -vm::radians(angles.y());
+                    const FloatType yaw   = +vm::radians(angles.x());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
@@ -211,17 +211,17 @@ namespace TrenchBroom {
 
         void EntityRotationPolicy::setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction) {
             const FloatType angle = getAngle(direction);
-            entity->addOrUpdateAttribute(attribute, Math::round(angle));
+            entity->addOrUpdateAttribute(attribute, vm::round(angle));
         }
 
         FloatType EntityRotationPolicy::getAngle(vm::vec3 direction) {
             direction[2] = 0.0;
             direction = normalize(direction);
 
-            FloatType angle = Math::round(Math::degrees(std::acos(direction.x())));
-            if (Math::neg(direction.y()))
+            FloatType angle = vm::round(vm::degrees(std::acos(direction.x())));
+            if (vm::neg(direction.y()))
                 angle = 360.0 - angle;
-            while (Math::neg(angle))
+            while (vm::neg(angle))
                 angle += 360.0;
             return angle;
         }
@@ -267,9 +267,7 @@ namespace TrenchBroom {
                 roll = angleBetween(newZ, vm::vec3::pos_z, vm::vec3::pos_x);
             }
             
-            return vm::vec3(Math::degrees(yaw),
-                        Math::degrees(pitch),
-                        Math::degrees(roll));
+            return vm::vec3(vm::degrees(yaw), vm::degrees(pitch), vm::degrees(roll));
         }
     }
 }

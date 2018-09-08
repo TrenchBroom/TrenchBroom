@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vm::vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vm::vec3& center, const vm::Axis::Type axis, const bool lockTextures) {
             const auto transform = vm::translationMatrix(center) * vm::mirrorMatrix<FloatType>(axis) * vm::translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }

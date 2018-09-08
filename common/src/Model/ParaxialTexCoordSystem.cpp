@@ -118,7 +118,7 @@ namespace TrenchBroom {
         void ParaxialTexCoordSystem::doSetRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
             m_index = planeNormalIndex(normal);
             axes(m_index, m_xAxis, m_yAxis);
-            rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
+            rotateAxes(m_xAxis, m_yAxis, vm::radians(newAngle), m_index);
         }
 
         void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
@@ -172,8 +172,8 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
             float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
             float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis));
-            assert(!Math::isnan(cosX));
-            assert(!Math::isnan(cosY));
+            assert(!vm::isnan(cosX));
+            assert(!vm::isnan(cosY));
 
             float radX = std::acos(cosX);
             if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             if (planeNormIndex == 12)
                 rad *= -1.0f;
             
-            const float newRotation = Math::correct(Math::normalizeDegrees(Math::degrees(rad)), 4);
+            const float newRotation = vm::correct(vm::normalizeDegrees(vm::degrees(rad)), 4);
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
@@ -216,9 +216,9 @@ namespace TrenchBroom {
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
-            assert(!Math::isnan(newRotation));
-            assert(!Math::zero(newScale.x()));
-            assert(!Math::zero(newScale.y()));
+            assert(!vm::isnan(newRotation));
+            assert(!vm::zero(newScale.x()));
+            assert(!vm::zero(newScale.y()));
             
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);
@@ -240,11 +240,11 @@ namespace TrenchBroom {
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vm::vec3& zAxis = vm::vec3::pos_z; //m_index == 5 ? vm::vec3::neg_z : 	vm::vec3::pos_z;
-            const vm::quat3 rot(zAxis, -Math::radians(currentAngle));
+            const vm::quat3 rot(zAxis, -vm::radians(currentAngle));
             const vm::vec3 vec = rot * vm::vec3(point - center);
 
-            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(normalize(vec), vm::vec3::pos_x, zAxis);
-            return static_cast<float>(Math::degrees(angleInRadians));
+            const FloatType angleInRadians = vm::C::twoPi() - angleBetween(normalize(vec), vm::vec3::pos_x, zAxis);
+            return static_cast<float>(vm::degrees(angleInRadians));
         }
 
         void ParaxialTexCoordSystem::rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {

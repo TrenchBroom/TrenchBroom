@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
-                if (!Math::isnan(dist)) {
+                if (!vm::isnan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }

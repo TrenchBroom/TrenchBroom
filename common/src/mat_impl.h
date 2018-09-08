@@ -461,7 +461,7 @@ namespace vm {
 
     template <typename T>
     mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
-        const auto vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
+        const auto vFrustum = std::tan(radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
         const auto hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
         const auto depth = farPlane - nearPlane;
 
@@ -641,13 +641,13 @@ namespace vm {
     }
 
     template <typename T>
-    mat<T,4,4> mirrorMatrix(const Math::Axis::Type axis) {
+    mat<T,4,4> mirrorMatrix(const Axis::Type axis) {
         switch (axis) {
-            case Math::Axis::AX:
+            case Axis::AX:
                 return mat<T,4,4>::mirror_x;
-            case Math::Axis::AY:
+            case Axis::AY:
                 return mat<T,4,4>::mirror_y;
-            case Math::Axis::AZ:
+            case Axis::AZ:
                 return mat<T,4,4>::mirror_z;
             default:
                 return mat<T,4,4>::identity;
@@ -673,7 +673,7 @@ namespace vm {
         vec<T,3> xAxis;
 
         switch (firstComponent(normal)) {
-            case Math::Axis::AX:
+            case Axis::AX:
                 xAxis = normalize(cross(normal, vec<T, 3>::pos_z));
                 break;
             default:
@@ -683,9 +683,9 @@ namespace vm {
         const auto  yAxis = normalize(cross(normal, xAxis));
         const auto& zAxis = direction;
 
-        assert(Math::eq(length(xAxis), 1.0));
-        assert(Math::eq(length(yAxis), 1.0));
-        assert(Math::eq(length(zAxis), 1.0));
+        assert(eq(length(xAxis), 1.0));
+        assert(eq(length(yAxis), 1.0));
+        assert(eq(length(zAxis), 1.0));
 
         return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
     }

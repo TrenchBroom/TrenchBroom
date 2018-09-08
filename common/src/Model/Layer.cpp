@@ -105,7 +105,7 @@ namespace TrenchBroom {
         }
 
         FloatType Layer::doIntersectWithRay(const vm::ray3& ray) const {
-            return Math::nan<FloatType>();
+            return vm::nan<FloatType>();
         }
 
         void Layer::invalidateBounds() {

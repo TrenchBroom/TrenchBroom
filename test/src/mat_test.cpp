@@ -619,22 +619,22 @@ TEST(MatTest, invertedMatrix) {
 }
 
 TEST(MatTest, rotationMatrixWithEulerAngles) {
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(Math::radians(90.0), 0.0, 0.0));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(0.0, Math::radians(90.0), 0.0));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(0.0, 0.0, Math::radians(90.0)));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(vm::radians(90.0), 0.0, 0.0));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(0.0, vm::radians(90.0), 0.0));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(0.0, 0.0, vm::radians(90.0)));
 }
 
 TEST(MatTest, rotationMatrixWithAngleAndAxis) {
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(vm::vec3d::pos_x, Math::radians(90.0)));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(vm::vec3d::pos_y, Math::radians(90.0)));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(vm::vec3d::pos_z, Math::radians(90.0)));
-    ASSERT_VEC_EQ(vm::vec3d::pos_y, vm::rotationMatrix(vm::vec3d::pos_z, Math::radians(90.0)) * vm::vec3d::pos_x);
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(vm::vec3d::pos_x, vm::radians(90.0)));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(vm::vec3d::pos_y, vm::radians(90.0)));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(vm::vec3d::pos_z, vm::radians(90.0)));
+    ASSERT_VEC_EQ(vm::vec3d::pos_y, vm::rotationMatrix(vm::vec3d::pos_z, vm::radians(90.0)) * vm::vec3d::pos_x);
 }
 
 TEST(MatTest, rotationMatrixWithQuaternion) {
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_x, Math::radians(90.0))));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_y, Math::radians(90.0))));
-    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_z, Math::radians(90.0))));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_x_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_x, vm::radians(90.0))));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_y_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_y, vm::radians(90.0))));
+    ASSERT_MAT_EQ(vm::mat4x4d::rot_90_z_ccw, vm::rotationMatrix(vm::quatd(vm::vec3d::pos_z, vm::radians(90.0))));
 
 
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -643,7 +643,7 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
         for (size_t j = 0; j < 3; ++j)
             axis[j] = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX));
         axis = normalize(axis);
-        const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*Math::Cd::pi();
+        const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*vm::Cd::pi();
         ASSERT_MAT_EQ(vm::rotationMatrix(axis, angle), vm::rotationMatrix(vm::quatd(axis, angle)));
     }
 }

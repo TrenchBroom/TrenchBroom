@@ -21,6 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TRENCHBROOM_VEC_DECL_H
 
 #include "MathUtils.h"
+#include "constants.h"
 
 #include <array>
 #include <cassert>
@@ -909,7 +910,7 @@ namespace vm {
      * @return true if the given vector has a length of 1 and false otherwise
      */
     template <typename T, size_t S>
-    bool isUnit(const vec<T,S>& v, T epsilon = Math::Constants<T>::almostZero());
+    bool isUnit(const vec<T,S>& v, T epsilon = Constants<T>::almostZero());
 
     /**
      * Checks whether the given vector has a length of 0.
@@ -921,7 +922,7 @@ namespace vm {
      * @return true if the given vector has a length of 0 and false otherwise
      */
     template <typename T, size_t S>
-    bool isZero(const vec<T,S>& v, T epsilon = Math::Constants<T>::almostZero());
+    bool isZero(const vec<T,S>& v, T epsilon = Constants<T>::almostZero());
 
     /**
      * Checks whether the given vector NaN as any component.
@@ -1022,7 +1023,7 @@ namespace vm {
      * @return true if the given three points are colinear, and false otherwise
      */
     template <typename T, size_t S>
-    bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, T epsilon = Math::Constants<T>::colinearEpsilon());
+    bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, T epsilon = Constants<T>::colinearEpsilon());
 
     /**
      * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
@@ -1036,7 +1037,7 @@ namespace vm {
      * @return true if the given vectors are parallel, and false otherwise
      */
     template <typename T, size_t S>
-    bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon = Math::Constants<T>::colinearEpsilon());
+    bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon = Constants<T>::colinearEpsilon());
 
     /* ========== rounding and error correction ========== */
 
@@ -1099,7 +1100,7 @@ namespace vm {
      * @return the corrected vector
      */
     template <typename T, size_t S>
-    vec<T,S> correct(const vec<T,S>& v, size_t decimals = 0, T epsilon = Math::Constants<T>::correctEpsilon());
+    vec<T,S> correct(const vec<T,S>& v, size_t decimals = 0, T epsilon = Constants<T>::correctEpsilon());
 
     /**
      * Given three colinear points, this function checks whether the first point is contained in a segment formed by the
@@ -1128,7 +1129,7 @@ namespace vm {
      * @return the average of the vectors obtained from the given range of elements
      */
      // TODO 2201: rename to avg
-    template <typename I, typename G = Math::Identity>
+    template <typename I, typename G = Identity>
     auto average(I cur, I end, const G& get = G()) -> typename std::remove_reference<decltype(get(*cur))>::type;
 
     /**

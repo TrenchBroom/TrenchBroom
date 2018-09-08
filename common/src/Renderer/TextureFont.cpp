@@ -170,8 +170,8 @@ namespace TrenchBroom {
             vm::vec2f::List result;
             result.reserve(string.length() * 4 * 2);
             
-            auto x = static_cast<int>(Math::round(offset.x()));
-            auto y = static_cast<int>(Math::round(offset.y()));
+            auto x = static_cast<int>(vm::round(offset.x()));
+            auto y = static_cast<int>(vm::round(offset.y()));
             for (size_t i = 0; i < string.length(); i++) {
                 auto c = string[i];
                 if (c == '\n') {

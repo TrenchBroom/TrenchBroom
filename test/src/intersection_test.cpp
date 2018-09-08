@@ -39,7 +39,7 @@ bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line);
 
 TEST(IntersectionTest, intersectRayAndPlane) {
     const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
-    ASSERT_TRUE(Math::isnan(intersect(ray, vm::plane3f(vm::vec3f(0.0f, 0.0f, -1.0f), vm::vec3f::pos_z))));
+    ASSERT_TRUE(vm::isnan(intersect(ray, vm::plane3f(vm::vec3f(0.0f, 0.0f, -1.0f), vm::vec3f::pos_z))));
     ASSERT_FLOAT_EQ(0.0f, intersect(ray, vm::plane3f(vm::vec3f(0.0f, 0.0f,  0.0f), vm::vec3f::pos_z)));
     ASSERT_FLOAT_EQ(1.0f, intersect(ray, vm::plane3f(vm::vec3f(0.0f, 0.0f,  1.0f), vm::vec3f::pos_z)));
 }
@@ -49,10 +49,10 @@ TEST(IntersectionTest, intersectRayAndTriangle) {
     const vm::vec3d p1(4.0, 7.0, 2.0);
     const vm::vec3d p2(3.0, 2.0, 2.0);
 
-    ASSERT_TRUE(Math::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_x), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_y), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_z), p0, p1, p2)));
-    ASSERT_TRUE(Math::isnan(intersect(vm::ray3d(vm::vec3d(0.0, 0.0, 2.0), vm::vec3d::pos_y), p0, p1, p2)));
+    ASSERT_TRUE(vm::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_x), p0, p1, p2)));
+    ASSERT_TRUE(vm::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_y), p0, p1, p2)));
+    ASSERT_TRUE(vm::isnan(intersect(vm::ray3d(vm::vec3d::zero, vm::vec3d::pos_z), p0, p1, p2)));
+    ASSERT_TRUE(vm::isnan(intersect(vm::ray3d(vm::vec3d(0.0, 0.0, 2.0), vm::vec3d::pos_y), p0, p1, p2)));
     ASSERT_DOUBLE_EQ(2.0, intersect(vm::ray3d(vm::vec3d(3.0, 5.0, 0.0), vm::vec3d::pos_z), p0, p1, p2));
     ASSERT_DOUBLE_EQ(2.0, intersect(vm::ray3d(vm::vec3d(2.0, 5.0, 0.0), vm::vec3d::pos_z), p0, p1, p2));
     ASSERT_DOUBLE_EQ(2.0, intersect(vm::ray3d(vm::vec3d(4.0, 7.0, 0.0), vm::vec3d::pos_z), p0, p1, p2));
@@ -63,17 +63,17 @@ TEST(IntersectionTest, intersectRayAndBBox) {
     const vm::bbox3f bounds(vm::vec3f(-12.0f, -3.0f,  4.0f), vm::vec3f(  8.0f,  9.0f,  8.0f));
 
     float distance = intersect(vm::ray3f(vm::vec3f::zero, vm::vec3f::neg_z), bounds);
-    ASSERT_TRUE(Math::isnan(distance));
+    ASSERT_TRUE(vm::isnan(distance));
 
     distance = intersect(vm::ray3f(vm::vec3f::zero, vm::vec3f::pos_z), bounds);
-    ASSERT_FALSE(Math::isnan(distance));
+    ASSERT_FALSE(vm::isnan(distance));
     ASSERT_FLOAT_EQ(4.0f, distance);
 
     const vm::vec3f origin = vm::vec3f(-10.0f, -7.0f, 14.0f);
     const vm::vec3f diff = vm::vec3f(-2.0f, 3.0f, 8.0f) - origin;
     const vm::vec3f dir = normalize(diff);
     distance = intersect(vm::ray3f(origin, dir), bounds);
-    ASSERT_FALSE(Math::isnan(distance));
+    ASSERT_FALSE(vm::isnan(distance));
     ASSERT_FLOAT_EQ(length(diff), distance);
 
 }
@@ -88,7 +88,7 @@ TEST(IntersectionTest, intersectRayAndSphere) {
     ASSERT_FLOAT_EQ(3.0f, intersect(ray, vm::vec3f(0.0f, 0.0f, 5.0f), 2.0f));
 
     // miss
-    ASSERT_TRUE(Math::isnan(intersect(ray, vm::vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+    ASSERT_TRUE(vm::isnan(intersect(ray, vm::vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
 }
 
 TEST(IntersectionTest, intersectLineAndPlane) {
@@ -113,7 +113,7 @@ TEST(IntersectionTest, intersectPlaneAndPlane_parallel) {
 TEST(IntersectionTest, intersectPlaneAndPlane_too_similar) {
     const vm::vec3f anchor(100,100,100);
     const vm::plane3f p1(anchor, vm::vec3f::pos_x);
-    const vm::plane3f p2(anchor, vm::quatf(vm::vec3f::neg_y, Math::radians(0.0001f)) * vm::vec3f::pos_x); // p1 rotated by 0.0001 degrees
+    const vm::plane3f p2(anchor, vm::quatf(vm::vec3f::neg_y, vm::radians(0.0001f)) * vm::vec3f::pos_x); // p1 rotated by 0.0001 degrees
     const vm::line3f line = intersect(p1, p2);;
 
     ASSERT_EQ(vm::vec3f::zero, line.direction);
@@ -132,7 +132,7 @@ TEST(IntersectionTest, intersectPlaneAndPlane) {
 TEST(IntersectionTest, intersectPlaneAndPlane_similar) {
     const vm::vec3f anchor(100,100,100);
     const vm::plane3f p1(anchor, vm::vec3f::pos_x);
-    const vm::plane3f p2(anchor, vm::quatf(vm::vec3f::neg_y, Math::radians(0.5f)) * vm::vec3f::pos_x); // p1 rotated by 0.5 degrees
+    const vm::plane3f p2(anchor, vm::quatf(vm::vec3f::neg_y, vm::radians(0.5f)) * vm::vec3f::pos_x); // p1 rotated by 0.5 degrees
     const vm::line3f line = intersect(p1, p2);;
 
     ASSERT_TRUE(lineOnPlane(p1, line));
@@ -140,9 +140,9 @@ TEST(IntersectionTest, intersectPlaneAndPlane_similar) {
 }
 
 bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line) {
-    if (plane.pointStatus(line.point) != Math::PointStatus::PSInside){
+    if (plane.pointStatus(line.point) != vm::PointStatus::PSInside){
         return false;
-    } else if (plane.pointStatus(line.pointAtDistance(16.0f)) != Math::PointStatus::PSInside) {
+    } else if (plane.pointStatus(line.pointAtDistance(16.0f)) != vm::PointStatus::PSInside) {
         return false;
     } else {
         return true;

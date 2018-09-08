@@ -39,10 +39,10 @@ namespace TrenchBroom {
         m_document(document),
         m_tool(tool) {
             createGui();
-            m_angle->SetValue(Math::degrees(m_tool->angle()));
+            m_angle->SetValue(vm::degrees(m_tool->angle()));
         }
         
-        void RotateObjectsToolPage::setAxis(const Math::Axis::Type axis) {
+        void RotateObjectsToolPage::setAxis(const vm::Axis::Type axis) {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
-            m_angle->SetValue(Math::degrees(m_tool->angle()));
+            m_angle->SetValue(vm::degrees(m_tool->angle()));
             m_angle->SetDigits(0, 2);
             
             wxString axes[] = { "X", "Y", "Z" };
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             const Grid& grid = lock(m_document)->grid();
-            m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
+            m_angle->SetIncrements(vm::degrees(grid.angle()), 90.0, 1.0);
         }
 
         void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
@@ -143,9 +143,9 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const double newAngleDegs = Math::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
+            const double newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
             m_angle->SetValue(newAngleDegs);
-            m_tool->setAngle(Math::radians(newAngleDegs));
+            m_tool->setAngle(vm::radians(newAngleDegs));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
@@ -160,7 +160,7 @@ namespace TrenchBroom {
 
             const vm::vec3 center = m_tool->rotationCenter();
             const vm::vec3 axis = getAxis();
-            const FloatType angle = Math::radians(m_angle->GetValue());
+            const FloatType angle = vm::radians(m_angle->GetValue());
             
             MapDocumentSPtr document = lock(m_document);
             document->rotateObjects(center, axis, angle);

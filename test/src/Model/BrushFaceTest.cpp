@@ -283,13 +283,13 @@ namespace TrenchBroom {
                 
                 // -180 / -90 / 90 degree rotations
                 
-                if (rollMinus180) xform = vm::rotationMatrix(Math::radians(-180.0), 0.0, 0.0) * xform;
-                if (pitchMinus180) xform = vm::rotationMatrix(0.0, Math::radians(-180.0), 0.0) * xform;
-                if (yawMinus180) xform = vm::rotationMatrix(0.0, 0.0, Math::radians(-180.0))* xform;
+                if (rollMinus180) xform = vm::rotationMatrix(vm::radians(-180.0), 0.0, 0.0) * xform;
+                if (pitchMinus180) xform = vm::rotationMatrix(0.0, vm::radians(-180.0), 0.0) * xform;
+                if (yawMinus180) xform = vm::rotationMatrix(0.0, 0.0, vm::radians(-180.0))* xform;
                 
-                if (rollPlus90) xform = vm::rotationMatrix(Math::radians(90.0), 0.0, 0.0) * xform;
-                if (pitchPlus90) xform = vm::rotationMatrix(0.0, Math::radians(90.0), 0.0) * xform;
-                if (yawPlus90) xform = vm::rotationMatrix(0.0, 0.0, Math::radians(90.0)) * xform;
+                if (rollPlus90) xform = vm::rotationMatrix(vm::radians(90.0), 0.0, 0.0) * xform;
+                if (pitchPlus90) xform = vm::rotationMatrix(0.0, vm::radians(90.0), 0.0) * xform;
+                if (yawPlus90) xform = vm::rotationMatrix(0.0, 0.0, vm::radians(90.0)) * xform;
 
                 checkTextureLockOnWithTransform(xform, origFace);
             }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockWithMultiAxisRotations(const BrushFace *origFace,
                                                            double degrees) {
-            const double rotateRadians = Math::radians(degrees);
+            const double rotateRadians = vm::radians(degrees);
             
             for (int i=0; i<(1 << 3); i++) {
                 vm::mat4x4 xform;
@@ -329,7 +329,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockWithSingleAxisRotations(const BrushFace *origFace,
                                                             double degrees) {
-            const double rotateRadians = Math::radians(degrees);
+            const double rotateRadians = vm::radians(degrees);
             
             for (int i=0; i<6; i++) {
                 vm::mat4x4 xform;
@@ -386,7 +386,7 @@ namespace TrenchBroom {
          * when texture lock is off.
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
-            const vm::mat4x4 transform = vm::mirrorMatrix<double>(Math::Axis::AZ);
+            const vm::mat4x4 transform = vm::mirrorMatrix<double>(vm::Axis::AZ);
             const BrushFace* origFace = cube->findFace(vm::vec3::pos_x);
             
             // transform the face (texture lock off)
@@ -560,7 +560,7 @@ namespace TrenchBroom {
             const vm::vec3 textureNormal = normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
             ASSERT_GT(dot(textureNormal, vm::vec3(negXFace->boundary().normal)), 0.0);
 
-            const vm::quat3 rot45(textureNormal, Math::radians(45.0));
+            const vm::quat3 rot45(textureNormal, vm::radians(45.0));
             const vm::vec3 newXAxis(rot45 * negXFace->textureXAxis());
             const vm::vec3 newYAxis(rot45 * negXFace->textureYAxis());
 

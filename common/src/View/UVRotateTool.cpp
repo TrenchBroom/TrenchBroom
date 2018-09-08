@@ -70,14 +70,14 @@ namespace TrenchBroom {
 
             const auto& pickRay = inputState.pickRay();
             const auto distanceToFace = intersect(pickRay, boundary);
-            assert(!Math::isnan(distanceToFace));
+            assert(!vm::isnan(distanceToFace));
             const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
             
             const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
             const auto hitPointOnPlane = toPlane * hitPoint;
 
             const auto zoom = m_helper.cameraZoom();
-            const auto error = Math::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+            const auto error = vm::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
             if (error <= RotateHandleWidth / zoom) {
                 pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
             }
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             const auto curAngle = measureAngle(curPointInFaceCoords);
 
             const auto angle = curAngle - m_initalAngle;
-            const auto snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
+            const auto snappedAngle = vm::correct(snapAngle(angle), 4, 0.0f);
 
             const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
             const auto oldCenterInWorldCoords = toWorld * vm::vec3(oldCenterInFaceCoords);
@@ -152,17 +152,17 @@ namespace TrenchBroom {
         float UVRotateTool::measureAngle(const vm::vec2f& point) const {
             const Model::BrushFace* face = m_helper.face();
             const vm::vec2f origin = m_helper.originInFaceCoords();
-            return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
+            return vm::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
         
         float UVRotateTool::snapAngle(const float angle) const {
             const auto* face = m_helper.face();
             
             const float angles[] = {
-                Math::mod(angle +   0.0f, 360.0f),
-                Math::mod(angle +  90.0f, 360.0f),
-                Math::mod(angle + 180.0f, 360.0f),
-                Math::mod(angle + 270.0f, 360.0f),
+                vm::mod(angle +   0.0f, 360.0f),
+                vm::mod(angle +  90.0f, 360.0f),
+                vm::mod(angle + 180.0f, 360.0f),
+                vm::mod(angle + 270.0f, 360.0f),
             };
             auto minDelta = std::numeric_limits<float>::max();
             
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             for (const auto* edge : face->edges()) {
                 const auto startInFaceCoords = vm::vec2f(toFace * edge->firstVertex()->position());
                 const auto endInFaceCoords   = vm::vec2f(toFace * edge->secondVertex()->position());
-                const auto edgeAngle         = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+                const auto edgeAngle         = vm::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {
                     if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta)) {

@@ -140,8 +140,8 @@ namespace TrenchBroom {
             const vm::vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
             
             const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
-            const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-            const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+            const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
+            const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
             
             layout.addItem(TextureCellData(texture, actualFont),
                            scaledTextureWidth,

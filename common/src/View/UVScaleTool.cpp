@@ -174,7 +174,7 @@ namespace TrenchBroom {
                                              });
             
             for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) > 4.0f / m_helper.cameraZoom()) {
+                if (vm::abs(distance[i]) > 4.0f / m_helper.cameraZoom()) {
                     distance[i] = 0.0f;
                 }
             }

@@ -173,7 +173,7 @@ namespace TrenchBroom {
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
             
             const auto distance = intersect(pickRay, dragPlane);;
-            if (Math::isnan(distance)) {
+            if (vm::isnan(distance)) {
                 return vm::vec3::zero;
             } else {
                 const auto hitPoint = pickRay.pointAtDistance(distance);
@@ -258,19 +258,19 @@ namespace TrenchBroom {
             moveCameraToPosition(position, true);
         }
 
-        vm::vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
+        vm::vec3 MapView2D::doGetMoveDirection(const vm::Direction direction) const {
             switch (direction) {
-                case Math::Direction_Forward:
+                case vm::Direction_Forward:
                     return vm::vec3(firstAxis(m_camera.direction()));
-                case Math::Direction_Backward:
+                case vm::Direction_Backward:
                     return vm::vec3(-firstAxis(m_camera.direction()));
-                case Math::Direction_Left:
+                case vm::Direction_Left:
                     return vm::vec3(-firstAxis(m_camera.right()));
-                case Math::Direction_Right:
+                case vm::Direction_Right:
                     return vm::vec3(firstAxis(m_camera.right()));
-                case Math::Direction_Up:
+                case vm::Direction_Up:
                     return vm::vec3(firstAxis(m_camera.up()));
-                case Math::Direction_Down:
+                case vm::Direction_Down:
                     return vm::vec3(-firstAxis(m_camera.up()));
                 switchDefault()
             }
@@ -298,7 +298,7 @@ namespace TrenchBroom {
                 const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
                 
                 const auto distance = intersect(pickRay, dragPlane);
-                if (Math::isnan(distance)) {
+                if (vm::isnan(distance)) {
                     return vm::vec3::zero;
                 } else {
                     const auto hitPoint = pickRay.pointAtDistance(distance);

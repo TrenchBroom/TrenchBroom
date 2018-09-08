@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             vm::vec3 findMinimum(const vm::vec3& initialPosition) {
                 for (size_t i = 0; i < 2; ++i)
-                    m_position[i] = Math::round(initialPosition[i]);
+                    m_position[i] = vm::round(initialPosition[i]);
                 
                 findLocalMinimum();
                 const vm::vec2 localMinPos = m_position;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 
                 return vm::vec3(globalMinPos.x(),
                             globalMinPos.y(),
-                            Math::round(m_plane.zAt(globalMinPos)));
+                            vm::round(m_plane.zAt(globalMinPos)));
             }
         private:
             void findLocalMinimum() {
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             
             FloatType computeError(const size_t location) const {
                 const FloatType z = m_plane.zAt(m_position + MoveOffsets[location]);
-                return std::abs(z - Math::round(z));
+                return std::abs(z - vm::round(z));
             }
             
             size_t findSmallestError() {
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points);
 
         FloatType computePlaneFrequency(const vm::plane3& plane) {
-            static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
+            static const FloatType c = 1.0 - std::sin(vm::C::pi() / 4.0);
             
             const vm::vec3& axis = firstAxis(plane.normal);
             const FloatType cos = dot(plane.normal, axis);
@@ -134,7 +134,7 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
             switch (firstComponent(plane.normal)) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     if (plane.normal.x() > 0.0) {
                         points[1] = points[0] + 64.0 * vm::vec3::pos_z;
                         points[2] = points[0] + 64.0 * vm::vec3::pos_y;
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                         points[2] = points[0] + 64.0 * vm::vec3::pos_z;
                     }
                     break;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     if (plane.normal.y() > 0.0) {
                         points[1] = points[0] + 64.0 * vm::vec3::pos_x;
                         points[2] = points[0] + 64.0 * vm::vec3::pos_z;
@@ -173,12 +173,12 @@ namespace TrenchBroom {
                 return;
             
             const FloatType frequency = computePlaneFrequency(plane);
-            if (Math::zero(frequency, 1.0 / 7084.0)) {
+            if (vm::zero(frequency, 1.0 / 7084.0)) {
                 setDefaultPlanePoints(plane, points);
                 return;
             }
             
-            const Math::Axis::Type axis = firstComponent(plane.normal);
+            const vm::Axis::Type axis = firstComponent(plane.normal);
             const vm::plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i)
                 points[i] = swizzle(points[i], axis);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                 cos = dot(v1, v2);
                 multiplier *= 1.5f;
                 ++count;
-            } while (Math::isnan(cos) || std::abs(cos) > 0.9);
+            } while (vm::isnan(cos) || std::abs(cos) > 0.9);
             
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0)) {

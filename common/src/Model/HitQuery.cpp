@@ -121,7 +121,7 @@ namespace TrenchBroom {
                             containsOccluder = true;
                         }
                         ++it;
-                    } while (it != end && Math::eq(it->distance(), distance));
+                    } while (it != end && vm::eq(it->distance(), distance));
                 }
                 
                 if (bestMatch != end && bestMatchError <= bestOccluderError)

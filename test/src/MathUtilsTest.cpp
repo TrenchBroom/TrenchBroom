@@ -24,27 +24,27 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 
 TEST(MathUtilsTest, findHighestOrderBit) {
-    ASSERT_EQ(sizeof(unsigned)*8, Math::findHighestOrderBit(0u));
-    ASSERT_EQ(sizeof(unsigned)*8, Math::findHighestOrderBit(0u, 2));
+    ASSERT_EQ(sizeof(unsigned)*8, vm::findHighestOrderBit(0u));
+    ASSERT_EQ(sizeof(unsigned)*8, vm::findHighestOrderBit(0u, 2));
     
     for (size_t i = 0; i < sizeof(uint64_t)*8; ++i) {
-        ASSERT_EQ(i, Math::findHighestOrderBit(static_cast<uint64_t>(1u) << i));
+        ASSERT_EQ(i, vm::findHighestOrderBit(static_cast<uint64_t>(1u) << i));
     }
     
     for (size_t i = 0; i < sizeof(uint64_t)*8; ++i) {
         const uint64_t test = static_cast<uint64_t>(1u) | (static_cast<uint64_t>(1u) << i);
-        ASSERT_EQ(i, Math::findHighestOrderBit(test));
+        ASSERT_EQ(i, vm::findHighestOrderBit(test));
     }
     
     for (size_t i = 0; i < sizeof(uint64_t)*8-1; ++i) {
         const uint64_t test = (static_cast<uint64_t>(1u) << 63) | (static_cast<uint64_t>(1u) << i);
-        ASSERT_EQ(63u, Math::findHighestOrderBit(test));
+        ASSERT_EQ(63u, vm::findHighestOrderBit(test));
     }
 
     for (size_t i = 0; i < sizeof(uint64_t)*8; ++i) {
         for (size_t j = 0; j < sizeof(uint64_t) * 8; ++j) {
             const size_t exp = i <= j ? i : sizeof(uint64_t)*8;
-            ASSERT_EQ(exp, Math::findHighestOrderBit(static_cast<uint64_t>(1u) << i, j));
+            ASSERT_EQ(exp, vm::findHighestOrderBit(static_cast<uint64_t>(1u) << i, j));
         }
     }
 }

@@ -97,7 +97,7 @@ namespace vm {
          * @param point the point to check
          * @return a value indicating the relative position of the given point
          */
-        Math::PointStatus::Type pointStatus(const vec<T,S>& point) const;
+        PointStatus::Type pointStatus(const vec<T,S>& point) const;
     };
 
     /**

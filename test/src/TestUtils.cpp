@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const float dist = fabsf(tc1[i] - tc2[i]);
             const float distRemainder = dist - floorf(dist);
             
-            if (!(Math::eq(0.0f, distRemainder) || Math::eq(1.0f, distRemainder)))
+            if (!(vm::eq(0.0f, distRemainder) || vm::eq(1.0f, distRemainder)))
                 return false;
         }
         return true;
@@ -70,7 +70,7 @@ namespace TrenchBroom {
         ASSERT_TRUE(pointExactlyIntegral(vm::vec3d(1024.0, 1204.0, 1024.0)));
         ASSERT_TRUE(pointExactlyIntegral(vm::vec3d(-10000.0, -10000.0, -10000.0)));
         
-        const double near1024 = Math::nextgreater(1024.0);
+        const double near1024 = vm::nextgreater(1024.0);
         ASSERT_FALSE(pointExactlyIntegral(vm::vec3d(1024.0, near1024, 1024.0)));
         ASSERT_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
     }

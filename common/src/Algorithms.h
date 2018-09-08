@@ -26,17 +26,10 @@
 
 // TODO 2201: refactor
 namespace vm {
-    struct Identity {
-        template<typename U>
-        constexpr auto operator()(U&& v) const noexcept -> decltype(std::forward<U>(v)) {
-            return std::forward<U>(v);
-        }
-    };
-
     template <typename T, typename I, typename F = Identity>
     T intersectPolygonWithRay(const ray<T,3>& ray, const plane<T,3>& plane, I cur, I end, const F& getPosition = F()) {
         const auto distance = intersect(ray, plane);
-        if (Math::isnan(distance)) {
+        if (isnan(distance)) {
             return distance;
         }
 
@@ -44,14 +37,14 @@ namespace vm {
         if (polygonContainsPoint(point, plane.normal, cur, end, getPosition)) {
             return distance;
         }
-        return Math::nan<T>();
+        return nan<T>();
     }
 
     template <typename T, typename I, typename F = Identity>
     T intersectPolygonWithRay(const ray<T,3>& ray, I cur, I end, const F& getPosition = F()) {
         const auto [valid, plane] = fromPoints(cur, end, getPosition);
         if (!valid) {
-            return Math::nan<T>();
+            return nan<T>();
         } else {
             return intersectPolygonWithRay(ray, plane, cur, end, getPosition);
         }
@@ -109,7 +102,7 @@ namespace vm {
 
     template <typename T>
     int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
-        if (Math::zero(v0.x()) && Math::zero(v0.y())) {
+        if (zero(v0.x()) && zero(v0.y())) {
             // the point is identical to a polygon vertex, cancel search
             return -1;
         }
@@ -129,20 +122,20 @@ namespace vm {
          */
 
         // Does Y segment covered by the given edge touch the X axis at all?
-        if (( Math::pos(v0.y()) &&  Math::pos(v1.y())) ||
-            ( Math::neg(v0.y()) &&  Math::neg(v1.y())) ||
-            (Math::zero(v0.y()) && Math::zero(v1.y()))) {
+        if (( pos(v0.y()) &&  pos(v1.y())) ||
+            ( neg(v0.y()) &&  neg(v1.y())) ||
+            (zero(v0.y()) && zero(v1.y()))) {
             return 0;
         }
 
 
         // Is segment entirely on the positive side of the X axis?
-        if (Math::pos(v0.x()) && Math::pos(v1.x())) {
+        if (pos(v0.x()) && pos(v1.x())) {
             return 1;
         }
 
         // Is segment entirely on the negative side of the X axis?
-        if (Math::neg(v0.x()) && Math::neg(v1.x())) {
+        if (neg(v0.x()) && neg(v1.x())) {
             return 0;
         }
 
@@ -150,12 +143,12 @@ namespace vm {
         const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
 
         // Is the point of intersection on the given edge?
-        if (Math::zero(x)) {
+        if (zero(x)) {
             return -1;
         }
 
         // Is the point of intersection on the positive X axis?
-        if (Math::pos(x)) {
+        if (pos(x)) {
             return 1;
         }
 
@@ -198,11 +191,11 @@ namespace vm {
                     return false;
 
                 // the points are colinear, the one that is further from the anchor is considered less
-                const T dxl = Math::abs(lhs.x() - m_anchor.x());
-                const T dxr = Math::abs(rhs.x() - m_anchor.x());
+                const T dxl = abs(lhs.x() - m_anchor.x());
+                const T dxr = abs(rhs.x() - m_anchor.x());
                 if (dxl == dxr) {
-                    const T dyl = Math::abs(lhs.y() - m_anchor.y());
-                    const T dyr = Math::abs(rhs.y() - m_anchor.y());
+                    const T dyl = abs(lhs.y() - m_anchor.y());
+                    const T dyr = abs(rhs.y() - m_anchor.y());
                     return dyl > dyr;
                 }
                 return dxl > dxr;
@@ -220,7 +213,7 @@ namespace vm {
                 m_hasResult = (thirdPointIndex < m_points.size());
 
                 if (m_hasResult) {
-                    const Math::Axis::Type axis = computeAxis(thirdPointIndex);
+                    const Axis::Type axis = computeAxis(thirdPointIndex);
                     swizzleTo(axis);
 
                     findAnchor();
@@ -251,18 +244,18 @@ namespace vm {
             return index;
         }
 
-        Math::Axis::Type computeAxis(const size_t thirdPointIndex) const {
+        Axis::Type computeAxis(const size_t thirdPointIndex) const {
             const vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
             return firstComponent(ortho);
         }
 
-        void swizzleTo(const Math::Axis::Type axis) {
+        void swizzleTo(const Axis::Type axis) {
             for (size_t i = 0; i < m_points.size(); ++i) {
                 m_points[i] = swizzle(m_points[i], axis);
             }
         }
 
-        void swizzleFrom(const Math::Axis::Type axis) {
+        void swizzleFrom(const Axis::Type axis) {
             swizzleTo(axis);
             swizzleTo(axis);
         }

@@ -32,7 +32,7 @@ TEST(QuatTest, defaultConstructor) {
 }
 
 TEST(QuatTest, rotationConstructor) {
-    const float angle(Math::radians(15.0f));
+    const float angle(vm::radians(15.0f));
     const vm::vec3f axis(normalize(vm::vec3f(1.0f, 2.0f, 3.0f)));
     const vm::quatf q(axis, angle);
     
@@ -76,7 +76,7 @@ TEST(QuatTest, rotateVecConstructor_equalVectors) {
 }
 
 TEST(QuatTest, negation) {
-    const vm::quatf q(vm::vec3f::pos_x, Math::radians(15.0f));
+    const vm::quatf q(vm::vec3f::pos_x, vm::radians(15.0f));
     const vm::quatf nq = -q;
     
     ASSERT_FLOAT_EQ(-(q.r), nq.r);
@@ -84,21 +84,21 @@ TEST(QuatTest, negation) {
 }
 
 TEST(QuatTest, scalarRightMultiplication) {
-    const vm::quatf q(vm::vec3f::pos_x, Math::radians(15.0f));
+    const vm::quatf q(vm::vec3f::pos_x, vm::radians(15.0f));
     const vm::quatf p = q * 2.0f;
     ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
 }
 
 TEST(QuatTest, scalarLeftMultiplication) {
-    const vm::quatf q(vm::vec3f::pos_x, Math::radians(15.0f));
+    const vm::quatf q(vm::vec3f::pos_x, vm::radians(15.0f));
     const vm::quatf p = 2.0f * q;
     ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
 }
 
 TEST(QuatTest, multiplication) {
-    const float angle1 = Math::radians(15.0f);
+    const float angle1 = vm::radians(15.0f);
     const vm::quatf q1(vm::vec3f::pos_z, angle1);
-    const float angle2 = Math::radians(10.0f);
+    const float angle2 = vm::radians(10.0f);
     const vm::quatf q2(vm::vec3f::pos_z, angle2);
     const vm::quatf q = q1 * q2;
     const vm::vec3f v = vm::vec3f::pos_x;
@@ -108,7 +108,7 @@ TEST(QuatTest, multiplication) {
 }
 
 TEST(QuatTest, vectorMultiplication) {
-    const float angle = Math::radians(15.0f);
+    const float angle = vm::radians(15.0f);
     const vm::quatf q(vm::vec3f::pos_z, angle);
     const vm::vec3f v = vm::vec3f::pos_x;
     const vm::vec3f w = q * v;
@@ -117,7 +117,7 @@ TEST(QuatTest, vectorMultiplication) {
 }
 
 TEST(QuatTest, angle) {
-    const float angle = Math::radians(15.0f);
+    const float angle = vm::radians(15.0f);
     const vm::quatf q(vm::vec3f::pos_z, angle);
     
     ASSERT_NEAR(angle, q.angle(), 0.001f);
@@ -125,7 +125,7 @@ TEST(QuatTest, angle) {
 
 TEST(QuatTest, axis) {
     const vm::vec3f axis = vm::vec3f::pos_z;
-    const float angle = Math::radians(15.0f);
+    const float angle = vm::radians(15.0f);
     const vm::quatf q(axis, angle);
     
     ASSERT_VEC_EQ(axis, q.axis());
@@ -133,7 +133,7 @@ TEST(QuatTest, axis) {
 
 TEST(QuatTest, conjugate) {
     const vm::vec3f axis = vm::vec3f::pos_z;
-    const float angle = Math::radians(15.0f);
+    const float angle = vm::radians(15.0f);
     const vm::quatf q(axis, angle);
     vm::quatf p = q;
     p = p.conjugate();

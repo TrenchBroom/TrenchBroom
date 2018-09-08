@@ -96,7 +96,7 @@ namespace TrenchBroom {
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
             
             const auto distance = intersect(pickRay, dragPlane);
-            if (Math::isnan(distance)) {
+            if (vm::isnan(distance)) {
                 return;
             }
 

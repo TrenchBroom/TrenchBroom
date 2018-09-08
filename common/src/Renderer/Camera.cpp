@@ -325,9 +325,9 @@ namespace TrenchBroom {
                 newDirection = normalize(newDirection);
 
                 // correct rounding errors
-                const auto cos = Math::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
+                const auto cos = vm::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const auto angle = acosf(cos);
-                if (!Math::zero(angle)) {
+                if (!vm::zero(angle)) {
                     const auto axis = normalize(cross(m_direction, newDirection));
                     rotation = vm::quatf(axis, angle);
                     offset = rotation * offset;
@@ -357,7 +357,7 @@ namespace TrenchBroom {
         FloatType Camera::pickLineSegmentHandle(const vm::ray3& pickRay, const vm::segment3& handlePosition, const FloatType handleRadius) const {
             const auto dist = distance(pickRay, handlePosition);
             if (dist.parallel) {
-                return Math::nan<FloatType>();
+                return vm::nan<FloatType>();
             }
 
             const auto pointHandlePosition = handlePosition.pointAtDistance(dist.lineDistance);
@@ -406,8 +406,8 @@ namespace TrenchBroom {
 
         void Camera::updateZoomedViewport() {
             m_zoomedViewport = Viewport(m_unzoomedViewport.x, m_unzoomedViewport.y,
-                                        static_cast<int>(Math::round(m_unzoomedViewport.width / zoom())),
-                                        static_cast<int>(Math::round(m_unzoomedViewport.height / zoom())));
+                                        static_cast<int>(vm::round(m_unzoomedViewport.width / zoom())),
+                                        static_cast<int>(vm::round(m_unzoomedViewport.height / zoom())));
         }
     }
 }

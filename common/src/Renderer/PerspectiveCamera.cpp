@@ -107,7 +107,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < 4; ++i) {
                 lineVertices[8 + 2 * i + 0] = Vertex(verts[i], color);
-                lineVertices[8 + 2 * i + 1] = Vertex(verts[Math::succ(i, 4)], color);
+                lineVertices[8 + 2 * i + 1] = Vertex(verts[vm::succ(i, 4)], color);
             }
             
             auto triangleArray = VertexArray::ref(triangleVertices);
@@ -128,8 +128,8 @@ namespace TrenchBroom {
             
             auto minDistance = std::numeric_limits<float>::max();
             for (size_t i = 0; i < 4; ++i) {
-                const auto distance = intersect(ray, position(), verts[i], verts[Math::succ(i, 4)]);
-                minDistance = Math::selectMin(distance, minDistance);
+                const auto distance = intersect(ray, position(), verts[i], verts[vm::succ(i, 4)]);
+                minDistance = vm::selectMin(distance, minDistance);
             }
             return minDistance;
         }
@@ -145,7 +145,7 @@ namespace TrenchBroom {
 
         vm::vec2f PerspectiveCamera::getFrustum() const {
             const auto& viewport = unzoomedViewport();
-            const auto v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
+            const auto v = std::tan(vm::radians(fov()) / 2.0f) * 0.75f * nearPlane();
             const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return vm::vec2f(h, v);
         }
@@ -157,7 +157,7 @@ namespace TrenchBroom {
 
         float PerspectiveCamera::viewportFrustumDistance() const {
             const auto height = static_cast<float>(unzoomedViewport().height);
-            return (height / 2.0f) / std::tan(Math::radians(m_fov) / 2.0f);
+            return (height / 2.0f) / std::tan(vm::radians(m_fov) / 2.0f);
         }
     }
 }

@@ -41,6 +41,8 @@ namespace vm {
     using polygon3 = vm::polygon<FloatType,3>;
     using bbox3 = vm::bbox<FloatType,3>;
     using bbox2 = vm::bbox<FloatType,2>;
+
+    using C = Constants<FloatType>;
 }
 
 
@@ -48,10 +50,5 @@ namespace vm {
 
 template<typename T, typename FP, typename VB> class Polyhedron;
 using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-
-
-namespace Math {
-    using C = Constants<FloatType>;
-}
 
 #endif

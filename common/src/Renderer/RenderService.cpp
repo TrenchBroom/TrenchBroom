@@ -183,10 +183,10 @@ namespace TrenchBroom {
             if (m_renderContext.render2D()) {
                 const Camera& camera = m_renderContext.camera();
                 switch (firstComponent(camera.direction())) {
-                    case Math::Axis::AX:
+                    case vm::Axis::AX:
                         m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;
-                    case Math::Axis::AY:
+                    case vm::Axis::AY:
                         m_primitiveRenderer->renderCoordinateSystemXZ(x, z, m_lineWidth, m_occlusionPolicy, bounds);
                         break;
                     default:
@@ -234,22 +234,22 @@ namespace TrenchBroom {
             renderLines(positions);
         }
 
-        void RenderService::renderCircle(const vm::vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
+        void RenderService::renderCircle(const vm::vec3f& position, const vm::Axis::Type normal, const size_t segments, const float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
             const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
             renderCircle(position, normal, segments, radius, angles.first, angles.second);
         }
         
-        void RenderService::renderCircle(const vm::vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
+        void RenderService::renderCircle(const vm::vec3f& position, const vm::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
             const vm::vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             m_primitiveRenderer->renderLineStrip(m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
         }
         
-        void RenderService::renderFilledCircle(const vm::vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
+        void RenderService::renderFilledCircle(const vm::vec3f& position, const vm::Axis::Type normal, const size_t segments, const float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
             const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
             renderFilledCircle(position, normal, segments, radius, angles.first, angles.second);
         }
         
-        void RenderService::renderFilledCircle(const vm::vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
+        void RenderService::renderFilledCircle(const vm::vec3f& position, const vm::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
             const vm::vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
         }

@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
-                    switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);
+                    switchToMapView(m_mapViews[vm::succ(i, m_mapViews.size())]);
                     focusCameraOnSelection(false);
                     break;
                 }

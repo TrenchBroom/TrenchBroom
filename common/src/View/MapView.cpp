@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return doCanFlipObjects();
         }
         
-        void MapView::flipObjects(const Math::Direction direction) {
+        void MapView::flipObjects(const vm::Direction direction) {
             assert(canFlipObjects());
             doFlipObjects(direction);
         }

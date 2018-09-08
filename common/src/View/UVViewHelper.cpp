@@ -138,10 +138,10 @@ namespace TrenchBroom {
                 const auto stripeSize = UVViewHelper::stripeSize();
                 
                 for (size_t i = 0; i < 2; ++i) {
-                    const auto closestStrip = Math::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
-                    const auto error = Math::abs(hitPointInTexCoords[i] - closestStrip);
+                    const auto closestStrip = vm::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
+                    const auto error = vm::abs(hitPointInTexCoords[i] - closestStrip);
                     if (error <= maxDistance) {
-                        const auto index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
+                        const auto index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
                         pickResult.addHit(Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
                     }
                 }
@@ -153,10 +153,10 @@ namespace TrenchBroom {
             
             vm::vec2f result;
             for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) < 4.0f / zoom)
+                if (vm::abs(distance[i]) < 4.0f / zoom)
                     result[i] = delta[i] + distance[i];
                 else
-                    result[i] = Math::round(delta[i]);
+                    result[i] = vm::round(delta[i]);
             }
             return result;
         }
@@ -229,7 +229,7 @@ namespace TrenchBroom {
             const auto& normal = m_face->boundary().normal;
             vm::vec3 right;
             
-            if (Math::lt(Math::abs(dot(vm::vec3::pos_z, normal)), 1.0)) {
+            if (vm::lt(vm::abs(dot(vm::vec3::pos_z, normal)), 1.0)) {
                 right = normalize(cross(vm::vec3::pos_z, normal));
             } else {
                 right = vm::vec3::pos_x;
@@ -266,8 +266,8 @@ namespace TrenchBroom {
             const auto boundsSize = vm::vec3f(bounds.size());
 
             auto zoom = 3.0f;
-            zoom = Math::min(zoom, w / boundsSize.x());
-            zoom = Math::min(zoom, h / boundsSize.y());
+            zoom = vm::min(zoom, w / boundsSize.x());
+            zoom = vm::min(zoom, h / boundsSize.y());
             if (zoom > 0.0f) {
                 m_camera.setZoom(zoom);
                 m_zoomValid = true;

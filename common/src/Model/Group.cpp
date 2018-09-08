@@ -168,32 +168,34 @@ namespace TrenchBroom {
             // * it is closed or has no open descendant
             // * it is top level or has an open parent
             if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
-                const FloatType distance = intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const vm::vec3 hitPoint = ray.pointAtDistance(distance);
+                const auto distance = intersectWithRay(ray);
+                if (!vm::isnan(distance)) {
+                    const auto hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
             }
         }
         
         void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
-            if (bounds().contains(point))
+            if (bounds().contains(point)) {
                 result.push_back(this);
-            
-            for (Node* child : Node::children())
+            }
+
+            for (auto* child : Node::children()) {
                 child->findNodesContaining(point, result);
+            }
         }
 
         FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
             const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
-                return Math::nan<FloatType>();
+            if (!myBounds.contains(ray.origin) && vm::isnan(intersect(ray, myBounds))) {
+                return vm::nan<FloatType>();
             }
 
             IntersectNodeWithRayVisitor visitor(ray);
             iterate(visitor);
             if (!visitor.hasResult()) {
-                return Math::nan<FloatType>();
+                return vm::nan<FloatType>();
             } else {
                 return visitor.result();
             }

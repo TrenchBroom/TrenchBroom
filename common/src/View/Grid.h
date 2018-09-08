@@ -60,7 +60,7 @@ namespace TrenchBroom {
             T snapAngle(const T a) const {
                 if (!snap())
                     return a;
-                return angle() * Math::round(a / angle());
+                return angle() * vm::round(a / angle());
             }
         public: // Snap scalars.
             template <typename T>
@@ -99,14 +99,14 @@ namespace TrenchBroom {
                 const T actSize = static_cast<T>(actualSize());
                 switch (snapDir) {
                     case SnapDir_None:
-                        return Math::snap(f, actSize);
+                        return vm::snap(f, actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s + static_cast<T>(actualSize()) : s;
+                        return (skip && vm::eq(s, f)) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && Math::eq(s, f)) ? s - static_cast<T>(actualSize()) : s;
+                        return (skip && vm::eq(s, f)) ? s - static_cast<T>(actualSize()) : s;
                     }
 					switchDefault()
                 }
@@ -150,8 +150,8 @@ namespace TrenchBroom {
                     return p;
                 vm::vec3 result;
                 for (size_t i = 0; i < S; ++i) {
-                    if (    Math::pos(d[i]))    result[i] = snapUp(p[i], skip);
-                    else if(Math::neg(d[i]))    result[i] = snapDown(p[i], skip);
+                    if (    vm::pos(d[i]))    result[i] = snapUp(p[i], skip);
+                    else if(vm::neg(d[i]))    result[i] = snapDown(p[i], skip);
                     else                        result[i] = snap(p[i]);
                 }
                 return result;
@@ -196,17 +196,17 @@ namespace TrenchBroom {
                 
                 vm::vec<T,3> result;
                 switch(firstComponent(onPlane.normal)) {
-                    case Math::Axis::AX:
+                    case vm::Axis::AX:
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
                         result[0] = onPlane.xAt(result.yz());
                         break;
-                    case Math::Axis::AY:
+                    case vm::Axis::AY:
                         result[0] = snap(p.x(), snapDirs[0], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
                         result[1] = onPlane.yAt(result.xz());
                         break;
-                    case Math::Axis::AZ:
+                    case vm::Axis::AZ:
                         result[0] = snap(p.x(), snapDirs[0], skip);
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = onPlane.zAt(result.xy());
@@ -230,7 +230,7 @@ namespace TrenchBroom {
                         const std::array<T,2> v = { {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]} };
                         for (size_t j = 0; j < 2; ++j) {
                             const T s = v[j] / line.direction[i];
-                            const T diff = Math::absDifference(s, prDist);
+                            const T diff = vm::absDifference(s, prDist);
                             if (diff < bestDiff) {
                                 result = line.pointAtDistance(s);
                                 bestDiff = diff;

@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(radius, segments, 0.0f, Math::Cf::twoPi());
+            init2D(radius, segments, 0.0f, vm::Cf::twoPi());
         }
         
         Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) :
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             init2D(radius, segments, startAngle, angleLength);
         }
         
-        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) :
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const vm::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) :
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             init3D(radius, segments, axis, angles.first, angles.second);
         }
         
-        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) :
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const vm::Axis::Type axis, const float startAngle, const float angleLength) :
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_array = VertexArray::swap(vertices);
         }
         
-        void Circle::init3D(const float radius, const size_t segments, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
+        void Circle::init3D(const float radius, const size_t segments, const vm::Axis::Type axis, const float startAngle, const float angleLength) {
             typedef VertexSpecs::P3::Vertex Vertex;
             
             vm::vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);

@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f::List circle2D(const float radius, const size_t segments) {
-            vm::vec2f::List vertices = circle2D(radius, 0.0f, Math::Cf::twoPi(), segments);
+            vm::vec2f::List vertices = circle2D(radius, 0.0f, vm::Cf::twoPi(), segments);
             vertices.push_back(vm::vec2f::zero);
             return vertices;
         }
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        vm::vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
+        vm::vec3f::List circle2D(const float radius, const vm::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
@@ -102,10 +102,10 @@ namespace TrenchBroom {
             
             size_t x,y,z;
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     x = 1; y = 2; z = 0;
                     break;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     x = 2; y = 0; z = 1;
                     break;
                 default:
@@ -125,15 +125,15 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
+        std::pair<float, float> startAngleAndLength(const vm::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
             float angle1, angle2, angleLength;
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::Axis::AX:
                     angle1 = angleBetween(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
                     angle2 = angleBetween(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
                     angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_x), angleBetween(endAxis, startAxis, vm::vec3f::pos_x));
                     break;
-                case Math::Axis::AY:
+                case vm::Axis::AY:
                     angle1 = angleBetween(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
                     angle2 = angleBetween(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
                     angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_y), angleBetween(endAxis, startAxis, vm::vec3f::pos_y));
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             }
             const float minAngle = std::min(angle1, angle2);
             const float maxAngle = std::max(angle1, angle2);
-            const float startAngle = (maxAngle - minAngle <= Math::Cf::pi() ? minAngle : maxAngle);
+            const float startAngle = (maxAngle - minAngle <= vm::Cf::pi() ? minAngle : maxAngle);
             return std::make_pair(startAngle, angleLength);
         }
 
@@ -167,7 +167,7 @@ namespace TrenchBroom {
             vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
             
-            const float angle = Math::Cf::piOverTwo() / cornerSegments;
+            const float angle = vm::Cf::piOverTwo() / cornerSegments;
             vm::vec2f center(0.0f, 0.0f);
             vm::vec2f translation;
             
@@ -396,7 +396,7 @@ namespace TrenchBroom {
             VertsAndNormals result(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             for (size_t i = 0; i < segments; i++) {
                 result.vertices[i] = vm::vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
                 result.normals[i] = vm::vec3f::pos_z;
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             VertsAndNormals result(2 * (segments + 1));
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             for (size_t i = 0; i <= segments; ++i) {
                 const float s = std::sin(a);
                 const float c = std::cos(a);
@@ -435,10 +435,10 @@ namespace TrenchBroom {
             VertsAndNormals result(3 * (segments + 1));
             
             const float t = std::atan(length / radius);
-            const float n = std::cos(Math::Cf::piOverTwo() - t);
+            const float n = std::cos(vm::Cf::piOverTwo() - t);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             float lastS = std::sin(a);
             float lastC = std::cos(a);
             a += d;
