@@ -58,10 +58,10 @@ namespace TrenchBroom {
         
         class CompareHitsBySize : public CompareHits {
         private:
-            const vm::Axis::Type m_axis;
+            const vm::axis::type m_axis;
             CompareHitsByDistance m_compareByDistance;
         public:
-            CompareHitsBySize(vm::Axis::Type axis);
+            CompareHitsBySize(vm::axis::type axis);
         private:
             int doCompare(const Hit& lhs, const Hit& rhs) const override;
             FloatType getSize(const Hit& hit) const;

@@ -107,7 +107,7 @@ namespace vm {
          * @param axis the axis
          * @return the missing component to transform the given point to the point of intersection
          */
-        T at(const vec<T,S-1>& point, const Axis::Type axis) const;
+        T at(const vec<T,S-1>& point, const axis::type axis) const;
 
         T xAt(const vec<T,S-1>& point) const;
 
@@ -132,7 +132,7 @@ namespace vm {
          * @param epsilon an epsilon value (the maximum absolute distance up to which a point will be considered to be inside)
          * @return a value indicating the point status
          */
-        PointStatus::Type pointStatus(const vec<T,S>& point, T epsilon = Constants<T>::pointStatusEpsilon()) const;
+        point_status pointStatus(const vec<T,S>& point, T epsilon = constants<T>::pointStatusEpsilon()) const;
 
         /**
          * Flips this plane by negating its normal.
@@ -258,7 +258,7 @@ namespace vm {
      * @return a pair of a boolean indicating whether the plane is valid, and the normal
      */
     template <typename T>
-    std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, T epsilon = Constants<T>::angleEpsilon());
+    std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, T epsilon = constants<T>::angleEpsilon());
 
     /**
      * Creates a new plane from the given plane in three point form. Thereby, the orientation of the plane is derived

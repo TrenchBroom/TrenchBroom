@@ -177,7 +177,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::Constants<FloatType>::almostZero());
+                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::constants<FloatType>::almostZero());
             }
         };
         

@@ -142,7 +142,7 @@ String Polyhedron<T,FP,VP>::HalfEdge::asString() const {
 }
 
 template <typename T, typename FP, typename VP>
-vm::PointStatus::Type Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
+vm::point_status Polyhedron<T,FP,VP>::HalfEdge::pointStatus(const V& faceNormal, const V& point) const {
     const auto normal = normalize(cross(normalize(vector()), faceNormal));
     const auto plane = vm::plane<T,3>(origin()->position(), normal);
     return plane.pointStatus(point);

@@ -42,7 +42,7 @@ namespace TrenchBroom {
             m_angle->SetValue(vm::degrees(m_tool->angle()));
         }
         
-        void RotateObjectsToolPage::setAxis(const vm::Axis::Type axis) {
+        void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 

@@ -32,10 +32,10 @@ namespace TrenchBroom {
         class SelectionBoundsRenderer::SizeTextAnchor2D : public TextAnchor3D {
         private:
             const vm::bbox3& m_bounds;
-            const vm::Axis::Type m_axis;
+            const vm::axis::type m_axis;
             const Camera& m_camera;
         public:
-            SizeTextAnchor2D(const vm::bbox3& bounds, const vm::Axis::Type axis, const Renderer::Camera& camera) :
+            SizeTextAnchor2D(const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera) :
             m_bounds(bounds),
             m_axis(axis),
             m_camera(camera) {}
@@ -48,9 +48,9 @@ namespace TrenchBroom {
             }
             
             TextAlignment::Type alignment() const override {
-                if (m_axis == vm::Axis::AX) {
+                if (m_axis == vm::axis::x) {
                     return TextAlignment::Top;
-                } else if (m_axis == vm::Axis::AY && m_camera.direction().x() != 0.0f) {
+                } else if (m_axis == vm::axis::y && m_camera.direction().x() != 0.0f) {
                     return TextAlignment::Top;
                 } else {
                     return TextAlignment::Right;
@@ -78,10 +78,10 @@ namespace TrenchBroom {
         class SelectionBoundsRenderer::SizeTextAnchor3D : public TextAnchor3D {
         private:
             const vm::bbox3& m_bounds;
-            const vm::Axis::Type m_axis;
+            const vm::axis::type m_axis;
             const Camera& m_camera;
         public:
-            SizeTextAnchor3D(const vm::bbox3& bounds, const vm::Axis::Type axis, const Renderer::Camera& camera) :
+            SizeTextAnchor3D(const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera) :
             m_bounds(bounds),
             m_axis(axis),
             m_camera(camera) {}
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 vm::vec3 pos;
                 const auto half = m_bounds.size() / 2.0;
                 
-                if (m_axis == vm::Axis::AZ) {
+                if (m_axis == vm::axis::z) {
                     if ((camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::less) ||
                         (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::within)) {
                         pos[0] = m_bounds.min.x();
@@ -112,7 +112,7 @@ namespace TrenchBroom {
                     
                     pos[2] = m_bounds.min.z() + half.z();
                 } else {
-                    if (m_axis == vm::Axis::AX) {
+                    if (m_axis == vm::axis::x) {
                         pos[0] = m_bounds.min.x() + half.x();
                         if (       camPos[0] == vm::bbox3::Range::less    && camPos[1] == vm::bbox3::Range::less) {
                             pos[1] = camPos[2] == vm::bbox3::Range::within ? m_bounds.min.y() : m_bounds.max.y();
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             }
             
             TextAlignment::Type alignment() const override {
-                if (m_axis == vm::Axis::AZ) {
+                if (m_axis == vm::axis::z) {
                     return TextAlignment::Right;
                 }
 

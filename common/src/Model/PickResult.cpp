@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return PickResult(editorContext, compare);
         }
 
-        PickResult PickResult::bySize(const EditorContext& editorContext, const vm::Axis::Type axis) {
+        PickResult PickResult::bySize(const EditorContext& editorContext, const vm::axis::type axis) {
             return PickResult(editorContext, new CompareHitsBySize(axis));
         }
 

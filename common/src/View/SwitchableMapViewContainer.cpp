@@ -313,7 +313,7 @@ namespace TrenchBroom {
             return m_mapView->canFlipObjects();
         }
         
-        void SwitchableMapViewContainer::doFlipObjects(const vm::Direction direction) {
+        void SwitchableMapViewContainer::doFlipObjects(const vm::direction direction) {
             m_mapView->flipObjects(direction);
         }
         

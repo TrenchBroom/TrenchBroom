@@ -258,19 +258,19 @@ namespace TrenchBroom {
             moveCameraToPosition(position, true);
         }
 
-        vm::vec3 MapView2D::doGetMoveDirection(const vm::Direction direction) const {
+        vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const {
             switch (direction) {
-                case vm::Direction_Forward:
+                case vm::direction::forward:
                     return vm::vec3(firstAxis(m_camera.direction()));
-                case vm::Direction_Backward:
+                case vm::direction::backward:
                     return vm::vec3(-firstAxis(m_camera.direction()));
-                case vm::Direction_Left:
+                case vm::direction::left:
                     return vm::vec3(-firstAxis(m_camera.right()));
-                case vm::Direction_Right:
+                case vm::direction::right:
                     return vm::vec3(firstAxis(m_camera.right()));
-                case vm::Direction_Up:
+                case vm::direction::up:
                     return vm::vec3(firstAxis(m_camera.up()));
-                case vm::Direction_Down:
+                case vm::direction::down:
                     return vm::vec3(-firstAxis(m_camera.up()));
                 switchDefault()
             }

@@ -26,7 +26,7 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
-// TODO 2201: move vm types into vm namespace?
+// TODO 2201: rename this to ftype or something shorter?
 using FloatType = double;
 
 namespace vm {
@@ -42,7 +42,7 @@ namespace vm {
     using bbox3 = vm::bbox<FloatType,3>;
     using bbox2 = vm::bbox<FloatType,2>;
 
-    using C = Constants<FloatType>;
+    using C = constants<FloatType>;
 }
 
 

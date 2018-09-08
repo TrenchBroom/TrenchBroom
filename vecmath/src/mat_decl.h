@@ -230,7 +230,7 @@ namespace vm {
      * @return true if all columsn of the given matrix are zero
      */
     template <typename T, size_t R, size_t C>
-    bool isZero(const mat<T,R,C>& m, T epsilon = Constants<T>::almostZero());
+    bool isZero(const mat<T,R,C>& m, T epsilon = constants<T>::almostZero());
 
     /**
      * Returns a matrix with the negated components of the given matrix.
@@ -624,7 +624,7 @@ namespace vm {
      * @return the mirroring axis
      */
     template <typename T>
-    mat<T,4,4> mirrorMatrix(Axis::Type axis);
+    mat<T,4,4> mirrorMatrix(axis::type axis);
 
     /**
      * Returns a matrix that transforms to a coordinate system specified by the given axes and offset.

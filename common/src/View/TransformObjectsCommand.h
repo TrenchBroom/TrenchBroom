@@ -52,7 +52,7 @@ namespace TrenchBroom {
             static Ptr scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, const bool lockTextures);
             static Ptr scale(const vm::vec3& center, const vm::vec3& scaleFactors, const bool lockTextures);
             static Ptr shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, const bool lockTextures);
-            static Ptr flip(const vm::vec3& center, vm::Axis::Type axis, bool lockTextures);
+            static Ptr flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
         private:
             TransformObjectsCommand(Action action, const String& name, const vm::mat4x4& transform, bool lockTextures);
 

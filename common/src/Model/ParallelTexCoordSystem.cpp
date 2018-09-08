@@ -318,11 +318,11 @@ namespace TrenchBroom {
 
         void ParallelTexCoordSystem::computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const {
             switch (firstComponent(normal)) {
-                case vm::Axis::AX:
-                case vm::Axis::AY:
+                case vm::axis::x:
+                case vm::axis::y:
                     xAxis = normalize(cross(vm::vec3::pos_z, normal));
                     break;
-                case vm::Axis::AZ:
+                case vm::axis::z:
                     xAxis = normalize(cross(vm::vec3::pos_y, normal));
                     break;
             }

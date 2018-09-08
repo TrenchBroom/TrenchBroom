@@ -641,13 +641,13 @@ namespace vm {
     }
 
     template <typename T>
-    mat<T,4,4> mirrorMatrix(const Axis::Type axis) {
+    mat<T,4,4> mirrorMatrix(const axis::type axis) {
         switch (axis) {
-            case Axis::AX:
+            case axis::x:
                 return mat<T,4,4>::mirror_x;
-            case Axis::AY:
+            case axis::y:
                 return mat<T,4,4>::mirror_y;
-            case Axis::AZ:
+            case axis::z:
                 return mat<T,4,4>::mirror_z;
             default:
                 return mat<T,4,4>::identity;
@@ -673,7 +673,7 @@ namespace vm {
         vec<T,3> xAxis;
 
         switch (firstComponent(normal)) {
-            case Axis::AX:
+            case axis::x:
                 xAxis = normalize(cross(normal, vec<T, 3>::pos_z));
                 break;
             default:

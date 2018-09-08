@@ -214,16 +214,16 @@ TEST(VecTest, vec3fFill) {
 }
 
 TEST(VecTest, vec3fMajorComponent) {
-    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f::pos_x, 0));
-    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f::neg_x, 0));
-    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f::pos_y, 0));
-    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f::neg_y, 0));
-    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f::pos_z, 0));
-    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f::neg_z, 0));
+    ASSERT_EQ(vm::axis::x, majorComponent(vm::vec3f::pos_x, 0));
+    ASSERT_EQ(vm::axis::x, majorComponent(vm::vec3f::neg_x, 0));
+    ASSERT_EQ(vm::axis::y, majorComponent(vm::vec3f::pos_y, 0));
+    ASSERT_EQ(vm::axis::y, majorComponent(vm::vec3f::neg_y, 0));
+    ASSERT_EQ(vm::axis::z, majorComponent(vm::vec3f::pos_z, 0));
+    ASSERT_EQ(vm::axis::z, majorComponent(vm::vec3f::neg_z, 0));
     
-    ASSERT_EQ(vm::Axis::AX, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 0));
-    ASSERT_EQ(vm::Axis::AZ, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 1));
-    ASSERT_EQ(vm::Axis::AY, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 2));
+    ASSERT_EQ(vm::axis::x, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 0));
+    ASSERT_EQ(vm::axis::z, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 1));
+    ASSERT_EQ(vm::axis::y, majorComponent(vm::vec3f(3.0f, -1.0f, 2.0f), 2));
 }
 
 TEST(VecTest, vec3fMajorAxis) {

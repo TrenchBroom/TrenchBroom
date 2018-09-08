@@ -297,7 +297,7 @@ namespace TrenchBroom {
             bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) override;
             bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) override;
             bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) override;
-            bool flipObjects(const vm::vec3& center, vm::Axis::Type axis) override;
+            bool flipObjects(const vm::vec3& center, vm::axis::type axis) override;
         public:
             bool createBrush(const vm::vec3::List& points);
             bool csgConvexMerge();

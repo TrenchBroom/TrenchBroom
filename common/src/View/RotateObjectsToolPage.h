@@ -49,7 +49,7 @@ namespace TrenchBroom {
             wxButton* m_rotateButton;
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
-            void setAxis(vm::Axis::Type axis);
+            void setAxis(vm::axis::type axis);
             void setRecentlyUsedCenters(const vm::vec3::List& centers);
             void setCurrentCenter(const vm::vec3& center);
         private:

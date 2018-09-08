@@ -140,9 +140,9 @@ TEST(IntersectionTest, intersectPlaneAndPlane_similar) {
 }
 
 bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line) {
-    if (plane.pointStatus(line.point) != vm::PointStatus::PSInside){
+    if (plane.pointStatus(line.point) != vm::point_status::inside){
         return false;
-    } else if (plane.pointStatus(line.pointAtDistance(16.0f)) != vm::PointStatus::PSInside) {
+    } else if (plane.pointStatus(line.pointAtDistance(16.0f)) != vm::point_status::inside) {
         return false;
     } else {
         return true;

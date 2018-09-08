@@ -55,13 +55,13 @@ namespace TrenchBroom {
             
             auto hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             switch (firstComponent(camera.direction())) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
                     break;
-                case vm::Axis::AZ:
+                case vm::axis::z:
                 default:
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
                     break;
@@ -148,11 +148,11 @@ namespace TrenchBroom {
             
             const auto viewDirection = camera.direction();
             switch (firstComponent(viewDirection)) {
-                case vm::Axis::AX:
-                case vm::Axis::AZ:
+                case vm::axis::x:
+                case vm::axis::z:
                     renderService.renderHandle(vm::vec3f(m_position) + radius * camera.right());
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     renderService.renderHandle(vm::vec3f(m_position) + radius * camera.up());
                     break;
                switchDefault()
@@ -171,11 +171,11 @@ namespace TrenchBroom {
             renderService.renderCoordinateSystem(vm::bbox3f(radius).translate(vm::vec3f(m_position)));
             
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::Axis::AX, 64, radius, zAxis, yAxis);
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
             renderService.setForegroundColor(pref(Preferences::YAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::Axis::AY, 64, radius, xAxis, zAxis);
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
             renderService.setForegroundColor(pref(Preferences::ZAxisColor));
-            renderService.renderCircle(vm::vec3f(m_position), vm::Axis::AZ, 64, radius, xAxis, yAxis);
+            renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
 
             /*
             renderService.renderCircle(m_position, vm::Axis::AX, 8, radius,

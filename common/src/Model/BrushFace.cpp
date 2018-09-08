@@ -171,7 +171,7 @@ namespace TrenchBroom {
 
         bool BrushFace::arePointsOnPlane(const vm::plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
-                if (plane.pointStatus(m_points[i]) != vm::PointStatus::PSInside)
+                if (plane.pointStatus(m_points[i]) != vm::point_status::inside)
                     return false;
             return true;
         }
@@ -211,28 +211,28 @@ namespace TrenchBroom {
             return fromPlane * bounds.center();
         }
 
-        FloatType BrushFace::area(const vm::Axis::Type axis) const {
+        FloatType BrushFace::area(const vm::axis::type axis) const {
             const BrushHalfEdge* first = m_geometry->boundary().front();
             const BrushHalfEdge* current = first;
 
             FloatType c1 = 0.0;
             FloatType c2 = 0.0;
             switch (axis) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     do {
                         c1 += current->origin()->position().y() * current->next()->origin()->position().z();
                         c2 += current->origin()->position().z() * current->next()->origin()->position().y();
                         current = current->next();
                     } while (current != first);
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     do {
                         c1 += current->origin()->position().z() * current->next()->origin()->position().x();
                         c2 += current->origin()->position().x() * current->next()->origin()->position().z();
                         current = current->next();
                     } while (current != first);
                     break;
-                case vm::Axis::AZ:
+                case vm::axis::z:
                     do {
                         c1 += current->origin()->position().x() * current->next()->origin()->position().y();
                         c2 += current->origin()->position().y() * current->next()->origin()->position().x();

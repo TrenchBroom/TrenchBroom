@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        vm::vec3f::List circle2D(const float radius, const vm::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
+        vm::vec3f::List circle2D(const float radius, const vm::axis::type axis, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
@@ -102,10 +102,10 @@ namespace TrenchBroom {
             
             size_t x,y,z;
             switch (axis) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     x = 1; y = 2; z = 0;
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     x = 2; y = 0; z = 1;
                     break;
                 default:
@@ -125,15 +125,15 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        std::pair<float, float> startAngleAndLength(const vm::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
+        std::pair<float, float> startAngleAndLength(const vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
             float angle1, angle2, angleLength;
             switch (axis) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     angle1 = angleBetween(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
                     angle2 = angleBetween(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
                     angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_x), angleBetween(endAxis, startAxis, vm::vec3f::pos_x));
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     angle1 = angleBetween(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
                     angle2 = angleBetween(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
                     angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_y), angleBetween(endAxis, startAxis, vm::vec3f::pos_y));

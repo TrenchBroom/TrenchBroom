@@ -134,7 +134,7 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points) {
             points[0] = round(plane.anchor());
             switch (firstComponent(plane.normal)) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     if (plane.normal.x() > 0.0) {
                         points[1] = points[0] + 64.0 * vm::vec3::pos_z;
                         points[2] = points[0] + 64.0 * vm::vec3::pos_y;
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                         points[2] = points[0] + 64.0 * vm::vec3::pos_z;
                     }
                     break;
-                case vm::Axis::AY:
+                case vm::axis::y:
                     if (plane.normal.y() > 0.0) {
                         points[1] = points[0] + 64.0 * vm::vec3::pos_x;
                         points[2] = points[0] + 64.0 * vm::vec3::pos_z;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            const vm::Axis::Type axis = firstComponent(plane.normal);
+            const vm::axis::type axis = firstComponent(plane.normal);
             const vm::plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
             for (size_t i = 0; i < 3; ++i)
                 points[i] = swizzle(points[i], axis);

@@ -44,7 +44,7 @@ namespace TrenchBroom {
         extern Preference<Color> PortalFileBorderColor;
         extern Preference<Color> PortalFileFillColor;
         
-        Preference<Color>& axisColor(vm::Axis::Type axis);
+        Preference<Color>& axisColor(vm::axis::type axis);
         
         extern Preference<Color> CompassBackgroundColor;
         extern Preference<Color> CompassBackgroundOutlineColor;

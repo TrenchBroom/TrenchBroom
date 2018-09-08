@@ -106,7 +106,7 @@ namespace TrenchBroom {
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
-            vm::vec3 doGetMoveDirection(vm::Direction direction) const override;
+            vm::vec3 doGetMoveDirection(vm::direction direction) const override;
             vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const override;
             
             ActionContext doGetActionContext() const override;

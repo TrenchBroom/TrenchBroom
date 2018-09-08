@@ -213,7 +213,7 @@ namespace vm {
                 m_hasResult = (thirdPointIndex < m_points.size());
 
                 if (m_hasResult) {
-                    const Axis::Type axis = computeAxis(thirdPointIndex);
+                    const axis::type axis = computeAxis(thirdPointIndex);
                     swizzleTo(axis);
 
                     findAnchor();
@@ -244,18 +244,18 @@ namespace vm {
             return index;
         }
 
-        Axis::Type computeAxis(const size_t thirdPointIndex) const {
+        axis::type computeAxis(const size_t thirdPointIndex) const {
             const vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
             return firstComponent(ortho);
         }
 
-        void swizzleTo(const Axis::Type axis) {
+        void swizzleTo(const axis::type axis) {
             for (size_t i = 0; i < m_points.size(); ++i) {
                 m_points[i] = swizzle(m_points[i], axis);
             }
         }
 
-        void swizzleFrom(const Axis::Type axis) {
+        void swizzleFrom(const axis::type axis) {
             swizzleTo(axis);
             swizzleTo(axis);
         }

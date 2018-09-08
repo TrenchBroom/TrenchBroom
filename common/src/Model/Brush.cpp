@@ -347,7 +347,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::vec3& normal) const {
             for (auto* face : m_faces) {
-                if (isEqual(face->boundary().normal, normal, vm::Constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary().normal, normal, vm::constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
@@ -356,7 +356,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::plane3& boundary) const {
             for (auto* face : m_faces) {
-                if (isEqual(face->boundary(), boundary, vm::Constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary(), boundary, vm::constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
@@ -681,7 +681,7 @@ namespace TrenchBroom {
                 return false;
             } else {
                 for (const auto* face : m_faces) {
-                    if (face->boundary().pointStatus(point) == vm::PointStatus::PSAbove) {
+                    if (face->boundary().pointStatus(point) == vm::point_status::above) {
                         return false;
                     }
                 }
@@ -715,7 +715,7 @@ namespace TrenchBroom {
             result.reserve(vertexPositions.size());
 
             for (const auto& position : vertexPositions) {
-                const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::Constants<FloatType>::almostZero());
+                const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::constants<FloatType>::almostZero());
                 if (newVertex != nullptr) {
                     result.push_back(newVertex->position());
                 }
@@ -738,7 +738,7 @@ namespace TrenchBroom {
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
 
-            auto* newVertex = m_geometry->findClosestVertex(position, vm::Constants<FloatType>::almostZero());
+            auto* newVertex = m_geometry->findClosestVertex(position, vm::constants<FloatType>::almostZero());
             ensure(newVertex != nullptr, "vertex could not be added");
             return newVertex;
         }
@@ -852,7 +852,7 @@ namespace TrenchBroom {
             result.reserve(edgePositions.size());
 
             for (const auto& edgePosition : edgePositions) {
-                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, vm::Constants<FloatType>::almostZero());
+                const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, vm::constants<FloatType>::almostZero());
                 if (newEdge != nullptr) {
                     result.push_back(vm::segment3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
                 }
@@ -893,7 +893,7 @@ namespace TrenchBroom {
             result.reserve(facePositions.size());
 
             for (const auto& facePosition : facePositions) {
-                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::Constants<FloatType>::almostZero());
+                const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::constants<FloatType>::almostZero());
                 if (newFace != nullptr) {
                     result.push_back(vm::polygon3(newFace->vertexPositions()));
                 }
@@ -1012,10 +1012,10 @@ namespace TrenchBroom {
                 const auto newPos = oldPos + delta;
 
                 for (const auto* face : remaining.faces()) {
-                    if (face->pointStatus(oldPos) == vm::PointStatus::PSBelow &&
-                        face->pointStatus(newPos) == vm::PointStatus::PSAbove) {
-                        const vm::ray3 ray(oldPos, normalize(newPos - oldPos));
-                        const auto distance = face->intersectWithRay(ray, vm::Side_Back);
+                    if (face->pointStatus(oldPos) == vm::point_status::below &&
+                        face->pointStatus(newPos) == vm::point_status::above) {
+                        const auto ray = vm::ray3(oldPos, normalize(newPos - oldPos));
+                        const auto distance = face->intersectWithRay(ray, vm::side::back);
                         if (!vm::isNan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();
                         }
@@ -1049,7 +1049,7 @@ namespace TrenchBroom {
                 const auto& oldPosition = oldVertex->position();
                 const auto moved = vertexSet.count(oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
-                const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::Constants<FloatType>::almostZero());
+                const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::constants<FloatType>::almostZero());
                 if (newVertex != nullptr) {
                     vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
                 }

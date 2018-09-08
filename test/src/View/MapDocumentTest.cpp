@@ -115,7 +115,7 @@ namespace TrenchBroom {
             vm::vec3 boundsCenter = document->selectionBounds().center();
             ASSERT_EQ(vm::vec3(15.5, 15.5, 15.5), boundsCenter);
             
-            document->flipObjects(boundsCenter, vm::Axis::AX);
+            document->flipObjects(boundsCenter, vm::axis::x);
             
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);

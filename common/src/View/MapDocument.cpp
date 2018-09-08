@@ -1011,7 +1011,7 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::flipObjects(const vm::vec3& center, const vm::Axis::Type axis) {
+        bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis) {
             return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
         

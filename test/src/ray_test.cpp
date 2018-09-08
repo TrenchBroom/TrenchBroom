@@ -31,7 +31,7 @@ TEST(RayTest, pointAtDistance) {
 
 TEST(RayTest, pointStatus) {
     const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
-    ASSERT_EQ(vm::PointStatus::PSAbove, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 1.0f)));
-    ASSERT_EQ(vm::PointStatus::PSInside, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 0.0f)));
-    ASSERT_EQ(vm::PointStatus::PSBelow, ray.pointStatus(vm::vec3f(0.0f, 0.0f, -1.0f)));
+    ASSERT_EQ(vm::point_status::above, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 1.0f)));
+    ASSERT_EQ(vm::point_status::inside, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 0.0f)));
+    ASSERT_EQ(vm::point_status::below, ray.pointStatus(vm::vec3f(0.0f, 0.0f, -1.0f)));
 }

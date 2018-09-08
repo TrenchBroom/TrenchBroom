@@ -1485,7 +1485,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_mapView->flipObjects(vm::Direction_Left);
+                m_mapView->flipObjects(vm::direction::left);
             }
         }
 
@@ -1493,7 +1493,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_mapView->flipObjects(vm::Direction_Up);
+                m_mapView->flipObjects(vm::direction::up);
             }
         }
 

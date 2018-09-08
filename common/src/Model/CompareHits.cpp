@@ -73,7 +73,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        CompareHitsBySize::CompareHitsBySize(const vm::Axis::Type axis) : m_axis(axis) {}
+        CompareHitsBySize::CompareHitsBySize(const vm::axis::type axis) : m_axis(axis) {}
         
         int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const {
             const FloatType lhsSize = getSize(lhs);

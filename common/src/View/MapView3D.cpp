@@ -506,9 +506,9 @@ namespace TrenchBroom {
             animateCamera(position, direction, vm::vec3f::pos_z);
         }
 
-        vm::vec3 MapView3D::doGetMoveDirection(const vm::Direction direction) const {
+        vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
             switch (direction) {
-                case vm::Direction_Forward: {
+                case vm::direction::forward: {
                     const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
                     if (isZero(projectedDirection)) {
@@ -521,20 +521,20 @@ namespace TrenchBroom {
                     }
                     return firstAxis(projectedDirection);
                 }
-                case vm::Direction_Backward:
-                    return -doGetMoveDirection(vm::Direction_Forward);
-                case vm::Direction_Left:
-                    return -doGetMoveDirection(vm::Direction_Right);
-                case vm::Direction_Right: {
+                case vm::direction::backward:
+                    return -doGetMoveDirection(vm::direction::forward);
+                case vm::direction::left:
+                    return -doGetMoveDirection(vm::direction::right);
+                case vm::direction::right: {
                     auto dir = vm::vec3(firstAxis(m_camera.right()));
-                    if (dir == doGetMoveDirection(vm::Direction_Forward)) {
+                    if (dir == doGetMoveDirection(vm::direction::forward)) {
                         dir = cross(dir, vm::vec3::pos_z);
                     }
                     return dir;
                 }
-                case vm::Direction_Up:
+                case vm::direction::up:
                     return vm::vec3::pos_z;
-                case vm::Direction_Down:
+                case vm::direction::down:
                     return vm::vec3::neg_z;
                 switchDefault()
             }

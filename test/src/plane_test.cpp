@@ -65,9 +65,9 @@ TEST(PlaneTest, intersectWithRay) {
 
 TEST(PlaneTest, pointStatus) {
     const vm::plane3f p(10.0f, vm::vec3f::pos_z);
-    ASSERT_EQ(vm::PointStatus::PSAbove, p.pointStatus(vm::vec3f(0.0f, 0.0f, 11.0f)));
-    ASSERT_EQ(vm::PointStatus::PSBelow, p.pointStatus(vm::vec3f(0.0f, 0.0f, 9.0f)));
-    ASSERT_EQ(vm::PointStatus::PSInside, p.pointStatus(vm::vec3f(0.0f, 0.0f, 10.0f)));
+    ASSERT_EQ(vm::point_status::above, p.pointStatus(vm::vec3f(0.0f, 0.0f, 11.0f)));
+    ASSERT_EQ(vm::point_status::below, p.pointStatus(vm::vec3f(0.0f, 0.0f, 9.0f)));
+    ASSERT_EQ(vm::point_status::inside, p.pointStatus(vm::vec3f(0.0f, 0.0f, 10.0f)));
 }
 
 TEST(PlaneTest, pointDistance) {
@@ -81,12 +81,12 @@ TEST(PlaneTest, pointDistance) {
 TEST(PlaneTest, valueAtParallelPlanes) {
     const vm::plane3f p1(10.0f, vm::vec3f::pos_x);
     
-    ASSERT_FLOAT_EQ(p1.distance, p1.at(vm::vec2f(2.0f, 1.0f), vm::Axis::AX));
-    ASSERT_FLOAT_EQ(p1.distance, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::Axis::AX));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(2.0f, 1.0f), vm::Axis::AY));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::Axis::AY));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(2.0f, 1.0f), vm::Axis::AZ));
-    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::Axis::AZ));
+    ASSERT_FLOAT_EQ(p1.distance, p1.at(vm::vec2f(2.0f, 1.0f), vm::axis::x));
+    ASSERT_FLOAT_EQ(p1.distance, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::axis::x));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(2.0f, 1.0f), vm::axis::y));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::axis::y));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(2.0f, 1.0f), vm::axis::z));
+    ASSERT_FLOAT_EQ(0.0f, p1.at(vm::vec2f(22.0f, -34322.0232f), vm::axis::z));
 }
 
 TEST(PlaneTest, valueAt) {
@@ -95,12 +95,12 @@ TEST(PlaneTest, valueAt) {
     const vm::plane3f p(a, n);
     const vm::vec2f point1(27.022f, -12.0123223f);
     
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[vm::Axis::AX],
-                    p.at(point1, vm::Axis::AX));
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[vm::Axis::AY],
-                    p.at(point1, vm::Axis::AY));
-    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[vm::Axis::AZ],
-                    p.at(point1, vm::Axis::AZ));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[vm::axis::x],
+                    p.at(point1, vm::axis::x));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[vm::axis::y],
+                    p.at(point1, vm::axis::y));
+    ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[vm::axis::z],
+                    p.at(point1, vm::axis::z));
 }
 
 TEST(PlaneTest, xYZValueAt) {
@@ -109,17 +109,17 @@ TEST(PlaneTest, xYZValueAt) {
     const vm::plane3f p(a, n);
     const vm::vec2f point1(27.022f, -12.0123223f);
     
-    ASSERT_FLOAT_EQ(p.at(point1, vm::Axis::AX), p.xAt(point1));
-    ASSERT_FLOAT_EQ(p.at(point1, vm::Axis::AY), p.yAt(point1));
-    ASSERT_FLOAT_EQ(p.at(point1, vm::Axis::AZ), p.zAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, vm::axis::x), p.xAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, vm::axis::y), p.yAt(point1));
+    ASSERT_FLOAT_EQ(p.at(point1, vm::axis::z), p.zAt(point1));
 }
 
 TEST(PlaneTest, isEqual) {
-    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_x), vm::Constants<float>::almostZero()));
-    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_y), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
-    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_z), vm::plane3f(0.0f, vm::vec3f::pos_z), vm::Constants<float>::almostZero()));
-    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::neg_x), vm::Constants<float>::almostZero()));
-    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_x), vm::constants<float>::almostZero()));
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_y), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::constants<float>::almostZero()));
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_z), vm::plane3f(0.0f, vm::vec3f::pos_z), vm::constants<float>::almostZero()));
+    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::neg_x), vm::constants<float>::almostZero()));
+    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::constants<float>::almostZero()));
 }
 
 TEST(PlaneTest, transform) {
@@ -137,7 +137,7 @@ TEST(PlaneTest, fromPoints) {
     bool valid;
     vm::plane3f plane;
     std::array<vm::vec3f, 3> points;
-    const float epsilon = vm::Constants<float>::pointStatusEpsilon();
+    const float epsilon = vm::constants<float>::pointStatusEpsilon();
 
     points[0] = vm::vec3f(0.0f, 0.0f, 0.0f);
     points[1] = vm::vec3f(0.0f, 1.0f, 0.0f);
@@ -233,7 +233,7 @@ TEST(PlaneTest, fromPoints) {
 TEST(PlaneTest, horizontalPlane) {
     const vm::vec3f position(322.0f, -122.2392f, 34.0f);
     const vm::plane3f p = horizontalPlane(position);
-    ASSERT_TRUE(p.pointStatus(position) == vm::PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == vm::point_status::inside);
     ASSERT_VEC_EQ(vm::vec3f::pos_z, p.normal);
 }
 
@@ -241,7 +241,7 @@ TEST(PlaneTest, orthogonalPlane) {
     const vm::vec3f position(322.0f, -122.2392f, 34.0f);
     const vm::vec3f direction = normalize(vm::vec3f(1.0f, 2.0f, -3.0f));
     const vm::plane3f p = orthogonalPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == vm::PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == vm::point_status::inside);
     ASSERT_VEC_EQ(direction, p.normal);
 }
 
@@ -249,6 +249,6 @@ TEST(PlaneTest, alignedOrthogonalPlane) {
     const vm::vec3f position(322.0f, -122.2392f, 34.0f);
     const vm::vec3f direction = normalize(vm::vec3f(1.0f, 2.0f, -3.0f));
     const vm::plane3f p = alignedOrthogonalPlane(position, direction);
-    ASSERT_TRUE(p.pointStatus(position) == vm::PointStatus::PSInside);
+    ASSERT_TRUE(p.pointStatus(position) == vm::point_status::inside);
     ASSERT_VEC_EQ(firstAxis(direction), p.normal);
 }

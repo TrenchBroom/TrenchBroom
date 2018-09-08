@@ -46,7 +46,7 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    T plane<T,S>::at(const vec<T,S-1>& point, const Axis::Type axis) const {
+    T plane<T,S>::at(const vec<T,S-1>& point, const axis::type axis) const {
         if (isZero(normal[axis])) {
             return static_cast<T>(0.0);
         }
@@ -63,17 +63,17 @@ namespace vm {
 
     template <typename T, size_t S>
     T plane<T,S>::xAt(const vec<T,S-1>& point) const {
-        return at(point, Axis::AX);
+        return at(point, axis::x);
     }
 
     template <typename T, size_t S>
     T plane<T,S>::yAt(const vec<T,S-1>& point) const {
-        return at(point, Axis::AY);
+        return at(point, axis::y);
     }
 
     template <typename T, size_t S>
     T plane<T,S>::zAt(const vec<T,S-1>& point) const {
-        return at(point, Axis::AZ);
+        return at(point, axis::z);
     }
 
     template <typename T, size_t S>
@@ -82,14 +82,14 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    PointStatus::Type plane<T,S>::pointStatus(const vec<T,S>& point, const T epsilon) const {
+    point_status plane<T,S>::pointStatus(const vec<T,S>& point, const T epsilon) const {
         const auto dist = pointDistance(point);
         if (dist >  epsilon) {
-            return PointStatus::PSAbove;
+            return point_status::above;
         } else if (dist < -epsilon) {
-            return PointStatus::PSBelow;
+            return point_status::below;
         } else {
-            return PointStatus::PSInside;
+            return point_status::inside;
         }
     }
 

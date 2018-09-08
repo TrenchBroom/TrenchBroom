@@ -178,7 +178,7 @@ namespace vm {
          * @param maxDistance the maximal distance
          * @return true if the two segments are colinear and their distance is at most the given value
          */
-        bool colinear(const T maxDistance = Constants<T>::almostZero()) const {
+        bool colinear(const T maxDistance = constants<T>::almostZero()) const {
             return parallel && lte(distance, maxDistance);
         }
     };

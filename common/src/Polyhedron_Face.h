@@ -249,33 +249,33 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const vm::Side side) const {
+T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const {
     const RayIntersection result = intersectWithRay(ray);
     if (result.none()) {
         return result.distance();
     }
 
     switch (side) {
-        case vm::Side_Front:
+        case vm::side::front:
             return result.front() ? result.distance() : vm::nan<T>();
-        case vm::Side_Back:
+        case vm::side::back:
             return result.back() ? result.distance() : vm::nan<T>();
-        case vm::Side_Both:
+        case vm::side::both:
             return result.distance();
         switchDefault();
     }
 }
 
 template <typename T, typename FP, typename VP>
-vm::PointStatus::Type Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
+vm::point_status Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
     const auto norm = normal();
     const auto distance = dot(point - origin(), norm);
     if (distance > epsilon) {
-        return vm::PointStatus::PSAbove;
+        return vm::point_status::above;
     } else if (distance < -epsilon) {
-        return vm::PointStatus::PSBelow;
+        return vm::point_status::below;
     } else {
-        return vm::PointStatus::PSInside;
+        return vm::point_status::inside;
     }
 }
 
@@ -306,7 +306,7 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
     ensure(other != nullptr, "other is null");
 
     // Test if the normals are colinear by checking their enclosed angle.
-    if (1.0 - dot(normal(), other->normal()) >= vm::Constants<T>::colinearEpsilon()) {
+    if (1.0 - dot(normal(), other->normal()) >= vm::constants<T>::colinearEpsilon()) {
         return false;
     }
 
@@ -325,7 +325,7 @@ bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const vm::plane<T,3>& plane) con
     auto* currentEdge = firstEdge;
     do {
         const auto* vertex = currentEdge->origin();
-        if (plane.pointStatus(vertex->position()) != vm::PointStatus::PSInside) {
+        if (plane.pointStatus(vertex->position()) != vm::point_status::inside) {
             return false;
         }
         currentEdge = currentEdge->next();

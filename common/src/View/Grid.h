@@ -196,17 +196,17 @@ namespace TrenchBroom {
                 
                 vm::vec<T,3> result;
                 switch(firstComponent(onPlane.normal)) {
-                    case vm::Axis::AX:
+                    case vm::axis::x:
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
                         result[0] = onPlane.xAt(result.yz());
                         break;
-                    case vm::Axis::AY:
+                    case vm::axis::y:
                         result[0] = snap(p.x(), snapDirs[0], skip);
                         result[2] = snap(p.z(), snapDirs[2], skip);
                         result[1] = onPlane.yAt(result.xz());
                         break;
-                    case vm::Axis::AZ:
+                    case vm::axis::z:
                         result[0] = snap(p.x(), snapDirs[0], skip);
                         result[1] = snap(p.y(), snapDirs[1], skip);
                         result[2] = onPlane.zAt(result.xy());

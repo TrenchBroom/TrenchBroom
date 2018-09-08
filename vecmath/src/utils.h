@@ -194,7 +194,7 @@ namespace vm {
     template <typename T>
     T radians(const T d) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return d * Constants<T>::piOverStraightAngle();
+        return d * constants<T>::piOverStraightAngle();
     }
 
     /**
@@ -207,7 +207,7 @@ namespace vm {
     template <typename T>
     T degrees(const T r) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return r * Constants<T>::straightAngleOverPi();
+        return r * constants<T>::straightAngleOverPi();
     }
 
     /**
@@ -348,7 +348,7 @@ namespace vm {
      * @return the corrected value
      */
     template <typename T>
-    T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {
+    T correct(const T v, const size_t decimals = 0, const T epsilon = constants<T>::correctEpsilon()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
@@ -369,7 +369,7 @@ namespace vm {
      * @return true if the first given value is greater than the sum of the secon value and the epsilon value, and false otherwise
      */
     template <typename T>
-    bool gt(const T lhs, const T rhs, const T epsilon = Constants<T>::almostZero()) {
+    bool gt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return lhs > rhs + epsilon;
     }
 
@@ -383,7 +383,7 @@ namespace vm {
      * @return true if the first given value is less than the sum of the secon value and the negated epsilon value, and false otherwise
      */
     template <typename T>
-    bool lt(const T lhs, const T rhs, const T epsilon = Constants<T>::almostZero()) {
+    bool lt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return lhs < rhs - epsilon;
     }
 
@@ -397,7 +397,7 @@ namespace vm {
      * @return true if the first given value is greater than or equal to the sum of the secon value and the epsilon value, and false otherwise
      */
     template <typename T>
-    bool gte(const T lhs, const T rhs, const T epsilon = Constants<T>::almostZero()) {
+    bool gte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return !lt(lhs, rhs, epsilon);
     }
 
@@ -411,7 +411,7 @@ namespace vm {
      * @return true if the first given value is less than or equal to the sum of the secon value and the negated epsilon value, and false otherwise
      */
     template <typename T>
-    bool lte(const T lhs, const T rhs, const T epsilon = Constants<T>::almostZero()) {
+    bool lte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return !gt(lhs, rhs, epsilon);
     }
 
@@ -425,7 +425,7 @@ namespace vm {
      * @return true if the distance of the given values is less than the given epsilon and false otherwise
      */
     template <typename T>
-    bool isEqual(const T lhs, const T rhs, const T epsilon = Constants<T>::almostZero()) {
+    bool isEqual(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return abs(lhs - rhs) < epsilon;
     }
 
@@ -438,7 +438,7 @@ namespace vm {
      * @return true if the distance of the given argument to 0 is less than the given epsilon
      */
     template <typename T>
-    bool isZero(const T v, const T epsilon = Constants<T>::almostZero()) {
+    bool isZero(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return abs(v) <= epsilon;
     }
@@ -452,7 +452,7 @@ namespace vm {
      * @return true if the given argument is greater than or equal to the given epsilon
      */
     template <typename T>
-    bool isPositive(const T v, const T epsilon = Constants<T>::almostZero()) {
+    bool isPositive(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return gt(v, static_cast<T>(0.0), epsilon);
     }
@@ -466,7 +466,7 @@ namespace vm {
      * @return true if the given argument is less than or equal to the negated given epsilon
      */
     template <typename T>
-    bool isNegative(const T v, const T epsilon = Constants<T>::almostZero()) {
+    bool isNegative(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return lt(v, static_cast<T>(0.0), epsilon);
     }
@@ -481,7 +481,7 @@ namespace vm {
      * @return true if the given value is integer and false otherwise
      */
     template <typename T>
-    bool isInteger(const T v, const T epsilon = Constants<T>::almostZero()) {
+    bool isInteger(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return isEqual(v, round(v), epsilon);
     }
@@ -498,7 +498,7 @@ namespace vm {
      * @return true if the given value is in the given interval and false otherwise
      */
     template <typename T>
-    bool contains(const T v, const T s, const T e, const T epsilon = Constants<T>::almostZero()) {
+    bool contains(const T v, const T s, const T e, const T epsilon = constants<T>::almostZero()) {
         if (s < e) {
             return gte(v, s, epsilon) && lte(v, e, epsilon);
         } else {
@@ -575,9 +575,10 @@ namespace vm {
     T normalizeRadians(T angle) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         static const T z = static_cast<T>(0.0);
-        static const T o = Constants<T>::twoPi();
-        while (angle < z)
+        static const T o = constants<T>::twoPi();
+        while (angle < z) {
             angle += o;
+        }
         return mod(angle, o);
     }
 
@@ -593,8 +594,9 @@ namespace vm {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         static const T z = static_cast<T>(0.0);
         static const T o = static_cast<T>(360.0);
-        while (angle < z)
+        while (angle < z) {
             angle += o;
+        }
         return mod(angle, o);
     }
 
@@ -651,187 +653,38 @@ namespace vm {
 #endif
     }
 
-    /**
-     * Returns a bit mask where only the bits up to, but not including, the given index are set.
-     *
-     * @tparam T the type of the parameter and result, which must be integral
-     * @param index the index of the lowest bit which should not be set
-     * @return the bit mask
-     */
-    template <typename T>
-    T fillMask(const size_t index) {
-        static_assert(std::is_integral<T>::value, "type must be integral");
-        if (index == sizeof(T)*8) {
-            return ~static_cast<T>(0);
-        } else {
-            return (static_cast<T>(1) << index) - 1;
-        }
-    }
-
-    /**
-     * Returns a bit mask with only the bits in the given index range set.
-     *
-     * @tparam T the type of the result, which must be integral
-     * @param end the 0-based end index, exclusive
-     * @param start the 0-based start index, inclusive
-     * @return the bit mask
-     */
-    template <typename T>
-    T bitMask(const size_t end, const size_t start) {
-        static_assert(std::is_integral<T>::value, "type must be integral");
-        const auto   endMask = fillMask<T>(end);
-        const auto startMask = fillMask<T>(start);
-        const auto result = endMask & ~startMask;
-        return result;
-    }
-
-    /**
-     * Returns a bit mask with only the bit at the given index set.
-     *
-     * @tparam T the type of the bit mask, which must be integral
-     * @param index the index of the set bit
-     * @return the bit mask
-     */
-    template <typename T>
-    T bitMask(const size_t index) {
-        static_assert(std::is_integral<T>::value, "type must be integral");
-        return static_cast<T>(1) << index;
-    }
-
-    /**
-     * Tests whether the bit of the given value at the given index is set.
-     *
-     * @tparam T the value type, which must be integral
-     * @param value the value to test
-     * @param index the index of the bit to test
-     * @return  true if the bit at the given index is set and false otherwise
-     */
-    template <typename T>
-    bool testBit(const T value, const size_t index) {
-        static_assert(std::is_integral<T>::value, "type must be integral");
-        return value & bitMask<T>(index);
-    }
-
-    /**
-     * Computes the prefix of the given value up until and including the given index.
-     *
-     * @tparam T the type of the given value, which must be an integral type
-     * @param value the value
-     * @param index the index, inclusive
-     * @return the prefix, i.e. all bits of the given value from the highest bit up
-     *   until and including the bit at the given index
-     */
-    template <typename T>
-    T bitPrefix(const T value, const size_t index) {
-        static_assert(std::is_integral<T>::value, "type must be integral");
-        const auto mask = bitMask<T>(sizeof(T)*8, index);
-        return value & mask;
-    }
-
-    /**
-     * Finds the highest set bit in the given value. The search starts at the given
-     * index, which is 0-based from the right. The function returns the index of the
-     * highest set bit which is not higher than the given index, or the number of bits
-     * of type T if no such bit is found.
-     *
-     * If the given start index is greater than the number of bits in T, the search will
-     * start at the highest bit of T regardless.
-     *
-     * @tparam T the type of the argument, which must be integral
-     * @param x the value
-     * @param i the 0-based index of the bit to start the search at
-     * @return the 0-based index of the highest set bit or the number of bits of T of no such bit is found
-     */
-    template <typename T>
-    size_t findHighestOrderBit(T x, size_t i = sizeof(T)*8 - 1) {
-        static_assert(std::is_integral<T>::value, "x is integral");
-
-        i = min(sizeof(T)*8 - 1, i);
-
-        while (true) {
-            const T test = static_cast<T>(1) << static_cast<T>(i);
-            if (x & test) {
-                return i;
-            }
-            if (i == 0) {
-                break;
-            }
-            --i;
-        }
-
-        return sizeof(T)*8;
-    }
-
-    /**
-     * Finds the highest bit in which the given values differ. The search starts at the given
-     * index, which is 0-based from the right. The function returns the index of the
-     * highest differing bit which is not higher than the given index, or the number of bits
-     * of type T if no such bit is found.
-     *
-     * If the given start index is greater than the number of bits in T, the search will
-     * start at the highest bit of T regardless.
-     *
-     *
-     * @tparam T the type of the arguments, which must be integral
-     * @param x the first value
-     * @param y the second value
-     * @param i the 0-based index of the bit to start the search at
-     * @return the 0-based index of the highest set in which x and y differ or the number of bits of T of no such bit is found
-     */
-    template <typename T>
-    size_t findHighestDifferingBit(const T x, const T y, size_t i = sizeof(T)*8 - 1) {
-        static_assert(std::is_integral<T>::value, "x and y are integral");
-        return findHighestOrderBit(x ^ y, i);
-    }
-
-    template <typename T, bool Abs>
-    struct Cmp {
-        Cmp() {}
-        int operator()(const T lhs, const T rhs) const {
-            const T l = Abs ? abs(lhs) : lhs;
-            const T r = Abs ? abs(rhs) : rhs;
-            if (lt(l, r))
-                return -1;
-            if (gt(l, r))
-                return 1;
-            return 0;
-        }
+    enum class side {
+        front,
+        back,
+        both
     };
 
-    typedef enum {
-        Side_Front = 1,
-        Side_Back  = 2,
-        Side_Both  = 3
-    } Side;
-    
-    typedef enum {
-        Direction_Forward,
-        Direction_Backward,
-        Direction_Left,
-        Direction_Right,
-        Direction_Up,
-        Direction_Down
-    } Direction;
+    enum class direction {
+        forward,
+        backward,
+        left,
+        right,
+        up,
+        down
+    };
 
-    namespace Axis {
-        typedef size_t Type;
-        static const Type AX = 0;
-        static const Type AY = 1;
-        static const Type AZ = 2;
-    }
-    
-    typedef enum {
-        RotationAxis_Roll,
-        RotationAxis_Pitch,
-        RotationAxis_Yaw
-    } RotationAxis;
+    enum class rotation_axis {
+        roll,
+        pitch,
+        yaw
+    };
 
-    // TODO 2201: make this an enum
-    namespace PointStatus {
-        typedef size_t Type;
-        static const Type PSAbove = 0;
-        static const Type PSBelow = 1;
-        static const Type PSInside = 2;
+    enum class point_status {
+        above,
+        below,
+        inside
+    };
+
+    namespace axis {
+        typedef size_t type;
+        static const type x = 0;
+        static const type y = 1;
+        static const type z = 2;
     }
 }
 

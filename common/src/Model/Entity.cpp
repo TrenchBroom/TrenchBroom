@@ -75,14 +75,14 @@ namespace TrenchBroom {
             return EntityRotationPolicy::getRotation(this);
         }
 
-        FloatType Entity::area(vm::Axis::Type axis) const {
+        FloatType Entity::area(vm::axis::type axis) const {
             const vm::vec3 size = bounds().size();
             switch (axis) {
-                case vm::Axis::AX:
+                case vm::axis::x:
                     return size.y() * size.z();
-                case vm::Axis::AY:
+                case vm::axis::y:
                     return size.x() * size.z();
-                case vm::Axis::AZ:
+                case vm::axis::z:
                     return size.y() * size.z();
                 default:
                     return 0.0;

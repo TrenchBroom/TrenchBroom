@@ -129,7 +129,7 @@ namespace TrenchBroom {
                 vm::vec3 m_position;
                 Renderer::Circle m_circle;
             public:
-                AngleIndicatorRenderer(const vm::vec3& position, const float radius, const vm::Axis::Type axis, const vm::vec3& startAxis, const vm::vec3& endAxis) :
+                AngleIndicatorRenderer(const vm::vec3& position, const float radius, const vm::axis::type axis, const vm::vec3& startAxis, const vm::vec3& endAxis) :
                 m_position(position),
                 m_circle(radius, 24, true, axis, vm::vec3f(startAxis), vm::vec3f(endAxis)) {}
             private:

@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             vm::vec3 origin() const;
             vm::mat4x4 rotation() const;
-            FloatType area(vm::Axis::Type axis) const;
+            FloatType area(vm::axis::type axis) const;
         private:
             void setOrigin(const vm::vec3& origin);
             void applyRotation(const vm::mat4x4& transformation);

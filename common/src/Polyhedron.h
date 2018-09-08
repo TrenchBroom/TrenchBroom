@@ -110,7 +110,7 @@ public:
     private:
         HalfEdge* findConnectingEdge(const Vertex* vertex) const;
         HalfEdge* findColinearEdge(const HalfEdge* arriving) const;
-        void correctPosition(const size_t decimals = 0, const T epsilon = vm::Constants<T>::correctEpsilon());
+        void correctPosition(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
         void setPosition(const V& position);
         void setLeaving(HalfEdge* edge);
     };
@@ -186,7 +186,7 @@ public:
         bool hasOrigins(const typename V::List& positions, T epsilon = static_cast<T>(0.0)) const;
         std::string asString() const;
     private:
-        vm::PointStatus::Type pointStatus(const V& faceNormal, const V& point) const;
+        vm::point_status pointStatus(const V& faceNormal, const V& point) const;
         bool isLeavingEdge() const;
         bool colinear(const HalfEdge* other) const;
         void setOrigin(Vertex* origin);
@@ -227,8 +227,8 @@ public:
         T distanceTo(const typename V::List& positions, T maxDistance = std::numeric_limits<T>::max()) const;
         V normal() const;
         V center() const;
-        T intersectWithRay(const vm::ray<T,3>& ray, const vm::Side side) const;
-        vm::PointStatus::Type pointStatus(const V& point, T epsilon = vm::Constants<T>::pointStatusEpsilon()) const;
+        T intersectWithRay(const vm::ray<T,3>& ray, const vm::side side) const;
+        vm::point_status pointStatus(const V& point, T epsilon = vm::constants<T>::pointStatusEpsilon()) const;
     private:
         // Template methods must remain private!
         template <typename O>
@@ -389,14 +389,14 @@ private:
     bool checkNoDegenerateFaces() const;
     bool checkVertexLeavingEdges() const;
     bool checkEdges() const;
-    bool checkEdgeLengths(const T minLength = vm::Constants<T>::pointStatusEpsilon()) const;
+    bool checkEdgeLengths(const T minLength = vm::constants<T>::pointStatusEpsilon()) const;
     bool checkLeavingEdges(const Vertex* v) const;
     
     void updateBounds();
 public: // Vertex correction and edge healing
-    void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::Constants<T>::correctEpsilon());
-    bool healEdges(const T minLength = vm::Constants<T>::pointStatusEpsilon());
-    bool healEdges(Callback& callback, const T minLength = vm::Constants<T>::pointStatusEpsilon());
+    void correctVertexPositions(const size_t decimals = 0, const T epsilon = vm::constants<T>::correctEpsilon());
+    bool healEdges(const T minLength = vm::constants<T>::pointStatusEpsilon());
+    bool healEdges(Callback& callback, const T minLength = vm::constants<T>::pointStatusEpsilon());
 private:
     Edge* removeEdge(Edge* edge, Callback& callback);
     void removeDegenerateFace(Face* face, Callback& callback);
@@ -541,7 +541,7 @@ private:
     static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
 
     static bool separate(const Face* faces, const Vertex* vertices, const Callback& callback);
-    static vm::PointStatus::Type pointStatus(const vm::plane<T,3>& plane, const Vertex* vertices);
+    static vm::point_status pointStatus(const vm::plane<T,3>& plane, const Vertex* vertices);
 };
 
 #endif

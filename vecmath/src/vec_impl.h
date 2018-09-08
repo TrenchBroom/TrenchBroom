@@ -707,13 +707,13 @@ namespace vm {
         if (isEqual(+cos, T(1.0))) {
             return static_cast<T>(0.0);
         } else if (isEqual(-cos, T(1.0))) {
-            return Constants<T>::pi();
+            return constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);
             if (!isNegative(dot(perp, up))) {
                 return std::acos(cos);
             } else {
-                return Constants<T>::twoPi() - std::acos(cos);
+                return constants<T>::twoPi() - std::acos(cos);
             }
         }
     }

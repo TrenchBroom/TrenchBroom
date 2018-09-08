@@ -386,7 +386,7 @@ namespace TrenchBroom {
          * when texture lock is off.
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
-            const vm::mat4x4 transform = vm::mirrorMatrix<double>(vm::Axis::AZ);
+            const vm::mat4x4 transform = vm::mirrorMatrix<double>(vm::axis::z);
             const BrushFace* origFace = cube->findFace(vm::vec3::pos_x);
             
             // transform the face (texture lock off)

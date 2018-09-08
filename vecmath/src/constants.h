@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace vm {
     template <typename T>
-    class Constants {
+    class constants {
     public:
         /**
          * Returns an epsilon value to use for comparisons.
@@ -156,8 +156,8 @@ namespace vm {
         }
     };
 
-    using Cf = Constants<float>;
-    using Cd = Constants<double>;
+    using Cf = constants<float>;
+    using Cd = constants<double>;
 }
 
 #endif //TRENCHBROOM_CONSTANTS_H

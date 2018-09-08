@@ -44,11 +44,11 @@ namespace TrenchBroom {
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
             if (area == RotateObjectsHandle::HitArea_XAxis)
-                m_toolPage->setAxis(vm::Axis::AX);
+                m_toolPage->setAxis(vm::axis::x);
             else if (area == RotateObjectsHandle::HitArea_YAxis)
-                m_toolPage->setAxis(vm::Axis::AY);
+                m_toolPage->setAxis(vm::axis::y);
             else if (area == RotateObjectsHandle::HitArea_ZAxis)
-                m_toolPage->setAxis(vm::Axis::AZ);
+                m_toolPage->setAxis(vm::axis::z);
         }
         
         double RotateObjectsTool::angle() const {
