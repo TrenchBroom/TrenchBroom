@@ -245,7 +245,7 @@ namespace TrenchBroom {
             const FloatType angle = angleBetween(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
             const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());
-            const quat3 rotation(m_normal, canonical);
+            const vm::quat3 rotation(m_normal, canonical);
             const vm::vec3 rot = rotation * ref;
             curPoint = m_center + m_radius * rot;
             return true;

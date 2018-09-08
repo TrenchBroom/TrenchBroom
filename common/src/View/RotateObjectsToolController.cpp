@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 auto& prefs = PreferenceManager::instance();
                 const auto handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
                 const auto startAxis = normalize(m_start - m_center);
-                const auto endAxis = quat3(m_axis, m_angle) * startAxis;
+                const auto endAxis = vm::quat3(m_axis, m_angle) * startAxis;
                 
                 renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, firstComponent(m_axis), startAxis, endAxis));
             }

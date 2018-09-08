@@ -126,7 +126,7 @@ namespace TrenchBroom {
          * Rotate CCW by `angle` radians about `normal`.
          */
         void ParallelTexCoordSystem::applyRotation(const vm::vec3& normal, const FloatType angle) {
-            const quat3 rot(normal, angle);
+            const vm::quat3 rot(normal, angle);
             m_xAxis = rot * m_xAxis;
             m_yAxis = rot * m_yAxis;
         }
@@ -233,13 +233,13 @@ namespace TrenchBroom {
             std::vector<std::pair<vm::vec3, vm::vec3>> possibleTexAxes;
             possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
             possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
-            const std::vector<quat3> rotations {
-                quat3(normalize(m_xAxis), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-                quat3(normalize(m_xAxis), Math::radians(-90.0)), // possibleTexAxes[3] = top
-                quat3(normalize(m_yAxis), Math::radians(90.0)),  // possibleTexAxes[4] = left
-                quat3(normalize(m_yAxis), Math::radians(-90.0)), // possibleTexAxes[5] = right
+            const std::vector<vm::quat3> rotations {
+                vm::quat3(normalize(m_xAxis), Math::radians(90.0)),  // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+                vm::quat3(normalize(m_xAxis), Math::radians(-90.0)), // possibleTexAxes[3] = top
+                vm::quat3(normalize(m_yAxis), Math::radians(90.0)),  // possibleTexAxes[4] = left
+                vm::quat3(normalize(m_yAxis), Math::radians(-90.0)), // possibleTexAxes[5] = right
             };
-            for (const quat3& rotation : rotations) {
+            for (const vm::quat3& rotation : rotations) {
                 possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
             }
             assert(possibleTexAxes.size() == 6);
@@ -273,7 +273,7 @@ namespace TrenchBroom {
         }
         
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) {
-            quat3 rotation;
+            vm::quat3 rotation;
             auto axis = vm::cross(oldNormal, newNormal);
             if (axis == vm::vec3::zero) {
                 // oldNormal and newNormal are either the same or opposite.
@@ -284,7 +284,7 @@ namespace TrenchBroom {
             }
             
             const auto angle = angleBetween(newNormal, oldNormal, axis);
-            rotation = quat3(axis, angle);
+            rotation = vm::quat3(axis, angle);
 
             m_xAxis = rotation * m_xAxis;
             m_yAxis = rotation * m_yAxis;
