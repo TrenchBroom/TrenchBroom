@@ -168,7 +168,7 @@ namespace TrenchBroom {
          *
          * Only looks at the hit type (corner/edge/side), and which particular corner/edge/side.
          */
-        line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit);
+        vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit);
 
         /**
          * Wrapper around moveBBoxSide/moveBBoxEdge/moveBBoxCorner.

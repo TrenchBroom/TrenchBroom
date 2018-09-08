@@ -232,7 +232,7 @@ namespace TrenchBroom {
             auto* dragFace = m_dragFaces.front();
             const auto& faceNormal = dragFace->boundary().normal;
 
-            const auto dist = distance(pickRay, line3(m_dragOrigin, faceNormal));
+            const auto dist = distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
             if (dist.parallel) {
                 return true;
             }

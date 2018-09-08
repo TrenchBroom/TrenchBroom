@@ -132,9 +132,9 @@ namespace TrenchBroom {
         
         class LineDragRestricter : public DragRestricter {
         private:
-            const line3 m_line;
+            const vm::line3 m_line;
         public:
-            LineDragRestricter(const line3& line);
+            LineDragRestricter(const vm::line3& line);
         private:
             bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
@@ -230,9 +230,9 @@ namespace TrenchBroom {
         class LineDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
-            line3 m_line;
+            vm::line3 m_line;
         public:
-            LineDragSnapper(const Grid& grid, const line3& line);
+            LineDragSnapper(const Grid& grid, const vm::line3& line);
         private:
             bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };

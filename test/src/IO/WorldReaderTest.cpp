@@ -742,7 +742,7 @@ namespace TrenchBroom {
         TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
-                              "\"message\" \"line1\\nline2\""
+                              "\"message\" \"vm::line1\\nvm::line2\""
                               "}");
             vm::bbox3 worldBounds(8192);
             
@@ -756,7 +756,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
             
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("line1\\nline2", world->attribute("message").c_str());
+            ASSERT_STREQ("vm::line1\\nvm::line2", world->attribute("message").c_str());
             
             delete world;
         }

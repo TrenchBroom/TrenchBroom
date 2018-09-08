@@ -73,7 +73,7 @@ namespace TrenchBroom {
             }
         }
 
-        LineDragRestricter::LineDragRestricter(const line3& line) :
+        LineDragRestricter::LineDragRestricter(const vm::line3& line) :
         m_line(line) {}
 
         bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        LineDragSnapper::LineDragSnapper(const Grid& grid, const line3& line) :
+        LineDragSnapper::LineDragSnapper(const Grid& grid, const vm::line3& line) :
         m_grid(grid),
         m_line(line) {}
 

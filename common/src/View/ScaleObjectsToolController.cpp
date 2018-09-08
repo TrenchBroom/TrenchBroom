@@ -79,7 +79,7 @@ namespace TrenchBroom {
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
 
-                const line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+                const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
                 restricter = new LineDragRestricter(handleLine);
                 snapper = new LineDragSnapper(grid, handleLine);

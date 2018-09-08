@@ -68,12 +68,12 @@ namespace TrenchBroom {
                     restricter = new PlaneDragRestricter(vm::plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
+                    const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const line3 verticalLine(sideCenter, vm::vec3::pos_z);
+                    const vm::line3 verticalLine(sideCenter, vm::vec3::pos_z);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             } else {
                 assert(camera.orthographicProjection());
 
-                const line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3(camera.direction()))));
+                const vm::line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3(camera.direction()))));
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(grid, sideways);
             }

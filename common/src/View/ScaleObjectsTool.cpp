@@ -393,8 +393,8 @@ namespace TrenchBroom {
             }
         }
 
-        line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit) {
-            line3 handleLine;
+        vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit) {
+            vm::line3 handleLine;
 
             // NOTE: We don't need to check for the Alt modifier (moves the drag anchor to the center of the bbox)
             // because all of these lines go through the center of the box anyway, so the resulting line would be the
@@ -405,7 +405,7 @@ namespace TrenchBroom {
 
                 // We could use centerForBBoxSide(draggingSide) here, but this gives better dragging behaviour.
                 // See pickBackSideOfBox() for how hit.hitPoint() is determined.
-                handleLine = line3(hit.hitPoint(), draggingSide.normal);
+                handleLine = vm::line3(hit.hitPoint(), draggingSide.normal);
             } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
@@ -416,7 +416,7 @@ namespace TrenchBroom {
                 const vm::vec3 handleLineStart = startEdgeActual.center();
                 const vm::vec3 handleLineEnd = endEdgeActual.center();
 
-                handleLine = line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
+                handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
             } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
                 const auto endCorner = hit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 const vm::vec3 handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
                 const vm::vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
 
-                handleLine = line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
+                handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
             } else {
                 assert(0);
             }

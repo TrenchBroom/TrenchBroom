@@ -32,6 +32,7 @@ using FloatType = double;
 namespace vm {
     using vec3 = vm::vec<FloatType,3>;
     using vec2 = vm::vec<FloatType,2>;
+    using line3 = vm::line<FloatType,3>;
     using plane3 = vm::plane<FloatType,3>;
     using quat3 = vm::quat<FloatType>;
     using bbox3 = vm::bbox<FloatType,3>;
@@ -39,7 +40,6 @@ namespace vm {
 }
 
 using mat4x4 = vm::mat<FloatType,4,4>;
-using line3 = vm::line<FloatType,3>;
 using ray3 = vm::ray<FloatType,3>;
 using segment3 = vm::segment<FloatType,3>;
 using polygon3 = vm::polygon<FloatType,3>;

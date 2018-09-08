@@ -60,7 +60,7 @@ namespace TrenchBroom {
             
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-            void computeOriginHandles(line3& xHandle, line3& yHandle) const;
+            void computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const;
             
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
