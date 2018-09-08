@@ -160,8 +160,8 @@ namespace TrenchBroom {
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasVertices(const vm::vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasEdge(const segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasEdges(const segment3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasEdges(const vm::segment3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFaces(const polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
@@ -189,8 +189,8 @@ namespace TrenchBroom {
             void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
 
             // edge operations
-            bool canMoveEdges(const vm::bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta) const;
-            segment3::List moveEdges(const vm::bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta);
+            bool canMoveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) const;
+            vm::segment3::List moveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta);
 
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const polygon3::List& facePositions, const vm::vec3& delta) const;

@@ -623,12 +623,12 @@ namespace TrenchBroom {
             return m_geometry->findClosestVertex(position)->position();
         }
 
-        bool Brush::hasEdge(const segment3& edge, const FloatType epsilon) const {
+        bool Brush::hasEdge(const vm::segment3& edge, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->findEdgeByPositions(edge.start(), edge.end(), epsilon) != nullptr;
         }
 
-        bool Brush::hasEdges(const segment3::List& edges, const FloatType epsilon) const {
+        bool Brush::hasEdges(const vm::segment3::List& edges, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& edge : edges) {
                 if (!m_geometry->hasEdge(edge.start(), edge.end(), epsilon)) {
@@ -818,12 +818,12 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta) const {
+        bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 
             vm::vec3::List vertexPositions;
-            segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
+            vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
             const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
 
@@ -840,21 +840,21 @@ namespace TrenchBroom {
             return true;
         }
 
-        segment3::List Brush::moveEdges(const vm::bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta) {
+        vm::segment3::List Brush::moveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
             vm::vec3::List vertexPositions;
-            segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
+            vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
 
-            segment3::List result;
+            vm::segment3::List result;
             result.reserve(edgePositions.size());
 
             for (const auto& edgePosition : edgePositions) {
                 const auto* newEdge = m_geometry->findClosestEdge(edgePosition.start() + delta, edgePosition.end() + delta, Math::Constants<FloatType>::almostZero());
                 if (newEdge != nullptr) {
-                    result.push_back(segment3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
+                    result.push_back(vm::segment3(newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
                 }
             }
 

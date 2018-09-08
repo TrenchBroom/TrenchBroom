@@ -114,7 +114,7 @@ namespace TrenchBroom {
         BBoxSide oppositeSide(const BBoxSide& side);
         BBoxCorner oppositeCorner(const BBoxCorner& corner);
         BBoxEdge oppositeEdge(const BBoxEdge& edge);
-        segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge);
+        vm::segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge);
         polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
         vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
 

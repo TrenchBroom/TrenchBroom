@@ -557,10 +557,10 @@ namespace TrenchBroom {
          * intersect with a grid plane. Such handles are not added to this manager explicitly, but are computed on the
          * fly.
          */
-        class EdgeHandleManager : public VertexHandleManagerBaseT<segment3> {
+        class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<segment3, vm::vec3> HitType;
+            typedef std::tuple<vm::segment3, vm::vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

@@ -103,7 +103,7 @@ namespace TrenchBroom {
                 const auto rightDot = dot(right->boundary().normal, m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const auto result = distance(m_pickRay, segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                    const auto result = distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!Math::isnan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = m_pickRay.pointAtDistance(result.rayDistance);

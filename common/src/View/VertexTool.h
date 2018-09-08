@@ -61,7 +61,7 @@ namespace TrenchBroom {
             VertexTool(MapDocumentWPtr document);
         public:
             Model::BrushSet findIncidentBrushes(const vm::vec3& handle) const;
-            Model::BrushSet findIncidentBrushes(const segment3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
             Model::BrushSet findIncidentBrushes(const polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;

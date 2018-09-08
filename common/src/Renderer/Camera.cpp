@@ -354,7 +354,7 @@ namespace TrenchBroom {
             return intersect(pickRay, handlePosition, 2.0 * handleRadius * scaling);
         }
 
-        FloatType Camera::pickLineSegmentHandle(const vm::ray3& pickRay, const segment3& handlePosition, const FloatType handleRadius) const {
+        FloatType Camera::pickLineSegmentHandle(const vm::ray3& pickRay, const vm::segment3& handlePosition, const FloatType handleRadius) const {
             const auto dist = distance(pickRay, handlePosition);
             if (dist.parallel) {
                 return Math::nan<FloatType>();

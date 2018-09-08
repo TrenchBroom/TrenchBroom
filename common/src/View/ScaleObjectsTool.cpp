@@ -209,8 +209,8 @@ namespace TrenchBroom {
                             oppositeCorner(BBoxCorner(edge.point1)).corner);
         }
         
-        segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge) {
-            return segment3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
+        vm::segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge) {
+            return vm::segment3(pointForBBoxCorner(box, BBoxCorner(edge.point0)),
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
         }
 
@@ -410,8 +410,8 @@ namespace TrenchBroom {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
-                const segment3 endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
-                const segment3 startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
+                const vm::segment3 endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
+                const vm::segment3 startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
 
                 const vm::vec3 handleLineStart = startEdgeActual.center();
                 const vm::vec3 handleLineEnd = endEdgeActual.center();
@@ -494,7 +494,7 @@ namespace TrenchBroom {
 
                     const vm::vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
-                        const auto result = distance(pickRay, segment3(points[i], points[(i + 1) % 4]));
+                        const auto result = distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
                         if (!Math::isnan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
@@ -540,7 +540,7 @@ namespace TrenchBroom {
             // bbox corners in 2d views
             assert(camera.orthographicProjection());
             for (const BBoxEdge& edge : allEdges()) {
-                const segment3 points = pointsForBBoxEdge(myBounds, edge);
+                const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
                 // in 2d views, only use edges that are parallel to the camera
                 if (parallel(points.direction(), vm::vec3(camera.direction()))) {
@@ -591,7 +591,7 @@ namespace TrenchBroom {
 
             // edges
             for (const BBoxEdge& edge : allEdges()) {
-                const segment3 points = pointsForBBoxEdge(myBounds, edge);
+                const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
                 const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
                 if (!Math::isnan(dist)) {
@@ -788,7 +788,7 @@ namespace TrenchBroom {
                 const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
-                const segment3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
+                const vm::segment3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
 
                 return vm::vec3f(startEdgeActual.center());
             } else if (m_dragStartHit.type() == ScaleToolCornerHit) {

@@ -41,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        vm::vec3::List asVertexList(const segment3::List& edges);
+        vm::vec3::List asVertexList(const vm::segment3::List& edges);
         vm::vec3::List asVertexList(const polygon3::List& faces);
 
         TEST(BrushTest, constructBrushWithRedundantFaces) {
@@ -934,10 +934,10 @@ namespace TrenchBroom {
             assertTexture("top", brush, p2, p6, p8, p4);
             assertTexture("bottom", brush, p1, p3, p7, p5);
 
-            const segment3 edge(p1, p2);
-            segment3::List newEdgePositions = brush->moveEdges(worldBounds, segment3::List(1, edge), p1_2 - p1);
+            const vm::segment3 edge(p1, p2);
+            vm::segment3::List newEdgePositions = brush->moveEdges(worldBounds, vm::segment3::List(1, edge), p1_2 - p1);
             ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(segment3(p1_2, p2_2), newEdgePositions[0]);
+            ASSERT_EQ(vm::segment3(p1_2, p2_2), newEdgePositions[0]);
 
             assertTexture("left", brush, p1_2, p2_2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -1016,25 +1016,25 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        static void assertCanMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
+        static void assertCanMoveEdges(const Brush* brush, const vm::segment3::List edges, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
 
-            segment3::List expectedMovedEdges;
-            for (const segment3& edge : edges) {
-                expectedMovedEdges.push_back(segment3(edge.start() + delta, edge.end() + delta));
+            vm::segment3::List expectedMovedEdges;
+            for (const vm::segment3& edge : edges) {
+                expectedMovedEdges.push_back(vm::segment3(edge.start() + delta, edge.end() + delta));
             }
 
             ASSERT_TRUE(brush->canMoveEdges(worldBounds, edges, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
-            const segment3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
+            const vm::segment3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
 
             ASSERT_EQ(expectedMovedEdges, movedEdges);
 
             delete brushClone;
         }
 
-        static void assertCanNotMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
+        static void assertCanNotMoveEdges(const Brush* brush, const vm::segment3::List edges, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
@@ -1229,7 +1229,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
+            const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1238,13 +1238,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, segment3::List{edge}, vm::vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, segment3::List{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, segment3::List{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1255,9 +1255,9 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
-            const segment3 edge2(vm::vec3(-128, +32, -128), vm::vec3(-128, +32, +128));
-            const segment3::List movingEdges{edge1, edge2};
+            const vm::segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
+            const vm::segment3 edge2(vm::vec3(-128, +32, -128), vm::vec3(-128, +32, +128));
+            const vm::segment3::List movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1512,7 +1512,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
-            const segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
+            const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -3563,9 +3563,9 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
         }
 
-        vm::vec3::List asVertexList(const segment3::List& edges) {
+        vm::vec3::List asVertexList(const vm::segment3::List& edges) {
             vm::vec3::List result;
-            segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
+            vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
             return result;
         }
 

@@ -100,7 +100,7 @@ namespace TrenchBroom {
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
             vm::vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta);
-            segment3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta);
+            vm::segment3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta);
             polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const vm::vec3& delta);
             void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);

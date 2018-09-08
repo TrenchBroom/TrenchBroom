@@ -35,13 +35,13 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class EdgeTool : public VertexToolBase<segment3> {
+        class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
             EdgeHandleManager m_edgeHandles;
         public:
             EdgeTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const segment3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

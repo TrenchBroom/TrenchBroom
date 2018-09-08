@@ -139,7 +139,7 @@ namespace TrenchBroom {
             float pickFrustum(float size, const vm::ray3f& ray) const;
             
             FloatType pickPointHandle(const vm::ray3& pickRay, const vm::vec3& handlePosition, FloatType handleRadius) const;
-            FloatType pickLineSegmentHandle(const vm::ray3& pickRay, const segment3& handlePosition, FloatType handleRadius) const;
+            FloatType pickLineSegmentHandle(const vm::ray3& pickRay, const vm::segment3& handlePosition, FloatType handleRadius) const;
         protected:
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up);

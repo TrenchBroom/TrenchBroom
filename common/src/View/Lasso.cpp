@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return !isNaN(projected) && box.contains(vm::vec2(projected));
         }
         
-        bool Lasso::selects(const segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const {
+        bool Lasso::selects(const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const {
             return selects(edge.center(), plane, box);
         }
         
