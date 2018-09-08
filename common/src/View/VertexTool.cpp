@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return findIncidentBrushes(m_faceHandles, handle);
         }
 
-        void VertexTool::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void VertexTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
 

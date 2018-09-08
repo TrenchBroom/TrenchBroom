@@ -280,7 +280,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void World::doPick(const ray3& ray, PickResult& pickResult) const {
+        void World::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             for (const auto* node : m_nodeTree.findIntersectors(ray)) {
                 node->pick(ray, pickResult);
             }
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType World::doIntersectWithRay(const ray3& ray) const {
+        FloatType World::doIntersectWithRay(const vm::ray3& ray) const {
             return Math::nan<FloatType>();
         }
 

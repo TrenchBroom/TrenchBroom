@@ -28,7 +28,7 @@ namespace TrenchBroom {
             return findIncidentBrushes(m_faceHandles, handle);
         }
         
-        void FaceTool::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void FaceTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             m_faceHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         

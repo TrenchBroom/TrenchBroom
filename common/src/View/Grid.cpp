@@ -87,7 +87,7 @@ namespace TrenchBroom {
             gridDidChangeNotifier();
         }
         
-        FloatType Grid::intersectWithRay(const ray3& ray, const size_t skip) const {
+        FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const {
             vm::vec3 planeAnchor;
             
             for (size_t i = 0; i < 3; ++i) {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const ray3& ray, const vm::vec3& position) const {
+        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const {
             
             // First, compute the snapped position under the mouse:
             const auto dist = intersect(ray, dragPlane);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
-            std::vector<ray3> edgeRays;
+            std::vector<vm::ray3> edgeRays;
             
             for (const Model::BrushEdge* edge : brushEdges) {
                 size_t c = 0;
@@ -226,7 +226,7 @@ namespace TrenchBroom {
                 }
                 
                 if (c == 1) {
-                    ray3 ray;
+                    vm::ray3 ray;
                     if (originAtStart) {
                         ray.origin = edge->firstVertex()->position();
                         ray.direction = normalize(edge->vector());
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                 // Then, test if the resulting drag distance is smaller than the current candidate.
                 
                 for (size_t i = 0; i < edgeRays.size(); ++i) {
-                    const ray3& ray = edgeRays[i];
+                    const vm::ray3& ray = edgeRays[i];
                     const FloatType vertexDist = intersectWithRay(ray, gridSkip);
                     const vm::vec3 vertexDelta = ray.direction * vertexDist;
                     const FloatType vertexNormDist = dot(vertexDelta, face->boundary().normal);

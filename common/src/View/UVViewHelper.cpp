@@ -123,7 +123,7 @@ namespace TrenchBroom {
             return m_camera.zoom();
         }
         
-        void UVViewHelper::pickTextureGrid(const ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
+        void UVViewHelper::pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
             assert(valid());
             
             const auto* texture = m_face->texture();

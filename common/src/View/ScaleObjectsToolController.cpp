@@ -220,7 +220,7 @@ namespace TrenchBroom {
 
                 // corner handles
                 for (const auto& corner : m_tool->cornerHandles()) {
-                    const auto ray = ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
+                    const auto ray = vm::ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
 
                     if (renderContext.camera().perspectiveProjection()) {
                         Model::PickResult pr;
@@ -320,7 +320,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
-        void ScaleObjectsToolController2D::doPick(const ray3 &pickRay, const Renderer::Camera &camera,
+        void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
@@ -330,7 +330,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
-        void ScaleObjectsToolController3D::doPick(const ray3 &pickRay, const Renderer::Camera &camera,
+        void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);
         }

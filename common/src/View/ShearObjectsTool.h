@@ -55,9 +55,9 @@ namespace TrenchBroom {
             
             bool applies() const;
 
-            void pickBackSides(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick2D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
 
         public:
             vm::bbox3 bounds() const;

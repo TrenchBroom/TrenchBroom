@@ -41,7 +41,7 @@ namespace TrenchBroom {
         
         ClipTool::ClipStrategy::~ClipStrategy() {}
         
-        void ClipTool::ClipStrategy::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void ClipTool::ClipStrategy::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             doPick(pickRay, camera, pickResult);
         }
         
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             m_numPoints(0),
             m_dragIndex(4) {}
         private:
-            void doPick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {
+            void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             FaceClipStrategy() :
             m_face(nullptr) {}
         private:
-            void doPick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {}
+            void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override {}
             
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) override {
                 if (m_face != nullptr) {
@@ -501,7 +501,7 @@ namespace TrenchBroom {
             }
         }
         
-        void ClipTool::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ClipTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             if (m_strategy != nullptr)
                 m_strategy->pick(pickRay, camera, pickResult);
         }

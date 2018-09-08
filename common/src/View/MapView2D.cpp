@@ -142,10 +142,10 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
-        Model::PickResult MapView2D::doPick(const ray3& pickRay) const {
+        Model::PickResult MapView2D::doPick(const vm::ray3& pickRay) const {
             auto document = lock(m_document);
             const auto& editorContext = document->editorContext();
             const auto axis = firstComponent(pickRay.direction);

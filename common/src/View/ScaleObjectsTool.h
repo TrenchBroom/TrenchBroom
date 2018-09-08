@@ -196,7 +196,7 @@ namespace TrenchBroom {
          * Returns the point on the pick ray (stored as a distance along the ray) that is closest to the selected face,
          * as well as that face's normal.
          */
-        BackSide pickBackSideOfBox(const ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box);
+        BackSide pickBackSideOfBox(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box);
 
         class ScaleObjectsTool : public Tool {
         public:
@@ -221,9 +221,9 @@ namespace TrenchBroom {
             const Model::Hit& dragStartHit() const;
             bool applies() const;
 
-            void pickBackSides(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick2D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
         public:
             vm::bbox3 bounds() const;
 

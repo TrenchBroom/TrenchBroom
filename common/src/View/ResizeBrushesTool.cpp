@@ -59,7 +59,7 @@ namespace TrenchBroom {
             return document->selectedNodes().hasBrushes();
         }
         
-        Model::Hit ResizeBrushesTool::pick2D(const ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             return pickProximateFace(ResizeHit2D, pickRay);
         }
         
-        Model::Hit ResizeBrushesTool::pick3D(const ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
@@ -78,10 +78,10 @@ namespace TrenchBroom {
         class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
             const Model::Hit::HitType m_hitType;
-            const ray3& m_pickRay;
+            const vm::ray3& m_pickRay;
             FloatType m_closest;
         public:
-            PickProximateFace(const Model::Hit::HitType hitType, const ray3& pickRay) :
+            PickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) :
             NodeQuery(Model::Hit::NoHit),
             m_hitType(hitType),
             m_pickRay(pickRay),
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             }
         };
         
-        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const ray3& pickRay) const {
+        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
             
             auto document = lock(m_document);
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ResizeBrushesTool::resize(const ray3& pickRay, const Renderer::Camera& camera) {
+        bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             assert(!m_dragFaces.empty());
             
             auto* dragFace = m_dragFaces.front();

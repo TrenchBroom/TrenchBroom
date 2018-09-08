@@ -45,8 +45,8 @@ namespace TrenchBroom {
             void removeEntity();
             void commitEntity();
             
-            void updateEntityPosition2D(const ray3& pickRay);
-            void updateEntityPosition3D(const ray3& pickRay, const Model::PickResult& pickResult);
+            void updateEntityPosition2D(const vm::ray3& pickRay);
+            void updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         };
     }
 }

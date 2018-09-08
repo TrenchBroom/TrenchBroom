@@ -196,7 +196,7 @@ namespace TrenchBroom {
             vm::vec2f textureCoords(const vm::vec3& point) const;
 
             bool containsPoint(const vm::vec3& point) const;
-            FloatType intersectWithRay(const ray3& ray) const;
+            FloatType intersectWithRay(const vm::ray3& ray) const;
             
             void printPoints() const;
         private:

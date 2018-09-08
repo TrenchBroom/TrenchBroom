@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
 
-        void ShearObjectsTool::pickBackSides(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ShearObjectsTool::pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
                 const auto result = pickBackSideOfBox(pickRay, camera, bounds());
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ShearObjectsTool::pick2D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ShearObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ShearObjectsTool::pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ShearObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             const vm::bbox3& myBounds = bounds();
 
             // origin in bbox

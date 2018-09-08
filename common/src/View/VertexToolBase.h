@@ -126,7 +126,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            virtual void pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
+            virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
         public: // Handle selection
             bool select(const Model::Hit::List& hits, const bool addToSelection) {
                 assert(!hits.empty());

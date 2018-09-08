@@ -242,7 +242,7 @@ namespace TrenchBroom {
         ShearObjectsToolController2D::ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
-        void ShearObjectsToolController2D::doPick(const ray3 &pickRay, const Renderer::Camera &camera,
+        void ShearObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
@@ -252,7 +252,7 @@ namespace TrenchBroom {
         ShearObjectsToolController3D::ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document) :
         ShearObjectsToolController(tool, document) {}
         
-        void ShearObjectsToolController3D::doPick(const ray3 &pickRay, const Renderer::Camera &camera,
+        void ShearObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);
         }

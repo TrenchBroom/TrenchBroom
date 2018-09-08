@@ -163,7 +163,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doPick(const ray3& ray, PickResult& pickResult) const {
+        void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             // A group can only be picked if and only if all of the following conditions are met
             // * it is closed or has no open descendant
             // * it is top level or has an open parent
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 child->findNodesContaining(point, result);
         }
 
-        FloatType Group::doIntersectWithRay(const ray3& ray) const {
+        FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
             const auto& myBounds = bounds();
             if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {
                 return Math::nan<FloatType>();

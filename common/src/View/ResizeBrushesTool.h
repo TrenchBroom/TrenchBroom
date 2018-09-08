@@ -56,11 +56,11 @@ namespace TrenchBroom {
             
             bool applies() const;
             
-            Model::Hit pick2D(const ray3& pickRay, const Model::PickResult& pickResult);
-            Model::Hit pick3D(const ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             const Model::BrushFaceList& dragFaces() const;
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
-            bool resize(const ray3& pickRay, const Renderer::Camera& camera);
+            bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
             vm::vec3 selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, FloatType mouseDistance) const;
 
             void commitResize();

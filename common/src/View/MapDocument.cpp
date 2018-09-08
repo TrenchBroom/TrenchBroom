@@ -1445,7 +1445,7 @@ namespace TrenchBroom {
             m_textureManager->commitChanges();
         }
         
-        void MapDocument::pick(const ray3& pickRay, Model::PickResult& pickResult) const {
+        void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const {
             if (m_world != nullptr)
                 m_world->pick(pickRay, pickResult);
         }

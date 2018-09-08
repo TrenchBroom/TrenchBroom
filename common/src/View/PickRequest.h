@@ -31,13 +31,13 @@ namespace TrenchBroom {
     namespace View {
         class PickRequest {
         private:
-            ray3 m_pickRay;
+            vm::ray3 m_pickRay;
             const Renderer::Camera* m_camera;
         public:
             PickRequest();
-            PickRequest(const ray3& pickRay, const Renderer::Camera& camera);
+            PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera);
             
-            const ray3& pickRay() const;
+            const vm::ray3& pickRay() const;
             const Renderer::Camera& camera() const;
         };
     }

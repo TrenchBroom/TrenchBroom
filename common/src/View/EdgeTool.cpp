@@ -28,7 +28,7 @@ namespace TrenchBroom {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
 
-        void EdgeTool::pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void EdgeTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             m_edgeHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         

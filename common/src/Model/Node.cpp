@@ -552,7 +552,7 @@ namespace TrenchBroom {
             
         }
 
-        void Node::pick(const ray3& ray, PickResult& pickResult) const {
+        void Node::pick(const vm::ray3& ray, PickResult& pickResult) const {
             doPick(ray, pickResult);
         }
         
@@ -560,7 +560,7 @@ namespace TrenchBroom {
             doFindNodesContaining(point, result);
         }
 
-        FloatType Node::intersectWithRay(const ray3& ray) const {
+        FloatType Node::intersectWithRay(const vm::ray3& ray) const {
             return doIntersectWithRay(ray);
         }
 

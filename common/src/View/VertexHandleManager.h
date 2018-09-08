@@ -538,7 +538,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pick(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
@@ -574,7 +574,7 @@ namespace TrenchBroom {
              * @param grid the current grid
              * @param pickResult the picking result to add the hits to
              */
-            void pickGridHandle(const ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
 
             /**
              * Picks the center point of the edge handles contained in this manager.
@@ -583,7 +583,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;
@@ -620,7 +620,7 @@ namespace TrenchBroom {
              * @param grid the current grid
              * @param pickResult the picking result to add the hits to
              */
-            void pickGridHandle(const ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
+            void pickGridHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const Grid& grid, Model::PickResult& pickResult) const;
 
             /**
              * Picks the center point of the face handles contained in this manager.
@@ -629,7 +629,7 @@ namespace TrenchBroom {
              * @param camera the camera
              * @param pickResult the picking result to add the hits to
              */
-            void pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+            void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
             void addHandles(const Model::Brush* brush) override;
             void removeHandles(const Model::Brush* brush) override;

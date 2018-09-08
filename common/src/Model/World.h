@@ -95,9 +95,9 @@ namespace TrenchBroom {
             void doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth) override;
 
             bool doSelectable() const override;
-            void doPick(const ray3& ray, PickResult& pickResult) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
             void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const ray3& ray) const override;
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;

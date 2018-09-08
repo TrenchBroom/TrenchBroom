@@ -174,7 +174,7 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
-        void Entity::doPick(const ray3& ray, PickResult& pickResult) const {
+        void Entity::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             if (!hasChildren()) {
                 const vm::bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin)) {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType Entity::doIntersectWithRay(const ray3& ray) const {
+        FloatType Entity::doIntersectWithRay(const vm::ray3& ray) const {
             if (hasChildren()) {
                 const vm::bbox3& myBounds = bounds();
                 if (!myBounds.contains(ray.origin) && Math::isnan(intersect(ray, myBounds))) {

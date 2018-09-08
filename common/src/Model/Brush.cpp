@@ -1014,7 +1014,7 @@ namespace TrenchBroom {
                 for (const auto* face : remaining.faces()) {
                     if (face->pointStatus(oldPos) == Math::PointStatus::PSBelow &&
                         face->pointStatus(newPos) == Math::PointStatus::PSAbove) {
-                        const ray3 ray(oldPos, normalize(newPos - oldPos));
+                        const vm::ray3 ray(oldPos, normalize(newPos - oldPos));
                         const auto distance = face->intersectWithRay(ray, Math::Side_Back);
                         if (!Math::isnan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();
@@ -1326,7 +1326,7 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Brush::doPick(const ray3& ray, PickResult& pickResult) const {
+        void Brush::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             const auto hit = findFaceHit(ray);
             if (hit.face != nullptr) {
                 ensure(!Math::isnan(hit.distance), "nan hit distance");
@@ -1341,7 +1341,7 @@ namespace TrenchBroom {
             }
         }
 
-        FloatType Brush::doIntersectWithRay(const ray3& ray) const {
+        FloatType Brush::doIntersectWithRay(const vm::ray3& ray) const {
             const auto hit = findFaceHit(ray);
             return hit.distance;
         }
@@ -1350,7 +1350,7 @@ namespace TrenchBroom {
 
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
-        Brush::BrushFaceHit Brush::findFaceHit(const ray3& ray) const {
+        Brush::BrushFaceHit Brush::findFaceHit(const vm::ray3& ray) const {
             if (Math::isnan(vm::intersect(ray, bounds()))) {
                 return BrushFaceHit();
             }

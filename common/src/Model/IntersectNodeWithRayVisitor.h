@@ -28,9 +28,9 @@ namespace TrenchBroom {
     namespace Model {
         class IntersectNodeWithRayVisitor : public NodeVisitor, public NodeQuery<FloatType> {
         private:
-            const ray3& m_ray;
+            const vm::ray3& m_ray;
         public:
-            IntersectNodeWithRayVisitor(const ray3& ray);
+            IntersectNodeWithRayVisitor(const vm::ray3& ray);
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;

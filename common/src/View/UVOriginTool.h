@@ -65,7 +65,7 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
             
-            vm::vec2f computeHitPoint(const ray3& ray) const;
+            vm::vec2f computeHitPoint(const vm::ray3& ray) const;
             vm::vec2f snapDelta(const vm::vec2f& delta) const;
             
             void doEndMouseDrag(const InputState& inputState) override;

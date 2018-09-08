@@ -300,10 +300,10 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
 
-        Model::PickResult MapView3D::doPick(const ray3& pickRay) const {
+        Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
@@ -324,7 +324,7 @@ namespace TrenchBroom {
             const auto clientCoords = ScreenToClient(mouseState.GetPosition());
             
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const auto pickRay = ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
+                const auto pickRay = vm::ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
                 
                 const auto& editorContext = document->editorContext();
                 auto pickResult = Model::PickResult::byDistance(editorContext);

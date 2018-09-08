@@ -88,7 +88,7 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vm::vec2f UVOffsetTool::computeHitPoint(const ray3& ray) const {
+        vm::vec2f UVOffsetTool::computeHitPoint(const vm::ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto distance = intersect(ray, boundary);

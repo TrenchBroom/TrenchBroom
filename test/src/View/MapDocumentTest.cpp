@@ -505,7 +505,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
 
             Model::PickResult pickResult;
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
 
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
@@ -514,7 +514,7 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
             pickResult.clear();
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x), pickResult);
             ASSERT_TRUE(pickResult.query().all().empty());
         }
 
@@ -532,7 +532,7 @@ namespace TrenchBroom {
             const auto rayOrigin = origin + vm::vec3(-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0);
 
             Model::PickResult pickResult;
-            document->pick(ray3(rayOrigin, vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(rayOrigin, vm::vec3::pos_x), pickResult);
 
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
@@ -541,7 +541,7 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(32.0 - bounds.size().x() / 2.0, hits.front().distance());
 
             pickResult.clear();
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::neg_x), pickResult);
             ASSERT_TRUE(pickResult.query().all().empty());
         }
 
@@ -562,7 +562,7 @@ namespace TrenchBroom {
             auto* group = document->groupSelection("test");
 
             Model::PickResult pickResult;
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
 
             // picking a grouped object when the containing group is closed should return both the object and the group
             auto hits = pickResult.query().type(Model::Brush::BrushHit).all();
@@ -579,7 +579,7 @@ namespace TrenchBroom {
 
             // hitting both objects in the group should return the group only once
             pickResult.clear();
-            document->pick(ray3(vm::vec3(32, 32, -32), vm::vec3::pos_z), pickResult);
+            document->pick(vm::ray3(vm::vec3(32, 32, -32), vm::vec3::pos_z), pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(2u, hits.size());
@@ -589,7 +589,7 @@ namespace TrenchBroom {
 
             // hitting the group bounds doesn't count as a hit
             pickResult.clear();
-            document->pick(ray3(vm::vec3(-32, 0, 96), vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 96), vm::vec3::pos_x), pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_TRUE(hits.empty());
@@ -601,7 +601,7 @@ namespace TrenchBroom {
             document->openGroup(group);
 
             pickResult.clear();
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
 
             hits = pickResult.query().type(Model::Brush::BrushHit).all();
             ASSERT_EQ(1u, hits.size());
@@ -636,8 +636,8 @@ namespace TrenchBroom {
             document->selectAllNodes();
             auto* outer = document->groupSelection("outer");
 
-            const ray3 highRay(vm::vec3(-32, 0, 256+32), vm::vec3::pos_x);
-            const ray3  lowRay(vm::vec3(-32, 0,    +32), vm::vec3::pos_x);
+            const vm::ray3 highRay(vm::vec3(-32, 0, 256+32), vm::vec3::pos_x);
+            const vm::ray3  lowRay(vm::vec3(-32, 0,    +32), vm::vec3::pos_x);
 
             /*
              *          Z
@@ -777,7 +777,7 @@ namespace TrenchBroom {
             Model::PickResult pickResult;
 
             // picking entity brushes should only return the brushes and not the entity
-            document->pick(ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
+            document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x), pickResult);
 
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
