@@ -219,9 +219,9 @@ namespace TrenchBroom {
             direction = normalize(direction);
 
             FloatType angle = vm::round(vm::degrees(std::acos(direction.x())));
-            if (vm::neg(direction.y()))
+            if (vm::isNegative(direction.y()))
                 angle = 360.0 - angle;
-            while (vm::neg(angle))
+            while (vm::isNegative(angle))
                 angle += 360.0;
             return angle;
         }

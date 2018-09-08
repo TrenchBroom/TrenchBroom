@@ -217,7 +217,7 @@ namespace vm {
      * @return true if all components of the given matrices are equal, and false otherwise
      */
     template <typename T, size_t R, size_t C>
-    bool equal(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs, T epsilon);
+    bool isEqual(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs, T epsilon);
 
     /**
      * Checks whether all columns of the given matrix are zero.

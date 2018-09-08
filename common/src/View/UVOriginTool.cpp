@@ -182,17 +182,19 @@ namespace TrenchBroom {
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
             vm::vec2f distanceInTexCoords = vm::vec2f::max;
-            for (const Model::BrushVertex* vertex : face->vertices())
-                distanceInTexCoords = absMin(distanceInTexCoords, vm::vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
-            
+            for (const Model::BrushVertex* vertex : face->vertices()) {
+                distanceInTexCoords = vm::absMin(distanceInTexCoords, vm::vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
+            }
+
             // and to the texture grid
             const Assets::Texture* texture = face->texture();
-            if (texture != nullptr)
-                distanceInTexCoords = absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3(newOriginInTexCoords)));
-            
+            if (texture != nullptr) {
+                distanceInTexCoords = vm::absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3(newOriginInTexCoords)));
+            }
+
             // finally snap to the face center
             const vm::vec2f faceCenter(w2tTransform * face->boundsCenter());
-            distanceInTexCoords = absMin(distanceInTexCoords, faceCenter - newOriginInTexCoords);
+            distanceInTexCoords = vm::absMin(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system

@@ -78,6 +78,11 @@ namespace vm {
     }
 
     template <typename T, size_t S>
+    bool isEqual(const line<T,S>& lhs, const line<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.point, rhs.point, epsilon) && isEqual(lhs.direction, rhs.direction, epsilon);
+    }
+
+    template <typename T, size_t S>
     bool operator==(const line<T,S>& lhs, const line<T,S>& rhs) {
         const auto lhsC = lhs.makeCanonical();
         const auto rhsC = rhs.makeCanonical();

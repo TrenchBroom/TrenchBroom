@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TRENCHBROOM_VEC_DECL_H
 #define TRENCHBROOM_VEC_DECL_H
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "constants.h"
 
 #include <array>
@@ -419,7 +419,7 @@ namespace vm {
      * @return true if the given vectors are component wise equal up to the given epsilon value
      */
     template <typename T, size_t S>
-    bool equal(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon);
+    bool isEqual(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon);
 
     /**
      * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.
@@ -1063,7 +1063,7 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> roundDownToMultiple(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snapDown(const vec<T,S>& v, const vec<T,S>& m);
 
     /**
      * Rounds the components of the given vector up to multiples of the components of the given vector m.
@@ -1075,7 +1075,7 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> roundUpToMultiple(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snapUp(const vec<T,S>& v, const vec<T,S>& m);
 
     /**
      * Rounds the components of the given vector to multiples of the components of the given vector m.
@@ -1087,7 +1087,7 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> roundToMultiple(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snap(const vec<T,S>& v, const vec<T,S>& m);
 
     /**
      * Corrects the given vector's components to the given number of decimal places.

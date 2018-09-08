@@ -26,7 +26,7 @@
 #include "mat_decl.h"
 #include "mat_impl.h"
 
-#include "MathUtils.h"
+#include "utils.h"
 
 #include <cstddef>
 
@@ -68,6 +68,11 @@ namespace vm {
         } else {
             return PointStatus::PSInside;
         }
+    }
+
+    template <typename T, size_t S>
+    bool isEqual(const ray<T,S>& lhs, const ray<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.origin, rhs.origin, epsilon) && isEqual(lhs.direction, rhs.direction, epsilon);
     }
 
     template <typename T, size_t S>

@@ -646,7 +646,7 @@ typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ra
     auto* currentFace = firstFace;
     do {
         const auto distance = currentFace->intersectWithRay(ray, side);
-        if (!vm::isnan(distance)) {
+        if (!vm::isNan(distance)) {
             return FaceHit(currentFace, distance);
         }
         currentFace = currentFace->next();
@@ -659,7 +659,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::findVertexByPosition(
     auto* firstVertex = m_vertices.front();
     auto* currentVertex = firstVertex;
     do {
-        if (currentVertex != except && equal(position, currentVertex->position(), epsilon)) {
+        if (currentVertex != except && isEqual(position, currentVertex->position(), epsilon)) {
             return currentVertex;
         }
         currentVertex = currentVertex->next();

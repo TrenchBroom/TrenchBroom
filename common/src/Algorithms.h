@@ -29,7 +29,7 @@ namespace vm {
     template <typename T, typename I, typename F = Identity>
     T intersectPolygonWithRay(const ray<T,3>& ray, const plane<T,3>& plane, I cur, I end, const F& getPosition = F()) {
         const auto distance = intersect(ray, plane);
-        if (isnan(distance)) {
+        if (isNan(distance)) {
             return distance;
         }
 
@@ -102,7 +102,7 @@ namespace vm {
 
     template <typename T>
     int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
-        if (zero(v0.x()) && zero(v0.y())) {
+        if (isZero(v0.x()) && isZero(v0.y())) {
             // the point is identical to a polygon vertex, cancel search
             return -1;
         }
@@ -122,20 +122,20 @@ namespace vm {
          */
 
         // Does Y segment covered by the given edge touch the X axis at all?
-        if (( pos(v0.y()) &&  pos(v1.y())) ||
-            ( neg(v0.y()) &&  neg(v1.y())) ||
-            (zero(v0.y()) && zero(v1.y()))) {
+        if ((isPositive(v0.y()) && isPositive(v1.y())) ||
+            (isNegative(v0.y()) && isNegative(v1.y())) ||
+            (isZero(v0.y()) && isZero(v1.y()))) {
             return 0;
         }
 
 
         // Is segment entirely on the positive side of the X axis?
-        if (pos(v0.x()) && pos(v1.x())) {
+        if (isPositive(v0.x()) && isPositive(v1.x())) {
             return 1;
         }
 
         // Is segment entirely on the negative side of the X axis?
-        if (neg(v0.x()) && neg(v1.x())) {
+        if (isNegative(v0.x()) && isNegative(v1.x())) {
             return 0;
         }
 
@@ -143,12 +143,12 @@ namespace vm {
         const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
 
         // Is the point of intersection on the given edge?
-        if (zero(x)) {
+        if (isZero(x)) {
             return -1;
         }
 
         // Is the point of intersection on the positive X axis?
-        if (pos(x)) {
+        if (isPositive(x)) {
             return 1;
         }
 

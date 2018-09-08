@@ -19,7 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <gtest/gtest.h>
 
-#include "MathUtils.h"
+#include "utils.h"
 
 #include <cstdint>
 

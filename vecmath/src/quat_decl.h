@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_QUAT_DECL_H
 #define TRENCHBROOM_QUAT_DECL_H
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
 

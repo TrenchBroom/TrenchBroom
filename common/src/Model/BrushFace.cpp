@@ -621,18 +621,19 @@ namespace TrenchBroom {
 
         bool BrushFace::containsPoint(const vm::vec3& point) const {
             const vm::vec3 toPoint = point - m_boundary.anchor();
-            if (!vm::zero(dot(toPoint, m_boundary.normal)))
+            if (!vm::isZero(dot(toPoint, m_boundary.normal))) {
                 return false;
-
-            const vm::ray3 ray(point + m_boundary.normal, -m_boundary.normal);
-            return !vm::isnan(intersectWithRay(ray));
+            } else {
+                const vm::ray3 ray(point + m_boundary.normal, -m_boundary.normal);
+                return !vm::isNan(intersectWithRay(ray));
+            }
         }
 
         FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);
-            if (!vm::neg(cos))
+            if (!vm::isNegative(cos))
                 return vm::nan<FloatType>();
             
             return intersectPolygonWithRay(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());

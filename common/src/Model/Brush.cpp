@@ -347,7 +347,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::vec3& normal) const {
             for (auto* face : m_faces) {
-                if (equal(face->boundary().normal, normal, vm::Constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary().normal, normal, vm::Constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
@@ -356,7 +356,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const vm::plane3& boundary) const {
             for (auto* face : m_faces) {
-                if (equal(face->boundary(), boundary, vm::Constants<FloatType>::almostZero())) {
+                if (isEqual(face->boundary(), boundary, vm::Constants<FloatType>::almostZero())) {
                     return face;
                 }
             }
@@ -1016,7 +1016,7 @@ namespace TrenchBroom {
                         face->pointStatus(newPos) == vm::PointStatus::PSAbove) {
                         const vm::ray3 ray(oldPos, normalize(newPos - oldPos));
                         const auto distance = face->intersectWithRay(ray, vm::Side_Back);
-                        if (!vm::isnan(distance)) {
+                        if (!vm::isNan(distance)) {
                             return CanMoveVerticesResult::rejectVertexMove();
                         }
                     }
@@ -1329,7 +1329,7 @@ namespace TrenchBroom {
         void Brush::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             const auto hit = findFaceHit(ray);
             if (hit.face != nullptr) {
-                ensure(!vm::isnan(hit.distance), "nan hit distance");
+                ensure(!vm::isNan(hit.distance), "nan hit distance");
                 const auto hitPoint = ray.pointAtDistance(hit.distance);
                 pickResult.addHit(Hit(BrushHit, hit.distance, hitPoint, hit.face));
             }
@@ -1351,13 +1351,13 @@ namespace TrenchBroom {
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const vm::ray3& ray) const {
-            if (vm::isnan(vm::intersect(ray, bounds()))) {
+            if (vm::isNan(vm::intersect(ray, bounds()))) {
                 return BrushFaceHit();
             }
 
             for (auto* face : m_faces) {
                 const auto distance = face->intersectWithRay(ray);
-                if (!vm::isnan(distance)) {
+                if (!vm::isNan(distance)) {
                     return BrushFaceHit(face, distance);
                 }
             }

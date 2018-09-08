@@ -52,6 +52,28 @@ namespace vm {
     }
 
     template <typename T, size_t S>
+    T segment<T,S>::length() const {
+        return vm::length(m_end - m_start);
+    }
+
+    template <typename T, size_t S>
+    T segment<T,S>::squaredLength() const {
+        return vm::squaredLength(m_end - m_start);
+    }
+
+    template <typename T, size_t S>
+    bool segment<T,S>::contains(const vec<T,S>& point, const T maxDistance) const {
+        const auto f = this->distanceToProjectedPoint(point);
+        if (lt(f, T(0.0), maxDistance) ||
+            gt(f * f, squaredLength(), maxDistance * maxDistance)) {
+            return false;
+        } else {
+            const auto proj = this->pointAtDistance(f);
+            return squaredDistance(proj, point) <= (maxDistance * maxDistance);
+        }
+    }
+
+    template <typename T, size_t S>
     segment<T,S> segment<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
         return segment<T,S>(m_start * transform, m_end * transform);
     }
@@ -86,6 +108,11 @@ namespace vm {
         } else {
             return compare(lhs.end(), rhs.end(), epsilon);
         }
+    }
+
+    template <typename T, size_t S>
+    bool isEqual(const segment<T,S>& lhs, const segment<T,S>& rhs, const T epsilon) {
+        return compare(lhs, rhs, epsilon) == 0;
     }
 
     template <typename T, size_t S>

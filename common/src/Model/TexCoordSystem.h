@@ -113,7 +113,7 @@ namespace TrenchBroom {
 
             template <typename T>
             T safeScale(const T value) const {
-                return vm::zero(value) ? static_cast<T>(1.0) : value;
+                return vm::isEqual(value, T(0.0)) ? static_cast<T>(1.0) : value;
             }
             
             template <typename T1, typename T2>

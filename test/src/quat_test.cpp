@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "quat_decl.h"
 #include "quat_impl.h"
 #include "vec_decl.h"

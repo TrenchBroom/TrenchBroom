@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "MathUtils.h"
+#include "utils.h"
 
 #include <cmath>
 #include <gmock/gmock.h>
@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const float dist = fabsf(tc1[i] - tc2[i]);
             const float distRemainder = dist - floorf(dist);
             
-            if (!(vm::eq(0.0f, distRemainder) || vm::eq(1.0f, distRemainder)))
+            if (!(vm::isEqual(0.0f, distRemainder) || vm::isEqual(1.0f, distRemainder)))
                 return false;
         }
         return true;

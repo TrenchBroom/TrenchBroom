@@ -28,7 +28,7 @@
 #include "mat_impl.h"
 #include "quat_decl.h"
 #include "quat_impl.h"
-#include "MathUtils.h"
+#include "utils.h"
 
 #include <algorithm>
 

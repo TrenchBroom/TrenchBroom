@@ -495,7 +495,7 @@ namespace TrenchBroom {
                     const vm::vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
                         const auto result = distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
-                        if (!vm::isnan(result.distance) && result.distance < closestDistToRay) {
+                        if (!vm::isNan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
                             bestDistAlongRay = result.rayDistance;
@@ -547,7 +547,7 @@ namespace TrenchBroom {
                     // could figure out which endpoint is closer to camera, or just test both.
                     for (const vm::vec3& point : vm::vec3::List{points.start(), points.end()}) {
                         const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                        if (!vm::isnan(dist)) {
+                        if (!vm::isNan(dist)) {
                             localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
                         }
                     }
@@ -584,7 +584,7 @@ namespace TrenchBroom {
                 // cylinders of the edge handles, so they take priority where they overlap.
                 const FloatType cornerRadius = pref(Preferences::HandleRadius) * 2.0;
                 const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
-                if (!vm::isnan(dist)) {
+                if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
                 }
             }
@@ -594,7 +594,7 @@ namespace TrenchBroom {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
                 const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
-                if (!vm::isnan(dist)) {
+                if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
                 }
             }
@@ -604,7 +604,7 @@ namespace TrenchBroom {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
-                if (!vm::isnan(dist)) {
+                if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }

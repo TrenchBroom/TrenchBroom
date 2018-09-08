@@ -173,7 +173,7 @@ namespace TrenchBroom {
             const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
             
             const auto distance = intersect(pickRay, dragPlane);;
-            if (vm::isnan(distance)) {
+            if (vm::isNan(distance)) {
                 return vm::vec3::zero;
             } else {
                 const auto hitPoint = pickRay.pointAtDistance(distance);
@@ -298,7 +298,7 @@ namespace TrenchBroom {
                 const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
                 
                 const auto distance = intersect(pickRay, dragPlane);
-                if (vm::isnan(distance)) {
+                if (vm::isNan(distance)) {
                     return vm::vec3::zero;
                 } else {
                     const auto hitPoint = pickRay.pointAtDistance(distance);

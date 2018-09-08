@@ -47,7 +47,7 @@ namespace vm {
 
     template <typename T, size_t S>
     T plane<T,S>::at(const vec<T,S-1>& point, const Axis::Type axis) const {
-        if (zero(normal[axis])) {
+        if (isZero(normal[axis])) {
             return static_cast<T>(0.0);
         }
 
@@ -114,7 +114,7 @@ namespace vm {
     template <typename T, size_t S>
     vec<T,S> plane<T,S>::projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
         const auto cos = dot(direction, normal);
-        if (zero(cos)) {
+        if (isZero(cos)) {
             return vec<T,S>::NaN;
         }
         const auto d = dot(distance * normal - point, normal) / cos;
@@ -129,6 +129,11 @@ namespace vm {
     template <typename T, size_t S>
     vec<T,S> plane<T,S>::projectVector(const vec<T,S>& vector, const vec<T,S>& direction) const {
         return projectPoint(anchor() + vector, direction) - anchor();
+    }
+
+    template <typename T, size_t S>
+    bool isEqual(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.distance, rhs.distance, epsilon) && isEqual(lhs.normal, rhs.normal, epsilon);
     }
 
     template <typename T, size_t S>
@@ -147,11 +152,6 @@ namespace vm {
         return stream;
     }
 
-    template <typename T, size_t S>
-    bool equal(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
-        return eq(lhs.distance, rhs.distance, epsilon) && equal(lhs.normal, rhs.normal, epsilon);
-    }
-
     template <typename T>
     std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, const T epsilon) {
         const auto v1 = p3 - p1;
@@ -162,8 +162,8 @@ namespace vm {
         // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives
         // sin_theta below.
         const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
-        if (isnan(sin_theta) ||
-            isinf(sin_theta) ||
+        if (isNan(sin_theta) ||
+                isInf(sin_theta) ||
             sin_theta < epsilon) {
             return std::make_tuple(false, vec<T,3>::zero);
         } else {

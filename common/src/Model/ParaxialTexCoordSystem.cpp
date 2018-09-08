@@ -128,7 +128,7 @@ namespace TrenchBroom {
             assert(isUnit(newNormal));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (equal(newNormal, oldNormal, 0.01)) {
+            if (isEqual(newNormal, oldNormal, 0.01)) {
                 newNormal = oldNormal;
             }
 
@@ -172,8 +172,8 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
             float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
             float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis));
-            assert(!vm::isnan(cosX));
-            assert(!vm::isnan(cosY));
+            assert(!vm::isNan(cosX));
+            assert(!vm::isNan(cosY));
 
             float radX = std::acos(cosX);
             if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
@@ -216,9 +216,9 @@ namespace TrenchBroom {
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
-            assert(!vm::isnan(newRotation));
-            assert(!vm::zero(newScale.x()));
-            assert(!vm::zero(newScale.y()));
+            assert(!vm::isNan(newRotation));
+            assert(!vm::isZero(newScale.x()));
+            assert(!vm::isZero(newScale.y()));
             
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);

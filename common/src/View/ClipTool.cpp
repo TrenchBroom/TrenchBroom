@@ -144,7 +144,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const auto& point = m_points[i].point;
                     const auto distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                    if (!vm::isnan(distance)) {
+                    if (!vm::isNan(distance)) {
                         const auto hitPoint = pickRay.pointAtDistance(distance);
                         pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
                     }

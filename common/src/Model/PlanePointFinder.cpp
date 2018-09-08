@@ -173,7 +173,7 @@ namespace TrenchBroom {
                 return;
             
             const FloatType frequency = computePlaneFrequency(plane);
-            if (vm::zero(frequency, 1.0 / 7084.0)) {
+            if (vm::isZero(frequency, 1.0 / 7084.0)) {
                 setDefaultPlanePoints(plane, points);
                 return;
             }
@@ -206,7 +206,7 @@ namespace TrenchBroom {
                 cos = dot(v1, v2);
                 multiplier *= 1.5f;
                 ++count;
-            } while (vm::isnan(cos) || std::abs(cos) > 0.9);
+            } while (vm::isNan(cos) || std::abs(cos) > 0.9);
             
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0)) {

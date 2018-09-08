@@ -89,7 +89,7 @@ typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::Face::findHalfEdge(
     auto* firstEdge = m_boundary.front();
     auto* currentEdge = firstEdge;
     do {
-        if (equal(currentEdge->origin()->position(), origin, epsilon)) {
+        if (isEqual(currentEdge->origin()->position(), origin, epsilon)) {
             return currentEdge;
         }
         currentEdge = currentEdge->next();
@@ -118,12 +118,12 @@ typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::Face::findEdge(const V&
         return nullptr;
     }
 
-    if (equal(halfEdge->destination()->position(), second, epsilon)) {
+    if (isEqual(halfEdge->destination()->position(), second, epsilon)) {
         return halfEdge->edge();
     }
 
     halfEdge = halfEdge->previous();
-    if (equal(halfEdge->origin()->position(), second, epsilon)) {
+    if (isEqual(halfEdge->origin()->position(), second, epsilon)) {
         return halfEdge->edge();
     }
 
@@ -159,7 +159,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T eps
     const auto* firstEdge = m_boundary.front();
     const auto* currentEdge = firstEdge;
     do {
-        if (equal(currentEdge->origin()->position(), position, epsilon)) {
+        if (isEqual(currentEdge->origin()->position(), position, epsilon)) {
             return true;
         }
         currentEdge = currentEdge->next();
@@ -491,7 +491,7 @@ private:
     RayIntersection(const Type type, const T distance) :
     m_type(type),
     m_distance(distance) {
-        assert(!vm::isnan(m_distance) || m_type == Type_None);
+        assert(!vm::isNan(m_distance) || m_type == Type_None);
     }
 public:
     static RayIntersection Front(const T distance) {
@@ -528,12 +528,12 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     
-    if (vm::zero(cos)) {
+    if (vm::isZero(cos)) {
         return RayIntersection::None();
     }
 
     const auto distance = intersectPolygonWithRay(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
-    if (vm::isnan(distance)) {
+    if (vm::isNan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {
         return RayIntersection::Front(distance);

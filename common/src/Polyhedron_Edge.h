@@ -134,23 +134,23 @@ bool Polyhedron<T,FP,VP>::Edge::hasVertex(const Vertex* vertex) const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPosition(const V& position, const T epsilon) const {
-    return (equal( firstVertex()->position(), position, epsilon) ||
-            equal(secondVertex()->position(), position, epsilon));
+    return (isEqual( firstVertex()->position(), position, epsilon) ||
+            isEqual(secondVertex()->position(), position, epsilon));
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::hasPositions(const V& position1, const V& position2, const T epsilon) const {
-    return ((equal( firstVertex()->position(), position1, epsilon) &&
-             equal(secondVertex()->position(), position2, epsilon)) ||
-            (equal( firstVertex()->position(), position2, epsilon) &&
-             equal(secondVertex()->position(), position1, epsilon))
+    return ((isEqual( firstVertex()->position(), position1, epsilon) &&
+             isEqual(secondVertex()->position(), position2, epsilon)) ||
+            (isEqual( firstVertex()->position(), position2, epsilon) &&
+             isEqual(secondVertex()->position(), position1, epsilon))
             );
 }
 
 template <typename T, typename FP, typename VP>
 T Polyhedron<T,FP,VP>::Edge::distanceTo(const V& position1, const V& position2) const {
-    const T pos1Distance = std::min(squaredDistance(firstVertex()->position(), position1), squaredDistance(secondVertex()->position(), position1));
-    const T pos2Distance = std::min(squaredDistance(firstVertex()->position(), position2), squaredDistance(secondVertex()->position(), position2));
+    const T pos1Distance = vm::min(squaredDistance(firstVertex()->position(), position1), squaredDistance(secondVertex()->position(), position1));
+    const T pos2Distance = vm::min(squaredDistance(firstVertex()->position(), position2), squaredDistance(secondVertex()->position(), position2));
     return std::max(pos1Distance, pos2Distance);
 }
 

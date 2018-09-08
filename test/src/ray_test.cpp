@@ -21,7 +21,7 @@
 
 #include "ray_decl.h"
 #include "ray_impl.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "TestUtils.h"
 
 TEST(RayTest, pointAtDistance) {

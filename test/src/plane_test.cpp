@@ -22,7 +22,7 @@
 #include "vec_decl.h"
 #include "plane_decl.h"
 #include "plane_impl.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "TestUtils.h"
 
 #include <array>
@@ -114,12 +114,12 @@ TEST(PlaneTest, xYZValueAt) {
     ASSERT_FLOAT_EQ(p.at(point1, vm::Axis::AZ), p.zAt(point1));
 }
 
-TEST(PlaneTest, equal) {
-    ASSERT_TRUE(equal(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_x), vm::Constants<float>::almostZero()));
-    ASSERT_TRUE(equal(vm::plane3f(0.0f, vm::vec3f::pos_y), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
-    ASSERT_TRUE(equal(vm::plane3f(0.0f, vm::vec3f::pos_z), vm::plane3f(0.0f, vm::vec3f::pos_z), vm::Constants<float>::almostZero()));
-    ASSERT_FALSE(equal(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::neg_x), vm::Constants<float>::almostZero()));
-    ASSERT_FALSE(equal(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
+TEST(PlaneTest, isEqual) {
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_x), vm::Constants<float>::almostZero()));
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_y), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
+    ASSERT_TRUE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_z), vm::plane3f(0.0f, vm::vec3f::pos_z), vm::Constants<float>::almostZero()));
+    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::neg_x), vm::Constants<float>::almostZero()));
+    ASSERT_FALSE(isEqual(vm::plane3f(0.0f, vm::vec3f::pos_x), vm::plane3f(0.0f, vm::vec3f::pos_y), vm::Constants<float>::almostZero()));
 }
 
 TEST(PlaneTest, transform) {

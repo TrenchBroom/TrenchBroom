@@ -217,7 +217,7 @@ namespace vm {
     }
 
     template <typename T, size_t R, size_t C>
-    bool equal(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs, const T epsilon) {
+    bool isEqual(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs, const T epsilon) {
         return compare(lhs, rhs, epsilon) == 0;
     }
 
@@ -683,9 +683,9 @@ namespace vm {
         const auto  yAxis = normalize(cross(normal, xAxis));
         const auto& zAxis = direction;
 
-        assert(eq(length(xAxis), 1.0));
-        assert(eq(length(yAxis), 1.0));
-        assert(eq(length(zAxis), 1.0));
+        assert(isEqual(length(xAxis), 1.0));
+        assert(isEqual(length(yAxis), 1.0));
+        assert(isEqual(length(zAxis), 1.0));
 
         return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
     }

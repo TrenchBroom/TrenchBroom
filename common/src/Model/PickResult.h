@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_PickResult
 #define TrenchBroom_PickResult
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "Model/CompareHits.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"

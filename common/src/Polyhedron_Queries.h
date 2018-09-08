@@ -41,17 +41,20 @@ bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) con
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::contains(const Polyhedron& other, const Callback& callback) const {
-    if (!polyhedron())
+    if (!polyhedron()) {
         return false;
-    
-    if (!bounds().contains(other.bounds()))
+    }
+
+    if (!bounds().contains(other.bounds())) {
         return false;
+    }
 
     const Vertex* theirFirst = other.vertices().front();
     const Vertex* theirCurrent = theirFirst;
     do {
-        if (!contains(theirCurrent->position()))
+        if (!contains(theirCurrent->position())) {
             return false;
+        }
         theirCurrent = theirCurrent->next();
     } while (theirCurrent != theirFirst);
     return true;
@@ -130,7 +133,7 @@ bool Polyhedron<T,FP,VP>::pointIntersectsEdge(const Polyhedron& lhs, const Polyh
     const V& rhsStart = rhsEdge->firstVertex()->position();
     const V& rhsEnd = rhsEdge->secondVertex()->position();
 
-    return between(lhsPos, rhsStart, rhsEnd);
+    return vm::segment<T,3>(rhsStart, rhsEnd).contains(lhsPos, vm::Constants<T>::almostZero());
 }
 
 template <typename T, typename FP, typename VP>
@@ -186,8 +189,8 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
             const auto rhsStartDist = lhsRay.distanceToProjectedPoint(rhsStart);
             const auto rhsEndDist   = lhsRay.distanceToProjectedPoint(rhsEnd);
             
-            return (vm::between(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
-                    vm::between(rhsEndDist,   0.0, rayLen) ||  // lhs contains rhs end
+            return (vm::contains(rhsStartDist, 0.0, rayLen) ||  // lhs constains rhs start
+                    vm::contains(rhsEndDist, 0.0, rayLen) ||  // lhs contains rhs end
                     (rhsStartDist > 0.0) != (rhsEndDist > 0.0)); // rhs contains lhs
         } else {
             return false;
@@ -253,10 +256,10 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     const auto lhsRay = vm::ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
     
     const auto dist = rhsFace->intersectWithRay(lhsRay, vm::Side_Both);
-    if (vm::isnan(dist)) {
+    if (vm::isNan(dist)) {
         const auto& edgeDir = lhsRay.direction;
         const auto faceNorm = rhsFace->normal();
-        if (vm::zero(dot(faceNorm, edgeDir))) {
+        if (vm::isZero(dot(faceNorm, edgeDir))) {
             // ray and face are parallel, intersect with edges
 
             static const auto MaxDistance = vm::Constants<T>::almostZero() * vm::Constants<T>::almostZero();

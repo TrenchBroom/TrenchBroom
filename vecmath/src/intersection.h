@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_RAYTRACE_H
 #define TRENCHBROOM_RAYTRACE_H
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
 #include "ray_decl.h"
@@ -45,12 +45,12 @@ namespace vm {
     template <typename T, size_t S>
     T intersect(const ray<T,S>& r, const plane<T,S>& p) {
         const auto d = dot(r.direction, p.normal);
-        if (zero(d)) {
+        if (isZero(d)) {
             return nan<T>();
         }
 
         const auto s = dot(p.anchor() - r.origin, p.normal) / d;
-        if (neg(s)) {
+        if (isNegative(s)) {
             return nan<T>();
         }
 
@@ -77,7 +77,7 @@ namespace vm {
         const auto  e2 = p3 - p1;
         const auto  p  = cross(d, e2);
         const auto  a  = dot(p, e1);
-        if (zero(a)) {
+        if (isZero(a)) {
             return nan<T>();
         }
 
@@ -85,17 +85,17 @@ namespace vm {
         const auto  q  = cross(t, e1);
 
         const auto  u = dot(q, e2) / a;
-        if (neg(u)) {
+        if (isNegative(u)) {
             return nan<T>();
         }
 
         const auto  v = dot(p, t) / a;
-        if (neg(v)) {
+        if (isNegative(v)) {
             return nan<T>();
         }
 
         const auto  w = dot(q, d) / a;
-        if (neg(w)) {
+        if (isNegative(w)) {
             return nan<T>();
         }
 
@@ -238,7 +238,7 @@ namespace vm {
     template <typename T, size_t S>
     T intersect(const line<T,S>& l, const plane<T,3>& p) {
         const auto f = dot(l.direction, p.normal);
-        if (zero(f)) {
+        if (isZero(f)) {
             return nan<T>();
         } else {
             return dot(p.distance * p.normal - l.point, p.normal) / f;

@@ -203,7 +203,7 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    bool equal(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
+    bool isEqual(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
         return compare(lhs, rhs, epsilon) == 0;
     }
 
@@ -545,13 +545,13 @@ namespace vm {
 
     template <typename T, size_t S>
     bool isUnit(const vec<T,S>& v, const T epsilon) {
-        return one(length(v), epsilon);
+        return isEqual(length(v), T(1.0), epsilon);
     }
 
     template <typename T, size_t S>
     bool isZero(const vec<T,S>& v, const T epsilon) {
         for (size_t i = 0; i < S; ++i) {
-            if (!zero(v[i], epsilon)) {
+            if (!isZero(v[i], epsilon)) {
                 return false;
             }
         }
@@ -561,7 +561,7 @@ namespace vm {
     template <typename T, size_t S>
     bool isNaN(const vec<T,S>& v) {
         for (size_t i = 0; i < S; ++i) {
-            if (isnan(v[i])) {
+            if (isNan(v[i])) {
                 return true;
             }
         }
@@ -622,13 +622,13 @@ namespace vm {
             l += ba * ba;
         }
 
-        return zero(j * j - k * l, epsilon);
+        return isZero(j * j - k * l, epsilon);
     }
 
     template <typename T, size_t S>
     bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
         const T cos = dot(normalize(lhs), normalize(rhs));
-        return one(abs(cos), epsilon);
+        return isEqual(abs(cos), T(1.0), epsilon);
     }
 
     /* ========== rounding and error correction ========== */
@@ -643,28 +643,28 @@ namespace vm {
     }
 
     template <typename T, size_t S>
-    vec<T,S> roundDownToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> snapDown(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = roundDownToMultiple(v[i], m[i]);
+            result[i] = snapDown(v[i], m[i]);
         }
         return result;
     }
 
     template <typename T, size_t S>
-    vec<T,S> roundUpToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> snapUp(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = roundUpToMultiple(v[i], m[i]);
+            result[i] = snapUp(v[i], m[i]);
         }
         return result;
     }
 
     template <typename T, size_t S>
-    vec<T,S> roundToMultiple(const vec<T,S>& v, const vec<T,S>& m) {
+    vec<T,S> snap(const vec<T,S>& v, const vec<T,S>& m) {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
-            result[i] = roundToMultiple(v[i], m[i]);
+            result[i] = snap(v[i], m[i]);
         }
         return result;
     }
@@ -685,7 +685,7 @@ namespace vm {
         const vec<T,S> toEnd   =   end - p;
 
         const T d = dot(toEnd, normalize(toStart));
-        return !pos(d);
+        return !isPositive(d);
     }
 
     template <typename I, typename G>
@@ -704,13 +704,13 @@ namespace vm {
     template <typename T>
     T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
         const auto cos = dot(v, axis);
-        if (one(+cos)) {
+        if (isEqual(+cos, T(1.0))) {
             return static_cast<T>(0.0);
-        } else if (one(-cos)) {
+        } else if (isEqual(-cos, T(1.0))) {
             return Constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);
-            if (!neg(dot(perp, up))) {
+            if (!isNegative(dot(perp, up))) {
                 return std::acos(cos);
             } else {
                 return Constants<T>::twoPi() - std::acos(cos);

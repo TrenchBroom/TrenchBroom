@@ -95,6 +95,19 @@ namespace vm {
     };
 
     /**
+     * Checks whether the given lines have equal components.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first line
+     * @param rhs the second line
+     * @param epsilon the epsilon value
+     * @return true if all components of the given lines are equal, and false otherwise
+     */
+    template <typename T, size_t S>
+    bool isEqual(const line<T,S>& lhs, const line<T,S>& rhs, T epsilon);
+
+    /**
      * Checks whether the two given lines are identical.
      *
      * @tparam T the component type

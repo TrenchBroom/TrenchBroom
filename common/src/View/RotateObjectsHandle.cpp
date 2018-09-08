@@ -303,7 +303,7 @@ namespace TrenchBroom {
         
         Model::Hit RotateObjectsHandle::pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
-            if (vm::isnan(distance))
+            if (vm::isNan(distance))
                 return Model::Hit::NoHit;
             return Model::Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
         }

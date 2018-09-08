@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TRENCHBROOM_PLANE_DECL_H
 #define TRENCHBROOM_PLANE_DECL_H
 
-#include "MathUtils.h"
+#include "utils.h"
 #include "forward.h"
 #include "vec_decl.h"
 #include "vec_impl.h"
@@ -185,6 +185,19 @@ namespace vm {
     };
 
     /**
+     * Checks whether the given planes are equal using the given epsilon.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first plane
+     * @param rhs the second plane
+     * @param epsilon an epsilon value
+     * @return bool if the two planes are considered equal and false otherwise
+     */
+    template <typename T, size_t S>
+    bool isEqual(const plane<T,S>& lhs, const plane<T,S>& rhs, T epsilon);
+
+    /**
      * Checks if the given planes are identical.
      *
      * @tparam T the component type
@@ -219,19 +232,6 @@ namespace vm {
      */
     template <typename T, size_t S>
     std::ostream& operator<<(std::ostream& stream, const plane<T,S>& plane);
-
-    /**
-     * Checks whether the given planes are equal using the given epsilon.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param lhs the first plane
-     * @param rhs the second plane
-     * @param epsilon an epsilon value
-     * @return bool if the two planes are considered equal and false otherwise
-     */
-    template <typename T, size_t S>
-    bool equal(const plane<T,S>& lhs, const plane<T,S>& rhs, T epsilon);
 
     /**
      * Computes the normal of a plane in three point form.

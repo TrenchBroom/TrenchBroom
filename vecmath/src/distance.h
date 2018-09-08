@@ -208,7 +208,7 @@ namespace vm {
         const auto e = dot(v, w);
         const auto D = a * c - b * b;
 
-        if (zero(D)) {
+        if (isZero(D)) {
             const auto f = dot(w, v);
             const auto z = w - f * v;
             return LineDistance<T>::Parallel(squaredLength(z));
@@ -229,8 +229,8 @@ namespace vm {
             tD = c;
         }
 
-        const auto sc = zero(sN) ? static_cast<T>(0.0) : sN / sD;
-        const auto tc = std::max(zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        const auto sc = isZero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const auto tc = std::max(isZero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
 
         u = u * sc; // vector from p1 to the closest point on the segment
         v = v * tc; // vector from ray origin to closest point on the ray
@@ -280,7 +280,7 @@ namespace vm {
         T sN, sD = D;
         T tN, tD = D;
 
-        if (zero(D)) {
+        if (isZero(D)) {
             const auto f = w.dot(v);
             const auto z = w - f * v;
             return LineDistance<T>::Parallel(squaredLength(z));
@@ -294,8 +294,8 @@ namespace vm {
             tD = c;
         }
 
-        const auto sc = zero(sN) ? static_cast<T>(0.0) : sN / sD;
-        const auto tc = std::max(zero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
+        const auto sc = isZero(sN) ? static_cast<T>(0.0) : sN / sD;
+        const auto tc = std::max(isZero(tN) ? static_cast<T>(0.0) : tN / tD, static_cast<T>(0.0));
 
         u = u * sc; // vector from the second ray's origin to the closest point on first ray
         v = v * tc; // vector from the first ray's origin to closest point on the first ray
@@ -340,7 +340,7 @@ namespace vm {
         const T e = dot(l.direction, w0);
 
         const T D = a * c - b * b;
-        if (zero(D)) {
+        if (isZero(D)) {
             const T f = dot(w0, l.direction);
             const vec<T,S> z = w0 - f * l.direction;
             return LineDistance<T>::Parallel(squaredLength(z));

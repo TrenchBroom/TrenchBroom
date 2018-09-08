@@ -70,8 +70,8 @@ namespace TrenchBroom {
             
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
             // the shear handle to be dragged is very close to one of the texture axes.
-            if (vm::zero(m_initialHit.x(), 6.0f) ||
-                vm::zero(m_initialHit.y(), 6.0f))
+            if (vm::isZero(m_initialHit.x(), 6.0f) ||
+                    vm::isZero(m_initialHit.y(), 6.0f))
                 return false;
             
             MapDocumentSPtr document = lock(m_document);

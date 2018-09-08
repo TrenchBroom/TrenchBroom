@@ -318,20 +318,23 @@ template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
-    Vertex* v1 = m_vertices.front();
-    Vertex* v2 = v1->next();
+    auto* v1 = m_vertices.front();
+    auto* v2 = v1->next();
     assert(colinear(v1->position(), v2->position(), position));
 
-    if (between(position, v1->position(), v2->position())) {
+    if (vm::segment<T,3>(v1->position(), v2->position()).contains(position, vm::Constants<T>::almostZero())) {
         return nullptr;
     }
 
-    if (between(v1->position(), position, v2->position())) {
+    if (vm::segment<T,3>(position, v2->position()).contains(v1->position(), vm::Constants<T>::almostZero())) {
         v1->setPosition(position);
         return v1;
     }
 
-    assert(between(v2->position(), position, v1->position()));
+    if (!vm::segment<T,3>(position, v1->position()).contains(v2->position(), vm::Constants<T>::almostZero())) {
+        bool b = true;
+    }
+    assert((vm::segment<T,3>(position, v1->position()).contains(v2->position(), vm::Constants<T>::almostZero())));
     v2->setPosition(position);
     return v2;
 }
@@ -431,7 +434,8 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
         const vm::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
         
         // If the current edge contains the point, it will not be added anyway.
-        if (curStatus == vm::PointStatus::PSInside && between(position, curEdge->origin()->position(), curEdge->destination()->position())) {
+        if (curStatus == vm::PointStatus::PSInside &&
+            vm::segment<T,3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position, vm::Constants<T>::almostZero())) {
             return nullptr;
         }
 

@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 const auto stripeSize = UVViewHelper::stripeSize();
                 
                 for (size_t i = 0; i < 2; ++i) {
-                    const auto closestStrip = vm::roundToMultiple(hitPointInTexCoords[i], stripeSize[i]);
+                    const auto closestStrip = vm::snap(hitPointInTexCoords[i], stripeSize[i]);
                     const auto error = vm::abs(hitPointInTexCoords[i] - closestStrip);
                     if (error <= maxDistance) {
                         const auto index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             const vm::vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
-            const vm::vec2 closest = roundToMultiple(position.xy(), stripe);
+            const vm::vec2 closest = snap(position.xy(), stripe);
             return vm::vec2f(closest - position.xy());
         }
         

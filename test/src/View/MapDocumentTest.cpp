@@ -20,7 +20,7 @@
 #include "MapDocumentTest.h"
 
 #include "TestUtils.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"

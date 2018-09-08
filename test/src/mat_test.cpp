@@ -459,7 +459,7 @@ TEST(MatTest, indexedAccess) {
     }
 }
 
-TEST(MatTest, equal) {
+TEST(MatTest, isEqual) {
     const vm::mat4x4d m( 1.0,  2.0,  3.0,  4.0,
                          5.0,  6.0,  7.0,  8.0,
                          9.0, 10.0, 11.0, 12.0,
@@ -470,8 +470,8 @@ TEST(MatTest, equal) {
                          9.0, 11.0, 11.0, 12.0,
                         13.0, 14.0, 15.0, 16.0);
 
-    ASSERT_TRUE(equal(m, n, 0.0));
-    ASSERT_FALSE(equal(m, o, 0.0));
+    ASSERT_TRUE(isEqual(m, n, 0.0));
+    ASSERT_FALSE(isEqual(m, o, 0.0));
 }
 
 TEST(MatTest, null) {

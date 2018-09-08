@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 // correct rounding errors
                 const auto cos = vm::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const auto angle = acosf(cos);
-                if (!vm::zero(angle)) {
+                if (!vm::isZero(angle)) {
                     const auto axis = normalize(cross(m_direction, newDirection));
                     rotation = vm::quatf(axis, angle);
                     offset = rotation * offset;

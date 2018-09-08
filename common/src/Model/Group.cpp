@@ -169,7 +169,7 @@ namespace TrenchBroom {
             // * it is top level or has an open parent
             if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
                 const auto distance = intersectWithRay(ray);
-                if (!vm::isnan(distance)) {
+                if (!vm::isNan(distance)) {
                     const auto hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
@@ -188,7 +188,7 @@ namespace TrenchBroom {
 
         FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
             const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && vm::isnan(intersect(ray, myBounds))) {
+            if (!myBounds.contains(ray.origin) && vm::isNan(intersect(ray, myBounds))) {
                 return vm::nan<FloatType>();
             }
 

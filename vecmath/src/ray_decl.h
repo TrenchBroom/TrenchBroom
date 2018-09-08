@@ -24,7 +24,7 @@
 #include "vec_decl.h"
 #include "mat_decl.h"
 
-#include "MathUtils.h"
+#include "utils.h"
 
 namespace vm {
     /**
@@ -99,6 +99,19 @@ namespace vm {
          */
         PointStatus::Type pointStatus(const vec<T,S>& point) const;
     };
+
+    /**
+     * Checks whether the given rays have equal components.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first ray
+     * @param rhs the second ray
+     * @param epsilon the epsilon value
+     * @return true if all components of the given rays are equal, and false otherwise
+     */
+    template <typename T, size_t S>
+    bool isEqual(const ray<T,S>& lhs, const ray<T,S>& rhs, T epsilon);
 
     /**
      * Checks whether the given rays are identical.

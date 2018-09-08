@@ -85,6 +85,29 @@ namespace vm {
         vec<T,S> getDirection() const override;
 
         /**
+         * Returns the length of this segment.
+         *
+         * @return the length of this segment
+         */
+        T length() const;
+
+        /**
+         * Returns the squared length of this segment.
+         *
+         * @return the squared length of this segment
+         */
+        T squaredLength() const;
+
+        /**
+         * Checks whether the given point is contained in this segment.
+         *
+         * @param point the point to check
+         * @param maxDistance the maximum distance from the point and this segment
+         * @return true if the given point is contained in this segment and false otherwise
+         */
+        bool contains(const vec<T,S>& point, T maxDistance) const;
+
+        /**
          * Transforms this segment using the given transformation matrix.
          *
          * @param transform the transformation to apply
@@ -164,6 +187,19 @@ namespace vm {
      */
     template <typename T, size_t S>
     int compare(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+
+    /**
+     * Checks whether the given segments have equal components.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @param epsilon the epsilon value
+     * @return true if all components of the given segments are equal, and false otherwise
+     */
+    template <typename T, size_t S>
+    bool isEqual(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon);
 
     /**
      * Checks if the first given segment identical to the second segment.

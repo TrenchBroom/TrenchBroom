@@ -21,7 +21,7 @@
 
 #include "vec_decl.h"
 #include "plane_decl.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "TestUtils.h"
 #include "Model/PlanePointFinder.h"
 

@@ -21,7 +21,7 @@
 
 #include "line_decl.h"
 #include "line_impl.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "TestUtils.h"
 
 TEST(LineTest, constructDefault) {

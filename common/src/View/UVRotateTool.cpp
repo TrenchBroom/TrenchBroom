@@ -70,7 +70,7 @@ namespace TrenchBroom {
 
             const auto& pickRay = inputState.pickRay();
             const auto distanceToFace = intersect(pickRay, boundary);
-            assert(!vm::isnan(distanceToFace));
+            assert(!vm::isNan(distanceToFace));
             const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
             
             const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());

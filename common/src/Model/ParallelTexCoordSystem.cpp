@@ -148,7 +148,7 @@ namespace TrenchBroom {
             // determine the rotation by which the texture coordinate system will be rotated about its normal
             const auto angleDelta = computeTextureAngle(oldBoundary, effectiveTransformation);
             const auto newAngle = vm::correct(vm::normalizeDegrees(attribs.rotation() + angleDelta), 4);
-            assert(!vm::isnan(newAngle));
+            assert(!vm::isNan(newAngle));
             attribs.setRotation(newAngle);
 
             // calculate the current texture coordinates of the face's center

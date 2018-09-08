@@ -21,7 +21,7 @@
 
 #include "vec_decl.h"
 #include "vec_impl.h"
-#include "MathUtils.h"
+#include "utils.h"
 #include "TestUtils.h"
 
 // TODO 2201: move this and other tests to namespace vm, remove vm:: from names
@@ -152,10 +152,10 @@ TEST(VecTest, vec4fOverLast) {
     ASSERT_EQ(vm::vec3f(1.0f, 2.0f, 4.0f), toCartesianCoords(v));
 }
 
-TEST(VecTest, vec2RoundToMultiple) {
-    ASSERT_EQ(vm::vec2f( 8.0f,  0.0f), roundToMultiple(vm::vec2f( 7.0f, -3.0f), vm::vec2f( 4.0f, 12.0f)));
-    ASSERT_EQ(vm::vec2f( 8.0f, -6.0f), roundToMultiple(vm::vec2f( 7.0f, -5.0f), vm::vec2f(-4.0f, -2.0f)));
-    ASSERT_EQ(vm::vec2f(-8.0f,  6.0f), roundToMultiple(vm::vec2f(-7.0f,  5.0f), vm::vec2f(-4.0f, -2.0f)));
+TEST(VecTest, snap) {
+    ASSERT_EQ(vm::vec2f( 8.0f,  0.0f), snap(vm::vec2f( 7.0f, -3.0f), vm::vec2f( 4.0f, 12.0f)));
+    ASSERT_EQ(vm::vec2f( 8.0f, -6.0f), snap(vm::vec2f( 7.0f, -5.0f), vm::vec2f(-4.0f, -2.0f)));
+    ASSERT_EQ(vm::vec2f(-8.0f,  6.0f), snap(vm::vec2f(-7.0f,  5.0f), vm::vec2f(-4.0f, -2.0f)));
 }
 
 TEST(VecTest, vec3fDot) {
