@@ -180,8 +180,8 @@ namespace TrenchBroom {
             VertexList vertices() const;
             vm::vec3::List vertexPositions() const;
             
-            bool hasVertices(const polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            polygon3 polygon() const;
+            bool hasVertices(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            vm::polygon3 polygon() const;
         public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);

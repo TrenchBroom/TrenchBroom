@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
         
-        Model::BrushSet VertexTool::findIncidentBrushes(const polygon3& handle) const {
+        Model::BrushSet VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
 
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 } else {
                     assert(m_mode == Mode_Split_Face);
                     if (m_faceHandles.selectedHandleCount() == 1) {
-                        const polygon3 handle = m_faceHandles.selectedHandles().front();
+                        const vm::polygon3 handle = m_faceHandles.selectedHandles().front();
                         brushes = findIncidentBrushes(handle);
                     }
                 }
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             AddHandles<vm::segment3> addEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
             
-            AddHandles<polygon3> addFaceHandles(m_faceHandles);
+            AddHandles<vm::polygon3> addFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
         
@@ -249,7 +249,7 @@ namespace TrenchBroom {
             RemoveHandles<vm::segment3> removeEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
             
-            RemoveHandles<polygon3> removeFaceHandles(m_faceHandles);
+            RemoveHandles<vm::polygon3> removeFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
 

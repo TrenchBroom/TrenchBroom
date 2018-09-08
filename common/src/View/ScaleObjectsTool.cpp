@@ -214,13 +214,13 @@ namespace TrenchBroom {
                          pointForBBoxCorner(box, BBoxCorner(edge.point1)));
         }
 
-        polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side) {
+        vm::polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side) {
             const auto wantedNormal = side.normal;
             
-            polygon3 res;
+            vm::polygon3 res;
             auto visitor = [&](const vm::vec3& p0, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& n){
                 if (n == wantedNormal) {
-                    const polygon3 poly {p0, p1, p2, p3};
+                    const vm::polygon3 poly {p0, p1, p2, p3};
                     res = poly;
                 }
             };

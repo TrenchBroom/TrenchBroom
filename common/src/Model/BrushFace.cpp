@@ -563,14 +563,14 @@ namespace TrenchBroom {
             return m_geometry->vertexPositions();
         }
 
-        bool BrushFace::hasVertices(const polygon3& vertices, const FloatType epsilon) const {
+        bool BrushFace::hasVertices(const vm::polygon3& vertices, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->hasVertexPositions(vertices.vertices(), epsilon);
         }
 
-        polygon3 BrushFace::polygon() const {
+        vm::polygon3 BrushFace::polygon() const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return polygon3(vertexPositions());
+            return vm::polygon3(vertexPositions());
         }
 
         BrushFaceGeometry* BrushFace::geometry() const {

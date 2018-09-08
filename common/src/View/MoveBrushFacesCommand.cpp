@@ -32,13 +32,13 @@ namespace TrenchBroom {
         MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
-            polygon3::List facePositions;
+            vm::polygon3::List facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             
             return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
 
-        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const polygon3::List& facePositions, const vm::vec3& delta) :
+        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const vm::polygon3::List& facePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
                 Model::Brush* brush = entry.first;
-                const polygon3::List& faces = entry.second;
+                const vm::polygon3::List& faces = entry.second;
                 if (!brush->canMoveFaces(worldBounds, faces, m_delta))
                     return false;
             }
@@ -75,11 +75,11 @@ namespace TrenchBroom {
         }
 
 
-        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {
+        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
         }
         
-        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {
+        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }

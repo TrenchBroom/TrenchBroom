@@ -602,10 +602,10 @@ namespace TrenchBroom {
         * intersect with two grid planes. Such handles are not added to this manager explicitly, but are computed on the
         * fly.
         */
-        class FaceHandleManager : public VertexHandleManagerBaseT<polygon3> {
+        class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
             static const Model::Hit::HitType HandleHit;
-            typedef std::tuple<polygon3, vm::vec3> HitType;
+            typedef std::tuple<vm::polygon3, vm::vec3> HitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;

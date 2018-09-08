@@ -48,7 +48,7 @@ namespace TrenchBroom {
             extract(edges, brushes, brushEdges, edgePositions);
         }
 
-        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, vm::polygon3::List& facePositions) {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
@@ -72,18 +72,18 @@ namespace TrenchBroom {
             assert(brushes.size() == brushEdges.size());
         }
 
-        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, vm::polygon3::List& facePositions) {
 
             for (const auto& entry : faces) {
                 const Model::BrushFaceSet& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
-                    const auto result = brushFaces.insert(std::make_pair(brush, polygon3::List()));
+                    const auto result = brushFaces.insert(std::make_pair(brush, vm::polygon3::List()));
                     if (result.second) {
                         brushes.push_back(brush);
                     }
 
-                    const polygon3 facePosition = face->polygon();
+                    const vm::polygon3 facePosition = face->polygon();
                     result.first->second.push_back(facePosition);
                     facePositions.push_back(facePosition);
                 }
@@ -114,10 +114,10 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
-                const polygon3::List& faceList = entry.second;
+                const vm::polygon3::List& faceList = entry.second;
 
                 vm::vec3::List vertices;
-                polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
+                vm::polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
@@ -198,11 +198,11 @@ namespace TrenchBroom {
             doSelectOldHandlePositions(manager);
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
@@ -210,7 +210,7 @@ namespace TrenchBroom {
         void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {}
         void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {}
         void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {}
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {}
     }
 }
