@@ -34,12 +34,12 @@ namespace TrenchBroom {
             ensure(m_factory != nullptr, "factory is null");
         }
         
-        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory* factory, const bbox3& worldBounds, ParserStatus& status) {
+        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory* factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
 
-        const Model::NodeList& NodeReader::read(const bbox3& worldBounds, ParserStatus& status) {
+        const Model::NodeList& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
                 readEntities(m_factory->format(), worldBounds, status);
             } catch (const ParserException&) {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return m_nodes;
         }
         
-        Model::ModelFactory* NodeReader::initialize(const Model::MapFormat::Type format, const bbox3& worldBounds) {
+        Model::ModelFactory* NodeReader::initialize(const Model::MapFormat::Type format, const vm::bbox3& worldBounds) {
             assert(format == m_factory->format());
             return m_factory;
         }

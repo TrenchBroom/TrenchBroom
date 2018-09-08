@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3 cameraPosition) {
-            bbox3 bounds;
+            vm::bbox3 bounds;
             
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);

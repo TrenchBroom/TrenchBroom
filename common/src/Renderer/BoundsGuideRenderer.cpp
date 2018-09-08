@@ -34,7 +34,7 @@ namespace TrenchBroom {
             m_color = color;
         }
         
-        void BoundsGuideRenderer::setBounds(const bbox3& bounds) {
+        void BoundsGuideRenderer::setBounds(const vm::bbox3& bounds) {
             if (m_bounds == bounds)
                 return;
             
@@ -42,30 +42,30 @@ namespace TrenchBroom {
             m_spikeRenderer.clear();
             
             View::MapDocumentSPtr document = lock(m_document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::neg_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::neg_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::neg_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::neg_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::neg_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::pos_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::neg_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::pos_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::min, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::pos_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::neg_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::pos_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::neg_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::min, bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::pos_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::pos_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::pos_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::pos_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(m_bounds.corner(bbox3::Corner::max, bbox3::Corner::max, bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::neg_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::neg_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::neg_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::pos_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::neg_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::pos_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::min, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::pos_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::pos_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::neg_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::min, vm::bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::pos_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::pos_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::min), vm::vec3::neg_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::pos_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::pos_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(m_bounds.corner(vm::bbox3::Corner::max, vm::bbox3::Corner::max, vm::bbox3::Corner::max), vm::vec3::pos_z), SpikeLength, document);
         }
 
         void BoundsGuideRenderer::doPrepareVertices(Vbo& vertexVbo) {

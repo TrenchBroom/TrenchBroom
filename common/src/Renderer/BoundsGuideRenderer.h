@@ -36,13 +36,13 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             Color m_color;
-            bbox3 m_bounds;
+            vm::bbox3 m_bounds;
             SpikeGuideRenderer m_spikeRenderer;
         public:
             BoundsGuideRenderer(View::MapDocumentWPtr document);
             
             void setColor(const Color& color);
-            void setBounds(const bbox3& bounds);
+            void setBounds(const vm::bbox3& bounds);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

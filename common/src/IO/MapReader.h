@@ -69,7 +69,7 @@ namespace TrenchBroom {
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
             typedef std::vector<NodeParentPair> NodeParentList;
             
-            bbox3 m_worldBounds;
+            vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;
             
             Model::Node* m_brushParent;
@@ -83,9 +83,9 @@ namespace TrenchBroom {
             MapReader(const char* begin, const char* end);
             MapReader(const String& str);
             
-            void readEntities(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status);
-            void readBrushes(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status);
-            void readBrushFaces(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status);
+            void readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
         public:
             virtual ~MapReader() override;
         private: // implement MapParser interface
@@ -113,7 +113,7 @@ namespace TrenchBroom {
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const bbox3& worldBounds) = 0;
+            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;

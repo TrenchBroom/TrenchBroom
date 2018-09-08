@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::pick2D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const bbox3& myBounds = bounds();
+            const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const bbox3& myBounds = bounds();
+            const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
 
-        bbox3 ShearObjectsTool::bounds() const {
+        vm::bbox3 ShearObjectsTool::bounds() const {
             MapDocumentSPtr document = lock(m_document);
             return document->selectionBounds();
         }
@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
 
         // for rendering sheared bbox
-        bbox3 ShearObjectsTool::bboxAtDragStart() const {
+        vm::bbox3 ShearObjectsTool::bboxAtDragStart() const {
             if (m_resizing) {
                 return m_bboxAtDragStart;
             } else {

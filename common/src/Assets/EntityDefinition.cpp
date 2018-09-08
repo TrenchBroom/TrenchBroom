@@ -152,7 +152,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const bbox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const vm::bbox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             return Type_PointEntity;
         }
         
-        const bbox3& PointEntityDefinition::bounds() const {
+        const vm::bbox3& PointEntityDefinition::bounds() const {
             return m_bounds;
         }
         

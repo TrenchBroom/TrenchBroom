@@ -317,7 +317,7 @@ namespace TrenchBroom {
             m_mapView->flipObjects(direction);
         }
         
-        vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
         

@@ -55,13 +55,13 @@ namespace TrenchBroom {
             NodeTree m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const bbox3& worldBounds);
+            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds);
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
             LayerList customLayers() const;
         private:
-            void createDefaultLayer(const bbox3& worldBounds);
+            void createDefaultLayer(const vm::bbox3& worldBounds);
         public: // index
             const AttributableNodeIndex& attributableNodeIndex() const;
         public: // selection
@@ -83,16 +83,16 @@ namespace TrenchBroom {
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
-            const bbox3& doGetBounds() const override;
-            Node* doClone(const bbox3& worldBounds) const override;
-            Node* doCloneRecursively(const bbox3& worldBounds) const override;
+            const vm::bbox3& doGetBounds() const override;
+            Node* doClone(const vm::bbox3& worldBounds) const override;
+            Node* doCloneRecursively(const vm::bbox3& worldBounds) const override;
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
 
             void doDescendantWasAdded(Node* node, size_t depth) override;
             void doDescendantWillBeRemoved(Node* node, size_t depth) override;
-            void doDescendantBoundsDidChange(Node* node, const bbox3& oldBounds, size_t depth) override;
+            void doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth) override;
 
             bool doSelectable() const override;
             void doPick(const ray3& ray, PickResult& pickResult) const override;
@@ -106,18 +106,18 @@ namespace TrenchBroom {
             void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
             void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange(const bbox3& oldBounds) override;
+            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const override;
-            World* doCreateWorld(const bbox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const bbox3& worldBounds) const override;
+            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
+            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
             Group* doCreateGroup(const String& name) const override;
             Entity* doCreateEntity() const override;
-            Brush* doCreateBrush(const bbox3& worldBounds, const BrushFaceList& faces) const override;
+            Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         private:

@@ -30,13 +30,13 @@ namespace TrenchBroom {
         
         class SelectionBoundsRenderer {
         private:
-            const bbox3 m_bounds;
+            const vm::bbox3 m_bounds;
             
             class SizeTextAnchor2D;
             class SizeTextAnchor3D;
             class MinMaxTextAnchor3D;
         public:
-            SelectionBoundsRenderer(const bbox3& bounds);
+            SelectionBoundsRenderer(const vm::bbox3& bounds);
             
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:

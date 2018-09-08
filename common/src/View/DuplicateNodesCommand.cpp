@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 
                 Model::NodeMap newParentMap;
                 
-                const bbox3& worldBounds = document->worldBounds();
+                const vm::bbox3& worldBounds = document->worldBounds();
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
                 
                 for (const Model::Node* original : m_previouslySelectedNodes) {

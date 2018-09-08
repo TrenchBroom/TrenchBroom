@@ -36,16 +36,16 @@ namespace TrenchBroom {
             m_cur = point;
         }
 
-        bool Lasso::selects(const vm::vec3& point, const plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const vm::vec3& point, const plane3& plane, const vm::bbox2& box) const {
             const auto projected = project(point, plane);
             return !isNaN(projected) && box.contains(vm::vec2(projected));
         }
         
-        bool Lasso::selects(const segment3& edge, const plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const segment3& edge, const plane3& plane, const vm::bbox2& box) const {
             return selects(edge.center(), plane, box);
         }
         
-        bool Lasso::selects(const polygon3& polygon, const plane3& plane, const bbox2& box) const {
+        bool Lasso::selects(const polygon3& polygon, const plane3& plane, const vm::bbox2& box) const {
             return selects(polygon.center(), plane, box);
         }
         
@@ -84,13 +84,13 @@ namespace TrenchBroom {
             return plane3(vm::vec3(m_camera.defaultPoint(static_cast<float>(m_distance))), vm::vec3(m_camera.direction()));
         }
         
-        bbox2 Lasso::box() const {
+        vm::bbox2 Lasso::box() const {
             const auto start = m_transform * m_start;
             const auto cur   = m_transform * m_cur;
             
             const auto min = vm::min(start, cur);
             const auto max = vm::max(start, cur);
-            return bbox2(vm::vec2(min), vm::vec2(max));
+            return vm::bbox2(vm::vec2(min), vm::vec2(max));
         }
     }
 }

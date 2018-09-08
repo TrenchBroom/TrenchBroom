@@ -89,7 +89,7 @@ namespace TrenchBroom {
             String parseDescription();
 
             vm::vec3 parseVector(ParserStatus& status);
-            bbox3 parseBounds(ParserStatus& status);
+            vm::bbox3 parseBounds(ParserStatus& status);
             Color parseColor(ParserStatus& status);
             
             Token nextTokenIgnoringNewlines();

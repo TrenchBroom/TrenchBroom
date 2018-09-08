@@ -45,7 +45,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             bool m_resizing;
             bool m_constrainVertical;
-            bbox3 m_bboxAtDragStart;
+            vm::bbox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit;
             vm::vec3 m_dragCumulativeDelta;
 
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             void pick3D(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
 
         public:
-            bbox3 bounds() const;
+            vm::bbox3 bounds() const;
 
             bool hasDragPolygon() const;
             vm::polygon3f dragPolygon() const;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
              * If inside a drag, returns the bbox at the start of the drag.
              * Otherwise, returns the current bounds(). for rendering sheared bbox.
              */
-            bbox3 bboxAtDragStart() const;
+            vm::bbox3 bboxAtDragStart() const;
 
             void startShearWithHit(const Model::Hit& hit);
             void commitShear();

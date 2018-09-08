@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         static std::tuple<DragRestricter*, DragSnapper*>
-        getDragRestricterAndSnapper(const BBoxSide& side, const bbox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
+        getDragRestricterAndSnapper(const BBoxSide& side, const vm::bbox3& bboxAtDragStart, const Renderer::Camera& camera, const Grid& grid, const bool vertical) {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 

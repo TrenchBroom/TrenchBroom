@@ -32,9 +32,9 @@ namespace TrenchBroom {
         class NodeSnapshot {
         public:
             virtual ~NodeSnapshot();
-            void restore(const bbox3& worldBounds);
+            void restore(const vm::bbox3& worldBounds);
         private:
-            virtual void doRestore(const bbox3& worldBounds) = 0;
+            virtual void doRestore(const vm::bbox3& worldBounds) = 0;
         };
     }
 }

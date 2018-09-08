@@ -374,8 +374,8 @@ namespace TrenchBroom {
             return vec;
         }
         
-        bbox3 DefParser::parseBounds(ParserStatus& status) {
-            bbox3 bounds;
+        vm::bbox3 DefParser::parseBounds(ParserStatus& status) {
+            vm::bbox3 bounds;
             Token token;
             expect(status, DefToken::OParenthesis, token = m_tokenizer.nextToken());
             bounds.min = parseVector(status);

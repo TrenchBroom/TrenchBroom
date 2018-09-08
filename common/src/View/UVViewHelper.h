@@ -89,7 +89,7 @@ namespace TrenchBroom {
             void resetCamera();
             void resetZoom();
             
-            bbox3 computeFaceBoundsInCameraCoords() const;
+            vm::bbox3 computeFaceBoundsInCameraCoords() const;
             vm::vec3 transformToCamera(const vm::vec3& point) const;
             vm::vec3 transformFromCamera(const vm::vec3& point) const;
         };

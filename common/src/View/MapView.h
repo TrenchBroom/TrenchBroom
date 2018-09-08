@@ -42,7 +42,7 @@ namespace TrenchBroom {
             bool canFlipObjects() const;
             void flipObjects(Math::Direction direction);
             
-            vm::vec3 pasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const;
+            vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
             
             void focusCameraOnSelection(bool animate);
             void moveCameraToPosition(const vm::vec3& position, bool animate);
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             virtual bool doCanFlipObjects() const = 0;
             virtual void doFlipObjects(Math::Direction direction) = 0;
             
-            virtual vm::vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const = 0;
+            virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
             virtual void doFocusCameraOnSelection(bool animate) = 0;
             virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;

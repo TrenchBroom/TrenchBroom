@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class TreeBuilder : public NodeVisitor {
         private:
             AABB& m_tree;
-            bbox3 m_bounds;
+            vm::bbox3 m_bounds;
         public:
             TreeBuilder(AABB& tree) : m_tree(tree) {}
         private:
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::WorldReader reader(file->begin(), file->end(), nullptr);
 
-            const bbox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192);
             auto* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;

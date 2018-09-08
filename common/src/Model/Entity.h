@@ -36,8 +36,8 @@ namespace TrenchBroom {
         public:
             static const Hit::HitType EntityHit;
         private:
-            static const bbox3 DefaultBounds;
-            mutable bbox3 m_bounds;
+            static const vm::bbox3 DefaultBounds;
+            mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
         public:
             Entity();
@@ -58,9 +58,9 @@ namespace TrenchBroom {
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
         private: // implement Node interface
-            const bbox3& doGetBounds() const override;
+            const vm::bbox3& doGetBounds() const override;
 
-            Node* doClone(const bbox3& worldBounds) const override;
+            Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
             
             bool doCanAddChild(const Node* child) const override;
@@ -70,8 +70,8 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const bbox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const bbox3& oldBounds) override;
+            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
 
             bool doSelectable() const override;
             
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             
             NodeList nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange(const bbox3& oldBounds) override;
+            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
             vm::vec3 doGetLinkSourceAnchor() const override;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const mat4x4& transformation, bool lockTextures, const bbox3& worldBounds) override;
+            void doTransform(const mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             ~Snapshot();
             
-            void restoreNodes(const bbox3& worldBounds);
+            void restoreNodes(const vm::bbox3& worldBounds);
             void restoreBrushFaces();
         private:
             void takeSnapshot(Node* node);

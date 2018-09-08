@@ -54,7 +54,7 @@ namespace TrenchBroom {
             current->flipObjects(direction);
         }
 
-        vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 MapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             MapView* current = currentMapView();
             ensure(current != nullptr, "current is nullptr");
             return current->pasteObjectsDelta(bounds, referenceBounds);

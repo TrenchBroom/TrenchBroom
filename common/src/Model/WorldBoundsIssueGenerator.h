@@ -32,9 +32,9 @@ namespace TrenchBroom {
             class WorldBoundsIssue;
             class WorldBoundsIssueQuickFix;
         private:
-            const bbox3 m_bounds;
+            const vm::bbox3 m_bounds;
         public:
-            WorldBoundsIssueGenerator(const bbox3& bounds);
+            WorldBoundsIssueGenerator(const vm::bbox3& bounds);
         private:
             void doGenerate(Entity* brush, IssueList& issues) const override;
             void doGenerate(Brush* brush, IssueList& issues) const override;

@@ -51,7 +51,7 @@ namespace TrenchBroom {
                               "( 1320 504 152 ) ( 1280 505.37931034482756 197.51724137931035 ) ( 1344 512 160 ) grill_wall03b_h -56 -72 -0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         
         TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
         TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                               "\"origin\" \"1 22 -3\""
                               "\"angle\" \" -1 \""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -209,7 +209,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -247,7 +247,7 @@ namespace TrenchBroom {
                               "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -284,7 +284,7 @@ namespace TrenchBroom {
                               "( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -320,7 +320,7 @@ namespace TrenchBroom {
                               "( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -346,7 +346,7 @@ namespace TrenchBroom {
                               "( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                               "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1 \n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -398,7 +398,7 @@ namespace TrenchBroom {
                               "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                               "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1\n"
                               "}\n"
                               "}\n");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -473,7 +473,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -534,7 +534,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -611,7 +611,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n"
                               );
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -640,7 +640,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\"\n"
                               "}\n");
 
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -655,7 +655,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay \\\"Mr. Robot!\\\"\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -677,7 +677,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"path\" \"c:\\a\\b\\c\\\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -699,7 +699,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"path\" \"c:\\\\a\\\\b\\\\c\\\\\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -721,7 +721,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"test\\\\\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -744,7 +744,7 @@ namespace TrenchBroom {
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"line1\\nline2\""
                               "}");
-            bbox3 worldBounds(8192);
+            vm::bbox3 worldBounds(8192);
             
             IO::TestParserStatus status;
             WorldReader reader(data, nullptr);
@@ -781,7 +781,7 @@ namespace TrenchBroom {
                               "\"origin\" \"1 22 -3\""
                               "\"angle\" \" -1 \""
                               "}");
-            bbox3 worldBounds(-8192, 8192);
+            vm::bbox3 worldBounds(-8192, 8192);
             
             using namespace testing;
             Model::MockGameSPtr game = Model::MockGame::newGame();

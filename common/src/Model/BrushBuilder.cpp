@@ -28,33 +28,33 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushBuilder::BrushBuilder(ModelFactory* factory, const bbox3& worldBounds) :
+        BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds) :
         m_factory(factory),
         m_worldBounds(worldBounds) {
             ensure(m_factory != nullptr, "factory is null");
         }
         
         Brush* BrushBuilder::createCube(const FloatType size, const String& textureName) const {
-            return createCuboid(bbox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
+            return createCuboid(vm::bbox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
         
         Brush* BrushBuilder::createCube(FloatType size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
-            return createCuboid(bbox3(size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
+            return createCuboid(vm::bbox3(size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
         
         Brush* BrushBuilder::createCuboid(const vm::vec3& size, const String& textureName) const {
-            return createCuboid(bbox3(-size / 2.0, size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
+            return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
         
         Brush* BrushBuilder::createCuboid(const vm::vec3& size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
-            return createCuboid(bbox3(-size / 2.0, size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
+            return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
         
-        Brush* BrushBuilder::createCuboid(const bbox3& bounds, const String& textureName) const {
+        Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const String& textureName) const {
             return createCuboid(bounds, textureName, textureName, textureName, textureName, textureName, textureName);
         }
         
-        Brush* BrushBuilder::createCuboid(const bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
+        Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
             BrushFaceList faces(6);
             // left face
             faces[0] = m_factory->createFace(bounds.min + vm::vec3::zero,

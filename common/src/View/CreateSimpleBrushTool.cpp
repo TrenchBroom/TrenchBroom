@@ -35,7 +35,7 @@ namespace TrenchBroom {
         CreateSimpleBrushTool::CreateSimpleBrushTool(MapDocumentWPtr document) :
         CreateBrushToolBase(true, document) {}
         
-        void CreateSimpleBrushTool::update(const bbox3& bounds) {
+        void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
             updateBrush(builder.createCuboid(bounds, document->currentTextureName()));

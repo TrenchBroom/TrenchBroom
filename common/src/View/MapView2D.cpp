@@ -160,7 +160,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vm::vec3 MapView2D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 MapView2D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
@@ -187,7 +187,7 @@ namespace TrenchBroom {
         
         void MapView2D::doSelectTall() {
             const MapDocumentSPtr document = lock(m_document);
-            const bbox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             
             const FloatType min = dot(worldBounds.min, vm::vec3(m_camera.direction()));
             const FloatType max = dot(worldBounds.max, vm::vec3(m_camera.direction()));
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             }
         }
 
-        vm::vec3 MapView2D::doComputePointEntityPosition(const bbox3& bounds) const {
+        vm::vec3 MapView2D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
             auto document = lock(m_document);
 
             vm::vec3 delta;
@@ -338,7 +338,7 @@ namespace TrenchBroom {
 
             MapDocumentSPtr document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
-                const bbox3& bounds = document->selectionBounds();
+                const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
             }

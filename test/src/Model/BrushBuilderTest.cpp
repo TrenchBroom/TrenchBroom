@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushBuilderTest, createCube) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);

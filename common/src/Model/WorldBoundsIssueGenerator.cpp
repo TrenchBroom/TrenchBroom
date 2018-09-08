@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
         const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
         
-        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const bbox3& bounds) :
+        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const vm::bbox3& bounds) :
         IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds"),
         m_bounds(bounds) {
             addQuickFix(new WorldBoundsIssueQuickFix());

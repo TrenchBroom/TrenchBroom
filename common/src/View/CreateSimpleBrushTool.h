@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class CreateSimpleBrushTool : public CreateBrushToolBase {
         public:
             CreateSimpleBrushTool(MapDocumentWPtr document);
-            void update(const bbox3& bounds);
+            void update(const vm::bbox3& bounds);
         };
     }
 }

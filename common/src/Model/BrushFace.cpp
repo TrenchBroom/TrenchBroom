@@ -200,7 +200,7 @@ namespace TrenchBroom {
             const auto* first = m_geometry->boundary().front();
             const auto* current = first;
             
-            bbox3 bounds;
+            vm::bbox3 bounds;
             bounds.min = bounds.max = toPlane * current->origin()->position();
 
             current = current->next();

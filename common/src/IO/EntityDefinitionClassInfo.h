@@ -43,7 +43,7 @@ namespace TrenchBroom {
             bool m_hasDescription;
             Color m_color;
             bool m_hasColor;
-            bbox3 m_size;
+            vm::bbox3 m_size;
             bool m_hasSize;
             Assets::AttributeDefinitionMap m_attributes;
             Assets::ModelDefinition m_modelDefinition;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             bool hasDescription() const;
             const Color& color() const;
             bool hasColor() const;
-            const bbox3& size() const;
+            const vm::bbox3& size() const;
             bool hasSize() const;
             Assets::AttributeDefinitionList attributeList() const;
             const Assets::AttributeDefinitionMap& attributeMap() const;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             void setName(const String& name);
             void setDescription(const String& description);
             void setColor(const Color& color);
-            void setSize(const bbox3& size);
+            void setSize(const vm::bbox3& size);
             void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
             void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);

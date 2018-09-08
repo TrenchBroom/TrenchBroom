@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        static const bbox3 worldBounds(8192.0);
+        static const vm::bbox3 worldBounds(8192.0);
 
         TEST(GridTest, size) {
             for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)

@@ -26,10 +26,10 @@
 namespace TrenchBroom {
     namespace View {
         TEST(ScaleObjectsToolTest, moveBBoxFace_NonProportional) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                     vm::vec3( 125, 100, 100));
 
             EXPECT_EQ(exp1, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::None(),
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-225, 0, 0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-125,-100,-100),
+            const auto exp2 = vm::bbox3(vm::vec3(-125,-100,-100),
                                     vm::vec3( 125, 100, 100));
 
             EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::None(), AnchorPos::Center));
@@ -49,10 +49,10 @@ namespace TrenchBroom {
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxFace_Proportional) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-112.5,-112.5),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-112.5,-112.5),
                                     vm::vec3( 125, 112.5, 112.5));
 
             EXPECT_EQ(vm::vec3(225,225,225), exp1.size());
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(-225, 0, 0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-125,-125,-125),
+            const auto exp2 = vm::bbox3(vm::vec3(-125,-125,-125),
                                     vm::vec3( 125, 125, 125));
 
             EXPECT_EQ(exp2, moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x), vm::vec3(25, 0, 0), ProportionalAxes::All(), AnchorPos::Center));
@@ -73,10 +73,10 @@ namespace TrenchBroom {
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxCorner) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                     vm::vec3( 125, 125, 125));
 
             EXPECT_EQ(exp1, moveBBoxCorner(input1, BBoxCorner(vm::vec3(1,1,1)), vm::vec3(25,25,25), AnchorPos::Opposite));
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxCorner(input1, BBoxCorner(vm::vec3(1,1,1)), vm::vec3(-225,0,0), AnchorPos::Opposite).empty());
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-125,-125,-125),
+            const auto exp2 = vm::bbox3(vm::vec3(-125,-125,-125),
                                     vm::vec3( 125, 125, 125));
 
             EXPECT_EQ(exp2, moveBBoxCorner(input1, BBoxCorner(vm::vec3(1,1,1)), vm::vec3(25,25,25), AnchorPos::Center));
@@ -95,10 +95,10 @@ namespace TrenchBroom {
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                     vm::vec3( 125, 125, 100));
 
             // move the (+X, +Y, +/-Z) edge by X=25, Y=25
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,1,-1), vm::vec3(1,1,1)), vm::vec3(-225,-225,0), ProportionalAxes::None(), AnchorPos::Opposite).empty());
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-125,-125,-100),
+            const auto exp2 = vm::bbox3(vm::vec3(-125,-125,-100),
                                     vm::vec3( 125, 125, 100));
 
             // move the (+X, +Y, +/-Z) edge by X=25, Y=25
@@ -119,17 +119,17 @@ namespace TrenchBroom {
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional_NegY) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-125,-100),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-125,-100),
                                     vm::vec3( 100, 100, 125));
 
             // move the (+Z, -Y, +/-X) edge by Z=25, Y=-25
             EXPECT_EQ(exp1, moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,-1,1), vm::vec3(-1,-1,1)), vm::vec3(0,-25,25), ProportionalAxes::None(), AnchorPos::Opposite));
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-100,-125,-125),
+            const auto exp2 = vm::bbox3(vm::vec3(-100,-125,-125),
                                     vm::vec3( 100, 125, 125));
 
             EXPECT_EQ(exp2, moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,-1,1), vm::vec3(-1,-1,1)), vm::vec3(0,-25,25), ProportionalAxes::None(), AnchorPos::Center));
@@ -137,10 +137,10 @@ namespace TrenchBroom {
 
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge_Proportional) {
-            const auto input1 = bbox3(vm::vec3(-100,-100,-100),
+            const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
-            const auto exp1 = bbox3(vm::vec3(-100,-100,-112.5),
+            const auto exp1 = vm::bbox3(vm::vec3(-100,-100,-112.5),
                                     vm::vec3( 125, 125, 112.5));
 
             // move the (+X, +Y, +/-Z) edge by X=25, Y=25
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,1,-1), vm::vec3(1,1,1)), vm::vec3(-225,-225,0), ProportionalAxes::All(), AnchorPos::Opposite).empty());
 
             // test with center anchor
-            const auto exp2 = bbox3(vm::vec3(-125,-125,-125),
+            const auto exp2 = vm::bbox3(vm::vec3(-125,-125,-125),
                                     vm::vec3( 125, 125, 125));
 
             EXPECT_EQ(exp2, moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,1,-1), vm::vec3(1,1,1)), vm::vec3(25,25,0), ProportionalAxes::All(), AnchorPos::Center));
@@ -160,10 +160,10 @@ namespace TrenchBroom {
         }
 
         TEST(ScaleObjectsToolTest, moveBBoxEdge) {
-            const auto input1 = bbox3(vm::vec3(-64,-64,-16),
+            const auto input1 = vm::bbox3(vm::vec3(-64,-64,-16),
                                       vm::vec3( 64, 64, 16));
 
-            const auto exp1 = bbox3(vm::vec3(-64, -64, -16),
+            const auto exp1 = vm::bbox3(vm::vec3(-64, -64, -16),
                                     vm::vec3( 128, 64, 48));
 
             // NOTE: the Y=64 part of the delta is ignored because the edge we are moving points along the Y axis

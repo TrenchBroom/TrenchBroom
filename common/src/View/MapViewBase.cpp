@@ -902,7 +902,7 @@ namespace TrenchBroom {
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (pref(Preferences::ShowAxes)) {
                 MapDocumentSPtr document = lock(m_document);
-                const bbox3& worldBounds = document->worldBounds();
+                const vm::bbox3& worldBounds = document->worldBounds();
                 
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));

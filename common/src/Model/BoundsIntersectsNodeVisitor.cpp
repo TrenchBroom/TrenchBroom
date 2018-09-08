@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BoundsIntersectsNodeVisitor::BoundsIntersectsNodeVisitor(const bbox3& bounds) :
+        BoundsIntersectsNodeVisitor::BoundsIntersectsNodeVisitor(const vm::bbox3& bounds) :
         m_bounds(bounds) {}
 
         void BoundsIntersectsNodeVisitor::doVisit(const World* world)   { setResult(false); }

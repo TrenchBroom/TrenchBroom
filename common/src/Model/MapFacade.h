@@ -44,9 +44,9 @@ namespace TrenchBroom {
             virtual const BrushFaceList allSelectedBrushFaces() const = 0;
             virtual const BrushFaceList& selectedBrushFaces() const = 0;
             
-            virtual const bbox3& referenceBounds() const = 0;
-            virtual const bbox3& lastSelectionBounds() const = 0;
-            virtual const bbox3& selectionBounds() const = 0;
+            virtual const vm::bbox3& referenceBounds() const = 0;
+            virtual const vm::bbox3& lastSelectionBounds() const = 0;
+            virtual const vm::bbox3& selectionBounds() const = 0;
             virtual const String& currentTextureName() const = 0;
             
             virtual void selectAllNodes() = 0;
@@ -87,9 +87,9 @@ namespace TrenchBroom {
         public: // modifying objects
             virtual bool translateObjects(const vm::vec3& delta) = 0;
             virtual bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) = 0;
-            virtual bool scaleObjects(const bbox3& oldBBox, const bbox3& newBBox) = 0;
+            virtual bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) = 0;
             virtual bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) = 0;
-            virtual bool shearObjects(const bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
+            virtual bool shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
             virtual bool flipObjects(const vm::vec3& center, Math::Axis::Type axis) = 0;
         public: // modifying entity attributes
             virtual bool setAttribute(const AttributeName& name, const AttributeValue& value) = 0;

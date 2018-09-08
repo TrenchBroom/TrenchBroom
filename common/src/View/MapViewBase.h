@@ -229,7 +229,7 @@ namespace TrenchBroom {
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(Math::Direction direction) const = 0;
-            virtual vm::vec3 doComputePointEntityPosition(const bbox3& bounds) const = 0;
+            virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;

@@ -45,7 +45,7 @@ namespace TrenchBroom {
         vm::vec3::List asVertexList(const polygon3::List& faces);
 
         TEST(BrushTest, constructBrushWithRedundantFaces) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, constructBrushWithFaces) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -120,7 +120,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-192.0, 704.0, 128.0), vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-156.0, 650.0, 160.0)));
@@ -153,7 +153,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3488.0, 1344.0, 1340.0)));
@@ -185,7 +185,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-64.0, -1120.0, 896.0), vm::vec3(-64.0, -1120.0, 912.0)));
@@ -214,7 +214,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 272.0, 2536.0), vm::vec3(-1268.0, 288.0, 2540.0)));
@@ -243,7 +243,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 896.0, 944.0), vm::vec3(1296.0, 1008.0, 1056.0), vm::vec3(1280.0, 1008.0, 1008.0)));
@@ -271,7 +271,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(-80.0, -80.0, -3840.0), vm::vec3(-80.0, -80.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0)));
@@ -305,7 +305,7 @@ namespace TrenchBroom {
              }
              */
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
             faces.push_back(BrushFace::createParaxial(vm::vec3(624.0, 688.0, -456.0), vm::vec3(656.0, 760.0, -480.0), vm::vec3(624.0, 680.0, -480.0), "face7"));
@@ -352,7 +352,7 @@ namespace TrenchBroom {
             faces.push_back(BrushFace::createParaxial(vm::vec3(-1001.2175821048878, -128, 2151.8024112801222), vm::vec3(-1001.2175821048878, 128, 2151.8024112801222), vm::vec3(-910.70791411301013, -128, 2242.3120792720015)));
             faces.push_back(BrushFace::createParaxial(vm::vec3(-729.68857812925364, -1024, 1880.2734073044885), vm::vec3(-729.68857812925364, -640, 1880.2734073044885), vm::vec3(-910.70791411300991, -640, 2061.2927432882443)));
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             Brush brush(worldBounds, faces);
             ASSERT_TRUE(brush.fullySpecified());
         }
@@ -371,7 +371,7 @@ namespace TrenchBroom {
                               "( 656 754.57864 1021.42136 ) ( -84592 754.57864 1021.42136 ) ( 656 61034.01582 -59258.01582 ) skip 1 2 0 -666 470.93310 //TX2\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -396,7 +396,7 @@ namespace TrenchBroom {
                               "( 16 1389.42136 957.42136 ) ( 85264 1389.42136 957.42136 ) ( 16 -58890.01582 -59322.01582 ) skip 0 -3 0 666 -470.93310 //TX2\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -498,7 +498,7 @@ namespace TrenchBroom {
                               "( -22.7647 1850.46 114.982 ) ( -23.5781 1850.46 115.2 ) ( -23.0501 1851.2 114.289 ) O_METAL1_19AD [ -1 0 0 -16 ] [ 0 0 1 -0 ] 180 1 -1\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -521,7 +521,7 @@ namespace TrenchBroom {
                               "( -1248.00004 -2144 1061.33328 ) ( -1248.00004 -2272 1061.33328 ) ( -1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -532,7 +532,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, pick) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -579,7 +579,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, partialSelectionAfterAdd) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -621,7 +621,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, partialSelectionBeforeAdd) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -706,7 +706,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, clone) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -750,7 +750,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, clip) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -796,7 +796,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveBoundary) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             // left and right a are slanted!
             BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
@@ -841,7 +841,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertex) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -885,7 +885,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveTetrahedronVertexToOpposideSide) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const vm::vec3 top(0.0, 0.0, +16.0);
@@ -910,7 +910,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveEdge) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -965,7 +965,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveFace) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -998,7 +998,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveFaceDownFailure) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1017,7 +1017,7 @@ namespace TrenchBroom {
         }
 
         static void assertCanMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             segment3::List expectedMovedEdges;
             for (const segment3& edge : edges) {
@@ -1035,12 +1035,12 @@ namespace TrenchBroom {
         }
 
         static void assertCanNotMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
 
         static void assertCanMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             polygon3::List expectedMovedFaces;
             for (const polygon3& polygon : movingFaces) {
@@ -1058,7 +1058,7 @@ namespace TrenchBroom {
         }
 
         static void assertCanNotMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, movingFaces, delta));
         }
 
@@ -1067,7 +1067,7 @@ namespace TrenchBroom {
         }
 
         static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             ASSERT_NE(nullptr, topFace);
 
@@ -1093,7 +1093,7 @@ namespace TrenchBroom {
         }
 
         static void assertCanMoveVertices(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
 
@@ -1108,7 +1108,7 @@ namespace TrenchBroom {
         }
 
         static void assertMovingVerticesDeletes(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
 
@@ -1121,7 +1121,7 @@ namespace TrenchBroom {
         }
 
         static void assertCanNotMoveVertices(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
         }
 
@@ -1142,7 +1142,7 @@ namespace TrenchBroom {
         // NOTE: Different than movePolygonRemainingPoint, because in this case we allow
         // point moves that flip the normal of the remaining polygon
         TEST(BrushTest, movePointRemainingPolygon) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const vm::vec3 peakPosition(0.0, 0.0, +64.0);
@@ -1196,7 +1196,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePointRemainingPolyhedron) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const vm::vec3 peakPosition(0.0, 0.0, 128.0);
@@ -1225,7 +1225,7 @@ namespace TrenchBroom {
         // "Move edge" tests
 
         TEST(BrushTest, moveEdgeRemainingPolyhedron) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
@@ -1251,7 +1251,7 @@ namespace TrenchBroom {
 
         // Same as above, but moving 2 edges
         TEST(BrushTest, moveEdgesRemainingPolyhedron) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
@@ -1282,7 +1282,7 @@ namespace TrenchBroom {
         // "Move polygon" tests
 
         TEST(BrushTest, movePolygonRemainingPoint) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const vm::vec3::List vertexPositions{
@@ -1303,7 +1303,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePolygonRemainingEdge) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const vm::vec3::List vertexPositions{
@@ -1325,7 +1325,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1337,7 +1337,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon2) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Same brush as movePolygonRemainingPolygon, but this particular order of vertices triggers a failure in Brush::doCanMoveVertices
@@ -1354,7 +1354,7 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
-            ASSERT_EQ(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->bounds());
+            ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->bounds());
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -1362,7 +1362,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon_DisallowVertexCombining) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             //       z = +192  //
@@ -1401,7 +1401,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, movePolygonRemainingPolyhedron) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             //   _   z = +64   //
@@ -1456,7 +1456,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveTwoFaces) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             //               //
@@ -1508,7 +1508,7 @@ namespace TrenchBroom {
         // "Move polyhedron" tests
 
         TEST(BrushTest, movePolyhedronRemainingEdge) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
@@ -1589,7 +1589,7 @@ namespace TrenchBroom {
             points.push_back(p11);
             points.push_back(p12);
 
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1627,7 +1627,7 @@ namespace TrenchBroom {
                               "( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -1665,7 +1665,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1737,7 +1737,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1808,7 +1808,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1877,7 +1877,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -1944,7 +1944,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2009,7 +2009,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2073,7 +2073,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2140,7 +2140,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2203,7 +2203,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2267,7 +2267,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2332,7 +2332,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2397,7 +2397,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p7);
             oldPositions.push_back(p8);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2464,7 +2464,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
             oldPositions.push_back(p9);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2519,7 +2519,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p3);
             oldPositions.push_back(p4);
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -2535,7 +2535,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, subtractCuboidFromCuboid) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const String minuendTexture("minuend");
@@ -2543,8 +2543,8 @@ namespace TrenchBroom {
             const String defaultTexture("default");
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* minuend = builder.createCuboid(bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
-            Brush* subtrahend = builder.createCuboid(bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
+            Brush* minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
+            Brush* subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
 
             const BrushList result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
             ASSERT_EQ(3u, result.size());
@@ -2621,11 +2621,11 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, subtractDisjoint) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             
-            const bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
-            const bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
+            const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
+            const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
             
             BrushBuilder builder(&world, worldBounds);
@@ -2702,7 +2702,7 @@ namespace TrenchBroom {
                                        "( -16 -16 -0 ) ( 16 16 -0 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1\n"
                                        "}\n");
 
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -2744,7 +2744,7 @@ namespace TrenchBroom {
                                        "}\n");
 
 
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -2771,7 +2771,7 @@ namespace TrenchBroom {
 
             // This brush is almost degenerate. It should be rejected by the map loader.
 
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -2782,7 +2782,7 @@ namespace TrenchBroom {
         }
 
         static void assertCannotSnapTo(const String& data, size_t gridSize) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -2800,7 +2800,7 @@ namespace TrenchBroom {
         }
 
         static void assertSnapTo(const String& data, size_t gridSize) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -3024,7 +3024,7 @@ namespace TrenchBroom {
                               "( 82.285690308  0  0          ) ( 96 16  0 ) (  0            0  0          ) rock5_2 0 0 0 1 1\n"
                               "}");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -3075,7 +3075,7 @@ namespace TrenchBroom {
                               "( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -3102,7 +3102,7 @@ namespace TrenchBroom {
                               "( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
                               "}\n");
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -3130,7 +3130,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, removeSingleVertex) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
@@ -3199,7 +3199,7 @@ namespace TrenchBroom {
 
 
         TEST(BrushTest, removeMultipleVertices) {
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             BrushBuilder builder(&world, worldBounds);
 
@@ -3238,7 +3238,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, snapshotTextureTest) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
@@ -3281,7 +3281,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, resizePastWorldBounds) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
@@ -3295,7 +3295,7 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVerticesPastWorldBounds) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
@@ -3352,7 +3352,7 @@ namespace TrenchBroom {
                               "}\n"
                               "}\n");
 
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             IO::TestParserStatus status;
@@ -3373,7 +3373,7 @@ namespace TrenchBroom {
         TEST(BrushTest, removeVertexWithCorrectTextures) {
             // see https://github.com/kduske/TrenchBroom/issues/2082
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Valve, nullptr, worldBounds);
 
             const String data = R"(
@@ -3457,41 +3457,41 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, expand) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
             
-            const bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
+            const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
         
         TEST(BrushTest, contract) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
             
-            const bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
+            const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
         }
         
         TEST(BrushTest, contractToZero) {
-            const bbox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
         }
@@ -3499,7 +3499,7 @@ namespace TrenchBroom {
         TEST(BrushTest, moveVerticesFail_2158) {
             // see https://github.com/kduske/TrenchBroom/issues/2158
 
-            const bbox3 worldBounds(4096.0);
+            const vm::bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             const String data = R"(

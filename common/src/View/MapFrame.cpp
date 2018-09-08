@@ -939,10 +939,10 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                const bbox3 referenceBounds = m_document->referenceBounds();
+                const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
-                    const bbox3 bounds = m_document->selectionBounds();
+                    const vm::bbox3 bounds = m_document->selectionBounds();
                     const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
                 }
@@ -1402,7 +1402,7 @@ namespace TrenchBroom {
             if (dialog.ShowModal() == wxID_OK) {
                 const auto str = dialog.GetValue();
                 double size; str.ToDouble(&size);
-                const bbox3 bounds(size / 2.0);
+                const vm::bbox3 bounds(size / 2.0);
                 const auto positions = bounds.vertices();
                 m_document->createBrush(positions);
             }

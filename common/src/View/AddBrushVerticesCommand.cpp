@@ -43,7 +43,7 @@ namespace TrenchBroom {
         m_vertices(vertices) {}
 
         bool AddBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const bbox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
                 const Model::BrushSet& brushes = entry.second;

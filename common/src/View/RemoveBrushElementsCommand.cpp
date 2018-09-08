@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_vertices(vertices) {}
 
         bool RemoveBrushElementsCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const bbox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
                 const vm::vec3::List& vertices = entry.second;

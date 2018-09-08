@@ -67,7 +67,7 @@ namespace TrenchBroom {
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            vm::vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const override;
+            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
             vm::vec3 doGetMoveDirection(Math::Direction direction) const override;
-            vm::vec3 doComputePointEntityPosition(const bbox3& bounds) const override;
+            vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const override;
 
             ActionContext doGetActionContext() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;

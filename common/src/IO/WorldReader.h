@@ -38,9 +38,9 @@ namespace TrenchBroom {
             WorldReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
             WorldReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder);
 
-            Model::World* read(Model::MapFormat::Type format, const bbox3& worldBounds, ParserStatus& status);
+            Model::World* read(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapReader interface
-            Model::ModelFactory* initialize(Model::MapFormat::Type format, const bbox3& worldBounds) override;
+            Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) override;
             Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
             void onLayer(Model::Layer* layer, ParserStatus& status) override;

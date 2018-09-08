@@ -281,7 +281,7 @@ namespace TrenchBroom {
 
         void AttributableNode::attributesWillChange() {}
 
-        void AttributableNode::attributesDidChange(const bbox3& oldBounds) {
+        void AttributableNode::attributesDidChange(const vm::bbox3& oldBounds) {
             updateClassname();
             doAttributesDidChange(oldBounds);
         }

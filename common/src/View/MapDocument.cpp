@@ -115,7 +115,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
+        const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         const String MapDocument::DefaultDocumentName("unnamed.map");
         
         MapDocument::MapDocument() :
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             return m_game;
         }
         
-        const bbox3& MapDocument::worldBounds() const {
+        const vm::bbox3& MapDocument::worldBounds() const {
             return m_worldBounds;
         }
         
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             m_viewEffectsService = viewEffectsService;
         }
         
-        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::newDocument(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             info("Creating new document");
             
             clearDocument();
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             documentWasNewedNotifier(this);
         }
         
-        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadDocument(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             info("Loading document from " + path.asString());
             
             clearDocument();
@@ -460,17 +460,17 @@ namespace TrenchBroom {
             return m_selectedBrushFaces;
         }
         
-        const bbox3& MapDocument::referenceBounds() const {
+        const vm::bbox3& MapDocument::referenceBounds() const {
             if (hasSelectedNodes())
                 return selectionBounds();
             return lastSelectionBounds();
         }
         
-        const bbox3& MapDocument::lastSelectionBounds() const {
+        const vm::bbox3& MapDocument::lastSelectionBounds() const {
             return m_lastSelectionBounds;
         }
         
-        const bbox3& MapDocument::selectionBounds() const {
+        const vm::bbox3& MapDocument::selectionBounds() const {
             if (!m_selectionBoundsValid)
                 validateSelectionBounds();
             return m_selectionBounds;
@@ -999,7 +999,7 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::scaleObjects(const bbox3& oldBBox, const bbox3& newBBox) {
+        bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
             return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
         }
 
@@ -1007,7 +1007,7 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::shearObjects(const bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
+        bool MapDocument::shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
             return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
         }
         
@@ -1457,7 +1457,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game) {
+        void MapDocument::createWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds);
@@ -1467,7 +1467,7 @@ namespace TrenchBroom {
             setPath(IO::Path(DefaultDocumentName));
         }
         
-        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
+        void MapDocument::loadWorld(const Model::MapFormat::Type mapFormat, const vm::bbox3& worldBounds, Model::GameSPtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, this);
@@ -1483,7 +1483,7 @@ namespace TrenchBroom {
             m_currentLayer = nullptr;
         }
         
-        void MapDocument::initializeWorld(const bbox3& worldBounds) {
+        void MapDocument::initializeWorld(const vm::bbox3& worldBounds) {
             const Model::BrushBuilder builder(m_world, worldBounds);
             Model::Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
             addNode(brush, m_world->defaultLayer());

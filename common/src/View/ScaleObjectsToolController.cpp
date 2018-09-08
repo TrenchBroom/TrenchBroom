@@ -60,7 +60,7 @@ namespace TrenchBroom {
         getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
                                                 const Grid& grid,
                                                 const Model::Hit& dragStartHit,
-                                                const bbox3& bboxAtDragStart) {
+                                                const vm::bbox3& bboxAtDragStart) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             DragRestricter* restricter = nullptr;
