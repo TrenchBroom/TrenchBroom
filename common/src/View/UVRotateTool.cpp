@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
-            const mat4x4 toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
             const vm::vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();

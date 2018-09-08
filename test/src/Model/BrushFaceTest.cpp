@@ -172,7 +172,7 @@ namespace TrenchBroom {
          * It only tests that texture lock off works when the face's texture
          * alignment is reset before applying the transform.
          */
-        static void checkTextureLockOffWithTransform(const mat4x4 &transform,
+        static void checkTextureLockOffWithTransform(const vm::mat4x4 &transform,
                                                      const BrushFace *origFace) {
             
             // reset alignment, transform the face (texture lock off)
@@ -218,7 +218,7 @@ namespace TrenchBroom {
          * are equivelant to the UV coordinates of the non-transformed verts,
          * i.e. checks that texture lock worked.
          */
-        static void checkTextureLockOnWithTransform(const mat4x4 &transform,
+        static void checkTextureLockOnWithTransform(const vm::mat4x4 &transform,
                                                     const BrushFace *origFace) {
             std::vector<vm::vec3> verts;
             std::vector<vm::vec2f> uvs;
@@ -263,7 +263,7 @@ namespace TrenchBroom {
          */
         static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace *origFace) {
             for (int i=0; i<(1 << 7); i++) {
-                mat4x4 xform;
+                vm::mat4x4 xform;
                 
                 const bool translate = (i & (1 << 0)) != 0;
                 
@@ -304,7 +304,7 @@ namespace TrenchBroom {
             const double rotateRadians = Math::radians(degrees);
             
             for (int i=0; i<(1 << 3); i++) {
-                mat4x4 xform;
+                vm::mat4x4 xform;
                 
                 const bool testRoll    = (i & (1 << 0)) != 0;
                 const bool testPitch   = (i & (1 << 1)) != 0;
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             const double rotateRadians = Math::radians(degrees);
             
             for (int i=0; i<6; i++) {
-                mat4x4 xform;
+                vm::mat4x4 xform;
                 
                 switch (i) {
                     case 0: xform = vm::rotationMatrix(rotateRadians, 0.0, 0.0) * xform; break;
@@ -348,18 +348,18 @@ namespace TrenchBroom {
         }
         
         static void checkTextureLockOffWithTranslation(const BrushFace *origFace) {
-            mat4x4 xform = vm::translationMatrix(vm::vec3(100.0, 100.0, 100.0));
+            vm::mat4x4 xform = vm::translationMatrix(vm::vec3(100.0, 100.0, 100.0));
             checkTextureLockOffWithTransform(xform, origFace);
         }
         
         static void checkTextureLockWithScale(const BrushFace *origFace, const vm::vec3& scaleFactors) {
-            mat4x4 xform = vm::scalingMatrix(scaleFactors);
+            vm::mat4x4 xform = vm::scalingMatrix(scaleFactors);
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
         static void checkTextureLockWithShear(const BrushFace *origFace) {
             // shear the x axis towards the y axis
-            mat4x4 xform = vm::shearMatrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+            vm::mat4x4 xform = vm::shearMatrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             checkTextureLockOnWithTransform(xform, origFace);
         }
         
@@ -386,7 +386,7 @@ namespace TrenchBroom {
          * when texture lock is off.
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush* cube) {
-            const mat4x4 transform = vm::mirrorMatrix<double>(Math::Axis::AZ);
+            const vm::mat4x4 transform = vm::mirrorMatrix<double>(Math::Axis::AZ);
             const BrushFace* origFace = cube->findFace(vm::vec3::pos_x);
             
             // transform the face (texture lock off)
@@ -412,7 +412,7 @@ namespace TrenchBroom {
             const vm::vec3 mins(cube->bounds().min);
             
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
-            const mat4x4 transform = vm::translationMatrix(mins) * vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translationMatrix(-1.0 * mins);
+            const vm::mat4x4 transform = vm::translationMatrix(mins) * vm::scalingMatrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translationMatrix(-1.0 * mins);
             const BrushFace* origFace = cube->findFace(vm::vec3::neg_y);
             
             // transform the face (texture lock off)

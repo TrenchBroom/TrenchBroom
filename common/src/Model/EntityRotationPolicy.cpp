@@ -32,25 +32,25 @@ namespace TrenchBroom {
 
         EntityRotationPolicy::EntityRotationPolicy() {}
 
-        mat4x4 EntityRotationPolicy::getRotation(const Entity* entity) {
+        vm::mat4x4 EntityRotationPolicy::getRotation(const Entity* entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
                 case RotationType_Angle: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
                     if (angleValue.empty())
-                        return mat4x4::identity;
+                        return vm::mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     return vm::rotationMatrix(vm::vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_AngleUpDown: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
                     if (angleValue.empty())
-                        return mat4x4::identity;
+                        return vm::mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     if (angle == -1.0)
-                        return mat4x4::rot_90_y_cw;
+                        return vm::mat4x4::rot_90_y_cw;
                     if (angle == -2.0)
-                        return mat4x4::rot_90_y_ccw;
+                        return vm::mat4x4::rot_90_y_ccw;
                     return vm::rotationMatrix(vm::vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_Euler: {
@@ -92,14 +92,14 @@ namespace TrenchBroom {
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
-                    return mat4x4::identity;
+                    return vm::mat4x4::identity;
                 switchDefault()
             }
         }
 
-        void EntityRotationPolicy::applyRotation(Entity* entity, const mat4x4& transformation) {
+        void EntityRotationPolicy::applyRotation(Entity* entity, const vm::mat4x4& transformation) {
             const RotationInfo info = rotationInfo(entity);
-            const mat4x4 rotation = getRotation(entity);
+            const vm::mat4x4 rotation = getRotation(entity);
             
             switch (info.type) {
                 case RotationType_Angle: {
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             return angle;
         }
 
-        vm::vec3 EntityRotationPolicy::getYawPitchRoll(const mat4x4& transformation, const mat4x4& rotation) {
+        vm::vec3 EntityRotationPolicy::getYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation) {
             FloatType yaw = 0.0, pitch = 0.0, roll = 0.0;
             vm::vec3 newX, newY, newZ;
             
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
-            const mat4x4 invYaw = vm::rotationMatrix(vm::vec3::pos_z, -yaw);
+            const vm::mat4x4 invYaw = vm::rotationMatrix(vm::vec3::pos_z, -yaw);
             newX = invYaw * transformation * rotation * vm::vec3::pos_x;
             newZ = invYaw * transformation * rotation * vm::vec3::pos_z;
             
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
-            const mat4x4 invPitch = vm::rotationMatrix(vm::vec3::pos_y, -pitch);
+            const vm::mat4x4 invPitch = vm::rotationMatrix(vm::vec3::pos_y, -pitch);
             newY = invPitch * invYaw * transformation * rotation * vm::vec3::pos_y;
             newZ = invPitch * invYaw * transformation * rotation * vm::vec3::pos_z;
             

@@ -72,15 +72,15 @@ namespace TrenchBroom {
             vm::vec2f getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const;
             
             void setRotation(const vm::vec3& normal, float oldAngle, float newAngle);
-            void transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant);
+            void transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant);
             void updateNormal(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
 
             void moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const;
             void rotateTexture(const vm::vec3& normal, float angle, BrushFaceAttributes& attribs) const;
             void shearTexture(const vm::vec3& normal, const vm::vec2f& factors);
 
-            mat4x4 toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
-            mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
+            vm::mat4x4 toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
+            vm::mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
             float measureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
         private:
             virtual TexCoordSystem* doClone() const = 0;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             virtual vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const = 0;
             
             virtual void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) = 0;
-            virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) = 0;
+            virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) = 0;
             virtual void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 

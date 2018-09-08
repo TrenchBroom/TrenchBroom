@@ -168,12 +168,12 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
             
-            const mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const mat4x4 f2tTransform = w2tTransform * f2wTransform;
-            const mat4x4 t2fTransform = w2fTransform * t2wTransform;
+            const vm::mat4x4 w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const vm::mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const vm::mat4x4 f2tTransform = w2tTransform * f2wTransform;
+            const vm::mat4x4 t2fTransform = w2fTransform * t2wTransform;
             
             const vm::vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
             const vm::vec2f newOriginInTexCoords  = vm::vec2f(f2tTransform * vm::vec3(newOriginInFaceCoords));

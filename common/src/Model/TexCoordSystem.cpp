@@ -77,7 +77,7 @@ namespace TrenchBroom {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) {
+        void TexCoordSystem::transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) {
             doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
         }
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
         void TexCoordSystem::moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
             const auto toPlane = planeProjectionMatrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
-            const auto transform = fromPlane * mat4x4::zero_z * toPlane;
+            const auto transform = fromPlane * vm::mat4x4::zero_z * toPlane;
             const auto texX = normalize(transform * getXAxis());
             const auto texY = normalize(transform * getYAxis());
             assert(invertible); unused(invertible);
@@ -180,12 +180,12 @@ namespace TrenchBroom {
             doShearTexture(normal, factors);
         }
 
-        mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const {
+        vm::mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const {
             const vm::vec3 x = safeScaleAxis(getXAxis(), s.x());
             const vm::vec3 y = safeScaleAxis(getYAxis(), s.y());
             const vm::vec3 z = getZAxis();
             
-            return mat4x4(x[0], x[1], x[2], o[0],
+            return vm::mat4x4(x[0], x[1], x[2], o[0],
                           y[0], y[1], y[2], o[1],
                           z[0], z[1], z[2],  0.0,
                            0.0,  0.0,  0.0,  1.0);
@@ -199,7 +199,7 @@ namespace TrenchBroom {
  */
         }
 
-        mat4x4 TexCoordSystem::fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const {
+        vm::mat4x4 TexCoordSystem::fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const {
             const auto [invertible, result] = invert(toMatrix(offset, scale));
             assert(invertible); unused(invertible);
             return result;

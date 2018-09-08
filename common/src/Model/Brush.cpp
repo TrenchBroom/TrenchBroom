@@ -1098,7 +1098,7 @@ namespace TrenchBroom {
             rebuildGeometry(worldBounds);
         }
 
-        bool Brush::canTransform(const mat4x4& transformation, const vm::bbox3& worldBounds) const {
+        bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
             auto* testBrush = clone(worldBounds);
             bool result = true;
 
@@ -1382,7 +1382,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void Brush::doTransform(const mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) {
+        void Brush::doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) {
             const NotifyNodeChange nodeChange(this);
 
             for (auto* face : m_faces) {

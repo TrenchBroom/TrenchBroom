@@ -56,7 +56,7 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }
 
-        TransformObjectsCommand::TransformObjectsCommand(const Action action, const String& name, const mat4x4& transform, const bool lockTextures) :
+        TransformObjectsCommand::TransformObjectsCommand(const Action action, const String& name, const vm::mat4x4& transform, const bool lockTextures) :
         SnapshotCommand(Type, name),
         m_action(action),
         m_transform(transform),

@@ -121,7 +121,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
+        void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
             const vm::vec3 offset     = transformation * vm::vec3::zero;
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;

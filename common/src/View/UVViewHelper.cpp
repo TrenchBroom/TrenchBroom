@@ -99,19 +99,19 @@ namespace TrenchBroom {
         }
 
         const vm::vec2f UVViewHelper::originInFaceCoords() const {
-            const mat4x4 toFace = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 toFace = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             return vm::vec2f(toFace * origin());
         }
         
         const vm::vec2f UVViewHelper::originInTexCoords() const {
             assert(valid());
             
-            const mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
             return vm::vec2f(toFace * origin());
         }
         
         void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords) {
-            const mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             m_origin = fromFace * vm::vec3(originInFaceCoords);
         }
         
@@ -180,12 +180,12 @@ namespace TrenchBroom {
         void UVViewHelper::computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
             assert(valid());
             
-            const mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            const mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
         
-        void UVViewHelper::computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const {
+        void UVViewHelper::computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const {
             const auto viewportVertices = toTex * m_camera.viewportVertices();
             const auto viewportBounds = vm::bbox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
             const auto& min = viewportBounds.min;
@@ -212,7 +212,7 @@ namespace TrenchBroom {
             };
             
             const auto fromTex = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto toCam = mat4x4(m_camera.viewMatrix());
+            const auto toCam = vm::mat4x4(m_camera.viewMatrix());
             
             for (size_t i = 0; i < 4; ++i) {
                 const auto vertex = toCam * fromTex * vertices[i];

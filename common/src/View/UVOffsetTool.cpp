@@ -107,7 +107,7 @@ namespace TrenchBroom {
                 return round(delta);
             }
 
-            const mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
+            const vm::mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
             vm::vec2f distance = vm::vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {

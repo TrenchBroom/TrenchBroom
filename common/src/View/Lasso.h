@@ -35,7 +35,7 @@ namespace TrenchBroom {
         private:
             const Renderer::Camera& m_camera;
             const FloatType m_distance;
-            const mat4x4 m_transform;
+            const vm::mat4x4 m_transform;
             const vm::vec3 m_start;
             vm::vec3 m_cur;
         public:

@@ -32,6 +32,7 @@ using FloatType = double;
 namespace vm {
     using vec3 = vm::vec<FloatType,3>;
     using vec2 = vm::vec<FloatType,2>;
+    using mat4x4 = vm::mat<FloatType,4,4>;
     using quat3 = vm::quat<FloatType>;
     using line3 = vm::line<FloatType,3>;
     using ray3 = vm::ray<FloatType,3>;
@@ -42,7 +43,6 @@ namespace vm {
     using bbox2 = vm::bbox<FloatType,2>;
 }
 
-using mat4x4 = vm::mat<FloatType,4,4>;
 
 #include "Polyhedron_Instantiation.h"
 

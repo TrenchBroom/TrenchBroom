@@ -449,7 +449,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::transform(const mat4x4& transform, const bool lockTexture) {
+        void BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
             const vm::vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
@@ -516,22 +516,22 @@ namespace TrenchBroom {
             setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
-        mat4x4 BrushFace::projectToBoundaryMatrix() const {
+        vm::mat4x4 BrushFace::projectToBoundaryMatrix() const {
             const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero, vm::vec2f::one) * vm::vec3::pos_z;
             const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
             const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
-            return planeToWorldMatrix * mat4x4::zero_z * worldToPlaneMatrix;
+            return planeToWorldMatrix * vm::mat4x4::zero_z * worldToPlaneMatrix;
         }
 
-        mat4x4 BrushFace::toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
+        vm::mat4x4 BrushFace::toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
-                return mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
+                return vm::mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
             } else {
                 return m_texCoordSystem->toMatrix(offset, scale);
             }
         }
 
-        mat4x4 BrushFace::fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
+        vm::mat4x4 BrushFace::fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
             } else {
