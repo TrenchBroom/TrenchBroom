@@ -31,7 +31,7 @@
 #include <vector>
 
 template <typename T, size_t S>
-polygon<T,S>::polygon() {}
+polygon<T,S>::polygon() = default;
 
 template <typename T, size_t S>
 polygon<T,S>::polygon(std::initializer_list<vec<T,S>> i_vertices) :

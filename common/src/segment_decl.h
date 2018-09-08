@@ -21,6 +21,7 @@
 #define TRENCHBROOM_SEGMENT_DECL_H
 
 #include "abstract_line.h"
+#include "forward.h"
 #include "vec_decl.h"
 
 #include <vector>
@@ -34,7 +35,6 @@
  * @tparam T the component type
  * @tparam S the number of components
  */
-// TODO 2201: introduce abstract_line concept with origin, direction, positiveLength, negativeLength
 template <typename T, size_t S>
 class segment : public abstract_line<T,S> {
 public:
