@@ -40,7 +40,7 @@ private:
     const Callback& m_callback;
     List m_fragments;
     
-    typedef std::list<plane<T,3>> PlaneList;
+    typedef std::list<vm::plane<T,3>> PlaneList;
     typedef typename PlaneList::const_iterator PlaneIt;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
@@ -92,7 +92,7 @@ private:
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
         do {
-            const plane<T,3> plane = m_callback.getPlane(currentFace);
+            const vm::plane<T,3> plane = m_callback.getPlane(currentFace);
             result.push_back(plane);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);
@@ -111,7 +111,7 @@ private:
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vec<T,3>::List& axes) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vm::vec<T,3>::List& axes) {
         if (begin == end)
             return end;
         
@@ -126,18 +126,18 @@ private:
         return it;
     }
     
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vec<T,3>::List& axes) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename vm::vec<T,3>::List& axes) {
         assert(begin != end);
         assert(!axes.empty());
         
-        vec<T,3> axis = axes.front();
+        vm::vec<T,3> axis = axes.front();
         auto bestIt = end;
         for (auto it = begin; it != end; ++it) {
             auto newBestIt = selectPlane(it, bestIt, end, axis);
             
             // Resolve ambiguities if necessary.
             for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes); newBestIt == end && axIt != axEnd; ++axIt) {
-                const vec<T,3>& altAxis = *axIt;
+                const vm::vec<T,3>& altAxis = *axIt;
                 newBestIt = selectPlane(it, bestIt, end, altAxis);
                 if (newBestIt != end)
                     break;
@@ -173,7 +173,7 @@ private:
         return begin;
     }
     
-    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const vec<T,3>& axis) {
+    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const vm::vec<T,3>& axis) {
         const T curDot = dot(curIt->normal, axis);
         if (curDot == 0.0)
             return bestIt;

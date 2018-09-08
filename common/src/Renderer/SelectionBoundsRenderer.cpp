@@ -40,11 +40,11 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            vec3f basePosition() const override {
+            vm::vec3f basePosition() const override {
                 const auto half = m_bounds.size() / 2.0;
                 auto pos = m_bounds.min;
                 pos[m_axis] += half[m_axis];
-                return vec3f(pos);
+                return vm::vec3f(pos);
             }
             
             TextAlignment::Type alignment() const override {
@@ -57,8 +57,8 @@ namespace TrenchBroom {
                 }
             }
             
-            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
-                vec2f result;
+            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+                vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
                     result[1] -= 8.0f;
                 }
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             m_axis(axis),
             m_camera(camera) {}
         private:
-            vec3f basePosition() const override {
+            vm::vec3f basePosition() const override {
                 const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
                 vec3 pos;
                 const auto half = m_bounds.size() / 2.0;
@@ -159,7 +159,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return vec3f(pos);
+                return vm::vec3f(pos);
             }
             
             TextAlignment::Type alignment() const override {
@@ -175,8 +175,8 @@ namespace TrenchBroom {
                 }
             }
             
-            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
-                vec2f result;
+            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+                vm::vec2f result;
                 if (alignment & TextAlignment::Top) {
                     result[1] -= 8.0f;
                 }
@@ -204,11 +204,11 @@ namespace TrenchBroom {
             m_minMax(minMax),
             m_camera(camera) {}
         private:
-            vec3f basePosition() const override {
+            vm::vec3f basePosition() const override {
                 if (m_minMax == bbox3::Corner::min) {
-                    return vec3f(m_bounds.min);
+                    return vm::vec3f(m_bounds.min);
                 } else {
-                    return vec3f(m_bounds.max);
+                    return vm::vec3f(m_bounds.max);
                 }
             }
             
@@ -231,8 +231,8 @@ namespace TrenchBroom {
                 }
             }
             
-            vec2f extraOffsets(TextAlignment::Type alignment, const vec2f& size) const override {
-                vec2f result;
+            vm::vec2f extraOffsets(TextAlignment::Type alignment, const vm::vec2f& size) const override {
+                vm::vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
                 if (alignment & TextAlignment::Bottom)
@@ -257,7 +257,7 @@ namespace TrenchBroom {
         void SelectionBoundsRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-            renderService.renderBounds(bbox3f(m_bounds));
+            renderService.renderBounds(vm::bbox3f(m_bounds));
         }
         
         void SelectionBoundsRenderer::renderSize(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjects();
             
             const Camera& camera = renderContext.camera();
-            const vec3f& direction = camera.direction();
+            const vm::vec3f& direction = camera.direction();
             
             const vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {

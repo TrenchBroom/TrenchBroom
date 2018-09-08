@@ -282,11 +282,11 @@ namespace TrenchBroom {
 
         class TransformEntity : public NodeVisitor {
         private:
-            const mat4x4d& m_transformation;
+            const mat4x4& m_transformation;
             bool m_lockTextures;
             const bbox3& m_worldBounds;
         public:
-            TransformEntity(const mat4x4d& transformation, const bool lockTextures, const bbox3& worldBounds) :
+            TransformEntity(const mat4x4& transformation, const bool lockTextures, const bbox3& worldBounds) :
             m_transformation(transformation),
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}

@@ -131,7 +131,7 @@ namespace TrenchBroom {
             public:
                 AngleIndicatorRenderer(const vec3& position, const float radius, const Math::Axis::Type axis, const vec3& startAxis, const vec3& endAxis) :
                 m_position(position),
-                m_circle(radius, 24, true, axis, vec3f(startAxis), vec3f(endAxis)) {}
+                m_circle(radius, 24, true, axis, vm::vec3f(startAxis), vm::vec3f(endAxis)) {}
             private:
                 void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
                     m_circle.prepare(vertexVbo);
@@ -144,7 +144,7 @@ namespace TrenchBroom {
                     glAssert(glDisable(GL_CULL_FACE));
                     glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
                     
-                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(vec3f(m_position)));
+                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(vm::vec3f(m_position)));
                     Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(angleString(Math::degrees(m_angle)), vec3f(m_center));
+                renderService.renderString(angleString(Math::degrees(m_angle)), vm::vec3f(m_center));
             }
 
             String angleString(const FloatType angle) const {

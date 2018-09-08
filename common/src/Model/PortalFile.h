@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class PortalFile {
         private:
-            polygon3f::List m_portals;
+            vm::polygon3f::List m_portals;
         public:
             PortalFile();
             /**
@@ -39,7 +39,7 @@ namespace TrenchBroom {
              */
             explicit PortalFile(const IO::Path& portalFilePath);
             
-            const polygon3f::List& portals() const;
+            const vm::polygon3f::List& portals() const;
         private:
             void load(const IO::Path& portalFilePath);
         };

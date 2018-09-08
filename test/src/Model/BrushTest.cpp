@@ -1645,17 +1645,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexInwardWithoutMerges) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(+56.0, +56.0, +56.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(+56.0, +56.0, +56.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -1671,7 +1671,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -1688,21 +1688,21 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
@@ -1717,17 +1717,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexOutwardWithoutMerges) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(+72.0, +72.0, +72.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(+72.0, +72.0, +72.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -1743,7 +1743,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -1760,21 +1760,21 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1788,17 +1788,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexWithOneOuterNeighbourMerge) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+56.0, +56.0, +56.0);
-            const vec3d p9(+56.0, +56.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+56.0, +56.0, +56.0);
+            const vm::vec3d p9(+56.0, +56.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -1814,7 +1814,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -1831,20 +1831,20 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1857,17 +1857,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexWithTwoOuterNeighbourMerges) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+56.0, +56.0, +56.0);
-            const vec3d p9(+64.0, +64.0, +56.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+56.0, +56.0, +56.0);
+            const vm::vec3d p9(+64.0, +64.0, +56.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -1883,7 +1883,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -1900,19 +1900,19 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1924,17 +1924,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexWithAllOuterNeighbourMerges) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+56.0, +56.0, +56.0);
-            const vec3d p9(+64.0, +64.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+56.0, +56.0, +56.0);
+            const vm::vec3d p9(+64.0, +64.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -1950,7 +1950,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -1967,18 +1967,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -1989,17 +1989,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexWithAllInnerNeighbourMerge) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(0.0, 0.0, 0.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(0.0, 0.0, 0.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2015,7 +2015,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
 
             ASSERT_EQ(7u, brush->vertexCount());
@@ -2030,18 +2030,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2053,17 +2053,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexUpThroughPlane) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +56.0);
-            const vec3d p9(+64.0, +64.0, +72.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +56.0);
+            const vm::vec3d p9(+64.0, +64.0, +72.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2079,7 +2079,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -2096,19 +2096,19 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2120,17 +2120,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexOntoEdge) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, 0.0);
-            const vec3d p9(0.0, 0.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, 0.0);
+            const vm::vec3d p9(0.0, 0.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2146,7 +2146,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
 
             ASSERT_EQ(7u, brush->vertexCount());
@@ -2161,18 +2161,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2184,16 +2184,16 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexOntoIncidentVertex) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2209,7 +2209,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p7 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p7 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p7, result[0]);
 
@@ -2225,18 +2225,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p7));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p7)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2248,16 +2248,16 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexOntoIncidentVertexInOppositeDirection) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2273,7 +2273,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p7), p8 - p7);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p7), p8 - p7);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p8, result[0]);
 
@@ -2289,18 +2289,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p6));
             ASSERT_TRUE(brush->hasVertex(p8));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p8)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p8)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p8)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p8)));
 
             ASSERT_TRUE(brush->hasFace(p1, p5, p6, p2));
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
@@ -2312,17 +2312,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(+80.0, +64.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(+80.0, +64.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2338,7 +2338,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p6), p9 - p6);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p6), p9 - p6);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -2354,18 +2354,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -2377,17 +2377,17 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(+80.0, -64.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(+80.0, -64.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2403,7 +2403,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p8), p9 - p8);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
             ASSERT_VEC_EQ(p9, result[0]);
 
@@ -2419,18 +2419,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p9));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p9)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p9)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p9)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -2442,18 +2442,18 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
-            const vec3d p1(-64.0, -64.0, -64.0);
-            const vec3d p2(-64.0, -64.0, +64.0);
-            const vec3d p3(-64.0, +64.0, -64.0);
-            const vec3d p4(-64.0, +64.0, +64.0);
-            const vec3d p5(+64.0, -64.0, -64.0);
-            const vec3d p6(+64.0, -64.0, +64.0);
-            const vec3d p7(+64.0, +64.0, -64.0);
-            const vec3d p8(+64.0, +64.0, +64.0);
-            const vec3d p9(+80.0, 0.0, +64.0);
-            const vec3d p10(+64.0, 0.0, +64.0);
+            const vm::vec3d p1(-64.0, -64.0, -64.0);
+            const vm::vec3d p2(-64.0, -64.0, +64.0);
+            const vm::vec3d p3(-64.0, +64.0, -64.0);
+            const vm::vec3d p4(-64.0, +64.0, +64.0);
+            const vm::vec3d p5(+64.0, -64.0, -64.0);
+            const vm::vec3d p6(+64.0, -64.0, +64.0);
+            const vm::vec3d p7(+64.0, +64.0, -64.0);
+            const vm::vec3d p8(+64.0, +64.0, +64.0);
+            const vm::vec3d p9(+80.0, 0.0, +64.0);
+            const vm::vec3d p10(+64.0, 0.0, +64.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2470,7 +2470,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(oldPositions, "texture");
 
-            const vec3d::List result = brush->moveVertices(worldBounds, vec3d::List(1, p9), p10 - p9);
+            const vm::vec3d::List result = brush->moveVertices(worldBounds, vm::vec3d::List(1, p9), p10 - p9);
             ASSERT_EQ(0u, result.size());
 
             ASSERT_EQ(8u, brush->vertexCount());
@@ -2486,18 +2486,18 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasVertex(p7));
             ASSERT_TRUE(brush->hasVertex(p8));
 
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p2)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p3)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p1, p5)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p2, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p4)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p3, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p4, p8)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p6)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p5, p7)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p6, p8)));
-            ASSERT_TRUE(brush->hasEdge(segment3d(p7, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p2)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p3)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p1, p5)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p2, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p4)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p3, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p4, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p6)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p5, p7)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p6, p8)));
+            ASSERT_TRUE(brush->hasEdge(vm::segment3d(p7, p8)));
 
             ASSERT_TRUE(brush->hasFace(p1, p2, p4, p3));
             ASSERT_TRUE(brush->hasFace(p1, p3, p7, p5));
@@ -2508,12 +2508,12 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, moveVertexFailing1) {
-            const vec3d p1(-64.0, -64.0, 0.0);
-            const vec3d p2(+64.0, -64.0, 0.0);
-            const vec3d p3(0.0, +64.0, 0.0);
-            const vec3d p4(0.0, 0.0, +32.0);
+            const vm::vec3d p1(-64.0, -64.0, 0.0);
+            const vm::vec3d p2(+64.0, -64.0, 0.0);
+            const vm::vec3d p3(0.0, +64.0, 0.0);
+            const vm::vec3d p4(0.0, 0.0, +32.0);
 
-            vec3d::List oldPositions;
+            vm::vec3d::List oldPositions;
             oldPositions.push_back(p1);
             oldPositions.push_back(p2);
             oldPositions.push_back(p3);
@@ -2528,7 +2528,7 @@ namespace TrenchBroom {
             for (size_t i = 0; i < oldPositions.size(); ++i) {
                 for (size_t j = 0; j < oldPositions.size(); ++j) {
                     if (i != j) {
-                        ASSERT_FALSE(brush->canMoveVertices(worldBounds, vec3d::List(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
+                        ASSERT_FALSE(brush->canMoveVertices(worldBounds, vm::vec3d::List(1, oldPositions[i]), oldPositions[j] - oldPositions[i]));
                     }
                 }
             }
@@ -3416,42 +3416,42 @@ namespace TrenchBroom {
             // Make sure that the faces have the textures we expect before the vertex is deleted.
 
             // side faces
-            assertTexture("*04awater1", brush, vec3d::List{p1, p2, p7, p6});
-            assertTexture("*04mwat1", brush, vec3d::List{p2, p3, p8, p7});
-            assertTexture("*04mwat2", brush, vec3d::List{p3, p4, p9, p8});
-            assertTexture("*04water1", brush, vec3d::List{p4, p5, p10, p9});
-            assertTexture("*04water2", brush, vec3d::List{p5, p1, p6, p11, p10});
+            assertTexture("*04awater1", brush, vm::vec3d::List{p1, p2, p7, p6});
+            assertTexture("*04mwat1", brush, vm::vec3d::List{p2, p3, p8, p7});
+            assertTexture("*04mwat2", brush, vm::vec3d::List{p3, p4, p9, p8});
+            assertTexture("*04water1", brush, vm::vec3d::List{p4, p5, p10, p9});
+            assertTexture("*04water2", brush, vm::vec3d::List{p5, p1, p6, p11, p10});
 
             // bottom face
-            assertTexture("*lava1", brush, vec3d::List{p5, p4, p3, p2, p1});
+            assertTexture("*lava1", brush, vm::vec3d::List{p5, p4, p3, p2, p1});
 
             // top faces
-            assertTexture("*slime", brush, vec3d::List{p6, p7, p11});
-            assertTexture("*slime0", brush, vec3d::List{p7, p8, p11});
-            assertTexture("*slime1", brush, vec3d::List{p8, p9, p11});
-            assertTexture("*teleport", brush, vec3d::List{p9, p10, p11});
+            assertTexture("*slime", brush, vm::vec3d::List{p6, p7, p11});
+            assertTexture("*slime0", brush, vm::vec3d::List{p7, p8, p11});
+            assertTexture("*slime1", brush, vm::vec3d::List{p8, p9, p11});
+            assertTexture("*teleport", brush, vm::vec3d::List{p9, p10, p11});
 
             // delete the vertex
-            ASSERT_TRUE(brush->canRemoveVertices(worldBounds, vec3d::List{p7}));
-            brush->removeVertices(worldBounds, vec3d::List{p7});
+            ASSERT_TRUE(brush->canRemoveVertices(worldBounds, vm::vec3d::List{p7}));
+            brush->removeVertices(worldBounds, vm::vec3d::List{p7});
 
             // assert the structure and textures
 
             // side faces
-            assertTexture("*04awater1", brush, vec3d::List{p1, p2, p6});
-            assertTexture("*04mwat1", brush, vec3d::List{p2, p3, p8});
-            assertTexture("*04mwat2", brush, vec3d::List{p3, p4, p9, p8});
-            assertTexture("*04water1", brush, vec3d::List{p4, p5, p10, p9});
-            assertTexture("*04water2", brush, vec3d::List{p5, p1, p6, p11, p10});
+            assertTexture("*04awater1", brush, vm::vec3d::List{p1, p2, p6});
+            assertTexture("*04mwat1", brush, vm::vec3d::List{p2, p3, p8});
+            assertTexture("*04mwat2", brush, vm::vec3d::List{p3, p4, p9, p8});
+            assertTexture("*04water1", brush, vm::vec3d::List{p4, p5, p10, p9});
+            assertTexture("*04water2", brush, vm::vec3d::List{p5, p1, p6, p11, p10});
 
             // bottom face
-            assertTexture("*lava1", brush, vec3d::List{p5, p4, p3, p2, p1});
+            assertTexture("*lava1", brush, vm::vec3d::List{p5, p4, p3, p2, p1});
 
             // top faces
-            assertTexture("*slime", brush, vec3d::List{p6, p2, p11});
-            assertTexture("*slime0", brush, vec3d::List{p2, p8, p11});
-            assertTexture("*slime1", brush, vec3d::List{p8, p9, p11}); // failure, becomes *slime0
-            assertTexture("*teleport", brush, vec3d::List{p9, p10, p11});
+            assertTexture("*slime", brush, vm::vec3d::List{p6, p2, p11});
+            assertTexture("*slime0", brush, vm::vec3d::List{p2, p8, p11});
+            assertTexture("*slime1", brush, vm::vec3d::List{p8, p9, p11}); // failure, becomes *slime0
+            assertTexture("*teleport", brush, vm::vec3d::List{p9, p10, p11});
 
             delete brush;
         }

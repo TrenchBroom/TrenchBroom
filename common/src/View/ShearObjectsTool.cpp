@@ -133,13 +133,13 @@ namespace TrenchBroom {
             return dragPolygon().vertexCount() > 0;
         }
 
-        polygon3f ShearObjectsTool::dragPolygon() const {
+        vm::polygon3f ShearObjectsTool::dragPolygon() const {
             if (m_dragStartHit.type() == ShearToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return polygon3f(polygonForBBoxSide(bounds(), side));
+                return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
                                                             
-            return polygon3f();
+            return vm::polygon3f();
         }
 
         // for rendering sheared bbox
@@ -223,10 +223,10 @@ namespace TrenchBroom {
                                    m_dragCumulativeDelta);
         }
 
-        polygon3f ShearObjectsTool::shearHandle() const {
+        vm::polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return polygon3f();
+                return vm::polygon3f();
             }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
@@ -234,7 +234,7 @@ namespace TrenchBroom {
             const polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
             
             const polygon3 handle = polyAtDragStart.transform(bboxShearMatrix());
-            return polygon3f(handle);
+            return vm::polygon3f(handle);
         }
 
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {

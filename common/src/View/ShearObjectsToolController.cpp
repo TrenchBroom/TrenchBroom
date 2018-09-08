@@ -205,14 +205,14 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                 const auto mat = m_tool->bboxShearMatrix();
                 const auto op = [&](const vec3& start, const vec3& end) {
-                    renderService.renderLine(vec3f(mat * start), vec3f(mat * end));
+                    renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
                 };
                 m_tool->bboxAtDragStart().forEachEdge(op);
             }
 
             // render shear handle
             {
-                const polygon3f poly = m_tool->shearHandle();
+                const vm::polygon3f poly = m_tool->shearHandle();
                 if (poly.vertexCount() != 0) {
                     // fill
                     {

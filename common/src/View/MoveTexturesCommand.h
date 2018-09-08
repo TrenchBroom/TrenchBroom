@@ -32,18 +32,18 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<MoveTexturesCommand> Ptr;
         private:
-            vec3f m_cameraUp;
-            vec3f m_cameraRight;
-            vec2f m_delta;
+            vm::vec3f m_cameraUp;
+            vm::vec3f m_cameraRight;
+            vm::vec2f m_delta;
         public:
-            static Ptr move(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta);
+            static Ptr move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
         private:
-            MoveTexturesCommand(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta);
+            MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
 
             bool doPerformDo(MapDocumentCommandFacade* document) override;
             bool doPerformUndo(MapDocumentCommandFacade* document) override;
             
-            void moveTextures(MapDocumentCommandFacade* document, const vec2f& delta) const;
+            void moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;

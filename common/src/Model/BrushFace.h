@@ -41,7 +41,6 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class IndexRangeMap;
-        class TexturedIndexArrayBuilder;
     }
     
     namespace Model {
@@ -104,7 +103,7 @@ namespace TrenchBroom {
             BrushFaceSnapshot* takeSnapshot();
             TexCoordSystemSnapshot* takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot* coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const plane3& sourceFacePlane, const WrapStyle wrapStyle);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const plane3& sourceFacePlane, WrapStyle wrapStyle);
 
             Brush* brush() const;
             void setBrush(Brush* brush);
@@ -124,14 +123,14 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
-            vec2f textureSize() const;
+            vm::vec2f textureSize() const;
             
-            const vec2f& offset() const;
+            const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            vec2f modOffset(const vec2f& offset) const;
+            vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-            const vec2f& scale() const;
+            const vm::vec2f& scale() const;
             float xScale() const;
             float yScale() const;
 
@@ -160,11 +159,11 @@ namespace TrenchBroom {
             vec3 textureYAxis() const;
             void resetTextureAxes();
             
-            void moveTexture(const vec3& up, const vec3& right, const vec2f& offset);
+            void moveTexture(const vec3& up, const vec3& right, const vm::vec2f& offset);
             void rotateTexture(float angle);
-            void shearTexture(const vec2f& factors);
+            void shearTexture(const vm::vec2f& factors);
             
-            void transform(const mat4x4& transform, const bool lockTexture);
+            void transform(const mat4x4& transform, bool lockTexture);
             void invert();
 
             void updatePointsFromVertices();
@@ -172,9 +171,9 @@ namespace TrenchBroom {
             void findIntegerPlanePoints();
             
             mat4x4 projectToBoundaryMatrix() const;
-            mat4x4 toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
-            mat4x4 fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, bool project) const;
-            float measureTextureAngle(const vec2f& center, const vec2f& point) const;
+            mat4x4 toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+            mat4x4 fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
+            float measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
             
             size_t vertexCount() const;
             EdgeList edges() const;
@@ -188,13 +187,13 @@ namespace TrenchBroom {
             void setGeometry(BrushFaceGeometry* geometry);
             void invalidate();
             
-            void setFilePosition(const size_t lineNumber, const size_t lineCount);
+            void setFilePosition(size_t lineNumber, size_t lineCount);
             
             bool selected() const;
             void select();
             void deselect();
 
-            vec2f textureCoords(const vec3& point) const;
+            vm::vec2f textureCoords(const vec3& point) const;
 
             bool containsPoint(const vec3& point) const;
             FloatType intersectWithRay(const ray3& ray) const;

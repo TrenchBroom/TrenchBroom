@@ -22,61 +22,61 @@
 #include "Algorithms.h"
 #include "VecMath.h"
 
-bool containsPoint(const vec3d::List& vertices, const vec3d& point);
+bool containsPoint(const vm::vec3d::List& vertices, const vm::vec3d& point);
 
-vec3d::List square();
-vec3d::List triangle();
+vm::vec3d::List square();
+vm::vec3d::List triangle();
 
 TEST(AlgorithmsTest, squareContainsPointInCenter) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(0.0, 0.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, 0.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsLeftTopVertex) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(-1.0, +1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, +1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsRightTopVertex) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(+1.0, +1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, +1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsRightBottomVertex) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(+1.0, -1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, -1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsLeftBottomVertex) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(-1.0, -1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, -1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsCenterOfLeftEdge) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(-1.0, 0.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, 0.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsCenterOfTopEdge) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(0.0, +1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, +1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsCenterOfRightEdge) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(+1.0, 0.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, 0.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, squareContainsCenterOfBottomEdge) {
-    ASSERT_TRUE(containsPoint(square(), vec3d(0.0, -1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, -1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, triangleContainsOrigin) {
-    ASSERT_TRUE(containsPoint(triangle(), vec3d(0.0, 0.0, 0.0)));
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(0.0, 0.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, triangleContainsTopPoint) {
-    ASSERT_TRUE(containsPoint(triangle(), vec3d(-1.0, +1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(-1.0, +1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, triangleContainsLeftBottomPoint) {
-    ASSERT_TRUE(containsPoint(triangle(), vec3d(-1.0, -1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(-1.0, -1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, triangleContainsRightBottomPoint) {
-    ASSERT_TRUE(containsPoint(triangle(), vec3d(+1.0, -1.0, 0.0)));
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(+1.0, -1.0, 0.0)));
 }
 
 TEST(AlgorithmsTest, triangleContainsCenterOfTopToLeftBottomEdge) {
@@ -92,27 +92,27 @@ TEST(AlgorithmsTest, triangleContainsCenterOfRightBottomToTopEdge) {
 }
 
 TEST(AlgorithmsTest, triangleContainsOuterPoint) {
-    ASSERT_FALSE(containsPoint(triangle(), vec3d(+1.0, +1.0, 0.0)));
+    ASSERT_FALSE(containsPoint(triangle(), vm::vec3d(+1.0, +1.0, 0.0)));
 }
 
-bool containsPoint(const vec3d::List& vertices, const vec3d& point) {
+bool containsPoint(const vm::vec3d::List& vertices, const vm::vec3d& point) {
     return polygonContainsPoint(point, std::begin(vertices), std::end(vertices),
-                                [](const vec3d& vertex) { return vertex; });
+                                [](const vm::vec3d& vertex) { return vertex; });
 }
 
-vec3d::List square() {
-    return vec3d::List {
-        vec3d(-1.0, -1.0, 0.0),
-        vec3d(-1.0, +1.0, 0.0),
-        vec3d(+1.0, +1.0, 0.0),
-        vec3d(+1.0, -1.0, 0.0)
+vm::vec3d::List square() {
+    return vm::vec3d::List {
+        vm::vec3d(-1.0, -1.0, 0.0),
+        vm::vec3d(-1.0, +1.0, 0.0),
+        vm::vec3d(+1.0, +1.0, 0.0),
+        vm::vec3d(+1.0, -1.0, 0.0)
     };
 }
 
-vec3d::List triangle() {
-    return vec3d::List {
-        vec3d(-1.0, +1.0, 0.0), // top
-        vec3d(-1.0, -1.0, 0.0), // left bottom
-        vec3d(+1.0, -1.0, 0.0), // right bottom
+vm::vec3d::List triangle() {
+    return vm::vec3d::List {
+        vm::vec3d(-1.0, +1.0, 0.0), // top
+        vm::vec3d(-1.0, -1.0, 0.0), // left bottom
+        vm::vec3d(+1.0, -1.0, 0.0), // right bottom
     };
 }

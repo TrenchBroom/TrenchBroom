@@ -38,12 +38,12 @@ namespace TrenchBroom {
         class MeasureString : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
-            vec2f m_size;
+            vm::vec2f m_size;
         public:
             MeasureString(TextureFont& font) :
             m_font(font) {}
             
-            const vec2f& size() const {
+            const vm::vec2f& size() const {
                 return m_size;
             }
         private:
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             }
             
             void measure(const String& str) {
-                const vec2f size = m_font.measure(str);
+                const auto size = m_font.measure(str);
                 m_size[0] = std::max(m_size[0], size[0]);
                 m_size[1] += size[1];
             }
@@ -69,12 +69,12 @@ namespace TrenchBroom {
         class MeasureLines : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
-            vec2f::List m_sizes;
+            vm::vec2f::List m_sizes;
         public:
             MeasureLines(TextureFont& font) :
             m_font(font) {}
             
-            const vec2f::List& sizes() const {
+            const vm::vec2f::List& sizes() const {
                 return m_sizes;
             }
         private:
@@ -100,16 +100,16 @@ namespace TrenchBroom {
             TextureFont& m_font;
 
             bool m_clockwise;
-            vec2f m_offset;
+            vm::vec2f m_offset;
             
-            const vec2f::List& m_sizes;
-            vec2f m_maxSize;
+            const vm::vec2f::List& m_sizes;
+            vm::vec2f m_maxSize;
             
             size_t m_index;
             float m_y;
-            vec2f::List m_vertices;
+            vm::vec2f::List m_vertices;
         public:
-            MakeQuads(TextureFont& font, const bool clockwise, const vec2f& offset, const vec2f::List& sizes) :
+            MakeQuads(TextureFont& font, const bool clockwise, const vm::vec2f& offset, const vm::vec2f::List& sizes) :
             m_font(font),
             m_clockwise(clockwise),
             m_offset(offset),
@@ -123,7 +123,7 @@ namespace TrenchBroom {
                 m_y -= m_sizes.back().y();
             }
             
-            const vec2f::List& vertices() const {
+            const vm::vec2f::List& vertices() const {
                 return m_vertices;
             }
         private:
@@ -132,17 +132,17 @@ namespace TrenchBroom {
             }
             
             void justifyRight(const String& str) override {
-                const float w = m_sizes[m_index].x();
+                const auto w = m_sizes[m_index].x();
                 makeQuads(str, m_maxSize.x() - w);
             }
             
             void center(const String& str) override {
-                const float w = m_sizes[m_index].x();
+                const auto w = m_sizes[m_index].x();
                 makeQuads(str, (m_maxSize.x() - w) / 2.0f);
             }
             
             void makeQuads(const String& str, const float x) {
-                const vec2f offset = m_offset + vec2f(x, m_y);
+                const auto offset = m_offset + vm::vec2f(x, m_y);
                 VectorUtils::append(m_vertices, m_font.quads(str, m_clockwise, offset));
                 
                 m_y -= m_sizes[m_index].y();
@@ -150,51 +150,53 @@ namespace TrenchBroom {
             }
         };
         
-        vec2f::List TextureFont::quads(const AttrString& string, const bool clockwise, const vec2f& offset) {
+        vm::vec2f::List TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) {
             MeasureLines measureLines(*this);
             string.lines(measureLines);
-            const vec2f::List& sizes = measureLines.sizes();
+            const auto& sizes = measureLines.sizes();
             
             MakeQuads makeQuads(*this, clockwise, offset, sizes);
             string.lines(makeQuads);
             return makeQuads.vertices();
         }
 
-        vec2f TextureFont::measure(const AttrString& string) {
+        vm::vec2f TextureFont::measure(const AttrString& string) {
             MeasureString measureString(*this);
             string.lines(measureString);
             return measureString.size();
         }
 
-        vec2f::List TextureFont::quads(const String& string, const bool clockwise, const vec2f& offset) {
-            vec2f::List result;
+        vm::vec2f::List TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) {
+            vm::vec2f::List result;
             result.reserve(string.length() * 4 * 2);
             
-            int x = static_cast<int>(Math::round(offset.x()));
-            int y = static_cast<int>(Math::round(offset.y()));
+            auto x = static_cast<int>(Math::round(offset.x()));
+            auto y = static_cast<int>(Math::round(offset.y()));
             for (size_t i = 0; i < string.length(); i++) {
-                char c = string[i];
+                auto c = string[i];
                 if (c == '\n') {
                     x = 0;
                     y += m_lineHeight;
                     continue;
                 }
                 
-                if (c < m_firstChar || c >= m_firstChar + m_charCount)
+                if (c < m_firstChar || c >= m_firstChar + m_charCount) {
                     c = ' '; // space
-                
-                const FontGlyph& glyph = m_glyphs[static_cast<size_t>(c - m_firstChar)];
-                if (c != ' ')
+                }
+
+                const auto& glyph = m_glyphs[static_cast<size_t>(c - m_firstChar)];
+                if (c != ' ') {
                     glyph.appendVertices(result, x, y, m_texture->size(), clockwise);
-                
+                }
+
                 x += glyph.advance();
             }
             return result;
         }
-        
-        vec2f TextureFont::measure(const String& string) {
-            vec2f result;
-            
+
+        vm::vec2f TextureFont::measure(const String& string) {
+            vm::vec2f result;
+
             int x = 0;
             int y = 0;
             for (size_t i = 0; i < string.length(); i++) {
@@ -205,23 +207,24 @@ namespace TrenchBroom {
                     y += m_lineHeight;
                     continue;
                 }
-                
-                if (c < m_firstChar || c >= m_firstChar + m_charCount)
+
+                if (c < m_firstChar || c >= m_firstChar + m_charCount) {
                     c = 32; // space
-                
+                }
+
                 const FontGlyph& glyph = m_glyphs[static_cast<size_t>(c - m_firstChar)];
                 x += glyph.advance();
             }
-            
+
             result[0] = std::max(result[0], static_cast<float>(x));
             result[1] = static_cast<float>(y + static_cast<int>(m_lineHeight));
             return result;
         }
-        
+
         void TextureFont::activate() {
             m_texture->activate();
         }
-        
+
         void TextureFont::deactivate() {
             m_texture->deactivate();
         }

@@ -215,12 +215,12 @@ namespace TrenchBroom {
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(bbox3f(m_tool->bounds()));
+                    renderService.renderBounds(vm::bbox3f(m_tool->bounds()));
                 }
 
                 // corner handles
                 for (const auto& corner : m_tool->cornerHandles()) {
-                    const auto ray = ray3(renderContext.camera().pickRay(vec3f(corner)));
+                    const auto ray = ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
 
                     if (renderContext.camera().perspectiveProjection()) {
                         Model::PickResult pr;
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(vec3f(corner));
+                    renderService.renderHandle(vm::vec3f(corner));
                 }
             }
 

@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace Renderer {
         TEST(CameraTest, testInvalidUp) {
             PerspectiveCamera c;
-            c.setDirection(vec3f(0,0,1), vec3f(0,0,1));
+            c.setDirection(vm::vec3f(0,0,1), vm::vec3f(0,0,1));
             
             ASSERT_FALSE(isNaN(c.direction()));
             ASSERT_FALSE(isNaN(c.right()));

@@ -38,8 +38,8 @@ namespace TrenchBroom {
             GroupNameAnchor(const Model::Group* group) :
             m_group(group) {}
         private:
-            vec3f basePosition() const override {
-                auto position = vec3f(m_group->bounds().center());
+            vm::vec3f basePosition() const override {
+                auto position = vm::vec3f(m_group->bounds().center());
                 position[2] = float(m_group->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -155,8 +155,8 @@ namespace TrenchBroom {
             color(i_color) {}
             
             void operator()(const vec3& v1, const vec3& v2) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(vec3f(v1), color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(vec3f(v2), color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
             }
         };
         
@@ -167,8 +167,8 @@ namespace TrenchBroom {
             vertices(i_vertices) {}
             
             void operator()(const vec3& v1, const vec3& v2) {
-                vertices.push_back(VertexSpecs::P3::Vertex(vec3f(v1)));
-                vertices.push_back(VertexSpecs::P3::Vertex(vec3f(v2)));
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
             }
         };
         

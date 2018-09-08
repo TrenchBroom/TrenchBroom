@@ -37,7 +37,7 @@ namespace TrenchBroom {
         public:
             FontGlyph(size_t x, size_t y, size_t w, size_t h, size_t a);
             
-            void appendVertices(vec2f::List& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
+            void appendVertices(vm::vec2f::List& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
             int advance() const;
         };
     }

@@ -66,7 +66,7 @@ namespace TrenchBroom {
             void doResetTextureAxesToParallel(const vec3& normal, float angle) override;
 
             bool isRotationInverted(const vec3& normal) const override;
-            vec2f doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const override;
+            vm::vec2f doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const override;
             
             void doSetRotation(const vec3& normal, float oldAngle, float newAngle) override;
             void applyRotation(const vec3& normal, FloatType angle);
@@ -78,9 +78,9 @@ namespace TrenchBroom {
             void doUpdateNormalWithProjection(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) override;
             void doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) override;
 
-            void doShearTexture(const vec3& normal, const vec2f& factors) override;
+            void doShearTexture(const vec3& normal, const vm::vec2f& factors) override;
 
-            float doMeasureAngle(float currentAngle, const vec2f& center, const vec2f& point) const override;
+            float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
             void computeInitialAxes(const vec3& normal, vec3& xAxis, vec3& yAxis) const;
         private:
             ParallelTexCoordSystem(const ParallelTexCoordSystem& other);

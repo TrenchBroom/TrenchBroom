@@ -299,11 +299,11 @@ namespace TrenchBroom {
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(vec3f(handle));
+                renderService.renderHandleHighlight(vm::vec3f(handle));
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(StringUtils::toString(handle), vec3f(handle));
+                renderService.renderString(StringUtils::toString(handle), vm::vec3f(handle));
             }
 
             template <typename HH>

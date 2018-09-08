@@ -36,7 +36,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             Renderer::PerspectiveCamera& m_camera;
             bool m_orbit;
-            vec3f m_orbitCenter;
+            vm::vec3f m_orbitCenter;
         public:
             CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);

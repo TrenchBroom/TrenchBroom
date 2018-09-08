@@ -39,7 +39,7 @@ namespace TrenchBroom {
             bool m_needsLinking;
             mutable UniformVariableCache m_variableCache;
         public:
-            ShaderProgram(const String& name);
+            explicit ShaderProgram(const String& name);
             ~ShaderProgram();
             
             void attach(Shader& shader);
@@ -48,17 +48,17 @@ namespace TrenchBroom {
             void activate();
             void deactivate();
 
-            void set(const String& name, const bool value);
-            void set(const String& name, const int value);
-            void set(const String& name, const size_t value);
-            void set(const String& name, const float value);
-            void set(const String& name, const double value);
-            void set(const String& name, const vec2f& value);
-            void set(const String& name, const vec3f& value);
-            void set(const String& name, const vec4f& value);
-            void set(const String& name, const mat2x2f& value);
-            void set(const String& name, const mat3x3f& value);
-            void set(const String& name, const mat4x4f& value);
+            void set(const String& name, bool value);
+            void set(const String& name, int value);
+            void set(const String& name, size_t value);
+            void set(const String& name, float value);
+            void set(const String& name, double value);
+            void set(const String& name, const vm::vec2f& value);
+            void set(const String& name, const vm::vec3f& value);
+            void set(const String& name, const vm::vec4f& value);
+            void set(const String& name, const vm::mat2x2f& value);
+            void set(const String& name, const vm::mat3x3f& value);
+            void set(const String& name, const vm::mat4x4f& value);
         private:
             void link();
             GLint findUniformLocation(const String& name) const;

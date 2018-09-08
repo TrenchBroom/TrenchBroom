@@ -68,7 +68,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void UVView::setSubDivisions(const vec2i& subDivisions) {
+        void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
             Refresh();
         }
@@ -207,7 +207,7 @@ namespace TrenchBroom {
         private:
             Vertex::List getVertices() {
                 const auto* face = m_helper.face();
-                const auto normal = vec3f(face->boundary().normal);
+                const auto normal = vm::vec3f(face->boundary().normal);
                 
                 Vertex::List vertices;
                 vertices.reserve(4);
@@ -254,11 +254,11 @@ namespace TrenchBroom {
                 shader.set("Color", texture->averageColor());
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
-                shader.set("GridSizes", vec2f(texture->width(), texture->height()));
+                shader.set("GridSizes", vm::vec2f(texture->width(), texture->height()));
                 shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
-                shader.set("GridMatrix", mat4x4f(toTex));
-                shader.set("GridDivider", vec2f(m_helper.subDivisions()));
+                shader.set("GridMatrix", vm::mat4x4f(toTex));
+                shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             edgeVertices.reserve(faceVertices.size());
             
             std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
-                           [](const Model::BrushVertex* vertex) { return Vertex(vec3f(vertex->position())); });
+                           [](const Model::BrushVertex* vertex) { return Vertex(vm::vec3f(vertex->position())); });
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             
@@ -302,9 +302,9 @@ namespace TrenchBroom {
             const auto* face = m_helper.face();
             const auto& normal = face->boundary().normal;
             
-            const auto xAxis  = vec3f(face->textureXAxis() - dot(face->textureXAxis(), normal) * normal);
-            const auto yAxis  = vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
-            const auto center = vec3f(face->boundsCenter());
+            const auto xAxis  = vm::vec3f(face->textureXAxis() - dot(face->textureXAxis(), normal) * normal);
+            const auto yAxis  = vm::vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
+            const auto center = vm::vec3f(face->boundsCenter());
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;

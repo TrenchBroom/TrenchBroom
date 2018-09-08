@@ -30,59 +30,61 @@
 
 #include <cstddef>
 
-template <typename T, size_t S>
-ray<T,S>::ray() :
-origin(vec<T,S>::zero),
-direction(vec<T,S>::zero) {}
+namespace vm {
+    template <typename T, size_t S>
+    ray<T,S>::ray() :
+    origin(vec<T,S>::zero),
+    direction(vec<T,S>::zero) {}
 
-template <typename T, size_t S>
-ray<T,S>::ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction) :
-origin(i_origin),
-direction(i_direction) {}
+    template <typename T, size_t S>
+    ray<T,S>::ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction) :
+    origin(i_origin),
+    direction(i_direction) {}
 
-template <typename T, size_t S>
-vec<T,S> ray<T,S>::getOrigin() const {
-    return origin;
-}
-
-template <typename T, size_t S>
-vec<T,S> ray<T,S>::getDirection() const {
-    return direction;
-}
-
-template <typename T, size_t S>
-ray<T,S> ray<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
-    const auto newOrigin = origin * transform;
-    const auto newDirection = direction * stripTranslation(transform);
-    return ray<T,S>(newOrigin, newDirection);
-}
-
-template <typename T, size_t S>
-Math::PointStatus::Type ray<T,S>::pointStatus(const vec<T,S>& point) const {
-    const auto scale = dot(direction, point - origin);
-    if (scale >  Math::Constants<T>::pointStatusEpsilon()) {
-        return Math::PointStatus::PSAbove;
-    } else if (scale < -Math::Constants<T>::pointStatusEpsilon()) {
-        return Math::PointStatus::PSBelow;
-    } else {
-        return Math::PointStatus::PSInside;
+    template <typename T, size_t S>
+    vec<T,S> ray<T,S>::getOrigin() const {
+        return origin;
     }
-}
 
-template <typename T, size_t S>
-bool operator==(const ray<T,S>& lhs, const ray<T,S>& rhs) {
-    return lhs.origin == rhs.origin && lhs.direction == rhs.direction;
-}
+    template <typename T, size_t S>
+    vec<T,S> ray<T,S>::getDirection() const {
+        return direction;
+    }
 
-template <typename T, size_t S>
-bool operator!=(const ray<T,S>& lhs, const ray<T,S>& rhs) {
-    return lhs.origin != rhs.origin || lhs.direction != rhs.direction;
-}
+    template <typename T, size_t S>
+    ray<T,S> ray<T,S>::transform(const mat<T,S+1,S+1>& transform) const {
+        const auto newOrigin = origin * transform;
+        const auto newDirection = direction * stripTranslation(transform);
+        return ray<T,S>(newOrigin, newDirection);
+    }
 
-template <typename T, size_t S>
-std::ostream& operator<<(std::ostream& stream, const ray<T,S>& ray) {
-    stream << "{ origin: (" << ray.origin << "), direction: (" << ray.direction << ") }";
-    return stream;
+    template <typename T, size_t S>
+    Math::PointStatus::Type ray<T,S>::pointStatus(const vec<T,S>& point) const {
+        const auto scale = dot(direction, point - origin);
+        if (scale >  Math::Constants<T>::pointStatusEpsilon()) {
+            return Math::PointStatus::PSAbove;
+        } else if (scale < -Math::Constants<T>::pointStatusEpsilon()) {
+            return Math::PointStatus::PSBelow;
+        } else {
+            return Math::PointStatus::PSInside;
+        }
+    }
+
+    template <typename T, size_t S>
+    bool operator==(const ray<T,S>& lhs, const ray<T,S>& rhs) {
+        return lhs.origin == rhs.origin && lhs.direction == rhs.direction;
+    }
+
+    template <typename T, size_t S>
+    bool operator!=(const ray<T,S>& lhs, const ray<T,S>& rhs) {
+        return lhs.origin != rhs.origin || lhs.direction != rhs.direction;
+    }
+
+    template <typename T, size_t S>
+    std::ostream& operator<<(std::ostream& stream, const ray<T,S>& ray) {
+        stream << "{ origin: (" << ray.origin << "), direction: (" << ray.direction << ") }";
+        return stream;
+    }
 }
 
 #endif //TRENCHBROOM_RAY_IMPL_H

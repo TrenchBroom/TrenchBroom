@@ -74,7 +74,7 @@ namespace TrenchBroom {
             const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
-            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vec3f(0.0f, 0.0f, 100.0f), vec3f::neg_z, vec3f::pos_y);
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z, vm::vec3f::pos_y);
             
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
-            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vec3f(0.0f, 0.0f, 100.0f), vec3f::neg_z, vec3f::pos_y);
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z, vm::vec3f::pos_y);
             
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);
@@ -154,9 +154,9 @@ namespace TrenchBroom {
             const InSequence inSequence;
             
             const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
-            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vec3f(0.0f, 0.0f, 100.0f),
-                                               normalize(vec3f::neg_x + vec3f::neg_y + vec3f::neg_z),
-                                               normalize(vec3f::neg_x + vec3f::neg_y + vec3f::pos_z));
+            Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f),
+                                               normalize(vm::vec3f::neg_x + vm::vec3f::neg_y + vm::vec3f::neg_z),
+                                               normalize(vm::vec3f::neg_x + vm::vec3f::neg_y + vm::vec3f::pos_z));
             
             const Grid grid(4); // Grid size 16
             MockMoveToolController controller(grid);

@@ -35,8 +35,8 @@ namespace TrenchBroom {
             String m_textureName;
             Assets::Texture* m_texture;
             
-            vec2f m_offset;
-            vec2f m_scale;
+            vm::vec2f m_offset;
+            vm::vec2f m_scale;
             float m_rotation;
             
             int m_surfaceContents;
@@ -53,14 +53,14 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
-            vec2f textureSize() const;
+            vm::vec2f textureSize() const;
             
-            const vec2f& offset() const;
+            const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            vec2f modOffset(const vec2f& offset) const;
+            vm::vec2f modOffset(const vm::vec2f& offset) const;
             
-            const vec2f& scale() const;
+            const vm::vec2f& scale() const;
             float xScale() const;
             float yScale() const;
             
@@ -73,10 +73,10 @@ namespace TrenchBroom {
             void setTexture(Assets::Texture* texture);
             void unsetTexture();
             
-            void setOffset(const vec2f& offset);
+            void setOffset(const vm::vec2f& offset);
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
-            void setScale(const vec2f& scale);
+            void setScale(const vm::vec2f& scale);
             void setXScale(float xScale);
             void setYScale(float yScale);
             void setRotation(float rotation);

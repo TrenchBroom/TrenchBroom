@@ -38,7 +38,7 @@ namespace TrenchBroom {
     namespace IO {
         class MdlParser : public EntityModelParser {
         private:
-            static const vec3f Normals[162];
+            static const vm::vec3f Normals[162];
             
             struct MdlSkinVertex {
                 bool onseam;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             
             typedef std::vector<MdlSkinVertex> MdlSkinVertexList;
             typedef std::vector<MdlSkinTriangle> MdlSkinTriangleList;
-            typedef vec<unsigned char, 4> PackedFrameVertex;
+            typedef vm::vec<unsigned char, 4> PackedFrameVertex;
             typedef std::vector<PackedFrameVertex> PackedFrameVertexList;
             
             String m_name;
@@ -66,11 +66,11 @@ namespace TrenchBroom {
             Assets::EntityModel* doParseModel() override;
             
             void parseSkins(const char*& cursor, Assets::MdlModel& model, size_t count, size_t width, size_t height, int flags);
-            MdlSkinVertexList parseSkinVertices(const char*& cursor, const size_t count);
-            MdlSkinTriangleList parseSkinTriangles(const char*& cursor, const size_t count);
-            void parseFrames(const char*& cursor, Assets::MdlModel& model, const size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vec3f& origin, const vec3f& scale);
-            Assets::MdlFrame* parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, const size_t skinWidth, const size_t skinHeight, const vec3f& origin, const vec3f& scale);
-            vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vec3f& origin, const vec3f& scale) const;
+            MdlSkinVertexList parseSkinVertices(const char*& cursor, size_t count);
+            MdlSkinTriangleList parseSkinTriangles(const char*& cursor, size_t count);
+            void parseFrames(const char*& cursor, Assets::MdlModel& model, size_t count, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            Assets::MdlFrame* parseFrame(const char*& cursor, const MdlSkinTriangleList& skinTriangles, const MdlSkinVertexList& skinVertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale);
+            vm::vec3f unpackFrameVertex(const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const;
         };
     }
 }

@@ -667,11 +667,11 @@ namespace TrenchBroom {
             return result;
         }
         
-        static std::vector<polygon3f> polysForSides(const bbox3& box,
+        static std::vector<vm::polygon3f> polysForSides(const bbox3& box,
                                                     const std::vector<BBoxSide>& sides) {
-            std::vector<polygon3f> result;
+            std::vector<vm::polygon3f> result;
             for (const auto& side : sides) {
-                result.push_back(polygon3f(polygonForBBoxSide(box, side)));
+                result.push_back(vm::polygon3f(polygonForBBoxSide(box, side)));
             }
             return result;
         }
@@ -686,7 +686,7 @@ namespace TrenchBroom {
             return std::vector<BBoxSide>(result.begin(), result.end());
         }
 
-        std::vector<polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
+        std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
             std::vector<BBoxSide> sides;
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
@@ -734,33 +734,33 @@ namespace TrenchBroom {
             return dragSide().vertexCount() > 0;
         }
 
-        polygon3f ScaleObjectsTool::dragSide() const {
+        vm::polygon3f ScaleObjectsTool::dragSide() const {
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return polygon3f(polygonForBBoxSide(bounds(), side));
+                return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
                                                             
-            return polygon3f();
+            return vm::polygon3f();
         }
         
         bool ScaleObjectsTool::hasDragEdge() const {
             return m_dragStartHit.type() == ScaleToolEdgeHit;
         }
         
-        segment3f ScaleObjectsTool::dragEdge() const {
+        vm::segment3f ScaleObjectsTool::dragEdge() const {
             assert(hasDragEdge());
             auto whichEdge = m_dragStartHit.target<BBoxEdge>();
-            return segment3f(pointsForBBoxEdge(bounds(), whichEdge));
+            return vm::segment3f(pointsForBBoxEdge(bounds(), whichEdge));
         }
         
         bool ScaleObjectsTool::hasDragCorner() const {
             return m_dragStartHit.type() == ScaleToolCornerHit;
         }
         
-        vec3f ScaleObjectsTool::dragCorner() const {
+        vm::vec3f ScaleObjectsTool::dragCorner() const {
             assert(hasDragCorner());
             auto whichCorner = m_dragStartHit.target<BBoxCorner>();
-            return vec3f(pointForBBoxCorner(bounds(), whichCorner));
+            return vm::vec3f(pointForBBoxCorner(bounds(), whichCorner));
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
@@ -774,33 +774,33 @@ namespace TrenchBroom {
                    || type == ScaleToolSideHit;
         }
 
-        vec3f ScaleObjectsTool::dragAnchor() const {
+        vm::vec3f ScaleObjectsTool::dragAnchor() const {
             if (m_anchorPos == AnchorPos::Center) {
-                return vec3f(bounds().center());
+                return vm::vec3f(bounds().center());
             }
 
             if (m_dragStartHit.type() == ScaleToolSideHit) {
                 const auto endSide = m_dragStartHit.target<BBoxSide>();
                 const auto startSide = oppositeSide(endSide);
 
-                return vec3f(centerForBBoxSide(bounds(), startSide));
+                return vm::vec3f(centerForBBoxSide(bounds(), startSide));
             } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
                 const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
                 const segment3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
 
-                return vec3f(startEdgeActual.center());
+                return vm::vec3f(startEdgeActual.center());
             } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
                 const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
                 const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
-                return vec3f(startCornerActual);
+                return vm::vec3f(startCornerActual);
             }
 
             assert(0);
-            return vec3f::zero;
+            return vm::vec3f::zero;
         }
 
         bbox3 ScaleObjectsTool::bboxAtDragStart() const {

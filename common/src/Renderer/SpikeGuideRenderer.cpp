@@ -78,14 +78,14 @@ namespace TrenchBroom {
         }
 
         void SpikeGuideRenderer::addPoint(const vec3& position) {
-            m_pointVertices.push_back(PointVertex(vec3f(position), m_color));
+            m_pointVertices.push_back(PointVertex(vm::vec3f(position), m_color));
         }
         
         void SpikeGuideRenderer::addSpike(const ray3& ray, const FloatType length, const FloatType maxLength) {
             const float mix = static_cast<float>(maxLength / length / 2.0);
             
-            m_spikeVertices.push_back(SpikeVertex(vec3f(ray.origin), m_color));
-            m_spikeVertices.push_back(SpikeVertex(vec3f(ray.pointAtDistance(length)),
+            m_spikeVertices.push_back(SpikeVertex(vm::vec3f(ray.origin), m_color));
+            m_spikeVertices.push_back(SpikeVertex(vm::vec3f(ray.pointAtDistance(length)),
                                       Color(m_color, m_color.a() * mix)));
         }
 

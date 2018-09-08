@@ -36,8 +36,8 @@ namespace TrenchBroom {
         template <AttributeType type, GLenum D, size_t S>
         class AttributeSpec {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {}
@@ -47,8 +47,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_User, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -64,8 +64,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_Position, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -81,8 +81,8 @@ namespace TrenchBroom {
         template <GLenum D, const size_t S>
         class AttributeSpec<AttributeType_Normal, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -99,8 +99,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_Color, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -116,8 +116,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_TexCoord0, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -135,8 +135,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_TexCoord1, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
@@ -155,10 +155,10 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_TexCoord2, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
-            
+
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE2));
                 glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
@@ -175,8 +175,8 @@ namespace TrenchBroom {
         template <GLenum D, size_t S>
         class AttributeSpec<AttributeType_TexCoord3, D, S> {
         public:
-            typedef typename GLType<D>::Type DataType;
-            typedef vec<DataType, S> ElementType;
+            using DataType = typename GLType<D>::Type;
+            using ElementType = vm::vec<DataType,S>;
             static const size_t Size = sizeof(DataType) * S;
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {

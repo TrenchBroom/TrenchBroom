@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
-            vec3f::List arrowHead(float length, float width) const;
+            vm::vec3f::List arrowHead(float length, float width) const;
             
             struct BuildColoredSolidBoundsVertices;
             struct BuildColoredWireframeBoundsVertices;

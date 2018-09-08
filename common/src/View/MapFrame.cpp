@@ -1475,8 +1475,8 @@ namespace TrenchBroom {
         void MapFrame::OnDebugSetWindowSize(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
             if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
-                const vec2i size = vec2i::parse(str.ToStdString());
+                const auto str = dialog.GetValue();
+                const auto size = vm::vec2i::parse(str.ToStdString());
                 SetSize(size.x(), size.y());
             }
         }

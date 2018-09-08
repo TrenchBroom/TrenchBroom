@@ -73,7 +73,7 @@ namespace TrenchBroom {
             }
         private:
             template <typename T>
-            int weight(const vec<T,3>& vec) const {
+            int weight(const vm::vec<T,3>& vec) const {
                 return weight(vec[0]) * 100 + weight(vec[1]) * 10 + weight(vec[2]);
             }
 
@@ -187,14 +187,14 @@ namespace TrenchBroom {
         vec3 BrushFace::center() const {
             ensure(m_geometry != nullptr, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
-            return average(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
+            return vm::average(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
         vec3 BrushFace::boundsCenter() const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const auto toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
-            const auto [invertible, fromPlane] = ::invert(toPlane);
+            const auto [invertible, fromPlane] = vm::invert(toPlane);
             assert(invertible); unused(invertible);
 
             const auto* first = m_geometry->boundary().front();
@@ -272,11 +272,11 @@ namespace TrenchBroom {
             return m_attribs.texture();
         }
 
-        vec2f BrushFace::textureSize() const {
+        vm::vec2f BrushFace::textureSize() const {
             return m_attribs.textureSize();
         }
 
-        const vec2f& BrushFace::offset() const {
+        const vm::vec2f& BrushFace::offset() const {
             return m_attribs.offset();
         }
 
@@ -288,11 +288,11 @@ namespace TrenchBroom {
             return m_attribs.yOffset();
         }
 
-        vec2f BrushFace::modOffset(const vec2f& offset) const {
+        vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const {
             return m_attribs.modOffset(offset);
         }
 
-        const vec2f& BrushFace::scale() const {
+        const vm::vec2f& BrushFace::scale() const {
             return m_attribs.scale();
         }
 
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::moveTexture(const vec3& up, const vec3& right, const vec2f& offset) {
+        void BrushFace::moveTexture(const vec3& up, const vec3& right, const vm::vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attribs);
             invalidateVertexCache();
         }
@@ -444,7 +444,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::shearTexture(const vec2f& factors) {
+        void BrushFace::shearTexture(const vm::vec2f& factors) {
             m_texCoordSystem->shearTexture(m_boundary.normal, factors);
             invalidateVertexCache();
         }
@@ -517,13 +517,13 @@ namespace TrenchBroom {
         }
 
         mat4x4 BrushFace::projectToBoundaryMatrix() const {
-            const auto texZAxis = m_texCoordSystem->fromMatrix(vec2f::zero, vec2f::one) * vec3::pos_z;
+            const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero, vm::vec2f::one) * vec3::pos_z;
             const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
-            const auto [invertible, planeToWorldMatrix] = ::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
+            const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
             return planeToWorldMatrix * mat4x4::zero_z * worldToPlaneMatrix;
         }
 
-        mat4x4 BrushFace::toTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
+        mat4x4 BrushFace::toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
                 return mat4x4::zero_z * m_texCoordSystem->toMatrix(offset, scale);
             } else {
@@ -531,7 +531,7 @@ namespace TrenchBroom {
             }
         }
 
-        mat4x4 BrushFace::fromTexCoordSystemMatrix(const vec2f& offset, const vec2f& scale, const bool project) const {
+        mat4x4 BrushFace::fromTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const {
             if (project) {
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
             } else {
@@ -539,7 +539,7 @@ namespace TrenchBroom {
             }
         }
 
-        float BrushFace::measureTextureAngle(const vec2f& center, const vec2f& point) const {
+        float BrushFace::measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const {
             return m_texCoordSystem->measureAngle(m_attribs.rotation(), center, point);
         }
 
@@ -615,7 +615,7 @@ namespace TrenchBroom {
                 m_brush->childWasDeselected();
         }
 
-        vec2f BrushFace::textureCoords(const vec3& point) const {
+        vm::vec2f BrushFace::textureCoords(const vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
 

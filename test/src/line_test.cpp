@@ -25,27 +25,27 @@
 #include "TestUtils.h"
 
 TEST(LineTest, constructDefault) {
-    const line3f p;
-    ASSERT_EQ(vec3f::zero, p.point);
-    ASSERT_EQ(vec3f::zero, p.direction);
+    const vm::line3f p;
+    ASSERT_EQ(vm::vec3f::zero, p.point);
+    ASSERT_EQ(vm::vec3f::zero, p.direction);
 }
 
 TEST(LineTest, constructWithPointAndDirection) {
-    const vec3f p(10,20,30);
-    const vec3f n = normalize(vec3f(1.0f, 2.0f, 3.0f));
-    const line3f l(p, n);
+    const vm::vec3f p(10,20,30);
+    const vm::vec3f n = normalize(vm::vec3f(1.0f, 2.0f, 3.0f));
+    const vm::line3f l(p, n);
     ASSERT_VEC_EQ(p, l.point);
     ASSERT_VEC_EQ(n, l.direction);
 }
 
 TEST(LineTest, distanceToProjectedPoint) {
-    const line3f l(vec3f(10,0,0), vec3f::pos_z);
-    ASSERT_FLOAT_EQ(0.0f, l.distanceToProjectedPoint(vec3f(10,0,0)));
-    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vec3f(10,0,10)));
-    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vec3f(10,10,10)));
+    const vm::line3f l(vm::vec3f(10,0,0), vm::vec3f::pos_z);
+    ASSERT_FLOAT_EQ(0.0f, l.distanceToProjectedPoint(vm::vec3f(10,0,0)));
+    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vm::vec3f(10,0,10)));
+    ASSERT_FLOAT_EQ(10.0f, l.distanceToProjectedPoint(vm::vec3f(10,10,10)));
 }
 
 TEST(LineTest, projectPoint) {
-    const line3f l(vec3f(10,0,0), vec3f::pos_z);
-    ASSERT_VEC_EQ(vec3f(10,0,5), l.projectPoint(vec3f(100,100,5)));
+    const vm::line3f l(vm::vec3f(10,0,0), vm::vec3f::pos_z);
+    ASSERT_VEC_EQ(vm::vec3f(10,0,5), l.projectPoint(vm::vec3f(100,100,5)));
 }

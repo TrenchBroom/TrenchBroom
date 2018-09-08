@@ -110,8 +110,8 @@ namespace TrenchBroom {
             
             for (const auto* face : m_tool->dragFaces()) {
                 for (const auto* edge : face->edges()) {
-                    vertices.push_back(Vertex(vec3f(edge->firstVertex()->position())));
-                    vertices.push_back(Vertex(vec3f(edge->secondVertex()->position())));
+                    vertices.push_back(Vertex(vm::vec3f(edge->firstVertex()->position())));
+                    vertices.push_back(Vertex(vm::vec3f(edge->secondVertex()->position())));
                 }
             }
             

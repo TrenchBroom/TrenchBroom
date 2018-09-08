@@ -27,8 +27,8 @@ namespace TrenchBroom {
         BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
         m_textureName(textureName),
         m_texture(nullptr),
-        m_offset(vec2f::zero),
-        m_scale(vec2f(1.0f, 1.0f)),
+        m_offset(vm::vec2f::zero),
+        m_scale(vm::vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
         m_surfaceContents(0),
         m_surfaceFlags(0),
@@ -89,16 +89,16 @@ namespace TrenchBroom {
             return m_texture;
         }
         
-        vec2f BrushFaceAttributes::textureSize() const {
+        vm::vec2f BrushFaceAttributes::textureSize() const {
             if (m_texture == nullptr) {
-                return vec2f::one;
+                return vm::vec2f::one;
             }
             const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
             const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
-            return vec2f(w, h);
+            return vm::vec2f(w, h);
         }
         
-        const vec2f& BrushFaceAttributes::offset() const {
+        const vm::vec2f& BrushFaceAttributes::offset() const {
             return m_offset;
         }
         
@@ -110,11 +110,11 @@ namespace TrenchBroom {
             return m_offset.y();
         }
         
-        vec2f BrushFaceAttributes::modOffset(const vec2f& offset) const {
+        vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset) const {
             return offset - roundDownToMultiple(offset, textureSize());
         }
         
-        const vec2f& BrushFaceAttributes::scale() const {
+        const vm::vec2f& BrushFaceAttributes::scale() const {
             return m_scale;
         }
         
@@ -143,8 +143,9 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
-            if (m_texture != nullptr)
+            if (m_texture != nullptr) {
                 m_texture->decUsageCount();
+            }
             m_texture = texture;
             if (m_texture != nullptr) {
                 m_texture->incUsageCount();
@@ -153,13 +154,14 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttributes::unsetTexture() {
-            if (m_texture != nullptr)
+            if (m_texture != nullptr) {
                 m_texture->decUsageCount();
+            }
             m_texture = nullptr;
             m_textureName = BrushFace::NoTextureName;
         }
 
-        void BrushFaceAttributes::setOffset(const vec2f& offset) {
+        void BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
             m_offset = offset;
         }
         
@@ -171,7 +173,7 @@ namespace TrenchBroom {
             m_offset[1] = yOffset;
         }
         
-        void BrushFaceAttributes::setScale(const vec2f& scale) {
+        void BrushFaceAttributes::setScale(const vm::vec2f& scale) {
             m_scale = scale;
         }
         

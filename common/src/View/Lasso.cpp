@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
         
         vec3 Lasso::project(const vec3& point, const plane3& plane) const {
-            const auto ray = ray3(m_camera.pickRay(vec3f(point)));
+            const auto ray = ray3(m_camera.pickRay(vm::vec3f(point)));
             const auto hitDistance = intersect(ray, plane);;
             if (Math::isnan(hitDistance)) {
                 return vec3::NaN;
@@ -65,11 +65,11 @@ namespace TrenchBroom {
             const auto [invertible, inverseTransform] = invert(m_transform);
             assert(invertible); unused(invertible);
 
-            vec3f::List polygon(4);
-            polygon[0] = vec3f(inverseTransform * vec3(box.min.x(), box.min.y(), 0.0));
-            polygon[1] = vec3f(inverseTransform * vec3(box.min.x(), box.max.y(), 0.0));
-            polygon[2] = vec3f(inverseTransform * vec3(box.max.x(), box.max.y(), 0.0));
-            polygon[3] = vec3f(inverseTransform * vec3(box.max.x(), box.min.y(), 0.0));
+            vm::vec3f::List polygon(4);
+            polygon[0] = vm::vec3f(inverseTransform * vec3(box.min.x(), box.min.y(), 0.0));
+            polygon[1] = vm::vec3f(inverseTransform * vec3(box.min.x(), box.max.y(), 0.0));
+            polygon[2] = vm::vec3f(inverseTransform * vec3(box.max.x(), box.max.y(), 0.0));
+            polygon[3] = vm::vec3f(inverseTransform * vec3(box.max.x(), box.min.y(), 0.0));
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
@@ -88,8 +88,8 @@ namespace TrenchBroom {
             const auto start = m_transform * m_start;
             const auto cur   = m_transform * m_cur;
             
-            const auto min = ::min(start, cur);
-            const auto max = ::max(start, cur);
+            const auto min = vm::min(start, cur);
+            const auto max = vm::max(start, cur);
             return bbox2(vec2(min), vec2(max));
         }
     }

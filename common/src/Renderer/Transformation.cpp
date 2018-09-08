@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        Transformation::Transformation(const mat4x4f& projection, const mat4x4f& view, const mat4x4f& model) {
+        Transformation::Transformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model) {
             pushTransformation(projection, view, model);
         }
         
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return Transformation(m_projectionStack.back(), m_viewStack.back(), m_modelStack.back());
         }
 
-        void Transformation::pushTransformation(const mat4x4f& projection, const mat4x4f& view, const mat4x4f& model) {
+        void Transformation::pushTransformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model) {
             m_projectionStack.push_back(projection);
             m_viewStack.push_back(view);
             m_modelStack.push_back(model);
@@ -62,12 +62,12 @@ namespace TrenchBroom {
             loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
         }
         
-        void Transformation::pushModelMatrix(const mat4x4f& matrix) {
+        void Transformation::pushModelMatrix(const vm::mat4x4f& matrix) {
             m_modelStack.push_back(m_modelStack.back() * matrix);
             loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
         }
         
-        void Transformation::replaceAndPushModelMatrix(const mat4x4f& matrix) {
+        void Transformation::replaceAndPushModelMatrix(const vm::mat4x4f& matrix) {
             m_modelStack.push_back(matrix);
             loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
         }
@@ -78,17 +78,17 @@ namespace TrenchBroom {
             loadModelViewMatrix(m_viewStack.back() * m_modelStack.back());
         }
 
-        void Transformation::loadProjectionMatrix(const mat4x4f& matrix) {
+        void Transformation::loadProjectionMatrix(const vm::mat4x4f& matrix) {
             glAssert(glMatrixMode(GL_PROJECTION));
             glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
         }
         
-        void Transformation::loadModelViewMatrix(const mat4x4f& matrix) {
+        void Transformation::loadModelViewMatrix(const vm::mat4x4f& matrix) {
             glAssert(glMatrixMode(GL_MODELVIEW));
             glAssert(glLoadMatrixf(reinterpret_cast<const float*>(matrix.v)));
         }
 
-        ReplaceTransformation::ReplaceTransformation(Transformation& transformation, const mat4x4f& projectionMatrix, const mat4x4f& viewMatrix, const mat4x4f& modelMatrix) :
+        ReplaceTransformation::ReplaceTransformation(Transformation& transformation, const vm::mat4x4f& projectionMatrix, const vm::mat4x4f& viewMatrix, const vm::mat4x4f& modelMatrix) :
         m_transformation(transformation) {
             m_transformation.pushTransformation(projectionMatrix, viewMatrix, modelMatrix);
         }
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             m_transformation.popTransformation();
         }
         
-        MultiplyModelMatrix::MultiplyModelMatrix(Transformation& transformation, const mat4x4f& modelMatrix) :
+        MultiplyModelMatrix::MultiplyModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix) :
         m_transformation(transformation) {
             m_transformation.pushModelMatrix(modelMatrix);
         }
@@ -106,7 +106,7 @@ namespace TrenchBroom {
             m_transformation.popModelMatrix();
         }
         
-        ReplaceModelMatrix::ReplaceModelMatrix(Transformation& transformation, const mat4x4f& modelMatrix) :
+        ReplaceModelMatrix::ReplaceModelMatrix(Transformation& transformation, const vm::mat4x4f& modelMatrix) :
         m_transformation(transformation) {
             m_transformation.replaceAndPushModelMatrix(modelMatrix);
         }

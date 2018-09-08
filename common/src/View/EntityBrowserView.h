@@ -52,9 +52,9 @@ namespace TrenchBroom {
             Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
             Renderer::FontDescriptor fontDescriptor;
-            bbox3f bounds;
+            vm::bbox3f bounds;
             
-            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const bbox3f& i_bounds);
+            EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
-            quatf m_rotation;
+            vm::quatf m_rotation;
             
             bool m_group;
             bool m_hideUnused;
@@ -108,12 +108,12 @@ namespace TrenchBroom {
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
             
-            void renderNames(Layout& layout, float y, float height, const mat4x4f& projection);
+            void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
+            vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
             
             wxString tooltip(const Layout::Group::Row::Cell& cell) override;
         };

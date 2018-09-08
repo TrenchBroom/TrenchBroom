@@ -111,7 +111,7 @@ namespace TrenchBroom {
             return index % 2 == 0;
         }
 
-        vec2f ParaxialTexCoordSystem::doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
+        vm::vec2f ParaxialTexCoordSystem::doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             }
             
             // calculate the current texture coordinates of the origin
-            const vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
+            const vm::vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
             // project the texture axes onto the boundary plane along the texture Z axis
             const vec2 scale(attribs.scale());
@@ -150,7 +150,7 @@ namespace TrenchBroom {
             const vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
             const vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
             
-            const vec2f textureSize = attribs.textureSize();
+            const vm::vec2f textureSize = attribs.textureSize();
             const bool preferX = textureSize.x() >= textureSize.y();
 
             // obtain the new texture plane norm and the new base texture axes
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            vec2f newScale = correct(vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
+            vm::vec2f newScale = correct(vm::vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
 
             // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
             if (dot(m_xAxis, normalizedXAxis) < 0.0)
@@ -208,11 +208,11 @@ namespace TrenchBroom {
             const vec3 newInvariant = transformation * oldInvariant;
 
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
+            const vm::vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordiknates of the center
-            const vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
+            const vm::vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
@@ -234,11 +234,11 @@ namespace TrenchBroom {
             doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
         }
         
-        void ParaxialTexCoordSystem::doShearTexture(const vec3& normal, const vec2f& factors) {
+        void ParaxialTexCoordSystem::doShearTexture(const vec3& normal, const vm::vec2f& factors) {
             // not supported
         }
 
-        float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
+        float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vec3& zAxis = vec3::pos_z; //m_index == 5 ? vec3::neg_z : 	vec3::pos_z;
             const quat3 rot(zAxis, -Math::radians(currentAngle));
             const vec3 vec = rot * vec3(point - center);

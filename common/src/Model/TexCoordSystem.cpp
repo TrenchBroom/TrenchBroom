@@ -69,7 +69,7 @@ namespace TrenchBroom {
             doResetTextureAxesToParaxial(normal, angle);
         }
         
-        vec2f TexCoordSystem::getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
+        vm::vec2f TexCoordSystem::getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
             return doGetTexCoords(point, attribs);
         }
         
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TexCoordSystem::moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vec2f& offset, BrushFaceAttributes& attribs) const {
+        void TexCoordSystem::moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
             const auto toPlane = planeProjectionMatrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
             const auto transform = fromPlane * mat4x4::zero_z * toPlane;
@@ -155,7 +155,7 @@ namespace TrenchBroom {
                 }
             }
             
-            vec2f actualOffset;
+            vm::vec2f actualOffset;
             if (dot(right, hAxis) >= 0.0) {
                 actualOffset[xIndex] = -offset.x();
             } else {
@@ -176,11 +176,11 @@ namespace TrenchBroom {
             attribs.setRotation(attribs.rotation() + actualAngle);
         }
 
-        void TexCoordSystem::shearTexture(const vec3& normal, const vec2f& factors) {
+        void TexCoordSystem::shearTexture(const vec3& normal, const vm::vec2f& factors) {
             doShearTexture(normal, factors);
         }
 
-        mat4x4 TexCoordSystem::toMatrix(const vec2f& o, const vec2f& s) const {
+        mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const {
             const vec3 x = safeScaleAxis(getXAxis(), s.x());
             const vec3 y = safeScaleAxis(getYAxis(), s.y());
             const vec3 z = getZAxis();
@@ -199,18 +199,18 @@ namespace TrenchBroom {
  */
         }
 
-        mat4x4 TexCoordSystem::fromMatrix(const vec2f& offset, const vec2f& scale) const {
+        mat4x4 TexCoordSystem::fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const {
             const auto [invertible, result] = invert(toMatrix(offset, scale));
             assert(invertible); unused(invertible);
             return result;
         }
         
-        float TexCoordSystem::measureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
+        float TexCoordSystem::measureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             return doMeasureAngle(currentAngle, center, point);
         }
 
-        vec2f TexCoordSystem::computeTexCoords(const vec3& point, const vec2f& scale) const {
-            return vec2f(dot(point, safeScaleAxis(getXAxis(), scale.x())),
+        vm::vec2f TexCoordSystem::computeTexCoords(const vec3& point, const vm::vec2f& scale) const {
+            return vm::vec2f(dot(point, safeScaleAxis(getXAxis(), scale.x())),
                          dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }
         

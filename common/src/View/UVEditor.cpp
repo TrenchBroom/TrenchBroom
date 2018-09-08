@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
             const int x = m_xSubDivisionEditor->GetValue();
             const int y = m_ySubDivisionEditor->GetValue();
-            m_uvView->setSubDivisions(vec2i(x, y));
+            m_uvView->setSubDivisions(vm::vec2i(x, y));
         }
 
         void UVEditor::createGui(GLContextManager& contextManager) {

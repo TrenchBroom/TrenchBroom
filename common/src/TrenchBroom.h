@@ -26,18 +26,19 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
+// TODO 2201: move vm types into vm namespace?
 using FloatType = double;
-using bbox3 = bbox<FloatType, 3>;
-using bbox2 = bbox<FloatType, 2>;
-using vec3 = vec<FloatType, 3>;
-using vec2 = vec<FloatType, 2>;
-using plane3 = plane<FloatType, 3>;
-using quat3 = quat<FloatType>;
-using mat4x4 = mat<FloatType, 4, 4>;
-using line3 = line<FloatType, 3>;
-using ray3 = ray<FloatType, 3>;
-using segment3 = segment<FloatType, 3>;
-using polygon3 = polygon<FloatType, 3>;
+using bbox3 = vm::bbox<FloatType, 3>;
+using bbox2 = vm::bbox<FloatType, 2>;
+using vec3 = vm::vec<FloatType, 3>;
+using vec2 = vm::vec<FloatType, 2>;
+using plane3 = vm::plane<FloatType, 3>;
+using quat3 = vm::quat<FloatType>;
+using mat4x4 = vm::mat<FloatType, 4, 4>;
+using line3 = vm::line<FloatType, 3>;
+using ray3 = vm::ray<FloatType, 3>;
+using segment3 = vm::segment<FloatType, 3>;
+using polygon3 = vm::polygon<FloatType, 3>;
 
 #include "Polyhedron_Instantiation.h"
 

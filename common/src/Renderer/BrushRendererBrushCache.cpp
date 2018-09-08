@@ -65,22 +65,22 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.reserve(brush->faceCount());
 
             for (Model::BrushFace* face : brush->faces()) {
-                const size_t indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
+                const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
-                const Model::BrushHalfEdge* first = face->geometry()->boundary().front();
-                const Model::BrushHalfEdge* current = first;
+                const auto* first = face->geometry()->boundary().front();
+                const auto* current = first;
                 do {
-                    Model::BrushVertex* vertex = current->origin();
+                    auto* vertex = current->origin();
 
                     // Set the vertex payload to the index, relative to the brush's first vertex being 0.
                     // This is used below when building the edge cache.
                     // NOTE: we'll overwrite the payload as we visit the same vertex several times while visiting
                     // different faces, this is fine.
-                    const size_t currentIndex = m_cachedVertices.size();
+                    const auto currentIndex = m_cachedVertices.size();
                     vertex->setPayload(static_cast<GLuint>(currentIndex));
 
-                    const vec3& position = vertex->position();
-                    m_cachedVertices.emplace_back(vec3f(position), vec3f(face->boundary().normal), face->textureCoords(position));
+                    const auto& position = vertex->position();
+                    m_cachedVertices.emplace_back(vm::vec3f(position), vm::vec3f(face->boundary().normal), face->textureCoords(position));
 
                     // The boundary is in CCW order, but the renderer expects CW order:
                     current = current->previous();

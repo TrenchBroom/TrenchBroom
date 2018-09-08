@@ -38,18 +38,18 @@ namespace TrenchBroom {
         private:
             FlyModeHelper& m_helper;
             Renderer::Camera& m_camera;
-            vec3f m_moveDelta;
-            vec2f m_rotateAngles;
+            vm::vec3f m_moveDelta;
+            vm::vec2f m_rotateAngles;
         public:
             CameraEvent(FlyModeHelper& helper, Renderer::Camera& camera) :
             m_helper(helper),
             m_camera(camera) {}
 
-            void setMoveDelta(const vec3f& moveDelta) {
+            void setMoveDelta(const vm::vec3f& moveDelta) {
                 m_moveDelta = moveDelta;
             }
 
-            void setRotateAngles(const vec2f& rotateAngles) {
+            void setRotateAngles(const vm::vec2f& rotateAngles) {
                 m_rotateAngles = rotateAngles;
             }
         private:
@@ -217,8 +217,8 @@ namespace TrenchBroom {
 
         wxThread::ExitCode FlyModeHelper::Entry() {
             while (!TestDestroy()) {
-                const vec3f delta = moveDelta();
-                const vec2f angles = lookDelta();
+                const vm::vec3f delta = moveDelta();
+                const vm::vec2f angles = lookDelta();
 
                 if (!isZero(delta) || !isZero(angles)) {
                     if (!TestDestroy() && wxTheApp != nullptr) {
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             return static_cast<ExitCode>(nullptr);
         }
 
-        vec3f FlyModeHelper::moveDelta() {
+        vm::vec3f FlyModeHelper::moveDelta() {
             wxCriticalSectionLocker lock(m_critical);
 
             const wxLongLong currentTime = ::wxGetLocalTimeMillis();
@@ -245,7 +245,7 @@ namespace TrenchBroom {
 
             const float dist = moveSpeed() * time;
 
-            vec3f delta;
+            vm::vec3f delta;
             if (m_forward) {
                 delta = delta + m_camera.direction() * dist;
             }
@@ -259,29 +259,29 @@ namespace TrenchBroom {
                 delta = delta + m_camera.right() * dist;
             }
             if (m_up) {
-                delta = delta + vec3f::pos_z * dist;
+                delta = delta + vm::vec3f::pos_z * dist;
             }
             if (m_down) {
-                delta = delta - vec3f::pos_z * dist;
+                delta = delta - vm::vec3f::pos_z * dist;
             }
             return delta;
         }
 
-        vec2f FlyModeHelper::lookDelta() {
+        vm::vec2f FlyModeHelper::lookDelta() {
             if (!m_enabled)
-                return vec2f::zero;
+                return vm::vec2f::zero;
 
             wxCriticalSectionLocker lock(m_critical);
 
-            const vec2f speed = lookSpeed();
+            const vm::vec2f speed = lookSpeed();
             const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
             const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
             m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
-            return vec2f(hAngle, vAngle);
+            return vm::vec2f(hAngle, vAngle);
         }
 
-        vec2f FlyModeHelper::lookSpeed() const {
-            vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
+        vm::vec2f FlyModeHelper::lookSpeed() const {
+            vm::vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
             speed = speed / -50.0f;
             if (pref(Preferences::CameraFlyInvertV)) {
                 speed[1] *= -1.0f;

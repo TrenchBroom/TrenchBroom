@@ -68,7 +68,7 @@ template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* vertex) {}
 
 template <typename T, typename FP, typename VP>
-plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
+vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
     const auto& boundary = face->boundary();
     assert(boundary.size() >= 3);
     
@@ -93,7 +93,7 @@ plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
     
     // TODO: We should really throw an exception here.
     assert(false);
-    return ::plane<T,3>(); // Ooops!
+    return ::vm::plane<T,3>(); // Ooops!
 }
 
 template <typename T, typename FP, typename VP>
@@ -142,13 +142,13 @@ Polyhedron<T,FP,VP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& 
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const bbox<T,3>& bounds) {
+Polyhedron<T,FP,VP>::Polyhedron(const vm::bbox<T,3>& bounds) {
     Callback c;
     setBounds(bounds, c);
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(const bbox<T,3>& bounds, Callback& callback) {
+Polyhedron<T,FP,VP>::Polyhedron(const vm::bbox<T,3>& bounds, Callback& callback) {
     setBounds(bounds, callback);
 }
 
@@ -169,7 +169,7 @@ Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T,FP,VP>::Polyhedron(Polyhedron<T,FP,VP>&& other) :
+Polyhedron<T,FP,VP>::Polyhedron(Polyhedron<T,FP,VP>&& other) noexcept :
 m_vertices(std::move(other.m_vertices)),
 m_edges(std::move(other.m_edges)),
 m_faces(std::move(other.m_faces)),
@@ -184,7 +184,7 @@ void Polyhedron<T,FP,VP>::addPoints(const V& p1, const V& p2, const V& p3, const
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::setBounds(const bbox<T,3>& bounds, Callback& callback) {
+void Polyhedron<T,FP,VP>::setBounds(const vm::bbox<T,3>& bounds, Callback& callback) {
     if (bounds.min == bounds.max) {
         addPoint(bounds.min);
         return;
@@ -589,7 +589,7 @@ bool Polyhedron<T,FP,VP>::hasFace(const typename V::List& positions, const T eps
 }
 
 template <typename T, typename FP, typename VP>
-const bbox<T,3>& Polyhedron<T,FP,VP>::bounds() const {
+const vm::bbox<T,3>& Polyhedron<T,FP,VP>::bounds() const {
     return m_bounds;
 }
 
@@ -640,7 +640,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::FaceHit::isMatch() const { return face != nullptr; }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const ray<T,3>& ray) const {
+typename Polyhedron<T,FP,VP>::FaceHit Polyhedron<T,FP,VP>::pickFace(const vm::ray<T,3>& ray) const {
     const auto side = polygon() ? Math::Side_Both : Math::Side_Front;
     auto* firstFace = m_faces.front();
     auto* currentFace = firstFace;
@@ -1331,7 +1331,7 @@ void Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Callback& callb
 template <typename T, typename FP, typename VP>
 void Polyhedron<T,FP,VP>::updateBounds() {
     if (m_vertices.size() == 0) {
-        m_bounds.min = m_bounds.max = vec<T,3>::NaN;
+        m_bounds.min = m_bounds.max = vm::vec<T,3>::NaN;
     } else {
         Vertex* first = m_vertices.front();
         Vertex* current = first;
@@ -1339,7 +1339,7 @@ void Polyhedron<T,FP,VP>::updateBounds() {
         
         current = current->next();
         while (current != first) {
-            m_bounds = ::merge(m_bounds, current->position());
+            m_bounds = vm::merge(m_bounds, current->position());
             current = current->next();
         }
     }

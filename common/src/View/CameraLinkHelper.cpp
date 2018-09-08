@@ -59,9 +59,9 @@ namespace TrenchBroom {
                     if (camera != other) {
                         other->setZoom(camera->zoom());
                         
-                        const vec3f oldPosition = other->position();
-                        const vec3f factors = vec3f::one - abs(camera->direction()) - abs(other->direction());
-                        const vec3f newPosition = (vec3f::one - factors) * oldPosition + factors * camera->position();
+                        const vm::vec3f oldPosition = other->position();
+                        const vm::vec3f factors = vm::vec3f::one - abs(camera->direction()) - abs(other->direction());
+                        const vm::vec3f newPosition = (vm::vec3f::one - factors) * oldPosition + factors * camera->position();
                         other->moveTo(newPosition);
                     }
                 }

@@ -25,11 +25,11 @@
 
 using AABB = AABBTree<double, 3, size_t>;
 using BOX = AABB::Box;
-using RAY = ray<AABB::FloatType, AABB::Components>;
-using VEC = vec<AABB::FloatType, AABB::Components>;
+using RAY = vm::ray<AABB::FloatType, AABB::Components>;
+using VEC = vm::vec<AABB::FloatType, AABB::Components>;
 
 void assertTree(const std::string& exp, const AABB& actual);
-void assertIntersectors(const AABB& tree, const ray<AABB::FloatType, AABB::Components>& ray, std::initializer_list<AABB::DataType> items);
+void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items);
 
 TEST(AABBTreeTest, createEmptyTree) {
     AABB tree;
@@ -474,7 +474,7 @@ void assertTree(const std::string& exp, const AABB& actual) {
     ASSERT_EQ(exp, "\n" + str.str());
 }
 
-void assertIntersectors(const AABB& tree, const ray<AABB::FloatType, AABB::Components>& ray, std::initializer_list<AABB::DataType> items) {
+void assertIntersectors(const AABB& tree, const RAY& ray, std::initializer_list<AABB::DataType> items) {
     const std::set<AABB::DataType> expected(items);
     std::set<AABB::DataType> actual;
 

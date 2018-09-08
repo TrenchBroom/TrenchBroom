@@ -155,12 +155,12 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const vec4f& color, const vec3f& arrowPosition, const vec3f& lineDir) {
-            arrows.emplace_back(vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
+            arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
 
-            arrows.emplace_back(vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(vec3f{0,-3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{0,-3, 0}, color, arrowPosition, lineDir);
         }
 
         class EntityLinkRenderer::MatchEntities {
@@ -202,8 +202,8 @@ namespace TrenchBroom {
                 const auto& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
                 const auto targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(vec3f(source->linkSourceAnchor()), sourceColor));
-                m_links.push_back(Vertex(vec3f(target->linkTargetAnchor()), targetColor));
+                m_links.push_back(Vertex(vm::vec3f(source->linkSourceAnchor()), sourceColor));
+                m_links.push_back(Vertex(vm::vec3f(target->linkTargetAnchor()), targetColor));
             }
         };
         

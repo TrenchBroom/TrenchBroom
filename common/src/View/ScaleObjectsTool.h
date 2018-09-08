@@ -228,19 +228,19 @@ namespace TrenchBroom {
             bbox3 bounds() const;
 
         public:
-            std::vector<polygon3f> polygonsHighlightedByDrag() const;
+            std::vector<vm::polygon3f> polygonsHighlightedByDrag() const;
 
             bool hasDragSide() const;
-            polygon3f dragSide() const;
+            vm::polygon3f dragSide() const;
             
             bool hasDragEdge() const;
-            segment3f dragEdge() const;
+            vm::segment3f dragEdge() const;
             
             bool hasDragCorner() const;
-            vec3f dragCorner() const;
+            vm::vec3f dragCorner() const;
 
             bool hasDragAnchor() const;
-            vec3f dragAnchor() const;
+            vm::vec3f dragAnchor() const;
 
             /**
              * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is true.

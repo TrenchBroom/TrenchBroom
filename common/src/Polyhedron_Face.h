@@ -245,11 +245,11 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::normal() const {
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::center() const {
-    return average(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
+    return vm::average(std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::intersectWithRay(const ray<T,3>& ray, const Math::Side side) const {
+T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const Math::Side side) const {
     const RayIntersection result = intersectWithRay(ray);
     if (result.none()) {
         return result.distance();
@@ -310,17 +310,17 @@ bool Polyhedron<T,FP,VP>::Face::coplanar(const Face* other) const {
         return false;
     }
 
-    const plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
+    const vm::plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
     if (!other->verticesOnPlane(myPlane)) {
         return false;
     }
 
-    const plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
+    const vm::plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
     return verticesOnPlane(otherPlane);
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const plane<T,3>& plane) const {
+bool Polyhedron<T,FP,VP>::Face::verticesOnPlane(const vm::plane<T,3>& plane) const {
     auto* firstEdge = m_boundary.front();
     auto* currentEdge = firstEdge;
     do {
@@ -524,8 +524,8 @@ public:
 };
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const ray<T,3>& ray) const {
-    const plane<T,3> plane(origin(), normal());
+typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray) const {
+    const vm::plane<T,3> plane(origin(), normal());
     const auto cos = dot(plane.normal, ray.direction);
     
     if (Math::zero(cos)) {

@@ -69,19 +69,19 @@ namespace TrenchBroom {
             void resetTextureAxesToParaxial(const vec3& normal, float angle);
             void resetTextureAxesToParallel(const vec3& normal, float angle);
             
-            vec2f getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const;
+            vm::vec2f getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const;
             
             void setRotation(const vec3& normal, float oldAngle, float newAngle);
             void transform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant);
             void updateNormal(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
 
-            void moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vec2f& offset, BrushFaceAttributes& attribs) const;
+            void moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const;
             void rotateTexture(const vec3& normal, float angle, BrushFaceAttributes& attribs) const;
-            void shearTexture(const vec3& normal, const vec2f& factors);
+            void shearTexture(const vec3& normal, const vm::vec2f& factors);
 
-            mat4x4 toMatrix(const vec2f& offset, const vec2f& scale) const;
-            mat4x4 fromMatrix(const vec2f& offset, const vec2f& scale) const;
-            float measureAngle(float currentAngle, const vec2f& center, const vec2f& point) const;
+            mat4x4 toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
+            mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
+            float measureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
         private:
             virtual TexCoordSystem* doClone() const = 0;
             virtual TexCoordSystemSnapshot* doTakeSnapshot() = 0;
@@ -98,18 +98,18 @@ namespace TrenchBroom {
             virtual void doResetTextureAxesToParallel(const vec3& normal, float angle) = 0;
 
             virtual bool isRotationInverted(const vec3& normal) const = 0;
-            virtual vec2f doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const = 0;
+            virtual vm::vec2f doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const = 0;
             
             virtual void doSetRotation(const vec3& normal, float oldAngle, float newAngle) = 0;
             virtual void doTransform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant) = 0;
             virtual void doUpdateNormalWithProjection(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
-            virtual void doShearTexture(const vec3& normal, const vec2f& factors) = 0;
+            virtual void doShearTexture(const vec3& normal, const vm::vec2f& factors) = 0;
             
-            virtual float doMeasureAngle(float currentAngle, const vec2f& center, const vec2f& point) const = 0;
+            virtual float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
         protected:
-            vec2f computeTexCoords(const vec3& point, const vec2f& scale) const;
+            vm::vec2f computeTexCoords(const vec3& point, const vm::vec2f& scale) const;
 
             template <typename T>
             T safeScale(const T value) const {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             }
             
             template <typename T1, typename T2>
-            vec<T1,3> safeScaleAxis(const vec<T1,3>& axis, const T2 factor) const {
+            vm::vec<T1,3> safeScaleAxis(const vm::vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(T1(factor));
             }
         private:

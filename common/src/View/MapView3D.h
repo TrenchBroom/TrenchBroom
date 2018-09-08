@@ -76,7 +76,7 @@ namespace TrenchBroom {
             void OnRotateTexturesCCW(wxCommandEvent& event);
 
             float moveTextureDistance() const;
-            void moveTextures(const vec2f& offset);
+            void moveTextures(const vm::vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         private: // tool mode events
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
             void doMoveCameraToPosition(const vec3& position, bool animate) override;
-            void animateCamera(const vec3f& position, const vec3f& direction, const vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
+            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface

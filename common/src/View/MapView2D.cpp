@@ -96,16 +96,16 @@ namespace TrenchBroom {
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
-                    m_camera.setDirection(vec3f::neg_z, vec3f::pos_y);
-                    m_camera.moveTo(vec3f(0.0f, 0.0f, 16384.0f));
+                    m_camera.setDirection(vm::vec3f::neg_z, vm::vec3f::pos_y);
+                    m_camera.moveTo(vm::vec3f(0.0f, 0.0f, 16384.0f));
                     break;
                 case MapView2D::ViewPlane_XZ:
-                    m_camera.setDirection(vec3f::pos_y, vec3f::pos_z);
-                    m_camera.moveTo(vec3f(0.0f, -16384.0f, 0.0f));
+                    m_camera.setDirection(vm::vec3f::pos_y, vm::vec3f::pos_z);
+                    m_camera.moveTo(vm::vec3f(0.0f, -16384.0f, 0.0f));
                     break;
                 case MapView2D::ViewPlane_YZ:
-                    m_camera.setDirection(vec3f::neg_x, vec3f::pos_z);
-                    m_camera.moveTo(vec3f(16384.0f, 0.0f, 0.0f));
+                    m_camera.setDirection(vm::vec3f::neg_x, vm::vec3f::pos_z);
+                    m_camera.moveTo(vm::vec3f(16384.0f, 0.0f, 0.0f));
                     break;
             }
             m_camera.setNearPlane(1.0f);
@@ -235,13 +235,13 @@ namespace TrenchBroom {
         
         void MapView2D::doMoveCameraToPosition(const vec3& position, const bool animate) {
             if (animate) {
-                animateCamera(vec3f(position), m_camera.direction(), m_camera.up());
+                animateCamera(vm::vec3f(position), m_camera.direction(), m_camera.up());
             } else {
-                m_camera.moveTo(vec3f(position));
+                m_camera.moveTo(vm::vec3f(position));
             }
         }
         
-        void MapView2D::animateCamera(const vec3f& position, const vec3f& direction, const vec3f& up, const wxLongLong duration) {
+        void MapView2D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration) {
             const auto actualPosition = dot(position, m_camera.up()) * m_camera.up() + dot(position, m_camera.right()) * m_camera.right() + dot(m_camera.position(), m_camera.direction()) * m_camera.direction();
             auto* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
             m_animationManager->runAnimation(animation, true);

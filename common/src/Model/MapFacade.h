@@ -77,7 +77,7 @@ namespace TrenchBroom {
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // modifying transient node attributes
-            virtual void hide(const Model::NodeList nodes) = 0;
+            virtual void hide(const Model::NodeList nodes) = 0; // Don't take the nodes by reference!
             virtual void show(const Model::NodeList& nodes) = 0;
             virtual void resetVisibility(const Model::NodeList& nodes) = 0;
             
@@ -97,16 +97,16 @@ namespace TrenchBroom {
             virtual bool removeAttribute(const AttributeName& name) = 0;
             
             virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
-            virtual bool updateSpawnflag(const AttributeName& name, const size_t flagIndex, const bool setFlag) = 0;
+            virtual bool updateSpawnflag(const AttributeName& name, size_t flagIndex, bool setFlag) = 0;
         public: // brush resizing
             virtual bool resizeBrushes(const polygon3::List& faces, const vec3& delta) = 0;
         public: // modifying face attributes
             virtual void setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
             virtual bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request) = 0;
-            virtual bool moveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) = 0;
+            virtual bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) = 0;
             virtual bool rotateTextures(float angle) = 0;
-            virtual bool shearTextures(const vec2f& factors) = 0;
+            virtual bool shearTextures(const vm::vec2f& factors) = 0;
         public: // modifying vertices
             virtual void rebuildBrushGeometry(const BrushList& brushes) = 0;
             virtual bool snapVertices(FloatType snapTo) = 0;

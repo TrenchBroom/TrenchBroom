@@ -59,20 +59,20 @@ namespace TrenchBroom {
             }
         }
 
-        vec2i UVScaleTool::getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const {
+        vm::vec2i UVScaleTool::getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const {
             const auto x = xHit.isMatch() ? xHit.target<int>() : 0;
             const auto y = yHit.isMatch() ? yHit.target<int>() : 0;
-            return vec2i(x, y);
+            return vm::vec2i(x, y);
         }
         
-        vec2f UVScaleTool::getHitPoint(const ray3& pickRay) const {
+        vm::vec2f UVScaleTool::getHitPoint(const ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto facePointDist = intersect(pickRay, boundary);
             const auto facePoint = pickRay.pointAtDistance(facePointDist);
             
-            const auto toTex = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            return vec2f(toTex * facePoint);
+            const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            return vm::vec2f(toTex * facePoint);
         }
 
         bool UVScaleTool::doStartMouseDrag(const InputState& inputState) {
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             }
             
             m_handle = getScaleHandle(xHit, yHit);
-            m_selector = vec2b(xHit.isMatch(), yHit.isMatch());
+            m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
             m_lastHitPoint = getHitPoint(inputState.pickRay());
             
             auto document = lock(m_document);
@@ -150,26 +150,26 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vec2f UVScaleTool::getScaledTranslatedHandlePos() const {
-            return vec2f(m_handle) * vec2f(m_helper.stripeSize());
+        vm::vec2f UVScaleTool::getScaledTranslatedHandlePos() const {
+            return vm::vec2f(m_handle) * vm::vec2f(m_helper.stripeSize());
         }
 
-        vec2f UVScaleTool::getHandlePos() const {
+        vm::vec2f UVScaleTool::getHandlePos() const {
             const auto* face = m_helper.face();
             const auto toWorld = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
-            const auto toTex   = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toTex   = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             
-            return vec2f(toTex * toWorld * vec3(getScaledTranslatedHandlePos()));
+            return vm::vec2f(toTex * toWorld * vec3(getScaledTranslatedHandlePos()));
         }
 
-        vec2f UVScaleTool::snap(const vec2f& position) const {
+        vm::vec2f UVScaleTool::snap(const vm::vec2f& position) const {
             const auto* face = m_helper.face();
-            const auto toTex = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             
             const auto vertices = face->vertices();
-            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vec2f::max,
-                                             [&toTex, &position](const vec2f& current, const Model::BrushVertex* vertex) {
-                                                 const vec2f vertex2(toTex * vertex->position());
+            auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max,
+                                             [&toTex, &position](const vm::vec2f& current, const Model::BrushVertex* vertex) {
+                                                 const vm::vec2f vertex2(toTex * vertex->position());
                                                  return absMin(current, position - vertex2);
                                              });
             
@@ -212,13 +212,13 @@ namespace TrenchBroom {
             vertices.reserve(4);
             
             if (xHandleHit.isMatch()) {
-                vertices.push_back(EdgeVertex(vec3f(v1)));
-                vertices.push_back(EdgeVertex(vec3f(v2)));
+                vertices.push_back(EdgeVertex(vm::vec3f(v1)));
+                vertices.push_back(EdgeVertex(vm::vec3f(v2)));
             }
             
             if (yHandleHit.isMatch()) {
-                vertices.push_back(EdgeVertex(vec3f(h1)));
-                vertices.push_back(EdgeVertex(vec3f(h2)));
+                vertices.push_back(EdgeVertex(vm::vec3f(h1)));
+                vertices.push_back(EdgeVertex(vm::vec3f(h2)));
             }
             
             return vertices;

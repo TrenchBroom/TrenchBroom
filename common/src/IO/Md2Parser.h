@@ -48,36 +48,36 @@ namespace TrenchBroom {
         // see http://tfc.duke.free.fr/coding/md2-specs-en.html
         class Md2Parser : public EntityModelParser {
         private:
-            static const vec3f Normals[162];
+            static const vm::vec3f Normals[162];
 
             struct Md2Skin {
                 char name[Md2Layout::SkinNameLength];
             };
-            typedef std::vector<Md2Skin> Md2SkinList;
+            using Md2SkinList = std::vector<Md2Skin>;
             
             struct Md2Vertex {
                 unsigned char x, y, z;
                 unsigned char normalIndex;
             };
-            typedef std::vector<Md2Vertex> Md2VertexList;
+            using Md2VertexList = std::vector<Md2Vertex>;
             
             struct Md2Frame {
-                vec3f scale;
-                vec3f offset;
+                vm::vec3f scale;
+                vm::vec3f offset;
                 char name[Md2Layout::FrameNameLength];
                 Md2VertexList vertices;
                 
                 Md2Frame(size_t vertexCount);
-                vec3f vertex(size_t index) const;
-                const vec3f& normal(size_t index) const;
+                vm::vec3f vertex(size_t index) const;
+                const vm::vec3f& normal(size_t index) const;
             };
-            typedef std::vector<Md2Frame> Md2FrameList;
+            using Md2FrameList = std::vector<Md2Frame>;
 
             struct Md2MeshVertex {
-                vec2f texCoords;
+                vm::vec2f texCoords;
                 size_t vertexIndex;
             };
-            typedef std::vector<Md2MeshVertex> Md2MeshVertexList;
+            using Md2MeshVertexList = std::vector<Md2MeshVertex>;
             
             struct Md2Mesh {
                 enum Type {
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 
                 Md2Mesh(int i_vertexCount);
             };
-            typedef std::vector<Md2Mesh> Md2MeshList;
+            using Md2MeshList =  std::vector<Md2Mesh>;
             
             
             String m_name;

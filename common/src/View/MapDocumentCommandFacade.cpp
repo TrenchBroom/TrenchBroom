@@ -639,7 +639,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void MapDocumentCommandFacade::performMoveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) {
+        void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
             for (auto* face : m_selectedBrushFaces) {
                 face->moveTexture(vec3(cameraUp), vec3(cameraRight), delta);
             }
@@ -653,7 +653,7 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
-        void MapDocumentCommandFacade::performShearTextures(const vec2f& factors) {
+        void MapDocumentCommandFacade::performShearTextures(const vm::vec2f& factors) {
             for (auto* face : m_selectedBrushFaces) {
                 face->shearTexture(factors);
             }

@@ -40,7 +40,7 @@ namespace TrenchBroom {
                     if (angleValue.empty())
                         return mat4x4::identity;
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
-                    return rotationMatrix(vec3::pos_z, Math::radians(angle));
+                    return vm::rotationMatrix(vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_AngleUpDown: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                         return mat4x4::rot_90_y_cw;
                     if (angle == -2.0)
                         return mat4x4::rot_90_y_ccw;
-                    return rotationMatrix(vec3::pos_z, Math::radians(angle));
+                    return vm::rotationMatrix(vec3::pos_z, Math::radians(angle));
                 }
                 case RotationType_Euler: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
                     const FloatType roll  = +Math::radians(angles.z());
                     const FloatType pitch = -Math::radians(angles.x());
                     const FloatType yaw   = +Math::radians(angles.y());
-                    return rotationMatrix(roll, pitch, yaw);
+                    return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Euler_PositivePitchDown: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                     const FloatType roll  = +Math::radians(angles.z());
                     const FloatType pitch = +Math::radians(angles.x());
                     const FloatType yaw   = +Math::radians(angles.y());
-                    return rotationMatrix(roll, pitch, yaw);
+                    return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Mangle: {
                     const AttributeValue angleValue = entity->attribute(info.attribute);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
                     const FloatType roll  = +Math::radians(angles.z());
                     const FloatType pitch = -Math::radians(angles.y());
                     const FloatType yaw   = +Math::radians(angles.x());
-                    return rotationMatrix(roll, pitch, yaw);
+                    return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
                     return mat4x4::identity;
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
-            const mat4x4 invYaw = rotationMatrix(vec3::pos_z, -yaw);
+            const mat4x4 invYaw = vm::rotationMatrix(vec3::pos_z, -yaw);
             newX = invYaw * transformation * rotation * vec3::pos_x;
             newZ = invYaw * transformation * rotation * vec3::pos_z;
             
@@ -255,7 +255,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
-            const mat4x4 invPitch = rotationMatrix(vec3::pos_y, -pitch);
+            const mat4x4 invPitch = vm::rotationMatrix(vec3::pos_y, -pitch);
             newY = invPitch * invYaw * transformation * rotation * vec3::pos_y;
             newZ = invPitch * invYaw * transformation * rotation * vec3::pos_z;
             

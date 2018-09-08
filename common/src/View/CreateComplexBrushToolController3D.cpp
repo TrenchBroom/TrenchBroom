@@ -265,11 +265,11 @@ namespace TrenchBroom {
                 renderService.setLineWidth(2.0f);
                 
                 for (const auto* edge : polyhedron.edges()) {
-                    renderService.renderLine(vec3f(edge->firstVertex()->position()), vec3f(edge->secondVertex()->position()));
+                    renderService.renderLine(vm::vec3f(edge->firstVertex()->position()), vm::vec3f(edge->secondVertex()->position()));
                 }
 
                 for (const auto* vertex : polyhedron.vertices()) {
-                    renderService.renderHandle(vec3f(vertex->position()));
+                    renderService.renderHandle(vm::vec3f(vertex->position()));
                 }
 
                 if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift)) {
@@ -277,9 +277,9 @@ namespace TrenchBroom {
                     if (hit.isMatch()) {
                         const auto* face = polyhedron.faces().front();
                         const auto pos3 = face->vertexPositions();
-                        vec3f::List pos3f(pos3.size());
+                        vm::vec3f::List pos3f(pos3.size());
                         for (size_t i = 0; i < pos3.size(); ++i) {
-                            pos3f[i] = vec3f(pos3[i]);
+                            pos3f[i] = vm::vec3f(pos3[i]);
                         }
 
                         renderService.setForegroundColor(Color(pref(Preferences::HandleColor), 0.5f));

@@ -26,226 +26,228 @@
 
 #include <vector>
 
-/**
- * A line segment, represented by its two end points.
- *
- * This class enforces the following invariant: the start point of the segment is always less than or equal to
- * the end point.
- *
- * @tparam T the component type
- * @tparam S the number of components
- */
-template <typename T, size_t S>
-class segment : public abstract_line<T,S> {
-public:
-    using Type = T;
-    static const size_t Size = S;
-    using float_type = segment<float, S>;
-    using List = std::vector<segment<T,S>>;
-private:
-    vec<T,S> m_start;
-    vec<T,S> m_end;
-public:
+namespace vm {
     /**
-     * Creates a new empty segment of length 0 with both the start and the end set to 0.
-     */
-    segment();
-
-    /**
-     * Creates a new segment with the given points.
+     * A line segment, represented by its two end points.
      *
-     * @param p1 one end point
-     * @param p2 the opposite end point
-     */
-    segment(const vec<T,S>& p1, const vec<T,S>& p2);
-
-    // Copy and move constructors
-    segment(const segment<T,S>& other) = default;
-    segment(segment<T,S>&& other) noexcept = default;
-
-    // Assignment operators
-    segment<T,S>& operator=(const segment<T,S>& other) = default;
-    segment<T,S>& operator=(segment<T,S>&& other) noexcept = default;
-
-    /**
-     * Creates a new segment by copying the values from the given segment. If the given segment has a different
-     * component type, the values are converted using static_cast.
+     * This class enforces the following invariant: the start point of the segment is always less than or equal to
+     * the end point.
      *
-     * @tparam U the component type of the given segment
-     * @param other the segment to copy the values from
+     * @tparam T the component type
+     * @tparam S the number of components
      */
-    template <typename U>
-    explicit segment(const segment<U,S>& other) :
-    m_start(other.start()),
-    m_end(other.end()) {}
+    template <typename T, size_t S>
+    class segment : public abstract_line<T,S> {
+    public:
+        using Type = T;
+        static const size_t Size = S;
+        using float_type = segment<float, S>;
+        using List = std::vector<segment<T,S>>;
+    private:
+        vec<T,S> m_start;
+        vec<T,S> m_end;
+    public:
+        /**
+         * Creates a new empty segment of length 0 with both the start and the end set to 0.
+         */
+        segment();
 
-    // implement abstract_line interface
-    vec<T,S> getOrigin() const override;
-    vec<T,S> getDirection() const override;
+        /**
+         * Creates a new segment with the given points.
+         *
+         * @param p1 one end point
+         * @param p2 the opposite end point
+         */
+        segment(const vec<T,S>& p1, const vec<T,S>& p2);
 
-    /**
-     * Transforms this segment using the given transformation matrix.
-     *
-     * @param transform the transformation to apply
-     * @return the transformed segment
-     */
-    segment<T,S> transform(const mat<T,S+1,S+1>& transform) const;
+        // Copy and move constructors
+        segment(const segment<T,S>& other) = default;
+        segment(segment<T,S>&& other) noexcept = default;
 
-    /**
-     * Returns the start point of this segment.
-     *
-     * @return the start point
-     */
-    const vec<T,S>& start() const;
+        // Assignment operators
+        segment<T,S>& operator=(const segment<T,S>& other) = default;
+        segment<T,S>& operator=(segment<T,S>&& other) noexcept = default;
 
-    /**
-     * Returns the end point of this segment.
-     *
-     * @return the end point
-     */
-    const vec<T,S>& end() const;
+        /**
+         * Creates a new segment by copying the values from the given segment. If the given segment has a different
+         * component type, the values are converted using static_cast.
+         *
+         * @tparam U the component type of the given segment
+         * @param other the segment to copy the values from
+         */
+        template <typename U>
+        explicit segment(const segment<U,S>& other) :
+        m_start(other.start()),
+        m_end(other.end()) {}
 
-    /**
-     * Returns the center point of this segment.
-     *
-     * @return the center point
-     */
-    vec<T,S> center() const;
+        // implement abstract_line interface
+        vec<T,S> getOrigin() const override;
+        vec<T,S> getDirection() const override;
 
-    /**
-     * Returns the normalized direction vector of this segment, i.e., a unit vector which points at the end
-     * point, assuming the start point is the origin of the vector.
-     *
-     * @return the direction vector
-     */
-    vec<T,S> direction() const;
+        /**
+         * Transforms this segment using the given transformation matrix.
+         *
+         * @param transform the transformation to apply
+         * @return the transformed segment
+         */
+        segment<T,S> transform(const mat<T,S+1,S+1>& transform) const;
 
-    /**
-     * Adds the start and end points of the given range of segments to the given output iterator.
-     *
-     * @tparam I the range iterator type
-     * @tparam O the output iterator type
-     * @param cur the range start
-     * @param end the range end
-     * @param out the output iterator
-     */
-    template <typename I, typename O>
-    static void getVertices(I cur, I end, O out) {
-        while (cur != end) {
-            const auto& segment = *cur;
-            out = segment.start(); ++out;
-            out = segment.end(); ++out;
-            ++cur;
+        /**
+         * Returns the start point of this segment.
+         *
+         * @return the start point
+         */
+        const vec<T,S>& start() const;
+
+        /**
+         * Returns the end point of this segment.
+         *
+         * @return the end point
+         */
+        const vec<T,S>& end() const;
+
+        /**
+         * Returns the center point of this segment.
+         *
+         * @return the center point
+         */
+        vec<T,S> center() const;
+
+        /**
+         * Returns the normalized direction vector of this segment, i.e., a unit vector which points at the end
+         * point, assuming the start point is the origin of the vector.
+         *
+         * @return the direction vector
+         */
+        vec<T,S> direction() const;
+
+        /**
+         * Adds the start and end points of the given range of segments to the given output iterator.
+         *
+         * @tparam I the range iterator type
+         * @tparam O the output iterator type
+         * @param cur the range start
+         * @param end the range end
+         * @param out the output iterator
+         */
+        template <typename I, typename O>
+        static void getVertices(I cur, I end, O out) {
+            while (cur != end) {
+                const auto& segment = *cur;
+                out = segment.start(); ++out;
+                out = segment.end(); ++out;
+                ++cur;
+            }
         }
-    }
-private:
-    void flip() {
-        using std::swap;
-        swap(m_start, m_end);
-    }
-};
+    private:
+        void flip() {
+            using std::swap;
+            swap(m_start, m_end);
+        }
+    };
 
-/**
- * Compares the given segments using the given epsilon value. Thereby, the start points of the segments are
- * compared first, and if the comparison yields a value other than 0, that value is returned. Otherwise, the
- * result of comparing the end points is returned.
- *
- * Note that by the invariant of the segment class, the start point is always less than or equal to the end
- * point.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @param epsilon an epsilon value
- * @return -1 if the first segment is less than the second segment, +1 in the opposite case, and 0 if the
- * segments are equal
- */
-template <typename T, size_t S>
-int compare(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+    /**
+     * Compares the given segments using the given epsilon value. Thereby, the start points of the segments are
+     * compared first, and if the comparison yields a value other than 0, that value is returned. Otherwise, the
+     * result of comparing the end points is returned.
+     *
+     * Note that by the invariant of the segment class, the start point is always less than or equal to the end
+     * point.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @param epsilon an epsilon value
+     * @return -1 if the first segment is less than the second segment, +1 in the opposite case, and 0 if the
+     * segments are equal
+     */
+    template <typename T, size_t S>
+    int compare(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon = static_cast<T>(0.0));
 
-/**
- * Checks if the first given segment identical to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the segments are identical and false otherwise
- */
-template <typename T, size_t S>
-bool operator==(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment identical to the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return true if the segments are identical and false otherwise
+     */
+    template <typename T, size_t S>
+    bool operator==(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Checks if the first given segment identical to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return false if the segments are identical and true otherwise
- */
-template <typename T, size_t S>
-bool operator!=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment identical to the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return false if the segments are identical and true otherwise
+     */
+    template <typename T, size_t S>
+    bool operator!=(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Checks if the first given segment less than the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is less than the second and false otherwise
- */
-template <typename T, size_t S>
-bool operator<(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment less than the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return true if the first segment is less than the second and false otherwise
+     */
+    template <typename T, size_t S>
+    bool operator<(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Checks if the first given segment less than or equal to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is less than or equal to the second and false otherwise
- */
-template <typename T, size_t S>
-bool operator<=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment less than or equal to the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return true if the first segment is less than or equal to the second and false otherwise
+     */
+    template <typename T, size_t S>
+    bool operator<=(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Checks if the first given segment greater than the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is greater than the second and false otherwise
- */
-template <typename T, size_t S>
-bool operator>(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment greater than the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return true if the first segment is greater than the second and false otherwise
+     */
+    template <typename T, size_t S>
+    bool operator>(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Checks if the first given segment greater than or equal to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is greater than or equal to the second and false otherwise
- */
-template <typename T, size_t S>
-bool operator>=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    /**
+     * Checks if the first given segment greater than or equal to the second segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first segment
+     * @param rhs the second segment
+     * @return true if the first segment is greater than or equal to the second and false otherwise
+     */
+    template <typename T, size_t S>
+    bool operator>=(const segment<T,S>& lhs, const segment<T,S>& rhs);
 
-/**
- * Translates the given segment by the given offset.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param s the segment to translate
- * @param offset the offset
- * @return the translated segment
- */
-template <typename T, size_t S>
-segment<T,S> translate(const segment<T,S>& s, const vec<T,S>& offset);
+    /**
+     * Translates the given segment by the given offset.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param s the segment to translate
+     * @param offset the offset
+     * @return the translated segment
+     */
+    template <typename T, size_t S>
+    segment<T,S> translate(const segment<T,S>& s, const vec<T,S>& offset);
+}
 
 #endif

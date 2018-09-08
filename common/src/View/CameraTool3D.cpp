@@ -48,7 +48,7 @@ namespace TrenchBroom {
             static const auto speed = 256.0f / 1000.0f; // 64 units per second
             const auto dist  = speed * time;
             
-            vec3f delta;
+            vm::vec3f delta;
             if (forward) {
                 delta = delta + m_camera.direction() * dist;
             }
@@ -75,12 +75,12 @@ namespace TrenchBroom {
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             if (m_orbit) {
-                const auto orbitPlane = plane3f(m_orbitCenter, m_camera.direction());
+                const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
                 const auto maxDistance = std::max(intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
                 const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vm::vec3f(inputState.pickRay().direction) : m_camera.direction();
                 const auto distance = inputState.scrollY() * moveSpeed(false);
                 m_camera.moveBy(factor * distance * moveDirection);
             }
@@ -90,9 +90,9 @@ namespace TrenchBroom {
             if (orbit(inputState)) {
                 const auto& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
                 if (hit.isMatch()) {
-                    m_orbitCenter = vec3f(hit.hitPoint());
+                    m_orbitCenter = vm::vec3f(hit.hitPoint());
                 } else {
-                    m_orbitCenter = vec3f(inputState.camera().defaultPoint(inputState.pickRay()));
+                    m_orbitCenter = vm::vec3f(inputState.camera().defaultPoint(inputState.pickRay()));
                 }
                 m_orbit = true;
                 return true;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 return true;
             } else if (pan(inputState)) {
                 const auto altMove = pref(Preferences::CameraEnableAltMove);
-                vec3f delta;
+                vm::vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
                     delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
                     delta = delta + inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();

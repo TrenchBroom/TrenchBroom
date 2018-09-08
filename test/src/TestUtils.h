@@ -27,41 +27,41 @@
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
-    bool texCoordsEqual(const vec2f& tc1, const vec2f& tc2);
-    bool pointExactlyIntegral(const vec3d &point);
+    bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
+    bool pointExactlyIntegral(const vm::vec3d &point);
 
     namespace Model {
-        void assertTexture(const String& expected, const Brush* brush, const vec3d& faceNormal);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& faceNormal);
         
-        void assertTexture(const String& expected, const Brush* brush, const vec3d& v1, const vec3d& v2, const vec3d& v3);
-        void assertTexture(const String& expected, const Brush* brush, const vec3d& v1, const vec3d& v2, const vec3d& v3, const vec3d& v4);
-        void assertTexture(const String& expected, const Brush* brush, const vec3d::List& vertices);
-        void assertTexture(const String& expected, const Brush* brush, const polygon3d& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
+        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d::List& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
 }
 
 template <typename T, size_t S>
-void ASSERT_VEC_EQ(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+void ASSERT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
     ASSERT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t S>
-void EXPECT_VEC_EQ(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+void EXPECT_VEC_EQ(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
     EXPECT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t S>
-void ASSERT_VEC_NE(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+void ASSERT_VEC_NE(const vm::vec<T,S>& lhs, const vm::vec<T,S>& rhs) {
     ASSERT_FALSE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t C, size_t R>
-void ASSERT_MAT_EQ(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs) {
+void ASSERT_MAT_EQ(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
     ASSERT_TRUE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 
 template <typename T, size_t C, size_t R>
-void ASSERT_MAT_NE(const mat<T,R,C>& lhs, const mat<T,R,C>& rhs) {
+void ASSERT_MAT_NE(const vm::mat<T,R,C>& lhs, const vm::mat<T,R,C>& rhs) {
     ASSERT_FALSE(equal(lhs, rhs, static_cast<T>(0.001)));
 }
 

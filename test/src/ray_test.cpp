@@ -25,13 +25,13 @@
 #include "TestUtils.h"
 
 TEST(RayTest, pointAtDistance) {
-    const ray3f ray(vec3f::zero, vec3f::pos_x);
-    ASSERT_VEC_EQ(vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
+    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_x);
+    ASSERT_VEC_EQ(vm::vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
 }
 
 TEST(RayTest, pointStatus) {
-    const ray3f ray(vec3f::zero, vec3f::pos_z);
-    ASSERT_EQ(Math::PointStatus::PSAbove, ray.pointStatus(vec3f(0.0f, 0.0f, 1.0f)));
-    ASSERT_EQ(Math::PointStatus::PSInside, ray.pointStatus(vec3f(0.0f, 0.0f, 0.0f)));
-    ASSERT_EQ(Math::PointStatus::PSBelow, ray.pointStatus(vec3f(0.0f, 0.0f, -1.0f)));
+    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
+    ASSERT_EQ(Math::PointStatus::PSAbove, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 1.0f)));
+    ASSERT_EQ(Math::PointStatus::PSInside, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 0.0f)));
+    ASSERT_EQ(Math::PointStatus::PSBelow, ray.pointStatus(vm::vec3f(0.0f, 0.0f, -1.0f)));
 }

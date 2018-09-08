@@ -105,10 +105,11 @@ namespace TrenchBroom {
             String readString(size_t size);
 
             template <typename R, size_t S, typename T>
-            vec<T,S> readVec() {
-                vec<T,S> result;
-                for (size_t i = 0; i < S; ++i)
+            vm::vec<T,S> readVec() {
+                vm::vec<T,S> result;
+                for (size_t i = 0; i < S; ++i) {
                     result[i] = read<T, R>();
+                }
                 return result;
             }
 
@@ -119,8 +120,9 @@ namespace TrenchBroom {
 
             template <typename T, typename R, typename I>
             void read(I out, const size_t n) {
-                for (size_t i = 0; i < n; ++i)
+                for (size_t i = 0; i < n; ++i) {
                     out += read<T,R>();
+                }
             }
         };
     }

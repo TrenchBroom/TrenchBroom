@@ -38,9 +38,9 @@ namespace TrenchBroom {
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
 
-        void coordinateSystemVerticesX(const bbox3f& bounds, vec3f& start, vec3f& end);
-        void coordinateSystemVerticesY(const bbox3f& bounds, vec3f& start, vec3f& end);
-        void coordinateSystemVerticesZ(const bbox3f& bounds, vec3f& start, vec3f& end);
+        void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
+        void coordinateSystemVerticesY(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
+        void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
         
         class TextureRenderFunc {
         public:
@@ -55,23 +55,23 @@ namespace TrenchBroom {
             void after(const Assets::Texture* texture) override;
         };
 
-        vec2f::List circle2D(float radius, size_t segments);
-        vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
-        vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);
-        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const vec3f& startAxis, const vec3f& endAxis);
+        vm::vec2f::List circle2D(float radius, size_t segments);
+        vm::vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
+        vm::vec3f::List circle2D(float radius, Math::Axis::Type axis, float startAngle, float angleLength, size_t segments);
+        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
-        vec2f::List roundedRect2D(const vec2f& size, const float cornerRadius, const size_t cornerSegments);
-        vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
+        vm::vec2f::List roundedRect2D(const vm::vec2f& size, const float cornerRadius, const size_t cornerSegments);
+        vm::vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
         
         struct VertsAndNormals {
-            vec3f::List vertices;
-            vec3f::List normals;
+            vm::vec3f::List vertices;
+            vm::vec3f::List normals;
             
             VertsAndNormals(size_t vertexCount);
         };
         
-        vec3f::List sphere3D(float radius, size_t iterations);
+        vm::vec3f::List sphere3D(float radius, size_t iterations);
         VertsAndNormals circle3D(float radius, size_t segments);
         VertsAndNormals cylinder3D(float radius, float length, size_t segments);
         VertsAndNormals cone3D(float radius, float length, size_t segments);

@@ -91,9 +91,9 @@ namespace TrenchBroom {
         public: // brush resizing
             polygon3::List performResizeBrushes(const polygon3::List& polygons, const vec3& delta);
         public: // brush face attributes
-            void performMoveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta);
+            void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
-            void performShearTextures(const vec2f& factors);
+            void performShearTextures(const vm::vec2f& factors);
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices

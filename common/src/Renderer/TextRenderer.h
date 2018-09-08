@@ -41,18 +41,18 @@ namespace TrenchBroom {
         private:
             static const float DefaultMaxViewDistance;
             static const float DefaultMinZoomFactor;
-            static const vec2f DefaultInset;
+            static const vm::vec2f DefaultInset;
             static const size_t RectCornerSegments;
             static const float RectCornerRadius;
             
             struct Entry {
-                vec2f::List vertices;
-                vec2f size;
-                vec3f offset;
+                vm::vec2f::List vertices;
+                vm::vec2f size;
+                vm::vec3f offset;
                 Color textColor;
                 Color backgroundColor;
 
-                Entry(vec2f::List& i_vertices, const vec2f& i_size, const vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
+                Entry(vm::vec2f::List& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
             typedef std::vector<Entry> EntryList;
@@ -74,12 +74,12 @@ namespace TrenchBroom {
             FontDescriptor m_fontDescriptor;
             float m_maxViewDistance;
             float m_minZoomFactor;
-            vec2f m_inset;
+            vm::vec2f m_inset;
             
             EntryCollection m_entries;
             EntryCollection m_entriesOnTop;
         public:
-            TextRenderer(const FontDescriptor& fontDescriptor, float maxViewDistance = DefaultMaxViewDistance, float minZoomFactor = DefaultMinZoomFactor, const vec2f& inset = DefaultInset);
+            TextRenderer(const FontDescriptor& fontDescriptor, float maxViewDistance = DefaultMaxViewDistance, float minZoomFactor = DefaultMinZoomFactor, const vm::vec2f& inset = DefaultInset);
             
             void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
             void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             float computeAlphaFactor(const RenderContext& renderContext, float distance, bool onTop) const;
             void addEntry(EntryCollection& collection, const Entry& entry);
             
-            vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
+            vm::vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);

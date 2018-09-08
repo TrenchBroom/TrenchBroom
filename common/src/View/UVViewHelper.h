@@ -49,7 +49,7 @@ namespace TrenchBroom {
             
             Model::BrushFace* m_face;
 
-            vec2i m_subDivisions;
+            vm::vec2i m_subDivisions;
             
             /**
              The position of the scaling origin / rotation center handle in world coords.
@@ -64,22 +64,22 @@ namespace TrenchBroom {
             void setFace(Model::BrushFace* face);
             void cameraViewportChanged();
 
-            const vec2i& subDivisions() const;
+            const vm::vec2i& subDivisions() const;
             vec2 stripeSize() const;
-            void setSubDivisions(const vec2i& subDivisions);
+            void setSubDivisions(const vm::vec2i& subDivisions);
             
             const vec3 origin() const;
-            const vec2f originInFaceCoords() const;
-            const vec2f originInTexCoords() const;
-            void setOriginInFaceCoords(const vec2f& originInFaceCoords);
+            const vm::vec2f originInFaceCoords() const;
+            const vm::vec2f originInTexCoords() const;
+            void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
             const Renderer::Camera& camera() const;
             float cameraZoom() const;
 
             void pickTextureGrid(const ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
-            vec2f snapDelta(const vec2f& delta, const vec2f& distance) const;
-            vec2f computeDistanceFromTextureGrid(const vec3& position) const;
+            vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
+            vm::vec2f computeDistanceFromTextureGrid(const vec3& position) const;
 
             void computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
             void computeScaleHandleVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;

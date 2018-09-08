@@ -58,12 +58,12 @@ namespace TrenchBroom {
         bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            const vec2f curPoint = computeHitPoint(inputState.pickRay());
-            const vec2f delta    = curPoint - m_lastPoint;
-            const vec2f snapped  = snapDelta(delta);
+            const vm::vec2f curPoint = computeHitPoint(inputState.pickRay());
+            const vm::vec2f delta    = curPoint - m_lastPoint;
+            const vm::vec2f snapped  = snapDelta(delta);
 
             const Model::BrushFace* face = m_helper.face();
-            const vec2f corrected = correct(face->offset() - snapped, 4, 0.0f);
+            const vm::vec2f corrected = correct(face->offset() - snapped, 4, 0.0f);
             
             if (corrected == face->offset())
                 return true;
@@ -88,17 +88,17 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vec2f UVOffsetTool::computeHitPoint(const ray3& ray) const {
+        vm::vec2f UVOffsetTool::computeHitPoint(const ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto distance = intersect(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
             
-            const auto transform = face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true);
-            return vec2f(transform * hitPoint);
+            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true);
+            return vm::vec2f(transform * hitPoint);
         }
 
-        vec2f UVOffsetTool::snapDelta(const vec2f& delta) const {
+        vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
             const Model::BrushFace* face = m_helper.face();
             ensure(face != nullptr, "face is null");
             
@@ -109,9 +109,9 @@ namespace TrenchBroom {
 
             const mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
-            vec2f distance = vec2f::max;
+            vm::vec2f distance = vm::vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {
-                const vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
+                const vm::vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
                 distance = absMin(distance, temp);
             }
             

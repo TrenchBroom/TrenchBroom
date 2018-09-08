@@ -105,7 +105,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        vec2f ParallelTexCoordSystem::doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
+        vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
             return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             assert(!isNaN(oldInvariantTechCoords));
             
             // compute the new texture axes
-            const auto worldToTexSpace = toMatrix(vec2f(0, 0), vec2f(1, 1));
+            const auto worldToTexSpace = toMatrix(vm::vec2f(0, 0), vm::vec2f(1, 1));
             
             // The formula for texturing is:
             //
@@ -274,7 +274,7 @@ namespace TrenchBroom {
         
         void ParallelTexCoordSystem::doUpdateNormalWithRotation(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs) {
             quat3 rotation;
-            vec3 axis = ::cross(oldNormal, newNormal);
+            auto axis = vm::cross(oldNormal, newNormal);
             if (axis == vec3::zero) {
                 // oldNormal and newNormal are either the same or opposite.
                 // in this case, no need to update the texture axes.
@@ -283,14 +283,14 @@ namespace TrenchBroom {
                 axis = normalize(axis);
             }
             
-            const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+            const auto angle = angleBetween(newNormal, oldNormal, axis);
             rotation = quat3(axis, angle);
 
             m_xAxis = rotation * m_xAxis;
             m_yAxis = rotation * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doShearTexture(const vec3& normal, const vec2f& f) {
+        void ParallelTexCoordSystem::doShearTexture(const vec3& normal, const vm::vec2f& f) {
             const mat4x4 shear( 1.0, f[0], 0.0, 0.0,
                                f[1],  1.0, 0.0, 0.0,
                                 0.0,  0.0, 1.0, 0.0,
@@ -310,7 +310,7 @@ namespace TrenchBroom {
          * in CCW degrees about the texture normal.
          * Returns this, added to `currentAngle` (also in CCW degrees).
          */
-        float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vec2f& center, const vec2f& point) const {
+        float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vec3 vec(point - center);
             const auto angleInRadians = angleBetween(normalize(vec), vec3::pos_x, vec3::pos_z);
             return static_cast<float>(currentAngle + Math::degrees(angleInRadians));

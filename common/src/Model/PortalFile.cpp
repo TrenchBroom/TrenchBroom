@@ -33,7 +33,7 @@ namespace TrenchBroom {
             load(path);
         }
         
-        const polygon3f::List& PortalFile::portals() const {
+        const vm::polygon3f::List& PortalFile::portals() const {
             return m_portals;
         }
         
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                     throw FileFormatException("Error reading portal");
                 }
                 
-                vec3f::List verts;
+                vm::vec3f::List verts;
                 size_t ptr = 3;
                 const int numPoints = std::stoi(components.at(0));
                 for (int j = 0; j < numPoints; ++j) {
@@ -89,14 +89,14 @@ namespace TrenchBroom {
                         throw FileFormatException("Error reading portal");
                     }
                     
-                    const vec3f vert(std::stof(components.at(ptr)),
+                    const vm::vec3f vert(std::stof(components.at(ptr)),
                                      std::stof(components.at(ptr+1)),
                                      std::stof(components.at(ptr+2)));
                     verts.push_back(vert);
                     ptr += 3;
                 }
                 
-                m_portals.push_back(polygon3f(verts));
+                m_portals.push_back(vm::polygon3f(verts));
             }
         }
     }

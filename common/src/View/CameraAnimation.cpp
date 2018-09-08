@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace View {
         const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
         
-        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const vec3f& targetPosition, const vec3f& targetDirection, const vec3f& targetUp, const wxLongLong duration) :
+        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, const wxLongLong duration) :
         Animation(AnimationType, Curve_EaseInEaseOut, duration),
         m_camera(camera),
         m_startPosition(m_camera.position()),
@@ -37,9 +37,9 @@ namespace TrenchBroom {
 
         void CameraAnimation::doUpdate(const double progress) {
             const float fltProgress = static_cast<float>(progress);
-            const vec3f position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
-            const vec3f direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
-            const vec3f up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
+            const vm::vec3f position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
+            const vm::vec3f direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
+            const vm::vec3f up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
 
             m_camera.moveTo(position);
             m_camera.setDirection(direction, up);

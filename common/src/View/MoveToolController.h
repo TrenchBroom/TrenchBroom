@@ -188,7 +188,7 @@ namespace TrenchBroom {
                         const auto curPos = lastPos + stage;
                         
                         renderService.setForegroundColor(colors[i]);
-                        renderService.renderLine(vec3f(lastPos), vec3f(curPos));
+                        renderService.renderLine(vm::vec3f(lastPos), vm::vec3f(curPos));
                         lastPos = curPos;
                     }
                     

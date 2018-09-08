@@ -61,7 +61,7 @@ namespace TrenchBroom {
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;
             
-            m_selector = vec2b(xHit.isMatch(), yHit.isMatch());
+            m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
 
             const Model::BrushFace* face = m_helper.face();
             m_xAxis = face->textureXAxis();
@@ -85,22 +85,22 @@ namespace TrenchBroom {
 
             auto* face = m_helper.face();
             const auto origin = m_helper.origin();
-            const auto oldCoords = vec2f(face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin);
+            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
             
             auto document = lock(m_document);
             if (m_selector[0]) {
-                const vec2f factors = vec2f(-delta.y() / m_initialHit.x(), 0.0f);
+                const vm::vec2f factors = vm::vec2f(-delta.y() / m_initialHit.x(), 0.0f);
                 if (!isZero(factors)) {
                     document->shearTextures(factors);
                 }
             } else if (m_selector[1]) {
-                const vec2f factors = vec2f(0.0f, -delta.x() / m_initialHit.y());
+                const vm::vec2f factors = vm::vec2f(0.0f, -delta.x() / m_initialHit.y());
                 if (!isZero(factors)) {
                     document->shearTextures(factors);
                 }
             }
             
-            const auto newCoords = vec2f(face->toTexCoordSystemMatrix(vec2f::zero, face->scale(), true) * origin);
+            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
             const auto newOffset = face->offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
@@ -121,14 +121,14 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        vec2f UVShearTool::getHit(const ray3& pickRay) const {
+        vm::vec2f UVShearTool::getHit(const ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
             const auto hitPointDist = intersect(pickRay, boundary);
             const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
             const auto hitVec = hitPoint - m_helper.origin();
             
-            return vec2f(dot(hitVec, m_xAxis),
+            return vm::vec2f(dot(hitVec, m_xAxis),
                          dot(hitVec, m_yAxis));
         }
         

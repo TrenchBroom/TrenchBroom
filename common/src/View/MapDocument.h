@@ -323,9 +323,9 @@ namespace TrenchBroom {
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
             bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-            bool moveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) override;
+            bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
             bool rotateTextures(float angle) override;
-            bool shearTextures(const vec2f& factors) override;
+            bool shearTextures(const vm::vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes) override;
             

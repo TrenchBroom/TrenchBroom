@@ -196,16 +196,16 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
             break;
         case 1:
             result = addSecondPoint(position, callback);
-            m_bounds = ::merge(m_bounds, position);
+            m_bounds = vm::merge(m_bounds, position);
             break;
         case 2:
             result = addThirdPoint(position, callback);
-            m_bounds = ::merge(m_bounds, position);
+            m_bounds = vm::merge(m_bounds, position);
             break;
         default:
             result = addFurtherPoint(position, callback);
             if (result != nullptr) {
-                m_bounds = ::merge(m_bounds, position);
+                m_bounds = vm::merge(m_bounds, position);
             }
             break;
     }
@@ -416,7 +416,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     assert(polygon());
     
     Face* face = m_faces.front();
-    plane<T,3> facePlane = callback.getPlane(face);
+    vm::plane<T,3> facePlane = callback.getPlane(face);
     
     HalfEdge* firstVisibleEdge = nullptr;
     HalfEdge* lastVisibleEdge = nullptr;
@@ -827,7 +827,7 @@ public:
         return checkRemainingPoints(plane, seam);
     }
 private:
-    bool checkRemainingPoints(const plane<T,3>& plane, const Seam& seam) const {
+    bool checkRemainingPoints(const vm::plane<T,3>& plane, const Seam& seam) const {
         if (seam.size() < 5)
             return true;
         

@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "VecMath.h"
+#include "forward.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -36,16 +36,16 @@ namespace TrenchBroom {
             virtual ~EntityModel();
             
             Renderer::TexturedIndexRangeRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
-            bbox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
-            bbox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const;
+            vm::bbox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
+            vm::bbox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const vm::mat4x4f& transformation) const;
             
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
         private:
             virtual Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
-            virtual bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
-            virtual bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const mat4x4f& transformation) const = 0;
+            virtual vm::bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual vm::bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const vm::mat4x4f& transformation) const = 0;
             virtual void doPrepare(int minFilter, int magFilter) = 0;
             virtual void doSetTextureMode(int minFilter, int magFilter) = 0;
         };

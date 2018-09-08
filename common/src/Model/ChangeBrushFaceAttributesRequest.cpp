@@ -271,9 +271,9 @@ namespace TrenchBroom {
 
         void ChangeBrushFaceAttributesRequest::resetAll() {
             resetTextureAxes();
-            setOffset(vec2f::zero);
+            setOffset(vm::vec2f::zero);
             setRotation(0.0f);
-            setScale(vec2f::one);
+            setScale(vm::vec2f::one);
         }
 
         void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {
@@ -298,17 +298,17 @@ namespace TrenchBroom {
             m_axisOp = AxisOp_ToParallel;
         }
 
-        void ChangeBrushFaceAttributesRequest::setOffset(const vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::setOffset(const vm::vec2f& offset) {
             setXOffset(offset.x());
             setYOffset(offset.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::addOffset(const vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::addOffset(const vm::vec2f& offset) {
             addXOffset(offset.x());
             addYOffset(offset.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::mulOffset(const vec2f& offset) {
+        void ChangeBrushFaceAttributesRequest::mulOffset(const vm::vec2f& offset) {
             mulXOffset(offset.x());
             mulYOffset(offset.y());
         }
@@ -358,17 +358,17 @@ namespace TrenchBroom {
             m_rotationOp = ValueOp_Mul;
         }
         
-        void ChangeBrushFaceAttributesRequest::setScale(const vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::setScale(const vm::vec2f& scale) {
             setXScale(scale.x());
             setYScale(scale.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::addScale(const vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::addScale(const vm::vec2f& scale) {
             addXScale(scale.x());
             addYScale(scale.y());
         }
         
-        void ChangeBrushFaceAttributesRequest::mulScale(const vec2f& scale) {
+        void ChangeBrushFaceAttributesRequest::mulScale(const vm::vec2f& scale) {
             mulXScale(scale.x());
             mulYScale(scale.y());
         }

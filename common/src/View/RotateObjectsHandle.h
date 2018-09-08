@@ -70,16 +70,16 @@ namespace TrenchBroom {
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea area);
         private:
             template <typename T>
-            void computeAxes(const vec<T,3>& cameraPos, vec<T,3>& xAxis, vec<T,3>& yAxis, vec<T,3>& zAxis) const {
-                const auto viewDir = vec<T,3>(normalize(m_position - vec3(cameraPos)));
+            void computeAxes(const vm::vec<T,3>& cameraPos, vm::vec<T,3>& xAxis, vm::vec<T,3>& yAxis, vm::vec<T,3>& zAxis) const {
+                const auto viewDir = vm::vec<T,3>(vm::normalize(m_position - vec3(cameraPos)));
                 if (Math::eq(std::abs(viewDir.z()), static_cast<T>(1.0))) {
-                    xAxis = vec<T,3>::pos_x;
-                    yAxis = vec<T,3>::pos_y;
+                    xAxis = vm::vec<T,3>::pos_x;
+                    yAxis = vm::vec<T,3>::pos_y;
                 } else {
-                    xAxis = Math::pos(viewDir.x()) ? vec<T,3>::neg_x : vec<T,3>::pos_x;
-                    yAxis = Math::pos(viewDir.y()) ? vec<T,3>::neg_y : vec<T,3>::pos_y;
+                    xAxis = Math::pos(viewDir.x()) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
+                    yAxis = Math::pos(viewDir.y()) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
                 }
-                zAxis = Math::pos(viewDir.z()) ? vec<T,3>::neg_z : vec<T,3>::pos_z;
+                zAxis = Math::pos(viewDir.z()) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
             }
 
             Model::Hit pickPointHandle(const ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const;

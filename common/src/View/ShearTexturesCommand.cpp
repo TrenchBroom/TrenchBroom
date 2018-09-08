@@ -25,11 +25,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ShearTexturesCommand::Type = Command::freeType();
         
-        ShearTexturesCommand::Ptr ShearTexturesCommand::shear(const vec2f& factors) {
+        ShearTexturesCommand::Ptr ShearTexturesCommand::shear(const vm::vec2f& factors) {
             return Ptr(new ShearTexturesCommand(factors));
         }
 
-        ShearTexturesCommand::ShearTexturesCommand(const vec2f& factors) :
+        ShearTexturesCommand::ShearTexturesCommand(const vm::vec2f& factors) :
         DocumentCommand(Type, "Shear Textures"),
         m_factors(factors) {
             assert(factors.x() != 0.0f || factors.y() != 0.0f);
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return shearTextures(document, -m_factors);
         }
         
-        bool ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vec2f& factors) {
+        bool ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors) {
             document->performShearTextures(factors);
             return true;
         }

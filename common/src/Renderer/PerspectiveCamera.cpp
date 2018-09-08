@@ -35,7 +35,7 @@ namespace TrenchBroom {
         Camera(),
         m_fov(90.0) {}
         
-        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const vec3f& position, const vec3f& direction, const vec3f& up)
+        PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up)
         : Camera(nearPlane, farPlane, viewport, position, direction, up),
         m_fov(fov) {
             assert(m_fov > 0.0);
@@ -54,36 +54,36 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        ray3f PerspectiveCamera::doGetPickRay(const vec3f& point) const {
-            const vec3f direction = normalize(point - position());
-            return ray3f(position(), direction);
+        vm::ray3f PerspectiveCamera::doGetPickRay(const vm::vec3f& point) const {
+            const vm::vec3f direction = normalize(point - position());
+            return vm::ray3f(position(), direction);
         }
         
         Camera::ProjectionType PerspectiveCamera::doGetProjectionType() const {
             return Projection_Perspective;
         }
 
-        void PerspectiveCamera::doValidateMatrices(mat4x4f& projectionMatrix, mat4x4f& viewMatrix) const {
+        void PerspectiveCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
             const Viewport& viewport = unzoomedViewport();
-            projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport.width, viewport.height);
-            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
+            projectionMatrix = vm::perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport.width, viewport.height);
+            viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
-        void PerspectiveCamera::doComputeFrustumPlanes(plane3f& topPlane, plane3f& rightPlane, plane3f& bottomPlane, plane3f& leftPlane) const {
-            const vec2f frustum = getFrustum();
-            const vec3f center = position() + direction() * nearPlane();
+        void PerspectiveCamera::doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const {
+            const vm::vec2f frustum = getFrustum();
+            const vm::vec3f center = position() + direction() * nearPlane();
             
-            vec3f d = center + up() * frustum.y() - position();
-            topPlane = plane3f(position(), normalize(cross(right(), d)));
+            vm::vec3f d = center + up() * frustum.y() - position();
+            topPlane = vm::plane3f(position(), normalize(cross(right(), d)));
             
             d = center + right() * frustum.x() - position();
-            rightPlane = plane3f(position(), normalize(cross(d, up())));
+            rightPlane = vm::plane3f(position(), normalize(cross(d, up())));
             
             d = center - up() * frustum.y() - position();
-            bottomPlane = plane3f(position(), normalize(cross(d, right())));
+            bottomPlane = vm::plane3f(position(), normalize(cross(d, right())));
             
             d = center - right() * frustum.x() - position();
-            leftPlane = plane3f(position(), normalize(cross(up(), d)));
+            leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
         }
         
         void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             Vertex::List triangleVertices(6);
             Vertex::List lineVertices(8 * 2);
             
-            vec3f verts[4];
+            vm::vec3f verts[4];
             getFrustumVertices(size, verts);
             
             triangleVertices[0] = Vertex(position(), Color(color, 0.7f));
@@ -122,8 +122,8 @@ namespace TrenchBroom {
             lineArray.render(GL_LINES);
         }
         
-        float PerspectiveCamera::doPickFrustum(const float size, const ray3f& ray) const {
-            vec3f verts[4];
+        float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {
+            vm::vec3f verts[4];
             getFrustumVertices(size, verts);
             
             auto minDistance = std::numeric_limits<float>::max();
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return minDistance;
         }
 
-        void PerspectiveCamera::getFrustumVertices(const float size, vec3f (&verts)[4]) const {
+        void PerspectiveCamera::getFrustumVertices(const float size, vm::vec3f (&verts)[4]) const {
             const auto frustum = getFrustum();
             
             verts[0] = position() + (direction() * nearPlane() + frustum.y() * up() - frustum.x() * right()) / nearPlane() * size; // top left
@@ -143,14 +143,14 @@ namespace TrenchBroom {
             verts[3] = position() + (direction() * nearPlane() - frustum.y() * up() - frustum.x() * right()) / nearPlane() * size; // bottom left
         }
 
-        vec2f PerspectiveCamera::getFrustum() const {
+        vm::vec2f PerspectiveCamera::getFrustum() const {
             const auto& viewport = unzoomedViewport();
             const auto v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
             const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
-            return vec2f(h, v);
+            return vm::vec2f(h, v);
         }
 
-        float PerspectiveCamera::doGetPerspectiveScalingFactor(const vec3f& position) const {
+        float PerspectiveCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const {
             const auto perpDist = perpendicularDistanceTo(position);
             return perpDist / viewportFrustumDistance();
         }

@@ -23,7 +23,7 @@
 #include "vec_decl.h"
 #include "vec_impl.h"
 
-class Color : public vec<float, 4> {
+class Color : public vm::vec<float, 4> {
 public:
     static Color parse(const std::string& str);
     

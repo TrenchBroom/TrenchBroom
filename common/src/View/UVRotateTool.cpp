@@ -63,7 +63,7 @@ namespace TrenchBroom {
                 return;
 
             const auto* face = m_helper.face();
-            const auto fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
             const auto& boundary = face->boundary();
             const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
@@ -97,9 +97,9 @@ namespace TrenchBroom {
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
-            const mat4x4 toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const mat4x4 toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
-            const vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
+            const vm::vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
             MapDocumentSPtr document = lock(m_document);
@@ -117,10 +117,10 @@ namespace TrenchBroom {
             const auto curPointDistance = intersect(pickRay, boundary);
             const auto curPoint = pickRay.pointAtDistance(curPointDistance);
             
-            const auto toFaceOld = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const auto toWorld = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
 
-            const auto curPointInFaceCoords = vec2f(toFaceOld * curPoint);
+            const auto curPointInFaceCoords = vm::vec2f(toFaceOld * curPoint);
             const auto curAngle = measureAngle(curPointInFaceCoords);
 
             const auto angle = curAngle - m_initalAngle;
@@ -136,8 +136,8 @@ namespace TrenchBroom {
             document->setFaceAttributes(request);
             
             // Correct the offsets.
-            const auto toFaceNew = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
-            const auto newCenterInFaceCoords = vec2f(toFaceNew * oldCenterInWorldCoords);
+            const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
             const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
             const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
@@ -149,9 +149,9 @@ namespace TrenchBroom {
             return true;
         }
         
-        float UVRotateTool::measureAngle(const vec2f& point) const {
+        float UVRotateTool::measureAngle(const vm::vec2f& point) const {
             const Model::BrushFace* face = m_helper.face();
-            const vec2f origin = m_helper.originInFaceCoords();
+            const vm::vec2f origin = m_helper.originInFaceCoords();
             return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
         
@@ -166,10 +166,10 @@ namespace TrenchBroom {
             };
             auto minDelta = std::numeric_limits<float>::max();
             
-            const auto toFace = face->toTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             for (const auto* edge : face->edges()) {
-                const auto startInFaceCoords = vec2f(toFace * edge->firstVertex()->position());
-                const auto endInFaceCoords   = vec2f(toFace * edge->secondVertex()->position());
+                const auto startInFaceCoords = vm::vec2f(toFace * edge->firstVertex()->position());
+                const auto endInFaceCoords   = vm::vec2f(toFace * edge->secondVertex()->position());
                 const auto edgeAngle         = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {
@@ -220,7 +220,7 @@ namespace TrenchBroom {
             
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
-                const auto fromFace = face->fromTexCoordSystemMatrix(vec2f::zero, vec2f::one, true);
+                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
                 
                 const auto& boundary = face->boundary();
                 const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
@@ -234,10 +234,10 @@ namespace TrenchBroom {
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), mat4x4f(fromPlane));
+                const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 {
                     const auto translation = translationMatrix(vec3(originPosition));
-                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), mat4x4f(translation));
+                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);
                     } else {
@@ -248,7 +248,7 @@ namespace TrenchBroom {
                 
                 {
                     const auto translation = translationMatrix(vec3(faceCenterPosition));
-                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), mat4x4f(translation));
+                    const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     shader.set("Color", highlightColor);
                     m_center.render();
                 }

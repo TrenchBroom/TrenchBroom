@@ -31,14 +31,14 @@ class NodeTree {
 public:
     using List = std::list<U>;
     using Array = std::vector<U>;
-    using Box = bbox<T,S>;
+    using Box = vm::bbox<T,S>;
     using DataType = U;
     using FloatType = T;
     static const size_t Components = S;
     
     using GetBounds = std::function<Box(const U& data)>;
 public:
-    virtual ~NodeTree() {}
+    virtual ~NodeTree() = default;
 
     /**
      * Indicates whether a node with the given bounds and data exists in this tree.
@@ -128,7 +128,7 @@ public:
      * @param ray the ray to test
      * @return a list containing all found data items
      */
-    virtual List findIntersectors(const ray<T,S>& ray) const = 0;
+    virtual List findIntersectors(const vm::ray<T,S>& ray) const = 0;
 
     /**
      * Finds every data item in this tree whose bounding box contains the given point and returns a list of those items.
@@ -136,7 +136,7 @@ public:
      * @param point the point to test
      * @return a list containing all found data items
      */
-    virtual List findContainers(const vec<T,S>& point) const = 0;
+    virtual List findContainers(const vm::vec<T,S>& point) const = 0;
 };
 
 #endif /* NodeTree_h */

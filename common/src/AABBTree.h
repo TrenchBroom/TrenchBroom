@@ -266,11 +266,11 @@ private:
          */
         std::pair<Node*, bool> doRemove(const Box& bounds, const U& data, Node*& child, Node*& sibling) {
             if (child->bounds().contains(bounds)) {
-                const auto&[newChild, result] = child->remove(bounds, data);
+                auto [newChild, result] = child->remove(bounds, data);
                 if (result) {
                     if (newChild == nullptr) {
                         // child is a leaf, and it represents the node to remove; return sibling to the caller
-                        auto *newChild = sibling;
+                        newChild = sibling;
                         // prevent the sibling to get deleted when this node gets deleted by the parent
                         sibling = nullptr;
                         // child will be deleted when this node gets deleted by the caller
@@ -515,7 +515,7 @@ public:
     }
 
     const Box& bounds() const override {
-        static const auto EmptyBox = Box(vec<T,S>::NaN, vec<T,S>::NaN);
+        static const auto EmptyBox = Box(vm::vec<T,S>::NaN, vm::vec<T,S>::NaN);
 
         assert(!empty());
         if (empty()) {
@@ -525,7 +525,7 @@ public:
         }
     }
 
-    List findIntersectors(const ray<T,S>& ray) const override {
+    List findIntersectors(const vm::ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
         return std::move(result);
@@ -540,7 +540,7 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findIntersectors(const ray<T,S>& ray, O out) const {
+    void findIntersectors(const vm::ray<T,S>& ray, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {
@@ -557,7 +557,7 @@ public:
         }
     }
 
-     List findContainers(const vec<T,S>& point) const override {
+     List findContainers(const vm::vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
          return std::move(result);
@@ -572,7 +572,7 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findContainers(const vec<T,S>& point, O out) const {
+    void findContainers(const vm::vec<T,S>& point, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {

@@ -1275,7 +1275,7 @@ namespace TrenchBroom {
             return submitAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle));
         }
         
-        bool MapDocument::moveTextures(const vec3f& cameraUp, const vec3f& cameraRight, const vec2f& delta) {
+        bool MapDocument::moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
             return submitAndStore(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
         }
         
@@ -1283,7 +1283,7 @@ namespace TrenchBroom {
             return submitAndStore(RotateTexturesCommand::rotate(angle));
         }
         
-        bool MapDocument::shearTextures(const vec2f& factors) {
+        bool MapDocument::shearTextures(const vm::vec2f& factors) {
             return submitAndStore(ShearTexturesCommand::shear(factors));
         }
         
