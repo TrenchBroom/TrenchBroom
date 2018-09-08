@@ -349,7 +349,7 @@ namespace TrenchBroom {
             return doPickFrustum(size, ray);
         }
 
-        FloatType Camera::pickPointHandle(const ray3& pickRay, const vec3& handlePosition, const FloatType handleRadius) const {
+        FloatType Camera::pickPointHandle(const ray3& pickRay, const vm::vec3& handlePosition, const FloatType handleRadius) const {
             const auto scaling = static_cast<FloatType>(perspectiveScalingFactor(vm::vec3f(handlePosition)));
             return intersect(pickRay, handlePosition, 2.0 * handleRadius * scaling);
         }

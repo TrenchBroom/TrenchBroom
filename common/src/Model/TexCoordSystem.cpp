@@ -45,43 +45,43 @@ namespace TrenchBroom {
             return doTakeSnapshot();
         }
 
-        vec3 TexCoordSystem::xAxis() const {
+        vm::vec3 TexCoordSystem::xAxis() const {
             return getXAxis();
         }
         
-        vec3 TexCoordSystem::yAxis() const {
+        vm::vec3 TexCoordSystem::yAxis() const {
             return getYAxis();
         }
 
-        void TexCoordSystem::resetCache(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs) {
+        void TexCoordSystem::resetCache(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
             doResetCache(point0, point1, point2, attribs);
         }
 
-        void TexCoordSystem::resetTextureAxes(const vec3& normal) {
+        void TexCoordSystem::resetTextureAxes(const vm::vec3& normal) {
             doResetTextureAxes(normal);
         }
         
-        void TexCoordSystem::resetTextureAxesToParaxial(const vec3& normal, const float angle) {
+        void TexCoordSystem::resetTextureAxesToParaxial(const vm::vec3& normal, const float angle) {
             doResetTextureAxesToParaxial(normal, angle);
         }
         
-        void TexCoordSystem::resetTextureAxesToParallel(const vec3& normal, const float angle) {
+        void TexCoordSystem::resetTextureAxesToParallel(const vm::vec3& normal, const float angle) {
             doResetTextureAxesToParaxial(normal, angle);
         }
         
-        vm::vec2f TexCoordSystem::getTexCoords(const vec3& point, const BrushFaceAttributes& attribs) const {
+        vm::vec2f TexCoordSystem::getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
             return doGetTexCoords(point, attribs);
         }
         
-        void TexCoordSystem::setRotation(const vec3& normal, const float oldAngle, const float newAngle) {
+        void TexCoordSystem::setRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vec3& invariant) {
+        void TexCoordSystem::transform(const plane3& oldBoundary, const plane3& newBoundary, const mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) {
             doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
         }
 
-        void TexCoordSystem::updateNormal(const vec3& oldNormal, const vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style) {
+        void TexCoordSystem::updateNormal(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style) {
             if (oldNormal != newNormal) {
                 switch (style) {
                     case WrapStyle::Rotation:
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TexCoordSystem::moveTexture(const vec3& normal, const vec3& up, const vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
+        void TexCoordSystem::moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
             const auto toPlane = planeProjectionMatrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
             const auto transform = fromPlane * mat4x4::zero_z * toPlane;
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             const auto texY = normalize(transform * getYAxis());
             assert(invertible); unused(invertible);
 
-            vec3 vAxis, hAxis;
+            vm::vec3 vAxis, hAxis;
             size_t xIndex = 0;
             size_t yIndex = 0;
             
@@ -171,29 +171,29 @@ namespace TrenchBroom {
             attribs.setOffset(attribs.offset() + actualOffset);
         }
 
-        void TexCoordSystem::rotateTexture(const vec3& normal, const float angle, BrushFaceAttributes& attribs) const {
+        void TexCoordSystem::rotateTexture(const vm::vec3& normal, const float angle, BrushFaceAttributes& attribs) const {
             const float actualAngle = isRotationInverted(normal) ? - angle : angle;
             attribs.setRotation(attribs.rotation() + actualAngle);
         }
 
-        void TexCoordSystem::shearTexture(const vec3& normal, const vm::vec2f& factors) {
+        void TexCoordSystem::shearTexture(const vm::vec3& normal, const vm::vec2f& factors) {
             doShearTexture(normal, factors);
         }
 
         mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const {
-            const vec3 x = safeScaleAxis(getXAxis(), s.x());
-            const vec3 y = safeScaleAxis(getYAxis(), s.y());
-            const vec3 z = getZAxis();
+            const vm::vec3 x = safeScaleAxis(getXAxis(), s.x());
+            const vm::vec3 y = safeScaleAxis(getYAxis(), s.y());
+            const vm::vec3 z = getZAxis();
             
             return mat4x4(x[0], x[1], x[2], o[0],
                           y[0], y[1], y[2], o[1],
                           z[0], z[1], z[2],  0.0,
                            0.0,  0.0,  0.0,  1.0);
 /*
-            const vec3 xAxis(getXAxis() * scale.x());
-            const vec3 yAxis(getYAxis() * scale.y());
-            const vec3 zAxis(getZAxis());
-            const vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
+            const vm::vec3 xAxis(getXAxis() * scale.x());
+            const vm::vec3 yAxis(getYAxis() * scale.y());
+            const vm::vec3 zAxis(getZAxis());
+            const vm::vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
             
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
  */
@@ -209,7 +209,7 @@ namespace TrenchBroom {
             return doMeasureAngle(currentAngle, center, point);
         }
 
-        vm::vec2f TexCoordSystem::computeTexCoords(const vec3& point, const vm::vec2f& scale) const {
+        vm::vec2f TexCoordSystem::computeTexCoords(const vm::vec3& point, const vm::vec2f& scale) const {
             return vm::vec2f(dot(point, safeScaleAxis(getXAxis(), scale.x())),
                          dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }

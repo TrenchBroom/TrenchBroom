@@ -30,18 +30,18 @@
  commented out because it breaks the release build process
  */
 TEST(PlaneTest, planePointFinder) {
-    const vec3 points[3] = {vec3(48, 16, 28), vec3(16.0, 16.0, 27.9980487823486328125), vec3(48, 18, 22)};
+    const vm::vec3 points[3] = {vm::vec3(48, 16, 28), vm::vec3(16.0, 16.0, 27.9980487823486328125), vm::vec3(48, 18, 22)};
     ASSERT_FALSE(isIntegral(points[1]));
 
     auto [valid, plane] = fromPoints(points[0], points[1], points[2]);
     ASSERT_TRUE(valid);
     
     // Some verts that should lie (very close to) on the plane
-    std::vector<vec3> verts;
-    verts.push_back(vec3(48, 18, 22));
-    verts.push_back(vec3(48, 16, 28));
-    verts.push_back(vec3(16, 16, 28));
-    verts.push_back(vec3(16, 18, 22));
+    std::vector<vm::vec3> verts;
+    verts.push_back(vm::vec3(48, 18, 22));
+    verts.push_back(vm::vec3(48, 16, 28));
+    verts.push_back(vm::vec3(16, 16, 28));
+    verts.push_back(vm::vec3(16, 18, 22));
     
     for (size_t i=0; i<verts.size(); i++) {
         FloatType dist = Math::abs(plane.pointDistance(verts[i]));
@@ -50,7 +50,7 @@ TEST(PlaneTest, planePointFinder) {
     
     // Now find a similar plane with integer points
     
-    vec3 intpoints[3];
+    vm::vec3 intpoints[3];
     for (size_t i=0; i<3; i++)
         intpoints[i] = points[i];
     

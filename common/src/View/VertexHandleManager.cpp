@@ -68,10 +68,10 @@ namespace TrenchBroom {
                 const segment3& position = entry.first;
                 const FloatType edgeDist = camera.pickLineSegmentHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!Math::isnan(edgeDist)) {
-                    const vec3 pointHandle = grid.snap(pickRay.pointAtDistance(edgeDist), position);
+                    const vm::vec3 pointHandle = grid.snap(pickRay.pointAtDistance(edgeDist), position);
                     const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                     if (!Math::isnan(pointDist)) {
-                        const vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                        const vm::vec3 hitPoint = pickRay.pointAtDistance(pointDist);
                         pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, HitType(position, pointHandle)));
                     }
                 }
@@ -81,11 +81,11 @@ namespace TrenchBroom {
         void EdgeHandleManager::pickCenterHandle(const ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             for (const HandleEntry& entry : m_handles) {
                 const segment3& position = entry.first;
-                const vec3 pointHandle = position.center();
+                const vm::vec3 pointHandle = position.center();
 
                 const FloatType pointDist = camera.pickPointHandle(pickRay, pointHandle, pref(Preferences::HandleRadius));
                 if (!Math::isnan(pointDist)) {
-                    const vec3 hitPoint = pickRay.pointAtDistance(pointDist);
+                    const vm::vec3 hitPoint = pickRay.pointAtDistance(pointDist);
                     pickResult.addHit(Model::Hit::hit(HandleHit, pointDist, hitPoint, position));
                 }
             }

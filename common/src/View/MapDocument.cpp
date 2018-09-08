@@ -761,7 +761,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        Model::Entity* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vec3& delta) {
+        Model::Entity* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
             ensure(definition != nullptr, "definition is null");
 
             auto* entity = m_world->createEntity();
@@ -991,11 +991,11 @@ namespace TrenchBroom {
             submitAndStore(SetLockStateCommand::reset(nodes));
         }
         
-        bool MapDocument::translateObjects(const vec3& delta) {
+        bool MapDocument::translateObjects(const vm::vec3& delta) {
             return submitAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::rotateObjects(const vec3& center, const vec3& axis, const FloatType angle) {
+        bool MapDocument::rotateObjects(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
             return submitAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
         }
         
@@ -1003,19 +1003,19 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
         }
 
-        bool MapDocument::scaleObjects(const vec3& center, const vec3& scaleFactors) {
+        bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
             return submitAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::shearObjects(const bbox3& box, const vec3& sideToShear, const vec3& delta) {
+        bool MapDocument::shearObjects(const bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
             return submitAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::flipObjects(const vec3& center, const Math::Axis::Type axis) {
+        bool MapDocument::flipObjects(const vm::vec3& center, const Math::Axis::Type axis) {
             return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::createBrush(const vec3::List& points) {
+        bool MapDocument::createBrush(const vm::vec3::List& points) {
             Model::BrushBuilder builder(m_world, m_worldBounds);
             Model::Brush* brush = builder.createBrush(points, currentTextureName());
             if (!brush->fullySpecified()) {
@@ -1170,7 +1170,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::clipBrushes(const vec3& p1, const vec3& p2, const vec3& p3) {
+        bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             Model::ParentChildrenMap clippedBrushes;
             
@@ -1212,7 +1212,7 @@ namespace TrenchBroom {
             return submitAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
         }
         
-        bool MapDocument::resizeBrushes(const polygon3::List& faces, const vec3& delta) {
+        bool MapDocument::resizeBrushes(const polygon3::List& faces, const vm::vec3& delta) {
             return submitAndStore(ResizeBrushesCommand::resize(faces, delta));
         }
         
@@ -1300,18 +1300,18 @@ namespace TrenchBroom {
             return submitAndStore(FindPlanePointsCommand::findPlanePoints());
         }
         
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const vec3& delta) {
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) {
             MoveBrushVerticesCommand::Ptr command = MoveBrushVerticesCommand::move(vertices, delta);
             const bool success = submitAndStore(command);
             const bool hasRemainingVertices = command->hasRemainingVertices();
             return MoveVerticesResult(success, hasRemainingVertices);
         }
         
-        bool MapDocument::moveEdges(const Model::EdgeToBrushesMap& edges, const vec3& delta) {
+        bool MapDocument::moveEdges(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) {
             return submitAndStore(MoveBrushEdgesCommand::move(edges, delta));
         }
 
-        bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const vec3& delta) {
+        bool MapDocument::moveFaces(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) {
             return submitAndStore(MoveBrushFacesCommand::move(faces, delta));
         }
         
@@ -1450,7 +1450,7 @@ namespace TrenchBroom {
                 m_world->pick(pickRay, pickResult);
         }
         
-        Model::NodeList MapDocument::findNodesContaining(const vec3& point) const {
+        Model::NodeList MapDocument::findNodesContaining(const vm::vec3& point) const {
             Model::NodeList result;
             if (m_world != nullptr)
                 m_world->findNodesContaining(point, result);
@@ -1485,7 +1485,7 @@ namespace TrenchBroom {
         
         void MapDocument::initializeWorld(const bbox3& worldBounds) {
             const Model::BrushBuilder builder(m_world, worldBounds);
-            Model::Brush* brush = builder.createCuboid(vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            Model::Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
             addNode(brush, m_world->defaultLayer());
         }
         

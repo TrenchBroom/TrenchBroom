@@ -28,10 +28,14 @@
 
 // TODO 2201: move vm types into vm namespace?
 using FloatType = double;
+
+namespace vm {
+    using vec3 = vm::vec<FloatType, 3>;
+    using vec2 = vm::vec<FloatType, 2>;
+}
+
 using bbox3 = vm::bbox<FloatType, 3>;
 using bbox2 = vm::bbox<FloatType, 2>;
-using vec3 = vm::vec<FloatType, 3>;
-using vec2 = vm::vec<FloatType, 2>;
 using plane3 = vm::plane<FloatType, 3>;
 using quat3 = vm::quat<FloatType>;
 using mat4x4 = vm::mat<FloatType, 4, 4>;

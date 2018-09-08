@@ -42,7 +42,7 @@ namespace TrenchBroom {
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
-            vec3::List m_recentlyUsedCenters;
+            vm::vec3::List m_recentlyUsedCenters;
         public:
             RotateObjectsTool(MapDocumentWPtr document);
 
@@ -55,8 +55,8 @@ namespace TrenchBroom {
             double angle() const;
             void setAngle(double angle);
             
-            vec3 rotationCenter() const;
-            void setRotationCenter(const vec3& position);
+            vm::vec3 rotationCenter() const;
+            void setRotationCenter(const vm::vec3& position);
             void resetRotationCenter();
             FloatType handleRadius() const;
             
@@ -65,20 +65,20 @@ namespace TrenchBroom {
             void cancelRotation();
 
             FloatType snapRotationAngle(FloatType angle) const;
-            void applyRotation(const vec3& center, const vec3& axis, FloatType angle);
+            void applyRotation(const vm::vec3& center, const vm::vec3& axis, FloatType angle);
             
             Model::Hit pick2D(const ray3& pickRay, const Renderer::Camera& camera);
             Model::Hit pick3D(const ray3& pickRay, const Renderer::Camera& camera);
             
-            vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
-            vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const vec3& cameraPos) const;
+            vm::vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
+            vm::vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const vm::vec3& cameraPos) const;
 
             void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
             void renderHighlight3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
         private:
-            void updateRecentlyUsedCenters(const vec3& center);
+            void updateRecentlyUsedCenters(const vm::vec3& center);
         private:
             wxWindow* doCreatePage(wxWindow* parent) override;
         };

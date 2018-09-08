@@ -170,13 +170,13 @@ namespace TrenchBroom {
             if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
                 const FloatType distance = intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
-                    const vec3 hitPoint = ray.pointAtDistance(distance);
+                    const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
             }
         }
         
-        void Group::doFindNodesContaining(const vec3& point, NodeList& result) {
+        void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (bounds().contains(point))
                 result.push_back(this);
             

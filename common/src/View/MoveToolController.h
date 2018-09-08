@@ -51,18 +51,18 @@ namespace TrenchBroom {
             } MoveType;
             
             MoveType m_lastMoveType;
-            vec3 m_moveTraceOrigin;
-            vec3 m_moveTraceCurPoint;
+            vm::vec3 m_moveTraceOrigin;
+            vm::vec3 m_moveTraceCurPoint;
             bool m_restricted;
         protected:
             struct MoveInfo {
                 bool move;
-                vec3 initialPoint;
+                vm::vec3 initialPoint;
                 
                 MoveInfo() :
                 move(false) {}
                 
-                MoveInfo(const vec3& i_initialPoint) :
+                MoveInfo(const vm::vec3& i_initialPoint) :
                 move(true),
                 initialPoint(i_initialPoint) {}
             };
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) override {
                 if (Super::thisToolDragging()) {
-                    const vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
+                    const vm::vec3& currentPosition = RestrictedDragPolicy::currentHandlePosition();
                     
                     const MoveType nextMoveType = moveType(inputState);
                     if (nextMoveType != m_lastMoveType) {
@@ -88,7 +88,7 @@ namespace TrenchBroom {
                             m_moveTraceOrigin = m_moveTraceCurPoint = currentPosition;
                             m_restricted = true;
                         } else if (nextMoveType == MT_Restricted) {
-                            const vec3& initialPosition = RestrictedDragPolicy::initialHandlePosition();
+                            const vm::vec3& initialPosition = RestrictedDragPolicy::initialHandlePosition();
                             RestrictedDragPolicy::setRestricter(inputState, doCreateRestrictedDragRestricter(inputState, initialPosition, currentPosition), false);
                             m_restricted = true;
                         }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
                 return RestrictedDragPolicy::DragInfo(restricter, snapper, info.initialPoint);
             }
             
-            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
+            RestrictedDragPolicy::DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 const RestrictedDragPolicy::DragResult result = doMove(inputState, lastHandlePosition, nextHandlePosition);
                 if (result == RestrictedDragPolicy::DR_Continue) {
                     m_moveTraceCurPoint = m_moveTraceCurPoint + (nextHandlePosition - lastHandlePosition);
@@ -172,10 +172,10 @@ namespace TrenchBroom {
                         renderService.setLineWidth(2.0f);
                     }
 
-                    vec3::List stages(3);
-                    stages[0] = vec * vec3::pos_x;
-                    stages[1] = vec * vec3::pos_y;
-                    stages[2] = vec * vec3::pos_z;
+                    vm::vec3::List stages(3);
+                    stages[0] = vec * vm::vec3::pos_x;
+                    stages[1] = vec * vm::vec3::pos_y;
+                    stages[2] = vec * vm::vec3::pos_z;
 
                     Color::List colors(3);
                     colors[0] = pref(Preferences::XAxisColor);
@@ -196,29 +196,29 @@ namespace TrenchBroom {
             }
         protected: // subclassing interface
             virtual MoveInfo doStartMove(const InputState& inputState) = 0;
-            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) = 0;
+            virtual RestrictedDragPolicy::DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
             virtual void doCancelMove() = 0;
             
-            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vec3& curPoint) const {
+            virtual DragRestricter* doCreateDefaultDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
                 const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new PlaneDragRestricter(plane3(curPoint, vec3::pos_z));
+                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(plane3(curPoint, vec3(firstAxis(camera.direction()))));
+                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             
-            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const vec3& curPoint) const {
+            virtual DragRestricter* doCreateVerticalDragRestricter(const InputState& inputState, const vm::vec3& curPoint) const {
                 const auto& camera = inputState.camera();
                 if (camera.perspectiveProjection()) {
-                    return new LineDragRestricter(line3(curPoint, vec3::pos_z));
+                    return new LineDragRestricter(line3(curPoint, vm::vec3::pos_z));
                 } else {
-                    return new PlaneDragRestricter(plane3(curPoint, vec3(firstAxis(camera.direction()))));
+                    return new PlaneDragRestricter(plane3(curPoint, vm::vec3(firstAxis(camera.direction()))));
                 }
             }
             
-            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vec3& initialPoint, const vec3& curPoint) const {
+            virtual DragRestricter* doCreateRestrictedDragRestricter(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& curPoint) const {
                 const auto delta = curPoint - initialPoint;
                 const auto axis = firstAxis(delta);
                 return new LineDragRestricter(line3(initialPoint, axis));

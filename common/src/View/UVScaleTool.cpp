@@ -159,7 +159,7 @@ namespace TrenchBroom {
             const auto toWorld = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const auto toTex   = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
             
-            return vm::vec2f(toTex * toWorld * vec3(getScaledTranslatedHandlePos()));
+            return vm::vec2f(toTex * toWorld * vm::vec3(getScaledTranslatedHandlePos()));
         }
 
         vm::vec2f UVScaleTool::snap(const vm::vec2f& position) const {
@@ -203,9 +203,9 @@ namespace TrenchBroom {
 
             const auto xIndex = xHandleHit.target<int>();
             const auto yIndex = yHandleHit.target<int>();
-            const auto pos = stripeSize * vec2(xIndex, yIndex);
+            const auto pos = stripeSize * vm::vec2(xIndex, yIndex);
 
-            vec3 h1, h2, v1, v2;
+            vm::vec3 h1, h2, v1, v2;
             m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
             EdgeVertex::List vertices;

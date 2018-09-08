@@ -19,10 +19,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec3 CameraPosition;
+uniform vm::vec3 CameraPosition;
 
 varying float distanceFromCamera;
-varying vec4 color;
+varying vm::vec4 color;
 
 void main(void) {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;

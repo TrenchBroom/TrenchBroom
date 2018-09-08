@@ -59,7 +59,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            typedef vec3 Points[3];
+            typedef vm::vec3 Points[3];
         public:
             static const String NoTextureName;
         private:
@@ -89,10 +89,10 @@ namespace TrenchBroom {
         protected:
             BrushFaceAttributes m_attribs;
         public:
-            BrushFace(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
+            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
             
-            static BrushFace* createParaxial(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName = "");
-            static BrushFace* createParallel(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName = "");
+            static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
+            static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName = "");
             
             static void sortFaces(BrushFaceList& faces);
             
@@ -111,9 +111,9 @@ namespace TrenchBroom {
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const plane3& plane) const;
             const plane3& boundary() const;
-            const vec3& normal() const;
-            vec3 center() const;
-            vec3 boundsCenter() const;
+            const vm::vec3& normal() const;
+            vm::vec3 center() const;
+            vm::vec3 boundsCenter() const;
             FloatType area(Math::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
@@ -155,11 +155,11 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
             void setAttributes(const BrushFace* other);
 
-            vec3 textureXAxis() const;
-            vec3 textureYAxis() const;
+            vm::vec3 textureXAxis() const;
+            vm::vec3 textureYAxis() const;
             void resetTextureAxes();
             
-            void moveTexture(const vec3& up, const vec3& right, const vm::vec2f& offset);
+            void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
             void rotateTexture(float angle);
             void shearTexture(const vm::vec2f& factors);
             
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
-            vec3::List vertexPositions() const;
+            vm::vec3::List vertexPositions() const;
             
             bool hasVertices(const polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             polygon3 polygon() const;
@@ -193,14 +193,14 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
-            vm::vec2f textureCoords(const vec3& point) const;
+            vm::vec2f textureCoords(const vm::vec3& point) const;
 
-            bool containsPoint(const vec3& point) const;
+            bool containsPoint(const vm::vec3& point) const;
             FloatType intersectWithRay(const ray3& ray) const;
             
             void printPoints() const;
         private:
-            void setPoints(const vec3& point0, const vec3& point1, const vec3& point2);
+            void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
 
             // renderer cache

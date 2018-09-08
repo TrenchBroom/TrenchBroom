@@ -108,7 +108,7 @@ namespace TrenchBroom {
             DefaultValue<int> parseDefaultIntegerValue(ParserStatus& status);
             DefaultValue<float> parseDefaultFloatValue(ParserStatus& status);
             
-            vec3 parseVector(ParserStatus& status);
+            vm::vec3 parseVector(ParserStatus& status);
             bbox3 parseSize(ParserStatus& status);
             Color parseColor(ParserStatus& status);
         };

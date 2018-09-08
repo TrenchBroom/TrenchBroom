@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool doSelectable() const override;
 
             void doPick(const ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;

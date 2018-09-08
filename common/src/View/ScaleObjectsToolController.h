@@ -61,7 +61,7 @@ namespace TrenchBroom {
 
             // RestrictedDragPolicy
             DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override;
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
             void doCancelDrag() override;
 

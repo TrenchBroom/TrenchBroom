@@ -154,7 +154,7 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const vec3& v1, const vec3& v2) {
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
                 vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
                 vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
             }
@@ -166,7 +166,7 @@ namespace TrenchBroom {
             BuildBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
             
-            void operator()(const vec3& v1, const vec3& v2) {
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
                 vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
                 vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
             }

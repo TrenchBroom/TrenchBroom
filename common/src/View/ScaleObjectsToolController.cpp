@@ -56,7 +56,7 @@ namespace TrenchBroom {
             }
         }
 
-        static std::tuple<DragRestricter*, DragSnapper*, vec3>
+        static std::tuple<DragRestricter*, DragSnapper*, vm::vec3>
         getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
                                                 const Grid& grid,
                                                 const Model::Hit& dragStartHit,
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const plane3 plane(dragStartHit.hitPoint(), vec3(inputState.camera().direction()) * -1.0);
+                const plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
@@ -86,10 +86,10 @@ namespace TrenchBroom {
             }
 
             // Snap the initial point
-            const vec3 initialPoint = [&]() {
-                vec3 p = dragStartHit.hitPoint();
+            const vm::vec3 initialPoint = [&]() {
+                vm::vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vec3::zero, vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
                 return p;
             }();
 
@@ -183,7 +183,7 @@ namespace TrenchBroom {
                             std::get<2>(tuple));
         }
 
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->scaleByDelta(delta);
 

@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 mapView->focusCameraOnSelection(animate);
         }
         
-        void MultiMapView::doMoveCameraToPosition(const vec3& position, const bool animate) {
+        void MultiMapView::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             for (MapView* mapView : m_mapViews)
                 mapView->moveCameraToPosition(position, animate);
         }

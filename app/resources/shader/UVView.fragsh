@@ -23,16 +23,16 @@ uniform float Brightness;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
 uniform bool RenderGrid;
-uniform vec2 GridSizes;
-uniform vec4 GridColor;
-uniform vec2 GridScales;
+uniform vm::vec2 GridSizes;
+uniform vm::vec4 GridColor;
+uniform vm::vec2 GridScales;
 uniform mat4 GridMatrix;
-uniform vec2 GridDivider;
+uniform vm::vec2 GridDivider;
 uniform float CameraZoom;
 
-varying vec4 modelCoordinates;
-varying vec3 modelNormal;
-varying vec4 faceColor;
+varying vm::vec4 modelCoordinates;
+varying vm::vec3 modelNormal;
+varying vm::vec4 faceColor;
 
 // Returns a measure for the closeness of the given coord from the next grid line, where 1 means the coord is on a
 // grid line and 0 means the coord is exactly between two adjacent grid lines.
@@ -56,14 +56,14 @@ float getSoftStripes(float coord, float gridDivider, float gridSize, float strip
     return smoothstep(stripeSize - edge, stripeSize + edge, minorCloseness) * outIntensity;
 }
 
-void gridLinesSoft(vec2 inCoords) {
+void gridLinesSoft(vm::vec2 inCoords) {
     // the width of the grid lines, corrected by the texture scaling factors and the camera zoom level
-    vec2 lineWidths = abs(1.5 / GridScales / CameraZoom);
+    vm::vec2 lineWidths = abs(1.5 / GridScales / CameraZoom);
     // the widths of each grid stripe
-    vec2 stripeWidths = GridSizes / GridDivider;
+    vm::vec2 stripeWidths = GridSizes / GridDivider;
     // ratio of the line widths and the stripe widths
-	vec2 stripeRatios = lineWidths / stripeWidths;
-	vec2 stripeSizes = 1.0 - stripeRatios;
+	vm::vec2 stripeRatios = lineWidths / stripeWidths;
+	vm::vec2 stripeSizes = 1.0 - stripeRatios;
     
 	float alpha = max(getSoftStripes(inCoords.x, GridDivider.x, GridSizes.x, stripeSizes.x),
                       getSoftStripes(inCoords.y, GridDivider.y, GridSizes.y, stripeSizes.y));
@@ -77,14 +77,14 @@ void main() {
 	else
 		gl_FragColor = faceColor;
 
-    gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
+    gl_FragColor = vm::vec4(vm::vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
 
 	if (RenderGrid) {
-		// vec2 gridRatios = GridDivider / GridSizes;
-        // vec2 gridThickness = abs(1.5 / GridScales / CameraZoom);
+		// vm::vec2 gridRatios = GridDivider / GridSizes;
+        // vm::vec2 gridThickness = abs(1.5 / GridScales / CameraZoom);
 
-        vec4 texCoordinates = GridMatrix * modelCoordinates;
+        vm::vec4 texCoordinates = GridMatrix * modelCoordinates;
 		gridLinesSoft(texCoordinates.xy);
         
         /*
@@ -94,7 +94,7 @@ void main() {
 
 		float gridThickness = GridSize < 4 ? 0.25 : 0.5;
 		float gridRatio = 1.0 / GridSize;
-		vec2 baseCoords; // coordinates used for overlay creation
+		vm::vec2 baseCoords; // coordinates used for overlay creation
 
 		if (normX > normY) {
 			if (normX > normZ)

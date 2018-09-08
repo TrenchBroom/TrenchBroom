@@ -130,9 +130,9 @@ namespace TrenchBroom {
             void doSelectTall() override;
             bool doCanFlipObjects() const override;
             void doFlipObjects(Math::Direction direction) override;
-            vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const override;
+            vm::vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const override;
             void doFocusCameraOnSelection(bool animate) override;
-            void doMoveCameraToPosition(const vec3& position, bool animate) override;
+            void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
         private: // implement ViewEffectsService interface

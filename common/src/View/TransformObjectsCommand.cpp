@@ -26,12 +26,12 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const vec3& delta, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::translate(const vm::vec3& delta, const bool lockTextures) {
             const auto transform = vm::translationMatrix(delta);
             return Ptr(new TransformObjectsCommand(Action_Translate, "Move Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const vec3& center, const vec3& axis, const FloatType angle, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::rotate(const vm::vec3& center, const vm::vec3& axis, const FloatType angle, const bool lockTextures) {
             const auto transform = vm::translationMatrix(center) * vm::rotationMatrix(axis, angle) * vm::translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Rotate, "Rotate Objects", transform, lockTextures));
         }
@@ -41,17 +41,17 @@ namespace TrenchBroom {
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
 
-        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vec3& center, const vec3& scaleFactors, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::scale(const vm::vec3& center, const vm::vec3& scaleFactors, const bool lockTextures) {
             const auto transform = vm::translationMatrix(center) * vm::scalingMatrix(scaleFactors) * vm::translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Scale, "Scale Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const bbox3& box, const vec3& sideToShear, const vec3& delta, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::shearBBox(const bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, const bool lockTextures) {
             const auto transform = vm::shearBBoxMatrix(box, sideToShear, delta);
             return Ptr(new TransformObjectsCommand(Action_Shear, "Shear Objects", transform, lockTextures));
         }
         
-        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
+        TransformObjectsCommand::Ptr TransformObjectsCommand::flip(const vm::vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             const auto transform = vm::translationMatrix(center) * vm::mirrorMatrix<FloatType>(axis) * vm::translationMatrix(-center);
             return Ptr(new TransformObjectsCommand(Action_Flip, "Flip Objects", transform, lockTextures));
         }

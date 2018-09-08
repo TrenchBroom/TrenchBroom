@@ -35,11 +35,11 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<RemoveBrushVerticesCommand> Ptr;
         private:
-            vec3::List m_oldVertexPositions;
+            vm::vec3::List m_oldVertexPositions;
         public:
             static Ptr remove(const Model::VertexToBrushesMap& vertices);
         private:
-            RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vec3::List& vertexPositions);
+            RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vm::vec3::List& vertexPositions);
         public:
             void selectNewHandlePositions(VertexHandleManager& manager) const;
             void selectOldHandlePositions(VertexHandleManager& manager) const;

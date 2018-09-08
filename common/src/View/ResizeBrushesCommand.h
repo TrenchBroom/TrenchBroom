@@ -35,11 +35,11 @@ namespace TrenchBroom {
         private:
             polygon3::List m_faces;
             polygon3::List m_newFaces;
-            vec3 m_delta;
+            vm::vec3 m_delta;
         public:
-            static Ptr resize(const polygon3::List& faces, const vec3& delta);
+            static Ptr resize(const polygon3::List& faces, const vm::vec3& delta);
         private:
-            ResizeBrushesCommand(const polygon3::List& faces, const vec3& delta);
+            ResizeBrushesCommand(const polygon3::List& faces, const vm::vec3& delta);
             
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 

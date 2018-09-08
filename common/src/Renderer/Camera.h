@@ -138,7 +138,7 @@ namespace TrenchBroom {
             void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
             float pickFrustum(float size, const vm::ray3f& ray) const;
             
-            FloatType pickPointHandle(const ray3& pickRay, const vec3& handlePosition, FloatType handleRadius) const;
+            FloatType pickPointHandle(const ray3& pickRay, const vm::vec3& handlePosition, FloatType handleRadius) const;
             FloatType pickLineSegmentHandle(const ray3& pickRay, const segment3& handlePosition, FloatType handleRadius) const;
         protected:
             Camera();

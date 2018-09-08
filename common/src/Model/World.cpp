@@ -40,7 +40,7 @@ namespace TrenchBroom {
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const bbox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(nullptr),
-        // m_nodeTree(VecCodeComputer<vec3>(worldBounds)),
+        // m_nodeTree(VecCodeComputer<vm::vec3>(worldBounds)),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
             createDefaultLayer(worldBounds);
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             }
         }
         
-        void World::doFindNodesContaining(const vec3& point, NodeList& result) {
+        void World::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             for (auto* node : m_nodeTree.findContainers(point)) {
                 node->findNodesContaining(point, result);
             }
@@ -352,12 +352,12 @@ namespace TrenchBroom {
             return true;
         }
 
-        vec3 World::doGetLinkSourceAnchor() const {
-            return vec3::zero;
+        vm::vec3 World::doGetLinkSourceAnchor() const {
+            return vm::vec3::zero;
         }
         
-        vec3 World::doGetLinkTargetAnchor() const {
-            return vec3::zero;
+        vm::vec3 World::doGetLinkTargetAnchor() const {
+            return vm::vec3::zero;
         }
 
         MapFormat::Type World::doGetFormat() const {
@@ -384,11 +384,11 @@ namespace TrenchBroom {
             return m_factory.createBrush(worldBounds, faces);
         }
         
-        BrushFace* World::doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const {
+        BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return m_factory.createFace(point1, point2, point3, attribs);
         }
         
-        BrushFace* World::doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const {
+        BrushFace* World::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
     }

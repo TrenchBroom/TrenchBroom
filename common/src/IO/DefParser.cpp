@@ -364,9 +364,9 @@ namespace TrenchBroom {
             return m_tokenizer.readRemainder(DefToken::CDefinition);
         }
         
-        vec3 DefParser::parseVector(ParserStatus& status) {
+        vm::vec3 DefParser::parseVector(ParserStatus& status) {
             Token token;
-            vec3 vec;
+            vm::vec3 vec;
             for (size_t i = 0; i < 3; i++) {
                 expect(status, DefToken::Integer | DefToken::Decimal, token = m_tokenizer.nextToken());
                 vec[i] = token.toFloat<double>();

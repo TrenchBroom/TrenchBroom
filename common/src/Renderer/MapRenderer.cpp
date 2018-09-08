@@ -271,7 +271,7 @@ namespace TrenchBroom {
             if (renderContext.render3D()) {
                 auto document = lock(m_document);
                 const auto* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
-                const auto nodes = document->findNodesContaining(vec3(renderContext.camera().position()));
+                const auto nodes = document->findNodesContaining(vm::vec3(renderContext.camera().position()));
                 if (!nodes.empty()) {
                     RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));

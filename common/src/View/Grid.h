@@ -148,7 +148,7 @@ namespace TrenchBroom {
             vm::vec<T,S> snapTowards(const vm::vec<T,S>& p, const vm::vec<T,S>& d, const bool skip = false) const {
                 if (!snap())
                     return p;
-                vec3 result;
+                vm::vec3 result;
                 for (size_t i = 0; i < S; ++i) {
                     if (    Math::pos(d[i]))    result[i] = snapUp(p[i], skip);
                     else if(Math::neg(d[i]))    result[i] = snapDown(p[i], skip);
@@ -298,22 +298,22 @@ namespace TrenchBroom {
              * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves the result in the same direction as delta (tested on each axis).
              * Otherwise, returns the original point for that axis.
              */
-            vec3 moveDeltaForPoint(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
+            vm::vec3 moveDeltaForPoint(const vm::vec3& point, const bbox3& worldBounds, const vm::vec3& delta) const;
             /**
              * Returns a delta to `bounds.mins` which moves the box to point where `ray` impacts `dragPlane`, grid snapped.
              * The box is positioned so it is in front of `dragPlane`.
              */
-            vec3 moveDeltaForBounds(const plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const ray3& ray, const vec3& position) const;
-            vec3 moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vec3& delta) const;
-            vec3 moveDelta(const vec3& point, const bbox3& worldBounds, const vec3& delta) const;
-            vec3 moveDelta(const vec3& delta) const;
+            vm::vec3 moveDeltaForBounds(const plane3& dragPlane, const bbox3& bounds, const bbox3& worldBounds, const ray3& ray, const vm::vec3& position) const;
+            vm::vec3 moveDelta(const bbox3& bounds, const bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDelta(const vm::vec3& point, const bbox3& worldBounds, const vm::vec3& delta) const;
+            vm::vec3 moveDelta(const vm::vec3& delta) const;
             /**
              * Given `delta`, a vector in the direction of the face's normal,
              * returns a copy of it, also in the direction of the face's normal, that will try to keep the face on-grid.
              */
-            vec3 moveDelta(const Model::BrushFace* face, const vec3& delta) const;
-            vec3 combineDeltas(const vec3& delta1, const vec3& delta2) const;
-            vec3 referencePoint(const bbox3& bounds) const;
+            vm::vec3 moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const;
+            vm::vec3 combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const;
+            vm::vec3 referencePoint(const bbox3& bounds) const;
         };
     }
 }

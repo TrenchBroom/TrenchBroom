@@ -70,7 +70,7 @@ namespace TrenchBroom {
             class QueryCallback;
             class FaceMatchingCallback;
             
-            using VertexSet = std::set<vec3>;
+            using VertexSet = std::set<vm::vec3>;
         public:
             typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
             typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             
             AttributableNode* entity() const;
         public: // face management:
-            BrushFace* findFace(const vec3& normal) const;
+            BrushFace* findFace(const vm::vec3& normal) const;
             BrushFace* findFace(const plane3& boundary) const;
             BrushFace* findFace(const polygon3& vertices) const;
             BrushFace* findFace(const polygon3::List& candidates) const;
@@ -143,8 +143,8 @@ namespace TrenchBroom {
         public: // clipping
             bool clip(const bbox3& worldBounds, BrushFace* face);
         public: // move face along normal
-            bool canMoveBoundary(const bbox3& worldBounds, const BrushFace* face, const vec3& delta) const;
-            void moveBoundary(const bbox3& worldBounds, BrushFace* face, const vec3& delta, const bool lockTexture);
+            bool canMoveBoundary(const bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const;
+            void moveBoundary(const bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, const bool lockTexture);
             bool canExpand(const bbox3& worldBounds, const FloatType delta, const bool lockTexture) const;
             /**
              * Moves all faces by `delta` units along their normals; negative values shrink the brush.
@@ -155,46 +155,46 @@ namespace TrenchBroom {
             // geometry access
             size_t vertexCount() const;
             VertexList vertices() const;
-            const vec3::List vertexPositions() const;
-            vec3 findClosestVertexPosition(const vec3& position) const;
+            const vm::vec3::List vertexPositions() const;
+            vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
-            bool hasVertex(const vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasVertices(const vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertices(const vm::vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdges(const segment3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFaces(const polygon3::List& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
-            bool hasFace(const vec3& p1, const vec3& p2, const vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFace(const vec3& p1, const vec3& p2, const vec3& p3, const vec3& p4, const vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             
             size_t edgeCount() const;
             EdgeList edges() const;
-            bool containsPoint(const vec3& point) const;
+            bool containsPoint(const vm::vec3& point) const;
             
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
             
             // vertex operations
-            bool canMoveVertices(const bbox3& worldBounds, const vec3::List& vertices, const vec3& delta) const;
-            vec3::List moveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
+            bool canMoveVertices(const bbox3& worldBounds, const vm::vec3::List& vertices, const vm::vec3& delta) const;
+            vm::vec3::List moveVertices(const bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta);
 
-            bool canAddVertex(const bbox3& worldBounds, const vec3& position) const;
-            BrushVertex* addVertex(const bbox3& worldBounds, const vec3& position);
+            bool canAddVertex(const bbox3& worldBounds, const vm::vec3& position) const;
+            BrushVertex* addVertex(const bbox3& worldBounds, const vm::vec3& position);
             
-            bool canRemoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions) const;
-            void removeVertices(const bbox3& worldBounds, const vec3::List& vertexPositions);
+            bool canRemoveVertices(const bbox3& worldBounds, const vm::vec3::List& vertexPositions) const;
+            void removeVertices(const bbox3& worldBounds, const vm::vec3::List& vertexPositions);
             
             bool canSnapVertices(const bbox3& worldBounds, FloatType snapTo);
             void snapVertices(const bbox3& worldBounds, FloatType snapTo);
 
             // edge operations
-            bool canMoveEdges(const bbox3& worldBounds, const segment3::List& edgePositions, const vec3& delta) const;
-            segment3::List moveEdges(const bbox3& worldBounds, const segment3::List& edgePositions, const vec3& delta);
+            bool canMoveEdges(const bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta) const;
+            segment3::List moveEdges(const bbox3& worldBounds, const segment3::List& edgePositions, const vm::vec3& delta);
 
             // face operations
-            bool canMoveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta) const;
-            polygon3::List moveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vec3& delta);
+            bool canMoveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vm::vec3& delta) const;
+            polygon3::List moveFaces(const bbox3& worldBounds, const polygon3::List& facePositions, const vm::vec3& delta);
         private:
             struct CanMoveVerticesResult {
             public:
@@ -209,11 +209,11 @@ namespace TrenchBroom {
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
             
-            CanMoveVerticesResult doCanMoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const bbox3& worldBounds, const vec3::List& vertexPositions, const vec3& delta);
+            CanMoveVerticesResult doCanMoveVertices(const bbox3& worldBounds, const vm::vec3::List& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
+            void doMoveVertices(const bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta);
             void doSetNewGeometry(const bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
             
-            static VertexSet createVertexSet(const vec3::List& vertices = vec3::EmptyList);
+            static VertexSet createVertexSet(const vm::vec3::List& vertices = vm::vec3::EmptyList);
         public:
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;
@@ -263,7 +263,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement Object interface
             void doPick(const ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
             FloatType doIntersectWithRay(const ray3& ray) const override;
 
             struct BrushFaceHit {

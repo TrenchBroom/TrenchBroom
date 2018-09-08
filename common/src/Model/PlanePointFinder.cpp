@@ -27,12 +27,12 @@ namespace TrenchBroom {
         private:
             static const size_t Center = 4;
             
-            static const vec2 MoveOffsets[];
+            static const vm::vec2 MoveOffsets[];
             
             const plane3& m_plane;
             const FloatType m_frequency;
             
-            vec2 m_position;
+            vm::vec2 m_position;
             FloatType m_errors[9];
         public:
             GridSearchCursor(const plane3& plane, const FloatType frequency) :
@@ -42,15 +42,15 @@ namespace TrenchBroom {
                     m_errors[i] = 0.0;
             }
             
-            vec3 findMinimum(const vec3& initialPosition) {
+            vm::vec3 findMinimum(const vm::vec3& initialPosition) {
                 for (size_t i = 0; i < 2; ++i)
                     m_position[i] = Math::round(initialPosition[i]);
                 
                 findLocalMinimum();
-                const vec2 localMinPos = m_position;
+                const vm::vec2 localMinPos = m_position;
                 const FloatType localMinErr = m_errors[Center];
                 
-                vec2 globalMinPos = localMinPos;
+                vm::vec2 globalMinPos = localMinPos;
                 FloatType globalMinErr = localMinErr;
                 
                 if (globalMinErr > 0.0) {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return vec3(globalMinPos.x(),
+                return vm::vec3(globalMinPos.x(),
                             globalMinPos.y(),
                             Math::round(m_plane.zAt(globalMinPos)));
             }
@@ -112,10 +112,10 @@ namespace TrenchBroom {
             }
         };
 
-        const vec2 GridSearchCursor::MoveOffsets[] = {
-            vec2(-1.0,  1.0), vec2( 0.0,  1.0), vec2( 1.0,  1.0),
-            vec2(-1.0,  0.0), vec2( 0.0,  0.0), vec2( 1.0,  0.0),
-            vec2(-1.0, -1.0), vec2( 0.0, -1.0), vec2( 1.0, -1.0)
+        const vm::vec2 GridSearchCursor::MoveOffsets[] = {
+            vm::vec2(-1.0,  1.0), vm::vec2( 0.0,  1.0), vm::vec2( 1.0,  1.0),
+            vm::vec2(-1.0,  0.0), vm::vec2( 0.0,  0.0), vm::vec2( 1.0,  0.0),
+            vm::vec2(-1.0, -1.0), vm::vec2( 0.0, -1.0), vm::vec2( 1.0, -1.0)
         };
 
         FloatType computePlaneFrequency(const plane3& plane);
@@ -124,7 +124,7 @@ namespace TrenchBroom {
         FloatType computePlaneFrequency(const plane3& plane) {
             static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
-            const vec3& axis = firstAxis(plane.normal);
+            const vm::vec3& axis = firstAxis(plane.normal);
             const FloatType cos = dot(plane.normal, axis);
             assert(cos != 0.0);
             
@@ -136,29 +136,29 @@ namespace TrenchBroom {
             switch (firstComponent(plane.normal)) {
                 case Math::Axis::AX:
                     if (plane.normal.x() > 0.0) {
-                        points[1] = points[0] + 64.0 * vec3::pos_z;
-                        points[2] = points[0] + 64.0 * vec3::pos_y;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_z;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_y;
                     } else {
-                        points[1] = points[0] + 64.0 * vec3::pos_y;
-                        points[2] = points[0] + 64.0 * vec3::pos_z;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_y;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_z;
                     }
                     break;
                 case Math::Axis::AY:
                     if (plane.normal.y() > 0.0) {
-                        points[1] = points[0] + 64.0 * vec3::pos_x;
-                        points[2] = points[0] + 64.0 * vec3::pos_z;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_x;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_z;
                     } else {
-                        points[1] = points[0] + 64.0 * vec3::pos_z;
-                        points[2] = points[0] + 64.0 * vec3::pos_x;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_z;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_x;
                     }
                     break;
                 default:
                     if  (plane.normal.z() > 0.0) {
-                        points[1] = points[0] + 64.0 * vec3::pos_y;
-                        points[2] = points[0] + 64.0 * vec3::pos_x;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_y;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_x;
                     } else {
-                        points[1] = points[0] + 64.0 * vec3::pos_x;
-                        points[2] = points[0] + 64.0 * vec3::pos_y;
+                        points[1] = points[0] + 64.0 * vm::vec3::pos_x;
+                        points[2] = points[0] + 64.0 * vm::vec3::pos_y;
                     }
                     break;
             }
@@ -194,13 +194,13 @@ namespace TrenchBroom {
                 points[0] = cursor.findMinimum(points[0]);
             }
 
-            vec3 v1, v2;
+            vm::vec3 v1, v2;
             FloatType cos;
             size_t count = 0;
             do {
                 if (numPoints < 2 || !isIntegral(points[1]))
-                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * vec3::pos_x);
-                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vec3::pos_y - pointDistance / 2.0 * vec3::pos_x));
+                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * vm::vec3::pos_x);
+                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vm::vec3::pos_y - pointDistance / 2.0 * vm::vec3::pos_x));
                 v1 = normalize(points[2] - points[0]);
                 v2 = normalize(points[1] - points[0]);
                 cos = dot(v1, v2);

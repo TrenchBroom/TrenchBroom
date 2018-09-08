@@ -19,12 +19,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
+uniform vm::vec4 Color;
 
-uniform vec3 BoundsMin;
-uniform vec3 BoundsMax;
+uniform vm::vec3 BoundsMin;
+uniform vm::vec3 BoundsMax;
 
-varying vec4 vertexWorldPosition;
+varying vm::vec4 vertexWorldPosition;
 
 void main() {
     gl_FragColor = Color;

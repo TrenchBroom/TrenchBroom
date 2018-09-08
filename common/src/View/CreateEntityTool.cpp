@@ -115,7 +115,7 @@ namespace TrenchBroom {
             
             auto document = lock(m_document);
             
-            vec3 delta;
+            vm::vec3 delta;
             const auto& grid = document->grid();
             const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {

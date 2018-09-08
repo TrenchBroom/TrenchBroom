@@ -226,10 +226,10 @@ namespace TrenchBroom {
                 const auto pos3 = +w2 * r -h2 * u + p;
                 const auto pos4 = -w2 * r -h2 * u + p;
                 
-                vertices.push_back(Vertex(pos1, normal, face->textureCoords(vec3(pos1))));
-                vertices.push_back(Vertex(pos2, normal, face->textureCoords(vec3(pos2))));
-                vertices.push_back(Vertex(pos3, normal, face->textureCoords(vec3(pos3))));
-                vertices.push_back(Vertex(pos4, normal, face->textureCoords(vec3(pos4))));
+                vertices.push_back(Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))));
+                vertices.push_back(Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))));
+                vertices.push_back(Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))));
+                vertices.push_back(Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4))));
                 
                 return vertices;
             }
@@ -337,7 +337,7 @@ namespace TrenchBroom {
             Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!Math::isnan(distance)) {
-                const vec3 hitPoint = pickRay.pointAtDistance(distance);
+                const vm::vec3 hitPoint = pickRay.pointAtDistance(distance);
                 pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
             }
             return pickResult;

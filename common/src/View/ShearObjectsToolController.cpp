@@ -61,19 +61,19 @@ namespace TrenchBroom {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            const vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
+            const vm::vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
             if (camera.perspectiveProjection()) {
-                if (side.normal == vec3::pos_z || side.normal == vec3::neg_z) {
+                if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
                     restricter = new PlaneDragRestricter(plane3(sideCenter, side.normal));
                     snapper = new DeltaDragSnapper(grid);
                 } else if (!vertical) {
-                    const line3 sideways(sideCenter, normalize(cross(side.normal, vec3::pos_z)));
+                    const line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3::pos_z)));
 
                     restricter = new LineDragRestricter(sideways);
                     snapper = new LineDragSnapper(grid, sideways);
                 } else {
-                    const line3 verticalLine(sideCenter, vec3::pos_z);
+                    const line3 verticalLine(sideCenter, vm::vec3::pos_z);
 
                     restricter = new LineDragRestricter(verticalLine);
                     snapper = new LineDragSnapper(grid, verticalLine);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             } else {
                 assert(camera.orthographicProjection());
 
-                const line3 sideways(sideCenter, normalize(cross(side.normal, vec3(camera.direction()))));
+                const line3 sideways(sideCenter, normalize(cross(side.normal, vm::vec3(camera.direction()))));
                 restricter = new LineDragRestricter(sideways);
                 snapper = new LineDragSnapper(grid, sideways);
             }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             const BBoxSide side = m_tool->dragStartHit().target<BBoxSide>();
 
             // Can't do vertical restraint on these
-            if (side.normal == vec3::pos_z || side.normal == vec3::neg_z) {
+            if (side.normal == vm::vec3::pos_z || side.normal == vm::vec3::neg_z) {
                 return;
             }
 
@@ -165,17 +165,17 @@ namespace TrenchBroom {
             std::tie(restricter, snapper) = getDragRestricterAndSnapper(side, m_tool->bboxAtDragStart(), inputState.camera(), document->grid(), vertical);
 
             // Snap the initial point
-            const vec3 initialPoint = [&]() {
-                vec3 p = hit.hitPoint();
+            const vm::vec3 initialPoint = [&]() {
+                vm::vec3 p = hit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, vec3::zero, vec3::zero, p);
+                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
                 return p;
             }();
 
             return DragInfo(restricter, snapper, initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ShearObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->shearByDelta(delta);
 
@@ -204,7 +204,7 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
                 const auto mat = m_tool->bboxShearMatrix();
-                const auto op = [&](const vec3& start, const vec3& end) {
+                const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
                     renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
                 };
                 m_tool->bboxAtDragStart().forEachEdge(op);

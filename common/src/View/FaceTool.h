@@ -50,7 +50,7 @@ namespace TrenchBroom {
             FaceHandleManager& handleManager() override;
             const FaceHandleManager& handleManager() const override;
         public:
-            MoveResult move(const vec3& delta) override;
+            MoveResult move(const vm::vec3& delta) override;
             
             String actionName() const override;
             

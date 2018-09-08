@@ -47,9 +47,9 @@ namespace TrenchBroom {
             static AttributeName getAttribute(const Entity* entity);
         private:
             static RotationInfo rotationInfo(const Entity* entity);
-            static void setAngle(Entity* entity, const AttributeName& attribute, const vec3& direction);
-            static FloatType getAngle(vec3 direction);
-            static vec3 getYawPitchRoll(const mat4x4& transformation, const mat4x4& rotation);
+            static void setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction);
+            static FloatType getAngle(vm::vec3 direction);
+            static vm::vec3 getYawPitchRoll(const mat4x4& transformation, const mat4x4& rotation);
         };
     }
 }

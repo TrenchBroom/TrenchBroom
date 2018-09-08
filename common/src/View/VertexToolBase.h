@@ -214,7 +214,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            virtual MoveResult move(const vec3& delta) = 0;
+            virtual MoveResult move(const vm::vec3& delta) = 0;
             
             virtual void endMove() {
                 MapDocumentSPtr document = lock(m_document);
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             
             virtual String actionName() const = 0;
         public:
-            void moveSelection(const vec3& delta) {
+            void moveSelection(const vm::vec3& delta) {
                 const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                 renderService.renderHandleHighlight(typename HH::float_type(handle));
             }
             
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& handle) const {
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
                 renderService.renderHandleHighlight(vm::vec3f(handle));
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             template <typename HH>
             void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& position) const {}
             
-            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vec3& position) const {}
+            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {}
         protected: // Tool interface
             virtual bool doActivate() override {
                 m_changeCount = 0;

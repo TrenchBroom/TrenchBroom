@@ -76,9 +76,9 @@ namespace TrenchBroom {
             
             FILE* m_stream;
 
-            IndexMap<vec3> m_vertices;
+            IndexMap<vm::vec3> m_vertices;
             IndexMap<vm::vec2f> m_texCoords;
-            IndexMap<vec3> m_normals;
+            IndexMap<vm::vec3> m_normals;
 
             Object m_currentObject;
             ObjectList m_objects;

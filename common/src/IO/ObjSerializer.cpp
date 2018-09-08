@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeVertices() {
             std::fprintf(m_stream, "# vertices\n");
-            for (const vec3& elem : m_vertices.list())
+            for (const vm::vec3& elem : m_vertices.list())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
@@ -65,7 +65,7 @@ namespace TrenchBroom {
         
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
-            for (const vec3& elem : m_normals.list()) {
+            for (const vm::vec3& elem : m_normals.list()) {
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
             }
         }
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         }
 
         void ObjFileSerializer::doBrushFace(Model::BrushFace* face) {
-            const vec3& normal = face->boundary().normal;
+            const vm::vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
 
             const Model::BrushFace::VertexList vertices = face->vertices();
@@ -120,7 +120,7 @@ namespace TrenchBroom {
 
             for (const Model::BrushVertex* vertex : vertices) {
                 Model::BrushFace::VertexList::const_iterator it, end;
-                const vec3& position = vertex->position();
+                const vm::vec3& position = vertex->position();
                 const vm::vec2f texCoords = face->textureCoords(position);
                 
                 const size_t vertexIndex = m_vertices.index(position);

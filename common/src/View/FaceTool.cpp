@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return m_faceHandles;
         }
         
-        FaceTool::MoveResult FaceTool::move(const vec3& delta) {
+        FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             
             const auto handles = m_faceHandles.selectedHandles();

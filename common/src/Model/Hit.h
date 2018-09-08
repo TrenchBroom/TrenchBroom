@@ -40,12 +40,12 @@ namespace TrenchBroom {
         private:
             HitType m_type;
             FloatType m_distance;
-            vec3 m_hitPoint;
+            vm::vec3 m_hitPoint;
             UntypedReference m_target;
             FloatType m_error;
         public:
             template <typename T>
-            Hit(const HitType type, const FloatType distance, const vec3& hitPoint, const T& target, const FloatType error = 0.0) :
+            Hit(const HitType type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) :
             m_type(type),
             m_distance(distance),
             m_hitPoint(hitPoint),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             // TODO: rename to create
             template <typename T>
-            static Hit hit(const HitType type, const FloatType distance, const vec3& hitPoint, const T& target, const FloatType error = 0.0) {
+            static Hit hit(const HitType type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) {
                 return Hit(type, distance, hitPoint, target);
             }
             
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             HitType type() const;
             bool hasType(const HitType typeMask) const;
             FloatType distance() const;
-            const vec3& hitPoint() const;
+            const vm::vec3& hitPoint() const;
             FloatType error() const;
             
             template <typename T>

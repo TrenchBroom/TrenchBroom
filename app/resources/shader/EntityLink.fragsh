@@ -23,9 +23,9 @@ uniform float MaxDistance;
 uniform float Alpha;
 
 varying float distanceFromCamera;
-varying vec4 color;
+varying vm::vec4 color;
 
 void main() {
     float scale = (1.0 - clamp(distanceFromCamera / MaxDistance * 0.2 + 0.25, 0.0, 1.0));// * 0.35 + 0.65);
-    gl_FragColor = vec4(color.rgb, color.a * scale * Alpha);
+    gl_FragColor = vm::vec4(color.rgb, color.a * scale * Alpha);
 }

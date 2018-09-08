@@ -67,8 +67,8 @@ namespace TrenchBroom {
             return hasPointEntityDefinition();
         }
         
-        vec3 Entity::origin() const {
-            return vec3::parse(attribute(AttributeNames::Origin, ""));
+        vm::vec3 Entity::origin() const {
+            return vm::vec3::parse(attribute(AttributeNames::Origin, ""));
         }
 
         mat4x4 Entity::rotation() const {
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         FloatType Entity::area(Math::Axis::Type axis) const {
-            const vec3 size = bounds().size();
+            const vm::vec3 size = bounds().size();
             switch (axis) {
                 case Math::Axis::AX:
                     return size.y() * size.z();
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::setOrigin(const vec3& origin) {
+        void Entity::setOrigin(const vm::vec3& origin) {
             addOrUpdateAttribute(AttributeNames::Origin, StringUtils::toString(round(origin)));
         }
         
@@ -180,14 +180,14 @@ namespace TrenchBroom {
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = intersect(ray, myBounds);
                     if (!Math::isnan(distance)) {
-                        const vec3 hitPoint = ray.pointAtDistance(distance);
+                        const vm::vec3 hitPoint = ray.pointAtDistance(distance);
                         pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                     }
                 }
             }
         }
         
-        void Entity::doFindNodesContaining(const vec3& point, NodeList& result) {
+        void Entity::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
             if (hasChildren()) {
                 for (Node* child : Node::children())
                     child->findNodesContaining(point, result);
@@ -254,11 +254,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        vec3 Entity::doGetLinkSourceAnchor() const {
+        vm::vec3 Entity::doGetLinkSourceAnchor() const {
             return bounds().center();
         }
         
-        vec3 Entity::doGetLinkTargetAnchor() const {
+        vm::vec3 Entity::doGetLinkTargetAnchor() const {
             return bounds().center();
         }
 

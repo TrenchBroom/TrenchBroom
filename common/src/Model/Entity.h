@@ -49,11 +49,11 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
-            vec3 origin() const;
+            vm::vec3 origin() const;
             mat4x4 rotation() const;
             FloatType area(Math::Axis::Type axis) const;
         private:
-            void setOrigin(const vec3& origin);
+            void setOrigin(const vm::vec3& origin);
             void applyRotation(const mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             bool doSelectable() const override;
             
             void doPick(const ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const vec3& point, NodeList& result) override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
             FloatType doIntersectWithRay(const ray3& ray) const override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
@@ -88,8 +88,8 @@ namespace TrenchBroom {
             void doAttributesDidChange(const bbox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
-            vec3 doGetLinkSourceAnchor() const override;
-            vec3 doGetLinkTargetAnchor() const override;
+            vm::vec3 doGetLinkSourceAnchor() const override;
+            vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface
             Node* doGetContainer() const override;
             Layer* doGetLayer() const override;

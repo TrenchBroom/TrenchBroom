@@ -458,11 +458,11 @@ namespace TrenchBroom {
                 return;
 
             const Grid& grid = document->grid();
-            const vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             document->translateObjects(delta);
         }
 
-        vec3 MapViewBase::moveDirection(const Math::Direction direction) const {
+        vm::vec3 MapViewBase::moveDirection(const Math::Direction direction) const {
             return doGetMoveDirection(direction);
         }
 
@@ -471,17 +471,17 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
 
-            const vec3 axis = rotationAxis(axisSpec, clockwise);
+            const vm::vec3 axis = rotationAxis(axisSpec, clockwise);
             const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : Math::C::piOverTwo();
 
             const Grid& grid = document->grid();
-            const vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
+            const vm::vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
 
             document->rotateObjects(center, axis, angle);
         }
 
-        vec3 MapViewBase::rotationAxis(const Math::RotationAxis axisSpec, const bool clockwise) const {
-            vec3 axis;
+        vm::vec3 MapViewBase::rotationAxis(const Math::RotationAxis axisSpec, const bool clockwise) const {
+            vm::vec3 axis;
             switch (axisSpec) {
                 case Math::RotationAxis_Roll:
                     axis = -moveDirection(Math::Direction_Forward);
@@ -557,7 +557,7 @@ namespace TrenchBroom {
         void MapViewBase::moveRotationCenter(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            const vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
             Refresh();
         }
@@ -613,7 +613,7 @@ namespace TrenchBroom {
         void MapViewBase::moveVertices(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            const vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveVertices(delta);
         }
 

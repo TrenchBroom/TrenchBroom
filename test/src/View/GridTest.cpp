@@ -118,26 +118,26 @@ namespace TrenchBroom {
             const vm::line3d X(vm::vec3d(5.0, 0.0, 0.0), vm::vec3d::pos_x);
 
             ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, X));
-            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), X));
-            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vec3(1.0, 1.0, 0.0), X));
-            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vec3(3.0, 1.0, 0.0), X));
-            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vec3(3.0, 1.0, 2.0), X));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 1.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vm::vec3(3.0, 1.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vm::vec3(3.0, 1.0, 2.0), X));
 
             const vm::line3d L(vm::vec3d::zero, normalize(vm::vec3d(1.0, 2.0, 0.0)));
             ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, L));
-            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), L));
-            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(10.0, 0.0, 0.0), L));
-            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(7.5, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(10.0, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), L));
         }
 
         TEST(GridTest, snapOnEdge) {
             const vm::segment3d E(vm::vec3d::zero, vm::vec3d(1.0, 2.0, 0.0) * 2.0);
             ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, E));
-            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vec3(1.0, 0.0, 0.0), E));
-            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(10.0, 0.0, 0.0), E));
-            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vec3(7.5, 0.0, 0.0), E));
-            ASSERT_TRUE(isNaN(Grid(2u).snap(vec3(20.0, 0.0, 0.0), E)));
-            ASSERT_TRUE(isNaN(Grid(2u).snap(vec3(-10.0, 0.0, 0.0), E)));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(10.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), E));
+            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(20.0, 0.0, 0.0), E)));
+            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
         }
 
         TEST(GridTest, snapOnQuad) {
@@ -198,14 +198,14 @@ namespace TrenchBroom {
             const auto grid16 = Grid(4);
 
             Model::Brush* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(vec3::pos_z);
+            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
-            ASSERT_EQ(vec3(0,0,48), grid16.moveDelta(topFace, vec3(0, 0, 63)));
-            ASSERT_EQ(vec3(0,0,64), grid16.moveDelta(topFace, vec3(0, 0, 64)));
-            ASSERT_EQ(vec3(0,0,64), grid16.moveDelta(topFace, vec3(0, 0, 65)));
+            ASSERT_EQ(vm::vec3(0,0,48), grid16.moveDelta(topFace, vm::vec3(0, 0, 63)));
+            ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 64)));
+            ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 65)));
 
             delete cube;
         }
@@ -214,14 +214,14 @@ namespace TrenchBroom {
             const auto grid05 = Grid(-1);
 
             Model::Brush* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(vec3::pos_z);
+            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
-            ASSERT_EQ(vec3(0,0,1.5), grid05.moveDelta(topFace, vec3(0, 0, 1.9)));
-            ASSERT_EQ(vec3(0,0,2), grid05.moveDelta(topFace, vec3(0, 0, 2)));
-            ASSERT_EQ(vec3(0,0,2), grid05.moveDelta(topFace, vec3(0, 0, 2.1)));
+            ASSERT_EQ(vm::vec3(0,0,1.5), grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)));
+            ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2)));
+            ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)));
 
             delete cube;
         }

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             return 1 << currentShift++;
         }
         
-        const Hit Hit::NoHit = Hit(NoType, 0.0, vec3::zero, false);
+        const Hit Hit::NoHit = Hit(NoType, 0.0, vm::vec3::zero, false);
         
         bool Hit::isMatch() const {
             return m_type != NoType;
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return m_distance;
         }
         
-        const vec3& Hit::hitPoint() const {
+        const vm::vec3& Hit::hitPoint() const {
             return m_hitPoint;
         }
         

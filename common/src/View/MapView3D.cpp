@@ -316,7 +316,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vec3 MapView3D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 MapView3D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             
@@ -337,14 +337,14 @@ namespace TrenchBroom {
                     const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
-                    const auto point = vec3(grid.snap(m_camera.defaultPoint(pickRay)));
-                    const auto dragPlane = alignedOrthogonalPlane(point, -vec3(firstAxis(m_camera.direction())));
+                    const auto point = vm::vec3(grid.snap(m_camera.defaultPoint(pickRay)));
+                    const auto dragPlane = alignedOrthogonalPlane(point, -vm::vec3(firstAxis(m_camera.direction())));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
                 const auto oldMin = bounds.min;
                 const auto oldCenter = bounds.center();
-                const auto newCenter = vec3(m_camera.defaultPoint());
+                const auto newCenter = vm::vec3(m_camera.defaultPoint());
                 const auto newMin = oldMin + (newCenter - oldCenter);
                 return grid.snap(newMin);
             }
@@ -367,19 +367,19 @@ namespace TrenchBroom {
         
         class MapView3D::ComputeCameraCenterPositionVisitor : public Model::ConstNodeVisitor {
         private:
-            const vec3 m_cameraPosition;
-            const vec3 m_cameraDirection;
+            const vm::vec3 m_cameraPosition;
+            const vm::vec3 m_cameraDirection;
             FloatType m_minDist;
-            vec3 m_center;
+            vm::vec3 m_center;
             size_t m_count;
         public:
-            ComputeCameraCenterPositionVisitor(const vec3& cameraPosition, const vec3& cameraDirection) :
+            ComputeCameraCenterPositionVisitor(const vm::vec3& cameraPosition, const vm::vec3& cameraDirection) :
             m_cameraPosition(cameraPosition),
             m_cameraDirection(cameraDirection),
             m_minDist(std::numeric_limits<FloatType>::max()),
             m_count(0) {}
             
-            vec3 position() const {
+            vm::vec3 position() const {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
@@ -390,7 +390,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->bounds();
-                    bounds.forEachVertex([&](const vec3& v) { addPoint(v); });
+                    bounds.forEachVertex([&](const vm::vec3& v) { addPoint(v); });
                 }
             }
             
@@ -400,8 +400,8 @@ namespace TrenchBroom {
                 }
             }
             
-            void addPoint(const vec3& point) {
-                const vec3 toPosition = point - m_cameraPosition;
+            void addPoint(const vm::vec3& point) {
+                const vm::vec3 toPosition = point - m_cameraPosition;
                 m_minDist = Math::min(m_minDist, dot(toPosition, m_cameraDirection));
                 m_center = m_center + point;
                 ++m_count;
@@ -434,7 +434,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->bounds();
-                    bounds.forEachVertex([&](const vec3& v) {
+                    bounds.forEachVertex([&](const vm::vec3& v) {
                         for (size_t j = 0; j < 4; ++j) {
                             addPoint(vm::vec3f(v), m_frustumPlanes[j]);
                         }
@@ -460,8 +460,8 @@ namespace TrenchBroom {
             }
         };
 
-        vec3 MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
-            ComputeCameraCenterPositionVisitor center(vec3(m_camera.position()), vec3(m_camera.direction()));
+        vm::vec3 MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
+            ComputeCameraCenterPositionVisitor center(vm::vec3(m_camera.position()), vm::vec3(m_camera.direction()));
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 
             const auto newPosition = center.position();
@@ -478,10 +478,10 @@ namespace TrenchBroom {
             
             // jump back
             m_camera.moveTo(oldPosition);
-            return newPosition - vec3(m_camera.direction() * offset.offset());
+            return newPosition - vm::vec3(m_camera.direction() * offset.offset());
         }
         
-        void MapView3D::doMoveCameraToPosition(const vec3& position, const bool animate) {
+        void MapView3D::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             if (animate) {
                 animateCamera(vm::vec3f(position), m_camera.direction(), m_camera.up());
             } else {
@@ -506,17 +506,17 @@ namespace TrenchBroom {
             animateCamera(position, direction, vm::vec3f::pos_z);
         }
 
-        vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
+        vm::vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
-                    const auto plane = plane3(vec3(m_camera.position()), vec3::pos_z);
-                    const auto projectedDirection = plane.projectVector(vec3(m_camera.direction()));
+                    const auto plane = plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
+                    const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
                     if (isZero(projectedDirection)) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
-                            return vec3(firstAxis(m_camera.up()));
+                            return vm::vec3(firstAxis(m_camera.up()));
                         } else {
-                            return vec3(-firstAxis(m_camera.up()));
+                            return vm::vec3(-firstAxis(m_camera.up()));
                         }
                     }
                     return firstAxis(projectedDirection);
@@ -526,24 +526,24 @@ namespace TrenchBroom {
                 case Math::Direction_Left:
                     return -doGetMoveDirection(Math::Direction_Right);
                 case Math::Direction_Right: {
-                    auto dir = vec3(firstAxis(m_camera.right()));
+                    auto dir = vm::vec3(firstAxis(m_camera.right()));
                     if (dir == doGetMoveDirection(Math::Direction_Forward)) {
-                        dir = cross(dir, vec3::pos_z);
+                        dir = cross(dir, vm::vec3::pos_z);
                     }
                     return dir;
                 }
                 case Math::Direction_Up:
-                    return vec3::pos_z;
+                    return vm::vec3::pos_z;
                 case Math::Direction_Down:
-                    return vec3::neg_z;
+                    return vm::vec3::neg_z;
                 switchDefault()
             }
         }
 
-        vec3 MapView3D::doComputePointEntityPosition(const bbox3& bounds) const {
+        vm::vec3 MapView3D::doComputePointEntityPosition(const bbox3& bounds) const {
             auto document = lock(m_document);
             
-            vec3 delta;
+            vm::vec3 delta;
             auto& grid = document->grid();
             
             const auto& worldBounds = document->worldBounds();

@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 deleteSnapshot();
         }
         
-        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, vec3::List& vertexPositions) {
+        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, vm::vec3::List& vertexPositions) {
             extract(vertices, brushes, brushVertices, vertexPositions);
         }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const segment3::List& edgeList = entry.second;
                 
-                vec3::List vertices;
+                vm::vec3::List vertices;
                 vertices.reserve(2 * edgeList.size());
                 segment3::getVertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const polygon3::List& faceList = entry.second;
 
-                vec3::List vertices;
+                vm::vec3::List vertices;
                 polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
@@ -182,11 +182,11 @@ namespace TrenchBroom {
             manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
@@ -206,8 +206,8 @@ namespace TrenchBroom {
             doSelectOldHandlePositions(manager);
         }
 
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {}
         void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const {}
         void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<segment3>& manager) const {}
         void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<polygon3>& manager) const {}

@@ -90,7 +90,7 @@ namespace TrenchBroom {
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const override;
+            vm::vec3 doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const override;
 
             bool doCanSelectTall() override;
             void doSelectTall() override;
@@ -99,15 +99,15 @@ namespace TrenchBroom {
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
+            vm::vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
-            void doMoveCameraToPosition(const vec3& position, bool animate) override;
+            void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
-            vec3 doGetMoveDirection(Math::Direction direction) const override;
-            vec3 doComputePointEntityPosition(const bbox3& bounds) const override;
+            vm::vec3 doGetMoveDirection(Math::Direction direction) const override;
+            vm::vec3 doComputePointEntityPosition(const bbox3& bounds) const override;
             
             ActionContext doGetActionContext() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;

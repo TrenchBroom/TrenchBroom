@@ -56,7 +56,7 @@ namespace TrenchBroom {
         class CreateComplexBrushToolController3D::DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
         private:
             plane3 m_plane;
-            vec3 m_initialPoint;
+            vm::vec3 m_initialPoint;
         public:
             DrawFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
             
-            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             
             bool doCancel() override { return false; }
         private:
-            void updatePolyhedron(const vec3& current) {
+            void updatePolyhedron(const vm::vec3& current) {
                 const auto& grid = m_tool->grid();
                 
                 const auto axis = firstComponent(m_plane.normal);
@@ -108,15 +108,15 @@ namespace TrenchBroom {
                 const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
                 const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
                 
-                const vec2     topLeft2(theMin.x(), theMin.y());
-                const vec2    topRight2(theMax.x(), theMin.y());
-                const vec2  bottomLeft2(theMin.x(), theMax.y());
-                const vec2 bottomRight2(theMax.x(), theMax.y());
+                const vm::vec2     topLeft2(theMin.x(), theMin.y());
+                const vm::vec2    topRight2(theMax.x(), theMin.y());
+                const vm::vec2  bottomLeft2(theMin.x(), theMax.y());
+                const vm::vec2 bottomRight2(theMax.x(), theMax.y());
                 
-                const auto     topLeft3 = unswizzle(vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
-                const auto    topRight3 = unswizzle(vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
-                const auto  bottomLeft3 = unswizzle(vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
-                const auto bottomRight3 = unswizzle(vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
+                const auto     topLeft3 = unswizzle(vm::vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
+                const auto    topRight3 = unswizzle(vm::vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
+                const auto  bottomLeft3 = unswizzle(vm::vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
+                const auto bottomRight3 = unswizzle(vm::vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
                 
                 Polyhedron3 polyhedron = m_oldPolyhedron;
                 polyhedron.addPoint(topLeft3);
@@ -129,7 +129,7 @@ namespace TrenchBroom {
         
         class CreateComplexBrushToolController3D::DuplicateFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
         private:
-            vec3 m_dragDir;
+            vm::vec3 m_dragDir;
         public:
             DuplicateFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
@@ -149,8 +149,8 @@ namespace TrenchBroom {
                 if (!hit.isMatch())
                     return DragInfo();
                 
-                const vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
-                const vec3 direction = hit.face->normal();
+                const vm::vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
+                const vm::vec3 direction = hit.face->normal();
                 
                 const line3 line(origin, direction);
                 m_dragDir = line.direction;
@@ -158,7 +158,7 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
             
-            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 auto polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
                 
@@ -215,7 +215,7 @@ namespace TrenchBroom {
             const Grid& grid = m_tool->grid();
             
             const Model::BrushFace* face = Model::hitToFace(hit);
-            const vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
+            const vm::vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
             
             Polyhedron3 polyhedron = m_tool->polyhedron();
             polyhedron.addPoint(snapped);

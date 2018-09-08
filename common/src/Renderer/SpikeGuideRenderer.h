@@ -61,7 +61,7 @@ namespace TrenchBroom {
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;
         private:
-            void addPoint(const vec3& position);
+            void addPoint(const vm::vec3& position);
             void addSpike(const ray3& ray, FloatType length, FloatType maxLength);
             
             void validate();

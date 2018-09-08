@@ -19,7 +19,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-varying vec4 vertexColor;
+varying vm::vec4 vertexColor;
 
 void main(void) {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;

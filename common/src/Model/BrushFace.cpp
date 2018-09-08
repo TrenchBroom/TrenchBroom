@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return halfEdge->edge();
         }
         
-        BrushFace::BrushFace(const vec3& point0, const vec3& point1, const vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
+        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
         m_brush(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
@@ -87,12 +87,12 @@ namespace TrenchBroom {
             }
         };
 
-        BrushFace* BrushFace::createParaxial(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName) {
+        BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, new ParaxialTexCoordSystem(point0, point1, point2, attribs));
         }
         
-        BrushFace* BrushFace::createParallel(const vec3& point0, const vec3& point1, const vec3& point2, const String& textureName) {
+        BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const String& textureName) {
             const BrushFaceAttributes attribs(textureName);
             return new BrushFace(point0, point1, point2, attribs, new ParallelTexCoordSystem(point0, point1, point2, attribs));
         }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
 
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i) {
-                m_points[i] = vec3::zero;
+                m_points[i] = vm::vec3::zero;
             }
             m_brush = nullptr;
             m_lineNumber = 0;
@@ -180,17 +180,17 @@ namespace TrenchBroom {
             return m_boundary;
         }
 
-        const vec3& BrushFace::normal() const {
+        const vm::vec3& BrushFace::normal() const {
             return boundary().normal;
         }
 
-        vec3 BrushFace::center() const {
+        vm::vec3 BrushFace::center() const {
             ensure(m_geometry != nullptr, "geometry is null");
             const BrushHalfEdgeList& boundary = m_geometry->boundary();
             return vm::average(std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
         }
 
-        vec3 BrushFace::boundsCenter() const {
+        vm::vec3 BrushFace::boundsCenter() const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const auto toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
@@ -419,11 +419,11 @@ namespace TrenchBroom {
             setSurfaceValue(other->surfaceValue());
         }
 
-        vec3 BrushFace::textureXAxis() const {
+        vm::vec3 BrushFace::textureXAxis() const {
             return m_texCoordSystem->xAxis();
         }
 
-        vec3 BrushFace::textureYAxis() const {
+        vm::vec3 BrushFace::textureYAxis() const {
             return m_texCoordSystem->yAxis();
         }
 
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::moveTexture(const vec3& up, const vec3& right, const vm::vec2f& offset) {
+        void BrushFace::moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attribs);
             invalidateVertexCache();
         }
@@ -452,7 +452,7 @@ namespace TrenchBroom {
         void BrushFace::transform(const mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
-            const vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
+            const vm::vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
             const plane3 oldBoundary = m_boundary;
 
             m_boundary = m_boundary.transform(transform);
@@ -517,7 +517,7 @@ namespace TrenchBroom {
         }
 
         mat4x4 BrushFace::projectToBoundaryMatrix() const {
-            const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero, vm::vec2f::one) * vec3::pos_z;
+            const auto texZAxis = m_texCoordSystem->fromMatrix(vm::vec2f::zero, vm::vec2f::one) * vm::vec3::pos_z;
             const auto worldToPlaneMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
             const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix); assert(invertible); unused(invertible);
             return planeToWorldMatrix * mat4x4::zero_z * worldToPlaneMatrix;
@@ -558,7 +558,7 @@ namespace TrenchBroom {
             return VertexList(m_geometry->boundary());
         }
 
-        vec3::List BrushFace::vertexPositions() const {
+        vm::vec3::List BrushFace::vertexPositions() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->vertexPositions();
         }
@@ -615,12 +615,12 @@ namespace TrenchBroom {
                 m_brush->childWasDeselected();
         }
 
-        vm::vec2f BrushFace::textureCoords(const vec3& point) const {
+        vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
 
-        bool BrushFace::containsPoint(const vec3& point) const {
-            const vec3 toPoint = point - m_boundary.anchor();
+        bool BrushFace::containsPoint(const vm::vec3& point) const {
+            const vm::vec3 toPoint = point - m_boundary.anchor();
             if (!Math::zero(dot(toPoint, m_boundary.normal)))
                 return false;
 
@@ -639,11 +639,11 @@ namespace TrenchBroom {
         }
 
         void BrushFace::printPoints() const {
-            std::for_each(std::begin(m_points), std::end(m_points), [](const vec3& p) { std::cout << "( " << p << " ) "; });
+            std::for_each(std::begin(m_points), std::end(m_points), [](const vm::vec3& p) { std::cout << "( " << p << " ) "; });
             std::cout << std::endl;
         }
 
-        void BrushFace::setPoints(const vec3& point0, const vec3& point1, const vec3& point2) {
+        void BrushFace::setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;

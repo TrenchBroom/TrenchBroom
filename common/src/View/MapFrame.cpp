@@ -943,7 +943,7 @@ namespace TrenchBroom {
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
                     const bbox3 bounds = m_document->selectionBounds();
-                    const vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+                    const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
                 }
             }
@@ -1276,7 +1276,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const vec3 position = vec3::parse(str.ToStdString());
+                const vm::vec3 position = vm::vec3::parse(str.ToStdString());
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
@@ -1389,8 +1389,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                vec3::List positions;
-                vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
+                vm::vec3::List positions;
+                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
@@ -1414,8 +1414,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                vec3::List points;
-                vec3::parseAll(str.ToStdString(), std::back_inserter(points));
+                vm::vec3::List points;
+                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }

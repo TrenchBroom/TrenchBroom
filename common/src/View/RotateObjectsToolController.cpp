@@ -39,9 +39,9 @@ namespace TrenchBroom {
             RotateObjectsTool* m_tool;
         private:
             RotateObjectsHandle::HitArea m_area;
-            vec3 m_center;
-            vec3 m_start;
-            vec3 m_axis;
+            vm::vec3 m_center;
+            vm::vec3 m_start;
+            vm::vec3 m_axis;
             FloatType m_angle;
         protected:
             RotateObjectsBase(RotateObjectsTool* tool) :
@@ -86,16 +86,16 @@ namespace TrenchBroom {
                 
                 m_area = hit.target<RotateObjectsHandle::HitArea>();
                 m_center = m_tool->rotationCenter();
-                m_start = m_tool->rotationAxisHandle(m_area, vec3(inputState.camera().position()));
+                m_start = m_tool->rotationAxisHandle(m_area, vm::vec3(inputState.camera().position()));
                 m_axis = m_tool->rotationAxis(m_area);
                 m_angle = 0.0;
                 const FloatType radius = m_tool->handleRadius();
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_start, m_center, m_axis, radius));
             }
             
-            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
-                const vec3 ref = normalize(m_start - m_center);
-                const vec3 vec = normalize(nextHandlePosition - m_center);
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                const vm::vec3 ref = normalize(m_start - m_center);
+                const vm::vec3 vec = normalize(nextHandlePosition - m_center);
                 m_angle = angleBetween(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
@@ -126,10 +126,10 @@ namespace TrenchBroom {
             
             class AngleIndicatorRenderer : public Renderer::DirectRenderable {
             private:
-                vec3 m_position;
+                vm::vec3 m_position;
                 Renderer::Circle m_circle;
             public:
-                AngleIndicatorRenderer(const vec3& position, const float radius, const Math::Axis::Type axis, const vec3& startAxis, const vec3& endAxis) :
+                AngleIndicatorRenderer(const vm::vec3& position, const float radius, const Math::Axis::Type axis, const vm::vec3& startAxis, const vm::vec3& endAxis) :
                 m_position(position),
                 m_circle(radius, 24, true, axis, vm::vec3f(startAxis), vm::vec3f(endAxis)) {}
             private:
@@ -215,7 +215,7 @@ namespace TrenchBroom {
                 return MoveInfo(m_tool->rotationCenter());
             }
             
-            DragResult doMove(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override {
+            DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 m_tool->setRotationCenter(nextHandlePosition);
                 return DR_Continue;
             }

@@ -38,8 +38,8 @@ namespace TrenchBroom {
             UVViewHelper& m_helper;
             
             vm::vec2b m_selector;
-            vec3 m_xAxis;
-            vec3 m_yAxis;
+            vm::vec3 m_xAxis;
+            vm::vec3 m_yAxis;
             vm::vec2f m_initialHit;
             vm::vec2f m_lastHit;
         public:

@@ -324,7 +324,7 @@ namespace TrenchBroom {
         }
         
         void StandardMapParser::parseFace(ParserStatus& status) {
-            vec3 texAxisX, texAxisY;
+            vm::vec3 texAxisX, texAxisY;
             
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
@@ -334,13 +334,13 @@ namespace TrenchBroom {
             const size_t column = token.column();
             
             expect(QuakeMapToken::OParenthesis, token);
-            const vec3 p1 = correct(parseVector());
+            const vm::vec3 p1 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const vec3 p2 = correct(parseVector());
+            const vm::vec3 p2 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-            const vec3 p3 = correct(parseVector());
+            const vm::vec3 p3 = correct(parseVector());
             expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
             
             // texture names can contain braces etc, so we just read everything until the next opening bracket or number
@@ -400,7 +400,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const vec3 axis = cross(p3 - p1, p2 - p1);
+            const vm::vec3 axis = cross(p3 - p1, p2 - p1);
             if (!isZero(axis)) {
                 brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
             } else {
@@ -408,9 +408,9 @@ namespace TrenchBroom {
             }
         }
         
-        vec3 StandardMapParser::parseVector() {
+        vm::vec3 StandardMapParser::parseVector() {
             Token token;
-            vec3 vec;
+            vm::vec3 vec;
             
             for (size_t i = 0; i < 3; i++) {
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());

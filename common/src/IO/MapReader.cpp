@@ -127,7 +127,7 @@ namespace TrenchBroom {
             createBrush(startLine, lineCount, extraAttributes, status);
         }
         
-        void MapReader::onBrushFace(const size_t line, const vec3& point1, const vec3& point2, const vec3& point3, const Model::BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY, ParserStatus& status) {
+        void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
             Model::BrushFace* face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
             onBrushFace(face, status);
         }

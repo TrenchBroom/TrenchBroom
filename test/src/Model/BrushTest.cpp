@@ -41,22 +41,22 @@
 
 namespace TrenchBroom {
     namespace Model {
-        vec3::List asVertexList(const segment3::List& edges);
-        vec3::List asVertexList(const polygon3::List& faces);
+        vm::vec3::List asVertexList(const segment3::List& edges);
+        vm::vec3::List asVertexList(const polygon3::List& faces);
 
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                      vec3(1.0, 0.0, 0.0),
-                                                      vec3(0.0, 1.0, 0.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                      vec3(1.0, 0.0, 0.0),
-                                                      vec3(0.0, 1.0, 0.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                      vec3(1.0, 0.0, 0.0),
-                                                      vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                      vm::vec3(1.0, 0.0, 0.0),
+                                                      vm::vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                      vm::vec3(1.0, 0.0, 0.0),
+                                                      vm::vec3(0.0, 1.0, 0.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                      vm::vec3(1.0, 0.0, 0.0),
+                                                      vm::vec3(0.0, 1.0, 0.0)));
 
             ASSERT_THROW(Brush(worldBounds, faces), GeometryException);
         }
@@ -65,24 +65,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -104,7 +104,7 @@ namespace TrenchBroom {
         /*
          Regex to turn a face definition into a c++ statement to add a face to a vector of faces:
          Find: \(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*[^\n]+
-         Replace: faces.push_back(BrushFace::createParaxial(vec3($1, $2, $3), vec3($4, $5, $6), vec3($7, $8, $9)));
+         Replace: faces.push_back(BrushFace::createParaxial(vm::vec3($1, $2, $3), vm::vec3($4, $5, $6), vm::vec3($7, $8, $9)));
          */
 
         TEST(BrushTest, constructWithFailingFaces) {
@@ -123,13 +123,13 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(-192.0, 704.0, 128.0), vec3(-156.0, 650.0, 128.0), vec3(-156.0, 650.0, 160.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-202.0, 604.0, 160.0), vec3(-164.0, 664.0, 128.0), vec3(-216.0, 613.0, 128.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-156.0, 650.0, 128.0), vec3(-202.0, 604.0, 128.0), vec3(-202.0, 604.0, 160.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-192.0, 704.0, 160.0), vec3(-256.0, 640.0, 160.0), vec3(-256.0, 640.0, 128.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-256.0, 640.0, 160.0), vec3(-202.0, 604.0, 160.0), vec3(-202.0, 604.0, 128.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-217.0, 672.0, 160.0), vec3(-161.0, 672.0, 160.0), vec3(-161.0, 603.0, 160.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-161.0, 603.0, 128.0), vec3(-161.0, 672.0, 128.0), vec3(-217.0, 672.0, 128.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-192.0, 704.0, 128.0), vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-156.0, 650.0, 160.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-202.0, 604.0, 160.0), vm::vec3(-164.0, 664.0, 128.0), vm::vec3(-216.0, 613.0, 128.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-202.0, 604.0, 128.0), vm::vec3(-202.0, 604.0, 160.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-192.0, 704.0, 160.0), vm::vec3(-256.0, 640.0, 160.0), vm::vec3(-256.0, 640.0, 128.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-256.0, 640.0, 160.0), vm::vec3(-202.0, 604.0, 160.0), vm::vec3(-202.0, 604.0, 128.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-217.0, 672.0, 160.0), vm::vec3(-161.0, 672.0, 160.0), vm::vec3(-161.0, 603.0, 160.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-161.0, 603.0, 128.0), vm::vec3(-161.0, 672.0, 128.0), vm::vec3(-217.0, 672.0, 128.0)));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -156,15 +156,15 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(3488.0, 1152.0, 1340.0), vec3(3488.0, 1248.0, 1344.0), vec3(3488.0, 1344.0, 1340.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3232.0, 1344.0, 1576.0), vec3(3232.0, 1152.0, 1576.0), vec3(3232.0, 1152.0, 1256.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3488.0, 1344.0, 1576.0), vec3(3264.0, 1344.0, 1576.0), vec3(3264.0, 1344.0, 1256.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3280.0, 1152.0, 1576.0), vec3(3504.0, 1152.0, 1576.0), vec3(3504.0, 1152.0, 1256.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3488.0, 1248.0, 1344.0), vec3(3488.0, 1152.0, 1340.0), vec3(3232.0, 1152.0, 1340.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3488.0, 1248.0, 1344.0), vec3(3232.0, 1248.0, 1344.0), vec3(3232.0, 1344.0, 1340.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3488.0, 1152.0, 1340.0), vec3(3360.0, 1152.0, 1344.0), vec3(3424.0, 1344.0, 1342.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3360.0, 1152.0, 1344.0), vec3(3232.0, 1152.0, 1340.0), vec3(3296.0, 1344.0, 1342.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(3504.0, 1344.0, 1280.0), vec3(3280.0, 1344.0, 1280.0), vec3(3280.0, 1152.0, 1280.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3488.0, 1344.0, 1340.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3232.0, 1344.0, 1576.0), vm::vec3(3232.0, 1152.0, 1576.0), vm::vec3(3232.0, 1152.0, 1256.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1344.0, 1576.0), vm::vec3(3264.0, 1344.0, 1576.0), vm::vec3(3264.0, 1344.0, 1256.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3280.0, 1152.0, 1576.0), vm::vec3(3504.0, 1152.0, 1576.0), vm::vec3(3504.0, 1152.0, 1256.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3232.0, 1152.0, 1340.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3232.0, 1248.0, 1344.0), vm::vec3(3232.0, 1344.0, 1340.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3360.0, 1152.0, 1344.0), vm::vec3(3424.0, 1344.0, 1342.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3360.0, 1152.0, 1344.0), vm::vec3(3232.0, 1152.0, 1340.0), vm::vec3(3296.0, 1344.0, 1342.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(3504.0, 1344.0, 1280.0), vm::vec3(3280.0, 1344.0, 1280.0), vm::vec3(3280.0, 1152.0, 1280.0)));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -188,12 +188,12 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(-32.0, -1088.0, 896.0), vec3(-64.0, -1120.0, 896.0), vec3(-64.0, -1120.0, 912.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-32.0, -832.0, 896.0), vec3(-32.0, -1088.0, 896.0), vec3(-32.0, -1088.0, 912.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-64.0, -848.0, 912.0), vec3(-64.0, -1120.0, 912.0), vec3(-64.0, -1120.0, 896.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-32.0, -896.0, 896.0), vec3(-32.0, -912.0, 912.0), vec3(-64.0, -912.0, 912.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-64.0, -1088.0, 912.0), vec3(-64.0, -848.0, 912.0), vec3(-32.0, -848.0, 912.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-64.0, -864.0, 896.0), vec3(-32.0, -864.0, 896.0), vec3(-32.0, -832.0, 896.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-64.0, -1120.0, 896.0), vm::vec3(-64.0, -1120.0, 912.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -832.0, 896.0), vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-32.0, -1088.0, 912.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -848.0, 912.0), vm::vec3(-64.0, -1120.0, 912.0), vm::vec3(-64.0, -1120.0, 896.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -896.0, 896.0), vm::vec3(-32.0, -912.0, 912.0), vm::vec3(-64.0, -912.0, 912.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -1088.0, 912.0), vm::vec3(-64.0, -848.0, 912.0), vm::vec3(-32.0, -848.0, 912.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-64.0, -864.0, 896.0), vm::vec3(-32.0, -864.0, 896.0), vm::vec3(-32.0, -832.0, 896.0)));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -217,12 +217,12 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(-1268.0, 272.0, 2524.0), vec3(-1268.0, 272.0, 2536.0), vec3(-1268.0, 288.0, 2540.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1280.0, 265.0, 2534.0), vec3(-1268.0, 272.0, 2524.0), vec3(-1268.0, 288.0, 2528.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1268.0, 288.0, 2528.0), vec3(-1280.0, 288.0, 2540.0), vec3(-1280.0, 265.0, 2534.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1268.0, 288.0, 2540.0), vec3(-1280.0, 288.0, 2540.0), vec3(-1280.0, 288.0, 2536.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1268.0, 265.0, 2534.0), vec3(-1280.0, 265.0, 2534.0), vec3(-1280.0, 288.0, 2540.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1268.0, 265.0, 2534.0), vec3(-1268.0, 272.0, 2524.0), vec3(-1280.0, 265.0, 2534.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 272.0, 2536.0), vm::vec3(-1268.0, 288.0, 2540.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1280.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 288.0, 2528.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 288.0, 2528.0), vm::vec3(-1280.0, 288.0, 2540.0), vm::vec3(-1280.0, 265.0, 2534.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 288.0, 2540.0), vm::vec3(-1280.0, 288.0, 2540.0), vm::vec3(-1280.0, 288.0, 2536.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1280.0, 265.0, 2534.0), vm::vec3(-1280.0, 288.0, 2540.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1280.0, 265.0, 2534.0)));
 
             Brush brush(worldBounds, faces);
             const BrushFaceList& brushFaces = brush.faces();
@@ -246,12 +246,12 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(1296.0, 896.0, 944.0), vec3(1296.0, 1008.0, 1056.0), vec3(1280.0, 1008.0, 1008.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(1296.0, 1008.0, 1168.0), vec3(1296.0, 1008.0, 1056.0), vec3(1296.0, 896.0, 944.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(1280.0, 1008.0, 1008.0), vec3(1280.0, 1008.0, 1168.0), vec3(1280.0, 896.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(1280.0, 1008.0, 1168.0), vec3(1280.0, 1008.0, 1008.0), vec3(1296.0, 1008.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(1296.0, 1008.0, 1168.0), vec3(1296.0, 896.0, 1056.0), vec3(1280.0, 896.0, 1056.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(1280.0, 896.0, 896.0), vec3(1280.0, 896.0, 1056.0), vec3(1296.0, 896.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 896.0, 944.0), vm::vec3(1296.0, 1008.0, 1056.0), vm::vec3(1280.0, 1008.0, 1008.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 1008.0, 1056.0), vm::vec3(1296.0, 896.0, 944.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1280.0, 1008.0, 1008.0), vm::vec3(1280.0, 1008.0, 1168.0), vm::vec3(1280.0, 896.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1280.0, 1008.0, 1168.0), vm::vec3(1280.0, 1008.0, 1008.0), vm::vec3(1296.0, 1008.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 896.0, 1056.0), vm::vec3(1280.0, 896.0, 1056.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(1280.0, 896.0, 896.0), vm::vec3(1280.0, 896.0, 1056.0), vm::vec3(1296.0, 896.0, 1056.0)));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -274,11 +274,11 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(-80.0, -80.0, -3840.0), vec3(-80.0, -80.0, -3824.0), vec3(-32.0, -32.0, -3808.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-96.0, -32.0, -3840.0), vec3(-96.0, -32.0, -3824.0), vec3(-80.0, -80.0, -3824.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-96.0, -32.0, -3824.0), vec3(-32.0, -32.0, -3808.0), vec3(-80.0, -80.0, -3824.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-32.0, -32.0, -3840.0), vec3(-32.0, -32.0, -3808.0), vec3(-96.0, -32.0, -3824.0)));
-            faces.push_back(BrushFace::createParaxial(vec3(-32.0, -32.0, -3840.0), vec3(-96.0, -32.0, -3840.0), vec3(-80.0, -80.0, -3840.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-80.0, -80.0, -3840.0), vm::vec3(-80.0, -80.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-96.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3824.0), vm::vec3(-80.0, -80.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-96.0, -32.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0), vm::vec3(-80.0, -80.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-32.0, -32.0, -3808.0), vm::vec3(-96.0, -32.0, -3824.0)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3840.0), vm::vec3(-80.0, -80.0, -3840.0)));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -308,14 +308,14 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(624.0, 688.0, -456.0), vec3(656.0, 760.0, -480.0), vec3(624.0, 680.0, -480.0), "face7"));
-            faces.push_back(BrushFace::createParaxial(vec3(536.0, 792.0, -480.0), vec3(536.0, 792.0, -432.0), vec3(488.0, 720.0, -480.0), "face12"));
-            faces.push_back(BrushFace::createParaxial(vec3(568.0, 656.0, -464.0), vec3(568.0, 648.0, -480.0), vec3(520.0, 672.0, -456.0), "face14"));
-            faces.push_back(BrushFace::createParaxial(vec3(520.0, 672.0, -456.0), vec3(520.0, 664.0, -480.0), vec3(488.0, 720.0, -452.0), "face15"));
-            faces.push_back(BrushFace::createParaxial(vec3(560.0, 728.0, -440.0), vec3(488.0, 720.0, -452.0), vec3(536.0, 792.0, -432.0), "face17"));
-            faces.push_back(BrushFace::createParaxial(vec3(568.0, 656.0, -464.0), vec3(520.0, 672.0, -456.0), vec3(624.0, 688.0, -456.0), "face19"));
-            faces.push_back(BrushFace::createParaxial(vec3(560.0, 728.0, -440.0), vec3(624.0, 688.0, -456.0), vec3(520.0, 672.0, -456.0), "face20"));
-            faces.push_back(BrushFace::createParaxial(vec3(600.0, 840.0, -480.0), vec3(536.0, 792.0, -480.0), vec3(636.0, 812.0, -480.0), "face22"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(624.0, 688.0, -456.0), vm::vec3(656.0, 760.0, -480.0), vm::vec3(624.0, 680.0, -480.0), "face7"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(536.0, 792.0, -480.0), vm::vec3(536.0, 792.0, -432.0), vm::vec3(488.0, 720.0, -480.0), "face12"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(568.0, 656.0, -464.0), vm::vec3(568.0, 648.0, -480.0), vm::vec3(520.0, 672.0, -456.0), "face14"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(520.0, 672.0, -456.0), vm::vec3(520.0, 664.0, -480.0), vm::vec3(488.0, 720.0, -452.0), "face15"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(560.0, 728.0, -440.0), vm::vec3(488.0, 720.0, -452.0), vm::vec3(536.0, 792.0, -432.0), "face17"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(568.0, 656.0, -464.0), vm::vec3(520.0, 672.0, -456.0), vm::vec3(624.0, 688.0, -456.0), "face19"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(560.0, 728.0, -440.0), vm::vec3(624.0, 688.0, -456.0), vm::vec3(520.0, 672.0, -456.0), "face20"));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(600.0, 840.0, -480.0), vm::vec3(536.0, 792.0, -480.0), vm::vec3(636.0, 812.0, -480.0), "face22"));
 
             Brush brush(worldBounds, faces);
             assert(brush.fullySpecified());
@@ -343,14 +343,14 @@ namespace TrenchBroom {
              */
 
             BrushFaceList faces;
-            faces.push_back(BrushFace::createParaxial(vec3(-729.68857812925364, -128, 2061.2927432882448), vec3(-910.70791411301013, 128, 2242.3120792720015), vec3(-820.19824612113155, -128, 1970.7830752963655)));
-            faces.push_back(BrushFace::createParaxial(vec3(-639.17891013737574, -640, 1970.7830752963669), vec3(-729.68857812925364, -128, 2061.2927432882448), vec3(-729.68857812925364, -640, 1880.2734073044885)));
-            faces.push_back(BrushFace::createParaxial(vec3(-639.17891013737574, -1024, 1970.7830752963669), vec3(-820.19824612113177, -640, 2151.8024112801227), vec3(-639.17891013737574, -640, 1970.7830752963669)));
-            faces.push_back(BrushFace::createParaxial(vec3(-639.17891013737574, -1024, 1970.7830752963669), vec3(-639.17891013737574, -640, 1970.7830752963669), vec3(-729.68857812925364, -1024, 1880.2734073044885)));
-            faces.push_back(BrushFace::createParaxial(vec3(-1001.2175821048878, -128, 2151.8024112801222), vec3(-910.70791411301013, -128, 2242.3120792720015), vec3(-910.70791411300991, -640, 2061.2927432882443)));
-            faces.push_back(BrushFace::createParaxial(vec3(-639.17891013737574, -1024, 1970.7830752963669), vec3(-729.68857812925364, -1024, 1880.2734073044885), vec3(-820.19824612113177, -640, 2151.8024112801227))); // assertion failure here
-            faces.push_back(BrushFace::createParaxial(vec3(-1001.2175821048878, -128, 2151.8024112801222), vec3(-1001.2175821048878, 128, 2151.8024112801222), vec3(-910.70791411301013, -128, 2242.3120792720015)));
-            faces.push_back(BrushFace::createParaxial(vec3(-729.68857812925364, -1024, 1880.2734073044885), vec3(-729.68857812925364, -640, 1880.2734073044885), vec3(-910.70791411300991, -640, 2061.2927432882443)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-729.68857812925364, -128, 2061.2927432882448), vm::vec3(-910.70791411301013, 128, 2242.3120792720015), vm::vec3(-820.19824612113155, -128, 1970.7830752963655)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -640, 1970.7830752963669), vm::vec3(-729.68857812925364, -128, 2061.2927432882448), vm::vec3(-729.68857812925364, -640, 1880.2734073044885)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -1024, 1970.7830752963669), vm::vec3(-820.19824612113177, -640, 2151.8024112801227), vm::vec3(-639.17891013737574, -640, 1970.7830752963669)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -1024, 1970.7830752963669), vm::vec3(-639.17891013737574, -640, 1970.7830752963669), vm::vec3(-729.68857812925364, -1024, 1880.2734073044885)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1001.2175821048878, -128, 2151.8024112801222), vm::vec3(-910.70791411301013, -128, 2242.3120792720015), vm::vec3(-910.70791411300991, -640, 2061.2927432882443)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-639.17891013737574, -1024, 1970.7830752963669), vm::vec3(-729.68857812925364, -1024, 1880.2734073044885), vm::vec3(-820.19824612113177, -640, 2151.8024112801227))); // assertion failure here
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-1001.2175821048878, -128, 2151.8024112801222), vm::vec3(-1001.2175821048878, 128, 2151.8024112801222), vm::vec3(-910.70791411301013, -128, 2242.3120792720015)));
+            faces.push_back(BrushFace::createParaxial(vm::vec3(-729.68857812925364, -1024, 1880.2734073044885), vm::vec3(-729.68857812925364, -640, 1880.2734073044885), vm::vec3(-910.70791411300991, -640, 2061.2927432882443)));
 
             const bbox3 worldBounds(4096.0);
             Brush brush(worldBounds, faces);
@@ -535,24 +535,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -565,7 +565,7 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
 
             PickResult hits1;
-            brush.pick(ray3(vec3(8.0, -8.0, 8.0), vec3::pos_y), hits1);
+            brush.pick(ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y), hits1);
             ASSERT_EQ(1u, hits1.size());
 
             Hit hit1 = hits1.all().front();
@@ -574,7 +574,7 @@ namespace TrenchBroom {
             ASSERT_EQ(front, face1);
 
             PickResult hits2;
-            brush.pick(ray3(vec3(8.0, -8.0, 8.0), vec3::neg_y), hits2);
+            brush.pick(ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y), hits2);
             ASSERT_TRUE(hits2.empty());
         }
 
@@ -582,24 +582,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -624,24 +624,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -709,24 +709,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -753,27 +753,27 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(16.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 16.0),
-                                                       vec3(0.0, 1.0, 16.0),
-                                                       vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
-            BrushFace* clip = BrushFace::createParaxial(vec3(8.0, 0.0, 0.0),
-                                                        vec3(8.0, 0.0, 1.0),
-                                                        vec3(8.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
+            BrushFace* clip = BrushFace::createParaxial(vm::vec3(8.0, 0.0, 0.0),
+                                                        vm::vec3(8.0, 0.0, 1.0),
+                                                        vm::vec3(8.0, 1.0, 0.0));
 
             BrushFaceList faces;
             faces.push_back(left);
@@ -799,24 +799,24 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
 
             // left and right a are slanted!
-            BrushFace* left = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                        vec3(0.0, 1.0, 0.0),
-                                                        vec3(1.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vec3(16.0, 0.0, 0.0),
-                                                         vec3(15.0, 0.0, 1.0),
-                                                         vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                         vec3(0.0, 0.0, 1.0),
-                                                         vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vec3(0.0, 16.0, 0.0),
-                                                        vec3(1.0, 16.0, 0.0),
-                                                        vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vec3(0.0, 0.0, 6.0),
-                                                       vec3(0.0, 1.0, 6.0),
-                                                       vec3(1.0, 0.0, 6.0));
-            BrushFace* bottom = BrushFace::createParaxial(vec3(0.0, 0.0, 0.0),
-                                                          vec3(1.0, 0.0, 0.0),
-                                                          vec3(0.0, 1.0, 0.0));
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(1.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(15.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 6.0),
+                                                       vm::vec3(0.0, 1.0, 6.0),
+                                                       vm::vec3(1.0, 0.0, 6.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
             BrushFaceList faces;
             faces.push_back(left);
             faces.push_back(right);
@@ -828,14 +828,14 @@ namespace TrenchBroom {
             Brush brush(worldBounds, faces);
             ASSERT_EQ(6u, brush.faces().size());
 
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, +16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, -16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, +2.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, -6.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, +1.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vec3(0.0, 0.0, -5.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +16.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -16.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +2.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -6.0)));
+            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +1.0)));
+            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -5.0)));
 
-            brush.moveBoundary(worldBounds, top, vec3(0.0, 0.0, 1.0), false);
+            brush.moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
             ASSERT_EQ(6u, brush.faces().size());
             ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
         }
@@ -847,17 +847,17 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
 
-            const vec3 p1(-32.0, -32.0, -32.0);
-            const vec3 p2(-32.0, -32.0, +32.0);
-            const vec3 p3(-32.0, +32.0, -32.0);
-            const vec3 p4(-32.0, +32.0, +32.0);
-            const vec3 p5(+32.0, -32.0, -32.0);
-            const vec3 p6(+32.0, -32.0, +32.0);
-            const vec3 p7(+32.0, +32.0, -32.0);
-            const vec3 p8(+32.0, +32.0, +32.0);
-            const vec3 p9(+16.0, +16.0, +32.0);
+            const vm::vec3 p1(-32.0, -32.0, -32.0);
+            const vm::vec3 p2(-32.0, -32.0, +32.0);
+            const vm::vec3 p3(-32.0, +32.0, -32.0);
+            const vm::vec3 p4(-32.0, +32.0, +32.0);
+            const vm::vec3 p5(+32.0, -32.0, -32.0);
+            const vm::vec3 p6(+32.0, -32.0, +32.0);
+            const vm::vec3 p7(+32.0, +32.0, -32.0);
+            const vm::vec3 p8(+32.0, +32.0, +32.0);
+            const vm::vec3 p9(+16.0, +16.0, +32.0);
 
-            vec3::List newVertexPositions = brush->moveVertices(worldBounds, vec3::List(1, p8), p9 - p8);
+            vm::vec3::List newVertexPositions = brush->moveVertices(worldBounds, vm::vec3::List(1, p8), p9 - p8);
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
@@ -888,20 +888,20 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
-            const vec3 top(0.0, 0.0, +16.0);
+            const vm::vec3 top(0.0, 0.0, +16.0);
 
-            vec3::List points;
-            points.push_back(vec3(-16.0, -16.0, 0.0));
-            points.push_back(vec3(+16.0, -16.0, 0.0));
-            points.push_back(vec3(0.0, +16.0, 0.0));
+            vm::vec3::List points;
+            points.push_back(vm::vec3(-16.0, -16.0, 0.0));
+            points.push_back(vm::vec3(+16.0, -16.0, 0.0));
+            points.push_back(vm::vec3(0.0, +16.0, 0.0));
             points.push_back(top);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(points, "some_texture");
 
-            vec3::List newVertexPositions = brush->moveVertices(worldBounds, vec3::List(1, top), vec3(0.0, 0.0, -32.0));
+            vm::vec3::List newVertexPositions = brush->moveVertices(worldBounds, vm::vec3::List(1, top), vm::vec3(0.0, 0.0, -32.0));
             ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
+            ASSERT_VEC_EQ(vm::vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
 
             brush->rebuildGeometry(worldBounds);
             ASSERT_TRUE(brush->fullySpecified());
@@ -916,16 +916,16 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
 
-            const vec3 p1(-32.0, -32.0, -32.0);
-            const vec3 p2(-32.0, -32.0, +32.0);
-            const vec3 p3(-32.0, +32.0, -32.0);
-            const vec3 p4(-32.0, +32.0, +32.0);
-            const vec3 p5(+32.0, -32.0, -32.0);
-            const vec3 p6(+32.0, -32.0, +32.0);
-            const vec3 p7(+32.0, +32.0, -32.0);
-            const vec3 p8(+32.0, +32.0, +32.0);
-            const vec3 p1_2(-32.0, -32.0, -16.0);
-            const vec3 p2_2(-32.0, -32.0, +48.0);
+            const vm::vec3 p1(-32.0, -32.0, -32.0);
+            const vm::vec3 p2(-32.0, -32.0, +32.0);
+            const vm::vec3 p3(-32.0, +32.0, -32.0);
+            const vm::vec3 p4(-32.0, +32.0, +32.0);
+            const vm::vec3 p5(+32.0, -32.0, -32.0);
+            const vm::vec3 p6(+32.0, -32.0, +32.0);
+            const vm::vec3 p7(+32.0, +32.0, -32.0);
+            const vm::vec3 p8(+32.0, +32.0, +32.0);
+            const vm::vec3 p1_2(-32.0, -32.0, -16.0);
+            const vm::vec3 p2_2(-32.0, -32.0, +48.0);
 
             assertTexture("left", brush, p1, p2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -971,24 +971,24 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
 
-            vec3::List vertexPositions(4);
-            vertexPositions[0] = vec3(-32.0, -32.0, +32.0);
-            vertexPositions[1] = vec3(+32.0, -32.0, +32.0);
-            vertexPositions[2] = vec3(+32.0, +32.0, +32.0);
-            vertexPositions[3] = vec3(-32.0, +32.0, +32.0);
+            vm::vec3::List vertexPositions(4);
+            vertexPositions[0] = vm::vec3(-32.0, -32.0, +32.0);
+            vertexPositions[1] = vm::vec3(+32.0, -32.0, +32.0);
+            vertexPositions[2] = vm::vec3(+32.0, +32.0, +32.0);
+            vertexPositions[3] = vm::vec3(-32.0, +32.0, +32.0);
 
             const polygon3 face(vertexPositions);
 
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, face), vec3(-16.0, -16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, face), vm::vec3(-16.0, -16.0, 0.0)));
 
-            polygon3::List newFacePositions = brush->moveFaces(worldBounds, polygon3::List(1, face), vec3(-16.0, -16.0, 0.0));
+            polygon3::List newFacePositions = brush->moveFaces(worldBounds, polygon3::List(1, face), vm::vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vec3(-48.0, -48.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vec3(-48.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vec3(+16.0, +16.0, +32.0)));
-            ASSERT_TRUE(newFacePositions[0].hasVertex(vec3(+16.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
 
-            newFacePositions = brush->moveFaces(worldBounds, newFacePositions, vec3(16.0, 16.0, 0.0));
+            newFacePositions = brush->moveFaces(worldBounds, newFacePositions, vm::vec3(16.0, 16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)
@@ -1002,21 +1002,21 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCuboid(vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
+            Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFace::NoTextureName);
 
-            vec3::List vertexPositions(4);
-            vertexPositions[0] = vec3(-64.0, -64.0, -16.0);
-            vertexPositions[1] = vec3(+64.0, -64.0, -16.0);
-            vertexPositions[2] = vec3(+64.0, -64.0, +16.0);
-            vertexPositions[3] = vec3(-64.0, -64.0, +16.0);
+            vm::vec3::List vertexPositions(4);
+            vertexPositions[0] = vm::vec3(-64.0, -64.0, -16.0);
+            vertexPositions[1] = vm::vec3(+64.0, -64.0, -16.0);
+            vertexPositions[2] = vm::vec3(+64.0, -64.0, +16.0);
+            vertexPositions[3] = vm::vec3(-64.0, -64.0, +16.0);
 
             const polygon3 face(vertexPositions);
 
-            ASSERT_FALSE(brush->canMoveFaces(worldBounds, polygon3::List(1, face), vec3(0.0, 128.0, 0.0)));
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, polygon3::List(1, face), vm::vec3(0.0, 128.0, 0.0)));
             delete brush;
         }
 
-        static void assertCanMoveEdges(const Brush* brush, const segment3::List edges, const vec3 delta) {
+        static void assertCanMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
             segment3::List expectedMovedEdges;
@@ -1034,12 +1034,12 @@ namespace TrenchBroom {
             delete brushClone;
         }
 
-        static void assertCanNotMoveEdges(const Brush* brush, const segment3::List edges, const vec3 delta) {
+        static void assertCanNotMoveEdges(const Brush* brush, const segment3::List edges, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
 
-        static void assertCanMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vec3 delta) {
+        static void assertCanMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
             polygon3::List expectedMovedFaces;
@@ -1057,16 +1057,16 @@ namespace TrenchBroom {
             delete brushClone;
         }
 
-        static void assertCanNotMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vec3 delta) {
+        static void assertCanNotMoveFaces(const Brush* brush, const polygon3::List movingFaces, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, movingFaces, delta));
         }
 
-        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const vec3 delta) {
+        static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const vm::vec3 delta) {
             assertCanMoveFaces(brush, polygon3::List{topFace->polygon()}, delta);
         }
 
-        static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const vec3 delta) {
+        static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
             ASSERT_NE(nullptr, topFace);
@@ -1074,67 +1074,67 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, polygon3::List{topFace->polygon()}, delta));
         }
 
-        static void assertCanMoveTopFace(const Brush* brush, const vec3 delta) {
-            assertCanMoveFace(brush, brush->findFace(vec3::pos_z), delta);
+        static void assertCanMoveTopFace(const Brush* brush, const vm::vec3 delta) {
+            assertCanMoveFace(brush, brush->findFace(vm::vec3::pos_z), delta);
         }
 
-        static void assertCanNotMoveTopFace(const Brush* brush, const vec3 delta) {
-            assertCanNotMoveFace(brush, brush->findFace(vec3::pos_z), delta);
+        static void assertCanNotMoveTopFace(const Brush* brush, const vm::vec3 delta) {
+            assertCanNotMoveFace(brush, brush->findFace(vm::vec3::pos_z), delta);
         }
 
         static void assertCanNotMoveTopFaceBeyond127UnitsDown(Brush* brush) {
-            assertCanMoveTopFace(brush, vec3(0, 0, -127));
-            assertCanNotMoveTopFace(brush, vec3(0, 0, -128));
-            assertCanNotMoveTopFace(brush, vec3(0, 0, -129));
+            assertCanMoveTopFace(brush, vm::vec3(0, 0, -127));
+            assertCanNotMoveTopFace(brush, vm::vec3(0, 0, -128));
+            assertCanNotMoveTopFace(brush, vm::vec3(0, 0, -129));
 
-            assertCanMoveTopFace(brush, vec3(256, 0, -127));
-            assertCanNotMoveTopFace(brush, vec3(256, 0, -128));
-            assertCanNotMoveTopFace(brush, vec3(256, 0, -129));
+            assertCanMoveTopFace(brush, vm::vec3(256, 0, -127));
+            assertCanNotMoveTopFace(brush, vm::vec3(256, 0, -128));
+            assertCanNotMoveTopFace(brush, vm::vec3(256, 0, -129));
         }
 
-        static void assertCanMoveVertices(const Brush* brush, const vec3::List vertexPositions, const vec3 delta) {
+        static void assertCanMoveVertices(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
 
-            const vec3::List movedVertexPositions = VectorUtils::setCreate(brushClone->moveVertices(worldBounds, vertexPositions, delta));
-            const vec3::List expectedVertexPositions = VectorUtils::setCreate(vertexPositions + delta);
+            const vm::vec3::List movedVertexPositions = VectorUtils::setCreate(brushClone->moveVertices(worldBounds, vertexPositions, delta));
+            const vm::vec3::List expectedVertexPositions = VectorUtils::setCreate(vertexPositions + delta);
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
 
             delete brushClone;
         }
 
-        static void assertMovingVerticesDeletes(const Brush* brush, const vec3::List vertexPositions, const vec3 delta) {
+        static void assertMovingVerticesDeletes(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
 
             ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
-            const vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
+            const vm::vec3::List movedVertexPositions = brushClone->moveVertices(worldBounds, vertexPositions, delta);
 
-            ASSERT_EQ(vec3::List(), movedVertexPositions);
+            ASSERT_EQ(vm::vec3::List(), movedVertexPositions);
 
             delete brushClone;
         }
 
-        static void assertCanNotMoveVertices(const Brush* brush, const vec3::List vertexPositions, const vec3 delta) {
+        static void assertCanNotMoveVertices(const Brush* brush, const vm::vec3::List vertexPositions, const vm::vec3 delta) {
             const bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveVertices(worldBounds, vertexPositions, delta));
         }
 
-        static void assertCanMoveVertex(const Brush* brush, const vec3 vertexPosition, const vec3 delta) {
-            assertCanMoveVertices(brush, vec3::List{vertexPosition}, delta);
+        static void assertCanMoveVertex(const Brush* brush, const vm::vec3 vertexPosition, const vm::vec3 delta) {
+            assertCanMoveVertices(brush, vm::vec3::List{vertexPosition}, delta);
         }
 
-        static void assertMovingVertexDeletes(const Brush* brush, const vec3 vertexPosition, const vec3 delta) {
-            assertMovingVerticesDeletes(brush, vec3::List{vertexPosition}, delta);
+        static void assertMovingVertexDeletes(const Brush* brush, const vm::vec3 vertexPosition, const vm::vec3 delta) {
+            assertMovingVerticesDeletes(brush, vm::vec3::List{vertexPosition}, delta);
         }
 
-        static void assertCanNotMoveVertex(const Brush* brush, const vec3 vertexPosition, const vec3 delta) {
-            assertCanNotMoveVertices(brush, vec3::List{vertexPosition}, delta);
+        static void assertCanNotMoveVertex(const Brush* brush, const vm::vec3 vertexPosition, const vm::vec3 delta) {
+            assertCanNotMoveVertices(brush, vm::vec3::List{vertexPosition}, delta);
         }
 
         // "Move point" tests
@@ -1145,52 +1145,52 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
-            const vec3 peakPosition(0.0, 0.0, +64.0);
-            const vec3::List baseQuadVertexPositions{
-                    vec3(-64.0, -64.0, -64.0), // base quad
-                    vec3(-64.0, +64.0, -64.0),
-                    vec3(+64.0, +64.0, -64.0),
-                    vec3(+64.0, -64.0, -64.0)
+            const vm::vec3 peakPosition(0.0, 0.0, +64.0);
+            const vm::vec3::List baseQuadVertexPositions{
+                    vm::vec3(-64.0, -64.0, -64.0), // base quad
+                    vm::vec3(-64.0, +64.0, -64.0),
+                    vm::vec3(+64.0, +64.0, -64.0),
+                    vm::vec3(+64.0, -64.0, -64.0)
             };
-            const vec3::List vertexPositions = VectorUtils::concatenate(vec3::List{peakPosition}, baseQuadVertexPositions);
+            const vm::vec3::List vertexPositions = VectorUtils::concatenate(vm::vec3::List{peakPosition}, baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
 
-            assertCanMoveVertex(brush, peakPosition, vec3(0.0, 0.0, -127.0));
-            assertCanNotMoveVertex(brush, peakPosition, vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
-            assertCanMoveVertex(brush, peakPosition, vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
+            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
 
             // More detailed testing of the last assertion
             {
-                vec3::List temp(baseQuadVertexPositions);
+                vm::vec3::List temp(baseQuadVertexPositions);
                 std::reverse(temp.begin(), temp.end());
-                const vec3::List flippedBaseQuadVertexPositions(temp);
+                const vm::vec3::List flippedBaseQuadVertexPositions(temp);
 
-                const vec3 delta(0.0, 0.0, -129.0);
+                const vm::vec3 delta(0.0, 0.0, -129.0);
                 Brush* brushClone = brush->clone(worldBounds);
 
                 ASSERT_EQ(5u, brushClone->faceCount());
                 ASSERT_TRUE(brushClone->findFace(polygon3(baseQuadVertexPositions)));
                 ASSERT_FALSE(brushClone->findFace(polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_NE(nullptr, brushClone->findFace(vec3::neg_z));
-                ASSERT_EQ(nullptr, brushClone->findFace(vec3::pos_z));
+                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::neg_z));
+                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::pos_z));
 
-                ASSERT_TRUE(brushClone->canMoveVertices(worldBounds, vec3::List{peakPosition}, delta));
-                ASSERT_EQ(vec3::List{peakPosition + delta}, brushClone->moveVertices(worldBounds, vec3::List{peakPosition}, delta));
+                ASSERT_TRUE(brushClone->canMoveVertices(worldBounds, vm::vec3::List{peakPosition}, delta));
+                ASSERT_EQ(vm::vec3::List{peakPosition + delta}, brushClone->moveVertices(worldBounds, vm::vec3::List{peakPosition}, delta));
 
                 ASSERT_EQ(5u, brushClone->faceCount());
                 ASSERT_FALSE(brushClone->findFace(polygon3(baseQuadVertexPositions)));
                 ASSERT_TRUE(brushClone->findFace(polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_EQ(nullptr, brushClone->findFace(vec3::neg_z));
-                ASSERT_NE(nullptr, brushClone->findFace(vec3::pos_z));
+                ASSERT_EQ(nullptr, brushClone->findFace(vm::vec3::neg_z));
+                ASSERT_NE(nullptr, brushClone->findFace(vm::vec3::pos_z));
 
                 delete brushClone;
             }
 
-            assertCanMoveVertex(brush, peakPosition, vec3(256.0, 0.0, -127.0));
-            assertCanNotMoveVertex(brush, peakPosition, vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
-            assertCanMoveVertex(brush, peakPosition, vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
+            assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
 
             delete brush;
         }
@@ -1199,25 +1199,25 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
-            const vec3 peakPosition(0.0, 0.0, 128.0);
-            const vec3::List vertexPositions {
-                    vec3(-64.0, -64.0, 0.0), // base quad
-                    vec3(-64.0, +64.0, 0.0),
-                    vec3(+64.0, +64.0, 0.0),
-                    vec3(+64.0, -64.0, 0.0),
-                    vec3(-64.0, -64.0, 64.0), // upper quad
-                    vec3(-64.0, +64.0, 64.0),
-                    vec3(+64.0, +64.0, 64.0),
-                    vec3(+64.0, -64.0, 64.0),
+            const vm::vec3 peakPosition(0.0, 0.0, 128.0);
+            const vm::vec3::List vertexPositions {
+                    vm::vec3(-64.0, -64.0, 0.0), // base quad
+                    vm::vec3(-64.0, +64.0, 0.0),
+                    vm::vec3(+64.0, +64.0, 0.0),
+                    vm::vec3(+64.0, -64.0, 0.0),
+                    vm::vec3(-64.0, -64.0, 64.0), // upper quad
+                    vm::vec3(-64.0, +64.0, 64.0),
+                    vm::vec3(+64.0, +64.0, 64.0),
+                    vm::vec3(+64.0, -64.0, 64.0),
                     peakPosition
             };
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
 
-            assertMovingVertexDeletes(brush, peakPosition, vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
-            assertCanMoveVertex(brush, peakPosition, vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
-            assertCanNotMoveVertex(brush, peakPosition, vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
+            assertMovingVertexDeletes(brush, peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
+            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
+            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
 
             delete brush;
         }
@@ -1229,7 +1229,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const segment3 edge(vec3(-128, 0, -128), vec3(-128, 0, +128));
+            const segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1238,13 +1238,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, segment3::List{edge}, vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, segment3::List{edge}, vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, segment3::List{edge}, vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush, segment3::List{edge}, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush, segment3::List{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, segment3::List{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(segment3::List{edge}), vm::vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1255,8 +1255,8 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
-            const segment3 edge1(vec3(-128, -32, -128), vec3(-128, -32, +128));
-            const segment3 edge2(vec3(-128, +32, -128), vec3(-128, +32, +128));
+            const segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
+            const segment3 edge2(vm::vec3(-128, +32, -128), vm::vec3(-128, +32, +128));
             const segment3::List movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
@@ -1268,13 +1268,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(12u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, movingEdges, vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, movingEdges, vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, movingEdges, vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush, movingEdges, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush, movingEdges, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, movingEdges, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1285,13 +1285,13 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
-            const vec3::List vertexPositions{
-                    vec3(-64.0, -64.0, +64.0), // top quad
-                    vec3(-64.0, +64.0, +64.0),
-                    vec3(+64.0, -64.0, +64.0),
-                    vec3(+64.0, +64.0, +64.0),
+            const vm::vec3::List vertexPositions{
+                    vm::vec3(-64.0, -64.0, +64.0), // top quad
+                    vm::vec3(-64.0, +64.0, +64.0),
+                    vm::vec3(+64.0, -64.0, +64.0),
+                    vm::vec3(+64.0, +64.0, +64.0),
 
-                    vec3(0.0, 0.0, -64.0), // bottom point
+                    vm::vec3(0.0, 0.0, -64.0), // bottom point
             };
 
             BrushBuilder builder(&world, worldBounds);
@@ -1306,14 +1306,14 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
-            const vec3::List vertexPositions{
-                    vec3(-64.0, -64.0, +64.0), // top quad
-                    vec3(-64.0, +64.0, +64.0),
-                    vec3(+64.0, -64.0, +64.0),
-                    vec3(+64.0, +64.0, +64.0),
+            const vm::vec3::List vertexPositions{
+                    vm::vec3(-64.0, -64.0, +64.0), // top quad
+                    vm::vec3(-64.0, +64.0, +64.0),
+                    vm::vec3(+64.0, -64.0, +64.0),
+                    vm::vec3(+64.0, +64.0, +64.0),
 
-                    vec3(-64.0, 0.0, -64.0), // bottom edge, on the z=-64 plane
-                    vec3(+64.0, 0.0, -64.0)
+                    vm::vec3(-64.0, 0.0, -64.0), // bottom edge, on the z=-64 plane
+                    vm::vec3(+64.0, 0.0, -64.0)
             };
 
             BrushBuilder builder(&world, worldBounds);
@@ -1342,19 +1342,19 @@ namespace TrenchBroom {
 
             // Same brush as movePolygonRemainingPolygon, but this particular order of vertices triggers a failure in Brush::doCanMoveVertices
             // where the polygon inserted into the "remaining" BrushGeometry gets the wrong normal.
-            const vec3::List vertexPositions{
-                    vec3(+64.0, +64.0, +64.0),
-                    vec3(+64.0, -64.0, +64.0),
-                    vec3(+64.0, -64.0, -64.0),
-                    vec3(+64.0, +64.0, -64.0),
-                    vec3(-64.0, -64.0, +64.0),
-                    vec3(-64.0, -64.0, -64.0),
-                    vec3(-64.0, +64.0, -64.0),
-                    vec3(-64.0, +64.0, +64.0)};
+            const vm::vec3::List vertexPositions{
+                    vm::vec3(+64.0, +64.0, +64.0),
+                    vm::vec3(+64.0, -64.0, +64.0),
+                    vm::vec3(+64.0, -64.0, -64.0),
+                    vm::vec3(+64.0, +64.0, -64.0),
+                    vm::vec3(-64.0, -64.0, +64.0),
+                    vm::vec3(-64.0, -64.0, -64.0),
+                    vm::vec3(-64.0, +64.0, -64.0),
+                    vm::vec3(-64.0, +64.0, +64.0)};
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
-            ASSERT_EQ(bbox3(vec3(-64, -64, -64), vec3(64, 64, 64)), brush->bounds());
+            ASSERT_EQ(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->bounds());
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 
@@ -1373,19 +1373,19 @@ namespace TrenchBroom {
             // |___| z = -64   //
             //                 //
 
-            const vec3::List vertexPositions{
-                    vec3(-64.0, -64.0, +192.0), // top quad, slanted
-                    vec3(-64.0, +64.0, +192.0),
-                    vec3(+64.0, -64.0, +64.0),
-                    vec3(+64.0, +64.0, +64.0),
+            const vm::vec3::List vertexPositions{
+                    vm::vec3(-64.0, -64.0, +192.0), // top quad, slanted
+                    vm::vec3(-64.0, +64.0, +192.0),
+                    vm::vec3(+64.0, -64.0, +64.0),
+                    vm::vec3(+64.0, +64.0, +64.0),
 
-                    vec3(-64.0, -64.0, -64.0), // bottom quad
-                    vec3(-64.0, +64.0, -64.0),
-                    vec3(+64.0, -64.0, -64.0),
-                    vec3(+64.0, +64.0, -64.0),
+                    vm::vec3(-64.0, -64.0, -64.0), // bottom quad
+                    vm::vec3(-64.0, +64.0, -64.0),
+                    vm::vec3(+64.0, -64.0, -64.0),
+                    vm::vec3(+64.0, +64.0, -64.0),
             };
 
-            const vec3 topFaceNormal(sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0);
+            const vm::vec3 topFaceNormal(sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1393,9 +1393,9 @@ namespace TrenchBroom {
             BrushFace* topFace = brush->findFace(topFaceNormal);
             ASSERT_NE(nullptr, topFace);
 
-            assertCanMoveFace(brush, topFace, vec3(0, 0, -127));
-            assertCanMoveFace(brush, topFace, vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed 
-            assertCanNotMoveFace(brush, topFace, vec3(0, 0, -129));
+            assertCanMoveFace(brush, topFace, vm::vec3(0, 0, -127));
+            assertCanMoveFace(brush, topFace, vm::vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed
+            assertCanNotMoveFace(brush, topFace, vm::vec3(0, 0, -129));
 
             delete brush;
         }
@@ -1412,45 +1412,45 @@ namespace TrenchBroom {
             // |___| z = -192  //
             //                 //
 
-            const vec3::List smallerTopPolygon{
-                    vec3(-32.0, -32.0, +64.0), // smaller top polygon
-                    vec3(-32.0, +32.0, +64.0),
-                    vec3(+32.0, -32.0, +64.0),
-                    vec3(+32.0, +32.0, +64.0)
+            const vm::vec3::List smallerTopPolygon{
+                    vm::vec3(-32.0, -32.0, +64.0), // smaller top polygon
+                    vm::vec3(-32.0, +32.0, +64.0),
+                    vm::vec3(+32.0, -32.0, +64.0),
+                    vm::vec3(+32.0, +32.0, +64.0)
             };
-            const vec3::List cubeTopFace{
-                    vec3(-64.0, -64.0, -64.0), // top face of cube
-                    vec3(-64.0, +64.0, -64.0),
-                    vec3(+64.0, -64.0, -64.0),
-                    vec3(+64.0, +64.0, -64.0),
+            const vm::vec3::List cubeTopFace{
+                    vm::vec3(-64.0, -64.0, -64.0), // top face of cube
+                    vm::vec3(-64.0, +64.0, -64.0),
+                    vm::vec3(+64.0, -64.0, -64.0),
+                    vm::vec3(+64.0, +64.0, -64.0),
             };
-            const vec3::List cubeBottomFace{
-                    vec3(-64.0, -64.0, -192.0), // bottom face of cube
-                    vec3(-64.0, +64.0, -192.0),
-                    vec3(+64.0, -64.0, -192.0),
-                    vec3(+64.0, +64.0, -192.0),
+            const vm::vec3::List cubeBottomFace{
+                    vm::vec3(-64.0, -64.0, -192.0), // bottom face of cube
+                    vm::vec3(-64.0, +64.0, -192.0),
+                    vm::vec3(+64.0, -64.0, -192.0),
+                    vm::vec3(+64.0, +64.0, -192.0),
             };
 
             using VectorUtils::concatenate;
-            const vec3::List vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
+            const vm::vec3::List vertexPositions = concatenate(concatenate(smallerTopPolygon, cubeTopFace), cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
 
             // Try to move the top face down along the Z axis
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-            assertCanNotMoveTopFace(brush, vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
+            assertCanNotMoveTopFace(brush, vm::vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
 
             // Move the smaller top polygon as 4 separate vertices
-            assertCanMoveVertices(brush, smallerTopPolygon, vec3(0, 0, -127));
-            assertMovingVerticesDeletes(brush, smallerTopPolygon, vec3(0, 0, -128));
-            assertMovingVerticesDeletes(brush, smallerTopPolygon, vec3(0, 0, -129));
-            assertCanNotMoveVertices(brush, smallerTopPolygon, vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
+            assertCanMoveVertices(brush, smallerTopPolygon, vm::vec3(0, 0, -127));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, vm::vec3(0, 0, -128));
+            assertMovingVerticesDeletes(brush, smallerTopPolygon, vm::vec3(0, 0, -129));
+            assertCanNotMoveVertices(brush, smallerTopPolygon, vm::vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
 
             // Move top face along the X axis
-            assertCanMoveTopFace(brush, vec3(32.0, 0.0, 0.0));
-            assertCanMoveTopFace(brush, vec3(256, 0.0, 0.0));
-            assertCanMoveTopFace(brush, vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
+            assertCanMoveTopFace(brush, vm::vec3(32.0, 0.0, 0.0));
+            assertCanMoveTopFace(brush, vm::vec3(256, 0.0, 0.0));
+            assertCanMoveTopFace(brush, vm::vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
 
             delete brush;
         }
@@ -1470,27 +1470,27 @@ namespace TrenchBroom {
             //               //
 
 
-            const vec3::List leftPolygon{ // A
-                    vec3(-32.0, -32.0, +64.0),
-                    vec3(-32.0, +32.0, +64.0),
-                    vec3(-32.0, +32.0, -64.0),
-                    vec3(-32.0, -32.0, -64.0),
+            const vm::vec3::List leftPolygon{ // A
+                    vm::vec3(-32.0, -32.0, +64.0),
+                    vm::vec3(-32.0, +32.0, +64.0),
+                    vm::vec3(-32.0, +32.0, -64.0),
+                    vm::vec3(-32.0, -32.0, -64.0),
             };
-            const vec3::List bottomPolygon{ // B
-                    vec3(-32.0, -32.0, -64.0),
-                    vec3(-32.0, +32.0, -64.0),
-                    vec3(+0.0, +32.0, -64.0),
-                    vec3(+0.0, -32.0, -64.0),
+            const vm::vec3::List bottomPolygon{ // B
+                    vm::vec3(-32.0, -32.0, -64.0),
+                    vm::vec3(-32.0, +32.0, -64.0),
+                    vm::vec3(+0.0, +32.0, -64.0),
+                    vm::vec3(+0.0, -32.0, -64.0),
             };
-            const vec3::List bottomRightPolygon{ // C
-                    vec3(+0.0, -32.0, -64.0),
-                    vec3(+0.0, +32.0, -64.0),
-                    vec3(+32.0, +32.0, +0.0),
-                    vec3(+32.0, -32.0, +0.0),
+            const vm::vec3::List bottomRightPolygon{ // C
+                    vm::vec3(+0.0, -32.0, -64.0),
+                    vm::vec3(+0.0, +32.0, -64.0),
+                    vm::vec3(+32.0, +32.0, +0.0),
+                    vm::vec3(+32.0, -32.0, +0.0),
             };
 
             using VectorUtils::concatenate;
-            const vec3::List vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
+            const vm::vec3::List vertexPositions = concatenate(concatenate(leftPolygon, bottomPolygon), bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(vertexPositions, Model::BrushFace::NoTextureName);
@@ -1499,8 +1499,8 @@ namespace TrenchBroom {
             EXPECT_TRUE(brush->hasFace(polygon3(bottomPolygon)));
             EXPECT_TRUE(brush->hasFace(polygon3(bottomRightPolygon)));
 
-            assertCanMoveFaces(brush, polygon3::List{leftPolygon, bottomPolygon}, vec3(0, 0, 63));
-            assertCanNotMoveFaces(brush, polygon3::List{leftPolygon, bottomPolygon}, vec3(0, 0, 64)); // Merges B and C
+            assertCanMoveFaces(brush, polygon3::List{leftPolygon, bottomPolygon}, vm::vec3(0, 0, 63));
+            assertCanNotMoveFaces(brush, polygon3::List{leftPolygon, bottomPolygon}, vm::vec3(0, 0, 64)); // Merges B and C
 
             delete brush;
         }
@@ -1512,7 +1512,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
-            const segment3 edge(vec3(-128, 0, -256), vec3(-128, 0, 0));
+            const segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1521,12 +1521,12 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            BrushFace* cubeTop = brush->findFace(vec3::pos_z);
-            BrushFace* cubeBottom = brush->findFace(vec3::neg_z);
-            BrushFace* cubeRight = brush->findFace(vec3::pos_x);
-            BrushFace* cubeLeft = brush->findFace(vec3::neg_x);
-            BrushFace* cubeBack = brush->findFace(vec3::pos_y);
-            BrushFace* cubeFront = brush->findFace(vec3::neg_y);
+            BrushFace* cubeTop = brush->findFace(vm::vec3::pos_z);
+            BrushFace* cubeBottom = brush->findFace(vm::vec3::neg_z);
+            BrushFace* cubeRight = brush->findFace(vm::vec3::pos_x);
+            BrushFace* cubeLeft = brush->findFace(vm::vec3::neg_x);
+            BrushFace* cubeBack = brush->findFace(vm::vec3::pos_y);
+            BrushFace* cubeFront = brush->findFace(vm::vec3::neg_y);
 
             ASSERT_NE(nullptr, cubeTop);
             ASSERT_EQ(nullptr, cubeBottom); // no face here, part of the wedge connecting to `edge`
@@ -1542,19 +1542,19 @@ namespace TrenchBroom {
                     cubeBack->polygon(),
             };
 
-            assertCanMoveFaces(brush, movingFaces, vec3(32, 0, 0)); // away from `edge`
-            assertCanMoveFaces(brush, movingFaces, vec3(-63, 0, 0)); // towards `edge`, not touching
-            assertCanMoveFaces(brush, movingFaces, vec3(-64, 0, 0)); // towards `edge`, touching
-            assertCanMoveFaces(brush, movingFaces, vec3(-65, 0, 0)); // towards `edge`, covering
+            assertCanMoveFaces(brush, movingFaces, vm::vec3(32, 0, 0)); // away from `edge`
+            assertCanMoveFaces(brush, movingFaces, vm::vec3(-63, 0, 0)); // towards `edge`, not touching
+            assertCanMoveFaces(brush, movingFaces, vm::vec3(-64, 0, 0)); // towards `edge`, touching
+            assertCanMoveFaces(brush, movingFaces, vm::vec3(-65, 0, 0)); // towards `edge`, covering
 
             // Move the cube down 64 units, so the top vertex of `edge` is on the same plane as `cubeTop`
             // This will turn `cubeTop` from a quad into a pentagon
-            assertCanNotMoveFaces(brush, movingFaces, vec3(0, 0, -64));
-            assertCanMoveVertices(brush, asVertexList(movingFaces), vec3(0, 0, -64));
+            assertCanNotMoveFaces(brush, movingFaces, vm::vec3(0, 0, -64));
+            assertCanMoveVertices(brush, asVertexList(movingFaces), vm::vec3(0, 0, -64));
 
             // Make edge poke through the top face
-            assertCanNotMoveFaces(brush, movingFaces, vec3(-192, 0, -128));
-            assertCanNotMoveVertices(brush, asVertexList(movingFaces), vec3(-192, 0, -128));
+            assertCanNotMoveFaces(brush, movingFaces, vm::vec3(-192, 0, -128));
+            assertCanNotMoveVertices(brush, asVertexList(movingFaces), vm::vec3(-192, 0, -128));
 
             delete brush;
         }
@@ -1562,20 +1562,20 @@ namespace TrenchBroom {
         TEST(BrushTest, moveFaceFailure) {
             // https://github.com/kduske/TrenchBroom/issues/1499
 
-            const vec3 p1(-4408.0, 16.0, 288.0);
-            const vec3 p2(-4384.0, 40.0, 288.0);
-            const vec3 p3(-4384.0, 64.0, 288.0);
-            const vec3 p4(-4416.0, 64.0, 288.0);
-            const vec3 p5(-4424.0, 48.0, 288.0); // left back  top
-            const vec3 p6(-4424.0, 16.0, 288.0); // left front top
-            const vec3 p7(-4416.0, 64.0, 224.0);
-            const vec3 p8(-4384.0, 64.0, 224.0);
-            const vec3 p9(-4384.0, 40.0, 224.0);
-            const vec3 p10(-4408.0, 16.0, 224.0);
-            const vec3 p11(-4424.0, 16.0, 224.0);
-            const vec3 p12(-4424.0, 48.0, 224.0);
+            const vm::vec3 p1(-4408.0, 16.0, 288.0);
+            const vm::vec3 p2(-4384.0, 40.0, 288.0);
+            const vm::vec3 p3(-4384.0, 64.0, 288.0);
+            const vm::vec3 p4(-4416.0, 64.0, 288.0);
+            const vm::vec3 p5(-4424.0, 48.0, 288.0); // left back  top
+            const vm::vec3 p6(-4424.0, 16.0, 288.0); // left front top
+            const vm::vec3 p7(-4416.0, 64.0, 224.0);
+            const vm::vec3 p8(-4384.0, 64.0, 224.0);
+            const vm::vec3 p9(-4384.0, 40.0, 224.0);
+            const vm::vec3 p10(-4408.0, 16.0, 224.0);
+            const vm::vec3 p11(-4424.0, 16.0, 224.0);
+            const vm::vec3 p12(-4424.0, 48.0, 224.0);
 
-            vec3::List points;
+            vm::vec3::List points;
             points.push_back(p1);
             points.push_back(p2);
             points.push_back(p3);
@@ -1595,7 +1595,7 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createBrush(points, "asdf");
 
-            vec3::List topFacePos;
+            vm::vec3::List topFacePos;
             topFacePos.push_back(p1);
             topFacePos.push_back(p2);
             topFacePos.push_back(p3);
@@ -1605,12 +1605,12 @@ namespace TrenchBroom {
 
             const polygon3 topFace(topFacePos);
 
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(+16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(-16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(0.0, +16.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(0.0, -16.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(0.0, 0.0, +16.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vec3(0.0, 0.0, -16.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, polygon3::List(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
         }
 
         TEST(BrushTest, moveVertexFail) {
@@ -1637,9 +1637,9 @@ namespace TrenchBroom {
             assert(nodes.size() == 1);
 
             Brush* brush = static_cast<Brush*>(nodes.front());
-            const vec3 p(192.0, 128.0, 352.0);
-            const vec3 d = 4.0 * 16.0 * vec3::neg_y;
-            const vec3::List newPositions = brush->moveVertices(worldBounds, vec3::List(1, p), d);
+            const vm::vec3 p(192.0, 128.0, 352.0);
+            const vm::vec3 d = 4.0 * 16.0 * vm::vec3::neg_y;
+            const vm::vec3::List newPositions = brush->moveVertices(worldBounds, vm::vec3::List(1, p), d);
             ASSERT_EQ(1u, newPositions.size());
             ASSERT_VEC_EQ(p + d, newPositions.front());
         }
@@ -2543,8 +2543,8 @@ namespace TrenchBroom {
             const String defaultTexture("default");
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* minuend = builder.createCuboid(bbox3(vec3(-32.0, -16.0, -32.0), vec3(32.0, 16.0, 32.0)), minuendTexture);
-            Brush* subtrahend = builder.createCuboid(bbox3(vec3(-16.0, -32.0, -64.0), vec3(16.0, 32.0, 0.0)), subtrahendTexture);
+            Brush* minuend = builder.createCuboid(bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
+            Brush* subtrahend = builder.createCuboid(bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
 
             const BrushList result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
             ASSERT_EQ(3u, result.size());
@@ -2554,11 +2554,11 @@ namespace TrenchBroom {
             Brush* right = nullptr;
 
             for (Brush* brush : result) {
-                if (brush->findFace(plane3(32.0, vec3::neg_x)) != nullptr)
+                if (brush->findFace(plane3(32.0, vm::vec3::neg_x)) != nullptr)
                     left = brush;
-                else if (brush->findFace(plane3(32.0, vec3::pos_x)) != nullptr)
+                else if (brush->findFace(plane3(32.0, vm::vec3::pos_x)) != nullptr)
                     right = brush;
-                else if (brush->findFace(plane3(16.0, vec3::neg_x)) != nullptr)
+                else if (brush->findFace(plane3(16.0, vm::vec3::neg_x)) != nullptr)
                     top = brush;
             }
 
@@ -2566,54 +2566,54 @@ namespace TrenchBroom {
 
             // left brush faces
             ASSERT_EQ(6u, left->faceCount());
-            ASSERT_TRUE(left->findFace(plane3(-16.0, vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+16.0, vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+16.0, vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(left->findFace(plane3(+32.0, vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(-16.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(left->findFace(plane3(+32.0, vm::vec3::neg_z)) != nullptr);
 
             // left brush textures
-            ASSERT_EQ(subtrahendTexture, left->findFace(vec3::pos_x)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vec3::pos_z)->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vec3::neg_z)->textureName());
+            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x)->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x)->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y)->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y)->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z)->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z)->textureName());
 
             // top brush faces
             ASSERT_EQ(6u, top->faceCount());
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+16.0, vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(+32.0, vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(top->findFace(plane3(0.0, vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(top->findFace(plane3(0.0, vm::vec3::neg_z)) != nullptr);
 
             // top brush textures
-            ASSERT_EQ(defaultTexture, top->findFace(vec3::pos_x)->textureName());
-            ASSERT_EQ(defaultTexture, top->findFace(vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vec3::pos_z)->textureName());
-            ASSERT_EQ(subtrahendTexture, top->findFace(vec3::neg_z)->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x)->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x)->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y)->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y)->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z)->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z)->textureName());
 
             // right brush faces
             ASSERT_EQ(6u, right->faceCount());
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vec3::pos_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(-16.0, vec3::neg_x)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+16.0, vec3::pos_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+16.0, vec3::neg_y)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vec3::pos_z)) != nullptr);
-            ASSERT_TRUE(right->findFace(plane3(+32.0, vec3::neg_z)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::pos_x)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(-16.0, vm::vec3::neg_x)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(+16.0, vm::vec3::pos_y)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(+16.0, vm::vec3::neg_y)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::pos_z)) != nullptr);
+            ASSERT_TRUE(right->findFace(plane3(+32.0, vm::vec3::neg_z)) != nullptr);
 
             // right brush textures
-            ASSERT_EQ(minuendTexture, right->findFace(vec3::pos_x)->textureName());
-            ASSERT_EQ(subtrahendTexture, right->findFace(vec3::neg_x)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vec3::pos_y)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vec3::neg_y)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vec3::pos_z)->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vec3::neg_z)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x)->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z)->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z)->textureName());
 
             delete minuend;
             delete subtrahend;
@@ -2624,8 +2624,8 @@ namespace TrenchBroom {
             const bbox3 worldBounds(4096.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
             
-            const bbox3 brush1Bounds(vec3::fill(-8.0), vec3::fill(+8.0));
-            const bbox3 brush2Bounds(vec3(124.0, 124.0, -4.0), vec3(132.0, 132.0, +4.0));
+            const bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
+            const bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
             
             BrushBuilder builder(&world, worldBounds);
@@ -2819,7 +2819,7 @@ namespace TrenchBroom {
             {
                 size_t i = 0;
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
-                    const vec3& pos = vertex->position();
+                    const vm::vec3& pos = vertex->position();
                     ASSERT_TRUE(isIntegral(pos, 0.001)) << "Vertex at " << i << " is not integer after snap: " << pos;
                 }
             }
@@ -3137,62 +3137,62 @@ namespace TrenchBroom {
             Brush* brush = builder.createCube(64.0, "asdf");
 
 
-            brush->removeVertices(worldBounds, vec3::List(1, vec3(+32.0, +32.0, +32.0)));
+            brush->removeVertices(worldBounds, vm::vec3::List(1, vm::vec3(+32.0, +32.0, +32.0)));
 
             ASSERT_EQ(7u, brush->vertexCount());
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush->removeVertices(worldBounds, vec3::List(1, vec3(+32.0, +32.0, -32.0)));
+            brush->removeVertices(worldBounds, vm::vec3::List(1, vm::vec3(+32.0, +32.0, -32.0)));
 
             ASSERT_EQ(6u, brush->vertexCount());
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush->removeVertices(worldBounds, vec3::List(1, vec3(+32.0, -32.0, +32.0)));
+            brush->removeVertices(worldBounds, vm::vec3::List(1, vm::vec3(+32.0, -32.0, +32.0)));
 
             ASSERT_EQ(5u, brush->vertexCount());
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush->removeVertices(worldBounds, vec3::List(1, vec3(-32.0, -32.0, -32.0)));
+            brush->removeVertices(worldBounds, vm::vec3::List(1, vm::vec3(-32.0, -32.0, -32.0)));
 
             ASSERT_EQ(4u, brush->vertexCount());
-            ASSERT_FALSE(brush->hasVertex(vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush->hasVertex(vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush->hasVertex(vec3(+32.0, +32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush->hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush->hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vec3::List(1, vec3(-32.0, -32.0, +32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vec3::List(1, vec3(-32.0, +32.0, -32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vec3::List(1, vec3(-32.0, +32.0, +32.0))));
-            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vec3::List(1, vec3(+32.0, -32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vm::vec3::List(1, vm::vec3(-32.0, -32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vm::vec3::List(1, vm::vec3(-32.0, +32.0, -32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vm::vec3::List(1, vm::vec3(-32.0, +32.0, +32.0))));
+            ASSERT_FALSE(brush->canRemoveVertices(worldBounds, vm::vec3::List(1, vm::vec3(+32.0, -32.0, -32.0))));
 
             delete brush;
         }
@@ -3203,20 +3203,20 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
             BrushBuilder builder(&world, worldBounds);
 
-            vec3::List vertices;
-            vertices.push_back(vec3(-32.0, -32.0, -32.0));
-            vertices.push_back(vec3(-32.0, -32.0, +32.0));
-            vertices.push_back(vec3(-32.0, +32.0, -32.0));
-            vertices.push_back(vec3(-32.0, +32.0, +32.0));
-            vertices.push_back(vec3(+32.0, -32.0, -32.0));
-            vertices.push_back(vec3(+32.0, -32.0, +32.0));
-            vertices.push_back(vec3(+32.0, +32.0, -32.0));
-            vertices.push_back(vec3(+32.0, +32.0, +32.0));
+            vm::vec3::List vertices;
+            vertices.push_back(vm::vec3(-32.0, -32.0, -32.0));
+            vertices.push_back(vm::vec3(-32.0, -32.0, +32.0));
+            vertices.push_back(vm::vec3(-32.0, +32.0, -32.0));
+            vertices.push_back(vm::vec3(-32.0, +32.0, +32.0));
+            vertices.push_back(vm::vec3(+32.0, -32.0, -32.0));
+            vertices.push_back(vm::vec3(+32.0, -32.0, +32.0));
+            vertices.push_back(vm::vec3(+32.0, +32.0, -32.0));
+            vertices.push_back(vm::vec3(+32.0, +32.0, +32.0));
 
             for (size_t i = 0; i < 6; ++i) {
                 for (size_t j = i + 1; j < 7; ++j) {
                     for (size_t k = j + 1; k < 8; ++k) {
-                        vec3::List toRemove;
+                        vm::vec3::List toRemove;
                         toRemove.push_back(vertices[i]);
                         toRemove.push_back(vertices[j]);
                         toRemove.push_back(vertices[k]);
@@ -3285,13 +3285,13 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush* brush1 = builder.createBrush(vec3::List{vec3(64, -64, 16), vec3(64, 64, 16), vec3(64, -64, -16), vec3(64, 64, -16), vec3(48, 64, 16), vec3(48, 64, -16)}, "texture");
+            Model::Brush* brush1 = builder.createBrush(vm::vec3::List{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
 
-            Model::BrushFace* rightFace = brush1->findFace(vec3(1, 0, 0));
+            Model::BrushFace* rightFace = brush1->findFace(vm::vec3(1, 0, 0));
             ASSERT_NE(nullptr, rightFace);
 
-            EXPECT_TRUE(brush1->canMoveBoundary(worldBounds, rightFace, vec3(16, 0, 0)));
-            EXPECT_FALSE(brush1->canMoveBoundary(worldBounds, rightFace, vec3(8000, 0, 0)));
+            EXPECT_TRUE(brush1->canMoveBoundary(worldBounds, rightFace, vm::vec3(16, 0, 0)));
+            EXPECT_FALSE(brush1->canMoveBoundary(worldBounds, rightFace, vm::vec3(8000, 0, 0)));
         }
 
         TEST(BrushTest, moveVerticesPastWorldBounds) {
@@ -3301,13 +3301,13 @@ namespace TrenchBroom {
 
             Model::Brush* brush1 = builder.createCube(128.0, "texture");
 
-            vec3::List allVertexPositions;
+            vm::vec3::List allVertexPositions;
             for (const auto vertex : brush1->vertices()) {
                 allVertexPositions.push_back(vertex->position());
             }
 
-            EXPECT_TRUE(brush1->canMoveVertices(worldBounds, allVertexPositions, vec3(16, 0, 0)));
-            EXPECT_FALSE(brush1->canMoveVertices(worldBounds, allVertexPositions, vec3(8192, 0, 0)));
+            EXPECT_TRUE(brush1->canMoveVertices(worldBounds, allVertexPositions, vm::vec3(16, 0, 0)));
+            EXPECT_FALSE(brush1->canMoveVertices(worldBounds, allVertexPositions, vm::vec3(8192, 0, 0)));
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1893
@@ -3399,19 +3399,19 @@ namespace TrenchBroom {
 
             Brush* brush = static_cast<Brush*>(nodes.front());
 
-            const vec3 p1(32.0, 32.0, 0.0);
-            const vec3 p2(-16.0, 32.0, 0.0);
-            const vec3 p3(-32.0, -16.0, 0.0);
-            const vec3 p4(-16.0, -32.0, 0.0);
-            const vec3 p5(32.0, -32.0, 0.0);
+            const vm::vec3 p1(32.0, 32.0, 0.0);
+            const vm::vec3 p2(-16.0, 32.0, 0.0);
+            const vm::vec3 p3(-32.0, -16.0, 0.0);
+            const vm::vec3 p4(-16.0, -32.0, 0.0);
+            const vm::vec3 p5(32.0, -32.0, 0.0);
 
-            const vec3 p6(32.0, 32.0, 32.0);
-            const vec3 p7(-16.0, 32.0, 32.0); // this vertex will be deleted
-            const vec3 p8(-32.0, -16.0, 32.0);
-            const vec3 p9(-16.0, -32.0, 32.0);
-            const vec3 p10(32.0, -32.0, 32.0);
+            const vm::vec3 p6(32.0, 32.0, 32.0);
+            const vm::vec3 p7(-16.0, 32.0, 32.0); // this vertex will be deleted
+            const vm::vec3 p8(-32.0, -16.0, 32.0);
+            const vm::vec3 p9(-16.0, -32.0, 32.0);
+            const vm::vec3 p10(32.0, -32.0, 32.0);
 
-            const vec3 p11(32.0, 0.0, 64.0);
+            const vm::vec3 p11(32.0, 0.0, 64.0);
 
             // Make sure that the faces have the textures we expect before the vertex is deleted.
 
@@ -3461,11 +3461,11 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vec3(-64, -64, -64), vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
             
-            const bbox3 expandedBBox(vec3(-70, -70, -70), vec3(70, 70, 70));
+            const bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
@@ -3476,11 +3476,11 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vec3(-64, -64, -64), vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
             
-            const bbox3 expandedBBox(vec3(-32, -32, -32), vec3(32, 32, 32));
+            const bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
             
             EXPECT_EQ(expandedBBox, brush1->bounds());
             EXPECT_EQ(SetUtils::makeSet(expandedBBox.vertices()), SetUtils::makeSet(brush1->vertexPositions()));
@@ -3491,7 +3491,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard, nullptr, worldBounds);
             const BrushBuilder builder(&world, worldBounds);
             
-            Model::Brush *brush1 = builder.createCuboid(bbox3(vec3(-64, -64, -64), vec3(64, 64, 64)), "texture");
+            Model::Brush *brush1 = builder.createCuboid(bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
             EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
         }
@@ -3552,25 +3552,25 @@ namespace TrenchBroom {
 
             std::unique_ptr<Brush> brush(static_cast<Brush*>(nodes.front()));
 
-            const vec3::List vertexPositions {
-                brush->findClosestVertexPosition(vec3(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
-                brush->findClosestVertexPosition(vec3(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
-                brush->findClosestVertexPosition(vec3(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
-                brush->findClosestVertexPosition(vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))
+            const vm::vec3::List vertexPositions {
+                brush->findClosestVertexPosition(vm::vec3(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
+                brush->findClosestVertexPosition(vm::vec3(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
+                brush->findClosestVertexPosition(vm::vec3(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
+                brush->findClosestVertexPosition(vm::vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))
             };
 
-            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, vec3(16.0, 0.0, 0.0)));
-            ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, vec3(16.0, 0.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+            ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
         }
 
-        vec3::List asVertexList(const segment3::List& edges) {
-            vec3::List result;
+        vm::vec3::List asVertexList(const segment3::List& edges) {
+            vm::vec3::List result;
             segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
             return result;
         }
 
-        vec3::List asVertexList(const polygon3::List& faces) {
-            vec3::List result;
+        vm::vec3::List asVertexList(const polygon3::List& faces) {
+            vm::vec3::List result;
             polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(result));
             return result;
         }

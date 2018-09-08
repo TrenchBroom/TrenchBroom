@@ -54,7 +54,7 @@ namespace TrenchBroom {
             /**
              The position of the scaling origin / rotation center handle in world coords.
              */
-            vec3 m_origin;
+            vm::vec3 m_origin;
         public:
             UVViewHelper(Renderer::OrthographicCamera& camera);
             
@@ -65,10 +65,10 @@ namespace TrenchBroom {
             void cameraViewportChanged();
 
             const vm::vec2i& subDivisions() const;
-            vec2 stripeSize() const;
+            vm::vec2 stripeSize() const;
             void setSubDivisions(const vm::vec2i& subDivisions);
             
-            const vec3 origin() const;
+            const vm::vec3 origin() const;
             const vm::vec2f originInFaceCoords() const;
             const vm::vec2f originInTexCoords() const;
             void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
@@ -79,19 +79,19 @@ namespace TrenchBroom {
             void pickTextureGrid(const ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
             vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
-            vm::vec2f computeDistanceFromTextureGrid(const vec3& position) const;
+            vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
 
-            void computeOriginHandleVertices(vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
-            void computeScaleHandleVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2) const;
-            void computeLineVertices(const vec2& pos, vec3& x1, vec3& x2, vec3& y1, vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const;
+            void computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
+            void computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
+            void computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const mat4x4& toTex, const mat4x4& toWorld) const;
         private:
             void resetOrigin();
             void resetCamera();
             void resetZoom();
             
             bbox3 computeFaceBoundsInCameraCoords() const;
-            vec3 transformToCamera(const vec3& point) const;
-            vec3 transformFromCamera(const vec3& point) const;
+            vm::vec3 transformToCamera(const vm::vec3& point) const;
+            vm::vec3 transformFromCamera(const vm::vec3& point) const;
         };
     }
 }

@@ -87,8 +87,8 @@ namespace TrenchBroom {
             m_camera(camera) {}
         private:
             vm::vec3f basePosition() const override {
-                const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
-                vec3 pos;
+                const auto camPos = m_bounds.relativePosition(vm::vec3(m_camera.position()));
+                vm::vec3 pos;
                 const auto half = m_bounds.size() / 2.0;
                 
                 if (m_axis == Math::Axis::AZ) {
@@ -167,7 +167,7 @@ namespace TrenchBroom {
                     return TextAlignment::Right;
                 }
 
-                const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
+                const auto camPos = m_bounds.relativePosition(vm::vec3(m_camera.position()));
                 if (camPos[2] == bbox3::Range::less) {
                     return TextAlignment::Top;
                 } else {
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             }
             
             TextAlignment::Type alignment() const override {
-                const auto camPos = m_bounds.relativePosition(vec3(m_camera.position()));
+                const auto camPos = m_bounds.relativePosition(vm::vec3(m_camera.position()));
                 if (m_minMax == bbox3::Corner::min) {
                     if ((camPos[1] == bbox3::Range::less) ||
                         (camPos[1] == bbox3::Range::within &&
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const vm::vec3f& direction = camera.direction();
             
-            const vec3 boundsSize = correct(m_bounds.size());
+            const vm::vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 if (direction[i] == 0.0f) {
                     buffer << labels[i] << ": " << boundsSize[i];
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
             renderService.setShowOccludedObjects();
             
-            const vec3 boundsSize = correct(m_bounds.size());
+            const vm::vec3 boundsSize = correct(m_bounds.size());
             for (size_t i = 0; i < 3; ++i) {
                 buffer << labels[i] << ": " << boundsSize[i];
                 

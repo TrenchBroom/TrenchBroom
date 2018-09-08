@@ -73,7 +73,7 @@ namespace TrenchBroom {
             assert(!Math::isnan(distanceToFace));
             const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
             
-            const auto originOnPlane   = toPlane * fromFace * vec3(m_helper.originInFaceCoords());
+            const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
             const auto hitPointOnPlane = toPlane * hitPoint;
 
             const auto zoom = m_helper.cameraZoom();
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             const auto snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
 
             const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
-            const auto oldCenterInWorldCoords = toWorld * vec3(oldCenterInFaceCoords);
+            const auto oldCenterInWorldCoords = toWorld * vm::vec3(oldCenterInFaceCoords);
             
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
@@ -227,7 +227,7 @@ namespace TrenchBroom {
                 const auto [invertible, fromPlane] = invert(toPlane);
                 assert(invertible); unused(invertible);
 
-                const auto originPosition(toPlane * fromFace * vec3(m_helper.originInFaceCoords()));
+                const auto originPosition(toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords()));
                 const auto faceCenterPosition(toPlane * m_helper.face()->boundsCenter());
 
                 const auto& handleColor = pref(Preferences::HandleColor);
@@ -236,7 +236,7 @@ namespace TrenchBroom {
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 {
-                    const auto translation = translationMatrix(vec3(originPosition));
+                    const auto translation = translationMatrix(vm::vec3(originPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);
@@ -247,7 +247,7 @@ namespace TrenchBroom {
                 }
                 
                 {
-                    const auto translation = translationMatrix(vec3(faceCenterPosition));
+                    const auto translation = translationMatrix(vm::vec3(faceCenterPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     shader.set("Color", highlightColor);
                     m_center.render();

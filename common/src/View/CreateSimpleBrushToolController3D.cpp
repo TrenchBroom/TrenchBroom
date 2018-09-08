@@ -52,7 +52,7 @@ namespace TrenchBroom {
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                    setRestricter(inputState, new LineDragRestricter(line3(currentHandlePosition(), vec3::pos_z)), true);
+                    setRestricter(inputState, new LineDragRestricter(line3(currentHandlePosition(), vm::vec3::pos_z)), true);
                 } else {
                     setRestricter(inputState, new PlaneDragRestricter(horizontalPlane(currentHandlePosition())), true);
                 }
@@ -76,16 +76,16 @@ namespace TrenchBroom {
             else
                 m_initialPoint = inputState.defaultPointUnderMouse();
             
-            updateBounds(m_initialPoint, vec3(inputState.camera().position()));
+            updateBounds(m_initialPoint, vm::vec3(inputState.camera().position()));
             refreshViews();
                 
             
-            const plane3 plane = plane3(m_initialPoint, vec3::pos_z);
+            const plane3 plane = plane3(m_initialPoint, vm::vec3::pos_z);
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
-            updateBounds(nextHandlePosition, vec3(inputState.camera().position()));
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+            updateBounds(nextHandlePosition, vm::vec3(inputState.camera().position()));
             refreshViews();
             return DR_Continue;
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CreateSimpleBrushToolController3D::updateBounds(const vec3& point, const vec3 cameraPosition) {
+        void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3 cameraPosition) {
             bbox3 bounds;
             
             bounds.min = min(m_initialPoint, point);

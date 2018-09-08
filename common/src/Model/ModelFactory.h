@@ -38,8 +38,8 @@ namespace TrenchBroom {
             Entity* createEntity() const;
             Brush* createBrush(const bbox3& worldBounds, const BrushFaceList& faces) const;
             
-            BrushFace* createFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const;
-            BrushFace* createFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const;
+            BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
+            BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat::Type doGetFormat() const = 0;
             virtual World* doCreateWorld(const bbox3& worldBounds) const = 0;
@@ -47,8 +47,8 @@ namespace TrenchBroom {
             virtual Group* doCreateGroup(const String& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;
             virtual Brush* doCreateBrush(const bbox3& worldBounds, const BrushFaceList& faces) const = 0;
-            virtual BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs) const = 0;
-            virtual BrushFace* doCreateFace(const vec3& point1, const vec3& point2, const vec3& point3, const BrushFaceAttributes& attribs, const vec3& texAxisX, const vec3& texAxisY) const = 0;
+            virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
+            virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
         };
     }
 }

@@ -217,7 +217,7 @@ namespace TrenchBroom {
                 return false;
             
             m_dragOrigin = hit.hitPoint();
-            m_totalDelta = vec3::zero;
+            m_totalDelta = vm::vec3::zero;
             m_splitBrushes = split;
 
             MapDocumentSPtr document = lock(m_document);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        vec3 ResizeBrushesTool::selectDelta(const vec3& relativeDelta, const vec3& absoluteDelta, const FloatType mouseDistance) const {
+        vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const FloatType mouseDistance2 = mouseDistance * mouseDistance;
             return (Math::abs(squaredLength(relativeDelta) - mouseDistance2) <
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             m_resizing = false;
         }
 
-        bool ResizeBrushesTool::splitBrushes(const vec3& delta) {
+        bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             const bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);

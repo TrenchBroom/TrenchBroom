@@ -50,8 +50,8 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(Math::Axis::Type axis);
-            void setRecentlyUsedCenters(const vec3::List& centers);
-            void setCurrentCenter(const vec3& center);
+            void setRecentlyUsedCenters(const vm::vec3::List& centers);
+            void setCurrentCenter(const vm::vec3& center);
         private:
             void createGui();
             
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             void OnAngleChanged(SpinControlEvent& event);
             void OnUpdateRotateButton(wxUpdateUIEvent& event);
             void OnRotate(wxCommandEvent& event);
-            vec3 getAxis() const;
+            vm::vec3 getAxis() const;
         };
     }
 }

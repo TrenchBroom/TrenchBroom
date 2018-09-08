@@ -36,12 +36,12 @@ namespace TrenchBroom {
             const Renderer::Camera& m_camera;
             const FloatType m_distance;
             const mat4x4 m_transform;
-            const vec3 m_start;
-            vec3 m_cur;
+            const vm::vec3 m_start;
+            vm::vec3 m_cur;
         public:
-            Lasso(const Renderer::Camera& camera, FloatType distance, const vec3& point);
+            Lasso(const Renderer::Camera& camera, FloatType distance, const vm::vec3& point);
             
-            void update(const vec3& point);
+            void update(const vm::vec3& point);
             
             template <typename I, typename O>
             void selected(I cur, I end, O out) const {
@@ -59,10 +59,10 @@ namespace TrenchBroom {
                 return selects(h, plane(), box());
             }
         private:
-            bool selects(const vec3& point, const plane3& plane, const bbox2& box) const;
+            bool selects(const vm::vec3& point, const plane3& plane, const bbox2& box) const;
             bool selects(const segment3& edge, const plane3& plane, const bbox2& box) const;
             bool selects(const polygon3& polygon, const plane3& plane, const bbox2& box) const;
-            vec3 project(const vec3& point, const plane3& plane) const;
+            vm::vec3 project(const vm::vec3& point, const plane3& plane) const;
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:

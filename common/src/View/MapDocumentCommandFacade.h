@@ -89,7 +89,7 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
-            polygon3::List performResizeBrushes(const polygon3::List& polygons, const vec3& delta);
+            polygon3::List performResizeBrushes(const polygon3::List& polygons, const vm::vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
@@ -99,9 +99,9 @@ namespace TrenchBroom {
         public: // vertices
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
-            vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const vec3& delta);
-            segment3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vec3& delta);
-            polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const vec3& delta);
+            vm::vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta);
+            segment3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta);
+            polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const vm::vec3& delta);
             void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations

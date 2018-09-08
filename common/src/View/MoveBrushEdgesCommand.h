@@ -38,12 +38,12 @@ namespace TrenchBroom {
             Model::BrushEdgesMap m_edges;
             segment3::List m_oldEdgePositions;
             segment3::List m_newEdgePositions;
-            vec3 m_delta;
+            vm::vec3 m_delta;
         public:
-            static Ptr move(const Model::EdgeToBrushesMap& edges, const vec3& delta);
+            static Ptr move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta);
         private:
         private:
-            MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const segment3::List& edgePositions, const vec3& delta);
+            MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const segment3::List& edgePositions, const vm::vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

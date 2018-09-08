@@ -41,16 +41,16 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();
 
-        const vec3& RotateObjectsHandle::position() const {
+        const vm::vec3& RotateObjectsHandle::position() const {
             return m_position;
         }
 
-        void RotateObjectsHandle::setPosition(const vec3& position) {
+        void RotateObjectsHandle::setPosition(const vm::vec3& position) {
             m_position = position;
         }
         
         Model::Hit RotateObjectsHandle::pick2D(const ray3& pickRay, const Renderer::Camera& camera) const {
-            vec3 xAxis, yAxis, zAxis;
+            vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
             auto hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
@@ -70,7 +70,7 @@ namespace TrenchBroom {
         }
         
         Model::Hit RotateObjectsHandle::pick3D(const ray3& pickRay, const Renderer::Camera& camera) const {
-            vec3 xAxis, yAxis, zAxis;
+            vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
             Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
@@ -80,8 +80,8 @@ namespace TrenchBroom {
             return hit;
         }
 
-        vec3 RotateObjectsHandle::pointHandlePosition(const HitArea area, const vec3& cameraPos) const {
-            vec3 xAxis, yAxis, zAxis;
+        vm::vec3 RotateObjectsHandle::pointHandlePosition(const HitArea area, const vm::vec3& cameraPos) const {
+            vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(cameraPos, xAxis, yAxis, zAxis);
             switch (area) {
                 case HitArea_XAxis:
@@ -101,8 +101,8 @@ namespace TrenchBroom {
             return pref(Preferences::RotateHandleRadius);
         }
 
-        vec3 RotateObjectsHandle::pointHandleAxis(const HitArea area, const vec3& cameraPos) const {
-            vec3 xAxis, yAxis, zAxis;
+        vm::vec3 RotateObjectsHandle::pointHandleAxis(const HitArea area, const vm::vec3& cameraPos) const {
+            vm::vec3 xAxis, yAxis, zAxis;
             computeAxes(cameraPos, xAxis, yAxis, zAxis);
             switch (area) {
                 case HitArea_XAxis:
@@ -113,22 +113,22 @@ namespace TrenchBroom {
                     return zAxis;
                 case HitArea_None:
                 case HitArea_Center:
-                    return vec3::pos_z;
+                    return vm::vec3::pos_z;
                 switchDefault()
             }
         }
         
-        vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
+        vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
             switch (area) {
                 case HitArea_XAxis:
-                    return vec3::pos_z;
+                    return vm::vec3::pos_z;
                 case HitArea_YAxis:
-                    return vec3::pos_x;
+                    return vm::vec3::pos_x;
                 case HitArea_ZAxis:
-                    return vec3::pos_y;
+                    return vm::vec3::pos_y;
                 case HitArea_None:
                 case HitArea_Center:
-                    return vec3::pos_z;
+                    return vm::vec3::pos_z;
                 switchDefault()
             }
         }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
         }
         */
         
-        Model::Hit RotateObjectsHandle::pickPointHandle(const ray3& pickRay, const Renderer::Camera& camera, const vec3& position, const HitArea area) const {
+        Model::Hit RotateObjectsHandle::pickPointHandle(const ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
             if (Math::isnan(distance))
                 return Model::Hit::NoHit;
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             return closest;
         }
         
-        vec3 RotateObjectsHandle::getPointHandlePosition(const vec3& axis) const {
+        vm::vec3 RotateObjectsHandle::getPointHandlePosition(const vm::vec3& axis) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             return m_position + axis * FloatType(prefs.get(Preferences::RotateHandleRadius));
         }

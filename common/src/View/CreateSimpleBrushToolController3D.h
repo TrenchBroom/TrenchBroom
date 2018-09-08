@@ -38,7 +38,7 @@ namespace TrenchBroom {
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
             
-            vec3 m_initialPoint;
+            vm::vec3 m_initialPoint;
         public:
             CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             void doModifierKeyChange(const InputState& inputState) override;
 
             DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) override;
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
             void doCancelDrag() override;
 
@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
             bool doCancel() override;
         private:
-            void updateBounds(const vec3& point, vec3 cameraPosition);
+            void updateBounds(const vm::vec3& point, vm::vec3 cameraPosition);
         };
     }
 }

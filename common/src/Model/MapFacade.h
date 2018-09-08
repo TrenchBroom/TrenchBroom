@@ -85,12 +85,12 @@ namespace TrenchBroom {
             virtual void unlock(const Model::NodeList& nodes) = 0;
             virtual void resetLock(const Model::NodeList& nodes) = 0;
         public: // modifying objects
-            virtual bool translateObjects(const vec3& delta) = 0;
-            virtual bool rotateObjects(const vec3& center, const vec3& axis, FloatType angle) = 0;
+            virtual bool translateObjects(const vm::vec3& delta) = 0;
+            virtual bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) = 0;
             virtual bool scaleObjects(const bbox3& oldBBox, const bbox3& newBBox) = 0;
-            virtual bool scaleObjects(const vec3& center, const vec3& scaleFactors) = 0;
-            virtual bool shearObjects(const bbox3& box, const vec3& sideToShear, const vec3& delta) = 0;
-            virtual bool flipObjects(const vec3& center, Math::Axis::Type axis) = 0;
+            virtual bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) = 0;
+            virtual bool shearObjects(const bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
+            virtual bool flipObjects(const vm::vec3& center, Math::Axis::Type axis) = 0;
         public: // modifying entity attributes
             virtual bool setAttribute(const AttributeName& name, const AttributeValue& value) = 0;
             virtual bool renameAttribute(const AttributeName& oldName, const AttributeName& newName) = 0;
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             virtual bool convertEntityColorRange(const AttributeName& name, Assets::ColorRange::Type range) = 0;
             virtual bool updateSpawnflag(const AttributeName& name, size_t flagIndex, bool setFlag) = 0;
         public: // brush resizing
-            virtual bool resizeBrushes(const polygon3::List& faces, const vec3& delta) = 0;
+            virtual bool resizeBrushes(const polygon3::List& faces, const vm::vec3& delta) = 0;
         public: // modifying face attributes
             virtual void setTexture(Assets::Texture* texture) = 0;
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
@@ -118,9 +118,9 @@ namespace TrenchBroom {
                 MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
             };
             
-            virtual MoveVerticesResult moveVertices(const VertexToBrushesMap& vertices, const vec3& delta) = 0;
-            virtual bool moveEdges(const Model::EdgeToBrushesMap& edges, const vec3& delta) = 0;
-            virtual bool moveFaces(const Model::FaceToBrushesMap& faces, const vec3& delta) = 0;
+            virtual MoveVerticesResult moveVertices(const VertexToBrushesMap& vertices, const vm::vec3& delta) = 0;
+            virtual bool moveEdges(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) = 0;
+            virtual bool moveFaces(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) = 0;
         public: // search paths and mods
             virtual StringList mods() const = 0;
             virtual void setMods(const StringList& mods) = 0;

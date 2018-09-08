@@ -27,10 +27,10 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const vec3& delta) {
+        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) {
             Model::BrushList brushes;
             Model::BrushVerticesMap brushVertices;
-            vec3::List vertexPositions;
+            vm::vec3::List vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
             return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return !m_newVertexPositions.empty();
         }
 
-        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vec3::List& vertexPositions, const vec3& delta) :
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vm::vec3::List& vertexPositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             const bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
-                const vec3::List& vertices = entry.second;
+                const vm::vec3::List& vertices = entry.second;
                 if (!brush->canMoveVertices(worldBounds, vertices, m_delta))
                     return false;
             }
@@ -76,11 +76,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {
+        void MoveBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
         }
         
-        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vec3>& manager) const {
+        void MoveBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
         }
     }

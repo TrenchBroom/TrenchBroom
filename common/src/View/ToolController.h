@@ -105,9 +105,9 @@ namespace TrenchBroom {
         class DragRestricter {
         public:
             virtual ~DragRestricter();
-            bool hitPoint(const InputState& inputState, vec3& point) const;
+            bool hitPoint(const InputState& inputState, vm::vec3& point) const;
         private:
-            virtual bool doComputeHitPoint(const InputState& inputState, vec3& point) const = 0;
+            virtual bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const = 0;
         };
 
         class PlaneDragRestricter : public DragRestricter {
@@ -116,18 +116,18 @@ namespace TrenchBroom {
         public:
             PlaneDragRestricter(const plane3& plane);
         private:
-            bool doComputeHitPoint(const InputState& inputState, vec3& point) const override;
+            bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
         
         class CircleDragRestricter : public DragRestricter {
         private:
-            const vec3 m_center;
-            const vec3 m_normal;
+            const vm::vec3 m_center;
+            const vm::vec3 m_normal;
             const FloatType m_radius;
         public:
-            CircleDragRestricter(const vec3& center, const vec3& normal, FloatType radius);
+            CircleDragRestricter(const vm::vec3& center, const vm::vec3& normal, FloatType radius);
         private:
-            bool doComputeHitPoint(const InputState& inputState, vec3& point) const override;
+            bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
         
         class LineDragRestricter : public DragRestricter {
@@ -136,7 +136,7 @@ namespace TrenchBroom {
         public:
             LineDragRestricter(const line3& line);
         private:
-            bool doComputeHitPoint(const InputState& inputState, vec3& point) const override;
+            bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
         
         class SurfaceDragHelper {
@@ -165,16 +165,16 @@ namespace TrenchBroom {
         
         class SurfaceDragRestricter : public SurfaceDragHelper, public DragRestricter {
         private:
-            bool doComputeHitPoint(const InputState& inputState, vec3& point) const override;
+            bool doComputeHitPoint(const InputState& inputState, vm::vec3& point) const override;
         };
         
         class DragSnapper {
         public:
             virtual ~DragSnapper();
             
-            bool snap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const;
+            bool snap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const;
         private:
-            virtual bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const = 0;
+            virtual bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const = 0;
         };
         
         class MultiDragSnapper : public DragSnapper {
@@ -195,12 +195,12 @@ namespace TrenchBroom {
             
             void addDelegates();
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
         
         class NoDragSnapper : public DragSnapper {
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
         
         class Grid;
@@ -208,11 +208,11 @@ namespace TrenchBroom {
         class AbsoluteDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
-            vec3 m_offset;
+            vm::vec3 m_offset;
         public:
-            AbsoluteDragSnapper(const Grid& grid, const vec3& offset = vec3::zero);
+            AbsoluteDragSnapper(const Grid& grid, const vm::vec3& offset = vm::vec3::zero);
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
         
         class DeltaDragSnapper : public DragSnapper {
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         public:
             DeltaDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
 
         /**
@@ -234,20 +234,20 @@ namespace TrenchBroom {
         public:
             LineDragSnapper(const Grid& grid, const line3& line);
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
         
         class CircleDragSnapper : public DragSnapper {
         private:
             const Grid& m_grid;
-            const vec3 m_start;
-            const vec3 m_center;
-            const vec3 m_normal;
+            const vm::vec3 m_start;
+            const vm::vec3 m_center;
+            const vm::vec3 m_normal;
             const FloatType m_radius;
         public:
-            CircleDragSnapper(const Grid& grid, const vec3& start, const vec3& center, const vec3& normal, FloatType radius);
+            CircleDragSnapper(const Grid& grid, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, FloatType radius);
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         };
         
         class SurfaceDragSnapper : public SurfaceDragHelper, public DragSnapper {
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         public:
             SurfaceDragSnapper(const Grid& grid);
         private:
-            bool doSnap(const InputState& inputState, const vec3& initialPoint, const vec3& lastPoint, vec3& curPoint) const override;
+            bool doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const override;
         private:
             virtual plane3 doGetPlane(const InputState& inputState, const Model::Hit& hit) const = 0;
         };
@@ -266,22 +266,22 @@ namespace TrenchBroom {
             DragRestricter* m_restricter;
             DragSnapper* m_snapper;
             
-            vec3 m_initialHandlePosition;
-            vec3 m_currentHandlePosition;
+            vm::vec3 m_initialHandlePosition;
+            vm::vec3 m_currentHandlePosition;
             
-            vec3 m_initialMousePosition;
-            vec3 m_currentMousePosition;
+            vm::vec3 m_initialMousePosition;
+            vm::vec3 m_currentMousePosition;
         protected:
             struct DragInfo {
                 DragRestricter* restricter;
                 DragSnapper* snapper;
                 
-                vec3 initialHandlePosition;
+                vm::vec3 initialHandlePosition;
                 bool computeInitialHandlePosition;
                 
                 DragInfo();
                 DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper);
-                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const vec3& i_initialHandlePosition);
+                DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const vm::vec3& i_initialHandlePosition);
 
                 bool skip() const;
             };
@@ -301,12 +301,12 @@ namespace TrenchBroom {
             void deleteRestricter();
             void deleteSnapper();
         public:
-            const vec3& initialHandlePosition() const;
-            const vec3& currentHandlePosition() const;
-            const vec3& initialMousePosition() const;
-            const vec3& currentMousePosition() const;
+            const vm::vec3& initialHandlePosition() const;
+            const vm::vec3& currentHandlePosition() const;
+            const vm::vec3& initialMousePosition() const;
+            const vm::vec3& currentMousePosition() const;
             
-            bool hitPoint(const InputState& inputState, vec3& result) const;
+            bool hitPoint(const InputState& inputState, vm::vec3& result) const;
         public:
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
@@ -316,12 +316,12 @@ namespace TrenchBroom {
             void setRestricter(const InputState& inputState, DragRestricter* restricter, bool resetInitialPoint);
             void setSnapper(const InputState& inputState, DragSnapper* snapper, bool resetCurrentHandlePosition);
             
-            bool snapPoint(const InputState& inputState, vec3& point) const;
+            bool snapPoint(const InputState& inputState, vm::vec3& point) const;
         private:
             void resetInitialPoint(const InputState& inputState);
         private: // subclassing interface
             virtual DragInfo doStartDrag(const InputState& inputState) = 0;
-            virtual DragResult doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) = 0;
+            virtual DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) = 0;
             virtual void doEndDrag(const InputState& inputState) = 0;
             virtual void doCancelDrag() = 0;
         };

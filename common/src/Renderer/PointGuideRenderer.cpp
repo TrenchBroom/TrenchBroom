@@ -34,19 +34,19 @@ namespace TrenchBroom {
             m_color = color;
         }
         
-        void PointGuideRenderer::setPosition(const vec3& position) {
+        void PointGuideRenderer::setPosition(const vm::vec3& position) {
             if (position == m_position)
                 return;
             
             m_spikeRenderer.clear();
 
             View::MapDocumentSPtr document = lock(m_document);
-            m_spikeRenderer.add(ray3(position, vec3::pos_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(position, vec3::neg_x), SpikeLength, document);
-            m_spikeRenderer.add(ray3(position, vec3::pos_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(position, vec3::neg_y), SpikeLength, document);
-            m_spikeRenderer.add(ray3(position, vec3::pos_z), SpikeLength, document);
-            m_spikeRenderer.add(ray3(position, vec3::neg_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::pos_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::neg_x), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::pos_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::neg_y), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::pos_z), SpikeLength, document);
+            m_spikeRenderer.add(ray3(position, vm::vec3::neg_z), SpikeLength, document);
             
             m_position = position;
         }

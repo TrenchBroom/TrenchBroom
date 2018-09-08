@@ -160,7 +160,7 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        vec3 MapView2D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 MapView2D::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
             auto document = lock(m_document);
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             
             const auto distance = intersect(pickRay, dragPlane);;
             if (Math::isnan(distance)) {
-                return vec3::zero;
+                return vm::vec3::zero;
             } else {
                 const auto hitPoint = pickRay.pointAtDistance(distance);
                 return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
@@ -189,11 +189,11 @@ namespace TrenchBroom {
             const MapDocumentSPtr document = lock(m_document);
             const bbox3& worldBounds = document->worldBounds();
             
-            const FloatType min = dot(worldBounds.min, vec3(m_camera.direction()));
-            const FloatType max = dot(worldBounds.max, vec3(m_camera.direction()));
+            const FloatType min = dot(worldBounds.min, vm::vec3(m_camera.direction()));
+            const FloatType max = dot(worldBounds.max, vm::vec3(m_camera.direction()));
             
-            const plane3 minPlane(min, vec3(m_camera.direction()));
-            const plane3 maxPlane(max, vec3(m_camera.direction()));
+            const plane3 minPlane(min, vm::vec3(m_camera.direction()));
+            const plane3 maxPlane(max, vm::vec3(m_camera.direction()));
             
             const Model::BrushList& selectionBrushes = document->selectedNodes().brushes();
             assert(!selectionBrushes.empty());
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             tallBrushes.reserve(selectionBrushes.size());
             
             for (const Model::Brush* selectionBrush : selectionBrushes) {
-                vec3::List tallVertices(0);
+                vm::vec3::List tallVertices(0);
                 tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
                 for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
@@ -228,12 +228,12 @@ namespace TrenchBroom {
         void MapView2D::doFocusCameraOnSelection(const bool animate) {
             const auto document = lock(m_document);
             const auto& bounds = document->referenceBounds();
-            const auto diff = bounds.center() - vec3(m_camera.position());
-            const auto delta = diff * vec3(m_camera.up() + m_camera.right());
-            moveCameraToPosition(vec3(m_camera.position()) + delta, animate);
+            const auto diff = bounds.center() - vm::vec3(m_camera.position());
+            const auto delta = diff * vm::vec3(m_camera.up() + m_camera.right());
+            moveCameraToPosition(vm::vec3(m_camera.position()) + delta, animate);
         }
         
-        void MapView2D::doMoveCameraToPosition(const vec3& position, const bool animate) {
+        void MapView2D::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             if (animate) {
                 animateCamera(vm::vec3f(position), m_camera.direction(), m_camera.up());
             } else {
@@ -254,32 +254,32 @@ namespace TrenchBroom {
             auto* pointFile = document->pointFile();
             assert(pointFile->hasNextPoint());
             
-            const auto position = vec3(pointFile->currentPoint());
+            const auto position = vm::vec3(pointFile->currentPoint());
             moveCameraToPosition(position, true);
         }
 
-        vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
+        vm::vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward:
-                    return vec3(firstAxis(m_camera.direction()));
+                    return vm::vec3(firstAxis(m_camera.direction()));
                 case Math::Direction_Backward:
-                    return vec3(-firstAxis(m_camera.direction()));
+                    return vm::vec3(-firstAxis(m_camera.direction()));
                 case Math::Direction_Left:
-                    return vec3(-firstAxis(m_camera.right()));
+                    return vm::vec3(-firstAxis(m_camera.right()));
                 case Math::Direction_Right:
-                    return vec3(firstAxis(m_camera.right()));
+                    return vm::vec3(firstAxis(m_camera.right()));
                 case Math::Direction_Up:
-                    return vec3(firstAxis(m_camera.up()));
+                    return vm::vec3(firstAxis(m_camera.up()));
                 case Math::Direction_Down:
-                    return vec3(-firstAxis(m_camera.up()));
+                    return vm::vec3(-firstAxis(m_camera.up()));
                 switchDefault()
             }
         }
 
-        vec3 MapView2D::doComputePointEntityPosition(const bbox3& bounds) const {
+        vm::vec3 MapView2D::doComputePointEntityPosition(const bbox3& bounds) const {
             auto document = lock(m_document);
 
-            vec3 delta;
+            vm::vec3 delta;
             const auto& grid = document->grid();
             
             const auto& worldBounds = document->worldBounds();
@@ -299,7 +299,7 @@ namespace TrenchBroom {
                 
                 const auto distance = intersect(pickRay, dragPlane);
                 if (Math::isnan(distance)) {
-                    return vec3::zero;
+                    return vm::vec3::zero;
                 } else {
                     const auto hitPoint = pickRay.pointAtDistance(distance);
                     return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);

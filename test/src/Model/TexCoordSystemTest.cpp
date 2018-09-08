@@ -42,10 +42,10 @@ namespace TrenchBroom {
         TEST(TexCoordSystemTest, testSnapshotTypeSafety) {
             BrushFaceAttributes attribs("");
             
-            ParaxialTexCoordSystem paraxial(vec3::pos_z, attribs);
+            ParaxialTexCoordSystem paraxial(vm::vec3::pos_z, attribs);
             ASSERT_EQ(nullptr, paraxial.takeSnapshot());
             
-            ParallelTexCoordSystem parallel(vec3::pos_y, vec3::pos_x);
+            ParallelTexCoordSystem parallel(vm::vec3::pos_y, vm::vec3::pos_x);
             TexCoordSystemSnapshot *parallelSnapshot = parallel.takeSnapshot();
             ASSERT_NE(nullptr, parallelSnapshot);
             

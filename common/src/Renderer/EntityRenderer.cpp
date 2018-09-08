@@ -286,7 +286,7 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const vec3& v1, const vec3& v2, const vec3& v3, const vec3& v4, const vec3& n) {
+            void operator()(const vm::vec3& v1, const vm::vec3& v2, const vm::vec3& v3, const vm::vec3& v4, const vm::vec3& n) {
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v1), vm::vec3f(n), color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v2), vm::vec3f(n), color));
                 vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v3), vm::vec3f(n), color));
@@ -302,7 +302,7 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const vec3& v1, const vec3& v2) {
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
                 vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
                 vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
             }
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
             
-            void operator()(const vec3& v1, const vec3& v2) {
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
                 vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
                 vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
             }

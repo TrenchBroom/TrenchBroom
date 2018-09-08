@@ -317,7 +317,7 @@ namespace TrenchBroom {
             m_mapView->flipObjects(direction);
         }
         
-        vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
+        vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const bbox3& bounds, const bbox3& referenceBounds) const {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
         
@@ -325,7 +325,7 @@ namespace TrenchBroom {
             m_mapView->focusCameraOnSelection(animate);
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToPosition(const vec3& position, const bool animate) {
+        void SwitchableMapViewContainer::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             m_mapView->moveCameraToPosition(position, animate);
         }
         

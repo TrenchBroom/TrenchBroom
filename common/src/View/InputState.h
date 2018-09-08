@@ -105,8 +105,8 @@ namespace TrenchBroom {
             void setAnyToolDragging(bool anyToolDragging);
             
             const ray3& pickRay() const;
-            const vec3 defaultPoint() const;
-            const vec3 defaultPointUnderMouse() const;
+            const vm::vec3 defaultPoint() const;
+            const vm::vec3 defaultPointUnderMouse() const;
             const Renderer::Camera& camera() const;
             void setPickRequest(const PickRequest& pickRequest);
 

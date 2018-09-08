@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const plane3 plane(bounds.min, vec3(firstAxis(camera.direction())));
+            const plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
             
             const auto distance = intersect(inputState.pickRay(), plane);
             if (Math::isnan(distance)) {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vec3& lastHandlePosition, const vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             if (updateBounds(inputState, nextHandlePosition)) {
                 m_tool->refreshViews();
                 return DR_Continue;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vec3& currentPoint) {
+        bool CreateSimpleBrushToolController2D::updateBounds(const InputState& inputState, const vm::vec3& currentPoint) {
             bbox3 bounds(m_initialPoint, m_initialPoint);
             bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
-            const auto factors = vec3(abs(firstAxis(camera.direction())));
+            const auto factors = vm::vec3(abs(firstAxis(camera.direction())));
             min = mix(min, refBounds.min, factors);
             max = mix(max, refBounds.max, factors);
 
