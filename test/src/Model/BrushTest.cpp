@@ -2817,7 +2817,6 @@ namespace TrenchBroom {
 
             // Ensure they were actually snapped
             {
-                size_t i = 0;
                 for (const Model::BrushVertex* vertex : brush->vertices()) {
                     const vm::vec3& pos = vertex->position();
                     ASSERT_TRUE(isIntegral(pos, 0.001));
