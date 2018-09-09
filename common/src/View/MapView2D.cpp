@@ -18,7 +18,6 @@
  */
 
 #include "MapView2D.h"
-#include "Algorithms.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/Brush.h"

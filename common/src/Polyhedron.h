@@ -20,10 +20,10 @@
 #ifndef TrenchBroom_Polyhedron_h
 #define TrenchBroom_Polyhedron_h
 
-#include "Algorithms.h"
 #include "Allocator.h"
 #include "DoublyLinkedList.h"
 #include "VecMath.h"
+#include "convex_hull.h"
 
 #include <cassert>
 #include <queue>

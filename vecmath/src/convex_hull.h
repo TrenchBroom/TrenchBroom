@@ -17,35 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Algorithms_h
-#define TrenchBroom_Algorithms_h
+#ifndef TRENCHBROOM_CONVEX_HULL_H
+#define TRENCHBROOM_CONVEX_HULL_H
 
 #include "vec_decl.h"
-#include "plane_decl.h"
-#include "ray_decl.h"
+#include "vec_impl.h"
 
-// TODO 2201: refactor
+#include <algorithm>
+#include <iterator>
+
 namespace vm {
-    /*
-     Returns > 0 if p3.xy() is to the left of the line through p1.xy() and p2.xy(),
-     < 0 if it is to the right of that line, or
-     = 0 if it is on the line.
+    /**
+     * Helper struct for computing a convex hull.
+     *
+     * @tparam T the component type
      */
-    template <typename T, size_t S>
-    int isLeft(const vec<T,S>& p1, const vec<T,S>& p2, const vec<T,S>& p3) {
-        assert(S >= 2);
-        const T result = ( (p2.x() - p1.x()) * (p3.y() - p1.y())
-                          -(p3.x() - p1.x()) * (p2.y() - p1.y()));
-        if (result < 0.0)
-            return -1;
-        if (result > 0.0)
-            return 1;
-        return 0;
-    }
-
-
     template <typename T>
     class ConvexHull2D {
+    private:
+        static int isLeft(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
+            const T result = ( (p2.x() - p1.x()) * (p3.y() - p1.y())
+                               -(p3.x() - p1.x()) * (p2.y() - p1.y()));
+            if (result < 0.0) {
+                return -1;
+            } else if (result > 0.0) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
     private:
         class LessThanByAngle {
         private:
@@ -54,21 +54,22 @@ namespace vm {
             LessThanByAngle(const vec<T,3>& anchor) : m_anchor(anchor) {}
         public:
             bool operator()(const vec<T,3>& lhs, const vec<T,3>& rhs) const {
-                const int side = isLeft(m_anchor, lhs, rhs);
-                if (side > 0)
+                const auto side = isLeft(m_anchor, lhs, rhs);
+                if (side > 0) {
                     return true;
-                if (side < 0)
+                } else if (side < 0) {
                     return false;
-
-                // the points are colinear, the one that is further from the anchor is considered less
-                const T dxl = abs(lhs.x() - m_anchor.x());
-                const T dxr = abs(rhs.x() - m_anchor.x());
-                if (dxl == dxr) {
-                    const T dyl = abs(lhs.y() - m_anchor.y());
-                    const T dyr = abs(rhs.y() - m_anchor.y());
-                    return dyl > dyr;
+                } else {
+                    // the points are colinear, the one that is further from the anchor is considered less
+                    const auto dxl = abs(lhs.x() - m_anchor.x());
+                    const auto dxr = abs(rhs.x() - m_anchor.x());
+                    if (dxl == dxr) {
+                        const auto dyl = abs(lhs.y() - m_anchor.y());
+                        const auto dyr = abs(rhs.y() - m_anchor.y());
+                        return dyl > dyr;
+                    }
+                    return dxl > dxr;
                 }
-                return dxl > dxr;
             }
         };
 
@@ -79,20 +80,21 @@ namespace vm {
         m_points(points),
         m_hasResult(m_points.size() > 2) {
             if (m_hasResult) {
-                const size_t thirdPointIndex = findLinearlyIndependentPoint();
+                const auto thirdPointIndex = findLinearlyIndependentPoint();
                 m_hasResult = (thirdPointIndex < m_points.size());
 
                 if (m_hasResult) {
-                    const axis::type axis = computeAxis(thirdPointIndex);
-                    swizzleTo(axis);
+                    const auto axis = computeAxis(thirdPointIndex);
+                    swizzle(axis);
 
                     findAnchor();
                     sortPoints();
                     m_hasResult = (m_points.size() > 2);
-                    if (m_hasResult)
-                        buildHull();
 
-                    swizzleFrom(axis);
+                    if (m_hasResult) {
+                        buildHull();
+                        unswizzle(axis);
+                    }
                 }
             }
         }
@@ -115,19 +117,30 @@ namespace vm {
         }
 
         axis::type computeAxis(const size_t thirdPointIndex) const {
-            const vec<T,3> ortho = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
-            return firstComponent(ortho);
+            const auto axis = cross(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
+            return firstComponent(axis);
         }
 
-        void swizzleTo(const axis::type axis) {
-            for (size_t i = 0; i < m_points.size(); ++i) {
-                m_points[i] = swizzle(m_points[i], axis);
-            }
+        void swizzle(const axis::type axis) {
+            auto points = typename vec<T,3>::List();
+            points.reserve(m_points.size());
+
+            std::transform(
+                    std::begin(m_points), std::end(m_points),
+                    std::back_inserter(points),
+                    [&](const auto& p) { return vm::swizzle(p, axis); });
+            using std::swap; swap(m_points, points);
         }
 
-        void swizzleFrom(const axis::type axis) {
-            swizzleTo(axis);
-            swizzleTo(axis);
+        void unswizzle(const axis::type axis) {
+            auto points = typename vec<T,3>::List();
+            points.reserve(m_points.size());
+
+            std::transform(
+                    std::begin(m_points), std::end(m_points),
+                    std::back_inserter(points),
+                    [&](const auto& p) { return vm::unswizzle(p, axis); });
+            using std::swap; swap(m_points, points);
         }
 
         void findAnchor() {
@@ -147,15 +160,15 @@ namespace vm {
         }
 
         void sortPoints() {
-            const vec<T,3>& anchor = m_points[0];
-            std::sort(std::begin(m_points) + 1, std::end(m_points), LessThanByAngle(anchor));
+            const auto& anchor = m_points[0];
+            std::sort(std::next(std::begin(m_points)), std::end(m_points), LessThanByAngle(anchor));
 
             // now remove the duplicates
             auto i = std::begin(m_points) + 1;
             while (i != std::end(m_points)) {
-                const vec<T,3>& p1 = *(i++);
+                const auto& p1 = *(i++);
                 while (i != std::end(m_points)) {
-                    const vec<T,3>& p2 = *i;
+                    const auto& p2 = *i;
                     if (isLeft(anchor, p1, p2) == 0) {
                         i = m_points.erase(i);
                     } else {
@@ -166,27 +179,26 @@ namespace vm {
         }
 
         void buildHull() {
-            typename vec<T,3>::List stack;
+            auto stack = typename vec<T,3>::List();
             stack.reserve(m_points.size());
             stack.push_back(m_points[0]);
             stack.push_back(m_points[1]);
 
             for (size_t i = 2; i < m_points.size(); ++i) {
-                const vec<T,3>& p = m_points[i];
+                const auto& p = m_points[i];
                 popStalePoints(stack, p);
                 stack.push_back(p);
             }
 
-            using std::swap;
-            swap(m_points, stack);
+            using std::swap; swap(m_points, stack);
             assert(m_points.size() > 2);
         }
 
         void popStalePoints(typename vec<T,3>::List& stack, const vec<T,3>& p) {
             if (stack.size() > 1) {
-                const vec<T,3>& t1 = stack[stack.size() - 2];
-                const vec<T,3>& t2 = stack[stack.size() - 1];
-                const int side = isLeft(t1, t2, p);
+                const auto& t1 = stack[stack.size() - 2];
+                const auto& t2 = stack[stack.size() - 1];
+                const auto side = isLeft(t1, t2, p);
                 if (side < 0) {
                     stack.pop_back();
                     popStalePoints(stack, p);
@@ -195,13 +207,24 @@ namespace vm {
         }
     };
 
-    // see http://geomalgorithms.com/a10-_hull-1.html
+    /**
+     * Computes the convex hull of the given points. Returns the list of vertices of the polygon which is formed
+     * by the convex hull. Note that if the given points are all colinear, or less than 3 points are given, then
+     * no convex hull exists and the function returns an empty list.
+     *
+     * @tparam T the component type
+     * @param points the points
+     * @return the convex hull of the points, or an empty list if no convex hull exists
+     */
     template <typename T>
     typename vec<T,3>::List convexHull2D(const typename vec<T,3>::List& points) {
+        // see http://geomalgorithms.com/a10-_hull-1.html
         const ConvexHull2D<T> hull(points);
-        if (!hull.hasResult())
+        if (!hull.hasResult()) {
             return vec<T,3>::EmptyList;
-        return hull.result();
+        } else {
+            return hull.result();
+        }
     }
 }
 
