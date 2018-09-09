@@ -33,7 +33,7 @@
 #include "Renderer/TexturedIndexArrayMap.h"
 #include "Renderer/IndexArrayMapBuilder.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
-#include <Renderer/BrushRendererBrushCache.h>
+#include "Renderer/BrushRendererBrushCache.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
