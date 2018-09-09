@@ -21,12 +21,15 @@
 #define TrenchBroom_Entity
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/utils.h>
+#include <vecmath/bbox_decl.h>
 
 namespace TrenchBroom {
     namespace Model {

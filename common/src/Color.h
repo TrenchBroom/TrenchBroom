@@ -20,8 +20,8 @@
 #ifndef TrenchBroom_Color_h
 #define TrenchBroom_Color_h
 
-#include "vecmath/vec_decl.h"
-#include "vecmath/vec_impl.h"
+#include <vecmath/vec_decl.h>
+#include <vecmath/vec_impl.h>
 
 class Color : public vm::vec<float, 4> {
 public:

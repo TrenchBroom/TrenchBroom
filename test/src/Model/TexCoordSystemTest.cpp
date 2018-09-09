@@ -21,7 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "TestUtils.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/TexCoordSystem.h"

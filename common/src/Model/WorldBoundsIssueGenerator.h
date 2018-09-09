@@ -21,7 +21,7 @@
 #define TrenchBroom_WorldBoundsIssueGenerator
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 

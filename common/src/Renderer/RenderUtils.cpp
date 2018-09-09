@@ -19,7 +19,7 @@
 
 #include "RenderUtils.h"
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
 

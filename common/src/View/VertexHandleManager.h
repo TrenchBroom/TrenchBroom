@@ -20,7 +20,7 @@
 #ifndef VertexHandleManager_h
 #define VertexHandleManager_h
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"

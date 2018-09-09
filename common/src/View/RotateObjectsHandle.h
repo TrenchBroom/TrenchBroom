@@ -21,7 +21,7 @@
 #define TrenchBroom_RotateObjectsHandle
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Model/Hit.h"
 #include "Renderer/PointHandleRenderer.h"

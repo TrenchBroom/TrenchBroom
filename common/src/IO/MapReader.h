@@ -21,7 +21,7 @@
 #define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "IO/StandardMapParser.h"
 #include "Model/ModelTypes.h"
 

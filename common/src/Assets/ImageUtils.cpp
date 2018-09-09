@@ -19,7 +19,7 @@
 
 #include "ImageUtils.h"
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 
 #include <FreeImage.h>
 

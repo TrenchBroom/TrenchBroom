@@ -19,7 +19,7 @@
 
 #include "FontGlyph.h"
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 
 namespace TrenchBroom {
     namespace Renderer {

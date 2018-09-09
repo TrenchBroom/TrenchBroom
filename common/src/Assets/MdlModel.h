@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MdlModel
 #define TrenchBroom_MdlModel
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"

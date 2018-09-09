@@ -19,7 +19,7 @@
 
 #include "UVOffsetTool.h"
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

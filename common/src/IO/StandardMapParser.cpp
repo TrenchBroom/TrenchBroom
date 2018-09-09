@@ -19,10 +19,11 @@
 
 #include "StandardMapParser.h"
 
-#include "vecmath/VecMath.h"
 #include "Logger.h"
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
+
+#include <vecmath/vec_decl.h>
 
 namespace TrenchBroom {
     namespace IO {

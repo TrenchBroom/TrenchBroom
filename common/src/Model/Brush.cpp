@@ -20,7 +20,6 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
-#include "vecmath/VecMath.h"
 #include "Macros.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
@@ -35,6 +34,11 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
+
+#include <vecmath/vec_decl.h>
+#include <vecmath/vec_impl.h>
+#include <vecmath/mat_decl.h>
+#include <vecmath/mat_impl.h>
 
 #include <algorithm>
 #include <iterator>

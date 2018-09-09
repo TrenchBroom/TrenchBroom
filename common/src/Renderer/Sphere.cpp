@@ -20,7 +20,7 @@
 #include "Sphere.h"
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"

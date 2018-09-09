@@ -21,7 +21,7 @@
 #define TrenchBroom_Compass
 
 #include "Color.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 

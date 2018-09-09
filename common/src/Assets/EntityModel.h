@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityModel
 #define TrenchBroom_EntityModel
 
-#include "vecmath/forward.h"
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Renderer {

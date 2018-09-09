@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FlyModeHelper
 #define TrenchBroom_FlyModeHelper
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 
 #include <iostream>
 

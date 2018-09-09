@@ -21,7 +21,7 @@
 #define TrenchBroom_FgdParser
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"

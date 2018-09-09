@@ -21,7 +21,7 @@
 #define TrenchBroom_ModelTypes_h
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Model/BrushGeometry.h"

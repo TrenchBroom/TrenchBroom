@@ -22,12 +22,11 @@
 
 #include "Allocator.h"
 #include "DoublyLinkedList.h"
-#include "vecmath/VecMath.h"
-#include "vecmath/convex_hull.h"
 
-#include <cassert>
-#include <queue>
+#include <vecmath/vec_decl.h>
+
 #include <limits>
+#include <list>
 #include <set>
 #include <vector>
 

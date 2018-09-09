@@ -20,9 +20,12 @@
 #include "EntityRotationPolicy.h"
 
 #include "Macros.h"
-#include "vecmath/VecMath.h"
 #include "StringUtils.h"
 #include "Model/Entity.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/mat_decl.h>
+#include <vecmath/mat_impl.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,59 +39,64 @@ namespace TrenchBroom {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
                 case RotationType_Angle: {
-                    const AttributeValue angleValue = entity->attribute(info.attribute);
-                    if (angleValue.empty())
+                    const auto angleValue = entity->attribute(info.attribute);
+                    if (angleValue.empty()) {
                         return vm::mat4x4::identity;
-                    const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
-                    return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                    } else {
+                        const auto angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
+                        return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                    }
                 }
                 case RotationType_AngleUpDown: {
-                    const AttributeValue angleValue = entity->attribute(info.attribute);
-                    if (angleValue.empty())
+                    const auto angleValue = entity->attribute(info.attribute);
+                    if (angleValue.empty()) {
                         return vm::mat4x4::identity;
-                    const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
-                    if (angle == -1.0)
+                    }
+                    const auto angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
+                    if (angle == -1.0) {
                         return vm::mat4x4::rot_90_y_cw;
-                    if (angle == -2.0)
+                    } else if (angle == -2.0) {
                         return vm::mat4x4::rot_90_y_ccw;
-                    return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                    } else {
+                        return vm::rotationMatrix(vm::vec3::pos_z, vm::radians(angle));
+                    }
                 }
                 case RotationType_Euler: {
-                    const AttributeValue angleValue = entity->attribute(info.attribute);
-                    const vm::vec3 angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
+                    const auto angleValue = entity->attribute(info.attribute);
+                    const auto angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
                     
                     // x = -pitch
                     // y =  yaw
                     // z =  roll
                     // pitch is applied with an inverted sign
                     // see QuakeSpasm sources gl_rmain R_RotateForEntity function
-                    const FloatType roll  = +vm::radians(angles.z());
-                    const FloatType pitch = -vm::radians(angles.x());
-                    const FloatType yaw   = +vm::radians(angles.y());
+                    const auto roll  = +vm::radians(angles.z());
+                    const auto pitch = -vm::radians(angles.x());
+                    const auto yaw   = +vm::radians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Euler_PositivePitchDown: {
-                    const AttributeValue angleValue = entity->attribute(info.attribute);
-                    const vm::vec3 angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
+                    const auto angleValue = entity->attribute(info.attribute);
+                    const auto angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
                     
                     // x = pitch
                     // y = yaw
                     // z = roll
-                    const FloatType roll  = +vm::radians(angles.z());
-                    const FloatType pitch = +vm::radians(angles.x());
-                    const FloatType yaw   = +vm::radians(angles.y());
+                    const auto roll  = +vm::radians(angles.z());
+                    const auto pitch = +vm::radians(angles.x());
+                    const auto yaw   = +vm::radians(angles.y());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_Mangle: {
-                    const AttributeValue angleValue = entity->attribute(info.attribute);
-                    const vm::vec3 angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
+                    const auto angleValue = entity->attribute(info.attribute);
+                    const auto angles = angleValue.empty() ? vm::vec3::zero : vm::vec3::parse(angleValue);
                     
                     // x = yaw
                     // y = -pitch
                     // z = roll
-                    const FloatType roll  = +vm::radians(angles.z());
-                    const FloatType pitch = -vm::radians(angles.y());
-                    const FloatType yaw   = +vm::radians(angles.x());
+                    const auto roll  = +vm::radians(angles.z());
+                    const auto pitch = -vm::radians(angles.y());
+                    const auto yaw   = +vm::radians(angles.x());
                     return vm::rotationMatrix(roll, pitch, yaw);
                 }
                 case RotationType_None:
@@ -98,40 +106,41 @@ namespace TrenchBroom {
         }
 
         void EntityRotationPolicy::applyRotation(Entity* entity, const vm::mat4x4& transformation) {
-            const RotationInfo info = rotationInfo(entity);
-            const vm::mat4x4 rotation = getRotation(entity);
+            const auto info = rotationInfo(entity);
+            const auto rotation = getRotation(entity);
             
             switch (info.type) {
                 case RotationType_Angle: {
-                    const vm::vec3 direction = normalize(transformation * rotation * vm::vec3::pos_x);
+                    const auto direction = normalize(transformation * rotation * vm::vec3::pos_x);
                     setAngle(entity, info.attribute, direction);
                     break;
                 }
                 case RotationType_AngleUpDown: {
-                    const vm::vec3 direction = normalize(transformation * rotation * vm::vec3::pos_x);
-                    if (direction.z() > 0.9)
+                    const auto direction = normalize(transformation * rotation * vm::vec3::pos_x);
+                    if (direction.z() > 0.9) {
                         entity->addOrUpdateAttribute(info.attribute, 1.0);
-                    else if (direction.z() < -0.9)
+                    } else if (direction.z() < -0.9) {
                         entity->addOrUpdateAttribute(info.attribute, -1.0);
-                    else
+                    } else {
                         setAngle(entity, info.attribute, direction);
+                    }
                     break;
                 }
                 case RotationType_Euler: {
-                    const vm::vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
-                    const vm::vec3 nPitchYawRoll(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
+                    const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
+                    const auto nPitchYawRoll = vm::vec3(-yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
                     entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
                     break;
                 }
                 case RotationType_Euler_PositivePitchDown: {
-                    const vm::vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
-                    const vm::vec3 nPitchYawRoll(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
+                    const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
+                    const auto nPitchYawRoll = vm::vec3(yawPitchRoll.y(), yawPitchRoll.x(), yawPitchRoll.z());
                     entity->addOrUpdateAttribute(info.attribute, round(nPitchYawRoll));
                     break;
                 }
                 case RotationType_Mangle: {
-                    const vm::vec3 yawPitchRoll = getYawPitchRoll(transformation, rotation);
-                    const vm::vec3 yawNPitchRoll(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
+                    const auto yawPitchRoll = getYawPitchRoll(transformation, rotation);
+                    const auto yawNPitchRoll = vm::vec3(yawPitchRoll.x(), -yawPitchRoll.y(), yawPitchRoll.z());
                     entity->addOrUpdateAttribute(info.attribute, round(yawNPitchRoll));
                     break;
                 }
@@ -142,16 +151,16 @@ namespace TrenchBroom {
         }
         
         AttributeName EntityRotationPolicy::getAttribute(const Entity* entity) {
-            const RotationInfo info = rotationInfo(entity);
+            const auto info = rotationInfo(entity);
             return info.attribute;
         }
 
         EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity* entity) {
-            RotationType type = RotationType_None;
+            auto type = RotationType_None;
             AttributeName attribute;
             
             // determine the type of rotation to apply to this entity
-            const AttributeValue classname = entity->classname();
+            const auto classname = entity->classname();
             if (classname != AttributeValues::NoClassname) {
                 if (StringUtils::isPrefix(classname, "light")) {
                     if (entity->hasAttribute(AttributeNames::Mangle)) {
@@ -186,16 +195,17 @@ namespace TrenchBroom {
                         // point entity
                         
                         // if the origin of the definition's bounding box is not in its center, don't apply the rotation
-                        const vm::vec3 offset = entity->origin() - entity->bounds().center();
+                        const auto offset = entity->origin() - entity->bounds().center();
                         if (offset.x() == 0.0 && offset.y() == 0.0) {
                             if (entity->hasAttribute(AttributeNames::Angles)) {
                                 type = RotationType_Euler;
                                 attribute = AttributeNames::Angles;
                             } else if (entity->hasAttribute(AttributeNames::Mangle)) {
-                                if (StringUtils::caseSensitiveEqual(classname, "info_intermission"))
+                                if (StringUtils::caseSensitiveEqual(classname, "info_intermission")) {
                                     type = RotationType_Euler_PositivePitchDown;
-                                else
+                                } else {
                                     type = RotationType_Mangle;
+                                }
                                 attribute = AttributeNames::Mangle;
                             } else {
                                 type = RotationType_AngleUpDown;
@@ -210,7 +220,7 @@ namespace TrenchBroom {
         }
 
         void EntityRotationPolicy::setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction) {
-            const FloatType angle = getAngle(direction);
+            const auto angle = getAngle(direction);
             entity->addOrUpdateAttribute(attribute, vm::round(angle));
         }
 
@@ -218,11 +228,11 @@ namespace TrenchBroom {
             direction[2] = 0.0;
             direction = normalize(direction);
 
-            FloatType angle = vm::round(vm::degrees(std::acos(direction.x())));
-            if (vm::isNegative(direction.y()))
+            auto angle = vm::round(vm::degrees(std::acos(direction.x())));
+            if (vm::isNegative(direction.y())) {
                 angle = 360.0 - angle;
-            while (vm::isNegative(angle))
-                angle += 360.0;
+            }
+            angle = vm::normalizeDegrees(angle);
             return angle;
         }
 
@@ -242,7 +252,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
-            const vm::mat4x4 invYaw = vm::rotationMatrix(vm::vec3::pos_z, -yaw);
+            const auto invYaw = vm::rotationMatrix(vm::vec3::pos_z, -yaw);
             newX = invYaw * transformation * rotation * vm::vec3::pos_x;
             newZ = invYaw * transformation * rotation * vm::vec3::pos_z;
             
@@ -255,7 +265,7 @@ namespace TrenchBroom {
             }
             
             // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
-            const vm::mat4x4 invPitch = vm::rotationMatrix(vm::vec3::pos_y, -pitch);
+            const auto invPitch = vm::rotationMatrix(vm::vec3::pos_y, -pitch);
             newY = invPitch * invYaw * transformation * rotation * vm::vec3::pos_y;
             newZ = invPitch * invYaw * transformation * rotation * vm::vec3::pos_z;
             

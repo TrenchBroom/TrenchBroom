@@ -21,7 +21,7 @@
 #define TrenchBroom_BoundsIntersectsNodeVisitor
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 

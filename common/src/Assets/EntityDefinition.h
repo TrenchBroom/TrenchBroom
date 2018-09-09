@@ -21,12 +21,14 @@
 #define TrenchBroom_EntityDefinition
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "Notifier.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox_decl.h>
 
 namespace TrenchBroom {
     namespace Assets {

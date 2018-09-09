@@ -21,7 +21,7 @@
 #define TrenchBroom_PlanePointFinder_h
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {

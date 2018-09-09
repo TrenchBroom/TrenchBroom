@@ -21,7 +21,7 @@
 #define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"

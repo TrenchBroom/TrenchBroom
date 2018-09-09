@@ -19,7 +19,7 @@
 
 #include "TextRenderer.h"
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "CollectionUtils.h"
 #include "AttrString.h"
 #include "Renderer/Camera.h"

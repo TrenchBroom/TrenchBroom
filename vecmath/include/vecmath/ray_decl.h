@@ -24,7 +24,7 @@
 #include "vec_decl.h"
 #include "mat_decl.h"
 
-#include "vecmath/utils.h"
+#include <vecmath/utils.h>
 
 namespace vm {
     /**

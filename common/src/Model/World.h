@@ -21,7 +21,7 @@
 #define TrenchBroom_World
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"

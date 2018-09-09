@@ -19,7 +19,6 @@
 
 #include "Entity.h"
 
-#include "vecmath/VecMath.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -32,6 +31,14 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec_decl.h>
+#include <vecmath/vec_impl.h>
+#include <vecmath/bbox_decl.h>
+#include <vecmath/bbox_impl.h>
+#include <vecmath/mat_decl.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -105,13 +112,14 @@ namespace TrenchBroom {
         }
 
         const vm::bbox3& Entity::doGetBounds() const {
-            if (!m_boundsValid)
+            if (!m_boundsValid) {
                 validateBounds();
+            }
             return m_bounds;
         }
         
         Node* Entity::doClone(const vm::bbox3& worldBounds) const {
-            Entity* entity = new Entity();
+            auto* entity = new Entity();
             cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());

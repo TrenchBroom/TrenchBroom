@@ -21,7 +21,7 @@
 #define TrenchBroom_Group
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Hit.h"
 #include "Model/ModelTypes.h"

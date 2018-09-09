@@ -26,7 +26,7 @@
 #include "mat_decl.h"
 #include "mat_impl.h"
 
-#include "vecmath/utils.h"
+#include <vecmath/utils.h>
 
 #include <cstddef>
 

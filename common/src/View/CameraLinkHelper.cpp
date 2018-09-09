@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

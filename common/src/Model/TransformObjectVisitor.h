@@ -21,7 +21,7 @@
 #define TrenchBroom_TransformObjectVisitor
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

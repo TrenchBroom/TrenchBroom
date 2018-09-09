@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Assets/EntityDefinitionManager.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"

@@ -21,7 +21,7 @@
 
 #include "EL.h"
 #include "CollectionUtils.h"
-#include "vecmath/utils.h"
+#include <vecmath/utils.h>
 
 #include <limits>
 

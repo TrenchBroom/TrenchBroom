@@ -20,8 +20,8 @@
 #ifndef NodeTree_h
 #define NodeTree_h
 
-#include "vecmath/bbox_decl.h"
-#include "vecmath/ray_decl.h"
+#include <vecmath/bbox_decl.h>
+#include <vecmath/ray_decl.h>
 
 #include <functional>
 #include <list>

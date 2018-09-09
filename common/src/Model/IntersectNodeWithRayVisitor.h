@@ -21,7 +21,7 @@
 #define TrenchBroom_IntersectNodeWithRayVisitor
 
 #include "TrenchBroom.h"
-#include "vecmath/forward.h"
+#include <vecmath/forward.h>
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {

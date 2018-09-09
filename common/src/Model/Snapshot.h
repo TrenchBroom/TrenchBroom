@@ -21,7 +21,7 @@
 #define TrenchBroom_Snapshot
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/ModelTypes.h"
 
 #include <vector>

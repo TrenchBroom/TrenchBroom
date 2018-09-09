@@ -20,7 +20,7 @@
 #include "EntityRenderer.h"
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"

@@ -21,7 +21,7 @@
 #define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
 #include "Model/ModelTypes.h"

@@ -21,7 +21,7 @@
 #define TrenchBroom_ToolBox
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Notifier.h"
 

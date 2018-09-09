@@ -19,12 +19,12 @@
 
 #include <gtest/gtest.h>
 
-#include "vecmath/constants.h"
-#include "vecmath/vec_decl.h"
-#include "vecmath/vec_impl.h"
-#include "vecmath/segment_decl.h"
-#include "vecmath/segment_impl.h"
-#include "vecmath/utils.h"
+#include <vecmath/constants.h>
+#include <vecmath/vec_decl.h>
+#include <vecmath/vec_impl.h>
+#include <vecmath/segment_decl.h>
+#include <vecmath/segment_impl.h>
+#include <vecmath/utils.h>
 #include "TestUtils.h"
 
 TEST(SegmentTest, contains1) {

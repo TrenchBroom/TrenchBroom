@@ -23,7 +23,7 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
 #include "StringUtils.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "Renderer/VertexSpec.h"
 #include "Renderer/IndexRangeMap.h"
 

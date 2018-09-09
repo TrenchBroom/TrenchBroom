@@ -21,7 +21,7 @@
 #define TrenchBroom_StandardMapParser
 
 #include "TrenchBroom.h"
-#include "vecmath/VecMath.h"
+#include <vecmath/VecMath.h>
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
