@@ -21,7 +21,7 @@
 #define TrenchBroom_Object
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Model/ModelTypes.h"
 #include "Model/Pickable.h"
 

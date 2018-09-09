@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CellLayout_h
 #define TrenchBroom_CellLayout_h
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Macros.h"
 
 #include <algorithm>

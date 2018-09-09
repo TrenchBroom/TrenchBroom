@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CameraAnimation
 #define TrenchBroom_CameraAnimation
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/Animation.h"
 
 namespace TrenchBroom {

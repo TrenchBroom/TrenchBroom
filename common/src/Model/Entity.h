@@ -21,7 +21,7 @@
 #define TrenchBroom_Entity
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Model/AttributableNode.h"

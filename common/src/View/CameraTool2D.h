@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CameraTool2D
 #define TrenchBroom_CameraTool2D
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"

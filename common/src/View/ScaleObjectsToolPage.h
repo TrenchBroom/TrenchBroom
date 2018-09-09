@@ -21,7 +21,7 @@
 #define TrenchBroom_ScaleObjectsToolPage
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>

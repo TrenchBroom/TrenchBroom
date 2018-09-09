@@ -19,8 +19,7 @@
 
 #include "EntityModel.h"
 
-#include "bbox_decl.h"
-#include "bbox_impl.h"
+#include "vecmath/VecMath.h"
 
 namespace TrenchBroom {
     namespace Assets {

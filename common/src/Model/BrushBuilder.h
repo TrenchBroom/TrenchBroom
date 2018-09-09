@@ -21,7 +21,7 @@
 #define TrenchBroom_BrushBuilder
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {

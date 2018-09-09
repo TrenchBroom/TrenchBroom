@@ -21,7 +21,7 @@
 #define TrenchBroom_CreateComplexBrushTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Polyhedron.h"
 #include "Model/ModelTypes.h"
 #include "View/CreateBrushToolBase.h"

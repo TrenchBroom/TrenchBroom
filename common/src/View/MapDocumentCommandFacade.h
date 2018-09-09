@@ -21,7 +21,7 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Node.h"

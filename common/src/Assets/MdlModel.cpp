@@ -20,7 +20,7 @@
 #include "MdlModel.h"
 
 #include "CollectionUtils.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
 #include "Renderer/TexturedIndexRangeMap.h"

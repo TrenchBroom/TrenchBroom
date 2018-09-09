@@ -21,7 +21,7 @@
 #define TrenchBroom_MapView
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/ViewEffectsService.h"
 
 namespace TrenchBroom {

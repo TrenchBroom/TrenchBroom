@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "utils.h"
+#include "vecmath/utils.h"
 
 #include <cmath>
 #include <gmock/gmock.h>

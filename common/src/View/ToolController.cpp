@@ -19,7 +19,7 @@
 
 #include "ToolController.h"
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/Tool.h"

@@ -21,7 +21,7 @@
 #define FaceTool_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 

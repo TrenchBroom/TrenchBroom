@@ -21,7 +21,7 @@
 #define TrenchBroom_Game
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"

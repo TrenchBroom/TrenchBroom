@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "vec_decl.h"
-#include "plane_decl.h"
-#include "utils.h"
+#include "vecmath/vec_decl.h"
+#include "vecmath/plane_decl.h"
+#include "vecmath/utils.h"
 #include "TestUtils.h"
 #include "Model/PlanePointFinder.h"
 

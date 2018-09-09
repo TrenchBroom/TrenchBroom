@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 #include "StringUtils.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {

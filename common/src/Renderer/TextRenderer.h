@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TextRenderer
 #define TrenchBroom_TextRenderer
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/Renderable.h"

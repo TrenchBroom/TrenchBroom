@@ -20,7 +20,7 @@
 #include "EntityRotationPolicy.h"
 
 #include "Macros.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "StringUtils.h"
 #include "Model/Entity.h"
 

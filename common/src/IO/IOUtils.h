@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Exceptions.h"
 #include "ByteBuffer.h"
 #include "Macros.h"

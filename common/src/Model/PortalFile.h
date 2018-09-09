@@ -21,7 +21,7 @@
 #define TrenchBroom_PortalFile
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 
 namespace TrenchBroom {
     namespace IO {

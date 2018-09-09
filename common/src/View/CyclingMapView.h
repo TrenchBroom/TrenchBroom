@@ -21,7 +21,7 @@
 #define TrenchBroom_CyclingMapView
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"

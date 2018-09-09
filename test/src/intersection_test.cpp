@@ -19,21 +19,21 @@
 
 #include <gtest/gtest.h>
 
-#include "vec_decl.h"
-#include "vec_impl.h"
-#include "mat_decl.h"
-#include "mat_impl.h"
-#include "quat_decl.h"
-#include "quat_impl.h"
-#include "bbox_decl.h"
-#include "bbox_impl.h"
-#include "ray_decl.h"
-#include "ray_impl.h"
-#include "line_decl.h"
-#include "line_impl.h"
-#include "plane_decl.h"
-#include "plane_impl.h"
-#include "intersection.h"
+#include "vecmath/vec_decl.h"
+#include "vecmath/vec_impl.h"
+#include "vecmath/mat_decl.h"
+#include "vecmath/mat_impl.h"
+#include "vecmath/quat_decl.h"
+#include "vecmath/quat_impl.h"
+#include "vecmath/bbox_decl.h"
+#include "vecmath/bbox_impl.h"
+#include "vecmath/ray_decl.h"
+#include "vecmath/ray_impl.h"
+#include "vecmath/line_decl.h"
+#include "vecmath/line_impl.h"
+#include "vecmath/plane_decl.h"
+#include "vecmath/plane_impl.h"
+#include "vecmath/intersection.h"
 
 bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line);
 

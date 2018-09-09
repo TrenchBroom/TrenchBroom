@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"

@@ -21,7 +21,7 @@
 #define TrenchBroom_PointGuideRenderer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"

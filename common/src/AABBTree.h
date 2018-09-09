@@ -22,12 +22,12 @@
 
 #include "NodeTree.h"
 #include "Exceptions.h"
-#include "utils.h"
-#include "bbox_decl.h"
-#include "bbox_impl.h"
-#include "ray_decl.h"
-#include "ray_impl.h"
-#include "intersection.h"
+#include "vecmath/utils.h"
+#include "vecmath/bbox_decl.h"
+#include "vecmath/bbox_impl.h"
+#include "vecmath/ray_decl.h"
+#include "vecmath/ray_impl.h"
+#include "vecmath/intersection.h"
 
 #include <algorithm>
 #include <cassert>

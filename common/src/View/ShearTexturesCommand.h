@@ -21,7 +21,7 @@
 #define TrenchBroom_ShearTexturesCommand
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "SharedPointer.h"
 #include "View/DocumentCommand.h"
 

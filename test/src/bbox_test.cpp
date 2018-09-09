@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "bbox_decl.h"
-#include "bbox_impl.h"
-#include "vec_decl.h"
+#include "vecmath/bbox_decl.h"
+#include "vecmath/bbox_impl.h"
+#include "vecmath/vec_decl.h"
 
 #include "TestUtils.h"
 

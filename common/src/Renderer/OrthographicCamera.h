@@ -21,7 +21,7 @@
 #define TrenchBroom_OrthographicCamera
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Renderer/Camera.h"
 
 namespace TrenchBroom {

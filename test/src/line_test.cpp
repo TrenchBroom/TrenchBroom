@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "line_decl.h"
-#include "line_impl.h"
-#include "utils.h"
+#include "vecmath/line_decl.h"
+#include "vecmath/line_impl.h"
+#include "vecmath/utils.h"
 #include "TestUtils.h"
 
 TEST(LineTest, constructDefault) {

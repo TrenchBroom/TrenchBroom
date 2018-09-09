@@ -21,7 +21,7 @@
 #define TrenchBroom_EntityDefinition
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "Notifier.h"
 #include "StringUtils.h"

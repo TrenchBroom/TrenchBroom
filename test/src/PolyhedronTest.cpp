@@ -23,7 +23,7 @@
 
 #include "Polyhedron.h"
 #include "Polyhedron_DefaultPayload.h"
-#include "utils.h"
+#include "vecmath/utils.h"
 #include "TestUtils.h"
 
 #include <iterator>

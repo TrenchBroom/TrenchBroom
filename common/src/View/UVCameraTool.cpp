@@ -19,7 +19,7 @@
 
 #include "UVCameraTool.h"
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "View/InputState.h"
 #include "Renderer/OrthographicCamera.h"
 

@@ -22,7 +22,7 @@
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"

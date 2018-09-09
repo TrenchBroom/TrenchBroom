@@ -21,7 +21,7 @@
 #define TrenchBroom_RenderBatch
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 
 #include <list>

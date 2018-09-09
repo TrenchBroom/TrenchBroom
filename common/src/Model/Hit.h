@@ -21,7 +21,7 @@
 #define TrenchBroom_Hit
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Reference.h"
 
 #include <list>

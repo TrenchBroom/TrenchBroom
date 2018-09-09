@@ -25,7 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Macros.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"

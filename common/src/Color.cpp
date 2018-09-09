@@ -20,8 +20,8 @@
 
 #include "Color.h"
 
-#include "vec_decl.h"
-#include "vec_impl.h"
+#include "vecmath/vec_decl.h"
+#include "vecmath/vec_impl.h"
 
 Color Color::parse(const std::string& str) {
     const vec<float, 4> v = vec<float, 4>::parse(str);

@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "vec_decl.h"
-#include "vec_impl.h"
-#include "utils.h"
+#include "vecmath/vec_decl.h"
+#include "vecmath/vec_impl.h"
+#include "vecmath/utils.h"
 #include "TestUtils.h"
 
 // TODO 2201: move this and other tests to namespace vm, remove vm:: from names

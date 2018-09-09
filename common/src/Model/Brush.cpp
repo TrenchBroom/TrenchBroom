@@ -20,7 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Macros.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"

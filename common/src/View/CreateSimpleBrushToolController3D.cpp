@@ -19,7 +19,7 @@
 
 #include "CreateSimpleBrushToolController3D.h"
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"

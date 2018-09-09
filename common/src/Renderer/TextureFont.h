@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Font
 #define TrenchBroom_Font
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "AttrString.h"
 #include "FreeType.h"
 #include "Renderer/FontGlyph.h"

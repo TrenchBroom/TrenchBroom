@@ -24,7 +24,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringUtils.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 

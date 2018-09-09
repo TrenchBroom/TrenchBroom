@@ -21,7 +21,7 @@
 #define TrenchBroom_ToolController
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "ToolChain.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"

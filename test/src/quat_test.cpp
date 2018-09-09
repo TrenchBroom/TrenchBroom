@@ -19,10 +19,10 @@
 
 #include <gtest/gtest.h>
 
-#include "utils.h"
-#include "quat_decl.h"
-#include "quat_impl.h"
-#include "vec_decl.h"
+#include "vecmath/utils.h"
+#include "vecmath/quat_decl.h"
+#include "vecmath/quat_impl.h"
+#include "vecmath/vec_decl.h"
 #include "TestUtils.h"
 
 TEST(QuatTest, defaultConstructor) {

@@ -21,7 +21,7 @@
 #define TrenchBroom_PointHandleRenderer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"

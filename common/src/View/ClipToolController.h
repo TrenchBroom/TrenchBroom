@@ -21,7 +21,7 @@
 #define TrenchBroom_ClipToolController
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/InputState.h"

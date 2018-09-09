@@ -22,7 +22,7 @@
 
 #include "Macros.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Notifier.h"
 #include "Model/ModelTypes.h"
 

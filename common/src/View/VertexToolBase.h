@@ -21,7 +21,7 @@
 #define VertexToolBase_h
 
 #include "Disjunction.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

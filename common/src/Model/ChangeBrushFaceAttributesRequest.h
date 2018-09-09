@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 

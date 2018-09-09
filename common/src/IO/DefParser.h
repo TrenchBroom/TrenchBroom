@@ -21,7 +21,7 @@
 #define TrenchBroom_DefParser
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"

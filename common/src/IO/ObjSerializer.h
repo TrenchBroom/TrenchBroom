@@ -20,7 +20,7 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "IO/NodeSerializer.h"
 #include "Model/ModelTypes.h"
 

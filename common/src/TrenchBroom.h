@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TrenchBroom_h
 #define TrenchBroom_TrenchBroom_h
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"

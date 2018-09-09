@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TRENCHBROOM_PLANE_DECL_H
 #define TRENCHBROOM_PLANE_DECL_H
 
-#include "utils.h"
+#include "vecmath/utils.h"
 #include "forward.h"
 #include "vec_decl.h"
 #include "vec_impl.h"

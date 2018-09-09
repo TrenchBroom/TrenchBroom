@@ -22,8 +22,8 @@
 
 #include "Allocator.h"
 #include "DoublyLinkedList.h"
-#include "VecMath.h"
-#include "convex_hull.h"
+#include "vecmath/VecMath.h"
+#include "vecmath/convex_hull.h"
 
 #include <cassert>
 #include <queue>

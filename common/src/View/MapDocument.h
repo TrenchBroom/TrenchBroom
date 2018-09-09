@@ -22,7 +22,7 @@
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"

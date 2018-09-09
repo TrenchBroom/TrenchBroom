@@ -21,7 +21,7 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "StringUtils.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"

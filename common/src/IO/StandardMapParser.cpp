@@ -19,7 +19,7 @@
 
 #include "StandardMapParser.h"
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Logger.h"
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"

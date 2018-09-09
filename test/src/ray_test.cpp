@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "ray_decl.h"
-#include "ray_impl.h"
-#include "utils.h"
+#include "vecmath/ray_decl.h"
+#include "vecmath/ray_impl.h"
+#include "vecmath/utils.h"
 #include "TestUtils.h"
 
 TEST(RayTest, pointAtDistance) {

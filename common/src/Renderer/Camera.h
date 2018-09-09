@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_Camera
 #define TrenchBroom_Camera
 
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "Color.h"
 #include "TrenchBroom.h"
 #include "Notifier.h"

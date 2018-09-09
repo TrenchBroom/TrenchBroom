@@ -21,7 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include "VecMath.h"
+#include "vecmath/VecMath.h"
 #include "TestUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
