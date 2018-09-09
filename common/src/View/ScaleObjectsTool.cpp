@@ -564,7 +564,7 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const vm::bbox3& myBounds = bounds();
+            const auto& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -577,33 +577,33 @@ namespace TrenchBroom {
             assert(camera.perspectiveProjection());
 
             // corners
-            for (const BBoxCorner& corner : allCorners()) {
-                const vm::vec3 point = pointForBBoxCorner(myBounds, corner);
+            for (const auto& corner : allCorners()) {
+                const auto point = pointForBBoxCorner(myBounds, corner);
 
                 // make the spheres for the corner handles slightly larger than the
                 // cylinders of the edge handles, so they take priority where they overlap.
-                const FloatType cornerRadius = pref(Preferences::HandleRadius) * 2.0;
-                const FloatType dist = camera.pickPointHandle(pickRay, point, cornerRadius);
+                const auto cornerRadius = pref(Preferences::HandleRadius) * 2.0;
+                const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
                 }
             }
 
             // edges
-            for (const BBoxEdge& edge : allEdges()) {
+            for (const auto& edge : allEdges()) {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
-                const FloatType dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
+                const auto dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
                 }
             }
 
             // sides
-            for (const BBoxSide& side : allSides()) {
+            for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
+                const auto dist = intersect(pickRay, poly.begin(), poly.end());
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }

@@ -90,7 +90,7 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const vm::bbox3& myBounds = bounds();
+            const auto& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -103,10 +103,10 @@ namespace TrenchBroom {
             assert(camera.perspectiveProjection());
 
             // sides
-            for (const BBoxSide& side : allSides()) {
+            for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
+                const auto dist = intersect(pickRay, poly.begin(), poly.end());
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ShearObjectsTool::bounds() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             return document->selectionBounds();
         }
         

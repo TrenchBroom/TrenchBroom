@@ -37,6 +37,11 @@
 
 bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line);
 
+bool containsPoint(const vm::vec3d::List& vertices, const vm::vec3d& point);
+
+vm::vec3d::List square();
+vm::vec3d::List triangle();
+
 TEST(IntersectionTest, intersectRayAndPlane) {
     const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
     ASSERT_TRUE(vm::isNan(intersect(ray, vm::plane3f(vm::vec3f(0.0f, 0.0f, -1.0f), vm::vec3f::pos_z))));
@@ -137,6 +142,95 @@ TEST(IntersectionTest, intersectPlaneAndPlane_similar) {
 
     ASSERT_TRUE(lineOnPlane(p1, line));
     ASSERT_TRUE(lineOnPlane(p2, line));
+}
+
+TEST(IntersectionTest, squareContainsPointInCenter) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, 0.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsLeftTopVertex) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, +1.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsRightTopVertex) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, +1.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsRightBottomVertex) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, -1.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsLeftBottomVertex) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, -1.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsCenterOfLeftEdge) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(-1.0, 0.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsCenterOfTopEdge) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, +1.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsCenterOfRightEdge) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(+1.0, 0.0, 0.0)));
+}
+
+TEST(IntersectionTest, squareContainsCenterOfBottomEdge) {
+    ASSERT_TRUE(containsPoint(square(), vm::vec3d(0.0, -1.0, 0.0)));
+}
+
+TEST(IntersectionTest, triangleContainsOrigin) {
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(0.0, 0.0, 0.0)));
+}
+
+TEST(IntersectionTest, triangleContainsTopPoint) {
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(-1.0, +1.0, 0.0)));
+}
+
+TEST(IntersectionTest, triangleContainsLeftBottomPoint) {
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(-1.0, -1.0, 0.0)));
+}
+
+TEST(IntersectionTest, triangleContainsRightBottomPoint) {
+    ASSERT_TRUE(containsPoint(triangle(), vm::vec3d(+1.0, -1.0, 0.0)));
+}
+
+TEST(IntersectionTest, triangleContainsCenterOfTopToLeftBottomEdge) {
+    ASSERT_TRUE(containsPoint(triangle(), (triangle()[0] + triangle()[1]) / 2.0));
+}
+
+TEST(IntersectionTest, triangleContainsCenterOfLeftBottomToRightBottomEdge) {
+    ASSERT_TRUE(containsPoint(triangle(), (triangle()[1] + triangle()[2]) / 2.0));
+}
+
+TEST(IntersectionTest, triangleContainsCenterOfRightBottomToTopEdge) {
+    ASSERT_TRUE(containsPoint(triangle(), (triangle()[2] + triangle()[0]) / 2.0));
+}
+
+TEST(IntersectionTest, triangleContainsOuterPoint) {
+    ASSERT_FALSE(containsPoint(triangle(), vm::vec3d(+1.0, +1.0, 0.0)));
+}
+
+bool containsPoint(const vm::vec3d::List& vertices, const vm::vec3d& point) {
+    return contains(point, std::begin(vertices), std::end(vertices));
+}
+
+vm::vec3d::List square() {
+    return vm::vec3d::List {
+            vm::vec3d(-1.0, -1.0, 0.0),
+            vm::vec3d(-1.0, +1.0, 0.0),
+            vm::vec3d(+1.0, +1.0, 0.0),
+            vm::vec3d(+1.0, -1.0, 0.0)
+    };
+}
+
+vm::vec3d::List triangle() {
+    return vm::vec3d::List {
+            vm::vec3d(-1.0, +1.0, 0.0), // top
+            vm::vec3d(-1.0, -1.0, 0.0), // left bottom
+            vm::vec3d(+1.0, -1.0, 0.0), // right bottom
+    };
 }
 
 bool lineOnPlane(const vm::plane3f& plane, const vm::line3f& line) {

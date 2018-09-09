@@ -532,7 +532,7 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
         return RayIntersection::None();
     }
 
-    const auto distance = intersectPolygonWithRay(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
+    const auto distance = vm::intersect(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
     if (vm::isNan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {
@@ -548,7 +548,7 @@ size_t Polyhedron<T,FP,VP>::Face::countSharedVertices(const Face* other) const {
     ensure(other != nullptr, "other is null");
     assert(other != this);
 
-    typename Vertex::Set intersection = SetUtils::intersection(vertexSet(), other->vertexSet());
+    const auto intersection = SetUtils::intersection(vertexSet(), other->vertexSet());
     return intersection.size();
 }
 

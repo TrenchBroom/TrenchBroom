@@ -636,7 +636,7 @@ namespace TrenchBroom {
             if (!vm::isNegative(cos))
                 return vm::nan<FloatType>();
             
-            return intersectPolygonWithRay(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+            return intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
         }
 
         void BrushFace::printPoints() const {

@@ -107,6 +107,215 @@ namespace vm {
     }
 
     /**
+     * Checks whether the given segment line intersects the positive X axis.
+     *
+     * @tparam T the component type
+     * @param v0 the first segment vertex
+     * @param v1 the second segment vertex
+     * @return -1 if either segment vertex is identical to the origin, +1 if the segment intersects the positve
+     * X axis, and 0 if it does not
+     */
+    template <typename T>
+    int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
+        if (isZero(v0)) {
+            // the point is identical to a polygon vertex, cancel search
+            return -1;
+        }
+
+        /*
+         * A polygon edge intersects with the positive X axis if the
+         * following conditions are met: The Y coordinates of its
+         * vertices must have different signs (we assign a negative sign
+         * to 0 here in order to count it as a negative number) and one
+         * of the following two conditions must be met: Either the X
+         * coordinates of the vertices are both positive or the X
+         * coordinates of the edge have different signs (again, we
+         * assign a negative sign to 0 here). In the latter case, we
+         * must calculate the point of intersection between the edge and
+         * the X axis and determine whether its X coordinate is positive
+         * or zero.
+         */
+
+        // Does Y segment covered by the given edge touch the X axis at all?
+        if ((isPositive(v0.y()) && isPositive(v1.y())) ||
+            (isNegative(v0.y()) && isNegative(v1.y())) ||
+            (isZero(v0.y()) && isZero(v1.y()))) {
+            return 0;
+        }
+
+
+        // Is segment entirely on the positive side of the X axis?
+        if (isPositive(v0.x()) && isPositive(v1.x())) {
+            return 1;
+        }
+
+        // Is segment entirely on the negative side of the X axis?
+        if (isNegative(v0.x()) && isNegative(v1.x())) {
+            return 0;
+        }
+
+        // Calculate the point of intersection between the edge and the X axis.
+        const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
+
+        // Is the point of intersection on the given edge?
+        if (isZero(x)) {
+            return -1;
+        }
+
+        // Is the point of intersection on the positive X axis?
+        if (isPositive(x)) {
+            return 1;
+        }
+
+        // The point of intersection is on the negative X axis.
+        return 0;
+    }
+
+    /**
+     * Checks whether the given point is contained in the polygon formed by the given range of vertices.
+     *
+     * This function assumes that the point is in the same plane as the polygon, but this is not checked or asserted.
+     *
+     * @tparam T the component type
+     * @tparam I the vertex range iterator
+     * @tparam G a transformation from the range elements to points
+     * @param p the point to check
+     * @param axis the major axis of the polygon's normal
+     * @param cur the range start iterator
+     * @param end the range end iterator
+     * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
+     * @return true if the given point is contained in the given polygon, and false otherwise
+     */
+    template <typename T, typename I, typename G = Identity>
+    bool contains(const vec<T,3>& p, const axis::type axis, I cur, I end, const G& get = G()) {
+        const auto o = swizzle(p, axis);
+
+        const auto fv = swizzle(get(*cur++), axis) - o; // The first vertex.
+        vec<T,3> pv = fv; // The previous vertex.
+
+        int d = 0;
+        while (cur != end) {
+            const vec<T,3> cv = swizzle(get(*cur++), axis) - o; // The current vertex.
+            const int s = handlePolygonEdgeIntersection(pv, cv);
+            if (s == -1) {
+                return true;
+            }
+            d += s;
+            pv = cv;
+        }
+
+        // Handle the edge from the last to the first vertex.
+        const int s = handlePolygonEdgeIntersection(pv, fv);
+        if (s == -1) {
+            return true;
+        }
+
+        d += s;
+        return d % 2 != 0;
+    }
+
+    /**
+     * Checks whether the given point is contained in the polygon formed by the given range of vertices.
+     *
+     * This function assumes that the point is in the same plane as the polygon, but this is not checked or asserted.
+     *
+     * @tparam T the component type
+     * @tparam I the vertex range iterator
+     * @tparam G a transformation from the range elements to points
+     * @param p the point to check
+     * @param n the polygon's normal
+     * @param cur the range start iterator
+     * @param end the range end iterator
+     * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
+     * @return true if the given point is contained in the given polygon, and false otherwise
+     */
+    template <typename T, typename I, typename G = Identity>
+    bool contains(const vec<T,3>& p, const vec<T,3>& n, I cur, I end, const G& get = G()) {
+        return contains(p, firstComponent(n), cur, end, get);
+    }
+
+    /**
+     * Checks whether the given point is contained in the polygon formed by the given range of vertices.
+     *
+     * This function assumes that the point is in the same plane as the polygon, but this is not checked or asserted.
+     *
+     * @tparam T the component type
+     * @tparam I the vertex range iterator
+     * @tparam G a transformation from the range elements to points
+     * @param p the point to check
+     * @param cur the range start iterator
+     * @param end the range end iterator
+     * @param get the transformation function to apply to the range elements to obtain a point of type vec<T,S>
+     * @return true if the given point is contained in the given polygon, and false otherwise
+     */
+    template <typename T, typename I, typename G = Identity>
+    bool contains(const vec<T,3>& p, I cur, I end, const G& get = G()) {
+        I temp = cur;
+
+        assert(temp != end); const vec<T,3> p1 = get(*temp++);
+        assert(temp != end); const vec<T,3> p2 = get(*temp++);
+        assert(temp != end); const vec<T,3> p3 = get(*temp);
+
+        [[maybe_unused]] bool result;
+        vec<T,3> normal;
+        std::tie(result, normal) = planeNormal(p1, p2, p3);
+        assert(result);
+
+        return contains(p, firstComponent(normal), cur, end, get);
+    }
+
+    /**
+     * Computes the point of intersection of the given ray and the polygon with the given vertices.
+     *
+     * @tparam T the component type
+     * @tparam I the vertex range iterator
+     * @tparam G a transformation function that transforms a range element to a vec<T,3>
+     * @param r the ray
+     * @param p the plane on which all vertices lie
+     * @param cur the vertex range start iterator
+     * @param end the vertex range end iterator
+     * @param get the transformation function
+     * @return the distance from the origin of the ray to the point of intersection or NaN if the ray does not
+     * intersect the polygon
+     */
+    template <typename T, typename I, typename G = Identity>
+    T intersect(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
+        const auto distance = intersect(r, p);
+        if (isNan(distance)) {
+            return distance;
+        }
+
+        const auto point = r.pointAtDistance(distance);
+        if (contains(point, p.normal, cur, end, get)) {
+            return distance;
+        }
+        return nan<T>();
+    }
+
+    /**
+     * Computes the point of intersection of the given ray and the polygon with the given vertices.
+     *
+     * @tparam T the component type
+     * @tparam I the vertex range iterator
+     * @tparam G a transformation function that transforms a range element to a vec<T,3>
+     * @param r the ray
+     * @param cur the vertex range start iterator
+     * @param end the vertex range end iterator
+     * @param get the transformation function
+     * @return the distance from the origin of the ray to the point of intersection or NaN if the ray does not
+     * intersect the polygon
+     */
+    template <typename T, typename I, typename G = Identity>
+    T intersect(const ray<T,3>& r, I cur, I end, const G& get = G()) {
+        const auto [valid, plane] = fromPoints(cur, end, get);
+        if (!valid) {
+            return nan<T>();
+        } else {
+            return intersect(r, plane, cur, end, get);
+        }
+    }
+
+    /**
      * Computes the point of intersection between the given ray and the given bounding box, and returns the distance
      * on the given ray from the ray's origin to that point.
      *

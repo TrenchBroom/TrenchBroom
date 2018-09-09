@@ -22,7 +22,7 @@
 
 #include "polygon_decl.h"
 
-#include "Algorithms.h"
+#include "intersection.h"
 #include "CollectionUtils.h"
 
 #include <algorithm>
@@ -59,7 +59,7 @@ namespace vm {
 
     template <typename T, size_t S>
     bool polygon<T,S>::contains(const vec<T,S>& point, const vec<T,3>& normal) const {
-        return polygonContainsPoint(point, normal, std::begin(m_vertices), std::end(m_vertices));
+        return vm::contains(point, normal, std::begin(m_vertices), std::end(m_vertices));
     }
 
     template <typename T, size_t S>
