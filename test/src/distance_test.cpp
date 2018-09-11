@@ -30,74 +30,78 @@
 #include <vecmath/plane.h>
 #include <vecmath/distance.h>
 
-TEST(DistanceTest, distanceRayAndPoint) {
-    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
+// TODO 2201: write more tests
 
-    // point is behind ray
-    ASSERT_FLOAT_EQ(0.0f, squaredDistance(ray, vm::vec3f(-1.0f, -1.0f, -1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(3.0f, squaredDistance(ray, vm::vec3f(-1.0f, -1.0f, -1.0f)).distance);
+namespace vm {
+    TEST(DistanceTest, distanceRayAndPoint) {
+        const ray3f ray(vec3f::zero, vec3f::pos_z);
 
-    // point is in front of ray
-    ASSERT_FLOAT_EQ(1.0f, squaredDistance(ray, vm::vec3f(1.0f, 1.0f, 1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(2.0f, squaredDistance(ray, vm::vec3f(1.0f, 1.0f, 1.0f)).distance);
+        // point is behind ray
+        ASSERT_FLOAT_EQ(0.0f, squaredDistance(ray, vec3f(-1.0f, -1.0f, -1.0f)).rayDistance);
+        ASSERT_FLOAT_EQ(3.0f, squaredDistance(ray, vec3f(-1.0f, -1.0f, -1.0f)).distance);
 
-    // point is on ray
-    ASSERT_FLOAT_EQ(1.0f, squaredDistance(ray, vm::vec3f(0.0f, 0.0f, 1.0f)).rayDistance);
-    ASSERT_FLOAT_EQ(0.0f, squaredDistance(ray, vm::vec3f(0.0f, 0.0f, 1.0f)).distance);
-}
+        // point is in front of ray
+        ASSERT_FLOAT_EQ(1.0f, squaredDistance(ray, vec3f(1.0f, 1.0f, 1.0f)).rayDistance);
+        ASSERT_FLOAT_EQ(2.0f, squaredDistance(ray, vec3f(1.0f, 1.0f, 1.0f)).distance);
 
-TEST(DistanceTest, distanceRayAndSegment) {
-    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
-    vm::LineDistance<float> segDist;
+        // point is on ray
+        ASSERT_FLOAT_EQ(1.0f, squaredDistance(ray, vec3f(0.0f, 0.0f, 1.0f)).rayDistance);
+        ASSERT_FLOAT_EQ(0.0f, squaredDistance(ray, vec3f(0.0f, 0.0f, 1.0f)).distance);
+    }
 
-    segDist = squaredDistance(ray, vm::segment3f(vm::vec3f(0.0f, 0.0f, 0.0f), vm::vec3f(0.0f, 0.0f, 1.0f)));
-    ASSERT_TRUE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.distance);
+    TEST(DistanceTest, distanceRayAndSegment) {
+        const ray3f ray(vec3f::zero, vec3f::pos_z);
+        LineDistance<float> segDist;
 
-    segDist = squaredDistance(ray, vm::segment3f(vm::vec3f(1.0f, 1.0f, 0.0f), vm::vec3f(1.0f, 1.0f, 1.0f)));
-    ASSERT_TRUE(segDist.parallel);
-    ASSERT_FLOAT_EQ(2.0f, segDist.distance);
+        segDist = squaredDistance(ray, segment3f(vec3f(0.0f, 0.0f, 0.0f), vec3f(0.0f, 0.0f, 1.0f)));
+        ASSERT_TRUE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vm::segment3f(vm::vec3f(1.0f, 0.0f, 0.0f), vm::vec3f(0.0f, 1.0f, 0.0f)));
-    ASSERT_FALSE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
-    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_FLOAT_EQ(0.70710677f, segDist.lineDistance);
+        segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 1.0f, 0.0f), vec3f(1.0f, 1.0f, 1.0f)));
+        ASSERT_TRUE(segDist.parallel);
+        ASSERT_FLOAT_EQ(2.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vm::segment3f(vm::vec3f(1.0f, 0.0f, 0.0f), vm::vec3f(2.0f, -1.0f, 0.0f)));
-    ASSERT_FALSE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
-    ASSERT_FLOAT_EQ(1.0f, segDist.distance);
-    ASSERT_FLOAT_EQ(0.0f, segDist.lineDistance);
+        segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 0.0f, 0.0f), vec3f(0.0f, 1.0f, 0.0f)));
+        ASSERT_FALSE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+        ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+        ASSERT_FLOAT_EQ(0.70710677f, segDist.lineDistance);
 
-    segDist = distance(ray, vm::segment3f(vm::vec3f(-1.0f, 1.5f, 2.0f), vm::vec3f(+1.0f, 1.5f, 2.0f)));
-    ASSERT_FALSE(segDist.parallel);
-    ASSERT_FLOAT_EQ(2.0f, segDist.rayDistance);
-    ASSERT_FLOAT_EQ(1.5f, segDist.distance);
-    ASSERT_FLOAT_EQ(1.0f, segDist.lineDistance);
-}
+        segDist = squaredDistance(ray, segment3f(vec3f(1.0f, 0.0f, 0.0f), vec3f(2.0f, -1.0f, 0.0f)));
+        ASSERT_FALSE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+        ASSERT_FLOAT_EQ(1.0f, segDist.distance);
+        ASSERT_FLOAT_EQ(0.0f, segDist.lineDistance);
 
-TEST(DistanceTest, distanceRayAndLine) {
-    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
-    vm::LineDistance<float> segDist;
+        segDist = distance(ray, segment3f(vec3f(-1.0f, 1.5f, 2.0f), vec3f(+1.0f, 1.5f, 2.0f)));
+        ASSERT_FALSE(segDist.parallel);
+        ASSERT_FLOAT_EQ(2.0f, segDist.rayDistance);
+        ASSERT_FLOAT_EQ(1.5f, segDist.distance);
+        ASSERT_FLOAT_EQ(1.0f, segDist.lineDistance);
+    }
 
-    segDist = squaredDistance(ray, vm::line3f(vm::vec3f(0.0f, 0.0f, 0.0f), vm::vec3f::pos_z));
-    ASSERT_TRUE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.distance);
+    TEST(DistanceTest, distanceRayAndLine) {
+        const ray3f ray(vec3f::zero, vec3f::pos_z);
+        LineDistance<float> segDist;
 
-    segDist = squaredDistance(ray, vm::line3f(vm::vec3f(1.0f, 1.0f, 0.0f), vm::vec3f::pos_z));
-    ASSERT_TRUE(segDist.parallel);
-    ASSERT_FLOAT_EQ(2.0f, segDist.distance);
+        segDist = squaredDistance(ray, line3f(vec3f(0.0f, 0.0f, 0.0f), vec3f::pos_z));
+        ASSERT_TRUE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vm::line3f(vm::vec3f(1.0f, 0.0f, 0.0f), normalize(vm::vec3f(-1.0f, 1.0f, 0.0f))));
-    ASSERT_FALSE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
-    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_FLOAT_EQ(std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
+        segDist = squaredDistance(ray, line3f(vec3f(1.0f, 1.0f, 0.0f), vec3f::pos_z));
+        ASSERT_TRUE(segDist.parallel);
+        ASSERT_FLOAT_EQ(2.0f, segDist.distance);
 
-    segDist = squaredDistance(ray, vm::line3f(vm::vec3f(1.0f, 0.0f, 0.0f), normalize(vm::vec3f(1.0f, -1.0f, 0.0f))));
-    ASSERT_FALSE(segDist.parallel);
-    ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
-    ASSERT_FLOAT_EQ(0.5f, segDist.distance);
-    ASSERT_FLOAT_EQ(-std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
+        segDist = squaredDistance(ray, line3f(vec3f(1.0f, 0.0f, 0.0f), normalize(vec3f(-1.0f, 1.0f, 0.0f))));
+        ASSERT_FALSE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+        ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+        ASSERT_FLOAT_EQ(std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
+
+        segDist = squaredDistance(ray, line3f(vec3f(1.0f, 0.0f, 0.0f), normalize(vec3f(1.0f, -1.0f, 0.0f))));
+        ASSERT_FALSE(segDist.parallel);
+        ASSERT_FLOAT_EQ(0.0f, segDist.rayDistance);
+        ASSERT_FLOAT_EQ(0.5f, segDist.distance);
+        ASSERT_FLOAT_EQ(-std::sqrt(2.0f) / 2.0f, segDist.lineDistance);
+    }
 }

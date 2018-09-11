@@ -25,22 +25,26 @@
 #include <vecmath/utils.h>
 #include "TestUtils.h"
 
-TEST(SegmentTest, contains1) {
-    const auto z = vm::vec3d::zero;
-    const auto o = vm::vec3d(1.0, 0.0, 0.0);
-    const auto h = vm::vec3d(0.5, 0.0, 0.0);
-    const auto n = vm::vec3d(0.5, 1.0, 0.0);
+// TODO 2201: write more tests
 
-    ASSERT_TRUE( vm::segment3d(z, o).contains(z, vm::Cd::almostZero()));
-    ASSERT_TRUE( vm::segment3d(z, o).contains(h, vm::Cd::almostZero()));
-    ASSERT_TRUE( vm::segment3d(z, o).contains(o, vm::Cd::almostZero()));
-    ASSERT_FALSE(vm::segment3d(z, o).contains(n, vm::Cd::almostZero()));
-}
-
-TEST(SegmentTest, contains2) {
-    const auto z = vm::vec3d(-64.0, -64.0, 0.0);
-    const auto o = vm::vec3d(  0.0, +64.0, 0.0);
-
-    ASSERT_TRUE( vm::segment3d(z, o).contains(z, vm::Cd::almostZero()));
-    ASSERT_TRUE( vm::segment3d(z, o).contains(o, vm::Cd::almostZero()));
+namespace vm {
+    TEST(SegmentTest, contains1) {
+        const auto z = vec3d::zero;
+        const auto o = vec3d(1.0, 0.0, 0.0);
+        const auto h = vec3d(0.5, 0.0, 0.0);
+        const auto n = vec3d(0.5, 1.0, 0.0);
+    
+        ASSERT_TRUE( segment3d(z, o).contains(z, Cd::almostZero()));
+        ASSERT_TRUE( segment3d(z, o).contains(h, Cd::almostZero()));
+        ASSERT_TRUE( segment3d(z, o).contains(o, Cd::almostZero()));
+        ASSERT_FALSE(segment3d(z, o).contains(n, Cd::almostZero()));
+    }
+    
+    TEST(SegmentTest, contains2) {
+        const auto z = vec3d(-64.0, -64.0, 0.0);
+        const auto o = vec3d(  0.0, +64.0, 0.0);
+    
+        ASSERT_TRUE( segment3d(z, o).contains(z, Cd::almostZero()));
+        ASSERT_TRUE( segment3d(z, o).contains(o, Cd::almostZero()));
+    }
 }

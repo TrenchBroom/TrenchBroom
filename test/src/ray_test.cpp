@@ -23,14 +23,18 @@
 #include <vecmath/utils.h>
 #include "TestUtils.h"
 
-TEST(RayTest, pointAtDistance) {
-    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_x);
-    ASSERT_VEC_EQ(vm::vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
-}
+// TODO 2201: write more tests
 
-TEST(RayTest, pointStatus) {
-    const vm::ray3f ray(vm::vec3f::zero, vm::vec3f::pos_z);
-    ASSERT_EQ(vm::point_status::above, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 1.0f)));
-    ASSERT_EQ(vm::point_status::inside, ray.pointStatus(vm::vec3f(0.0f, 0.0f, 0.0f)));
-    ASSERT_EQ(vm::point_status::below, ray.pointStatus(vm::vec3f(0.0f, 0.0f, -1.0f)));
+namespace vm {
+    TEST(RayTest, pointAtDistance) {
+        const ray3f ray(vec3f::zero, vec3f::pos_x);
+        ASSERT_VEC_EQ(vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
+    }
+    
+    TEST(RayTest, pointStatus) {
+        const ray3f ray(vec3f::zero, vec3f::pos_z);
+        ASSERT_EQ(point_status::above, ray.pointStatus(vec3f(0.0f, 0.0f, 1.0f)));
+        ASSERT_EQ(point_status::inside, ray.pointStatus(vec3f(0.0f, 0.0f, 0.0f)));
+        ASSERT_EQ(point_status::below, ray.pointStatus(vec3f(0.0f, 0.0f, -1.0f)));
+    }
 }

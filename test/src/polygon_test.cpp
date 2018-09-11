@@ -21,37 +21,39 @@
 
 #include <vecmath/polygon.h>
 
-TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
-    vm::polygon3d p1{};
-    ASSERT_EQ(vm::compareUnoriented(p1, vm::polygon3d{}), 0);
-    ASSERT_EQ(vm::compareUnoriented(p1, vm::polygon3d{vm::vec3d::zero}), -1);
-
-    vm::polygon3d p2{vm::vec3d::zero};
-    ASSERT_EQ(vm::compareUnoriented(p2, p1), +1);
-    ASSERT_EQ(vm::compareUnoriented(p2, vm::polygon3d{vm::vec3d::zero}), 0);
-}
-
-TEST(PolygonTest, testBackwardComparePolygonWithOneVertex) {
-    vm::polygon3d p2{vm::vec3d::zero};
-    ASSERT_EQ(vm::compareUnoriented(p2, vm::polygon3d{vm::vec3d::zero}), 0);
-    ASSERT_EQ(vm::compareUnoriented(p2, vm::polygon3d{vm::vec3d::zero, vm::vec3d::zero}), -1);
-}
-
-TEST(PolygonTest, testBackwardCompare) {
-    vm::polygon3d p1{
-            vm::vec3d(-1.0, -1.0, 0.0),
-            vm::vec3d(+1.0, -1.0, 0.0),
-            vm::vec3d(+1.0, +1.0, 0.0),
-            vm::vec3d(-1.0, +1.0, 0.0),
-    };
-    vm::polygon3d p2{
-            vm::vec3d(-1.0, +1.0, 0.0),
-            vm::vec3d(+1.0, +1.0, 0.0),
-            vm::vec3d(+1.0, -1.0, 0.0),
-            vm::vec3d(-1.0, -1.0, 0.0),
-    };
-    ASSERT_EQ(vm::compareUnoriented(p1, p1), 0);
-    ASSERT_EQ(vm::compareUnoriented(p1, p2), 0);
-    ASSERT_EQ(vm::compareUnoriented(p2, p1), 0);
-    ASSERT_EQ(vm::compareUnoriented(p2, p2), 0);
+namespace vm {
+    TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
+        polygon3d p1{};
+        ASSERT_EQ(compareUnoriented(p1, polygon3d{}), 0);
+        ASSERT_EQ(compareUnoriented(p1, polygon3d{vec3d::zero}), -1);
+    
+        polygon3d p2{vec3d::zero};
+        ASSERT_EQ(compareUnoriented(p2, p1), +1);
+        ASSERT_EQ(compareUnoriented(p2, polygon3d{vec3d::zero}), 0);
+    }
+    
+    TEST(PolygonTest, testBackwardComparePolygonWithOneVertex) {
+        polygon3d p2{vec3d::zero};
+        ASSERT_EQ(compareUnoriented(p2, polygon3d{vec3d::zero}), 0);
+        ASSERT_EQ(compareUnoriented(p2, polygon3d{vec3d::zero, vec3d::zero}), -1);
+    }
+    
+    TEST(PolygonTest, testBackwardCompare) {
+        polygon3d p1{
+                vec3d(-1.0, -1.0, 0.0),
+                vec3d(+1.0, -1.0, 0.0),
+                vec3d(+1.0, +1.0, 0.0),
+                vec3d(-1.0, +1.0, 0.0),
+        };
+        polygon3d p2{
+                vec3d(-1.0, +1.0, 0.0),
+                vec3d(+1.0, +1.0, 0.0),
+                vec3d(+1.0, -1.0, 0.0),
+                vec3d(-1.0, -1.0, 0.0),
+        };
+        ASSERT_EQ(compareUnoriented(p1, p1), 0);
+        ASSERT_EQ(compareUnoriented(p1, p2), 0);
+        ASSERT_EQ(compareUnoriented(p2, p1), 0);
+        ASSERT_EQ(compareUnoriented(p2, p2), 0);
+    }
 }

@@ -23,67 +23,68 @@
 #include <vecmath/convex_hull.h>
 #include "TestUtils.h"
 
-// TODO 2201: move this and other tests to namespace vm, remove vm:: from names
-TEST(ConvexHullTest, convexHull2dSimple) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
+namespace vm {
+    TEST(ConvexHullTest, convexHull2dSimple) {
+        const vm::vec3d p1(0.0, 0.0, 0.0);
+        const vm::vec3d p2(8.0, 8.0, 0.0);
+        const vm::vec3d p3(8.0, 0.0, 0.0);
+        const vm::vec3d p4(0.0, 8.0, 0.0);
 
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
+        vm::vec3d::List points;
+        points.push_back(p1);
+        points.push_back(p2);
+        points.push_back(p3);
+        points.push_back(p4);
 
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
-}
+        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        ASSERT_EQ(4u, hull.size());
+        ASSERT_VEC_EQ(p3, hull[0]);
+        ASSERT_VEC_EQ(p2, hull[1]);
+        ASSERT_VEC_EQ(p4, hull[2]);
+        ASSERT_VEC_EQ(p1, hull[3]);
+    }
 
-TEST(ConvexHullTest, convexHull2dSimpleWithInternalPoint) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
-    const vm::vec3d p5(4.0, 4.0, 0.0);
+    TEST(ConvexHullTest, convexHull2dSimpleWithInternalPoint) {
+        const vm::vec3d p1(0.0, 0.0, 0.0);
+        const vm::vec3d p2(8.0, 8.0, 0.0);
+        const vm::vec3d p3(8.0, 0.0, 0.0);
+        const vm::vec3d p4(0.0, 8.0, 0.0);
+        const vm::vec3d p5(4.0, 4.0, 0.0);
 
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    points.push_back(p5);
+        vm::vec3d::List points;
+        points.push_back(p1);
+        points.push_back(p2);
+        points.push_back(p3);
+        points.push_back(p4);
+        points.push_back(p5);
 
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
-}
+        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        ASSERT_EQ(4u, hull.size());
+        ASSERT_VEC_EQ(p3, hull[0]);
+        ASSERT_VEC_EQ(p2, hull[1]);
+        ASSERT_VEC_EQ(p4, hull[2]);
+        ASSERT_VEC_EQ(p1, hull[3]);
+    }
 
-TEST(ConvexHullTest, convexHull2dSimpleWithPointOnLine) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
-    const vm::vec3d p5(4.0, 0.0, 0.0);
+    TEST(ConvexHullTest, convexHull2dSimpleWithPointOnLine) {
+        const vm::vec3d p1(0.0, 0.0, 0.0);
+        const vm::vec3d p2(8.0, 8.0, 0.0);
+        const vm::vec3d p3(8.0, 0.0, 0.0);
+        const vm::vec3d p4(0.0, 8.0, 0.0);
+        const vm::vec3d p5(4.0, 0.0, 0.0);
 
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    points.push_back(p5);
+        vm::vec3d::List points;
+        points.push_back(p1);
+        points.push_back(p2);
+        points.push_back(p3);
+        points.push_back(p4);
+        points.push_back(p5);
 
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
+        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        ASSERT_EQ(4u, hull.size());
+        ASSERT_VEC_EQ(p3, hull[0]);
+        ASSERT_VEC_EQ(p2, hull[1]);
+        ASSERT_VEC_EQ(p4, hull[2]);
+        ASSERT_VEC_EQ(p1, hull[3]);
+    }
 }
