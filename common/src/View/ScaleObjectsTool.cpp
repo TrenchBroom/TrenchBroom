@@ -505,7 +505,7 @@ namespace TrenchBroom {
                         if (!vm::isNan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
-                            bestDistAlongRay = result.rayDistance;
+                            bestDistAlongRay = result.position1;
                         }
                     }
                 }

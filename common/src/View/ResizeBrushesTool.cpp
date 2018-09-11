@@ -114,7 +114,7 @@ namespace TrenchBroom {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!vm::isNan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
-                        const auto hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
+                        const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
                             if (vm::isZero(leftDot)) {
@@ -129,10 +129,10 @@ namespace TrenchBroom {
                                     faces.push_back(right);
                                 }
                             }
-                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, faces));
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, faces));
                         } else {
                             auto* face = leftDot > rightDot ? left : right;
-                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, face));
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, face));
                         }
                     }
                 }
@@ -245,7 +245,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const auto dragDist = dist.lineDistance;
+            const auto dragDist = dist.position2;
             
             auto document = lock(m_document);
             const auto& grid = document->grid();

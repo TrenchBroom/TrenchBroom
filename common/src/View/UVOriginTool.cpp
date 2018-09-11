@@ -72,9 +72,9 @@ namespace TrenchBroom {
                 const auto& pickRay = inputState.pickRay();
                 const auto oDistance = vm::distance(pickRay, origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
-                    const auto hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
-                    pickResult.addHit(Model::Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
-                    pickResult.addHit(Model::Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
+                    const auto hitPoint = pickRay.pointAtDistance(oDistance.position);
+                    pickResult.addHit(Model::Hit(XHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit(YHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
                 } else {
                     const auto xDistance = vm::distance(pickRay, xHandle);
                     const auto yDistance = vm::distance(pickRay, yHandle);
@@ -84,13 +84,13 @@ namespace TrenchBroom {
                     
                     const auto maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                     if (xDistance.distance <= maxDistance) {
-                        const auto hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
-                        pickResult.addHit(Model::Hit(XHandleHit, xDistance.rayDistance, hitPoint, xHandle, xDistance.distance));
+                        const auto hitPoint = pickRay.pointAtDistance(xDistance.position1);
+                        pickResult.addHit(Model::Hit(XHandleHit, xDistance.position1, hitPoint, xHandle, xDistance.distance));
                     }
                     
                     if (yDistance.distance <= maxDistance) {
-                        const auto hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
-                        pickResult.addHit(Model::Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, yDistance.distance));
+                        const auto hitPoint = pickRay.pointAtDistance(yDistance.position1);
+                        pickResult.addHit(Model::Hit(YHandleHit, yDistance.position1, hitPoint, yHandle, yDistance.distance));
                     }
                 }
             }

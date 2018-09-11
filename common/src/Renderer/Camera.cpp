@@ -366,7 +366,7 @@ namespace TrenchBroom {
                 return vm::nan<FloatType>();
             }
 
-            const auto pointHandlePosition = handlePosition.pointAtDistance(dist.lineDistance);
+            const auto pointHandlePosition = handlePosition.pointAtDistance(dist.position2);
             return pickPointHandle(pickRay, pointHandlePosition, handleRadius);
         }
 

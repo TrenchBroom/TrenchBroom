@@ -88,7 +88,7 @@ namespace TrenchBroom {
             if (dist.parallel) {
                 return false;
             } else {
-                point = m_line.point + m_line.direction * dist.lineDistance;
+                point = m_line.point + m_line.direction * dist.position2;
                 return true;
             }
         }

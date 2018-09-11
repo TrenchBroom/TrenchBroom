@@ -30,15 +30,14 @@
 
 namespace vm {
     /**
-     * The distance of a point to a ray.
+     * The distance of a point to an abstract line, which could be an infinite line, a ray, or a line segment.
      */
     template <typename T>
     struct PointDistance {
         /**
-         * The distance from the origin of the ray to the orthogonal projection of a point onto the ray.
+         * The distance from the origin of the line to the orthogonal projection of a point onto the line.
          */
-         // TODO 2201: rename this appriopriately for any abstract_line
-        T rayDistance;
+        T position;
 
         /**
          * The distance between the orthogonal projection of a point to the point itself.
@@ -48,11 +47,11 @@ namespace vm {
         /**
          * Creates a new instance with the given values.
          *
-         * @param i_rayDistance the value of the ray distance
+         * @param i_position the position of the orthogonal projection of the point onto the line
          * @param i_distance the value of the distance
          */
-        PointDistance(const T i_rayDistance, const T i_distance) :
-        rayDistance(i_rayDistance),
+        PointDistance(const T i_position, const T i_distance) :
+        position(i_position),
         distance(i_distance) {}
     };
 
@@ -74,11 +73,11 @@ namespace vm {
     template <typename T, size_t S>
     PointDistance<T> squaredDistance(const ray<T,S>& r, const vec<T,S>& p) {
         const auto originToPoint = p - r.origin;
-        const auto rayDistance = max(dot(originToPoint, r.direction), static_cast<T>(0.0));
-        if (rayDistance == static_cast<T>(0.0)) {
-            return PointDistance<T>(rayDistance, squaredLength(originToPoint));
+        const auto position = max(dot(originToPoint, r.direction), T(0.0));
+        if (position == T(0.0)) {
+            return PointDistance<T>(position, squaredLength(originToPoint));
         } else {
-            return PointDistance<T>(rayDistance, squaredLength(r.pointAtDistance(rayDistance) - p));
+            return PointDistance<T>(position, squaredLength(r.pointAtDistance(position) - p));
         }
     }
 
@@ -127,9 +126,9 @@ namespace vm {
         const auto dir = vector / len;
         const T scale = dot(p - s.start(), dir);
 
-        const T segDist = min(max(T(0.0), scale), len);
-        const T distance = squaredLength(p - s.pointAtDistance(segDist));
-        return PointDistance<T>(segDist, distance);
+        const T position = min(max(T(0.0), scale), len);
+        const T distance = squaredLength(p - s.pointAtDistance(position));
+        return PointDistance<T>(position, distance);
     }
 
     /**
@@ -155,7 +154,7 @@ namespace vm {
     }
 
     /**
-     * The distance of two line segments. Thereby, the segments may be unbounded in each direction, that is, they may each
+     * The distance of two abstract lines. Thereby, the lines may be unbounded in each direction, that is, they may each
      * represent one of the following primitives:
      *
      * - a line (unbounded in both directions)
@@ -168,15 +167,14 @@ namespace vm {
     template <typename T>
     struct LineDistance {
         /**
-         * Indicates whether the segments are parallel.
+         * Indicates whether the lines are parallel.
          */
         bool parallel;
 
         /**
-         * The distance between the closest point and the origin of the first segment.
+         * The distance between the closest point and the origin of the first line.
          */
-         // TODO 2201: Rename this to closestPoint1 or something
-        T rayDistance;
+        T position1;
 
         /**
          * The minimal distance between the segments.
@@ -184,10 +182,9 @@ namespace vm {
         T distance;
 
         /**
-         * The distance between the closest point and the origin of the second segment.
+         * The distance between the closest point and the origin of the second line.
          */
-        // TODO 2201: Rename this to closestPoint2 or something
-        T lineDistance;
+        T position2;
 
         /**
          * Creates a new instance for the case when the segments are parallel.
@@ -198,26 +195,26 @@ namespace vm {
         static LineDistance Parallel(const T distance) {
             LineDistance result;
             result.parallel = true;
-            result.rayDistance = nan<T>();
+            result.position1 = nan<T>();
             result.distance = distance;
-            result.lineDistance = nan<T>();
+            result.position2 = nan<T>();
             return result;
         }
 
         /**
          * Creates a new instance for the case when the segments are not parallel.
          *
-         * @param rayDistance the value for rayDistance
-         * @param distance the value for distance
-         * @param lineDistance the value for lineDistance
+         * @param i_position1 the value for rayDistance
+         * @param i_distance the value for distance
+         * @param i_position2 the value for lineDistance
          * @return the instance
          */
-        static LineDistance NonParallel(const T rayDistance, const T distance, const T lineDistance) {
+        static LineDistance NonParallel(const T i_position1, const T i_distance, const T i_position2) {
             LineDistance result;
             result.parallel = false;
-            result.rayDistance = rayDistance;
-            result.distance = distance;
-            result.lineDistance = lineDistance;
+            result.position1 = i_position1;
+            result.distance = i_distance;
+            result.position2 = i_position2;
             return result;
         }
 
@@ -381,25 +378,25 @@ namespace vm {
      */
     template <typename T, size_t S>
     LineDistance<T> squaredDistance(const ray<T,S>& r, const line<T,S>& l) {
-        const vec<T,S> w0 = r.origin - l.point;
-        const T a = dot(r.direction, r.direction);
-        const T b = dot(r.direction, l.direction);
-        const T c = dot(l.direction, l.direction);
-        const T d = dot(r.direction, w0);
-        const T e = dot(l.direction, w0);
+        const auto w0 = r.origin - l.point;
+        const auto a = dot(r.direction, r.direction);
+        const auto b = dot(r.direction, l.direction);
+        const auto c = dot(l.direction, l.direction);
+        const auto d = dot(r.direction, w0);
+        const auto e = dot(l.direction, w0);
 
-        const T D = a * c - b * b;
+        const auto D = a * c - b * b;
         if (isZero(D)) {
-            const T f = dot(w0, l.direction);
-            const vec<T,S> z = w0 - f * l.direction;
+            const auto f = dot(w0, l.direction);
+            const auto z = w0 - f * l.direction;
             return LineDistance<T>::Parallel(squaredLength(z));
         }
 
-        const T sc = std::max((b * e - c * d) / D, static_cast<T>(0.0));
-        const T tc = (a * e - b * d) / D;
+        const auto sc = std::max((b * e - c * d) / D, static_cast<T>(0.0));
+        const auto tc = (a * e - b * d) / D;
 
-        const vec<T,S> rp = r.origin + sc * r.direction; // point on ray
-        const vec<T,S> lp = l.point + tc * l.direction; // point on line
+        const auto rp = r.origin + sc * r.direction; // point on ray
+        const auto lp = l.point + tc * l.direction; // point on line
         return LineDistance<T>::NonParallel(sc, squaredLength(rp - lp), tc);
     }
 

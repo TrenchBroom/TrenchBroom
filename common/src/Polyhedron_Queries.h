@@ -200,7 +200,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsEdge(const Polyhedron& lhs, const Polyhe
     }
 
     static const auto epsilon2 = vm::constants<T>::almostZero() * vm::constants<T>::almostZero();
-    return dist.distance < epsilon2 && dist.rayDistance <= rayLen;
+    return dist.distance < epsilon2 && dist.position1 <= rayLen;
 }
 
 template <typename T, typename FP, typename VP>
