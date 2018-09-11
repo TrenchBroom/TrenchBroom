@@ -261,7 +261,7 @@ namespace TrenchBroom {
                 onPlane = normalize(onPlane);
 
                 const auto rotZ = rotation * vm::vec3f::pos_z;
-                const auto angle = -angleBetween(rotZ, onPlane, direction);
+                const auto angle = -measureAngle(rotZ, onPlane, direction);
                 const auto matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vm::vec3f::pos_x);
                 
                 for (size_t i = 0; i < 3; ++i) {

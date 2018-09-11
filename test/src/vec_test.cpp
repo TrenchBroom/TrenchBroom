@@ -272,11 +272,11 @@ namespace vm {
         ASSERT_VEC_EQ(c1, c2);
     }
     
-    TEST(VecTest, angleBetween) {
-        ASSERT_FLOAT_EQ(angleBetween(vec3f::pos_x, vec3f::pos_x, vec3f::pos_z), 0.0f);
-        ASSERT_FLOAT_EQ(angleBetween(vec3f::pos_y, vec3f::pos_x, vec3f::pos_z), Cf::piOverTwo());
-        ASSERT_FLOAT_EQ(angleBetween(vec3f::neg_x, vec3f::pos_x, vec3f::pos_z), Cf::pi());
-        ASSERT_FLOAT_EQ(angleBetween(vec3f::neg_y, vec3f::pos_x, vec3f::pos_z), 3.0f * Cf::piOverTwo());
+    TEST(VecTest, measureAngle) {
+        ASSERT_FLOAT_EQ(measureAngle(vec3f::pos_x, vec3f::pos_x, vec3f::pos_z), 0.0f);
+        ASSERT_FLOAT_EQ(measureAngle(vec3f::pos_y, vec3f::pos_x, vec3f::pos_z), Cf::piOverTwo());
+        ASSERT_FLOAT_EQ(measureAngle(vec3f::neg_x, vec3f::pos_x, vec3f::pos_z), Cf::pi());
+        ASSERT_FLOAT_EQ(measureAngle(vec3f::neg_y, vec3f::pos_x, vec3f::pos_z), 3.0f * Cf::piOverTwo());
     }
     
     TEST(VecTest, colinear) {

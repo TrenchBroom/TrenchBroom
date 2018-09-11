@@ -199,12 +199,12 @@ namespace TrenchBroom {
         float ParallelTexCoordSystem::computeTextureAngle(const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const {
             const vm::mat4x4& rotationScale = stripTranslation(transformation);
             const vm::vec3& oldNormal = oldBoundary.normal;
-            const vm::vec3  newNormal = normalize(rotationScale * oldNormal);
+            const vm::vec3  newNormal = vm::normalize(rotationScale * oldNormal);
 
             const vm::mat4x4 nonRotation = computeNonTextureRotation(oldNormal, newNormal, rotationScale);
-            const vm::vec3 newXAxis = normalize(rotationScale * m_xAxis);
-            const vm::vec3 nonXAxis = normalize(nonRotation * m_xAxis);
-            const FloatType angle = vm::degrees(angleBetween(nonXAxis, newXAxis, newNormal));
+            const vm::vec3 newXAxis = vm::normalize(rotationScale * m_xAxis);
+            const vm::vec3 nonXAxis = vm::normalize(nonRotation * m_xAxis);
+            const FloatType angle = vm::degrees(vm::measureAngle(nonXAxis, newXAxis, newNormal));
             return static_cast<float>(angle);
         }
 
@@ -212,12 +212,12 @@ namespace TrenchBroom {
             if (oldNormal == newNormal) {
                 return vm::mat4x4::identity;
             } else if (oldNormal == -newNormal) {
-                const vm::vec3 minorAxis = majorAxis(oldNormal, 2);
-                const vm::vec3 axis = normalize(cross(oldNormal, minorAxis));
+                const vm::vec3 minorAxis = vm::majorAxis(oldNormal, 2);
+                const vm::vec3 axis = vm::normalize(vm::cross(oldNormal, minorAxis));
                 return rotationMatrix(axis, vm::C::pi());
             } else {
-                const vm::vec3 axis = normalize(cross(newNormal, oldNormal));
-                const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+                const vm::vec3 axis = vm::normalize(vm::cross(newNormal, oldNormal));
+                const FloatType angle = vm::measureAngle(newNormal, oldNormal, axis);
                 return rotationMatrix(axis, angle);
             }
         }
@@ -283,10 +283,10 @@ namespace TrenchBroom {
                 // in this case, no need to update the texture axes.
                 return;
             } else {
-                axis = normalize(axis);
+                axis = vm::normalize(axis);
             }
             
-            const auto angle = angleBetween(newNormal, oldNormal, axis);
+            const auto angle = vm::measureAngle(newNormal, oldNormal, axis);
             rotation = vm::quat3(axis, angle);
 
             m_xAxis = rotation * m_xAxis;
@@ -299,8 +299,8 @@ namespace TrenchBroom {
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);
             
-            const auto toMatrix = coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero);
-            const auto [invertible, fromMatrix] = invert(toMatrix);
+            const auto toMatrix = vm::coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero);
+            const auto [invertible, fromMatrix] = vm::invert(toMatrix);
             assert(invertible); unused(invertible);
 
             const auto transform = fromMatrix * shear * toMatrix;
@@ -315,7 +315,7 @@ namespace TrenchBroom {
          */
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const {
             const vm::vec3 vec(point - center);
-            const auto angleInRadians = angleBetween(normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
+            const auto angleInRadians = vm::measureAngle(vm::normalize(vec), vm::vec3::pos_x, vm::vec3::pos_z);
             return static_cast<float>(currentAngle + vm::degrees(angleInRadians));
         }
 
@@ -323,14 +323,14 @@ namespace TrenchBroom {
             switch (firstComponent(normal)) {
                 case vm::axis::x:
                 case vm::axis::y:
-                    xAxis = normalize(cross(vm::vec3::pos_z, normal));
+                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_z, normal));
                     break;
                 case vm::axis::z:
-                    xAxis = normalize(cross(vm::vec3::pos_y, normal));
+                    xAxis = vm::normalize(vm::cross(vm::vec3::pos_y, normal));
                     break;
             }
             
-            yAxis = normalize(cross(m_xAxis, normal));
+            yAxis = vm::normalize(vm::cross(m_xAxis, normal));
         }
     }
 }

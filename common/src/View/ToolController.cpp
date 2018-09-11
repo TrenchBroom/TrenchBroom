@@ -249,7 +249,7 @@ namespace TrenchBroom {
             
             const vm::vec3 ref = normalize(m_start - m_center);
             const vm::vec3 vec = normalize(curPoint - m_center);
-            const FloatType angle = angleBetween(vec, ref, m_normal);
+            const FloatType angle = measureAngle(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
             const FloatType canonical = snapped - vm::snapDown(snapped, vm::C::twoPi());
             const vm::quat3 rotation(m_normal, canonical);

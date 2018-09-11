@@ -101,7 +101,7 @@ namespace TrenchBroom {
             DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                 const vm::vec3 ref = normalize(m_start - m_center);
                 const vm::vec3 vec = normalize(nextHandlePosition - m_center);
-                m_angle = angleBetween(vec, ref, m_axis);
+                m_angle = measureAngle(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
             }

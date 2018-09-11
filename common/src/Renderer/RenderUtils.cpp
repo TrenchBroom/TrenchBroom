@@ -133,19 +133,22 @@ namespace TrenchBroom {
             float angle1, angle2, angleLength;
             switch (axis) {
                 case vm::axis::x:
-                    angle1 = angleBetween(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
-                    angle2 = angleBetween(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_x), angleBetween(endAxis, startAxis, vm::vec3f::pos_x));
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_x),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_x));
                     break;
                 case vm::axis::y:
-                    angle1 = angleBetween(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
-                    angle2 = angleBetween(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_y), angleBetween(endAxis, startAxis, vm::vec3f::pos_y));
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_y),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_y));
                     break;
                 default:
-                    angle1 = angleBetween(startAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
-                    angle2 = angleBetween(endAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, vm::vec3f::pos_z), angleBetween(endAxis, startAxis, vm::vec3f::pos_z));
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_z),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_z));
                     break;
             }
             const float minAngle = std::min(angle1, angle2);

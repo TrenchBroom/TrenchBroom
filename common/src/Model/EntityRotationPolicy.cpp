@@ -244,10 +244,10 @@ namespace TrenchBroom {
             
             if (std::abs(newX.z()) < std::abs(newY.z())) {
                 newX = normalize(vm::vec3(newX.x(), newX.y(), 0.0));
-                yaw = angleBetween(newX, vm::vec3::pos_x, vm::vec3::pos_z); // CCW yaw angle in radians
+                yaw = measureAngle(newX, vm::vec3::pos_x, vm::vec3::pos_z); // CCW yaw angle in radians
             } else {
                 newY = normalize(vm::vec3(newY.x(), newY.y(), 0.0));
-                yaw = angleBetween(newY, vm::vec3::pos_y, vm::vec3::pos_z);
+                yaw = measureAngle(newY, vm::vec3::pos_y, vm::vec3::pos_z);
             }
             
             // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
@@ -257,10 +257,10 @@ namespace TrenchBroom {
             
             if (std::abs(newX.y()) < std::abs(newZ.y())) {
                 newX = normalize(vm::vec3(newX.x(), 0.0, newX.z()));
-                pitch = angleBetween(newX, vm::vec3::pos_x, vm::vec3::pos_y);
+                pitch = measureAngle(newX, vm::vec3::pos_x, vm::vec3::pos_y);
             } else {
                 newZ = normalize(vm::vec3(newZ.x(), 0.0, newZ.z()));
-                pitch = angleBetween(newZ, vm::vec3::pos_z, vm::vec3::pos_y);
+                pitch = measureAngle(newZ, vm::vec3::pos_z, vm::vec3::pos_y);
             }
             
             // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
@@ -270,10 +270,10 @@ namespace TrenchBroom {
             
             if (std::abs(newY.x()) < std::abs(newY.x())) {
                 newY = normalize(vm::vec3(0.0, newY.y(), newY.z()));
-                roll = angleBetween(newY, vm::vec3::pos_y, vm::vec3::pos_x);
+                roll = measureAngle(newY, vm::vec3::pos_y, vm::vec3::pos_x);
             } else {
                 newZ = normalize(vm::vec3(0.0, newZ.y(), newZ.z()));
-                roll = angleBetween(newZ, vm::vec3::pos_z, vm::vec3::pos_x);
+                roll = measureAngle(newZ, vm::vec3::pos_z, vm::vec3::pos_x);
             }
             
             return vm::vec3(vm::degrees(yaw), vm::degrees(pitch), vm::degrees(roll));

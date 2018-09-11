@@ -1542,7 +1542,6 @@ namespace vm {
      * @param end the segment end
      * @return true if the given point is contained within the segment
      */
-     // TODO 2201: rename to contains
     template <typename T, size_t S>
     bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end) {
         assert(colinear(p, start, end));
@@ -1563,7 +1562,6 @@ namespace vm {
      * @param get the transformation function, defaults to identity
      * @return the average of the vectors obtained from the given range of elements
      */
-     // TODO 2201: rename to avg
      template <typename I, typename G>
      auto average(I cur, I end, const G& get) -> typename std::remove_reference<decltype(get(*cur))>::type {
          assert(cur != end);
@@ -1588,9 +1586,8 @@ namespace vm {
      * @param up the up vector
      * @return the CCW angle
      */
-     // TODO 2201: Rename to measureAngle
     template <typename T>
-    T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
+    T measureAngle(const vec<T, 3> &v, const vec<T, 3> &axis, const vec<T, 3> &up) {
         const auto cos = dot(v, axis);
         if (isEqual(+cos, T(1.0))) {
             return static_cast<T>(0.0);

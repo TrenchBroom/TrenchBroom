@@ -136,7 +136,7 @@ void main(void) {
 
     // We want to specifically rotate about `lineDir` only, so can't use makeQuat() (which picks the rotation axis itself
     // and could accidentally flip the arrow the wrong way instead of rolling it 180 degrees.)
-    Quat fixUp = setRotation(lineDir, -angleBetween(currentUp, desiredUp, lineDir));
+    Quat fixUp = setRotation(lineDir, -measureAngle(currentUp, desiredUp, lineDir));
 
     distanceFromCamera = length(CameraPosition - arrowPosition);
 
