@@ -317,17 +317,17 @@ namespace vm {
         auto v = lhs.direction;
         auto w = rhs.origin - lhs.origin;
 
-        const auto a = u.dot(u); // other.direction.dot(other.direction) (squared length)
-        const auto b = u.dot(v); // other.direction.dot(this.direction)
-        const auto c = v.dot(v); // this.direction.dot(this.direction) (squared length)
-        const auto d = u.dot(w); // other.direction.dot(origin delta)
-        const auto e = v.dot(w); // this.direction.dot(origin delta)
+        const auto a = dot(u, u); // other.direction.dot(other.direction) (squared length)
+        const auto b = dot(u, v); // other.direction.dot(this.direction)
+        const auto c = dot(v, v); // this.direction.dot(this.direction) (squared length)
+        const auto d = dot(u, w); // other.direction.dot(origin delta)
+        const auto e = dot(v, w); // this.direction.dot(origin delta)
         const auto D = a * c - b * b;
         T sN, sD = D;
         T tN, tD = D;
 
         if (isZero(D)) {
-            const auto f = w.dot(v);
+            const auto f = dot(w, v);
             const auto z = w - f * v;
             return LineDistance<T>::Parallel(squaredLength(z));
         }
