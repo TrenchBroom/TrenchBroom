@@ -1605,68 +1605,6 @@ namespace vm {
             }
         }
     }
-
-    /**
-     * Return type for the distanceToSegment function. Contains the point on a segment which is closest to some given
-     * point, and the distance between that segment point and the given point.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     */
-    template <typename T, size_t S>
-    struct EdgeDistance {
-        /**
-         * The closest point on a given segment to a given point.
-         */
-
-        const vec<T,S> point;
-        /**
-         * The distance between the closest segment point and a given point.
-         */
-        const T distance;
-
-        /**
-         * Constructs a new instance with the given info.
-         *
-         * @param i_point the closest point on the segment
-         * @param i_distance the distance between the closest point and the given point
-         */
-        EdgeDistance(const vec<T,S>& i_point, T i_distance) :
-        point(i_point),
-        distance(i_distance) {}
-    };
-
-    /**
-     * Given a point X and a segment represented by two points A and B, this function computes the closest point P on the
-     * segment AB and the given point X, as well as the distance between X and P.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param point the point
-     * @param start the start point of the segment
-     * @param end the end point of the segment
-     * @return a struct containing the closest point on the segment and the distance between that point and the given point
-     */
-     // TODO 2201: Remove this and replace with distance function
-    template <typename T, size_t S>
-    EdgeDistance<T,S> distanceOfPointAndSegment(const vec<T,S>& point, const vec<T,S>& start, const vec<T,S>& end) {
-        const vec<T,S> edgeVec = end - start;
-        const vec<T,S> edgeDir = normalize(edgeVec);
-        const T scale = dot(point - start, edgeDir);
-
-        // determine the closest point on the edge
-        vec<T,S> closestPoint;
-        if (scale < 0.0) {
-            closestPoint = start;
-        } else if ((scale * scale) > squaredLength(edgeVec)) {
-            closestPoint = end;
-        } else {
-            closestPoint = start + edgeDir * scale;
-        }
-
-        const T distance = length(point - closestPoint);
-        return EdgeDistance<T,S>(closestPoint, distance);
-    }
 }
 
 #endif

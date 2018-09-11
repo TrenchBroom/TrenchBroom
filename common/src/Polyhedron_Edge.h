@@ -20,7 +20,11 @@
 #ifndef TrenchBroom_Polyhedron_Edge_h
 #define TrenchBroom_Polyhedron_Edge_h
 
+#include <vecmath/vec.h>
 #include <vecmath/plane.h>
+#include <vecmath/segment.h>
+#include <vecmath/distance.h>
+#include <vecmath/utils.h>
 
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {
@@ -169,7 +173,7 @@ bool Polyhedron<T,FP,VP>::Edge::fullySpecified() const {
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::Edge::contains(const V& point, const T maxDistance) const {
-    return distanceOfPointAndSegment(point, firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
+    return vm::distance(vm::segment<T,3>(firstVertex()->position(), secondVertex()->position()), point).distance < maxDistance;
 }
 
 template <typename T, typename FP, typename VP>

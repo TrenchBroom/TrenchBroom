@@ -37,6 +37,7 @@ namespace vm {
         /**
          * The distance from the origin of the ray to the orthogonal projection of a point onto the ray.
          */
+         // TODO 2201: rename this appriopriately for any abstract_line
         T rayDistance;
 
         /**
@@ -99,6 +100,56 @@ namespace vm {
     template <typename T, size_t S>
     PointDistance<T> distance(const ray<T,S>& r, const vec<T,S>& p) {
         auto distance2 = squaredDistance(r, p);
+        distance2.distance = std::sqrt(distance2.distance);
+        return distance2;
+    }
+
+
+    /**
+     * Computes the minimal squared distance between a given point and a segment. Two values are returned:
+     *
+     * - The squared distance between the closest point on given segment and the given point.
+     * - The distance from the origin of the given segment the closest point on the given segment.
+     *
+     * Thereby, the closest point on the given segment is the orthogonal projection of the given point onto the given
+     * segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param s the segment
+     * @param p the point
+     * @return the squared distance
+     */
+    template <typename T, size_t S>
+    PointDistance<T> squaredDistance(const segment<T,S>& s, const vec<T,S>& p) {
+        const auto vector = s.end() - s.start();
+        const auto len = length(vector);
+        const auto dir = vector / len;
+        const T scale = dot(p - s.start(), dir);
+
+        const T segDist = min(max(T(0.0), scale), len);
+        const T distance = squaredLength(p - s.pointAtDistance(segDist));
+        return PointDistance<T>(segDist, distance);
+    }
+
+    /**
+     * Computes the minimal distance between a given point and a segment. Two values are returned:
+     *
+     * - The distance between the closest point on given segment and the given point.
+     * - The distance from the origin of the given segment the closest point on the given segment.
+     *
+     * Thereby, the closest point on the given segment is the orthogonal projection of the given point onto the given
+     * segment.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param s the segment
+     * @param p the point
+     * @return the distance
+     */
+    template <typename T, size_t S>
+    PointDistance<T> distance(const segment<T,S>& s, const vec<T,S>& p) {
+        auto distance2 = squaredDistance(s, p);
         distance2.distance = std::sqrt(distance2.distance);
         return distance2;
     }
