@@ -28,6 +28,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
+#include <vecmath/intersection.h>
 #include <vecmath/utils.h>
 
 #include <array>
@@ -280,8 +281,8 @@ namespace TrenchBroom {
                 const auto plane = vm::plane<T,3>(polygon.vertices().front(), normal);
                 auto ps = snap(p, plane);
                 auto err = squaredLength(p - ps);
-                
-                if (!polygon.contains(ps, plane.normal)) {
+
+                if (!vm::contains(ps, plane.normal, std::begin(polygon), std::end(polygon))) {
                     ps = vm::vec<T,3>::NaN;
                     err = std::numeric_limits<T>::max();
                 }

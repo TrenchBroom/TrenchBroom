@@ -25,6 +25,8 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 
+#include <vecmath/ray.h>
+
 namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {

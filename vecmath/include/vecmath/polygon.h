@@ -20,12 +20,8 @@
 #ifndef TRENCHBROOM_POLYGON_DECL_H
 #define TRENCHBROOM_POLYGON_DECL_H
 
-// TODO 2201: Remove this dependency.
-#include "CollectionUtils.h"
-
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/intersection.h> // TODO 2201: try to avoid including this here
 
 #include <algorithm>
 #include <cstddef>
@@ -55,7 +51,7 @@ namespace vm {
          */
         polygon(std::initializer_list<vec<T,S>> i_vertices) :
         m_vertices(i_vertices) {
-                CollectionUtils::rotateMinToFront(m_vertices);
+            rotateMinToFront();
         }
 
         /**
@@ -65,7 +61,7 @@ namespace vm {
          */
         explicit polygon(const typename vec<T,S>::List& i_vertices) :
         m_vertices(i_vertices) {
-            CollectionUtils::rotateMinToFront(m_vertices);
+            rotateMinToFront();
         }
 
         /**
@@ -75,9 +71,18 @@ namespace vm {
          */
         explicit polygon(typename vec<T,S>::List&& i_vertices) :
         m_vertices(i_vertices) {
-            CollectionUtils::rotateMinToFront(m_vertices);
+            rotateMinToFront();
         }
-
+    private:
+        void rotateMinToFront() {
+            if (!m_vertices.empty()) {
+                const auto begin = std::begin(m_vertices);
+                const auto end = std::end(m_vertices);
+                const auto min = std::min_element(begin, end);
+                std::rotate(begin, min, end);
+            }
+        }
+    public:
         // Copy and move constructors
         polygon(const polygon<T,S>& other) = default;
         polygon(polygon<T,S>&& other) noexcept = default;
@@ -109,18 +114,6 @@ namespace vm {
          */
         bool hasVertex(const vec<T,S>& vertex) const {
             return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
-        }
-
-        /**
-         * Checks whether this polygon contains the given point.
-         *
-         * @param point the point to check
-         * @param normal the normal of this polygon
-         * @return true if this polygon contains the given point, and false otherwise
-         */
-         // TODO 2201: Remove this and avoid including intersections.h
-        bool contains(const vec<T,S>& point, const vec<T,3>& normal) const {
-            return vm::contains(point, normal, std::begin(m_vertices), std::end(m_vertices));
         }
 
         /**
