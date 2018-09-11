@@ -21,7 +21,6 @@
 #define TrenchBroom_Pickable_h
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 
 namespace TrenchBroom {
     namespace Model {

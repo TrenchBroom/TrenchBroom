@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_Circle
 #define TrenchBroom_Circle
 
-#include <vecmath/VecMath.h>
-#include "TrenchBroom.h"
 #include "Renderer/VertexArray.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {

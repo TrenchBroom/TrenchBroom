@@ -21,7 +21,6 @@
 #define TrenchBroom_RotateObjectsTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
@@ -42,9 +41,9 @@ namespace TrenchBroom {
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
-            vm::vec3::List m_recentlyUsedCenters;
+            vm::array<vm::vec3> m_recentlyUsedCenters;
         public:
-            RotateObjectsTool(MapDocumentWPtr document);
+            explicit RotateObjectsTool(MapDocumentWPtr document);
 
             bool doActivate() override;
 

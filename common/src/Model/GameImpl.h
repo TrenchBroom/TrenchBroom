@@ -21,14 +21,12 @@
 #define TrenchBroom_GameImpl
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/FileSystemHierarchy.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
-
 
 namespace TrenchBroom {
     class Logger;

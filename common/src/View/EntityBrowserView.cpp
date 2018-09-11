@@ -40,6 +40,12 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/quat.h>
+#include <vecmath/bbox.h>
+
 #include <map>
 
 namespace TrenchBroom {

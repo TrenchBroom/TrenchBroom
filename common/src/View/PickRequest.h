@@ -21,7 +21,8 @@
 #define TrenchBroom_PickRequest
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
+
+#include <vecmath/ray.h>
 
 namespace TrenchBroom {
     namespace Renderer {

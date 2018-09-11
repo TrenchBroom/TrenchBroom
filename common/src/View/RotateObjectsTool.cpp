@@ -24,6 +24,12 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/bbox.h>
+#include <vecmath/utils.h>
+
 namespace TrenchBroom {
     namespace View {
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document) :
@@ -43,12 +49,13 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            if (area == RotateObjectsHandle::HitArea_XAxis)
+            if (area == RotateObjectsHandle::HitArea_XAxis) {
                 m_toolPage->setAxis(vm::axis::x);
-            else if (area == RotateObjectsHandle::HitArea_YAxis)
+            } else if (area == RotateObjectsHandle::HitArea_YAxis) {
                 m_toolPage->setAxis(vm::axis::y);
-            else if (area == RotateObjectsHandle::HitArea_ZAxis)
+            } else if (area == RotateObjectsHandle::HitArea_ZAxis) {
                 m_toolPage->setAxis(vm::axis::z);
+            }
         }
         
         double RotateObjectsTool::angle() const {

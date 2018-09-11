@@ -19,9 +19,12 @@
 
 #include "CopyTexCoordSystemFromFaceCommand.h"
 
+#include "TrenchBroom.h"
 #include "Model/BrushFace.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace View {

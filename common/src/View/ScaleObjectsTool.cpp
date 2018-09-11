@@ -20,6 +20,7 @@
 
 #include "ScaleObjectsTool.h"
 
+#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/HitQuery.h"
@@ -27,6 +28,12 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/bbox.h>
+#include <vecmath/distance.h>
+#include <vecmath/intersection.h>
 
 #include <algorithm>
 #include <iterator>
@@ -494,7 +501,7 @@ namespace TrenchBroom {
 
                     const vm::vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
-                        const auto result = distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
+                        const auto result = vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
                         if (!vm::isNan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
@@ -603,7 +610,7 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = intersect(pickRay, poly.begin(), poly.end());
+                const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }

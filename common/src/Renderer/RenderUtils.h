@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/utils.h>
 
 #include <utility>
 
@@ -58,17 +60,17 @@ namespace TrenchBroom {
         vm::vec2f::List circle2D(float radius, size_t segments);
         vm::vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
         vm::vec3f::List circle2D(float radius, vm::axis::type axis, float startAngle, float angleLength, size_t segments);
-        std::pair<float, float> startAngleAndLength(const vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+        std::pair<float, float> startAngleAndLength(vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
-        vm::vec2f::List roundedRect2D(const vm::vec2f& size, const float cornerRadius, const size_t cornerSegments);
+        vm::vec2f::List roundedRect2D(const vm::vec2f& size, float cornerRadius, size_t cornerSegments);
         vm::vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
         
         struct VertsAndNormals {
             vm::vec3f::List vertices;
             vm::vec3f::List normals;
             
-            VertsAndNormals(size_t vertexCount);
+            explicit VertsAndNormals(size_t vertexCount);
         };
         
         vm::vec3f::List sphere3D(float radius, size_t iterations);

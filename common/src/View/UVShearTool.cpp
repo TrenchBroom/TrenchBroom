@@ -26,6 +26,9 @@
 #include "View/MapDocument.h"
 #include "View/UVViewHelper.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/intersection.h>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVShearTool::XHandleHit = Model::Hit::freeHitType();
@@ -71,7 +74,7 @@ namespace TrenchBroom {
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
             // the shear handle to be dragged is very close to one of the texture axes.
             if (vm::isZero(m_initialHit.x(), 6.0f) ||
-                    vm::isZero(m_initialHit.y(), 6.0f))
+                vm::isZero(m_initialHit.y(), 6.0f))
                 return false;
             
             MapDocumentSPtr document = lock(m_document);
@@ -124,7 +127,7 @@ namespace TrenchBroom {
         vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto hitPointDist = intersect(pickRay, boundary);
+            const auto hitPointDist = vm::intersect(pickRay, boundary);
             const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
             const auto hitVec = hitPoint - m_helper.origin();
             

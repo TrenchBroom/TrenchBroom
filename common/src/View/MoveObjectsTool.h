@@ -21,7 +21,6 @@
 #define TrenchBroom_MoveObjectsTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 

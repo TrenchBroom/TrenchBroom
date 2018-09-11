@@ -1,4 +1,4 @@
-#/*
+/*
  Copyright (C) 2010-2017 Kristian Duske
  
  This file is part of TrenchBroom.
@@ -20,9 +20,9 @@
 #ifndef TrenchBroom_OrthographicCamera
 #define TrenchBroom_OrthographicCamera
 
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/Camera.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Renderer {

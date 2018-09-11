@@ -19,7 +19,6 @@
 
 #include "BrushFace.h"
 
-#include <vecmath/VecMath.h>
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"
@@ -29,6 +28,14 @@
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/TexturedIndexArrayBuilder.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
+#include <vecmath/polygon.h>
+#include <vecmath/utils.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -138,7 +145,7 @@ namespace TrenchBroom {
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot* coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
-            const auto seam = intersect(sourceFacePlane, m_boundary);
+            const auto seam = vm::intersect(sourceFacePlane, m_boundary);
             const auto refPoint = seam.projectPoint(center());
             
             coordSystemSnapshot->restore(m_texCoordSystem);
@@ -488,7 +495,7 @@ namespace TrenchBroom {
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
-            const auto seam = intersect(oldPlane, m_boundary);
+            const auto seam = vm::intersect(oldPlane, m_boundary);
             if (!isZero(seam.direction)) {
                 const auto refPoint = seam.projectPoint(center());
                 
@@ -619,24 +626,15 @@ namespace TrenchBroom {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
 
-        bool BrushFace::containsPoint(const vm::vec3& point) const {
-            const vm::vec3 toPoint = point - m_boundary.anchor();
-            if (!vm::isZero(dot(toPoint, m_boundary.normal))) {
-                return false;
-            } else {
-                const vm::ray3 ray(point + m_boundary.normal, -m_boundary.normal);
-                return !vm::isNan(intersectWithRay(ray));
-            }
-        }
-
         FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);
-            if (!vm::isNegative(cos))
+            if (!vm::isNegative(cos)) {
                 return vm::nan<FloatType>();
-            
-            return intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+            } else {
+                return vm::intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());
+            }
         }
 
         void BrushFace::printPoints() const {

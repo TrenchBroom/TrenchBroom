@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_Vertex_h
 #define TrenchBroom_Vertex_h
 
+#include <cstddef>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         template <typename A1>

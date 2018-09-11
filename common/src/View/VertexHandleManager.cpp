@@ -23,6 +23,11 @@
 #include "Preferences.h"
 #include "View/Grid.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+#include <vecmath/intersection.h>
+
 namespace TrenchBroom {
     namespace View {
         VertexHandleManagerBase::~VertexHandleManagerBase() {}
@@ -35,7 +40,7 @@ namespace TrenchBroom {
                 const auto distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
                 if (!vm::isNan(distance)) {
                     const auto hitPoint = pickRay.pointAtDistance(distance);
-                    const auto error = squaredDistance(pickRay, position).distance;
+                    const auto error = vm::squaredDistance(pickRay, position).distance;
                     pickResult.addHit(Model::Hit::hit(HandleHit, distance, hitPoint, position, error));
                 }
             }
@@ -117,12 +122,12 @@ namespace TrenchBroom {
             for (const auto& entry : m_handles) {
                 const auto& position = entry.first;
 
-                const auto [valid, plane] = fromPoints(std::begin(position), std::end(position));
+                const auto [valid, plane] = vm::fromPoints(std::begin(position), std::end(position));
                 if (!valid) {
                     continue;
                 }
 
-                const auto distance = intersect(pickRay, plane, std::begin(position), std::end(position));
+                const auto distance = vm::intersect(pickRay, plane, std::begin(position), std::end(position));
                 if (!vm::isNan(distance)) {
                     const auto pointHandle = grid.snap(pickRay.pointAtDistance(distance), plane);
                     

@@ -21,7 +21,6 @@
 #define TrenchBroom_InputState
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 

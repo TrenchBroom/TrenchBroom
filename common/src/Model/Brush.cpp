@@ -35,10 +35,10 @@
 #include "Model/PickResult.h"
 #include "Model/World.h"
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/vec_impl.h>
-#include <vecmath/mat_decl.h>
-#include <vecmath/mat_impl.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
 
 #include <algorithm>
 #include <iterator>

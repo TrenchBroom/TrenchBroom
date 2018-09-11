@@ -26,6 +26,13 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+#include <vecmath/intersection.h>
+#include <vecmath/utils.h>
+
 namespace TrenchBroom {
     namespace View {
         Grid::Grid(const int size) :
@@ -94,9 +101,9 @@ namespace TrenchBroom {
                 planeAnchor[i] = ray.direction[i] > 0.0 ? snapUp(ray.origin[i], true) + skip * actualSize() : snapDown(ray.origin[i], true) - skip * actualSize();
             }
 
-            const auto distX = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
-            const auto distY = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
-            const auto distZ = intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
+            const auto distX = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_x));
+            const auto distY = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_y));
+            const auto distZ = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
             
             auto dist = distX;
             if (!vm::isNan(distY) && (vm::isNan(dist) || std::abs(distY) < std::abs(dist))) {
@@ -109,19 +116,21 @@ namespace TrenchBroom {
         }
         
         vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
-            const vm::vec3 newPoint = snap(point + delta);
-            vm::vec3 actualDelta = newPoint - point;
+            const auto newPoint = snap(point + delta);
+            auto actualDelta = newPoint - point;
             
-            for (size_t i = 0; i < 3; ++i)
-                if ((actualDelta[i] > 0.0) != (delta[i] > 0.0))
+            for (size_t i = 0; i < 3; ++i) {
+                if ((actualDelta[i] > 0.0) != (delta[i] > 0.0)) {
                     actualDelta[i] = 0.0;
+                }
+            }
             return actualDelta;
         }
         
         vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::ray3& ray, const vm::vec3& position) const {
             
             // First, compute the snapped position under the mouse:
-            const auto dist = intersect(ray, dragPlane);
+            const auto dist = vm::intersect(ray, dragPlane);
             const auto hitPoint = ray.pointAtDistance(dist);
             const auto newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
             const auto offset = newPos - hitPoint;
@@ -146,60 +155,69 @@ namespace TrenchBroom {
         }
         
         vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
-            vm::vec3 actualDelta = vm::vec3::zero;
+            auto actualDelta = vm::vec3::zero;
             for (size_t i = 0; i < 3; ++i) {
                 if (!vm::isZero(delta[i])) {
-                    const FloatType low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
-                    const FloatType high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
+                    const auto low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
+                    const auto high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
                     
-                    if (low != 0.0 && high != 0.0)
+                    if (low != 0.0 && high != 0.0) {
                         actualDelta[i] = std::abs(high) < std::abs(low) ? high : low;
-                    else if (low != 0.0)
+                    } else if (low != 0.0) {
                         actualDelta[i] = low;
-                    else if (high != 0.0)
+                    } else if (high != 0.0) {
                         actualDelta[i] = high;
-                    else
+                    } else {
                         actualDelta[i] = 0.0;
+                    }
                 }
             }
             
-            if (squaredLength(delta) < squaredLength(delta - actualDelta))
+            if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
                 actualDelta = vm::vec3::zero;
+            }
             return actualDelta;
         }
         
         vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
-            vm::vec3 actualDelta = vm::vec3::zero;
-            for (size_t i = 0; i < 3; ++i)
-                if (!vm::isZero(delta[i]))
+            auto actualDelta = vm::vec3::zero;
+            for (size_t i = 0; i < 3; ++i) {
+                if (!vm::isZero(delta[i])) {
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
-            
-            if (squaredLength(delta) < squaredLength(delta - actualDelta))
+                }
+            }
+
+            if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
                 actualDelta = vm::vec3::zero;
-            
+            }
+
             return actualDelta;
         }
         
         vm::vec3 Grid::moveDelta(const vm::vec3& delta) const {
-            vm::vec3 actualDelta = vm::vec3::zero;
-            for (unsigned int i = 0; i < 3; i++)
-                if (!vm::isZero(delta[i]))
+            auto actualDelta = vm::vec3::zero;
+            for (unsigned int i = 0; i < 3; i++) {
+                if (!vm::isZero(delta[i])) {
                     actualDelta[i] = snap(delta[i]);
-            
-            if (squaredLength(delta) < squaredLength(delta - actualDelta))
+                }
+            }
+
+            if (squaredLength(delta) < squaredLength(delta - actualDelta)) {
                 actualDelta = vm::vec3::zero;
-            
+            }
+
             return actualDelta;
         }
         
         vm::vec3 Grid::moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const {
-            const FloatType dist = dot(delta, face->boundary().normal);
-            if (vm::isZero(dist))
+            const auto dist = dot(delta, face->boundary().normal);
+            if (vm::isZero(dist)) {
                 return vm::vec3::zero;
-            
-            const Model::Brush* brush = face->brush();
-            const Model::Brush::EdgeList brushEdges = brush->edges();
-            const Model::BrushFace::VertexList faceVertices = face->vertices();
+            }
+
+            const auto* brush = face->brush();
+            const auto brushEdges = brush->edges();
+            const auto faceVertices = face->vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<vm::ray3> edgeRays;
@@ -214,12 +232,14 @@ namespace TrenchBroom {
                 for (const Model::BrushVertex* vertex : faceVertices) {
                     startFound |= (vertex->position() == edge->firstVertex()->position());
                     endFound |= (vertex->position() == edge->secondVertex()->position());
-                    if (startFound && endFound)
+                    if (startFound && endFound) {
                         break;
+                    }
                 }
                 
-                if (startFound)
+                if (startFound) {
                     c++;
+                }
                 if (endFound) {
                     c++;
                     originAtStart = false;
@@ -237,24 +257,26 @@ namespace TrenchBroom {
                     
                     // depending on the direction of the drag vector, the rays must be inverted to reflect the
                     // actual movement of the vertices
-                    if (dot(delta, ray.direction) < 0.0)
+                    if (dot(delta, ray.direction) < 0.0) {
                         ray.direction = -ray.direction;
-                    
+                    }
+
                     edgeRays.push_back(ray);
                 }
             }
             
-            vm::vec3 normDelta = face->boundary().normal * dist;
+            auto normDelta = face->boundary().normal * dist;
             /**
              * Scalar projection of normDelta onto the nearest axial normal vector.
              */
-            const FloatType normDeltaScalarProj = dot(normDelta, firstAxis(normDelta));
+            const auto normDeltaScalarProj = dot(normDelta, firstAxis(normDelta));
             
-            size_t gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
-            if (gridSkip > 0)
+            auto gridSkip = static_cast<size_t>(normDeltaScalarProj / actualSize());
+            if (gridSkip > 0) {
                 --gridSkip;
-            FloatType actualDist = std::numeric_limits<FloatType>::max();
-            FloatType minDistDelta = std::numeric_limits<FloatType>::max();
+            }
+            auto actualDist = std::numeric_limits<FloatType>::max();
+            auto minDistDelta = std::numeric_limits<FloatType>::max();
             
             do {
                 // Find the smallest drag distance at which the face boundary is actually moved
@@ -267,12 +289,12 @@ namespace TrenchBroom {
                 // Then, test if the resulting drag distance is smaller than the current candidate.
                 
                 for (size_t i = 0; i < edgeRays.size(); ++i) {
-                    const vm::ray3& ray = edgeRays[i];
-                    const FloatType vertexDist = intersectWithRay(ray, gridSkip);
-                    const vm::vec3 vertexDelta = ray.direction * vertexDist;
-                    const FloatType vertexNormDist = dot(vertexDelta, face->boundary().normal);
+                    const auto& ray = edgeRays[i];
+                    const auto vertexDist = intersectWithRay(ray, gridSkip);
+                    const auto vertexDelta = ray.direction * vertexDist;
+                    const auto vertexNormDist = dot(vertexDelta, face->boundary().normal);
                     
-                    const FloatType normDistDelta = vm::abs(vertexNormDist - dist);
+                    const auto normDistDelta = vm::abs(vertexNormDist - dist);
                     if (normDistDelta < minDistDelta) {
                         actualDist = vertexNormDist;
                         minDistDelta = normDistDelta;
@@ -282,7 +304,7 @@ namespace TrenchBroom {
             } while (actualDist == std::numeric_limits<FloatType>::max());
             
             normDelta = face->boundary().normal * actualDist;
-            const vm::vec3 deltaNormalized = normalize(delta);
+            const auto deltaNormalized = normalize(delta);
             return deltaNormalized * dot(normDelta, deltaNormalized);
         }
         

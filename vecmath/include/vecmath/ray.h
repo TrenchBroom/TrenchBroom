@@ -21,10 +21,10 @@
 #define TRENCHBROOM_RAY_DECL_H
 
 #include "abstract_line.h"
-#include "vec_decl.h"
-#include "mat_decl.h"
+#include "vec.h"
+#include "mat.h"
 
-#include <vecmath/utils.h>
+#include "utils.h"
 
 namespace vm {
     /**
@@ -42,7 +42,9 @@ namespace vm {
         /**
          * Creates a new ray with all components initialized to 0.
          */
-        ray();
+        ray() :
+        origin(vec<T,S>::zero),
+        direction(vec<T,S>::zero) {}
 
         // Copy and move constructors
         ray(const ray<T,S>& other) = default;
@@ -70,11 +72,18 @@ namespace vm {
          * @param i_origin the origin
          * @param i_direction the direction
          */
-        ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction);
+        ray(const vec<T,S>& i_origin, const vec<T,S>& i_direction) :
+        origin(i_origin),
+        direction(i_direction) {}
 
         // implement abstract_line interface
-        vec<T,S> getOrigin() const override;
-        vec<T,S> getDirection() const override;
+        vec<T,S> getOrigin() const override {
+            return origin;
+        }
+
+        vec<T,S> getDirection() const override {
+            return direction;
+        }
 
         /**
          * Transforms this line using the given transformation matrix. The translational part is not applied to the
@@ -83,7 +92,11 @@ namespace vm {
          * @param transform the transformation to apply
          * @return the transformed ray
          */
-        ray<T,S> transform(const mat<T,S+1,S+1>& transform) const;
+        ray<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+            const auto newOrigin = origin * transform;
+            const auto newDirection = direction * stripTranslation(transform);
+            return ray<T,S>(newOrigin, newDirection);
+        }
 
         /**
          * Determines the position of the given point in relation to the origin and direction of this ray. Suppose that the
@@ -97,7 +110,16 @@ namespace vm {
          * @param point the point to check
          * @return a value indicating the relative position of the given point
          */
-        point_status pointStatus(const vec<T,S>& point) const;
+        point_status pointStatus(const vec<T,S>& point) const {
+            const auto scale = dot(direction, point - origin);
+            if (scale >  constants<T>::pointStatusEpsilon()) {
+                return point_status::above;
+            } else if (scale < -constants<T>::pointStatusEpsilon()) {
+                return point_status::below;
+            } else {
+                return point_status::inside;
+            }
+        }
     };
 
     /**
@@ -111,7 +133,9 @@ namespace vm {
      * @return true if all components of the given rays are equal, and false otherwise
      */
     template <typename T, size_t S>
-    bool isEqual(const ray<T,S>& lhs, const ray<T,S>& rhs, T epsilon);
+    bool isEqual(const ray<T,S>& lhs, const ray<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.origin, rhs.origin, epsilon) && isEqual(lhs.direction, rhs.direction, epsilon);
+    }
 
     /**
      * Checks whether the given rays are identical.
@@ -123,7 +147,9 @@ namespace vm {
      * @return true if the given rays are identical and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const ray<T,S>& lhs, const ray<T,S>& rhs);
+    bool operator==(const ray<T,S>& lhs, const ray<T,S>& rhs) {
+        return lhs.origin == rhs.origin && lhs.direction == rhs.direction;
+    }
 
     /**
      * Checks whether the given rays are identical.
@@ -135,7 +161,9 @@ namespace vm {
      * @return false if the given rays are identical and true otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const ray<T,S>& lhs, const ray<T,S>& rhs);
+    bool operator!=(const ray<T,S>& lhs, const ray<T,S>& rhs) {
+        return lhs.origin != rhs.origin || lhs.direction != rhs.direction;
+    }
 
     /**
      * Prints a textual representation of the given ray on the given stream.
@@ -147,7 +175,10 @@ namespace vm {
      * @return the given stream
      */
     template <typename T, size_t S>
-    std::ostream& operator<<(std::ostream& stream, const ray<T,S>& ray);
+    std::ostream& operator<<(std::ostream& stream, const ray<T,S>& ray) {
+        stream << "{ origin: (" << ray.origin << "), direction: (" << ray.direction << ") }";
+        return stream;
+    }
 }
 
 #endif

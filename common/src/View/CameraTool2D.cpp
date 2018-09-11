@@ -24,6 +24,9 @@
 #include "View/InputState.h"
 #include "Renderer/OrthographicCamera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
@@ -38,10 +41,9 @@ namespace TrenchBroom {
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 if (inputState.scrollY() != 0.0f) {
-                    const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-                    const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
-                    const vm::vec2f mousePos(static_cast<float>(inputState.mouseX()),
-                                         static_cast<float>(inputState.mouseY()));
+                    const auto speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+                    const auto factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+                    const auto mousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
                     zoom(inputState, mousePos, factor);
                 }
             }
@@ -49,12 +51,10 @@ namespace TrenchBroom {
         
         bool CameraTool2D::doStartMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                m_lastMousePos = vm::vec2f(static_cast<float>(inputState.mouseX()),
-                                       static_cast<float>(inputState.mouseY()));
+                m_lastMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
                 return true;
             } else if (dragZoom(inputState)) {
-                m_lastMousePos = vm::vec2f(static_cast<float>(inputState.mouseX()),
-                                       static_cast<float>(inputState.mouseY()));
+                m_lastMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
                 return true;
             }
             return false;
@@ -62,16 +62,16 @@ namespace TrenchBroom {
         
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                const vm::vec2f currentMousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
-                const vm::vec3f lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
-                const vm::vec3f currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
-                const vm::vec3f delta = currentWorldPos - lastWorldPos;
+                const auto currentMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                const auto lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
+                const auto currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
+                const auto delta = currentWorldPos - lastWorldPos;
                 m_camera.moveBy(-delta);
                 m_lastMousePos = currentMousePos;
                 return true;
             } else if (dragZoom(inputState)) {
-                const float speed = pref(Preferences::CameraAltMoveInvert) ? 1.0 : -1.0;
-                const float factor = 1.0f + inputState.mouseDY() / 100.0f * speed;
+                const auto speed = pref(Preferences::CameraAltMoveInvert) ? 1.0f : -1.0f;
+                const auto factor = 1.0f + inputState.mouseDY() / 100.0f * speed;
                 zoom(inputState, m_lastMousePos, factor);
                 return true;
             }
@@ -105,12 +105,12 @@ namespace TrenchBroom {
         }
 
         void CameraTool2D::zoom(const InputState& inputState, const vm::vec2f& mousePos, const float factor) {
-            const vm::vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+            const auto oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
             
             m_camera.zoom(factor);
             
-            const vm::vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
-            const vm::vec3f delta = newWorldPos - oldWorldPos;
+            const auto newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+            const auto delta = newWorldPos - oldWorldPos;
             m_camera.moveBy(-delta);
         }
         

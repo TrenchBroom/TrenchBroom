@@ -23,7 +23,7 @@
 #include "TemporarilySetAny.h"
 #include "Model/BrushFace.h"
 
-#include <vecmath/vec_decl.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace IO {

@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <vecmath/VecMath.h>
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {

@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_Transformation
 #define TrenchBroom_Transformation
 
-#include <vecmath/VecMath.h>
+#include <vecmath/forward.h>
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     namespace Renderer {

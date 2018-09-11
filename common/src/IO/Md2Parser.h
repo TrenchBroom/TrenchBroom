@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_Md2Parser
 #define TrenchBroom_Md2Parser
 
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/Md2Model.h"
 #include "IO/EntityModelParser.h"
+
+#include <vecmath/vec.h>
 
 #include <vector>
 
@@ -89,7 +90,7 @@ namespace TrenchBroom {
                 size_t vertexCount;
                 Md2MeshVertexList vertices;
                 
-                Md2Mesh(int i_vertexCount);
+                explicit Md2Mesh(int i_vertexCount);
             };
             using Md2MeshList =  std::vector<Md2Mesh>;
             
@@ -103,9 +104,9 @@ namespace TrenchBroom {
             Md2Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             Assets::EntityModel* doParseModel() override;
-            Md2SkinList parseSkins(const char* begin, const size_t skinCount);
-            Md2FrameList parseFrames(const char* begin, const size_t frameCount, const size_t frameVertexCount);
-            Md2MeshList parseMeshes(const char* begin, const size_t commandCount);
+            Md2SkinList parseSkins(const char* begin, size_t skinCount);
+            Md2FrameList parseFrames(const char* begin, size_t frameCount, size_t frameVertexCount);
+            Md2MeshList parseMeshes(const char* begin, size_t commandCount);
             Assets::EntityModel* buildModel(const Md2SkinList& skins, const Md2FrameList& frames, const Md2MeshList& meshes);
             Assets::TextureList loadTextures(const Md2SkinList& skins);
             Assets::Texture* readTexture(const Md2Skin& skin);

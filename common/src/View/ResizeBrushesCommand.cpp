@@ -21,6 +21,10 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
+#include "TrenchBroom.h"
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

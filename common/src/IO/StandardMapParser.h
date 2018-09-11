@@ -21,12 +21,13 @@
 #define TrenchBroom_StandardMapParser
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 #include "Model/MapFormat.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace IO {

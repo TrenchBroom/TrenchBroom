@@ -142,7 +142,7 @@ namespace TrenchBroom {
             return m_rotateObjectsTool->angle();
         }
         
-        const vm::vec3 MapViewToolBox::rotateToolCenter() const {
+        vm::vec3 MapViewToolBox::rotateToolCenter() const {
             assert(rotateObjectsToolActive());
             return m_rotateObjectsTool->rotationCenter();
         }

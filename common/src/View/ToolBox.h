@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_ToolBox
 #define TrenchBroom_ToolBox
 
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Notifier.h"
 

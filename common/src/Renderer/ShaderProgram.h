@@ -21,8 +21,9 @@
 #define TrenchBroom_ShaderProgram
 
 #include "StringUtils.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/GL.h"
+
+#include <vecmath/forward.h>
 
 #include <map>
 

@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BBox_h
-#define TrenchBroom_BBox_h
+#ifndef TRENCHBROOM_BBOX_H
+#define TRENCHBROOM_BBOX_H
 
-#include "vec_decl.h"
-#include "mat_decl.h"
-#include "quat_decl.h"
+#include "vec.h"
+#include "mat.h"
+#include "quat.h"
+#include "utils.h"
 
 #include <array>
 #include <iostream>
@@ -46,7 +47,9 @@ namespace vm {
         /**
          * Creates a new bounding box at the origin with size 0.
          */
-        bbox();
+        bbox() :
+        min(vec<T,S>::zero),
+        max(vec<T,S>::zero) {}
 
         // Copy and move constructors
         bbox(const bbox<T,S>& other) = default;
@@ -78,7 +81,11 @@ namespace vm {
          * @param i_min the min point of the bounding box
          * @param i_max the max point of the bounding box
          */
-        bbox(const vec<T,S>& i_min, const vec<T,S>& i_max);
+        bbox(const vec<T,S>& i_min, const vec<T,S>& i_max) :
+        min(i_min),
+        max(i_max) {
+            assert(valid());
+        }
 
         /**
          * Creates a new bounding box with the coordinate system origin at its center by setting the min point to
@@ -88,7 +95,11 @@ namespace vm {
          *
          * @param i_minMax the min and max point
          */
-        bbox(T i_minMax);
+        explicit bbox(T i_minMax) :
+        min(vec<T,S>::fill(-i_minMax)),
+        max(vec<T,S>::fill(+i_minMax)) {
+            assert(valid());
+        }
 
         /**
          * Creates a new bounding box by setting each component of the min point to the given min value, and each component of
@@ -98,7 +109,11 @@ namespace vm {
          * @param i_min the min point of the bounding box
          * @param i_max the max point of the bounding box
          */
-        bbox(T i_min, T i_max);
+        bbox(T i_min, T i_max) :
+        min(vec<T,S>::fill(i_min)),
+        max(vec<T,S>::fill(i_max)) {
+            assert(valid());
+        }
     public:
         /**
          * Creates the smallest bounding box that contains all points in the given range. Optionally accepts a transformation
@@ -129,7 +144,14 @@ namespace vm {
          *
          * @return true if the bounding box with the given points is valid and false otherwise
          */
-        static bool valid(const vec<T,S>& min, const vec<T,S>& max);
+        static bool valid(const vec<T,S>& min, const vec<T,S>& max) {
+            for (size_t i = 0; i < S; ++i) {
+                if (min[i] > max[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Checks whether this bounding box satisfies its invariant. The invariant states that
@@ -138,35 +160,59 @@ namespace vm {
          *
          * @return true if this bounding box is valid and false otherwise
          */
-        bool valid() const;
+        bool valid() const  {
+            return valid(min, max);
+        }
 
         /**
          * Checks whether this bounding box has an empty volume.
          *
          * @return true if this bounding box has an empty volume and false otherwise
          */
-        bool empty() const;
+        bool empty() const {
+            assert(valid());
+            for (size_t i = 0; i < S; ++i) {
+                if (min[i] >= max[i]) {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         /**
          * Computes the center of this bounding box.
          *
          * @return the center of this bounding box
          */
-        vec<T,S> center() const;
+        vec<T,S> center() const {
+            assert(valid());
+            return (min + max) / static_cast<T>(2.0);
+        }
 
         /**
          * Computes the size of this bounding box
          *
          * @return the size of this bounding box
          */
-        vec<T,S> size() const;
+        vec<T,S> size() const {
+            assert(valid());
+            return max - min;
+        }
 
         /**
          * Computes the volume of this bounding box.
          *
          * @return the volumen of this bounding box
          */
-        T volume() const;
+        T volume() const {
+            assert(valid());
+            const auto boxSize = size();
+            T result = boxSize[0];
+            for (size_t i = 1; i < S; ++i) {
+                result *= boxSize[i];
+            }
+            return result;
+        }
 
         /**
          * Checks whether the given point is cointained in this bounding box.
@@ -175,7 +221,16 @@ namespace vm {
          * @param epsilon an epsilon value
          * @return true if the given point is contained in the given bounding box and false otherwise
          */
-        bool contains(const vec<T,S>& point, T epsilon = static_cast<T>(0.0)) const;
+        bool contains(const vec<T,S>& point, const T epsilon = static_cast<T>(0.0)) const {
+            assert(valid());
+            for (size_t i = 0; i < S; ++i) {
+                if (lt(point[i], min[i], epsilon) ||
+                    gt(point[i], max[i], epsilon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Checks whether the given bounding box is contained in this bounding box.
@@ -184,7 +239,16 @@ namespace vm {
          * @param epsilon an epsilon value
          * @return true if the given bounding box is contained in this bounding box
          */
-        bool contains(const bbox<T,S>& b, T epsilon = static_cast<T>(0.0)) const;
+        bool contains(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+            assert(valid());
+            for (size_t i = 0; i < S; ++i) {
+                if (lt(b.min[i], min[i], epsilon) ||
+                    gt(b.max[i], max[i], epsilon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Checks whether the given bounding box is enclosed in this bounding box. This is equivalent to
@@ -194,7 +258,16 @@ namespace vm {
          * @param epsilon an epsilon value
          * @return true if the given bounding box is enclosed in this bounding box
          */
-        bool encloses(const bbox<T,S>& b, T epsilon = static_cast<T>(0.0)) const;
+        bool encloses(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+            assert(valid());
+            for (size_t i = 0; i < S; ++i) {
+                if (lte(b.min[i], min[i], epsilon) ||
+                    gte(b.max[i], max[i], epsilon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Checks whether the given bounding box intersects with this bounding box.
@@ -203,7 +276,15 @@ namespace vm {
          * @param epsilon an epsilon value
          * @return true if the given bounding box intersects with this bounding box and false otherwise
          */
-        bool intersects(const bbox<T,S>& b, T epsilon = static_cast<T>(0.0)) const;
+        bool intersects(const bbox<T,S>& b, const T epsilon = static_cast<T>(0.0)) const {
+            for (size_t i = 0; i < S; ++i) {
+                if (lt(b.max[i], min[i], epsilon) ||
+                    gt(b.min[i], max[i], epsilon)) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         /**
          * Constrains the given point to the volume covered by this bounding box.
@@ -211,7 +292,10 @@ namespace vm {
          * @param point the point to constrain
          * @return the constrained point
          */
-        vec<T,S> constrain(const vec<T,S>& point) const;
+        vec<T,S> constrain(const vec<T,S>& point) const {
+            assert(valid());
+            return vm::max(min, vm::min(max, point));
+        }
 
         enum class Corner { min, max };
 
@@ -221,7 +305,14 @@ namespace vm {
          * @param c the corner to return
          * @return the position of the given corner
          */
-        vec<T,S> corner(const Corner c[S]) const;
+        vec<T,S> corner(const Corner c[S]) const {
+            assert(valid());
+            vec<T,S> result;
+            for (size_t i = 0; i < S; ++i) {
+                result[i] = c[i] == Corner::min ? min[i] : max[i];
+            }
+            return result;
+        }
 
         /**
          * Returns the position of a corner of this bounding box according to the given spec.
@@ -231,7 +322,10 @@ namespace vm {
          * @param z the Z position of the corner
          * @return the position of the given corner
          */
-        vec<T,3> corner(Corner x, Corner y, Corner z) const;
+        vec<T,3> corner(Corner x, Corner y, Corner z) const {
+            Corner c[] = { x, y, z };
+            return corner(c);
+        }
 
         enum class Range { less, within, greater };
 
@@ -246,7 +340,22 @@ namespace vm {
          * @param point the point to check
          * @return the relative position
          */
-        std::array<Range, S> relativePosition(const vec<T,S>& point) const;
+        std::array<Range, S> relativePosition(const vec<T,S>& point) const {
+            assert(valid());
+
+            std::array<Range, S> result;
+            for (size_t i = 0; i < S; ++i) {
+                if (point[i] < min[i]) {
+                    result[i] = Range::less;
+                } else if (point[i] > max[i]) {
+                    result[i] = Range::greater;
+                } else {
+                    result[i] = Range::within;
+                }
+            }
+
+            return result;
+        }
 
         /**
          * Expands this bounding box by the given delta.
@@ -254,15 +363,21 @@ namespace vm {
          * @param f the value by which to expand this bounding box
          * @return the expanded bounding box
          */
-        bbox<T,S> expand(const T f) const;
+        bbox<T,S> expand(const T f) const {
+            assert(valid());
+            return bbox<T,S>(min - vec<T,S>::fill(f), max + vec<T,S>::fill(f));
+        }
 
         /**
          * Translates this bounding box by the given offset.
          *
-         * @param offset the offset by which to translate
+         * @param delta the offset by which to translate
          * @return the translated bounding box
          */
-        bbox<T,S> translate(const vec<T,S>& offset) const;
+        bbox<T,S> translate(const vec<T,S>& delta) const {
+            assert(valid());
+            return bbox<T,S>(min + delta, max + delta);
+        }
 
         /**
          * Transforms this bounding box by applying the given transformation to each corner vertex. The result is the
@@ -271,7 +386,15 @@ namespace vm {
          * @param transform the transformation
          * @return the transformed bounding box
          */
-        bbox<T,S> transform(const mat<T,S+1,S+1>& transform) const;
+        bbox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+            const auto vertices = this->vertices();
+            const auto first = vertices[0] * transform;
+            auto result = bbox<T,3>(first, first);
+            for (size_t i = 1; i < vertices.size(); ++i) {
+                result = merge(result, vertices[i] * transform);
+            }
+            return result;
+        }
 
         /**
          * Executes the given operation on every face of this bounding box. For each face, its four vertices
@@ -359,7 +482,12 @@ namespace vm {
          *
          * @return a list of vertices
          */
-        typename vec<T,S>::List vertices() const;
+        typename vec<T,S>::List vertices() const {
+            typename vec<T,S>::List result;
+            result.reserve(8);
+            forEachVertex([&](const vec<T,S>& v){ result.push_back(v); });
+            return result;
+        }
     };
 
     /**
@@ -372,7 +500,10 @@ namespace vm {
      * @return the given stream
      */
     template <typename T, size_t S>
-    std::ostream& operator<<(std::ostream& stream, const bbox<T,S>& bbox);
+    std::ostream& operator<<(std::ostream& stream, const bbox<T,S>& bbox) {
+        stream << "{ min: (" << bbox.min << "), max: (" << bbox.max << ") }";
+        return stream;
+    }
 
     /**
      * Checks whether the two given bounding boxes are identical.
@@ -384,7 +515,9 @@ namespace vm {
      * @return true if the two bounding boxes are identical, and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const bbox<T,S>& lhs, const bbox<T,S>& rhs);
+    bool operator==(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
+        return lhs.min == rhs.min && lhs.max == rhs.max;
+    }
 
     /**
      * Checks whether the two given bounding boxes are identical.
@@ -396,7 +529,9 @@ namespace vm {
      * @return false if the two bounding boxes are identical, and true otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const bbox<T,S>& lhs, const bbox<T,S>& rhs);
+    bool operator!=(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
+        return lhs.min != rhs.min || lhs.max != rhs.max;
+    }
 
     /**
      * Returns the smallest bounding box that contains the two given bounding boxes.
@@ -408,7 +543,9 @@ namespace vm {
      * @return the smallest bounding box that contains the given bounding boxes
      */
     template <typename T, size_t S>
-    bbox<T,S> merge(const bbox<T,S>& lhs, const bbox<T,S>& rhs);
+    bbox<T,S> merge(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
+        return bbox<T,S>(min(lhs.min, rhs.min), max(lhs.max, rhs.max));
+    }
 
     /**
      * Returns the smallest bounding box that contains the given bounding box and the given point.
@@ -420,7 +557,9 @@ namespace vm {
      * @return the smallest bounding box that contains the given bounding box and point
      */
     template <typename T, size_t S>
-    bbox<T,S> merge(const bbox<T,S>& lhs, const vec<T,S>& rhs);
+    bbox<T,S> merge(const bbox<T,S>& lhs, const vec<T,S>& rhs) {
+        return bbox<T,S>(min(lhs.min, rhs), max(lhs.max, rhs));
+    }
 
     /**
      * Returns the smallest bounding box that contains the intersection of the given bounding boxes.
@@ -433,16 +572,70 @@ namespace vm {
      * @return the smallest bounding box that contains the intersection of the given bounding boxes
      */
     template <typename T, size_t S>
-    bbox<T,S> intersect(const bbox<T,S>& lhs, const bbox<T,S>& rhs);
+    bbox<T,S> intersect(const bbox<T,S>& lhs, const bbox<T,S>& rhs) {
+        const auto min = vm::max(lhs.min, rhs.min);
+        const auto max = vm::min(lhs.max, rhs.max);
+        if (bbox<T,S>::valid(min, max)) {
+            return bbox<T,S>(min, max);
+        } else {
+            return bbox<T,S>(vec<T,S>::zero, vec<T,S>::zero);
+        }
+    }
+
+    // TODO 2201: move special purpose functions elsewhere
+    template <typename T>
+    mat<T,4,4> scaleBBoxMatrix(const bbox<T,3>& oldBBox, const bbox<T,3>& newBBox) {
+        const auto scaleFactors = newBBox.size() / oldBBox.size();
+        return translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
+    }
 
     template <typename T>
-    mat<T,4,4> scaleBBoxMatrix(const bbox<T,3>& oldBBox, const bbox<T,3>& newBBox);
+    mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
+        const auto scaleFactors = newSize / oldBBox.size();
+        return translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
+    }
 
     template <typename T>
-    mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint);
+    mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
+        const auto oldSize = box.size();
 
-    template <typename T>
-    mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta);
+        // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
+        mat<T,4,4> shearMat;
+        if (sideToShear == vec<T,3>::pos_x) {
+            const auto relativeDelta = delta / oldSize.x();
+            shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
+        } else if (sideToShear == vec<T,3>::neg_x) {
+            const auto relativeDelta = delta / oldSize.x();
+            shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
+        } else if (sideToShear == vec<T,3>::pos_y) {
+            const auto relativeDelta = delta / oldSize.y();
+            shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
+        } else if (sideToShear == vec<T,3>::neg_y) {
+            const auto relativeDelta = delta / oldSize.y();
+            shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
+        } else if (sideToShear == vec<T,3>::pos_z) {
+            const auto relativeDelta = delta / oldSize.z();
+            shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
+        } else if (sideToShear == vec<T,3>::neg_z) {
+            const auto relativeDelta = delta / oldSize.z();
+            shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
+        }
+
+        // grab any vertex on side that is opposite the one being sheared.
+        const auto sideOppositeToShearSide = -sideToShear;
+        vec<T,3> vertOnOppositeSide;
+        bool didGrab = false;
+        auto visitor = [&](const vec<T,3>& p0, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, const vec<T,3>& n){
+            if (n == sideOppositeToShearSide) {
+                vertOnOppositeSide = p0;
+                didGrab = true;
+            }
+        };
+        box.forEachFace(visitor);
+        assert(didGrab);
+
+        return translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
+    }
 }
 
 #endif

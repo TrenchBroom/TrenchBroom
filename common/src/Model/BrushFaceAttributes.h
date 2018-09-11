@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_BrushFaceAttributes
 #define TrenchBroom_BrushFaceAttributes
 
-#include <vecmath/VecMath.h>
 #include "TrenchBroom.h"
 #include "StringUtils.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Assets {

@@ -22,6 +22,10 @@
 #include "Exceptions.h"
 #include "Renderer/Shader.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         ShaderProgram::ShaderProgram(const String& name) :

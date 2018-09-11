@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Misc_h
 #define TrenchBroom_Polyhedron_Misc_h
 
+#include "CollectionUtils.h"
+
 #include <map>
 
 template <typename T, typename FP, typename VP>

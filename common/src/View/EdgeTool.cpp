@@ -19,6 +19,8 @@
 
 #include "EdgeTool.h"
 
+#include "TrenchBroom.h"
+
 namespace TrenchBroom {
     namespace View {
         EdgeTool::EdgeTool(MapDocumentWPtr document) :

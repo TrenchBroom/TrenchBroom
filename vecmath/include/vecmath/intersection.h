@@ -20,14 +20,12 @@
 #ifndef TRENCHBROOM_RAYTRACE_H
 #define TRENCHBROOM_RAYTRACE_H
 
-#include <vecmath/utils.h>
-#include "vec_decl.h"
-#include "vec_impl.h"
-#include "ray_decl.h"
-#include "ray_impl.h"
-#include "bbox_decl.h"
-#include "line_decl.h"
-#include "plane_decl.h"
+#include "vec.h"
+#include "ray.h"
+#include "bbox.h"
+#include "line.h"
+#include "plane.h"
+#include "utils.h"
 
 #include <array>
 

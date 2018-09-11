@@ -21,8 +21,9 @@
 #define TrenchBroom_UVViewHelper
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Assets {

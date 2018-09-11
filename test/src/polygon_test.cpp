@@ -19,8 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/polygon_decl.h>
-#include <vecmath/polygon_impl.h>
+#include <vecmath/polygon.h>
 
 TEST(PolygonTest, testBackwardCompareEmptyPolygon) {
     vm::polygon3d p1{};

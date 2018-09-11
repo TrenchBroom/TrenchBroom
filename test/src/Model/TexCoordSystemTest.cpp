@@ -21,13 +21,14 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include <vecmath/VecMath.h>
 #include "TestUtils.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/TexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/vec.h>
 
 #include "Assets/Texture.h"
 

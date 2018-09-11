@@ -21,8 +21,9 @@
 #define TrenchBroom_PerspectiveCamera
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/Camera.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Renderer {

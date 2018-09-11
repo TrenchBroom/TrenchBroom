@@ -19,7 +19,11 @@
 
 #include "PlanePointFinder.h"
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
+
+#include <vecmath/constants.h>
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,31 +42,33 @@ namespace TrenchBroom {
             GridSearchCursor(const vm::plane3& plane, const FloatType frequency) :
             m_plane(plane),
             m_frequency(frequency) {
-                for (size_t i = 0; i < 9; ++i)
+                for (size_t i = 0; i < 9; ++i) {
                     m_errors[i] = 0.0;
+                }
             }
             
             vm::vec3 findMinimum(const vm::vec3& initialPosition) {
-                for (size_t i = 0; i < 2; ++i)
+                for (size_t i = 0; i < 2; ++i) {
                     m_position[i] = vm::round(initialPosition[i]);
-                
+                }
+
                 findLocalMinimum();
-                const vm::vec2 localMinPos = m_position;
-                const FloatType localMinErr = m_errors[Center];
+                const auto localMinPos = m_position;
+                const auto localMinErr = m_errors[Center];
                 
-                vm::vec2 globalMinPos = localMinPos;
-                FloatType globalMinErr = localMinErr;
+                auto globalMinPos = localMinPos;
+                auto globalMinErr = localMinErr;
                 
                 if (globalMinErr > 0.0) {
                     // To escape local minima, let's search some adjacent quadrants
                     // The number of extra quadrants should depend on the frequency: The higher the frequency, the
                     // more quadrants should be searched.
-                    const size_t numQuadrants = static_cast<size_t>(std::ceil(m_frequency * m_frequency * 3.0));
+                    const auto numQuadrants = static_cast<size_t>(std::ceil(m_frequency * m_frequency * 3.0));
                     for (size_t i = 0; i < numQuadrants && globalMinErr > 0.0; ++i) {
                         if (i != Center) {
                             m_position = localMinPos + i * 3.0 * MoveOffsets[i];
                             findLocalMinimum();
-                            const FloatType newError = m_errors[Center];
+                            const auto newError = m_errors[Center];
                             if (newError < globalMinErr) {
                                 globalMinPos = m_position;
                                 globalMinErr = newError;
@@ -71,17 +77,16 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return vm::vec3(globalMinPos.x(),
-                            globalMinPos.y(),
-                            vm::round(m_plane.zAt(globalMinPos)));
+                return vm::vec3(globalMinPos.x(), globalMinPos.y(), vm::round(m_plane.zAt(globalMinPos)));
             }
         private:
             void findLocalMinimum() {
                 updateErrors();
                 
                 size_t smallestError = findSmallestError();
-                while (smallestError != Center)
+                while (smallestError != Center) {
                     smallestError = moveCursor(smallestError);
+                }
             }
             
             size_t moveCursor(const size_t direction) {
@@ -97,12 +102,12 @@ namespace TrenchBroom {
             }
             
             FloatType computeError(const size_t location) const {
-                const FloatType z = m_plane.zAt(m_position + MoveOffsets[location]);
+                const auto z = m_plane.zAt(m_position + MoveOffsets[location]);
                 return std::abs(z - vm::round(z));
             }
             
             size_t findSmallestError() {
-                size_t smallest = Center;
+                auto smallest = Center;
                 for (size_t i = 0; i < 9; ++i) {
                     if (m_errors[i] < m_errors[smallest]) {
                         smallest = i;
@@ -122,13 +127,13 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points);
 
         FloatType computePlaneFrequency(const vm::plane3& plane) {
-            static const FloatType c = 1.0 - std::sin(vm::C::pi() / 4.0);
+            static const auto c = FloatType(1.0) - std::sin(vm::constants<FloatType>::pi() / FloatType(4.0));
             
-            const vm::vec3& axis = firstAxis(plane.normal);
-            const FloatType cos = dot(plane.normal, axis);
-            assert(cos != 0.0);
+            const auto& axis = firstAxis(plane.normal);
+            const auto cos = dot(plane.normal, axis);
+            assert(cos != FloatType(0.0));
             
-            return (1.0 - cos) / c;
+            return (FloatType(1.0) - cos) / c;
         }
         
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points) {
@@ -169,25 +174,27 @@ namespace TrenchBroom {
             
             assert(numPoints <= 3);
             
-            if (numPoints == 3 && isIntegral(points[0]) && isIntegral(points[1]) && isIntegral(points[2]))
+            if (numPoints == 3 && isIntegral(points[0]) && isIntegral(points[1]) && isIntegral(points[2])) {
                 return;
-            
-            const FloatType frequency = computePlaneFrequency(plane);
+            }
+
+            const auto frequency = computePlaneFrequency(plane);
             if (vm::isZero(frequency, 1.0 / 7084.0)) {
                 setDefaultPlanePoints(plane, points);
                 return;
             }
             
-            const vm::axis::type axis = firstComponent(plane.normal);
-            const vm::plane3 swizzledPlane(plane.distance, swizzle(plane.normal, axis));
-            for (size_t i = 0; i < 3; ++i)
+            const auto axis = firstComponent(plane.normal);
+            const auto swizzledPlane = vm::plane3(plane.distance, swizzle(plane.normal, axis));
+            for (size_t i = 0; i < 3; ++i) {
                 points[i] = swizzle(points[i], axis);
+            }
+
+            const auto waveLength = FloatType(1.0) / frequency;
+            const auto pointDistance = std::min(FloatType(64.0), waveLength);
             
-            const FloatType waveLength = 1.0 / frequency;
-            const FloatType pointDistance = std::min(64.0, waveLength);
-            
-            FloatType multiplier = 10.0;
-            GridSearchCursor cursor(swizzledPlane, frequency);
+            auto multiplier = FloatType(10.0);
+            auto cursor = GridSearchCursor(swizzledPlane, frequency);
             if (numPoints == 0) {
                 points[0] = cursor.findMinimum(swizzledPlane.anchor());
             } else if (!isIntegral(points[0])) {
@@ -198,18 +205,19 @@ namespace TrenchBroom {
             FloatType cos;
             size_t count = 0;
             do {
-                if (numPoints < 2 || !isIntegral(points[1]))
-                    points[1] = cursor.findMinimum(points[0] + 0.33 * multiplier * pointDistance * vm::vec3::pos_x);
-                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vm::vec3::pos_y - pointDistance / 2.0 * vm::vec3::pos_x));
+                if (numPoints < 2 || !isIntegral(points[1])) {
+                    points[1] = cursor.findMinimum(points[0] + FloatType(0.33) * multiplier * pointDistance * vm::vec3::pos_x);
+                }
+                points[2] = cursor.findMinimum(points[0] + multiplier * (pointDistance * vm::vec3::pos_y - pointDistance / FloatType(2.0) * vm::vec3::pos_x));
                 v1 = normalize(points[2] - points[0]);
                 v2 = normalize(points[1] - points[0]);
                 cos = dot(v1, v2);
-                multiplier *= 1.5f;
+                multiplier *= FloatType(1.5);
                 ++count;
-            } while (vm::isNan(cos) || std::abs(cos) > 0.9);
+            } while (vm::isNan(cos) || std::abs(cos) > FloatType(0.9));
             
             v1 = cross(v1, v2);
-            if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > 0.0)) {
+            if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > FloatType(0.0))) {
                 swap(points[0], points[2]);
             }
 

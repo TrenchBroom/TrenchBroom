@@ -22,10 +22,9 @@
 
 #include "View/ToolController.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Macros.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
@@ -34,6 +33,11 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace View {

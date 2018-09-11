@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TRENCHBROOM_VEC_DECL_H
-#define TRENCHBROOM_VEC_DECL_H
+#ifndef TRENCHBROOM_VEC_H
+#define TRENCHBROOM_VEC_H
 
-#include <vecmath/utils.h>
 #include "constants.h"
+#include "utils.h"
 
 #include <array>
 #include <cassert>
@@ -64,7 +64,11 @@ namespace vm {
          * @param index the index of the component to set to 1
          * @return the newly created vector
          */
-        static vec<T,S> axis(size_t index);
+        static vec<T,S> axis(size_t index) {
+            vec<T,S> axis;
+            axis[index] = static_cast<T>(1.0);
+            return axis;
+        }
 
         /**
          * Returns a vector where all components are set to the given value.
@@ -72,7 +76,13 @@ namespace vm {
          * @param value the value to set
          * @return the newly created vector
          */
-        static vec<T,S> fill(T value);
+        static vec<T,S> fill(T value) {
+            vec<T,S> result;
+            for (size_t i = 0; i < S; ++i) {
+                result[i] = value;
+            }
+            return result;
+        }
 
         /**
          * Parses the given string representation. The syntax of the given string is as follows
@@ -88,7 +98,12 @@ namespace vm {
          * @param str the string to parse
          * @return the vector parsed from the string
          */
-        static vec<T,S> parse(const std::string& str);
+        static vec<T,S> parse(const std::string& str) {
+            size_t pos = 0;
+            vec<T,S> result;
+            doParse(str, pos, result);
+            return result;
+        }
 
         /**
          * Parses the given string for a list of vectors. The syntax of the given string is as follows:
@@ -118,12 +133,30 @@ namespace vm {
             }
         }
     private:
-        static bool doParse(const std::string& str, size_t& pos, vec<T,S>& result);
+        static bool doParse(const std::string& str, size_t& pos, vec<T,S>& result) {
+            static const std::string blank(" \t\n\r()");
+
+            const char* cstr = str.c_str();
+            for (size_t i = 0; i < S; ++i) {
+                if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos) {
+                    return false;
+                }
+                result[i] = static_cast<T>(std::atof(cstr + pos));
+                if ((pos = str.find_first_of(blank, pos)) == std::string::npos) {
+                    return false;
+                }
+            }
+            return true;
+        }
     public:
         /**
          * Creates a new vector with all components initialized to 0.
          */
-        vec();
+        vec() {
+            for (size_t i = 0; i < S; ++i) {
+                v[i] = static_cast<T>(0.0);
+            }
+        }
 
         // Copy and move constructors
         vec(const vec<T,S>& other) = default;
@@ -161,7 +194,15 @@ namespace vm {
          *
          * @param values the values
          */
-        vec(std::initializer_list<T> values);
+        vec(std::initializer_list<T> values) {
+            auto it = std::begin(values);
+            for (size_t i = 0; i < std::min(S, values.size()); ++i) {
+                v[i] = *it++;
+            }
+            for (size_t i = values.size(); i < S; ++i) {
+                v[i] = static_cast<T>(0.0);
+            }
+        }
 
         /**
          * Creates a new vector with the given component values. If the type of the given values differs from the
@@ -302,7 +343,10 @@ namespace vm {
          * @param index the index of the component
          * @return a reference to the compononent at the given index
          */
-        T& operator[](size_t index);
+        T& operator[](size_t index) {
+            assert(index < S);
+            return v[index];
+        }
 
         /**
          * Returns a const reference to the component at the given index. The index is not checked at runtime.
@@ -310,71 +354,127 @@ namespace vm {
          * @param index the index of the component
          * @return a const reference to the compononent at the given index
          */
-        const T& operator[](size_t index) const;
+        const T& operator[](size_t index) const {
+            assert(index < S);
+            return v[index];
+        }
 
         /**
          * Returns the value of the first compnent.
          *
          * @return the value of the first component
          */
-        T x() const;
+        T x() const {
+            static_assert(S > 0);
+            return v[0];
+        }
 
         /**
          * Returns the value of the component compnent.
          *
          * @return the value of the component component
          */
-        T y() const;
+        T y() const {
+            static_assert(S > 1);
+            return v[1];
+        }
 
         /**
          * Returns the value of the third compnent.
          *
          * @return the value of the third component
          */
-        T z() const;
+        T z() const {
+            static_assert(S > 2);
+            return v[2];
+        }
 
         /**
          * Returns the value of the fourth compnent.
          *
          * @return the value of the fourth component
          */
-        T w() const;
+        T w() const {
+            static_assert(S > 3);
+            return v[3];
+        }
 
         /**
          * Returns a vector with the values of the first and second component.
          *
          * @return a vector with the values of the first and second component
          */
-        vec<T,2> xy() const;
+        vec<T,2> xy() const {
+            static_assert(S > 1);
+            return vec<T,2>(x(), y());
+        }
 
         /**
          * Returns a vector with the values of the first and third component.
          *
          * @return a vector with the values of the first and third component
          */
-        vec<T,2> xz() const;
+        vec<T,2> xz() const {
+            static_assert(S > 1);
+            return vec<T,2>(x(), z());
+        }
 
         /**
          * Returns a vector with the values of the second and third component.
          *
          * @return a vector with the values of the second and third component
          */
-        vec<T,2> yz() const;
+        vec<T,2> yz() const {
+            static_assert(S > 1);
+            return vec<T,2>(y(), z());
+        }
 
         /**
          * Returns a vector with the values of the first three components.
          *
          * @return a vector with the values of the first three components
          */
-        vec<T,3> xyz() const;
+        vec<T,3> xyz() const {
+            static_assert(S > 2);
+            return vec<T,3>(x(), y(), z());
+        }
 
         /**
          * Returns a vector with the values of the first four components.
          *
          * @return a vector with the values of the first four components
          */
-        vec<T,4> xyzw() const;
+        vec<T,4> xyzw() const {
+            static_assert(S > 3);
+            return vec<T,4>(x(), y(), z(), w());
+        }
     };
+
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::pos_x = vec<T,S>::axis(0);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::pos_y = vec<T,S>::axis(1);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::pos_z = vec<T,S>::axis(2);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::neg_x = -vec<T,S>::axis(0);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::neg_y = -vec<T,S>::axis(1);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::neg_z = -vec<T,S>::axis(2);
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::zero = vec<T,S>::fill(static_cast<T>(0.0));
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::one  = vec<T,S>::fill(static_cast<T>(1.0));
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::NaN  = vec<T,S>::fill(std::numeric_limits<T>::quiet_NaN());
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::min  = vec<T,S>::fill(std::numeric_limits<T>::min());
+    template <typename T, size_t S>
+    const vec<T,S> vec<T,S>::max  = vec<T,S>::fill(std::numeric_limits<T>::max());
+
+    template <typename T, size_t S>
+    const typename vec<T,S>::List vec<T,S>::EmptyList = vec<T,S>::List();
 
     /* ========== comparison operators ========== */
 
@@ -389,7 +489,15 @@ namespace vm {
      * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
      */
     template <typename T, size_t S>
-    int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+    int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+        for (size_t i = 0; i < S; ++i) {
+            if (lt(lhs[i], rhs[i], epsilon))
+                return -1;
+            if (gt(lhs[i], rhs[i], epsilon))
+                return 1;
+        }
+        return 0;
+    }
 
     /**
      * Performs a pairwise lexicographical comparison of the pairs of vectors given by the two ranges. This function iterates over
@@ -404,7 +512,21 @@ namespace vm {
      * @return -1 if the left hand range is less than the right hand range, +1 if the left hand range is greater than the right hand range, and 0 if both ranges are equal
      */
     template <typename I>
-    int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, typename I::value_type::type epsilon = static_cast<typename I::value_type::type>(0.0));
+    int compare(I lhsCur, I lhsEnd, I rhsCur, I rhsEnd, const typename I::value_type::type epsilon = static_cast<typename I::value_type::type>(0.0)) {
+        while (lhsCur != lhsEnd && rhsCur != rhsEnd) {
+            const auto cmp = compare(*lhsCur, *rhsCur, epsilon);
+            if (cmp < 0) {
+                return -1;
+            } else if (cmp > 0) {
+                return 1;
+            }
+            ++lhsCur;
+            ++rhsCur;
+        }
+
+        assert(lhsCur == lhsEnd && rhsCur == rhsEnd);
+        return 0;
+    }
 
     /**
      * Checks whether the given vectors are component wise equal up to the given epsilon.
@@ -419,7 +541,9 @@ namespace vm {
      * @return true if the given vectors are component wise equal up to the given epsilon value
      */
     template <typename T, size_t S>
-    bool isEqual(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon);
+    bool isEqual(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon) {
+        return compare(lhs, rhs, epsilon) == 0;
+    }
 
     /**
      * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) == 0.
@@ -431,7 +555,9 @@ namespace vm {
      * @return true if the given vectors have equal values for each component, and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator==(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) == 0;
+    }
 
     /**
      * Compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) != 0.
@@ -443,7 +569,9 @@ namespace vm {
      * @return true if the given vectors do not have equal values for each component, and false otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator!=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) != 0;
+    }
 
     /**
      * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) < 0.
@@ -455,7 +583,9 @@ namespace vm {
      * @return true if the given left hand vector is less than the given right hand vector
      */
     template <typename T, size_t S>
-    bool operator<(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator<(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) < 0;
+    }
 
     /**
      * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) <= 0.
@@ -467,7 +597,9 @@ namespace vm {
      * @return true if the given left hand vector is less than or equal to the given right hand vector
      */
     template <typename T, size_t S>
-    bool operator<=(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator<=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) <= 0;
+    }
 
     /**
      * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) > 0.
@@ -479,7 +611,9 @@ namespace vm {
      * @return true if the given left hand vector is greater than than the given right hand vector
      */
     template <typename T, size_t S>
-    bool operator>(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator>(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) > 0;
+    }
 
     /**
      * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs, rhs, 0.0) >= 0.
@@ -491,9 +625,36 @@ namespace vm {
      * @return true if the given left hand vector is greater than or equal to than the given right hand vector
      */
     template <typename T, size_t S>
-    bool operator>=(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    bool operator>=(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return compare(lhs, rhs) >= 0;
+    }
 
     /* ========== accessing major component / axis ========== */
+
+    /**
+     * Helper struct to find the i'th largest component.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     */
+    template <typename T, size_t S>
+    class selection_heap_cmp {
+    private:
+        const vec<T,S>& m_v;
+        bool m_abs;
+    public:
+        selection_heap_cmp(const vec<T,S>& i_v, const bool abs) :
+                m_v(i_v),
+                m_abs(abs) {}
+
+        bool operator()(size_t lhs, size_t rhs) const {
+            assert(lhs < S);
+            assert(rhs < S);
+            if (m_abs)
+                return std::abs(m_v[lhs]) < std::abs(m_v[rhs]);
+            return m_v[lhs] < m_v[rhs];
+        }
+    };
 
     /**
      * Returns the index of the component with the k-highest absolute value. The k-highest component is the
@@ -507,7 +668,30 @@ namespace vm {
      * @return the index of the k-highest component
      */
     template <typename T, size_t S>
-    size_t majorComponent(const vec<T,S>& v, size_t k);
+    size_t majorComponent(const vec<T,S>& v, const size_t k) {
+        assert(k < S);
+
+        if (k == 0) {
+            size_t index = 0;
+            for (size_t i = 1; i < S; ++i) {
+                if (std::abs(v[i]) > std::abs(v[index]))
+                    index = i;
+            }
+            return index;
+        }
+
+        // simple selection algorithm
+        // we store the indices of the values in heap
+        selection_heap_cmp<T,S> cmp(v, true);
+        std::vector<size_t> heap;
+        for (size_t i = 0; i < S; ++i) {
+            heap.push_back(i);
+            std::push_heap(std::begin(heap), std::end(heap), cmp);
+        }
+
+        std::sort_heap(std::begin(heap), std::end(heap), cmp);
+        return heap[S - k - 1];
+    }
 
     /**
      * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
@@ -521,7 +705,14 @@ namespace vm {
      * @return the vector indicating the axis of the k-largest component.
      */
     template <typename T, size_t S>
-    vec<T,S> majorAxis(const vec<T,S>& v, size_t k);
+    vec<T,S> majorAxis(const vec<T,S>& v, const size_t k) {
+        const auto c = majorComponent(v, k);
+        auto a = vec<T,S>::axis(c);
+        if (v[c] < static_cast<T>(0.0)) {
+            return -a;
+        }
+        return a;
+    }
 
     /**
      * Returns a vector indicating the axis of the k-largest component. The returning vector has all values
@@ -535,7 +726,10 @@ namespace vm {
      * @return the vector indicating the absolute axis of the k-largest component
      */
     template <typename T, size_t S>
-    vec<T,S> absMajorAxis(const vec<T,S>& v, size_t k);
+    vec<T,S> absMajorAxis(const vec<T,S>& v, const size_t k) {
+        const auto c = majorComponent(v, k);
+        return vec<T,S>::axis(c);
+    }
 
     /**
      * Returns the index of the largest component.
@@ -546,7 +740,9 @@ namespace vm {
      * @return the index of the largest component
      */
     template <typename T, size_t S>
-    size_t firstComponent(const vec<T,S>& v);
+    size_t firstComponent(const vec<T,S>& v) {
+        return majorComponent(v, 0);
+    }
 
     /**
      * Returns the index of the second largest component.
@@ -557,7 +753,9 @@ namespace vm {
      * @return the index of the second largest component
      */
     template <typename T, size_t S>
-    size_t secondComponent(const vec<T,S>& v);
+    size_t secondComponent(const vec<T,S>& v) {
+        return majorComponent(v, 1);
+    }
 
     /**
      * Returns the index of the third largest component.
@@ -568,7 +766,9 @@ namespace vm {
      * @return the index of the third largest component
      */
     template <typename T, size_t S>
-    size_t thirdComponent(const vec<T,S>& v);
+    size_t thirdComponent(const vec<T,S>& v) {
+        return majorComponent(v, 2);
+    }
 
     /**
      * Returns the axis of the largest component.
@@ -578,7 +778,9 @@ namespace vm {
      * @return the axis of the largest component
      */
     template <typename T>
-    vec<T,3> firstAxis(const vec<T,3>& v);
+    vec<T,3> firstAxis(const vec<T,3>& v) {
+        return majorAxis(v, 0);
+    }
 
     /**
      * Returns the axis of the second largest component.
@@ -588,7 +790,9 @@ namespace vm {
      * @return the axis of the second largest component
      */
     template <typename T>
-    vec<T,3> secondAxis(const vec<T,3>& v);
+    vec<T,3> secondAxis(const vec<T,3>& v) {
+        return majorAxis(v, 1);
+    }
 
     /**
      * Returns the axis of the third largest component.
@@ -598,7 +802,9 @@ namespace vm {
      * @return the axis of the third largest component
      */
     template <typename T>
-    vec<T,3> thirdAxis(const vec<T,3>& v);
+    vec<T,3> thirdAxis(const vec<T,3>& v) {
+        return majorAxis(v, 2);
+    }
 
     /* ========== arithmetic operators ========== */
 
@@ -608,7 +814,13 @@ namespace vm {
      * @return the inverted copy
      */
     template <typename T, size_t S>
-    vec<T,S> operator-(const vec<T,S>& vector);
+    vec<T,S> operator-(const vec<T,S>& vector) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = -vector[i];
+        }
+        return result;
+    }
 
     /**
      * Returns the sum of the given vectors, which is computed by adding all of their components.
@@ -620,7 +832,13 @@ namespace vm {
      * @return the sum of the given two vectors
      */
     template <typename T, size_t S>
-    vec<T,S> operator+(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> operator+(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] + rhs[i];
+        }
+        return result;
+    }
 
     /**
      * Returns the difference of the given vectors, which is computed by subtracting the corresponding components
@@ -633,7 +851,13 @@ namespace vm {
      * @return the difference of the given two vectors
      */
     template <typename T, size_t S>
-    vec<T,S> operator-(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> operator-(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] - rhs[i];
+        }
+        return result;
+    }
 
     /**
      * Returns the product of the given vectors, which is computed by multiplying the corresponding components
@@ -647,7 +871,13 @@ namespace vm {
      * @return the product of the given two vectors
      */
     template <typename T, size_t S>
-    vec<T,S> operator*(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> operator*(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] * rhs[i];
+        }
+        return result;
+    }
 
     /**
      * Returns the product of the given vector and scalar factor, which is computed by multiplying each component of the
@@ -660,7 +890,13 @@ namespace vm {
      * @return the scalar product of the given vector with the given factor
      */
     template <typename T, size_t S>
-    vec<T,S> operator*(const vec<T,S>& lhs, T rhs);
+    vec<T,S> operator*(const vec<T,S>& lhs, const T rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] * rhs;
+        }
+        return result;
+    }
 
 
     /**
@@ -674,7 +910,9 @@ namespace vm {
      * @return the scalar product of the given vector with the given factor
      */
     template <typename T, size_t S>
-    vec<T,S> operator*(T lhs, const vec<T,S>& rhs);
+    vec<T,S> operator*(const T lhs, const vec<T,S>& rhs) {
+        return vec<T,S>(rhs) * lhs;
+    }
 
     /**
      * Returns the division of the given vectors, which is computed by dividing the corresponding components
@@ -687,7 +925,13 @@ namespace vm {
      * @return the division of the given two vectors
      */
     template <typename T, size_t S>
-    vec<T,S> operator/(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> operator/(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] / rhs[i];
+        }
+        return result;
+    }
 
     /**
      * Returns the division of the given vector and scalar factor, which is computed by dividing each component of the
@@ -700,7 +944,13 @@ namespace vm {
      * @return the scalar division of the given vector with the given factor
      */
     template <typename T, size_t S>
-    vec<T,S> operator/(const vec<T,S>& lhs, T rhs);
+    vec<T,S> operator/(const vec<T,S>& lhs, const T rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs[i] / rhs;
+        }
+        return result;
+    }
 
     /**
      * Adds the given vector to each of the vectors in the given range.
@@ -712,7 +962,14 @@ namespace vm {
      * @return a range containing the sum of each of the vectors in the given range with the right hand vector
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator+(const typename vec<T,S>::List& lhs, const vec<T,S>& rhs);
+    typename vec<T,S>::List operator+(const typename vec<T,S>::List& lhs, const vec<T,S>& rhs) {
+        typename vec<T,S>::List result;
+        result.reserve(lhs.size());
+        for (const auto& vec : lhs) {
+            result.push_back(vec + rhs);
+        }
+        return result;
+    }
 
     /**
      * Adds the given vector to each of the vectors in the given range.
@@ -724,7 +981,9 @@ namespace vm {
      * @return a range containing the sum of each of the vectors in the given range with the left hand vector
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator+(const vec<T,S>& lhs, const typename vec<T,S>::List& rhs);
+    typename vec<T,S>::List operator+(const vec<T,S>& lhs, const typename vec<T,S>::List& rhs) {
+        return rhs + lhs;
+    }
 
     /**
      * Multiplies each vector in the given range by the given scalar.
@@ -736,7 +995,14 @@ namespace vm {
      * @return a range containing the scalar product of each vector in the given range with the given scalar
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator*(const typename vec<T,S>::List& lhs, T rhs);
+    typename vec<T,S>::List operator*(const typename vec<T,S>::List& lhs, const T rhs) {
+        typename vec<T,S>::List result;
+        result.reserve(lhs.size());
+        for (const auto& vec : lhs) {
+            result.push_back(vec + rhs);
+        }
+        return result;
+    }
 
     /**
      * Multiplies each vector in the given range by the given scalar.
@@ -748,12 +1014,22 @@ namespace vm {
      * @return a range containing the scalar product of each vector in the given range with the given scalar
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator*(T lhs, const typename vec<T,S>::List& rhs);
+    typename vec<T,S>::List operator*(const T lhs, const typename vec<T,S>::List& rhs) {
+        return rhs * lhs;
+    }
 
     /* ========== stream operators ========== */
 
     template <typename T, size_t S>
-    std::ostream& operator<< (std::ostream& stream, const vec<T,S>& vec);
+    std::ostream& operator<< (std::ostream& stream, const vec<T,S>& vec) {
+        if (S > 0) {
+            stream << vec[0];
+            for (size_t i = 1; i < S; ++i) {
+                stream << " " << vec[i];
+            }
+        }
+        return stream;
+    }
 
     /* ========== arithmetic functions ========== */
 
@@ -767,7 +1043,13 @@ namespace vm {
      * @return the absolute vector
      */
     template <typename T, size_t S>
-    vec<T,S> abs(const vec<T,S>& v);
+    vec<T,S> abs(const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = abs(v[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns a vector where each component is the minimum of the corresponding components of the given vectors.
@@ -779,7 +1061,13 @@ namespace vm {
      * @return the component wise minimum of the given vectors
      */
     template <typename T, size_t S>
-    vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = min(lhs[i], rhs[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns a vector where each component is the maximum of the corresponding components of the given vectors.
@@ -791,7 +1079,13 @@ namespace vm {
      * @return the component wise maximum of the given vectors
      */
     template <typename T, size_t S>
-    vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = max(lhs[i], rhs[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns a vector where each component is the absolute minimum of the corresponding components of the given vectors.
@@ -803,7 +1097,13 @@ namespace vm {
      * @return the component wise absolute minimum of the given vectors
      */
     template <typename T, size_t S>
-    vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = absMin(lhs[i], rhs[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns a vector where each component is the absolute maximum of the corresponding components of the given vectors.
@@ -815,7 +1115,13 @@ namespace vm {
      * @return the component wise absolute maximum of the given vectors
      */
     template <typename T, size_t S>
-    vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = absMax(lhs[i], rhs[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns the dot product (also called inner product) of the two given vectors.
@@ -827,7 +1133,13 @@ namespace vm {
      * @return the dot product of the given vectors
      */
     template <typename T, size_t S>
-    T dot(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    T dot(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        auto result = static_cast<T>(0.0);
+        for (size_t i = 0; i < S; ++i) {
+            result += (lhs[i] * rhs[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns the cross product (also called outer product) of the two given 3d vectors.
@@ -838,7 +1150,11 @@ namespace vm {
      * @return the cross product of the given vectors
      */
     template <typename T>
-    vec<T,3> cross(const vec<T, 3>& lhs, const vec<T, 3>& rhs);
+    vec<T,3> cross(const vec<T, 3>& lhs, const vec<T, 3>& rhs) {
+        return vec<T,3>(lhs[1] * rhs[2] - lhs[2] * rhs[1],
+                        lhs[2] * rhs[0] - lhs[0] * rhs[2],
+                        lhs[0] * rhs[1] - lhs[1] * rhs[0]);
+    }
 
     /**
      * Returns the squared length of the given vector.
@@ -849,7 +1165,9 @@ namespace vm {
      * @return the squared length of the given vector
      */
     template <typename T, size_t S>
-    T squaredLength(const vec<T,S>& vec);
+    T squaredLength(const vec<T,S>& vec) {
+        return dot(vec, vec);
+    }
 
     /**
      * Returns the length of the given vector.
@@ -860,7 +1178,9 @@ namespace vm {
      * @return the length of the given vector
      */
     template <typename T, size_t S>
-    T length(const vec<T,S>& vec);
+    T length(const vec<T,S>& vec) {
+        return std::sqrt(squaredLength(vec));
+    }
 
     /**
      * Normalizes the given vector.
@@ -871,7 +1191,9 @@ namespace vm {
      * @return the normalized vector
      */
     template <typename T, size_t S>
-    vec<T,S> normalize(const vec<T,S>& vec);
+    vec<T,S> normalize(const vec<T,S>& vec) {
+        return vec / length(vec);
+    }
 
     /**
      * Rearranges the components of the given vector depending on the value of the axis parameter as follows:
@@ -886,7 +1208,17 @@ namespace vm {
      * @return the swizzled point
      */
     template <typename T>
-    vec<T,3> swizzle(const vec<T,3>& point, size_t axis);
+    vec<T,3> swizzle(const vec<T,3>& point, const size_t axis) {
+        assert(axis <= 3);
+        switch (axis) {
+            case 0: // x y z -> y z x
+                return vec<T,3>(point.y(), point.z(), point.x());
+            case 1: // x y z -> z x y
+                return vec<T,3>(point.z(), point.x(), point.y());
+            default:
+                return point;
+        }
+    }
 
     /**
      * Rearranges the components of the given vector depending on the value of the axis parameter so that it undoes
@@ -898,7 +1230,17 @@ namespace vm {
      * @return the unswizzled point
      */
     template <typename T>
-    vec<T,3> unswizzle(const vec<T,3>& point, size_t axis);
+    vec<T,3> unswizzle(const vec<T,3>& point, const size_t axis) {
+        assert(axis <= 3);
+        switch (axis) {
+            case 0:
+                return vec<T,3>(point.z(), point.x(), point.y());
+            case 1:
+                return vec<T,3>(point.y(), point.z(), point.x());
+            default:
+                return point;
+        }
+    }
 
     /**
      * Checks whether the given vector has unit length (1).
@@ -910,7 +1252,9 @@ namespace vm {
      * @return true if the given vector has a length of 1 and false otherwise
      */
     template <typename T, size_t S>
-    bool isUnit(const vec<T,S>& v, T epsilon = constants<T>::almostZero());
+    bool isUnit(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
+        return isEqual(length(v), T(1.0), epsilon);
+    }
 
     /**
      * Checks whether the given vector has a length of 0.
@@ -922,7 +1266,14 @@ namespace vm {
      * @return true if the given vector has a length of 0 and false otherwise
      */
     template <typename T, size_t S>
-    bool isZero(const vec<T,S>& v, T epsilon = constants<T>::almostZero());
+    bool isZero(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
+        for (size_t i = 0; i < S; ++i) {
+            if (!isZero(v[i], epsilon)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Checks whether the given vector NaN as any component.
@@ -933,7 +1284,14 @@ namespace vm {
      * @return true if the given vector has NaN as any component
      */
     template <typename T, size_t S>
-    bool isNaN(const vec<T,S>& v);
+    bool isNaN(const vec<T,S>& v) {
+        for (size_t i = 0; i < S; ++i) {
+            if (isNan(v[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Checks whether each component of the given vector is within a distance of epsilon around an integral value.
@@ -945,7 +1303,14 @@ namespace vm {
      * @return true if all components of the given vector are integral under the above definition
      */
     template <typename T, size_t S>
-    bool isIntegral(const vec<T,S>& v, T epsilon = static_cast<T>(0.0));
+    bool isIntegral(const vec<T,S>& v, const T epsilon = static_cast<T>(0.0)) {
+        for (size_t i = 0; i < S; ++i) {
+            if (std::abs(v[i] - round(v[i])) >= epsilon) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Mixes the given two vectors using the given factors. For each component i of the given vectors, the corresponding
@@ -961,7 +1326,9 @@ namespace vm {
      * @return the mixed vector
      */
     template <typename T, size_t S>
-    vec<T,S> mix(const vec<T,S>& lhs, const vec<T,S>& rhs, const vec<T,S>& f);
+    vec<T,S> mix(const vec<T,S>& lhs, const vec<T,S>& rhs, const vec<T,S>& f) {
+        return (vec<T,S>::one - f) * lhs + f * rhs;
+    }
 
     /**
      * Computes the distance between two given points.
@@ -973,7 +1340,9 @@ namespace vm {
      * @return the distance between the given points
      */
     template <typename T, size_t S>
-    T distance(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    T distance(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return length(lhs - rhs);
+    }
 
     /**
      * Computes the squared distance between two given points.
@@ -985,7 +1354,9 @@ namespace vm {
      * @return the squared distance between the given points
      */
     template <typename T, size_t S>
-    T squaredDistance(const vec<T,S>& lhs, const vec<T,S>& rhs);
+    T squaredDistance(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        return squaredLength(lhs - rhs);
+    }
 
     /**
      * Converts the given point in cartesian coordinates to homogeneous coordinates by embedding the point into
@@ -997,7 +1368,9 @@ namespace vm {
      * @return the point in homogeneous coordinates
      */
     template <typename T, size_t S>
-    vec<T,S+1> toHomogeneousCoords(const vec<T,S>& point);
+    vec<T,S+1> toHomogeneousCoords(const vec<T,S>& point) {
+        return vec<T,S+1>(point, static_cast<T>(1.0));
+    }
 
     /**
      * Converts the given point in homogeneous coordinates to cartesian coordinates by dividing all but the last
@@ -1009,7 +1382,13 @@ namespace vm {
      * @return the point in cartesian coordinates
      */
     template <typename T, size_t S>
-    vec<T,S-1> toCartesianCoords(const vec<T,S>& point);
+    vec<T,S-1> toCartesianCoords(const vec<T,S>& point) {
+        vec<T,S-1> result;
+        for (size_t i = 0; i < S-1; ++i) {
+            result[i] = point[i] / point[S-1];
+        }
+        return result;
+    }
 
     /**
      * Checks whether the given three points are colinear.
@@ -1023,7 +1402,22 @@ namespace vm {
      * @return true if the given three points are colinear, and false otherwise
      */
     template <typename T, size_t S>
-    bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, T epsilon = constants<T>::colinearEpsilon());
+    bool colinear(const vec<T,S>& a, const vec<T,S>& b, const vec<T,S>& c, const T epsilon = constants<T>::colinearEpsilon()) {
+        // see http://math.stackexchange.com/a/1778739
+
+        T j = 0.0;
+        T k = 0.0;
+        T l = 0.0;
+        for (size_t i = 0; i < S; ++i) {
+            const T ac = a[i] - c[i];
+            const T ba = b[i] - a[i];
+            j += ac * ba;
+            k += ac * ac;
+            l += ba * ba;
+        }
+
+        return isZero(j * j - k * l, epsilon);
+    }
 
     /**
      * Checks whether the given vectors are parallel. Two vectors are considered to be parallel if and only if they point
@@ -1037,7 +1431,10 @@ namespace vm {
      * @return true if the given vectors are parallel, and false otherwise
      */
     template <typename T, size_t S>
-    bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, T epsilon = constants<T>::colinearEpsilon());
+    bool parallel(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = constants<T>::colinearEpsilon()) {
+        const T cos = dot(normalize(lhs), normalize(rhs));
+        return isEqual(abs(cos), T(1.0), epsilon);
+    }
 
     /* ========== rounding and error correction ========== */
 
@@ -1051,7 +1448,13 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> round(const vec<T,S>& v);
+    vec<T,S> round(const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = round(v[i]);
+        }
+        return result;
+    }
 
     /**
      * Rounds the components of the given vector down to multiples of the components of the given vector m.
@@ -1063,7 +1466,13 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> snapDown(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snapDown(const vec<T,S>& v, const vec<T,S>& m) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = snapDown(v[i], m[i]);
+        }
+        return result;
+    }
 
     /**
      * Rounds the components of the given vector up to multiples of the components of the given vector m.
@@ -1075,7 +1484,13 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> snapUp(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snapUp(const vec<T,S>& v, const vec<T,S>& m) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = snapUp(v[i], m[i]);
+        }
+        return result;
+    }
 
     /**
      * Rounds the components of the given vector to multiples of the components of the given vector m.
@@ -1087,7 +1502,13 @@ namespace vm {
      * @return the rounded vector
      */
     template <typename T, size_t S>
-    vec<T,S> snap(const vec<T,S>& v, const vec<T,S>& m);
+    vec<T,S> snap(const vec<T,S>& v, const vec<T,S>& m) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = snap(v[i], m[i]);
+        }
+        return result;
+    }
 
     /**
      * Corrects the given vector's components to the given number of decimal places.
@@ -1100,7 +1521,13 @@ namespace vm {
      * @return the corrected vector
      */
     template <typename T, size_t S>
-    vec<T,S> correct(const vec<T,S>& v, size_t decimals = 0, T epsilon = constants<T>::correctEpsilon());
+    vec<T,S> correct(const vec<T,S>& v, const size_t decimals = 0, const T epsilon = constants<T>::correctEpsilon()) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = correct(v[i], decimals, epsilon);
+        }
+        return result;
+    }
 
     /**
      * Given three colinear points, this function checks whether the first point is contained in a segment formed by the
@@ -1115,8 +1542,16 @@ namespace vm {
      * @param end the segment end
      * @return true if the given point is contained within the segment
      */
+     // TODO 2201: rename to contains
     template <typename T, size_t S>
-    bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end);
+    bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end) {
+        assert(colinear(p, start, end));
+        const vec<T,S> toStart = start - p;
+        const vec<T,S> toEnd   =   end - p;
+
+        const T d = dot(toEnd, normalize(toStart));
+        return !isPositive(d);
+    }
 
     /**
      * Computes the average of the given range of elements, using the given function to transform an element into a vector.
@@ -1129,8 +1564,18 @@ namespace vm {
      * @return the average of the vectors obtained from the given range of elements
      */
      // TODO 2201: rename to avg
-    template <typename I, typename G = Identity>
-    auto average(I cur, I end, const G& get = G()) -> typename std::remove_reference<decltype(get(*cur))>::type;
+     template <typename I, typename G>
+     auto average(I cur, I end, const G& get) -> typename std::remove_reference<decltype(get(*cur))>::type {
+         assert(cur != end);
+
+         auto result = get(*cur++);
+         auto count = 1.0;
+         while (cur != end) {
+             result = result + get(*cur++);
+             count = count + 1.0;
+         }
+         return result / count;
+     }
 
     /**
      * Computes the CCW angle between axis and vector in relation to the given up vector. All vectors are expected to be
@@ -1143,8 +1588,23 @@ namespace vm {
      * @param up the up vector
      * @return the CCW angle
      */
+     // TODO 2201: Rename to measureAngle
     template <typename T>
-    T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up);
+    T angleBetween(const vec<T,3>& v, const vec<T,3>& axis, const vec<T,3>& up) {
+        const auto cos = dot(v, axis);
+        if (isEqual(+cos, T(1.0))) {
+            return static_cast<T>(0.0);
+        } else if (isEqual(-cos, T(1.0))) {
+            return constants<T>::pi();
+        } else {
+            const auto perp = cross(axis, v);
+            if (!isNegative(dot(perp, up))) {
+                return std::acos(cos);
+            } else {
+                return constants<T>::twoPi() - std::acos(cos);
+            }
+        }
+    }
 
     /**
      * Return type for the distanceToSegment function. Contains the point on a segment which is closest to some given
@@ -1171,7 +1631,9 @@ namespace vm {
          * @param i_point the closest point on the segment
          * @param i_distance the distance between the closest point and the given point
          */
-        EdgeDistance(const vec<T,S>& i_point, T i_distance);
+        EdgeDistance(const vec<T,S>& i_point, T i_distance) :
+        point(i_point),
+        distance(i_distance) {}
     };
 
     /**
@@ -1185,8 +1647,26 @@ namespace vm {
      * @param end the end point of the segment
      * @return a struct containing the closest point on the segment and the distance between that point and the given point
      */
+     // TODO 2201: Remove this and replace with distance function
     template <typename T, size_t S>
-    EdgeDistance<T,S> distanceOfPointAndSegment(const vec<T,S>& point, const vec<T,S>& start, const vec<T,S>& end);
+    EdgeDistance<T,S> distanceOfPointAndSegment(const vec<T,S>& point, const vec<T,S>& start, const vec<T,S>& end) {
+        const vec<T,S> edgeVec = end - start;
+        const vec<T,S> edgeDir = normalize(edgeVec);
+        const T scale = dot(point - start, edgeDir);
+
+        // determine the closest point on the edge
+        vec<T,S> closestPoint;
+        if (scale < 0.0) {
+            closestPoint = start;
+        } else if ((scale * scale) > squaredLength(edgeVec)) {
+            closestPoint = end;
+        } else {
+            closestPoint = start + edgeDir * scale;
+        }
+
+        const T distance = length(point - closestPoint);
+        return EdgeDistance<T,S>(closestPoint, distance);
+    }
 }
 
 #endif

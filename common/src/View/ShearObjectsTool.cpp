@@ -20,6 +20,7 @@
 
 #include "ShearObjectsTool.h"
 
+#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "ScaleObjectsTool.h"
@@ -35,6 +36,12 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/polygon.h>
+#include <vecmath/intersection.h>
 
 #include <algorithm>
 #include <iterator>
@@ -106,7 +113,7 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = intersect(pickRay, poly.begin(), poly.end());
+                const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
                 if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }

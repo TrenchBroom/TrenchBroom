@@ -19,8 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/ray_decl.h>
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
 #include "AABBTree.h"
 
 using AABB = AABBTree<double, 3, size_t>;

@@ -166,7 +166,7 @@ namespace TrenchBroom {
             IO::OpenFile open(path, true);
 
             switch (format) {
-                case Model::EF_WavefrontObj:
+                case Model::WavefrontObj:
                     IO::NodeWriter(world, new IO::ObjFileSerializer(open.file)).writeMap();
                     break;
             }

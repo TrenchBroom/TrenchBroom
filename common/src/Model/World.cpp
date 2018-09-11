@@ -27,16 +27,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::CreateNodeTree::CreateNodeTree(World* world) :
-        m_world(world) {
-            m_world->disableNodeTreeUpdates();
-        }
-
-        World::CreateNodeTree::~CreateNodeTree() {
-            m_world->rebuildNodeTree();
-            m_world->enableNodeTreeUpdates();
-        }
-
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const vm::bbox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(nullptr),

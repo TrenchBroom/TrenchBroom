@@ -21,7 +21,8 @@
 #define TrenchBroom_CompareHits
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
+
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Model {

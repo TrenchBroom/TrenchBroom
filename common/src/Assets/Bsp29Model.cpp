@@ -26,6 +26,9 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

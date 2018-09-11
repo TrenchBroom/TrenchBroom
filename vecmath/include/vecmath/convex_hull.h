@@ -20,8 +20,7 @@
 #ifndef TRENCHBROOM_CONVEX_HULL_H
 #define TRENCHBROOM_CONVEX_HULL_H
 
-#include "vec_decl.h"
-#include "vec_impl.h"
+#include "vec.h"
 
 #include <algorithm>
 #include <iterator>

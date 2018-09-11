@@ -19,6 +19,8 @@
 
 #include "SwitchableMapViewContainer.h"
 
+#include "TrenchBroom.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/PointFile.h"
@@ -33,6 +35,8 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
+
+#include <vecmath/utils.h>
 
 #include <wx/sizer.h>
 

@@ -21,11 +21,12 @@
 #define TrenchBroom_EntityDefinitionClassInfo
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
+
+#include <vecmath/bbox.h>
 
 #include <map>
 
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             bool m_hasModelDefinition;
         public:
             EntityDefinitionClassInfo();
-            EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor);
+            EntityDefinitionClassInfo(size_t line, size_t column, const Color& defaultColor);
             
             size_t line() const;
             size_t column() const;

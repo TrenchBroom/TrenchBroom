@@ -19,8 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/vec_impl.h>
+#include <vecmath/vec.h>
 #include <vecmath/utils.h>
 #include "TestUtils.h"
 
@@ -277,70 +276,6 @@ TEST(VecTest, angleBetween) {
     ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::pos_y, vm::vec3f::pos_x, vm::vec3f::pos_z), vm::Cf::piOverTwo());
     ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_x, vm::vec3f::pos_x, vm::vec3f::pos_z), vm::Cf::pi());
     ASSERT_FLOAT_EQ(angleBetween(vm::vec3f::neg_y, vm::vec3f::pos_x, vm::vec3f::pos_z), 3.0f * vm::Cf::piOverTwo());
-}
-
-TEST(VecTest, convexHull2dSimple) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
-    
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
-}
-
-TEST(VecTest, convexHull2dSimpleWithInternalPoint) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
-    const vm::vec3d p5(4.0, 4.0, 0.0);
-    
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    points.push_back(p5);
-    
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
-}
-
-TEST(VecTest, convexHull2dSimpleWithPointOnLine) {
-    const vm::vec3d p1(0.0, 0.0, 0.0);
-    const vm::vec3d p2(8.0, 8.0, 0.0);
-    const vm::vec3d p3(8.0, 0.0, 0.0);
-    const vm::vec3d p4(0.0, 8.0, 0.0);
-    const vm::vec3d p5(4.0, 0.0, 0.0);
-    
-    vm::vec3d::List points;
-    points.push_back(p1);
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    points.push_back(p5);
-    
-    const vm::vec3d::List hull = vm::convexHull2D<double>(points);
-    ASSERT_EQ(4u, hull.size());
-    ASSERT_VEC_EQ(p3, hull[0]);
-    ASSERT_VEC_EQ(p2, hull[1]);
-    ASSERT_VEC_EQ(p4, hull[2]);
-    ASSERT_VEC_EQ(p1, hull[3]);
 }
 
 TEST(VecTest, colinear) {

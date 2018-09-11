@@ -19,8 +19,15 @@
 
 #include "Lasso.h"
 
+#include "TrenchBroom.h"
+
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
+
+#include <vecmath/plane.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -51,7 +58,7 @@ namespace TrenchBroom {
         
         vm::vec3 Lasso::project(const vm::vec3& point, const vm::plane3& plane) const {
             const auto ray = vm::ray3(m_camera.pickRay(vm::vec3f(point)));
-            const auto hitDistance = intersect(ray, plane);;
+            const auto hitDistance = vm::intersect(ray, plane);;
             if (vm::isNan(hitDistance)) {
                 return vm::vec3::NaN;
             }

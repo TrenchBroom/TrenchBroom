@@ -19,8 +19,10 @@
 
 #include "IOUtils.h"
 
-#include <vecmath/VecMath.h>
 #include "IO/Path.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <cstring>
 

@@ -19,13 +19,17 @@
 
 #include "SelectionBoundsRenderer.h"
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
+
+#include <vecmath/bbox.h>
+#include <vecmath/vec.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {

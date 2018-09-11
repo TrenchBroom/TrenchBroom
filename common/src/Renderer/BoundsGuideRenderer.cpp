@@ -19,6 +19,9 @@
 
 #include "BoundsGuideRenderer.h"
 
+#include <vecmath/bbox.h>
+#include <vecmath/ray.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         const FloatType BoundsGuideRenderer::SpikeLength = 512.0;

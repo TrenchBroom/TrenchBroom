@@ -29,6 +29,7 @@
 // TODO 2201: rename this to ftype or something shorter?
 using FloatType = double;
 
+// TODO 2201: move these out into vecmath/forward and make them depend on the FloatType definition above?
 namespace vm {
     using vec3 = vm::vec<FloatType,3>;
     using vec2 = vm::vec<FloatType,2>;

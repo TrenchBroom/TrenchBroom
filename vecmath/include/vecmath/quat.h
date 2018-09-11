@@ -20,9 +20,8 @@
 #ifndef TRENCHBROOM_QUAT_DECL_H
 #define TRENCHBROOM_QUAT_DECL_H
 
-#include <vecmath/utils.h>
-#include "vec_decl.h"
-#include "vec_impl.h"
+#include "vec.h"
+#include "utils.h"
 
 #include <cassert>
 
@@ -43,7 +42,9 @@ namespace vm {
         /**
          * Creates a new quaternion initialized to 0.
          */
-        quat();
+        quat() :
+        r(static_cast<T>(0.0)),
+        v(vec<T,3>::zero) {}
 
         // Copy and move constructors
         quat(const quat<T>& other) = default;
@@ -70,7 +71,9 @@ namespace vm {
          * @param i_r the real component
          * @param i_v the imaginary components
          */
-        quat(const T i_r, const vec<T,3>& i_v);
+        quat(const T i_r, const vec<T,3>& i_v) :
+        r(i_r),
+        v(i_v) {}
 
 
         /**
@@ -80,7 +83,9 @@ namespace vm {
          * @param axis the rotation axis
          * @param angle the rotation angle (in radians)
          */
-        quat(const vec<T,3>& axis, T angle);
+        quat(const vec<T,3>& axis, const T angle) {
+            setRotation(axis, angle);
+        }
 
         /**
          * Creates a new quaternion that rotates the 1st given vector onto the 2nd given vector. Both vectors are
@@ -89,30 +94,65 @@ namespace vm {
          * @param from the vector to rotate
          * @param to the vector to rotate onto
          */
-        quat(const vec<T,3>& from, const vec<T,3>& to);
+        quat(const vec<T,3>& from, const vec<T,3>& to) {
+            assert(isUnit(from));
+            assert(isUnit(to));
+
+            const auto cos = dot(from, to);
+            if (isEqual(+cos, T(1.0))) {
+                // `from` and `to` are equal.
+                setRotation(vec<T,3>::pos_z, static_cast<T>(0.0));
+            } else if (isEqual(-cos, T(1.0))) {
+                // `from` and `to` are opposite.
+                // We need to find a rotation axis that is perpendicular to `from`.
+                auto axis = cross(from, vec<T,3>::pos_z);
+                if (isZero(squaredLength(axis))) {
+                    axis = cross(from, vec<T,3>::pos_x);
+                }
+                setRotation(normalize(axis), radians(static_cast<T>(180)));
+            } else {
+                const auto axis = normalize(cross(from, to));
+                const auto angle = std::acos(cos);
+                setRotation(axis, angle);
+            }
+        }
     private:
-        void setRotation(const vec<T,3>& axis, T angle);
+        void setRotation(const vec<T,3>& axis, const T angle) {
+            assert(isUnit(axis));
+            r = std::cos(angle / static_cast<T>(2.0));
+            v = axis * std::sin(angle / static_cast<T>(2.0));
+        }
     public:
         /**
          * Returns the angle by which this quaternion would rotate a vector.
          *
          * @return the rotation angle in radians
          */
-        T angle() const;
+        T angle() const {
+            return static_cast<T>(2.0) * std::acos(r);
+        }
 
         /**
          * Returns the rotation axis of this quaternion.
          *
          * @return the rotation axis
          */
-        vec<T,3> axis() const;
+        vec<T,3> axis() const {
+            if (isZero(v)) {
+                return v;
+            } else {
+                return v / std::sin(angle() / static_cast<T>(2.0));
+            }
+        }
 
         /**
          * Conjugates this quaternion by negating its imaginary components.
          *
          * @return the conjugated quaternion
          */
-        quat<T> conjugate() const;
+        quat<T> conjugate() const {
+            return quat<T>(r, -v);
+        }
     };
 
     /**
@@ -123,7 +163,9 @@ namespace vm {
      * @return the negated quaternion
      */
     template <typename T>
-    quat<T> operator-(const quat<T>& q);
+    quat<T> operator-(const quat<T>& q) {
+        return quat<T>(-q.r, q.v);
+    }
 
     /**
      * Multiplies the given quaternion with the given scalar value.
@@ -134,7 +176,9 @@ namespace vm {
      * @return the multiplied quaternion
      */
     template <typename T>
-    quat<T> operator*(const quat<T> lhs, T rhs);
+    quat<T> operator*(const quat<T> lhs, const T rhs) {
+        return quat<T>(lhs.r * rhs, lhs.v);
+    }
 
     /**
      * Multiplies the given quaternion with the given scalar value.
@@ -145,7 +189,9 @@ namespace vm {
      * @return the multiplied quaternion
      */
     template <typename T>
-    quat<T> operator*(T lhs, const quat<T>& rhs);
+    quat<T> operator*(const T lhs, const quat<T>& rhs) {
+        return quat<T>(lhs * rhs.r, rhs.v);
+    }
 
     /**
      * Multiplies the given quaternions.
@@ -156,7 +202,14 @@ namespace vm {
      * @return the product of the given quaternions.
      */
     template <typename T>
-    quat<T> operator*(const quat<T>& lhs, const quat<T>& rhs);
+    quat<T> operator*(const quat<T>& lhs, const quat<T>& rhs) {
+        const auto nr = lhs.r * rhs.r - dot(lhs.v, rhs.v);
+        const auto nx = lhs.r * rhs.v.x() + lhs.v.x() * rhs.r + lhs.v.y() * rhs.v.z() - lhs.v.z() * rhs.v.y();
+        const auto ny = lhs.r * rhs.v.y() + lhs.v.y() * rhs.r + lhs.v.z() * rhs.v.x() - lhs.v.x() * rhs.v.z();
+        const auto nz = lhs.r * rhs.v.z() + lhs.v.z() * rhs.r + lhs.v.x() * rhs.v.y() - lhs.v.y() * rhs.v.x();
+
+        return quat<T>(nr, vec<T,3>(nx, ny, nz));
+    }
 
     /**
      * Applies the given quaternion to the given vector, in effect rotating it.
@@ -167,7 +220,9 @@ namespace vm {
      * @return the rotated vector
      */
     template <typename T>
-    vec<T,3> operator*(const quat<T>& lhs, const vec<T,3>& rhs);
+    vec<T,3> operator*(const quat<T>& lhs, const vec<T,3>& rhs) {
+        return (lhs * quat<T>(static_cast<T>(0.0), rhs) * lhs.conjugate()).v;
+    }
 }
 
 #endif

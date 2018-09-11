@@ -30,6 +30,10 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/intersection.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -259,7 +263,7 @@ namespace TrenchBroom {
                 
                 const auto& pickRay = inputState.pickRay();
                 const auto defaultPos = m_tool->defaultClipPointPos();
-                const auto distance = intersect(pickRay, vm::plane3(defaultPos, viewDir));
+                const auto distance = vm::intersect(pickRay, vm::plane3(defaultPos, viewDir));
                 if (vm::isNan(distance)) {
                     return false;
                 } else {

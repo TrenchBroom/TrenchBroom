@@ -21,6 +21,9 @@
 
 #include "Renderer/Camera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
@@ -36,10 +39,10 @@ namespace TrenchBroom {
         m_targetUp(targetUp) {}
 
         void CameraAnimation::doUpdate(const double progress) {
-            const float fltProgress = static_cast<float>(progress);
-            const vm::vec3f position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
-            const vm::vec3f direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
-            const vm::vec3f up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
+            const auto fltProgress = float(progress);
+            const auto position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
+            const auto direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
+            const auto up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
 
             m_camera.moveTo(position);
             m_camera.setDirection(direction, up);

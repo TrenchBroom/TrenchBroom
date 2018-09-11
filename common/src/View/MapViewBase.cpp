@@ -19,6 +19,7 @@
 
 #include "MapViewBase.h"
 
+#include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -60,6 +61,8 @@
 #include "View/ToolBoxDropTarget.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
+
+#include <vecmath/polygon.h>
 
 #include <wx/frame.h>
 #include <wx/menu.h>

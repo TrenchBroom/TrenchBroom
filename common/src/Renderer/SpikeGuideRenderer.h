@@ -22,11 +22,12 @@
 
 #include "Color.h"
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Model {

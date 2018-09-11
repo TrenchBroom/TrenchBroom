@@ -19,9 +19,11 @@
 
 #include "UVCameraTool.h"
 
-#include <vecmath/VecMath.h>
 #include "View/InputState.h"
 #include "Renderer/OrthographicCamera.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -35,20 +37,16 @@ namespace TrenchBroom {
         }
         
         void UVCameraTool::doMouseScroll(const InputState& inputState) {
-            const vm::vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
-                                                         static_cast<float>(inputState.mouseY()),
-                                                         0.0f);
+            const auto oldWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
             
-            if (inputState.scrollY() > 0)
+            if (inputState.scrollY() > 0) {
                 m_camera.zoom(1.1f);
-            else
+            } else {
                 m_camera.zoom(1.0f / 1.1f);
-            
-            const vm::vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
-                                                         static_cast<float>(inputState.mouseY()),
-                                                         0.0f);
-            
-            const vm::vec3f delta = oldWorldPos - newWorldPos;
+            }
+
+            const auto newWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
+            const auto delta = oldWorldPos - newWorldPos;
             m_camera.moveBy(delta);
         }
         
@@ -57,16 +55,12 @@ namespace TrenchBroom {
         }
         
         bool UVCameraTool::doMouseDrag(const InputState& inputState) {
-            const int oldX = inputState.mouseX() - inputState.mouseDX();
-            const int oldY = inputState.mouseY() - inputState.mouseDY();
+            const auto oldX = inputState.mouseX() - inputState.mouseDX();
+            const auto oldY = inputState.mouseY() - inputState.mouseDY();
             
-            const vm::vec3f oldWorldPos = m_camera.unproject(static_cast<float>(oldX),
-                                                         static_cast<float>(oldY),
-                                                         0.0f);
-            const vm::vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
-                                                         static_cast<float>(inputState.mouseY()),
-                                                         0.0f);
-            const vm::vec3f delta = oldWorldPos - newWorldPos;
+            const auto oldWorldPos = m_camera.unproject(float(oldX), float(oldY), 0.0f);
+            const auto newWorldPos = m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
+            const auto delta = oldWorldPos - newWorldPos;
             m_camera.moveBy(delta);
             return true;
         }

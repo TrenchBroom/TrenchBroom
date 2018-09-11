@@ -19,9 +19,8 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/plane_decl.h>
-#include <vecmath/plane_impl.h>
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
 #include <vecmath/utils.h>
 #include "TestUtils.h"
 

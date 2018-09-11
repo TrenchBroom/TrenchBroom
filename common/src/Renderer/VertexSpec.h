@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_VertexSpec
 #define TrenchBroom_VertexSpec
 
-#include <vecmath/VecMath.h>
 #include "Renderer/GL.h"
 #include "Renderer/AttributeSpec.h"
 #include "Renderer/Vertex.h"
@@ -32,8 +31,8 @@ namespace TrenchBroom {
         template <typename _A1>
         class VertexSpec1 {
         public:
-            typedef _A1 A1;
-            typedef Vertex1<_A1> Vertex;
+            using A1 = _A1;
+            using Vertex = Vertex1<_A1>;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
@@ -53,9 +52,9 @@ namespace TrenchBroom {
         template <typename _A1, typename _A2>
         class VertexSpec2 {
         public:
-            typedef _A1 A1;
-            typedef _A2 A2;
-            typedef Vertex2<_A1, _A2> Vertex;
+            using A1 = _A1;
+            using A2 = _A2;
+            using Vertex = Vertex2<_A1, _A2>;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
@@ -77,10 +76,10 @@ namespace TrenchBroom {
         template <typename _A1, typename _A2, typename _A3>
         class VertexSpec3 {
         public:
-            typedef _A1 A1;
-            typedef _A2 A2;
-            typedef _A3 A3;
-            typedef Vertex3<_A1, _A2, _A3> Vertex;
+            using A1 = _A1;
+            using A2 = _A2;
+            using A3 = _A3;
+            using Vertex = Vertex3<_A1, _A2, _A3>;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
@@ -104,11 +103,11 @@ namespace TrenchBroom {
         template <typename _A1, typename _A2, typename _A3, typename _A4>
         class VertexSpec4 {
         public:
-            typedef _A1 A1;
-            typedef _A2 A2;
-            typedef _A3 A3;
-            typedef _A4 A4;
-            typedef Vertex4<_A1, _A2, _A3, _A4> Vertex;
+            using A1 = _A1;
+            using A2 = _A2;
+            using A3 = _A3;
+            using A4 = _A4;
+            using Vertex = Vertex4<_A1, _A2, _A3, _A4>;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
@@ -134,12 +133,12 @@ namespace TrenchBroom {
         template <typename _A1, typename _A2, typename _A3, typename _A4, typename _A5>
         class VertexSpec5 {
         public:
-            typedef _A1 A1;
-            typedef _A2 A2;
-            typedef _A3 A3;
-            typedef _A4 A4;
-            typedef _A5 A5;
-            typedef Vertex5<_A1, _A2, _A3, _A4, _A5> Vertex;
+            using A1 = _A1;
+            using A2 = _A2;
+            using A3 = _A3;
+            using A4 = _A4;
+            using A5 = _A5;
+            using Vertex = Vertex5<_A1, _A2, _A3, _A4, _A5>;
             static const size_t Size;
         public:
             static void setup(const size_t baseOffset) {
@@ -165,17 +164,17 @@ namespace TrenchBroom {
         const size_t VertexSpec5<A1, A2, A3, A4, A5>::Size = sizeof(VertexSpec5<A1, A2, A3, A4, A5>::Vertex);
 
         namespace VertexSpecs {
-            typedef VertexSpec1<AttributeSpecs::P2> P2;
-            typedef VertexSpec2<AttributeSpecs::P2, AttributeSpecs::C4> P2C4;
-            typedef VertexSpec2<AttributeSpecs::P2, AttributeSpecs::T02> P2T2;
-            typedef VertexSpec3<AttributeSpecs::P2, AttributeSpecs::T02, AttributeSpecs::C4> P2T2C4;
-            typedef VertexSpec1<AttributeSpecs::P3> P3;
-            typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4> P3C4;
-            typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::T02> P3T2;
-            typedef VertexSpec2<AttributeSpecs::P3, AttributeSpecs::N> P3N;
-            typedef VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::C4> P3NC4;
-            typedef VertexSpec3<AttributeSpecs::P3, AttributeSpecs::T02, AttributeSpecs::C4> P3T2C4;
-            typedef VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::T02> P3NT2;
+            using P2     = VertexSpec1<AttributeSpecs::P2>;
+            using P3     = VertexSpec1<AttributeSpecs::P3>;
+            using P2C4   = VertexSpec2<AttributeSpecs::P2, AttributeSpecs::C4>;
+            using P3C4   = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::C4>;
+            using P2T2   = VertexSpec2<AttributeSpecs::P2, AttributeSpecs::T02>;
+            using P3T2   = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::T02>;
+            using P2T2C4 = VertexSpec3<AttributeSpecs::P2, AttributeSpecs::T02, AttributeSpecs::C4>;
+            using P3T2C4 = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::T02, AttributeSpecs::C4>;
+            using P3N    = VertexSpec2<AttributeSpecs::P3, AttributeSpecs::N>;
+            using P3NC4  = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::C4>;
+            using P3NT2  = VertexSpec3<AttributeSpecs::P3, AttributeSpecs::N, AttributeSpecs::T02>;
         }
     }
 }

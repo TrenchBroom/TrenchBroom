@@ -24,8 +24,7 @@
 #include "Model/Entity.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/mat_decl.h>
-#include <vecmath/mat_impl.h>
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     namespace Model {

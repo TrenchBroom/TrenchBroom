@@ -20,13 +20,11 @@
 #ifndef TRENCHBROOM_DISTANCE_H
 #define TRENCHBROOM_DISTANCE_H
 
-#include "vec_decl.h"
-#include "vec_impl.h"
-#include "line_decl.h"
-#include "ray_decl.h"
-#include "ray_impl.h"
-#include "segment_decl.h"
-#include "polygon_decl.h"
+#include "vec.h"
+#include "line.h"
+#include "ray.h"
+#include "segment.h"
+#include "polygon.h"
 
 #include <cstddef>
 

@@ -22,7 +22,6 @@
 
 #include "Notifier.h"
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
@@ -35,6 +34,9 @@
 #include "View/CachingLogger.h"
 #include "View/UndoableCommand.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <memory>
 

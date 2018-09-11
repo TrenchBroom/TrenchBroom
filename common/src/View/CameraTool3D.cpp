@@ -32,6 +32,11 @@
 #include "View/MapDocument.h"
 #include "Renderer/PerspectiveCamera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
+#include <vecmath/intersection.h>
+
 #include <iostream>
 #include <algorithm>
 
@@ -76,7 +81,7 @@ namespace TrenchBroom {
             const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             if (m_orbit) {
                 const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
-                const auto maxDistance = std::max(intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
+                const auto maxDistance = std::max(vm::intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
                 const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
@@ -92,7 +97,7 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     m_orbitCenter = vm::vec3f(hit.hitPoint());
                 } else {
-                    m_orbitCenter = vm::vec3f(inputState.camera().defaultPoint(inputState.pickRay()));
+                    m_orbitCenter = vm::vec3f(Renderer::Camera::defaultPoint(inputState.pickRay()));
                 }
                 m_orbit = true;
                 return true;

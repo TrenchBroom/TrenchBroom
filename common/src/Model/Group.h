@@ -21,12 +21,13 @@
 #define TrenchBroom_Group
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Hit.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {

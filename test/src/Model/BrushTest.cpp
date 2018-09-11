@@ -35,6 +35,9 @@
 #include "Model/PickResult.h"
 #include "Model/World.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
+
 #include <algorithm>
 #include <iterator>
 #include <memory>
@@ -1499,8 +1502,8 @@ namespace TrenchBroom {
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomPolygon)));
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomRightPolygon)));
 
-            assertCanMoveFaces(brush, vm::polygon3::List{leftPolygon, bottomPolygon}, vm::vec3(0, 0, 63));
-            assertCanNotMoveFaces(brush, vm::polygon3::List{leftPolygon, bottomPolygon}, vm::vec3(0, 0, 64)); // Merges B and C
+            assertCanMoveFaces(brush, vm::polygon3::List{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
+            assertCanNotMoveFaces(brush, vm::polygon3::List{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
 
             delete brush;
         }

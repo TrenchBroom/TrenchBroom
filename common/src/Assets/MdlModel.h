@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_MdlModel
 #define TrenchBroom_MdlModel
 
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
@@ -28,6 +27,9 @@
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/IndexRangeMap.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <vector>
 

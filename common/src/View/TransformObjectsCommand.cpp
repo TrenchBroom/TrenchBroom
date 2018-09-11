@@ -19,8 +19,11 @@
 
 #include "TransformObjectsCommand.h"
 
+#include "TrenchBroom.h"
 #include "Macros.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     namespace View {

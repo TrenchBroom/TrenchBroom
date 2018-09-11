@@ -19,8 +19,11 @@
 
 #include "InputState.h"
 
+#include "TrenchBroom.h"
 #include "Macros.h"
 #include "Renderer/Camera.h"
+
+#include <vecmath/vec.h>
 
 #include <wx/utils.h>
 

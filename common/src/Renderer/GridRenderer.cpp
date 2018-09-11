@@ -19,12 +19,15 @@
 
 #include "GridRenderer.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

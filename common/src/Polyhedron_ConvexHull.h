@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
+#include <vecmath/segment.h>
+
 #include <list>
 
 template <typename T, typename FP, typename VP>

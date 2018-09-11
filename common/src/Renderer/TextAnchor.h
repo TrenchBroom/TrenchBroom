@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_TextAnchor
 #define TrenchBroom_TextAnchor
 
-#include <vecmath/VecMath.h>
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

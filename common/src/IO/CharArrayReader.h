@@ -22,7 +22,8 @@
 
 #include "Macros.h"
 #include "StringUtils.h"
-#include <vecmath/VecMath.h>
+
+#include <vecmath/vec.h>
 
 #include <cstdio>
 #include <iostream>

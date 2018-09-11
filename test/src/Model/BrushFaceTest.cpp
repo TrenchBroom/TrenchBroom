@@ -21,7 +21,6 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include <vecmath/VecMath.h>
 #include "TestUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -36,6 +35,9 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include "Assets/Texture.h"
 

@@ -19,7 +19,8 @@
 
 #include "EntityModel.h"
 
-#include <vecmath/VecMath.h>
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Assets {

@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_CreateComplexBrushToolController3D
 #define TrenchBroom_CreateComplexBrushToolController3D
 
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Polyhedron.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
@@ -41,7 +39,7 @@ namespace TrenchBroom {
             
             CreateComplexBrushTool* m_tool;
         public:
-            CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);
+            explicit CreateComplexBrushToolController3D(CreateComplexBrushTool* tool);
         private:
             Tool* doGetTool() override;
 

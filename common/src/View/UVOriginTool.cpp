@@ -38,6 +38,12 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/line.h>
+#include <vecmath/distance.h>
+#include <vecmath/intersection.h>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVOriginTool::XHandleHit = Model::Hit::freeHitType();
@@ -64,14 +70,14 @@ namespace TrenchBroom {
                 const auto origin = fromTex * vm::vec3(m_helper.originInFaceCoords());
                 
                 const auto& pickRay = inputState.pickRay();
-                const auto oDistance = distance(pickRay, origin);
+                const auto oDistance = vm::distance(pickRay, origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
                     const auto hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
                     pickResult.addHit(Model::Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                     pickResult.addHit(Model::Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                 } else {
-                    const auto xDistance = distance(pickRay, xHandle);
-                    const auto yDistance = distance(pickRay, yHandle);
+                    const auto xDistance = vm::distance(pickRay, xHandle);
+                    const auto yDistance = vm::distance(pickRay, yHandle);
 
                     assert(!xDistance.parallel);
                     assert(!yDistance.parallel);
@@ -112,19 +118,22 @@ namespace TrenchBroom {
             const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
             const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
 
-            if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
+            if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
                 return false;
-            
-            if (xHandleHit.isMatch())
+            }
+
+            if (xHandleHit.isMatch()) {
                 m_selector[0] = 1.0f;
-            else
+            } else {
                 m_selector[0] = 0.0f;
-            
-            if (yHandleHit.isMatch())
+            }
+
+            if (yHandleHit.isMatch()) {
                 m_selector[1] = 1.0f;
-            else
+            } else {
                 m_selector[1] = 0.0f;
-            
+            }
+
             m_lastPoint = computeHitPoint(inputState.pickRay());
             return true;
         }
@@ -147,7 +156,7 @@ namespace TrenchBroom {
         vm::vec2f UVOriginTool::computeHitPoint(const vm::ray3& ray) const {
             const auto* face = m_helper.face();
             const auto& boundary = face->boundary();
-            const auto distance = intersect(ray, boundary);
+            const auto distance = vm::intersect(ray, boundary);
             const auto hitPoint = ray.pointAtDistance(distance);
             
             const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);

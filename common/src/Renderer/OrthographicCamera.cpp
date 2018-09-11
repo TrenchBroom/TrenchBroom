@@ -19,6 +19,11 @@
 
 #include "OrthographicCamera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         OrthographicCamera::OrthographicCamera() :
@@ -28,8 +33,8 @@ namespace TrenchBroom {
         Camera(nearPlane, farPlane, viewport, position, direction, up) {}
         
         vm::vec3::List OrthographicCamera::viewportVertices() const {
-            const float w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
-            const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+            const auto w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
+            const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
             vm::vec3::List result(4);
             result[0] = vm::vec3(position() - w2 * right() + h2 * up());
@@ -44,8 +49,8 @@ namespace TrenchBroom {
         }
 
         void OrthographicCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
-            const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
-            const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+            const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
+            const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
             projectionMatrix = vm::orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
             viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());

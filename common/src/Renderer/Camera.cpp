@@ -19,6 +19,12 @@
 
 #include "Camera.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/ray.h>
+#include <vecmath/distance.h>
+#include <vecmath/intersection.h>
+
 #include <cassert>
 #include <algorithm>
 

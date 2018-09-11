@@ -19,6 +19,8 @@
 
 #include "FaceTool.h"
 
+#include "TrenchBroom.h"
+
 namespace TrenchBroom {
     namespace View {
         FaceTool::FaceTool(MapDocumentWPtr document) :

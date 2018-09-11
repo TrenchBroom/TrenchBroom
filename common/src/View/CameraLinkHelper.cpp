@@ -22,11 +22,13 @@
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "TemporarilySetAny.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace View {

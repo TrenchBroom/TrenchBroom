@@ -21,6 +21,7 @@
 #define TRENCHBROOM_FORWARD_H
 
 #include <cstddef>
+#include <vector>
 
 namespace vm {
     template<typename T, size_t S>
@@ -113,6 +114,10 @@ namespace vm {
     using polygon2d = polygon<double,2>;
     using polygon3f = polygon<float,3>;
     using polygon3d = polygon<double,3>;
+
+    // TODO 2201: Use this instead of dependent List types from vecmath types. Remove ***_decl headers where they were only imported due to the dependent type!
+    template <typename T>
+    using array = std::vector<T>;
 }
 
 #endif //TRENCHBROOM_FORWARD_H

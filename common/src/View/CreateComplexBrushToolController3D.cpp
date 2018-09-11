@@ -19,6 +19,7 @@
 
 #include "CreateComplexBrushToolController3D.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -34,6 +35,10 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+
 #include <cassert>
 #include <algorithm>
 
@@ -44,13 +49,13 @@ namespace TrenchBroom {
             CreateComplexBrushTool* m_tool;
             Polyhedron3 m_oldPolyhedron;
         protected:
-            Part(CreateComplexBrushTool* tool) :
+            explicit Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
             m_oldPolyhedron() {
                 ensure(m_tool != nullptr, "tool is null");
             }
         public:
-            virtual ~Part() {}
+            virtual ~Part() = default;
         };
         
         class CreateComplexBrushToolController3D::DrawFacePart : public Part, public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, RestrictedDragPolicy, NoRenderPolicy, NoDropPolicy> {
@@ -58,7 +63,7 @@ namespace TrenchBroom {
             vm::plane3 m_plane;
             vm::vec3 m_initialPoint;
         public:
-            DrawFacePart(CreateComplexBrushTool* tool) :
+            explicit DrawFacePart(CreateComplexBrushTool* tool) :
             Part(tool) {}
         private:
             Tool* doGetTool() override { return m_tool; }
@@ -79,7 +84,7 @@ namespace TrenchBroom {
                 m_initialPoint = hit.hitPoint();
                 updatePolyhedron(m_initialPoint);
                 
-                SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
+                auto* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
                 restricter->setType(Model::Brush::BrushHit);
                 restricter->setOccluded(true);

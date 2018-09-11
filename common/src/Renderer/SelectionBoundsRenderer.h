@@ -21,7 +21,8 @@
 #define TrenchBroom_SelectionBoundsRenderer
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {

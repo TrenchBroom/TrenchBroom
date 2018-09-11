@@ -21,11 +21,13 @@
 #define TrenchBroom_ClipToolController
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/InputState.h"
 #include "View/ToolController.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {

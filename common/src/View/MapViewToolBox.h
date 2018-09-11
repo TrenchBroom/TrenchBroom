@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_MapViewToolBox
 #define TrenchBroom_MapViewToolBox
 
+#include "TrenchBroom.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
@@ -94,7 +95,7 @@ namespace TrenchBroom {
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
             double rotateToolAngle() const;
-            const vm::vec3 rotateToolCenter() const;
+            vm::vec3 rotateToolCenter() const;
             void moveRotationCenter(const vm::vec3& delta);
             
             void toggleScaleObjectsTool();

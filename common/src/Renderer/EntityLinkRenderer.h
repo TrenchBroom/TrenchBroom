@@ -20,13 +20,14 @@
 #ifndef TrenchBroom_EntityLinkRenderer
 #define TrenchBroom_EntityLinkRenderer
 
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Model {

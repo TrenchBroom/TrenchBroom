@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_CameraTool2D
 #define TrenchBroom_CameraTool2D
 
-#include <vecmath/VecMath.h>
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

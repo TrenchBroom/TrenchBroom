@@ -22,6 +22,8 @@
 #include "Model/BrushFace.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();

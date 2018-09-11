@@ -19,8 +19,10 @@
 
 #include "PortalFile.h"
 
-#include <vecmath/VecMath.h>
 #include "IO/Path.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/polygon.h>
 
 #include <cassert>
 #include <fstream>

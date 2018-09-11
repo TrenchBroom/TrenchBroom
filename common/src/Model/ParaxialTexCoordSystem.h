@@ -21,8 +21,9 @@
 #define TrenchBroom_ParaxialTexCoordSystem
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/TexCoordSystem.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {

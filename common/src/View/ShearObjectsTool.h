@@ -22,10 +22,13 @@
 #define TrenchBroom_ShearObjectsTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {

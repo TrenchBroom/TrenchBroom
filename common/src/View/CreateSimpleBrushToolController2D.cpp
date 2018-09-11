@@ -26,6 +26,9 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/intersection.h>
+#include <vecmath/utils.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -57,7 +60,7 @@ namespace TrenchBroom {
             const auto& camera = inputState.camera();
             const vm::plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
             
-            const auto distance = intersect(inputState.pickRay(), plane);
+            const auto distance = vm::intersect(inputState.pickRay(), plane);
             if (vm::isNan(distance)) {
                 return DragInfo();
             }
@@ -103,7 +106,7 @@ namespace TrenchBroom {
             snapBounds(inputState, bounds);
 
             MapDocumentSPtr document = lock(m_document);
-            bounds = intersect(bounds, document->worldBounds());
+            bounds = vm::intersect(bounds, document->worldBounds());
             
             if (bounds.empty() || bounds == m_bounds)
                 return false;
@@ -124,8 +127,8 @@ namespace TrenchBroom {
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
             const auto factors = vm::vec3(abs(firstAxis(camera.direction())));
-            min = mix(min, refBounds.min, factors);
-            max = mix(max, refBounds.max, factors);
+            min = vm::mix(min, refBounds.min, factors);
+            max = vm::mix(max, refBounds.max, factors);
 
             bounds = vm::bbox3(min, max);
         }

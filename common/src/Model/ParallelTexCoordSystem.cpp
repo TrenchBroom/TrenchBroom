@@ -17,11 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
 #include "ParallelTexCoordSystem.h"
 #include "Assets/Texture.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/BrushFace.h"
+
+#include <vecmath/bbox.h>
+#include <vecmath/vec.h>
 
 #include <cstddef>
 

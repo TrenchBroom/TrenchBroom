@@ -25,10 +25,8 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/vec_impl.h>
-#include <vecmath/mat_decl.h>
-#include <vecmath/mat_impl.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);

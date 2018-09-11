@@ -19,7 +19,6 @@
 
 #include "TextRenderer.h"
 
-#include <vecmath/VecMath.h>
 #include "CollectionUtils.h"
 #include "AttrString.h"
 #include "Renderer/Camera.h"
@@ -30,6 +29,10 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextureFont.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -164,7 +167,7 @@ namespace TrenchBroom {
             collection.rectArray.prepare(vbo);
         }
 
-        void TextRenderer::addEntry(const Entry& entry, const bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
+        void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
             const vm::vec2f::List& stringVertices = entry.vertices;
             const vm::vec2f& stringSize = entry.size;
             

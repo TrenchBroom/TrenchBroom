@@ -19,12 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/mat_decl.h>
-#include <vecmath/mat_impl.h>
-#include <vecmath/vec_decl.h>
-#include <vecmath/vec_impl.h>
-#include <vecmath/quat_decl.h>
-#include <vecmath/quat_impl.h>
+#include <vecmath/mat.h>
+#include <vecmath/vec.h>
+#include <vecmath/quat.h>
 #include "TrenchBroom.h"
 #include "TestUtils.h"
 

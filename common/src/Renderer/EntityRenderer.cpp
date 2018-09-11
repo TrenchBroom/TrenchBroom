@@ -20,7 +20,6 @@
 #include "EntityRenderer.h"
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -40,6 +39,9 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

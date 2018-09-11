@@ -21,7 +21,6 @@
 #define TrenchBroom_FgdParser
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
@@ -30,6 +29,8 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace IO {

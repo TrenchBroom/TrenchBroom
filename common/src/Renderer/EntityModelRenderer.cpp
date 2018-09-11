@@ -22,7 +22,6 @@
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include <vecmath/VecMath.h>
 #include "CollectionUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
@@ -33,6 +32,8 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
+
+#include <vecmath/mat.h>
 
 namespace TrenchBroom {
     namespace Renderer {

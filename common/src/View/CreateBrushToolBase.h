@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Polyhedron.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
@@ -45,7 +43,7 @@ namespace TrenchBroom {
             Renderer::BrushRenderer* m_brushRenderer;
         public:
             CreateBrushToolBase(bool initiallyActive, MapDocumentWPtr document);
-            virtual ~CreateBrushToolBase();
+            ~CreateBrushToolBase() override;
         public:
             const Grid& grid() const;
             

@@ -21,11 +21,13 @@
 #define TrenchBroom_ResizeBrushesTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,8 +53,8 @@ namespace TrenchBroom {
             bool m_splitBrushes;
             bool m_resizing;
         public:
-            ResizeBrushesTool(MapDocumentWPtr document);
-            ~ResizeBrushesTool();
+            explicit ResizeBrushesTool(MapDocumentWPtr document);
+            ~ResizeBrushesTool() override;
             
             bool applies() const;
             

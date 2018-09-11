@@ -20,10 +20,17 @@
 #ifndef TRENCHBROOM_POLYGON_DECL_H
 #define TRENCHBROOM_POLYGON_DECL_H
 
-#include "forward.h"
-#include "vec_decl.h"
+// TODO 2201: Remove this dependency.
+#include "CollectionUtils.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/intersection.h> // TODO 2201: try to avoid including this here
+
+#include <algorithm>
 #include <cstddef>
+#include <numeric>
+#include <vector>
 
 namespace vm {
     template <typename T, size_t S>
@@ -39,28 +46,37 @@ namespace vm {
         /**
          * Creates a new empty polygon.
          */
-        polygon();
+        polygon() = default;
 
         /**
          * Creates a new polygon with the given vertices. The given points are assumed to form a convex polygon.
          *
          *  @param i_vertices the vertices
          */
-        polygon(std::initializer_list<vec<T,S>> i_vertices);
+        polygon(std::initializer_list<vec<T,S>> i_vertices) :
+        m_vertices(i_vertices) {
+                CollectionUtils::rotateMinToFront(m_vertices);
+        }
 
         /**
          * Creates a new polygon with the given vertices. The given points are assumed to form a convex polygon.
          *
          * @param i_vertices the vertices
          */
-        polygon(const typename vec<T,S>::List& i_vertices);
+        explicit polygon(const typename vec<T,S>::List& i_vertices) :
+        m_vertices(i_vertices) {
+            CollectionUtils::rotateMinToFront(m_vertices);
+        }
 
         /**
          * Creates a new polygon with the given vertices. The given points are assumed to form a convex polygon.
          *
          * @param i_vertices the vertices
          */
-        polygon(typename vec<T,S>::List&& i_vertices);
+        explicit polygon(typename vec<T,S>::List&& i_vertices) :
+        m_vertices(i_vertices) {
+            CollectionUtils::rotateMinToFront(m_vertices);
+        }
 
         // Copy and move constructors
         polygon(const polygon<T,S>& other) = default;
@@ -91,7 +107,9 @@ namespace vm {
          * @param vertex the position to check
          * @return bool if this polygon has a vertex at the given position and false otherwise
          */
-        bool hasVertex(const vec<T,S>& vertex) const;
+        bool hasVertex(const vec<T,S>& vertex) const {
+            return std::find(std::begin(m_vertices), std::end(m_vertices), vertex) != std::end(m_vertices);
+        }
 
         /**
          * Checks whether this polygon contains the given point.
@@ -100,49 +118,68 @@ namespace vm {
          * @param normal the normal of this polygon
          * @return true if this polygon contains the given point, and false otherwise
          */
-        bool contains(const vec<T,S>& point, const vec<T,3>& normal) const;
+         // TODO 2201: Remove this and avoid including intersections.h
+        bool contains(const vec<T,S>& point, const vec<T,3>& normal) const {
+            return vm::contains(point, normal, std::begin(m_vertices), std::end(m_vertices));
+        }
 
         /**
          * Returns the number of vertices of this polygon.
          *
          * @return the number of vertices
          */
-        size_t vertexCount() const;
+        size_t vertexCount() const {
+            return m_vertices.size();
+        }
 
         /**
          * Returns an iterator to the beginning of the vertices.
          *
          * @return an iterator to the beginning of the vertices
          */
-        typename vec<T,3>::List::const_iterator begin() const;
+        typename vec<T,3>::List::const_iterator begin() const {
+            return std::begin(m_vertices);
+        }
 
         /**
          * Returns an iterator to the end of the vertices.
          *
          * @return an iterator to the end of the vertices
          */
-        typename vec<T,3>::List::const_iterator end() const;
+        typename vec<T,3>::List::const_iterator end() const {
+            return std::end(m_vertices);
+        }
 
         /**
          * Returns the vertices of this polygon.
          *
          * @return the vertices
          */
-        const typename vec<T,S>::List& vertices() const;
+        const typename vec<T,S>::List& vertices() const {
+            return m_vertices;
+        }
 
         /**
          * Computes the center of this polygon.
          *
          * @return the center of this polygon
          */
-        vec<T,S> center() const;
+        vec<T,S> center() const {
+            return std::accumulate(std::begin(m_vertices), std::end(m_vertices), vec<T,S>::zero) / static_cast<T>(m_vertices.size());
+        }
 
         /**
          * Inverts this polygon by reversing its vertices.
          *
          * @return the inverted polygon
          */
-        polygon<T,S> invert() const;
+        polygon<T,S> invert() const{
+            auto vertices = m_vertices;
+            if (vertices.size() > 1) {
+                std::reverse(std::next(std::begin(vertices)), std::end(vertices));
+            }
+            return polygon<T,S>(vertices);
+        }
 
         /**
          * Translates this polygon by the given offset.
@@ -150,7 +187,9 @@ namespace vm {
          * @param offset the offset by which to translate
          * @return the translated polygon
          */
-        polygon<T,S> translate(const vec<T,S>& offset) const;
+        polygon<T,S> translate(const vec<T,S>& offset) const {
+            return polygon<T,S>(m_vertices + offset);
+        }
 
         /**
          * Transforms this polygon using the given transformation matrix.
@@ -158,7 +197,9 @@ namespace vm {
          * @param mat the transformation to apply
          * @return the transformed polygon
          */
-        polygon<T,S> transform(const mat<T,S+1,S+1>& mat) const;
+        polygon<T,S> transform(const mat<T,S+1,S+1>& mat) const {
+            return polygon<T,S>(mat * vertices());
+        }
 
         /**
          * Adds the vertices of the given range of polygons to the given output iterator.
@@ -197,7 +238,19 @@ namespace vm {
      * @return -1 if the first polygon is less than the second polygon, +1 in the opposite case, and 0 otherwise
      */
     template <typename T, size_t S>
-    int compare(const polygon<T,S>& lhs, const polygon<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+    int compare(const polygon<T,S>& lhs, const polygon<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+        const auto& lhsVerts = lhs.vertices();
+        const auto& rhsVerts = rhs.vertices();
+
+        if (lhsVerts.size() < rhsVerts.size()) {
+            return -1;
+        } else if (lhsVerts.size() > rhsVerts.size()) {
+            return 1;
+        } else {
+            return compare(std::begin(lhsVerts), std::end(lhsVerts),
+                           std::begin(rhsVerts), std::end(rhsVerts), epsilon);
+        }
+    }
 
     /**
      * Checks whether the first given polygon is identical to the second polygon.
@@ -209,7 +262,9 @@ namespace vm {
      * @return true if the polygons are identical and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    bool operator==(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) == 0;
+    }
 
     /**
      * Checks whether the first given polygon is identical to the second polygon.
@@ -221,7 +276,9 @@ namespace vm {
      * @return false if the polygons are identical and true otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    bool operator!=(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) != 0;
+    }
 
     /**
      * Checks whether the first given polygon is less than the second polygon.
@@ -233,7 +290,9 @@ namespace vm {
      * @return true if the first polygon is less than the second polygon and false otherwise
      */
     template <typename T, size_t S>
-    bool operator<(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    bool operator<(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) < 0;
+    }
 
     /**
      * Checks whether the first given polygon is less than or equal to the second polygon.
@@ -244,8 +303,10 @@ namespace vm {
      * @param rhs the second polygon
      * @return true if the first polygon is less than or equal to the second polygon and false otherwise
      */
-     template <typename T, size_t S>
-    bool operator<=(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    template <typename T, size_t S>
+    bool operator<=(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) <= 0;
+    }
 
     /**
      * Checks whether the first given polygon is greater than the second polygon.
@@ -257,7 +318,9 @@ namespace vm {
      * @return true if the first polygon is greater than the second polygon and false otherwise
      */
     template <typename T, size_t S>
-    bool operator>(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    bool operator>(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) > 0;
+    }
 
     /**
      * Checks whether the first given polygon is greater than or equal to the second polygon.
@@ -269,7 +332,9 @@ namespace vm {
      * @return true if the first polygon is greater than or equal to the second polygon and false otherwise
      */
     template <typename T, size_t S>
-    bool operator>=(const polygon<T,S>& lhs, const polygon<T,S>& rhs);
+    bool operator>=(const polygon<T,S>& lhs, const polygon<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) >= 0;
+    }
 
     /**
      * Compares the given polygons under the assumption that the first vertex of each polygon is the smallest of all
@@ -289,7 +354,55 @@ namespace vm {
      * @return -1 if the first polygon is less than the second polygon, +1 in the opposite case, and 0 otherwise
      */
     template <typename T, size_t S>
-    int compareUnoriented(const polygon<T,S>& lhs, const polygon<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+    int compareUnoriented(const polygon<T,S>& lhs, const polygon<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+        const auto& lhsVerts = lhs.vertices();
+        const auto& rhsVerts = rhs.vertices();
+
+        if (lhsVerts.size() < rhsVerts.size()) {
+            return -1;
+        } else if (lhsVerts.size() > rhsVerts.size()) {
+            return 1;
+        } else {
+            const auto count = lhsVerts.size();
+            if (count == 0) {
+                return 0;
+            }
+
+            // Compare first:
+            const auto cmp0 = compare(lhsVerts[0], rhsVerts[0], epsilon);
+            if (cmp0 < 0) {
+                return -1;
+            } else if (cmp0 > 0) {
+                return +1;
+            }
+
+            if (count == 1) {
+                return 0;
+            }
+
+            // First vertices are identical. Now compare my second with other's second.
+            auto cmp1 = compare(lhsVerts[1], rhsVerts[1], epsilon);
+            if (cmp1 == 0) {
+                // The second vertices are also identical, so we just do a forward compare.
+                return compare(std::next(std::begin(lhsVerts), 2), std::end(lhsVerts),
+                               std::next(std::begin(rhsVerts), 2), std::end(rhsVerts), epsilon);
+            } else {
+                // The second vertices are not identical, so we attemp a backward compare.
+                size_t i = 1;
+                while (i < count) {
+                    const auto j = count - i;
+                    const auto cmp = compare(lhsVerts[i], rhsVerts[j], epsilon);
+                    if (cmp != 0) {
+                        // Backward compare failed, so make a forward compare
+                        return compare(std::next(std::begin(lhsVerts), 2), std::end(lhsVerts),
+                                       std::next(std::begin(rhsVerts), 2), std::end(rhsVerts), epsilon);
+                    }
+                    ++i;
+                }
+                return 0;
+            }
+        }
+    }
 }
 
 #endif

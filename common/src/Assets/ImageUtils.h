@@ -22,7 +22,7 @@
 
 #include "Assets/Texture.h"
 
-#include <vecmath/VecMath.h>
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Assets {

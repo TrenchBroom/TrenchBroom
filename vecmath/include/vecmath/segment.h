@@ -22,7 +22,7 @@
 
 #include "abstract_line.h"
 #include "forward.h"
-#include "vec_decl.h"
+#include "vec.h"
 
 #include <vector>
 
@@ -50,7 +50,7 @@ namespace vm {
         /**
          * Creates a new empty segment of length 0 with both the start and the end set to 0.
          */
-        segment();
+        segment() = default;
 
         /**
          * Creates a new segment with the given points.
@@ -58,7 +58,13 @@ namespace vm {
          * @param p1 one end point
          * @param p2 the opposite end point
          */
-        segment(const vec<T,S>& p1, const vec<T,S>& p2);
+        segment(const vec<T,S>& p1, const vec<T,S>& p2) :
+        m_start(p1),
+        m_end(p2) {
+            if (m_end < m_start) {
+                flip();
+            }
+        }
 
         // Copy and move constructors
         segment(const segment<T,S>& other) = default;
@@ -81,22 +87,31 @@ namespace vm {
         m_end(other.end()) {}
 
         // implement abstract_line interface
-        vec<T,S> getOrigin() const override;
-        vec<T,S> getDirection() const override;
+        vec<T,S> getOrigin() const override {
+            return m_start;
+        }
+
+        vec<T,S> getDirection() const override {
+            return direction();
+        }
 
         /**
          * Returns the length of this segment.
          *
          * @return the length of this segment
          */
-        T length() const;
+        T length() const {
+            return vm::length(m_end - m_start);
+        }
 
         /**
          * Returns the squared length of this segment.
          *
          * @return the squared length of this segment
          */
-        T squaredLength() const;
+        T squaredLength() const {
+            return vm::squaredLength(m_end - m_start);
+        }
 
         /**
          * Checks whether the given point is contained in this segment.
@@ -105,7 +120,16 @@ namespace vm {
          * @param maxDistance the maximum distance from the point and this segment
          * @return true if the given point is contained in this segment and false otherwise
          */
-        bool contains(const vec<T,S>& point, T maxDistance) const;
+        bool contains(const vec<T,S>& point, const T maxDistance) const {
+            const auto f = this->distanceToProjectedPoint(point);
+            if (lt(f, T(0.0), maxDistance) ||
+                gt(f * f, squaredLength(), maxDistance * maxDistance)) {
+                return false;
+            } else {
+                const auto proj = this->pointAtDistance(f);
+                return squaredDistance(proj, point) <= (maxDistance * maxDistance);
+            }
+        }
 
         /**
          * Transforms this segment using the given transformation matrix.
@@ -113,28 +137,46 @@ namespace vm {
          * @param transform the transformation to apply
          * @return the transformed segment
          */
-        segment<T,S> transform(const mat<T,S+1,S+1>& transform) const;
+        segment<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+            return segment<T,S>(m_start * transform, m_end * transform);
+        }
+
+        /**
+         * Translates this segment by the given offset.
+         *
+         * @param delta the offset by which to translate the segment
+         * @return the translated segment
+         */
+        segment<T,S> translate(const vec<T,S>& delta) const {
+            return segment<T,S>(m_start + delta, m_end + delta);
+        }
 
         /**
          * Returns the start point of this segment.
          *
          * @return the start point
          */
-        const vec<T,S>& start() const;
+        const vec<T,S>& start() const {
+            return m_start;
+        }
 
         /**
          * Returns the end point of this segment.
          *
          * @return the end point
          */
-        const vec<T,S>& end() const;
+        const vec<T,S>& end() const {
+            return m_end;
+        }
 
         /**
          * Returns the center point of this segment.
          *
          * @return the center point
          */
-        vec<T,S> center() const;
+        vec<T,S> center() const {
+            return (m_start + m_end) / static_cast<T>(2.0);
+        }
 
         /**
          * Returns the normalized direction vector of this segment, i.e., a unit vector which points at the end
@@ -142,7 +184,9 @@ namespace vm {
          *
          * @return the direction vector
          */
-        vec<T,S> direction() const;
+        vec<T,S> direction() const {
+            return normalize(m_end - m_start);
+        }
 
         /**
          * Adds the start and end points of the given range of segments to the given output iterator.
@@ -186,7 +230,16 @@ namespace vm {
      * segments are equal
      */
     template <typename T, size_t S>
-    int compare(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon = static_cast<T>(0.0));
+    int compare(const segment<T,S>& lhs, const segment<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+        const int startCmp = compare(lhs.start(), rhs.start(), epsilon);
+        if (startCmp < 0) {
+            return -1;
+        } else if (startCmp > 0) {
+            return 1;
+        } else {
+            return compare(lhs.end(), rhs.end(), epsilon);
+        }
+    }
 
     /**
      * Checks whether the given segments have equal components.
@@ -199,7 +252,9 @@ namespace vm {
      * @return true if all components of the given segments are equal, and false otherwise
      */
     template <typename T, size_t S>
-    bool isEqual(const segment<T,S>& lhs, const segment<T,S>& rhs, T epsilon);
+    bool isEqual(const segment<T,S>& lhs, const segment<T,S>& rhs, const T epsilon) {
+        return compare(lhs, rhs, epsilon) == 0;
+    }
 
     /**
      * Checks if the first given segment identical to the second segment.
@@ -211,7 +266,9 @@ namespace vm {
      * @return true if the segments are identical and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator==(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) == 0;
+    }
 
     /**
      * Checks if the first given segment identical to the second segment.
@@ -223,7 +280,9 @@ namespace vm {
      * @return false if the segments are identical and true otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator!=(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) != 0;
+    }
 
     /**
      * Checks if the first given segment less than the second segment.
@@ -235,7 +294,9 @@ namespace vm {
      * @return true if the first segment is less than the second and false otherwise
      */
     template <typename T, size_t S>
-    bool operator<(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator<(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) < 0;
+    }
 
     /**
      * Checks if the first given segment less than or equal to the second segment.
@@ -247,7 +308,9 @@ namespace vm {
      * @return true if the first segment is less than or equal to the second and false otherwise
      */
     template <typename T, size_t S>
-    bool operator<=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator<=(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) <= 0;
+    }
 
     /**
      * Checks if the first given segment greater than the second segment.
@@ -259,7 +322,9 @@ namespace vm {
      * @return true if the first segment is greater than the second and false otherwise
      */
     template <typename T, size_t S>
-    bool operator>(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator>(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) > 0;
+    }
 
     /**
      * Checks if the first given segment greater than or equal to the second segment.
@@ -271,7 +336,9 @@ namespace vm {
      * @return true if the first segment is greater than or equal to the second and false otherwise
      */
     template <typename T, size_t S>
-    bool operator>=(const segment<T,S>& lhs, const segment<T,S>& rhs);
+    bool operator>=(const segment<T,S>& lhs, const segment<T,S>& rhs) {
+        return compare(lhs, rhs, T(0.0)) >= 0;
+    }
 
     /**
      * Translates the given segment by the given offset.
@@ -283,7 +350,9 @@ namespace vm {
      * @return the translated segment
      */
     template <typename T, size_t S>
-    segment<T,S> translate(const segment<T,S>& s, const vec<T,S>& offset);
+    segment<T,S> translate(const segment<T,S>& s, const vec<T,S>& offset) {
+        return s.translate(offset);
+    }
 }
 
 #endif

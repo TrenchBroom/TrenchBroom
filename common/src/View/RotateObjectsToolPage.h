@@ -21,8 +21,10 @@
 #define TrenchBroom_RotateObjectsToolPage
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/utils.h>
 
 #include <wx/panel.h>
 

@@ -21,7 +21,6 @@
 #define VertexToolBase_h
 
 #include "Disjunction.h"
-#include <vecmath/VecMath.h>
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -43,6 +42,9 @@
 #include "View/VertexHandleManager.h"
 #include "View/ViewTypes.h"
 #include "AddBrushVerticesCommand.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <algorithm>
 #include <cassert>

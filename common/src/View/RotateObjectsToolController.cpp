@@ -19,7 +19,6 @@
 
 #include "RotateObjectsToolController.h"
 
-#include <vecmath/VecMath.h>
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -31,6 +30,12 @@
 #include "View/RotateObjectsTool.h"
 #include "View/InputState.h"
 #include "View/MoveToolController.h"
+
+#include "TrenchBroom.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/quat.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,7 +49,7 @@ namespace TrenchBroom {
             vm::vec3 m_axis;
             FloatType m_angle;
         protected:
-            RotateObjectsBase(RotateObjectsTool* tool) :
+            explicit RotateObjectsBase(RotateObjectsTool* tool) :
             m_tool(tool) {
                 ensure(m_tool != nullptr, "tool is null");
             }
@@ -190,7 +195,7 @@ namespace TrenchBroom {
         protected:
             RotateObjectsTool* m_tool;
         protected:
-            MoveCenterBase(RotateObjectsTool* tool) :
+            explicit MoveCenterBase(RotateObjectsTool* tool) :
             MoveToolController(tool->grid()),
             m_tool(tool) {
                 ensure(m_tool != nullptr, "tool is null");
@@ -247,7 +252,7 @@ namespace TrenchBroom {
         RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool* tool) :
         m_tool(tool) {}
 
-        RotateObjectsToolController::~RotateObjectsToolController() {}
+        RotateObjectsToolController::~RotateObjectsToolController() = default;
 
         Tool* RotateObjectsToolController::doGetTool() {
             return m_tool;
@@ -276,7 +281,7 @@ namespace TrenchBroom {
 
         class RotateObjectsToolController2D::MoveCenterPart : public MoveCenterBase {
         public:
-            MoveCenterPart(RotateObjectsTool* tool) :
+            explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
             void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
@@ -286,7 +291,7 @@ namespace TrenchBroom {
         
         class RotateObjectsToolController2D::RotateObjectsPart : public RotateObjectsBase {
         public:
-            RotateObjectsPart(RotateObjectsTool* tool) :
+            explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
             void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
@@ -311,7 +316,7 @@ namespace TrenchBroom {
         
         class RotateObjectsToolController3D::MoveCenterPart : public MoveCenterBase {
         public:
-            MoveCenterPart(RotateObjectsTool* tool) :
+            explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
             void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
@@ -321,7 +326,7 @@ namespace TrenchBroom {
         
         class RotateObjectsToolController3D::RotateObjectsPart : public RotateObjectsBase {
         public:
-            RotateObjectsPart(RotateObjectsTool* tool) :
+            explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
             void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {

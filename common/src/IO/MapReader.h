@@ -21,9 +21,11 @@
 #define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "IO/StandardMapParser.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {

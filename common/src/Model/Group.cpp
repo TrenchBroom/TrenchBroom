@@ -19,6 +19,7 @@
 
 #include "Group.h"
 
+#include "TrenchBroom.h"
 #include "Hit.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -34,6 +35,9 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TransformObjectVisitor.h"
+
+#include <vecmath/ray.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -188,7 +192,7 @@ namespace TrenchBroom {
 
         FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
             const auto& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && vm::isNan(intersect(ray, myBounds))) {
+            if (!myBounds.contains(ray.origin) && vm::isNan(vm::intersect(ray, myBounds))) {
                 return vm::nan<FloatType>();
             }
 

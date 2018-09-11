@@ -21,10 +21,11 @@
 #define TrenchBroom_SwitchableMapViewContainer
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "View/MapViewLayout.h"
 #include "View/MapView.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/utils.h>
 
 #include <wx/panel.h>
 

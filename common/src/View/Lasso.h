@@ -21,7 +21,8 @@
 #define TrenchBroom_Lasso
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
+
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Renderer {

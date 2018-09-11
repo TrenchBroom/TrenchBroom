@@ -18,6 +18,8 @@
  */
 
 #include "UVView.h"
+
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"

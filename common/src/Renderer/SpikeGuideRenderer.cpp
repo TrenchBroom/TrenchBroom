@@ -28,6 +28,10 @@
 #include "Renderer/Vbo.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         SpikeGuideRenderer::SpikeGuideRenderer() :
@@ -82,7 +86,7 @@ namespace TrenchBroom {
         }
         
         void SpikeGuideRenderer::addSpike(const vm::ray3& ray, const FloatType length, const FloatType maxLength) {
-            const float mix = static_cast<float>(maxLength / length / 2.0);
+            const auto mix = static_cast<float>(maxLength / length / 2.0);
             
             m_spikeVertices.push_back(SpikeVertex(vm::vec3f(ray.origin), m_color));
             m_spikeVertices.push_back(SpikeVertex(vm::vec3f(ray.pointAtDistance(length)),

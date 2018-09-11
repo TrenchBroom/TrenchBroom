@@ -21,7 +21,6 @@
 #define TrenchBroom_NodeSnapshot
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 
 namespace TrenchBroom {
     namespace Model {

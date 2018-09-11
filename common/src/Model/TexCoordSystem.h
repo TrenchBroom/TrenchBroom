@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_TexCoordSystem
 #define TrenchBroom_TexCoordSystem
 
-#include <vecmath/VecMath.h>
 #include "TrenchBroom.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Assets {

@@ -19,6 +19,10 @@
 
 #include "PointGuideRenderer.h"
 
+#include "TrenchBroom.h"
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         const FloatType PointGuideRenderer::SpikeLength = 512.0;

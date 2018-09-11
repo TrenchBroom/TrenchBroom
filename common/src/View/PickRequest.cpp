@@ -19,6 +19,10 @@
 
 #include "PickRequest.h"
 
+#include "TrenchBroom.h"
+
+#include <vecmath/ray.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

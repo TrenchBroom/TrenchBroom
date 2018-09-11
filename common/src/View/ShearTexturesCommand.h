@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_ShearTexturesCommand
 #define TrenchBroom_ShearTexturesCommand
 
-#include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "SharedPointer.h"
 #include "View/DocumentCommand.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace View {

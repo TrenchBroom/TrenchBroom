@@ -21,7 +21,6 @@
 #define TrenchBroom_ModelFactoryImpl
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"

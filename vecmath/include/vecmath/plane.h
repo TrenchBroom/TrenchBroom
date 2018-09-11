@@ -20,12 +20,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TRENCHBROOM_PLANE_DECL_H
 #define TRENCHBROOM_PLANE_DECL_H
 
-#include <vecmath/utils.h>
 #include "forward.h"
-#include "vec_decl.h"
-#include "vec_impl.h"
-#include "line_decl.h"
-#include "ray_decl.h"
+#include "vec.h"
+#include "vec.h"
+#include "line.h"
+#include "ray.h"
+#include "utils.h"
 
 #include <set>
 #include <tuple>
@@ -50,7 +50,9 @@ namespace vm {
         /**
          * Creates a new plane by setting all components to 0.
          */
-        plane();
+        plane() :
+        distance(static_cast<T>(0.0)),
+        normal(vec<T,S>::zero) {}
 
         // Copy and move constructors
         plane(const plane<T,S>& other) = default;
@@ -77,7 +79,9 @@ namespace vm {
          * @param i_distance the distance
          * @param i_normal the normal vector
          */
-        plane(T i_distance, const vec<T,S>& i_normal);
+        plane(const T i_distance, const vec<T,S>& i_normal) :
+        distance(i_distance),
+        normal(i_normal) {}
 
         /**
          * Creates a new plane with the given anchor point and normal.
@@ -85,7 +89,9 @@ namespace vm {
          * @param i_anchor the anchor point (any point on the plane)
          * @param i_normal the normal vector
          */
-        plane(const vec<T,S>& i_anchor, const vec<T,S>& i_normal);
+        plane(const vec<T,S>& i_anchor, const vec<T,S>& i_normal) :
+        distance(dot(i_anchor, i_normal)),
+        normal(i_normal) {}
 
         /**
          * Returns a point on this plane with minimal distance to the coordinate system origin. Assumes that the normal has
@@ -93,7 +99,9 @@ namespace vm {
          *
          * @return the anchor point
          */
-        vec<T,S> anchor() const;
+        vec<T,S> anchor() const {
+            return normal * distance;
+        }
 
         /**
          * Given a line, this function computes the intersection of the line and this plane. The line is restricted to be
@@ -107,13 +115,32 @@ namespace vm {
          * @param axis the axis
          * @return the missing component to transform the given point to the point of intersection
          */
-        T at(const vec<T,S-1>& point, const axis::type axis) const;
+        T at(const vec<T,S-1>& point, const axis::type axis) const {
+            if (isZero(normal[axis])) {
+                return static_cast<T>(0.0);
+            }
 
-        T xAt(const vec<T,S-1>& point) const;
+            auto t = static_cast<T>(0.0);
+            size_t index = 0;
+            for (size_t i = 0; i < S; i++) {
+                if (i != axis) {
+                    t += normal[i] * point[index++];
+                }
+            }
+            return (distance - t) / normal[axis];
+        }
 
-        T yAt(const vec<T,S-1>& point) const;
+        T xAt(const vec<T,S-1>& point) const {
+            return at(point, axis::x);
+        }
 
-        T zAt(const vec<T,S-1>& point) const;
+        T yAt(const vec<T,S-1>& point) const {
+            return at(point, axis::y);
+        }
+
+        T zAt(const vec<T,S-1>& point) const {
+            return at(point, axis::z);
+        }
 
         /**
          * Computes the distance of the given point to this plane. The sign of the distance indicates whether the point
@@ -122,7 +149,9 @@ namespace vm {
          * @param point the point
          * @return the distance of the given point to this plane
          */
-        T pointDistance(const vec<T,S>& point) const;
+        T pointDistance(const vec<T,S>& point) const {
+            return dot(point, normal) - distance;
+        }
 
         /**
          * Determines the relative position of the given point to this plane. A plane can either be above (in direction of
@@ -132,14 +161,26 @@ namespace vm {
          * @param epsilon an epsilon value (the maximum absolute distance up to which a point will be considered to be inside)
          * @return a value indicating the point status
          */
-        point_status pointStatus(const vec<T,S>& point, T epsilon = constants<T>::pointStatusEpsilon()) const;
+        point_status pointStatus(const vec<T,S>& point, const T epsilon = constants<T>::pointStatusEpsilon()) const {
+            const auto dist = pointDistance(point);
+            if (dist >  epsilon) {
+                return point_status::above;
+            } else if (dist < -epsilon) {
+                return point_status::below;
+            } else {
+                return point_status::inside;
+            }
+        }
 
         /**
          * Flips this plane by negating its normal.
          *
          * @return the flipped plane
          */
-        plane<T,S> flip() const;
+        plane<T,S> flip() const {
+            // Distance must also be flipped to compensate for the changed sign of the normal. The location of the plane does not change!
+            return plane<T,S>(-distance, -normal);
+        }
 
         /**
          * Transforms this plane using the given transformation matrix. The translational part is not applied to the normal.
@@ -147,7 +188,11 @@ namespace vm {
          * @param transform the transformation to apply
          * @return the transformed plane
          */
-        plane<T,S> transform(const mat<T,S+1,S+1>& transform) const;
+        plane<T,S> transform(const mat<T,S+1,S+1>& transform) const {
+            const auto newNormal   = normalize(stripTranslation(transform) * normal);
+            const auto newDistance = dot(transform * anchor(), newNormal);
+            return plane<T,S>(newDistance, newNormal);
+        }
 
         /**
          * Projects the given point onto this plane along the plane normal.
@@ -155,7 +200,9 @@ namespace vm {
          * @param point the point to project
          * @return the projected point
          */
-        vec<T,S> projectPoint(const vec<T,S>& point) const;
+        vec<T,S> projectPoint(const vec<T,S>& point) const {
+            return point - dot(point, normal) * normal + distance * normal;
+        }
 
         /**
          * Projects the given point onto this plane along the given direction.
@@ -164,7 +211,14 @@ namespace vm {
          * @param direction the projection direction
          * @return the projected point
          */
-        vec<T,S> projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const;
+        vec<T,S> projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
+            const auto cos = dot(direction, normal);
+            if (isZero(cos)) {
+                return vec<T,S>::NaN;
+            }
+            const auto d = dot(distance * normal - point, normal) / cos;
+            return point + direction * d;
+        }
 
         /**
          * Projects the given vector originating at the anchor point onto this plane along the plane normal.
@@ -172,7 +226,9 @@ namespace vm {
          * @param vector the vector to project
          * @return the projected vector
          */
-        vec<T,S> projectVector(const vec<T,S>& vector) const;
+        vec<T,S> projectVector(const vec<T,S>& vector) const {
+            return projectPoint(anchor() + vector) - anchor();
+        }
 
         /**
          * Projects the given vector originating at the anchor point onto this plane along the given direction.
@@ -181,7 +237,9 @@ namespace vm {
          * @param direction the projection direction
          * @return the projected vector
          */
-        vec<T,S> projectVector(const vec<T,S>& vector, const vec<T,S>& direction) const;
+        vec<T,S> projectVector(const vec<T,S>& vector, const vec<T,S>& direction) const {
+            return projectPoint(anchor() + vector, direction) - anchor();
+        }
     };
 
     /**
@@ -195,7 +253,9 @@ namespace vm {
      * @return bool if the two planes are considered equal and false otherwise
      */
     template <typename T, size_t S>
-    bool isEqual(const plane<T,S>& lhs, const plane<T,S>& rhs, T epsilon);
+    bool isEqual(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
+        return isEqual(lhs.distance, rhs.distance, epsilon) && isEqual(lhs.normal, rhs.normal, epsilon);
+    }
 
     /**
      * Checks if the given planes are identical.
@@ -207,7 +267,9 @@ namespace vm {
      * @return true if the given planes are identical and false otherwise
      */
     template <typename T, size_t S>
-    bool operator==(const plane<T,S>& lhs, const plane<T,S>& rhs);
+    bool operator==(const plane<T,S>& lhs, const plane<T,S>& rhs) {
+        return lhs.distance == rhs.distance && lhs.normal == rhs.normal;
+    }
 
     /**
      * Checks if the given planes are identical.
@@ -219,7 +281,9 @@ namespace vm {
      * @return false if the given planes are identical and true otherwise
      */
     template <typename T, size_t S>
-    bool operator!=(const plane<T,S>& lhs, const plane<T,S>& rhs);
+    bool operator!=(const plane<T,S>& lhs, const plane<T,S>& rhs) {
+        return lhs.distance != rhs.distance || lhs.normal != rhs.normal;
+    }
 
     /**
      * Prints a textual representation of the given plane to the given stream.
@@ -231,7 +295,10 @@ namespace vm {
      * @return the given stream
      */
     template <typename T, size_t S>
-    std::ostream& operator<<(std::ostream& stream, const plane<T,S>& plane);
+    std::ostream& operator<<(std::ostream& stream, const plane<T,S>& plane) {
+        stream << "{ normal: (" << plane.normal << ") distance: " << plane.distance << " }";
+        return stream;
+    }
 
     /**
      * Computes the normal of a plane in three point form.
@@ -258,7 +325,23 @@ namespace vm {
      * @return a pair of a boolean indicating whether the plane is valid, and the normal
      */
     template <typename T>
-    std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, T epsilon = constants<T>::angleEpsilon());
+    std::tuple<bool, vec<T,3>> planeNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, const T epsilon = constants<T>::angleEpsilon()) {
+        const auto v1 = p3 - p1;
+        const auto v2 = p2 - p1;
+        const auto normal = cross(v1, v2);
+
+        // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
+        // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives
+        // sin_theta below.
+        const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
+        if (isNan(sin_theta) ||
+            isInf(sin_theta) ||
+            sin_theta < epsilon) {
+            return std::make_tuple(false, vec<T,3>::zero);
+        } else {
+            return std::make_tuple(true, normalize(normal));
+        }
+    }
 
     /**
      * Creates a new plane from the given plane in three point form. Thereby, the orientation of the plane is derived
@@ -281,7 +364,14 @@ namespace vm {
      * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
      */
     template <typename T>
-    std::tuple<bool, plane<T,3>> fromPoints(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3);
+    std::tuple<bool, plane<T,3>> fromPoints(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
+        const auto [valid, normal] = planeNormal(p1, p2, p3);
+        if (!valid) {
+            return std::make_tuple(false, plane<T,3>());
+        } else {
+            return std::make_tuple(true, plane<T,3>(p1, normal));
+        }
+    }
 
     /**
      * Creates a new plane from a plane in three point form using the first three points in the given range. Thereby, the
@@ -307,7 +397,24 @@ namespace vm {
      * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
      */
     template <typename I, typename G = Identity>
-    auto fromPoints(I cur, I end, const G& get = G()) -> std::tuple<bool, plane<typename std::remove_reference<decltype(get(*cur))>::type::type,3>>;
+    auto fromPoints(I cur, I end, const G& get = G()) -> std::tuple<bool, plane<typename std::remove_reference<decltype(get(*cur))>::type::type,3>> {
+        using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
+
+        if (cur == end) {
+            return std::make_tuple(false, plane<T,3>());
+        }
+        const auto p1 = *cur; ++cur;
+        if (cur == end) {
+            return std::make_tuple(false, plane<T,3>());
+        }
+        const auto p2 = *cur; ++cur;
+        if (cur == end) {
+            return std::make_tuple(false, plane<T,3>());
+        }
+        const auto p3 = *cur;
+
+        return fromPoints(p1, p2, p3);
+    }
 
     /**
      * Creates a plane with the given point as its anchor and the positive Z axis as its normal.
@@ -317,7 +424,9 @@ namespace vm {
      * @return the plane
      */
     template <typename T>
-    plane<T,3> horizontalPlane(const vec<T, 3> &position);
+    plane<T,3> horizontalPlane(const vec<T, 3> &position) {
+        return plane<T,3>(position, vec<T,3>::pos_z);
+    }
 
     /**
      * Creates a plane at the given position and with its normal set to the normalized direction.
@@ -328,7 +437,9 @@ namespace vm {
      * @return the plane
      */
     template <typename T>
-    plane<T,3> orthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction);
+    plane<T,3> orthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction) {
+        return plane<T,3>(position, normalize(direction));
+    }
 
     /**
      * Creates a plane at the given position and with its normal set to the major axis of the given direction.
@@ -339,7 +450,9 @@ namespace vm {
      * @return the plane
      */
     template <typename T>
-    plane<T,3> alignedOrthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction);
+    plane<T,3> alignedOrthogonalPlane(const vec<T, 3> &position, const vec<T, 3> &direction) {
+        return plane<T,3>(position, firstAxis(direction));
+    }
 }
 
 #endif

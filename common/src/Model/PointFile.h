@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_PointFile
 #define TrenchBroom_PointFile
 
-#include <vecmath/VecMath.h>
-#include "TrenchBroom.h"
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
+#include <cstddef>
 
 namespace TrenchBroom {
     namespace IO {

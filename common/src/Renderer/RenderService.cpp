@@ -30,6 +30,11 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/utils.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         Renderer::FontDescriptor makeRenderServiceFont();

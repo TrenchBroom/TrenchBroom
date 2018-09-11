@@ -21,10 +21,11 @@
 #define TrenchBroom_CreateBrushToolController3D
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Polyhedron.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
 
 #include <vector>
 

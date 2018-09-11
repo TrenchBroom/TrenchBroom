@@ -21,10 +21,11 @@
 #define TrenchBroom_MapParser_h
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/EntityAttributes.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
 
 #include <map>
 #include <vector>

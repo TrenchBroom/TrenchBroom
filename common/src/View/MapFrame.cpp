@@ -300,7 +300,7 @@ namespace TrenchBroom {
             if (saveDialog.ShowModal() == wxID_CANCEL)
                 return false;
             
-            return exportDocument(Model::EF_WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
+            return exportDocument(Model::WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {

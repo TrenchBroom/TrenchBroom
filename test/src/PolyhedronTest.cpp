@@ -23,8 +23,10 @@
 
 #include "Polyhedron.h"
 #include "Polyhedron_DefaultPayload.h"
-#include <vecmath/utils.h>
 #include "TestUtils.h"
+
+#include <vecmath/plane.h>
+#include <vecmath/utils.h>
 
 #include <iterator>
 #include <tuple>

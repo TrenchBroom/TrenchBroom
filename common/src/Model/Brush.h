@@ -36,9 +36,9 @@
 #include <Renderer/BrushRendererBrushCache.h>
 
 #include <vecmath/forward.h>
-#include <vecmath/vec_decl.h>
-#include <vecmath/segment_decl.h>
-#include <vecmath/polygon_decl.h>
+#include <vecmath/vec.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
 
 #include <set>
 #include <vector>

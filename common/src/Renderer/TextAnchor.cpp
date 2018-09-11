@@ -21,6 +21,9 @@
 
 #include "Renderer/Camera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         TextAnchor::~TextAnchor() {}

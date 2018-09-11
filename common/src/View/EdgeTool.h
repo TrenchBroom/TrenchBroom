@@ -21,7 +21,6 @@
 #define EdgeTool_h
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 

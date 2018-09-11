@@ -22,9 +22,13 @@
 
 #include "AttrString.h"
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Renderer/PrimitiveRenderer.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     

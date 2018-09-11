@@ -21,7 +21,6 @@
 #define TrenchBroom_Face
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Allocator.h"
 #include "ProjectingSequence.h"
 #include "SharedPointer.h"
@@ -31,6 +30,9 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
 
 #include <vector>
 
@@ -195,7 +197,6 @@ namespace TrenchBroom {
 
             vm::vec2f textureCoords(const vm::vec3& point) const;
 
-            bool containsPoint(const vm::vec3& point) const;
             FloatType intersectWithRay(const vm::ray3& ray) const;
             
             void printPoints() const;

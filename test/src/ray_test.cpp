@@ -19,8 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/ray_decl.h>
-#include <vecmath/ray_impl.h>
+#include <vecmath/ray.h>
 #include <vecmath/utils.h>
 #include "TestUtils.h"
 

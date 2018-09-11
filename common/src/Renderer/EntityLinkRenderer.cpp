@@ -33,6 +33,8 @@
 #include "Renderer/Shaders.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/vec.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

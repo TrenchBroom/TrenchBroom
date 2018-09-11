@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
-#include <vecmath/VecMath.h>
 #include "Exceptions.h"
 #include "ByteBuffer.h"
 #include "Macros.h"
 #include "StringUtils.h"
+
+#include <vecmath/forward.h>
 
 #include <cassert>
 #include <cstdio>

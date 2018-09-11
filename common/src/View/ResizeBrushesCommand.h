@@ -21,10 +21,12 @@
 #define TrenchBroom_ResizeBrushesCommand
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/SnapshotCommand.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace View {

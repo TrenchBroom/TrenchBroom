@@ -20,7 +20,7 @@
 #ifndef TRENCHBROOM_ABSTRACT_LINE_H
 #define TRENCHBROOM_ABSTRACT_LINE_H
 
-#include <vecmath/vec_decl.h>
+#include <vecmath/vec.h>
 
 #include <cstddef>
 

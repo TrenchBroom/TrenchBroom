@@ -19,6 +19,7 @@
 
 #include "CreateEntityTool.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinition.h"
@@ -37,6 +38,8 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/bbox.h>
 
 #include <cassert>
 

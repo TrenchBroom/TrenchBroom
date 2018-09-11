@@ -19,6 +19,11 @@
 
 #include "TextureFont.h"
 
+#include "CollectionUtils.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 #include "Renderer/FontTexture.h"
 
 namespace TrenchBroom {

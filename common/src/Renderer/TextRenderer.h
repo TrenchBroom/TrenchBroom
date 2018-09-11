@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_TextRenderer
 #define TrenchBroom_TextRenderer
 
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <map>
 #include <vector>

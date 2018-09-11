@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_MapFacade
 #define TrenchBroom_MapFacade
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
 #include "Assets/AssetTypes.h"
 #include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Model {

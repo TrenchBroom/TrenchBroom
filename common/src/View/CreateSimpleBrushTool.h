@@ -21,19 +21,10 @@
 #define TrenchBroom_CreateSimpleBrushTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
-#include "Polyhedron.h"
-#include "Model/ModelTypes.h"
 #include "View/CreateBrushToolBase.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
-    
     namespace View {
         class CreateSimpleBrushTool : public CreateBrushToolBase {
         public:

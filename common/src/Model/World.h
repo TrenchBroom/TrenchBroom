@@ -21,7 +21,6 @@
 #define TrenchBroom_World
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "AABBTree.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
@@ -37,14 +36,6 @@ namespace TrenchBroom {
         class PickResult;
         
         class World : public AttributableNode, public ModelFactory {
-        public:
-            class CreateNodeTree {
-            private:
-                World* m_world;
-            public:
-                CreateNodeTree(World* world);
-                ~CreateNodeTree();
-            };
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;

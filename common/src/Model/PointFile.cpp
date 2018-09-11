@@ -21,6 +21,8 @@
 
 #include "IO/Path.h"
 
+#include <vecmath/vec.h>
+
 #include <cassert>
 #include <fstream>
 

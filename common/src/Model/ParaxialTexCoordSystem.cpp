@@ -19,9 +19,12 @@
 
 #include "ParaxialTexCoordSystem.h"
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Model {

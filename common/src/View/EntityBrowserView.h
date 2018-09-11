@@ -20,11 +20,14 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include <vecmath/VecMath.h>
 #include "Assets/EntityDefinitionManager.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/quat.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     class Logger;

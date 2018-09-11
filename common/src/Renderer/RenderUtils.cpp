@@ -19,9 +19,13 @@
 
 #include "RenderUtils.h"
 
-#include <vecmath/VecMath.h>
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {

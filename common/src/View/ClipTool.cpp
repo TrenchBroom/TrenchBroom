@@ -19,6 +19,7 @@
 
 #include "ClipTool.h"
 
+#include "TrenchBroom.h"
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

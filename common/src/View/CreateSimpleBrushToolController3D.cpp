@@ -19,7 +19,8 @@
 
 #include "CreateSimpleBrushToolController3D.h"
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -34,6 +35,11 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
 
 #include <cassert>
 
@@ -60,22 +66,26 @@ namespace TrenchBroom {
         }
 
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController3D::doStartDrag(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+            }
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                 return DragInfo();
-            
+            }
+
             MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection())
+            if (document->hasSelection()) {
                 return DragInfo();
-            
+            }
+
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch())
+            if (hit.isMatch()) {
                 m_initialPoint = hit.hitPoint();
-            else
+            } else {
                 m_initialPoint = inputState.defaultPointUnderMouse();
-            
+            }
+
             updateBounds(m_initialPoint, vm::vec3(inputState.camera().position()));
             refreshViews();
                 

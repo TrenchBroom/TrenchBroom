@@ -21,13 +21,15 @@
 #define TrenchBroom_PrimitiveRenderer
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Color.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/utils.h>
 
 #include <vector>
 

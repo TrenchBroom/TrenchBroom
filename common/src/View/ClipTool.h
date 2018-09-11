@@ -21,7 +21,6 @@
 #define TrenchBroom_ClipTool
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"

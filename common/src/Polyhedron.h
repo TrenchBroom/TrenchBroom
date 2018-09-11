@@ -23,7 +23,9 @@
 #include "Allocator.h"
 #include "DoublyLinkedList.h"
 
-#include <vecmath/vec_decl.h>
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 #include <limits>
 #include <list>

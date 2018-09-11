@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_Bsp29Model
 #define TrenchBroom_Bsp29Model
 
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/AssetTypes.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <vector>
 

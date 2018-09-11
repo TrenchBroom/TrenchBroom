@@ -19,6 +19,8 @@
 
 #include "MapView.h"
 
+#include "TrenchBroom.h"
+
 #include <cassert>
 
 namespace TrenchBroom {

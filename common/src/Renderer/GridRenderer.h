@@ -21,7 +21,6 @@
 #define TrenchBroom_GridRenderer
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"

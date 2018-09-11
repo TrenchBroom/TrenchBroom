@@ -20,6 +20,8 @@
 #ifndef Polyhedron_Queries_h
 #define Polyhedron_Queries_h
 
+#include <vecmath/distance.h>
+
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T,FP,VP>::contains(const V& point, const Callback& callback) const {
     if (!polyhedron())

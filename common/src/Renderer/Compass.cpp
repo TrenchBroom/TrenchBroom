@@ -35,6 +35,10 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+
 #include <cassert>
 
 namespace TrenchBroom {

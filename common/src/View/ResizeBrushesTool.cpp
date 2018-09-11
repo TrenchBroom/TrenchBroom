@@ -19,6 +19,7 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
@@ -33,6 +34,13 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/distance.h>
+#include <vecmath/utils.h>
 
 #include <algorithm>
 #include <iterator>
@@ -103,7 +111,7 @@ namespace TrenchBroom {
                 const auto rightDot = dot(right->boundary().normal, m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const auto result = distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                    const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!vm::isNan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
@@ -232,7 +240,7 @@ namespace TrenchBroom {
             auto* dragFace = m_dragFaces.front();
             const auto& faceNormal = dragFace->boundary().normal;
 
-            const auto dist = distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
+            const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
             if (dist.parallel) {
                 return true;
             }

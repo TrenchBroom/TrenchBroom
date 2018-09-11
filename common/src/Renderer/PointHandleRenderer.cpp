@@ -29,6 +29,10 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+
 #include <algorithm>
 
 namespace TrenchBroom {

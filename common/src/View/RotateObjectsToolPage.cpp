@@ -19,12 +19,16 @@
 
 #include "RotateObjectsToolPage.h"
 
+#include "TrenchBroom.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/utils.h>
 
 #include <wx/button.h>
 #include <wx/choice.h>

@@ -19,7 +19,7 @@
 
 #include "UVViewHelper.h"
 
-#include <vecmath/VecMath.h>
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
@@ -32,6 +32,9 @@
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 #include "View/UVView.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -130,7 +133,7 @@ namespace TrenchBroom {
             if (texture != nullptr) {
                 
                 const auto& boundary = m_face->boundary();
-                const auto distance = intersect(ray, boundary);
+                const auto distance = vm::intersect(ray, boundary);
                 const auto hitPointInWorldCoords = ray.pointAtDistance(distance);
                 const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
                 

@@ -29,7 +29,7 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/utils.h>
-#include <vecmath/bbox_decl.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {

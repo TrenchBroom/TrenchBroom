@@ -20,6 +20,10 @@
 #ifndef TrenchBroom_AttributeSpec_h
 #define TrenchBroom_AttributeSpec_h
 
+#include "Renderer/GL.h"
+
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         typedef enum {
@@ -53,7 +57,7 @@ namespace TrenchBroom {
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableVertexAttribArray(static_cast<GLuint>(index)));
-                glAssert(glVertexAttribPointer(static_cast<GLuint>(index), S, D, true, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glVertexAttribPointer(static_cast<GLuint>(index), static_cast<GLint>(S), D, 0, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -70,7 +74,7 @@ namespace TrenchBroom {
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableClientState(GL_VERTEX_ARRAY));
-                glAssert(glVertexPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glVertexPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -105,7 +109,7 @@ namespace TrenchBroom {
             
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glEnableClientState(GL_COLOR_ARRAY));
-                glAssert(glColorPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glColorPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -123,7 +127,7 @@ namespace TrenchBroom {
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE0));
                 glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -142,7 +146,7 @@ namespace TrenchBroom {
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE1));
                 glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -162,7 +166,7 @@ namespace TrenchBroom {
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE2));
                 glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {
@@ -182,7 +186,7 @@ namespace TrenchBroom {
             static void setup(const size_t index, const size_t stride, const size_t offset) {
                 glAssert(glClientActiveTexture(GL_TEXTURE3));
                 glAssert(glEnableClientState(GL_TEXTURE_COORD_ARRAY));
-                glAssert(glTexCoordPointer(S, D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
+                glAssert(glTexCoordPointer(static_cast<GLint>(S), D, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)));
             }
             
             static void cleanup(const size_t index) {

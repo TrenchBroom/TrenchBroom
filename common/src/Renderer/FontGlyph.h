@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_FontGlyph
 #define TrenchBroom_FontGlyph
 
-#include <vecmath/VecMath.h>
 #include <vector>
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {

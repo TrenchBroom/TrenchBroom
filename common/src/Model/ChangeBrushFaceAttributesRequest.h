@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
-#include <vecmath/VecMath.h>
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -34,27 +35,31 @@ namespace TrenchBroom {
         
         class ChangeBrushFaceAttributesRequest {
         public:
+            // TODO: replace with class based enum
             typedef enum {
                 AxisOp_None,
                 AxisOp_Reset,
                 AxisOp_ToParaxial,
                 AxisOp_ToParallel
             } AxisOp;
-            
+
+            // TODO: replace with class based enum
             typedef enum {
                 ValueOp_None,
                 ValueOp_Set,
                 ValueOp_Add,
                 ValueOp_Mul
             } ValueOp;
-            
+
+            // TODO: replace with class based enum
             typedef enum {
                 FlagOp_None,
                 FlagOp_Replace,
                 FlagOp_Set,
                 FlagOp_Unset
             } FlagOp;
-            
+
+            // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
                 TextureOp_Set,

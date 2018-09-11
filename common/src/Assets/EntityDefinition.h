@@ -28,7 +28,7 @@
 #include "Assets/ModelDefinition.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/bbox_decl.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Assets {

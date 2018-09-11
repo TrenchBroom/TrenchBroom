@@ -33,11 +33,9 @@
 #include "Model/PickResult.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec_decl.h>
-#include <vecmath/vec_impl.h>
-#include <vecmath/bbox_decl.h>
-#include <vecmath/bbox_impl.h>
-#include <vecmath/mat_decl.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/mat.h>
 #include <vecmath/intersection.h>
 
 namespace TrenchBroom {

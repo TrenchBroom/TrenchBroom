@@ -21,8 +21,10 @@
 #define TrenchBroom_ParallelTexCoordSystem
 
 #include "TrenchBroom.h"
-#include <vecmath/VecMath.h>
 #include "Model/TexCoordSystem.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {

@@ -30,8 +30,8 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/vec_decl.h>
-#include <vecmath/bbox_decl.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace IO {
