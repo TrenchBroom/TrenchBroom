@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapView3D
 #define TrenchBroom_MapView3D
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 #include "Model/ModelTypes.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"

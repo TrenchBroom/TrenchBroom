@@ -25,7 +25,8 @@
 #include "bbox.h"
 #include "line.h"
 #include "plane.h"
-#include "utils.h"
+#include "scalar.h"
+#include "util.h"
 
 #include <array>
 

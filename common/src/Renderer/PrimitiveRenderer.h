@@ -29,7 +29,7 @@
 #include "Renderer/VertexSpec.h"
 
 #include <vecmath/vec.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <vector>
 

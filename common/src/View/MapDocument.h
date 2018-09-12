@@ -37,6 +37,7 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 #include <memory>
 

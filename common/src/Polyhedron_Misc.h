@@ -22,6 +22,13 @@
 
 #include "CollectionUtils.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
+
 #include <map>
 
 template <typename T, typename FP, typename VP>

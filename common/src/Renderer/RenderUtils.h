@@ -25,7 +25,7 @@
 #include "Renderer/VertexSpec.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 #include <utility>
 #include <vector>

@@ -22,7 +22,7 @@
 
 #include "NodeTree.h"
 #include "Exceptions.h"
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 #include <vecmath/bbox.h>
 #include <vecmath/ray.h>
 #include <vecmath/intersection.h>

@@ -29,7 +29,7 @@
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Renderer {

@@ -629,41 +629,6 @@ namespace vm {
         return std::nextafter(value, std::numeric_limits<T>::infinity());
 #endif
     }
-
-    // TODO 2201: move these out and check all places where utils is included only for these types!
-    enum class side {
-        front,
-        back,
-        both
-    };
-
-    enum class direction {
-        forward,
-        backward,
-        left,
-        right,
-        up,
-        down
-    };
-
-    enum class rotation_axis {
-        roll,
-        pitch,
-        yaw
-    };
-
-    enum class point_status {
-        above,
-        below,
-        inside
-    };
-
-    namespace axis {
-        typedef size_t type;
-        static const type x = 0;
-        static const type y = 1;
-        static const type z = 2;
-    }
 }
 
 #endif

@@ -23,6 +23,7 @@
 #include "vec.h"
 #include "quat.h"
 #include "constants.h"
+#include "util.h"
 
 #include <cassert>
 #include <tuple>

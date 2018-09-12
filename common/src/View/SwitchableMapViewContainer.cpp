@@ -36,7 +36,7 @@
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <wx/sizer.h>
 

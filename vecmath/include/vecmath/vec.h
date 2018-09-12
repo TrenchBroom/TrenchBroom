@@ -21,7 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #define TRENCHBROOM_VEC_H
 
 #include "constants.h"
-#include "utils.h"
+#include "scalar.h"
 
 #include <cassert>
 #include <cstddef>

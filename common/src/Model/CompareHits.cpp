@@ -26,6 +26,8 @@
 #include "Model/Group.h"
 #include "Model/HitAdapter.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Model {
         CompareHits::~CompareHits() {}

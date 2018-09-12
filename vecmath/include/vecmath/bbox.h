@@ -23,7 +23,7 @@
 #include "vec.h"
 #include "mat.h"
 #include "quat.h"
-#include "utils.h"
+#include "scalar.h"
 
 #include <array>
 #include <iostream>

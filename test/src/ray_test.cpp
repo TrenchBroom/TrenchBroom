@@ -20,7 +20,9 @@
 #include <gtest/gtest.h>
 
 #include <vecmath/ray.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
+
 #include "TestUtils.h"
 
 // TODO 2201: write more tests

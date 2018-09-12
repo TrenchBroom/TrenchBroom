@@ -17,10 +17,46 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gtest/gtest.h>
+#ifndef TRENCHBROOM_UTIL_H
+#define TRENCHBROOM_UTIL_H
 
-#include <vecmath/scalar.h>
+#include <cstddef>
 
-#include <cstdint>
+namespace vm {
+    enum class side {
+        front,
+        back,
+        both
+    };
 
-// TODO 2201: write tests, haha
+    enum class direction {
+        forward,
+        backward,
+        left,
+        right,
+        up,
+        down
+    };
+
+    enum class rotation_axis {
+        roll,
+        pitch,
+        yaw
+
+    };
+
+    enum class point_status {
+        above,
+        below,
+        inside
+    };
+
+    namespace axis {
+        typedef size_t type;
+        static const type x = 0;
+        static const type y = 1;
+        static const type z = 2;
+    }
+}
+
+#endif //TRENCHBROOM_UTIL_H

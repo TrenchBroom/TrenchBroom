@@ -26,7 +26,7 @@
 #include "Model/ModelTypes.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {

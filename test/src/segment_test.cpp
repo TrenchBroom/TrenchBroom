@@ -22,7 +22,7 @@
 #include <vecmath/constants.h>
 #include <vecmath/vec.h>
 #include <vecmath/segment.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 #include "TestUtils.h"
 
 // TODO 2201: write more tests

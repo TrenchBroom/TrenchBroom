@@ -39,6 +39,7 @@
 #include <vecmath/mat.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
+#include <vecmath/util.h>
 
 #include <algorithm>
 #include <iterator>

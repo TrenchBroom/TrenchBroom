@@ -26,6 +26,7 @@
 #include "View/SnapshotCommand.h"
 
 #include <vecmath/mat.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace View {

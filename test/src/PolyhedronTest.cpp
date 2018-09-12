@@ -26,7 +26,7 @@
 #include "TestUtils.h"
 
 #include <vecmath/plane.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <iterator>
 #include <tuple>

@@ -22,6 +22,10 @@
 
 #include "Exceptions.h"
 
+#include <vecmath/plane.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
+
 template <typename T, typename FP, typename VP>
 Polyhedron<T,FP,VP>::ClipResult::ClipResult(const Type i_type) :
 type(i_type) {}

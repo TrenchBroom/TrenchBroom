@@ -21,7 +21,9 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
+
 #include "TestUtils.h"
 
 #include <array>

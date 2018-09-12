@@ -31,7 +31,7 @@
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
 #include <vecmath/intersection.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace View {

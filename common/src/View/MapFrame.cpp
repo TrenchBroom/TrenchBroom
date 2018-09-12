@@ -62,6 +62,8 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <vecmath/util.h>
+
 #include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/filedlg.h>

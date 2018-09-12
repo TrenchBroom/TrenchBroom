@@ -20,7 +20,7 @@
 #include "MapDocumentTest.h"
 
 #include "TestUtils.h"
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 #include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/Brush.h"

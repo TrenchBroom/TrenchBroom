@@ -35,7 +35,7 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/quat.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace View {

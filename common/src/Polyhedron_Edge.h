@@ -24,7 +24,7 @@
 #include <vecmath/plane.h>
 #include <vecmath/segment.h>
 #include <vecmath/distance.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Edge, typename Polyhedron<T,FP,VP>::GetEdgeLink>::Link& Polyhedron<T,FP,VP>::GetEdgeLink::operator()(Edge* edge) const {

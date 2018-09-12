@@ -29,7 +29,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
 #include <vecmath/intersection.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <array>
 

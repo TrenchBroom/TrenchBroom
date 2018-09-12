@@ -63,6 +63,7 @@
 #include "View/wxUtils.h"
 
 #include <vecmath/polygon.h>
+#include <vecmath/util.h>
 
 #include <wx/frame.h>
 #include <wx/menu.h>

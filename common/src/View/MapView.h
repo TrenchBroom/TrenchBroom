@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "View/ViewEffectsService.h"
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace View {

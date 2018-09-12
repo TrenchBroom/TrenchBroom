@@ -28,8 +28,8 @@
 #include "Model/Object.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/utils.h>
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {

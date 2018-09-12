@@ -37,6 +37,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/mat.h>
 #include <vecmath/intersection.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {

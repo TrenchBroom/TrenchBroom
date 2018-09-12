@@ -24,7 +24,8 @@
 #include "vec.h"
 #include "mat.h"
 
-#include "utils.h"
+#include "scalar.h"
+#include "util.h"
 
 namespace vm {
     /**

@@ -28,7 +28,7 @@
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <wx/sizer.h>
 

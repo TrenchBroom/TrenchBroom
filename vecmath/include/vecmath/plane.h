@@ -22,7 +22,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "vec.h"
 #include "mat.h"
-#include "utils.h"
+#include "scalar.h"
+#include "util.h"
 
 #include <tuple>
 #include <type_traits>

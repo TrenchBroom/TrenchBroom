@@ -29,7 +29,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace Renderer {

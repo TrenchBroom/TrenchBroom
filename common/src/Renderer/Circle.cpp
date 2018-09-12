@@ -26,7 +26,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/constants.h>
 #include <vecmath/vec.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 #include <cassert>
 

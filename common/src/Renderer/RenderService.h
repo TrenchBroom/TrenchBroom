@@ -28,7 +28,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 #include <vector>
 

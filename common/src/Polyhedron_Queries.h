@@ -20,6 +20,11 @@
 #ifndef Polyhedron_Queries_h
 #define Polyhedron_Queries_h
 
+#include <vecmath/segment.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+#include <vecmath/constants.h>
+#include <vecmath/util.h>
 #include <vecmath/distance.h>
 
 template <typename T, typename FP, typename VP>

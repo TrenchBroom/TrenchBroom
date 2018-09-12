@@ -21,7 +21,7 @@
 #define TRENCHBROOM_QUAT_DECL_H
 
 #include "vec.h"
-#include "utils.h"
+#include "scalar.h"
 
 #include <cassert>
 

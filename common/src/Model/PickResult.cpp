@@ -21,6 +21,8 @@
 
 #include "Model/CompareHits.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Model {
         class PickResult::CompareWrapper {

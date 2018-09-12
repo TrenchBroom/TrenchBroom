@@ -25,7 +25,7 @@
 #include "View/MapView.h"
 #include "View/ViewTypes.h"
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <wx/panel.h>
 

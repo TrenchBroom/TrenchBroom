@@ -24,7 +24,7 @@
 #include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 #include <wx/panel.h>
 

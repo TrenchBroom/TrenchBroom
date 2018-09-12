@@ -27,6 +27,7 @@
 #include <vecmath/ray.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
+#include <vecmath/util.h>
 #include <vecmath/intersection.h>
 
 // TODO 2201: write more tests

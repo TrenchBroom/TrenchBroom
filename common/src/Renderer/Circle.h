@@ -23,7 +23,7 @@
 #include "Renderer/VertexArray.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/utils.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Renderer {

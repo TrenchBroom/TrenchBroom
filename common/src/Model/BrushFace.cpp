@@ -34,7 +34,8 @@
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>
 #include <vecmath/polygon.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
 #include <vecmath/intersection.h>
 
 namespace TrenchBroom {

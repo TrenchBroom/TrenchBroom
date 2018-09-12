@@ -40,7 +40,7 @@
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/distance.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <algorithm>
 #include <iterator>

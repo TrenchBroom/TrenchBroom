@@ -64,6 +64,8 @@
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace View {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :

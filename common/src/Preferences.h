@@ -28,6 +28,8 @@
 #include "View/MapViewLayout.h"
 #include "View/ViewShortcut.h"
 
+#include <vecmath/util.h>
+
 #include <vector>
 
 namespace TrenchBroom {

@@ -21,6 +21,7 @@
 #define TRENCHBROOM_CONVEX_HULL_H
 
 #include "vec.h"
+#include "util.h"
 
 #include <algorithm>
 #include <iterator>

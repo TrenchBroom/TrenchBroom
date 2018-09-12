@@ -22,6 +22,13 @@
 
 #include <vecmath/intersection.h>
 
+#include <vecmath/vec.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+#include <vecmath/constants.h>
+#include <vecmath/scalar.h>
+#include <vecmath/util.h>
+
 template <typename T, typename FP, typename VP>
 typename DoublyLinkedList<typename Polyhedron<T,FP,VP>::Face, typename Polyhedron<T,FP,VP>::GetFaceLink>::Link& Polyhedron<T,FP,VP>::GetFaceLink::operator()(Face* face) const {
     return face->m_link;
@@ -267,7 +274,7 @@ T Polyhedron<T,FP,VP>::Face::intersectWithRay(const vm::ray<T,3>& ray, const vm:
 template <typename T, typename FP, typename VP>
 vm::point_status Polyhedron<T,FP,VP>::Face::pointStatus(const V& point, const T epsilon) const {
     const auto norm = normal();
-    const auto distance = dot(point - origin(), norm);
+    const auto distance = vm::dot(point - origin(), norm);
     if (distance > epsilon) {
         return vm::point_status::above;
     } else if (distance < -epsilon) {

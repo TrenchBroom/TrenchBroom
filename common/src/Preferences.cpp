@@ -23,6 +23,8 @@
 #include "View/ActionContext.h"
 #include "View/CommandIds.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), View::MapViewLayout_1Pane);

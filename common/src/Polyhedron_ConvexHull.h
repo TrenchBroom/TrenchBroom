@@ -21,6 +21,10 @@
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
 #include <vecmath/segment.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
+#include <vecmath/constants.h>
+#include <vecmath/util.h>
 
 #include <list>
 

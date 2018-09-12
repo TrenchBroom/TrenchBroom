@@ -110,6 +110,8 @@
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
+#include <vecmath/util.h>
+
 #include <cassert>
 #include <numeric>
 

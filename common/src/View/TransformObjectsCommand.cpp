@@ -24,6 +24,7 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include <vecmath/mat.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace View {

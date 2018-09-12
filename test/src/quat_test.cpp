@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 #include <vecmath/quat.h>
 #include <vecmath/vec.h>
 #include "TestUtils.h"

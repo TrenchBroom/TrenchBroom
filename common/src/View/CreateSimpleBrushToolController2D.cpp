@@ -27,7 +27,7 @@
 #include "View/MapDocument.h"
 
 #include <vecmath/intersection.h>
-#include <vecmath/utils.h>
+#include <vecmath/scalar.h>
 
 #include <cassert>
 

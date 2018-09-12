@@ -33,6 +33,7 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
+#include <vecmath/util.h>
 
 #include <vector>
 
