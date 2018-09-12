@@ -31,7 +31,7 @@ namespace TrenchBroom {
         RemoveBrushEdgesCommand::Ptr RemoveBrushEdgesCommand::remove(const Model::EdgeToBrushesMap& edges) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
-            vm::segment3::List edgePositions;
+            std::vector<vm::segment3> edgePositions;
             
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             Model::BrushVerticesMap brushVertices = brushVertexMap(brushEdges);
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushEdgesCommand(brushes, brushVertices, edgePositions));
         }
 
-        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vm::segment3::List& edgePositions) :
+        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
 

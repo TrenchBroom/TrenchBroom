@@ -35,7 +35,7 @@ namespace TrenchBroom {
             load(path);
         }
         
-        const vm::polygon3f::List& PortalFile::portals() const {
+        const std::vector<vm::polygon3f>& PortalFile::portals() const {
             return m_portals;
         }
         

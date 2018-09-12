@@ -20,17 +20,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TRENCHBROOM_PLANE_DECL_H
 #define TRENCHBROOM_PLANE_DECL_H
 
-#include "forward.h"
 #include "vec.h"
-#include "vec.h"
-#include "line.h"
-#include "ray.h"
+#include "mat.h"
 #include "utils.h"
 
-#include <set>
 #include <tuple>
 #include <type_traits>
-#include <vector>
 
 namespace vm {
     /**
@@ -42,8 +37,6 @@ namespace vm {
     template <typename T, size_t S>
     class plane {
     public:
-        using List = std::vector<plane>;
-
         T distance;
         vec<T,S> normal;
 

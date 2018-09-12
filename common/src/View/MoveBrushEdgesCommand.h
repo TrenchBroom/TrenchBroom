@@ -36,14 +36,14 @@ namespace TrenchBroom {
             typedef std::shared_ptr<MoveBrushEdgesCommand> Ptr;
         private:
             Model::BrushEdgesMap m_edges;
-            vm::segment3::List m_oldEdgePositions;
-            vm::segment3::List m_newEdgePositions;
+            std::vector<vm::segment3> m_oldEdgePositions;
+            std::vector<vm::segment3> m_newEdgePositions;
             vm::vec3 m_delta;
         public:
             static Ptr move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta);
         private:
         private:
-            MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const vm::segment3::List& edgePositions, const vm::vec3& delta);
+            MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;

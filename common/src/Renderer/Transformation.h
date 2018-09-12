@@ -23,13 +23,16 @@
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 
+#include <list>
+
 namespace TrenchBroom {
     namespace Renderer {
         class Transformation {
         private:
-            vm::mat4x4f::List m_projectionStack;
-            vm::mat4x4f::List m_viewStack;
-            vm::mat4x4f::List m_modelStack;
+            using MatrixStack = std::list<vm::mat4x4f>;
+            MatrixStack m_projectionStack;
+            MatrixStack m_viewStack;
+            MatrixStack m_modelStack;
         public:
             Transformation(const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model = vm::mat4x4f::identity);
             ~Transformation();

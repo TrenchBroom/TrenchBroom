@@ -30,6 +30,8 @@
 #include <vecmath/polygon.h>
 #include <vecmath/utils.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     
     namespace Renderer {
@@ -82,11 +84,11 @@ namespace TrenchBroom {
             void renderHandle(const vm::vec3f& position);
             void renderHandleHighlight(const vm::vec3f& position);
             
-            void renderHandles(const vm::segment3f::List& positions);
+            void renderHandles(const std::vector<vm::segment3f>& positions);
             void renderHandle(const vm::segment3f& position);
             void renderHandleHighlight(const vm::segment3f& position);
             
-            void renderHandles(const vm::polygon3f::List& positions);
+            void renderHandles(const std::vector<vm::polygon3f>& positions);
             void renderHandle(const vm::polygon3f& position);
             void renderHandleHighlight(const vm::polygon3f& position);
 

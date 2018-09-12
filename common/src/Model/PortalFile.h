@@ -25,6 +25,8 @@
 #include <vecmath/forward.h>
 #include <vecmath/polygon.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -33,7 +35,7 @@ namespace TrenchBroom {
     namespace Model {
         class PortalFile {
         private:
-            vm::polygon3f::List m_portals;
+            std::vector<vm::polygon3f> m_portals;
         public:
             PortalFile();
             /**
@@ -41,7 +43,7 @@ namespace TrenchBroom {
              */
             explicit PortalFile(const IO::Path& portalFilePath);
             
-            const vm::polygon3f::List& portals() const;
+            const std::vector<vm::polygon3f>& portals() const;
         private:
             void load(const IO::Path& portalFilePath);
         };

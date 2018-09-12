@@ -21,10 +21,8 @@
 #define TRENCHBROOM_SEGMENT_DECL_H
 
 #include "abstract_line.h"
-#include "forward.h"
 #include "vec.h"
-
-#include <vector>
+#include "mat.h"
 
 namespace vm {
     /**
@@ -42,7 +40,6 @@ namespace vm {
         using Type = T;
         static const size_t Size = S;
         using float_type = segment<float, S>;
-        using List = std::vector<segment<T,S>>;
     private:
         vec<T,S> m_start;
         vec<T,S> m_end;

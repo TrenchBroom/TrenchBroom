@@ -82,7 +82,7 @@ namespace TrenchBroom {
         private:
             bool splitBrushes(const vm::vec3& delta);
             Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
-            vm::polygon3::List dragFaceDescriptors() const;
+            std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();

@@ -44,8 +44,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        std::vector<vm::vec3> asVertexList(const vm::segment3::List& edges);
-        std::vector<vm::vec3> asVertexList(const vm::polygon3::List& faces);
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
 
         TEST(BrushTest, constructBrushWithRedundantFaces) {
             const vm::bbox3 worldBounds(4096.0);
@@ -938,7 +938,7 @@ namespace TrenchBroom {
             assertTexture("bottom", brush, p1, p3, p7, p5);
 
             const vm::segment3 edge(p1, p2);
-            vm::segment3::List newEdgePositions = brush->moveEdges(worldBounds, vm::segment3::List(1, edge), p1_2 - p1);
+            std::vector<vm::segment3> newEdgePositions = brush->moveEdges(worldBounds, std::vector<vm::segment3>(1, edge), p1_2 - p1);
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(vm::segment3(p1_2, p2_2), newEdgePositions[0]);
 
@@ -982,9 +982,9 @@ namespace TrenchBroom {
 
             const vm::polygon3 face(vertexPositions);
 
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, face), vm::vec3(-16.0, -16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0)));
 
-            vm::polygon3::List newFacePositions = brush->moveFaces(worldBounds, vm::polygon3::List(1, face), vm::vec3(-16.0, -16.0, 0.0));
+            std::vector<vm::polygon3> newFacePositions = brush->moveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0));
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, +16.0, +32.0)));
@@ -1015,14 +1015,14 @@ namespace TrenchBroom {
 
             const vm::polygon3 face(vertexPositions);
 
-            ASSERT_FALSE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, face), vm::vec3(0.0, 128.0, 0.0)));
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(0.0, 128.0, 0.0)));
             delete brush;
         }
 
-        static void assertCanMoveEdges(const Brush* brush, const vm::segment3::List edges, const vm::vec3 delta) {
+        static void assertCanMoveEdges(const Brush* brush, const std::vector<vm::segment3> edges, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
 
-            vm::segment3::List expectedMovedEdges;
+            std::vector<vm::segment3> expectedMovedEdges;
             for (const vm::segment3& edge : edges) {
                 expectedMovedEdges.push_back(vm::segment3(edge.start() + delta, edge.end() + delta));
             }
@@ -1030,22 +1030,22 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->canMoveEdges(worldBounds, edges, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
-            const vm::segment3::List movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
+            const std::vector<vm::segment3> movedEdges = brushClone->moveEdges(worldBounds, edges, delta);
 
             ASSERT_EQ(expectedMovedEdges, movedEdges);
 
             delete brushClone;
         }
 
-        static void assertCanNotMoveEdges(const Brush* brush, const vm::segment3::List edges, const vm::vec3 delta) {
+        static void assertCanNotMoveEdges(const Brush* brush, const std::vector<vm::segment3> edges, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveEdges(worldBounds, edges, delta));
         }
 
-        static void assertCanMoveFaces(const Brush* brush, const vm::polygon3::List movingFaces, const vm::vec3 delta) {
+        static void assertCanMoveFaces(const Brush* brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
 
-            vm::polygon3::List expectedMovedFaces;
+            std::vector<vm::polygon3> expectedMovedFaces;
             for (const vm::polygon3& polygon : movingFaces) {
                 expectedMovedFaces.push_back(vm::polygon3(polygon.vertices() + delta));
             }
@@ -1053,20 +1053,20 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->canMoveFaces(worldBounds, movingFaces, delta));
 
             Brush* brushClone = brush->clone(worldBounds);
-            const vm::polygon3::List movedFaces = brushClone->moveFaces(worldBounds, movingFaces, delta);
+            const std::vector<vm::polygon3> movedFaces = brushClone->moveFaces(worldBounds, movingFaces, delta);
 
             ASSERT_EQ(expectedMovedFaces, movedFaces);
 
             delete brushClone;
         }
 
-        static void assertCanNotMoveFaces(const Brush* brush, const vm::polygon3::List movingFaces, const vm::vec3 delta) {
+        static void assertCanNotMoveFaces(const Brush* brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, movingFaces, delta));
         }
 
         static void assertCanMoveFace(const Brush* brush, const BrushFace* topFace, const vm::vec3 delta) {
-            assertCanMoveFaces(brush, vm::polygon3::List{topFace->polygon()}, delta);
+            assertCanMoveFaces(brush, std::vector<vm::polygon3>{topFace->polygon()}, delta);
         }
 
         static void assertCanNotMoveFace(const Brush* brush, const BrushFace* topFace, const vm::vec3 delta) {
@@ -1074,7 +1074,7 @@ namespace TrenchBroom {
 
             ASSERT_NE(nullptr, topFace);
 
-            ASSERT_FALSE(brush->canMoveFaces(worldBounds, vm::polygon3::List{topFace->polygon()}, delta));
+            ASSERT_FALSE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>{topFace->polygon()}, delta));
         }
 
         static void assertCanMoveTopFace(const Brush* brush, const vm::vec3 delta) {
@@ -1241,13 +1241,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, vm::segment3::List{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(vm::segment3::List{edge}), vm::vec3(+128, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+128, 0, 0));
 
             delete brush;
         }
@@ -1260,7 +1260,7 @@ namespace TrenchBroom {
             // Taller than the cube, starts to the left of the +-64 unit cube
             const vm::segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
             const vm::segment3 edge2(vm::vec3(-128, +32, -128), vm::vec3(-128, +32, +128));
-            const vm::segment3::List movingEdges{edge1, edge2};
+            const std::vector<vm::segment3> movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(128, Model::BrushFace::NoTextureName);
@@ -1502,8 +1502,8 @@ namespace TrenchBroom {
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomPolygon)));
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomRightPolygon)));
 
-            assertCanMoveFaces(brush, vm::polygon3::List{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
-            assertCanNotMoveFaces(brush, vm::polygon3::List{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
+            assertCanMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
+            assertCanNotMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
 
             delete brush;
         }
@@ -1538,7 +1538,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, cubeFront);
             ASSERT_NE(nullptr, cubeBack);
 
-            const vm::polygon3::List movingFaces{
+            const std::vector<vm::polygon3> movingFaces{
                     cubeTop->polygon(),
                     cubeRight->polygon(),
                     cubeFront->polygon(),
@@ -1608,12 +1608,12 @@ namespace TrenchBroom {
 
             const vm::polygon3 topFace(topFacePos);
 
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
-            ASSERT_TRUE(brush->canMoveFaces(worldBounds, vm::polygon3::List(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
+            ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
         }
 
         TEST(BrushTest, moveVertexFail) {
@@ -3565,13 +3565,13 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(brush->moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
         }
 
-        std::vector<vm::vec3> asVertexList(const vm::segment3::List& edges) {
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
             std::vector<vm::vec3> result;
             vm::segment3::getVertices(std::begin(edges), std::end(edges), std::back_inserter(result));
             return result;
         }
 
-        std::vector<vm::vec3> asVertexList(const vm::polygon3::List& faces) {
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces) {
             std::vector<vm::vec3> result;
             vm::polygon3::getVertices(std::begin(faces), std::end(faces), std::back_inserter(result));
             return result;

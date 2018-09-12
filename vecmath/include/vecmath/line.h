@@ -24,8 +24,6 @@
 #include "vec.h"
 #include "mat.h"
 
-#include <vector>
-
 namespace vm {
     /**
      * An infinite line represented by a point and a direction.
@@ -36,9 +34,6 @@ namespace vm {
     template <typename T, size_t S>
     class line : public abstract_line<T,S> {
     public:
-        typedef std::vector<line<T,S> > List;
-        static const List EmptyList;
-
         vec<T,S> point;
         vec<T,S> direction;
 
@@ -123,9 +118,6 @@ namespace vm {
             return line<T,S>(newPoint, newDirection);
         }
     };
-
-    template <typename T, size_t S>
-    const typename line<T,S>::List line<T,S>::EmptyList = line<T,S>::List();
 
     /**
      * Checks whether the given lines have equal components.

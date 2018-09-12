@@ -26,7 +26,6 @@
 
 #include <cassert>
 #include <tuple>
-#include <vector>
 
 namespace vm {
     template <typename T, size_t R, size_t C>
@@ -55,8 +54,6 @@ namespace vm {
         static const mat<T,R,C> zero_z;
         static const mat<T,R,C> yiq_to_rgb;
         static const mat<T,R,C> rgb_to_yiq;
-
-        using List = std::vector<mat<T,R,C>>;
 
         /**
          * The matrix components in column major format.
@@ -590,78 +587,6 @@ namespace vm {
     template <typename T, size_t R, size_t C>
     vec<T,R-1> operator*(const vec<T,R-1>& lhs, const mat<T,R,C>& rhs) {
         return toCartesianCoords(toHomogeneousCoords(lhs) * rhs);
-    }
-
-    /**
-     * Multiplies the given list of vectors with the given matrix.
-     *
-     * @tparam T the component type
-     * @tparam R the number of rows
-     * @tparam C the number of columns
-     * @param lhs the list of vectors
-     * @param rhs the matrix
-     * @return a list of the the products of the given vectors and the given matrix
-     */
-    template <typename T, size_t R, size_t C>
-    std::vector<vec<T,R>> operator*(const std::vector<vec<T,R>>& lhs, const mat<T,R,C>& rhs) {
-        std::vector<vec<T,R>> result;
-        result.reserve(lhs.size());
-        std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R>& elem) { return elem * rhs; });
-        return result;
-    }
-
-    /**
-     * Multiplies the given list of vectors with the given matrix.
-     *
-     * @tparam T the component type
-     * @tparam R the number of rows
-     * @tparam C the number of columns
-     * @param lhs the list of vectors
-     * @param rhs the matrix
-     * @return a list of the the products of the given vectors and the given matrix
-     */
-    template <typename T, size_t R, size_t C>
-    std::vector<vec<T,R-1>> operator*(const std::vector<vec<T,R-1>>& lhs, const mat<T,R,C>& rhs) {
-        std::vector<vec<T,R-1>> result;
-        result.reserve(lhs.size());
-        std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R-1>& elem) { return elem * rhs; });
-        return result;
-    }
-
-    /**
-     * Multiplies the given list of vectors with the given matrix.
-     *
-     * @tparam T the component type
-     * @tparam R the number of rows
-     * @tparam C the number of columns
-     * @param lhs the list of vectors
-     * @param rhs the matrix
-     * @return a list of the the products of the given vectors and the given matrix
-     */
-    template <typename T, size_t R, size_t C>
-    std::vector<vec<T,C>> operator*(const mat<T,R,C>& lhs, const std::vector<vec<T,C>>& rhs) {
-        std::vector<vec<T,C>> result;
-        result.reserve(rhs.size());
-        std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C>& elem) { return lhs * elem; });
-        return result;
-    }
-
-    /**
-     * Multiplies the given list of vectors with the given matrix.
-     *
-     * @tparam T the component type
-     * @tparam R the number of rows
-     * @tparam C the number of columns
-     * @param lhs the list of vectors
-     * @param rhs the matrix
-     * @return a list of the the products of the given vectors and the given matrix
-     */
-    template <typename T, size_t R, size_t C>
-    std::vector<vec<T,C-1>> operator*(const mat<T,R,C>& lhs, const std::vector<vec<T,C-1>>& rhs) {
-        std::vector<vec<T,C-1>> result;
-        result.reserve(rhs.size());
-        std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C-1>& elem) { return lhs * elem; });
-        return result;
     }
 
     /**

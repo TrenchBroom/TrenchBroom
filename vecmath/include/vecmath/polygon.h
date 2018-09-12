@@ -20,8 +20,9 @@
 #ifndef TRENCHBROOM_POLYGON_DECL_H
 #define TRENCHBROOM_POLYGON_DECL_H
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 #include <algorithm>
 #include <cstddef>
@@ -34,7 +35,6 @@ namespace vm {
     public:
         using Type = T;
         static const size_t Size = S;
-        using List = std::vector<polygon<T,S>>;
         using float_type = polygon<float, S>;
     private:
         std::vector<vec<T,S>> m_vertices;

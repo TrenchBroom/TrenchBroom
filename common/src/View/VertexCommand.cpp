@@ -44,15 +44,15 @@ namespace TrenchBroom {
             extract(vertices, brushes, brushVertices, vertexPositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, vm::segment3::List& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
             extract(edges, brushes, brushEdges, edgePositions);
         }
 
-        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, vm::polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, vm::segment3::List& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
             
             for (const auto& entry : edges) {
                 const Model::BrushEdgeSet& mappedEdges = entry.second;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
                     const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
                     
-                    const auto result = brushEdges.insert(std::make_pair(brush, vm::segment3::List()));
+                    const auto result = brushEdges.insert(std::make_pair(brush, std::vector<vm::segment3>()));
                     if (result.second)
                         brushes.push_back(brush);
                     result.first->second.push_back(edgePosition);
@@ -72,13 +72,13 @@ namespace TrenchBroom {
             assert(brushes.size() == brushEdges.size());
         }
 
-        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, vm::polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
 
             for (const auto& entry : faces) {
                 const Model::BrushFaceSet& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
-                    const auto result = brushFaces.insert(std::make_pair(brush, vm::polygon3::List()));
+                    const auto result = brushFaces.insert(std::make_pair(brush, std::vector<vm::polygon3>()));
                     if (result.second) {
                         brushes.push_back(brush);
                     }
@@ -99,7 +99,7 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : edges) {
                 Model::Brush* brush = entry.first;
-                const vm::segment3::List& edgeList = entry.second;
+                const std::vector<vm::segment3>& edgeList = entry.second;
                 
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
@@ -114,7 +114,7 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
-                const vm::polygon3::List& faceList = entry.second;
+                const std::vector<vm::polygon3>& faceList = entry.second;
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));

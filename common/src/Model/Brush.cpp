@@ -376,7 +376,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        BrushFace* Brush::findFace(const vm::polygon3::List& candidates) const {
+        BrushFace* Brush::findFace(const std::vector<vm::polygon3>& candidates) const {
             for (const auto& candidate : candidates) {
                 auto* face = findFace(candidate);
                 if (face != nullptr) {
@@ -632,7 +632,7 @@ namespace TrenchBroom {
             return m_geometry->findEdgeByPositions(edge.start(), edge.end(), epsilon) != nullptr;
         }
 
-        bool Brush::hasEdges(const vm::segment3::List& edges, const FloatType epsilon) const {
+        bool Brush::hasEdges(const std::vector<vm::segment3>& edges, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& edge : edges) {
                 if (!m_geometry->hasEdge(edge.start(), edge.end(), epsilon)) {
@@ -647,7 +647,7 @@ namespace TrenchBroom {
             return m_geometry->hasFace(face.vertices(), epsilon);
         }
 
-        bool Brush::hasFaces(const vm::polygon3::List& faces, const FloatType epsilon) const {
+        bool Brush::hasFaces(const std::vector<vm::polygon3>& faces, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& face : faces) {
                 if (!m_geometry->hasFace(face.vertices(), epsilon)) {
@@ -822,7 +822,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) const {
+        bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 
@@ -844,7 +844,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        vm::segment3::List Brush::moveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) {
+        std::vector<vm::segment3> Brush::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
@@ -852,7 +852,7 @@ namespace TrenchBroom {
                                   std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
 
-            vm::segment3::List result;
+            std::vector<vm::segment3> result;
             result.reserve(edgePositions.size());
 
             for (const auto& edgePosition : edgePositions) {
@@ -865,7 +865,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canMoveFaces(const vm::bbox3& worldBounds, const vm::polygon3::List& facePositions, const vm::vec3& delta) const {
+        bool Brush::canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
 
@@ -886,14 +886,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        vm::polygon3::List Brush::moveFaces(const vm::bbox3& worldBounds, const vm::polygon3::List& facePositions, const vm::vec3& delta) {
+        std::vector<vm::polygon3> Brush::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
 
-            vm::polygon3::List result;
+            std::vector<vm::polygon3> result;
             result.reserve(facePositions.size());
 
             for (const auto& facePosition : facePositions) {

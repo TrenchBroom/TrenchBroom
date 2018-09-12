@@ -136,7 +136,7 @@ namespace TrenchBroom {
             m_pointHandleRenderer->addHighlight(m_foregroundColor, position);
         }
         
-        void RenderService::renderHandles(const vm::segment3f::List& positions) {
+        void RenderService::renderHandles(const std::vector<vm::segment3f>& positions) {
             for (const vm::segment3f& position : positions)
                 renderHandle(position);
         }
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             renderHandleHighlight(position.center());
         }
         
-        void RenderService::renderHandles(const vm::polygon3f::List& positions) {
+        void RenderService::renderHandles(const std::vector<vm::polygon3f>& positions) {
             for (const vm::polygon3f& position : positions)
                 renderHandle(position);
         }

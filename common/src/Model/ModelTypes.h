@@ -116,8 +116,8 @@ namespace TrenchBroom {
         using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
         using VertexToFacesMap = std::map<vm::vec3, BrushFaceSet>;
         using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
-        using BrushEdgesMap = std::map<Model::Brush*, vm::segment3::List>;
-        using BrushFacesMap = std::map<Model::Brush*, vm::polygon3::List>;
+        using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
+        using BrushFacesMap = std::map<Model::Brush*, std::vector<vm::polygon3>>;
 
         class BrushFaceSnapshot;
         using BrushFaceSnapshotList = std::vector<BrushFaceSnapshot*>;

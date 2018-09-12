@@ -31,13 +31,13 @@ namespace TrenchBroom {
         MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
-            vm::segment3::List edgePositions;
+            std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
 
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const vm::segment3::List& edgePositions, const vm::vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
                 Model::Brush* brush = entry.first;
-                const vm::segment3::List& edges = entry.second;
+                const std::vector<vm::segment3>& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;
             }

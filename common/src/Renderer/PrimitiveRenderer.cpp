@@ -19,10 +19,17 @@
 
 #include "PrimitiveRenderer.h"
 
+#include "TrenchBroom.h"
+#include "Color.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/utils.h>
 
 namespace TrenchBroom {
     namespace Renderer {

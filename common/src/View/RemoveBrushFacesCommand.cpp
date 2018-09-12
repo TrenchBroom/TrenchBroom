@@ -31,7 +31,7 @@ namespace TrenchBroom {
         RemoveBrushFacesCommand::Ptr RemoveBrushFacesCommand::remove(const Model::FaceToBrushesMap& faces) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
-            vm::polygon3::List facePositions;
+            std::vector<vm::polygon3> facePositions;
             
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             const Model::BrushVerticesMap brushVertices = brushVertexMap(brushFaces);
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             return Ptr(new RemoveBrushFacesCommand(brushes, brushVertices, facePositions));
         }
 
-        RemoveBrushFacesCommand::RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const vm::polygon3::List& facePositions) :
+        RemoveBrushFacesCommand::RemoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::polygon3>& facePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Faces", brushes, vertices),
         m_oldFacePositions(facePositions) {}
 

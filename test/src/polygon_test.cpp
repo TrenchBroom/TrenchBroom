@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include <vecmath/forward.h>
 #include <vecmath/polygon.h>
 
 namespace vm {

@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/quat.h>

@@ -31,11 +31,11 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const vm::polygon3::List& faces, const vm::vec3& delta) {
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             return Ptr(new ResizeBrushesCommand(faces, delta));
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(const vm::polygon3::List& faces, const vm::vec3& delta) :
+        ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
         SnapshotCommand(Type, "Resize Brushes"),
         m_faces(faces),
         m_delta(delta) {}
