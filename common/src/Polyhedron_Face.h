@@ -145,8 +145,8 @@ typename Polyhedron<T,FP,VP>::V Polyhedron<T,FP,VP>::Face::origin() const {
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::V::List Polyhedron<T,FP,VP>::Face::vertexPositions() const {
-    typename V::List result(0);
+typename Polyhedron<T,FP,VP>::PosList Polyhedron<T,FP,VP>::Face::vertexPositions() const {
+    std::vector<V> result(0);
     result.reserve(vertexCount());
     getVertexPositions(std::back_inserter(result));
     return result;
@@ -166,7 +166,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPosition(const V& position, const T eps
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& positions, const T epsilon) const {
+bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const std::vector<V>& positions, const T epsilon) const {
     if (positions.size() != vertexCount()) {
         return false;
     }
@@ -183,7 +183,7 @@ bool Polyhedron<T,FP,VP>::Face::hasVertexPositions(const typename V::List& posit
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron<T,FP,VP>::Face::distanceTo(const typename V::List& positions, const T maxDistance) const {
+T Polyhedron<T,FP,VP>::Face::distanceTo(const std::vector<V>& positions, const T maxDistance) const {
     if (positions.size() != vertexCount()) {
         return maxDistance;
     }

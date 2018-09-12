@@ -176,12 +176,12 @@ namespace TrenchBroom {
                         renderService.setLineWidth(2.0f);
                     }
 
-                    vm::vec3::List stages(3);
+                    std::vector<vm::vec3> stages(3);
                     stages[0] = vec * vm::vec3::pos_x;
                     stages[1] = vec * vm::vec3::pos_y;
                     stages[2] = vec * vm::vec3::pos_z;
 
-                    Color::List colors(3);
+                    std::vector<Color> colors(3);
                     colors[0] = pref(Preferences::XAxisColor);
                     colors[1] = pref(Preferences::YAxisColor);
                     colors[2] = pref(Preferences::ZAxisColor);

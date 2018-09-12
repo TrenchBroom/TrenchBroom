@@ -73,7 +73,7 @@ public:
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right)) {}
     
-    PolyhedronMatcher(const P& left, const P& right, const typename V::List& vertices, const V& delta) :
+    PolyhedronMatcher(const P& left, const P& right, const std::vector<V>& vertices, const V& delta) :
     m_left(left),
     m_right(right),
     m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta)) {}
@@ -249,7 +249,7 @@ private:
      * @param delta the move delta
      * @return the vertex relation
      */
-    static VertexRelation buildVertexRelation(const P& left, const P& right, typename V::List vertices, const V& delta) {
+    static VertexRelation buildVertexRelation(const P& left, const P& right, std::vector<V> vertices, const V& delta) {
         VMap vertexMap;
 
         VectorUtils::setCreate(vertices);

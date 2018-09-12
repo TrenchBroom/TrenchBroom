@@ -25,6 +25,8 @@
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
@@ -41,7 +43,7 @@ namespace TrenchBroom {
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
-            vm::array<vm::vec3> m_recentlyUsedCenters;
+            std::vector<vm::vec3> m_recentlyUsedCenters;
         public:
             explicit RotateObjectsTool(MapDocumentWPtr document);
 

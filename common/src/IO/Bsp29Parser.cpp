@@ -77,7 +77,7 @@ namespace TrenchBroom {
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();
-            const vm::vec3f::List vertices = parseVertices();
+            const std::vector<vm::vec3f> vertices = parseVertices();
             const EdgeInfoList edgeInfos = parseEdgeInfos();
             const FaceInfoList faceInfos = parseFaceInfos();
             const FaceEdgeIndexList faceEdges = parseFaceEdges();
@@ -144,13 +144,13 @@ namespace TrenchBroom {
             return textureInfos;
         }
         
-        vm::vec3f::List Bsp29Parser::parseVertices() {
+        std::vector<vm::vec3f> Bsp29Parser::parseVertices() {
             const char* cursor = m_begin + BspLayout::DirVerticesAddress;
             const size_t verticesAddr = readSize<int32_t>(cursor);
             const size_t verticesLength = readSize<int32_t>(cursor);
             const size_t vertexCount = verticesLength/(3*sizeof(float));
             
-            vm::vec3f::List vertices(vertexCount);
+            std::vector<vm::vec3f> vertices(vertexCount);
             cursor = m_begin + verticesAddr;
             for (size_t i = 0; i < vertexCount; ++i)
                 vertices[i] = readVec3f(cursor);
@@ -203,12 +203,12 @@ namespace TrenchBroom {
             return faceEdges;
         }
         
-        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const vm::vec3f::List& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
+        Assets::Bsp29Model* Bsp29Parser::parseModels(Assets::TextureCollection* textureCollection, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
             
             auto* model = new Assets::Bsp29Model(m_name, textureCollection);
             try {
                 VertexMarkList vertexMarks(vertices.size(), false);
-                vm::vec3f::List modelVertices;
+                std::vector<vm::vec3f> modelVertices;
                 
                 const char* cursor = m_begin + BspLayout::DirModelAddress;
                 const size_t modelsAddr = readSize<int32_t>(cursor);

@@ -98,7 +98,7 @@ namespace TrenchBroom {
         public: // vertices
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
-            vm::vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta);
+            std::vector<vm::vec3> performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta);
             vm::segment3::List performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta);
             vm::polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const vm::vec3& delta);
             void performAddVertices(const Model::VertexToBrushesMap& vertices);

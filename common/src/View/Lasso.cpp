@@ -72,7 +72,7 @@ namespace TrenchBroom {
             const auto [invertible, inverseTransform] = invert(m_transform);
             assert(invertible); unused(invertible);
 
-            vm::vec3f::List polygon(4);
+            std::vector<vm::vec3f> polygon(4);
             polygon[0] = vm::vec3f(inverseTransform * vm::vec3(box.min.x(), box.min.y(), 0.0));
             polygon[1] = vm::vec3f(inverseTransform * vm::vec3(box.min.x(), box.max.y(), 0.0));
             polygon[2] = vm::vec3f(inverseTransform * vm::vec3(box.max.x(), box.max.y(), 0.0));

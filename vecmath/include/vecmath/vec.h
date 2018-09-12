@@ -23,11 +23,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "constants.h"
 #include "utils.h"
 
-#include <array>
 #include <cassert>
 #include <cstddef>
 #include <ostream>
-#include <vector>
 
 namespace vm {
     template <typename T, size_t S>
@@ -48,15 +46,11 @@ namespace vm {
         static const vec<T,S> NaN;
         static const vec<T,S> min;
         static const vec<T,S> max;
-
-        // TODO 2201: make lowercase or move out
-        using List = std::vector<vec<T,S>>;
-        static const List EmptyList;
     protected:
         /**
          * The vector components.
          */
-        std::array<T, S> v;
+        T v[S];
     public:
         /**
          * Returns a vector with the component at the given index set to 1, and all others set to 0.
@@ -473,9 +467,6 @@ namespace vm {
     template <typename T, size_t S>
     const vec<T,S> vec<T,S>::max  = vec<T,S>::fill(std::numeric_limits<T>::max());
 
-    template <typename T, size_t S>
-    const typename vec<T,S>::List vec<T,S>::EmptyList = vec<T,S>::List();
-
     /* ========== comparison operators ========== */
 
     /**
@@ -683,13 +674,13 @@ namespace vm {
         // simple selection algorithm
         // we store the indices of the values in heap
         selection_heap_cmp<T,S> cmp(v, true);
-        std::vector<size_t> heap;
+        size_t heap[S];
         for (size_t i = 0; i < S; ++i) {
-            heap.push_back(i);
-            std::push_heap(std::begin(heap), std::end(heap), cmp);
+            heap[i] = i;
+            std::push_heap(&heap[0], &heap[i+1], cmp);
         }
 
-        std::sort_heap(std::begin(heap), std::end(heap), cmp);
+        std::sort_heap(&heap[0], &heap[S], cmp);
         return heap[S - k - 1];
     }
 
@@ -962,8 +953,8 @@ namespace vm {
      * @return a range containing the sum of each of the vectors in the given range with the right hand vector
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator+(const typename vec<T,S>::List& lhs, const vec<T,S>& rhs) {
-        typename vec<T,S>::List result;
+    std::vector<vec<T,S>> operator+(const std::vector<vec<T,S>>& lhs, const vec<T,S>& rhs) {
+        std::vector<vec<T,S>> result;
         result.reserve(lhs.size());
         for (const auto& vec : lhs) {
             result.push_back(vec + rhs);
@@ -981,7 +972,7 @@ namespace vm {
      * @return a range containing the sum of each of the vectors in the given range with the left hand vector
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator+(const vec<T,S>& lhs, const typename vec<T,S>::List& rhs) {
+    std::vector<vec<T,S>> operator+(const vec<T,S>& lhs, const std::vector<vec<T,S>>& rhs) {
         return rhs + lhs;
     }
 
@@ -995,8 +986,8 @@ namespace vm {
      * @return a range containing the scalar product of each vector in the given range with the given scalar
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator*(const typename vec<T,S>::List& lhs, const T rhs) {
-        typename vec<T,S>::List result;
+    std::vector<vec<T,S>> operator*(const std::vector<vec<T,S>>& lhs, const T rhs) {
+        std::vector<vec<T,S>> result;
         result.reserve(lhs.size());
         for (const auto& vec : lhs) {
             result.push_back(vec + rhs);
@@ -1014,7 +1005,7 @@ namespace vm {
      * @return a range containing the scalar product of each vector in the given range with the given scalar
      */
     template <typename T, size_t S>
-    typename vec<T,S>::List operator*(const T lhs, const typename vec<T,S>::List& rhs) {
+    std::vector<vec<T,S>> operator*(const T lhs, const std::vector<vec<T,S>>& rhs) {
         return rhs * lhs;
     }
 

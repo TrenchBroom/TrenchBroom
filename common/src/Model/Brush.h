@@ -158,11 +158,11 @@ namespace TrenchBroom {
             // geometry access
             size_t vertexCount() const;
             VertexList vertices() const;
-            const vm::vec3::List vertexPositions() const;
+            const std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasVertices(const vm::vec3::List positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+            bool hasVertices(const std::vector<vm::vec3> positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdges(const vm::segment3::List& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -179,14 +179,14 @@ namespace TrenchBroom {
             BrushFaceList incidentFaces(const BrushVertex* vertex) const;
 
             // vertex operations
-            bool canMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertices, const vm::vec3& delta) const;
-            vm::vec3::List moveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta);
+            bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
+            std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
 
             bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
             BrushVertex* addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
 
-            bool canRemoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions) const;
-            void removeVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions);
+            bool canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
+            void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
 
             bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
             void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
@@ -212,11 +212,11 @@ namespace TrenchBroom {
                 static CanMoveVerticesResult acceptVertexMove(const BrushGeometry& result);
             };
 
-            CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta);
+            CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
+            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry);
 
-            static VertexSet createVertexSet(const vm::vec3::List& vertices = vm::vec3::EmptyList);
+            static VertexSet createVertexSet(const std::vector<vm::vec3>& vertices = std::vector<vm::vec3>(0));
         public:
             // CSG operations
             BrushList subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const String& defaultTextureName, const Brush* subtrahend) const;

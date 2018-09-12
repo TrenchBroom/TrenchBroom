@@ -42,7 +42,7 @@ typedef std::pair<vm::vec3d, vm::vec3d> EdgeInfo;
 typedef std::vector<EdgeInfo> EdgeInfoList;
 
 bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, double epsilon = 0.0);
-bool hasVertices(const Polyhedron3d& p, const vm::vec3d::List& points, double epsilon = 0.0);
+bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, double epsilon = 0.0);
 bool hasEdge(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, double epsilon = 0.0);
 bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, double epsilon = 0.0);
 bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, double epsilon = 0.0);
@@ -62,7 +62,7 @@ TEST(PolyhedronTest, initWith4Points) {
     const Polyhedron3d p(p1, p2, p3, p4);
     ASSERT_TRUE(p.closed());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -396,7 +396,7 @@ TEST(PolyhedronTest, testSimpleConvexHull) {
     
     ASSERT_TRUE(p.closed());
 
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p5);
     points.push_back(p2);
     points.push_back(p3);
@@ -431,7 +431,7 @@ TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
     
     ASSERT_TRUE(p.closed());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p5);
     points.push_back(p2);
     points.push_back(p3);
@@ -462,7 +462,7 @@ TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
     const vm::vec3d p7( +8.0, +8.0, -8.0);
     const vm::vec3d p8( +8.0, +8.0, +8.0);
 
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -519,7 +519,7 @@ TEST(PolyhedronTest, initEmptyAndAddOnePoint) {
     ASSERT_FALSE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
 
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     
     ASSERT_TRUE(hasVertices(p, points));
@@ -539,7 +539,7 @@ TEST(PolyhedronTest, initEmptyAndAddTwoIdenticalPoints) {
     ASSERT_FALSE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     
     ASSERT_TRUE(hasVertices(p, points));
@@ -559,7 +559,7 @@ TEST(PolyhedronTest, initEmptyAndAddTwoPoints) {
     ASSERT_FALSE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     
@@ -582,7 +582,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreeColinearPoints) {
     ASSERT_FALSE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p3);
     
@@ -605,7 +605,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreePoints) {
     ASSERT_TRUE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -631,7 +631,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreePointsAndOneInnerPoint) {
     ASSERT_TRUE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -657,7 +657,7 @@ TEST(PolyhedronTest, initEmptyAndAddFourCoplanarPoints) {
     ASSERT_TRUE(p.polygon());
     ASSERT_FALSE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p4);
@@ -683,7 +683,7 @@ TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
     ASSERT_FALSE(p.polygon());
     ASSERT_TRUE(p.polyhedron());
     
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -996,7 +996,7 @@ TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
     const vm::vec3d p11(8.0,  5.0, 2.0);
     const vm::vec3d p12(8.0,  5.0, 4.0);
     
-    vm::vec3d::List topOld;
+    std::vector<vm::vec3d> topOld;
     topOld.push_back(p2);
     topOld.push_back(p6);
     topOld.push_back(p9);
@@ -1004,7 +1004,7 @@ TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
     topOld.push_back(p8);
     topOld.push_back(p4);
     
-    vm::vec3d::List topNew;
+    std::vector<vm::vec3d> topNew;
     topNew.push_back(p2);
     topNew.push_back(p6);
     topNew.push_back(p12);
@@ -1402,7 +1402,7 @@ TEST(PolyhedronTest, crashWhileAddingPoints5) {
 TEST(PolyhedronTest, removeVertexFromPoint) {
     const vm::vec3d p1(  0.0,   0.0,   0.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     
     Polyhedron3d p(positions);
@@ -1417,7 +1417,7 @@ TEST(PolyhedronTest, removeVertexFromEdge) {
     const vm::vec3d p1(  0.0,   0.0,   0.0);
     const vm::vec3d p2(+64.0,   0.0,   0.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     
@@ -1436,7 +1436,7 @@ TEST(PolyhedronTest, removeVertexFromTriangle) {
     const vm::vec3d p2(+64.0,   0.0,   0.0);
     const vm::vec3d p3(+64.0, +64.0,   0.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1458,7 +1458,7 @@ TEST(PolyhedronTest, removeVertexFromSquare) {
     const vm::vec3d p3(+64.0, +64.0,   0.0);
     const vm::vec3d p4(  0.0, +64.0,   0.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1480,7 +1480,7 @@ TEST(PolyhedronTest, removeVertexFromTetrahedron) {
     const vm::vec3d p3(  0.0, +64.0,   0.0);
     const vm::vec3d p4(  0.0,   0.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1505,7 +1505,7 @@ TEST(PolyhedronTest, removeVertexFromCube) {
     const vm::vec3d p7(+64.0, +64.0,   0.0);
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1540,7 +1540,7 @@ TEST(PolyhedronTest, removeVertexFromCubeWithRoof) {
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     const vm::vec3d p9(+32.0, +32.0, +96.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1574,7 +1574,7 @@ TEST(PolyhedronTest, removeVertexFromClippedCube) {
     const vm::vec3d p7(+64.0, +64.0, -64.0);
     const vm::vec3d p8(+64.0, +64.0, +00.0); // note this vertex
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1622,7 +1622,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
     const vm::vec3d p7(+64.0, +64.0, -64.0);
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1672,7 +1672,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
     const vm::vec3d p7(+64.0, +64.0, -64.0);
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1721,7 +1721,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
     const vm::vec3d p7(+64.0, +64.0, -64.0);
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1770,7 +1770,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
     const vm::vec3d p7(+64.0, +64.0, -64.0);
     const vm::vec3d p8(+64.0, +64.0, +64.0);
     
-    vm::vec3d::List positions;
+    std::vector<vm::vec3d> positions;
     positions.push_back(p1);
     positions.push_back(p2);
     positions.push_back(p3);
@@ -1931,7 +1931,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
 }
 
 TEST(PolyhedronTest, badClip) {
-    vm::vec3d::List polyVertices;
+    std::vector<vm::vec3d> polyVertices;
     vm::vec3d::parseAll("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)", std::back_inserter(polyVertices));
     
     Polyhedron3d poly(polyVertices);
@@ -1966,8 +1966,8 @@ TEST(PolyhedronTest, clipWithInvalidSeam) {
     poly.clip(std::get<1>(fromPoints(vm::vec3d(-483.0, 1371.0, 131.0),  vm::vec3d(-184.0, 1513.0, 396.0),  vm::vec3d(-184.0, 1428.0, 237.0))));
 }
 
-bool findAndRemove(Polyhedron3d::SubtractResult& result, const vm::vec3d::List& vertices);
-bool findAndRemove(Polyhedron3d::SubtractResult& result, const vm::vec3d::List& vertices) {
+bool findAndRemove(Polyhedron3d::SubtractResult& result, const std::vector<vm::vec3d>& vertices);
+bool findAndRemove(Polyhedron3d::SubtractResult& result, const std::vector<vm::vec3d>& vertices) {
     for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
         const Polyhedron3d& polyhedron = *it;
         if (polyhedron.hasVertices(vertices)) {
@@ -1985,7 +1985,7 @@ TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
-    vm::vec3d::List leftVertices, rightVertices, frontVertices, backVertices, topVertices, bottomVertices;
+    std::vector<vm::vec3d> leftVertices, rightVertices, frontVertices, backVertices, topVertices, bottomVertices;
 
     vm::vec3d::parseAll("(-32 -32 -32) (-32 32 -32) (-32 -32 32) (-32 32 32) (-16 -32 -32) (-16 32 -32) (-16 32 32) (-16 -32 32)", std::back_inserter(leftVertices));
     vm::vec3d::parseAll("(32 -32 32) (32 32 32) (16 -32 -32) (16 -32 32) (16 32 32) (16 32 -32) (32 32 -32) (32 -32 -32)", std::back_inserter(rightVertices));
@@ -2040,7 +2040,7 @@ TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
     ASSERT_EQ(4u, result.size());
     
-    const vm::vec3d::List leftVertices {
+    const std::vector<vm::vec3d> leftVertices {
         vm::vec3d(-16, -32, -16),
         vm::vec3d(-16, 32, -16),
         vm::vec3d(-16, 32, 16),
@@ -2051,7 +2051,7 @@ TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
         vm::vec3d(-32, 32, -16),
     };
 
-    const vm::vec3d::List rightVertices {
+    const std::vector<vm::vec3d> rightVertices {
         vm::vec3d(32, -32, 16),
         vm::vec3d(32, 32, 16),
         vm::vec3d(32, -32, -16),
@@ -2062,7 +2062,7 @@ TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
         vm::vec3d(16, 32, -16)
     };
     
-    const vm::vec3d::List frontVertices {
+    const std::vector<vm::vec3d> frontVertices {
         vm::vec3d(-16, -32, -16),
         vm::vec3d(-16, -32, 16),
         vm::vec3d(16, -16, -16),
@@ -2073,7 +2073,7 @@ TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
         vm::vec3d(16, -32, -16)
     };
     
-    const vm::vec3d::List backVertices {
+    const std::vector<vm::vec3d> backVertices {
         vm::vec3d(-16, 32, 16),
         vm::vec3d(-16, 32, -16),
         vm::vec3d(16, 32, 16),
@@ -2158,7 +2158,7 @@ TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
-    vm::vec3d::List left, right, top;
+    std::vector<vm::vec3d> left, right, top;
     vm::vec3d::parseAll("(-16 8 -0) (-16 8 48) (-16 -8 48) (-16 -8 -0) (-32 -8 -0) (-32 -8 32) (-32 8 -0) (-32 8 32)", std::back_inserter(left));
     vm::vec3d::parseAll("(32 -8 32) (32 8 32) (32 8 -0) (32 -8 -0) (16 8 48) (16 8 -0) (16 -8 -0) (16 -8 48)", std::back_inserter(right));
     vm::vec3d::parseAll("(16 8 32) (16 -8 32) (-16 -8 32) (-16 8 32) (-16 -8 48) (-16 8 48) (16 8 48) (16 -8 48)", std::back_inserter(top));
@@ -2181,7 +2181,7 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
      
      */
 
-    vm::vec3d::List subtrahendVertices;
+    std::vector<vm::vec3d> subtrahendVertices;
     vm::vec3d::parseAll("(-32.0 0.0 +96.0) (0.0 -32.0 +96.0) (+32.0 0.0 +96.0) (0.0 +32.0 +96.0) (-32.0 0.0 -96.0) (0.0 -32.0 -96.0) (+32.0 0.0 -96.0) (0.0 +32.0 -96.0)", std::back_inserter(subtrahendVertices));
     
     const Polyhedron3d minuend(vm::bbox3d(64.0));
@@ -2189,7 +2189,7 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
     
     Polyhedron3d::SubtractResult result = minuend.subtract(subtrahend);
 
-    vm::vec3d::List f1, f2, f3, f4;
+    std::vector<vm::vec3d> f1, f2, f3, f4;
     vm::vec3d::parseAll("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)", std::back_inserter(f1));
     vm::vec3d::parseAll("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)", std::back_inserter(f2));
     vm::vec3d::parseAll("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)", std::back_inserter(f3));
@@ -2203,7 +2203,7 @@ TEST(PolyhedronTest, subtractRhombusFromCuboid) {
 }
 
 TEST(PolyhedronTest, subtractFailWithMissingFragments) {
-    const vm::vec3d::List minuendVertices {
+    const std::vector<vm::vec3d> minuendVertices {
         vm::vec3d(-1056, 864, -192),
         vm::vec3d(-1024, 896, -192),
         vm::vec3d(-1024, 1073, -192),
@@ -2214,7 +2214,7 @@ TEST(PolyhedronTest, subtractFailWithMissingFragments) {
         vm::vec3d(-1056, 1080, -416)
     };
     
-    const vm::vec3d::List subtrahendVertices {
+    const std::vector<vm::vec3d> subtrahendVertices {
         vm::vec3d(-1088, 960, -288),
         vm::vec3d(-1008, 960, -288),
         vm::vec3d(-1008, 1024, -288),
@@ -2236,7 +2236,7 @@ TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
     // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296342133
     // merge creates overlapping fragments
 
-    vm::vec3d::List minuendVertices, subtrahendVertices;
+    std::vector<vm::vec3d> minuendVertices, subtrahendVertices;
     vm::vec3d::parseAll("(-32 -32 32) (32 -32 32) (32 32 32) (-32 32 32) (32 32 -32) (32 -32 -32) (-32 -32 -32) (-32 32 -32)", std::back_inserter(minuendVertices));
     vm::vec3d::parseAll("(-0 -16 -32) (-0 16 -32) (32 16 -32) (16 16 -0)", std::back_inserter(subtrahendVertices));
     
@@ -2658,7 +2658,7 @@ bool hasVertex(const Polyhedron3d& p, const vm::vec3d& point, const double epsil
     return p.hasVertex(point, epsilon);
 }
 
-bool hasVertices(const Polyhedron3d& p, const vm::vec3d::List& points, const double epsilon) {
+bool hasVertices(const Polyhedron3d& p, const std::vector<vm::vec3d>& points, const double epsilon) {
     if (p.vertexCount() != points.size())
         return false;
     
@@ -2685,7 +2685,7 @@ bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos, const double
 }
 
 bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const double epsilon) {
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -2693,7 +2693,7 @@ bool hasTriangleOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& 
 }
 
 bool hasQuadOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const double epsilon) {
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
@@ -2702,7 +2702,7 @@ bool hasQuadOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, 
 }
 
 bool hasPolygonOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& p4, const vm::vec3d& p5, const double epsilon) {
-    vm::vec3d::List points;
+    std::vector<vm::vec3d> points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);

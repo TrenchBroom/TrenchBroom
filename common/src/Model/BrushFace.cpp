@@ -565,7 +565,7 @@ namespace TrenchBroom {
             return VertexList(m_geometry->boundary());
         }
 
-        vm::vec3::List BrushFace::vertexPositions() const {
+        std::vector<vm::vec3> BrushFace::vertexPositions() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->vertexPositions();
         }

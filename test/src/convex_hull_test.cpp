@@ -30,13 +30,13 @@ namespace vm {
         const vm::vec3d p3(8.0, 0.0, 0.0);
         const vm::vec3d p4(0.0, 8.0, 0.0);
 
-        vm::vec3d::List points;
+        std::vector<vm::vec3d> points;
         points.push_back(p1);
         points.push_back(p2);
         points.push_back(p3);
         points.push_back(p4);
 
-        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        const std::vector<vm::vec3d> hull = vm::convexHull2D<double>(points);
         ASSERT_EQ(4u, hull.size());
         ASSERT_VEC_EQ(p3, hull[0]);
         ASSERT_VEC_EQ(p2, hull[1]);
@@ -51,14 +51,14 @@ namespace vm {
         const vm::vec3d p4(0.0, 8.0, 0.0);
         const vm::vec3d p5(4.0, 4.0, 0.0);
 
-        vm::vec3d::List points;
+        std::vector<vm::vec3d> points;
         points.push_back(p1);
         points.push_back(p2);
         points.push_back(p3);
         points.push_back(p4);
         points.push_back(p5);
 
-        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        const std::vector<vm::vec3d> hull = vm::convexHull2D<double>(points);
         ASSERT_EQ(4u, hull.size());
         ASSERT_VEC_EQ(p3, hull[0]);
         ASSERT_VEC_EQ(p2, hull[1]);
@@ -73,14 +73,14 @@ namespace vm {
         const vm::vec3d p4(0.0, 8.0, 0.0);
         const vm::vec3d p5(4.0, 0.0, 0.0);
 
-        vm::vec3d::List points;
+        std::vector<vm::vec3d> points;
         points.push_back(p1);
         points.push_back(p2);
         points.push_back(p3);
         points.push_back(p4);
         points.push_back(p5);
 
-        const vm::vec3d::List hull = vm::convexHull2D<double>(points);
+        const std::vector<vm::vec3d> hull = vm::convexHull2D<double>(points);
         ASSERT_EQ(4u, hull.size());
         ASSERT_VEC_EQ(p3, hull[0]);
         ASSERT_VEC_EQ(p2, hull[1]);

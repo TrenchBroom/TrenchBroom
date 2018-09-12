@@ -349,7 +349,7 @@ namespace TrenchBroom {
                 for (size_t j = 0; j < 4; ++j)
                     packedVertices[i][j] = static_cast<unsigned char>(*cursor++);
             
-            vm::vec3f::List positions(skinVertices.size());
+            std::vector<vm::vec3f> positions(skinVertices.size());
             vm::bbox3f bounds;
             
             positions[0] = unpackFrameVertex(packedVertices[0], origin, scale);

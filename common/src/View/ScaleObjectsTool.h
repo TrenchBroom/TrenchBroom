@@ -249,7 +249,7 @@ namespace TrenchBroom {
              */
             vm::bbox3 bboxAtDragStart() const;
 
-            vm::vec3::List cornerHandles() const;
+            std::vector<vm::vec3> cornerHandles() const;
 
             void updatePickedHandle(const Model::PickResult &pickResult);
 

@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return m_current > 0;
         }
     
-        const vm::vec3f::List& PointFile::points() const {
+        const std::vector<vm::vec3f>& PointFile::points() const {
             return m_points;
         }
         
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             std::fstream stream(pointFilePath.asString().c_str(), std::ios::in);
             assert(stream.is_open());
             
-            vm::vec3f::List points;
+            std::vector<vm::vec3f> points;
             String line;
             
             if (!stream.eof()) {

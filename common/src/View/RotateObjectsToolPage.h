@@ -52,7 +52,7 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
             void setAxis(vm::axis::type axis);
-            void setRecentlyUsedCenters(const vm::vec3::List& centers);
+            void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
             void setCurrentCenter(const vm::vec3& center);
         private:
             void createGui();

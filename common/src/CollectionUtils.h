@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <array>
 #include <cstdarg>
 #include <iterator>
 #include <limits>
@@ -31,6 +32,7 @@
 #include "SharedPointer.h"
 #include "Macros.h"
 
+// TODO: Clean up, split up, and reduce the number of system headers.
 namespace Utils {
     template <typename T>
     struct Deleter {
@@ -779,7 +781,19 @@ namespace SetUtils {
             return subset(lhs, rhs);
         }
     };
-    
+
+    template <typename T, size_t S>
+    void makeSet(const std::array<T, S>& arr, std::set<T>& result) {
+        result.insert(std::begin(arr), std::end(arr));
+    }
+
+    template <typename T, size_t S>
+    std::set<T> makeSet(const std::array<T, S>& arr) {
+        std::set<T> result;
+        makeSet(arr, result);
+        return result;
+    }
+
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(std::begin(vec), std::end(vec));

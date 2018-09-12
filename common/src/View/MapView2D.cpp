@@ -202,7 +202,7 @@ namespace TrenchBroom {
             tallBrushes.reserve(selectionBrushes.size());
             
             for (const Model::Brush* selectionBrush : selectionBrushes) {
-                vm::vec3::List tallVertices(0);
+                std::vector<vm::vec3> tallVertices(0);
                 tallVertices.reserve(2 * selectionBrush->vertexCount());
                 
                 for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {

@@ -389,7 +389,7 @@ namespace TrenchBroom {
             Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
-            const Color::List textColor{ pref(Preferences::BrowserTextColor) };
+            const std::vector<Color> textColor{ pref(Preferences::BrowserTextColor) };
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {

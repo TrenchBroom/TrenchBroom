@@ -238,7 +238,7 @@ namespace TrenchBroom {
             renderService.setShowOccludedObjectsTransparent();
             renderService.setForegroundColor(m_angleColor);
             
-            vm::vec3f::List vertices(3);
+            std::vector<vm::vec3f> vertices(3);
             for (const auto* entity : m_entities) {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
@@ -271,9 +271,9 @@ namespace TrenchBroom {
             }
         }
 
-        vm::vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
+        std::vector<vm::vec3f> EntityRenderer::arrowHead(const float length, const float width) const {
             // clockwise winding
-            vm::vec3f::List result(3);
+            std::vector<vm::vec3f> result(3);
             result[0] = vm::vec3f(0.0f,    width / 2.0f, 0.0f);
             result[1] = vm::vec3f(length,          0.0f, 0.0f);
             result[2] = vm::vec3f(0.0f,   -width / 2.0f, 0.0f);

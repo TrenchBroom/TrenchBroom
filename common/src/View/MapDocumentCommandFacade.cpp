@@ -727,18 +727,18 @@ namespace TrenchBroom {
             return true;
         }
 
-        vm::vec3::List MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta) {
+        std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier1<const Model::NodeList&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            vm::vec3::List newVertexPositions;
+            std::vector<vm::vec3> newVertexPositions;
             for (const auto& entry : vertices) {
                 Model::Brush* brush = entry.first;
-                const vm::vec3::List& oldPositions = entry.second;
-                const vm::vec3::List newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta);
+                const std::vector<vm::vec3>& oldPositions = entry.second;
+                const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta);
                 VectorUtils::append(newVertexPositions, newPositions);
             }
             
@@ -816,7 +816,7 @@ namespace TrenchBroom {
             
             for (const auto& entry : vertices) {
                 Model::Brush* brush = entry.first;
-                const vm::vec3::List& positions = entry.second;
+                const std::vector<vm::vec3>& positions = entry.second;
                 brush->removeVertices(m_worldBounds, positions);
             }
             

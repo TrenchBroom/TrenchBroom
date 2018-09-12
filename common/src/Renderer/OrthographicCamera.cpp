@@ -32,11 +32,11 @@ namespace TrenchBroom {
         OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up) :
         Camera(nearPlane, farPlane, viewport, position, direction, up) {}
         
-        vm::vec3::List OrthographicCamera::viewportVertices() const {
+        std::vector<vm::vec3> OrthographicCamera::viewportVertices() const {
             const auto w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
             const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            vm::vec3::List result(4);
+            std::vector<vm::vec3> result(4);
             result[0] = vm::vec3(position() - w2 * right() + h2 * up());
             result[1] = vm::vec3(position() + w2 * right() + h2 * up());
             result[2] = vm::vec3(position() + w2 * right() - h2 * up());

@@ -478,14 +478,14 @@ namespace vm {
         }
 
         /**
-         * Returns a list containing all 8 corner vertices of this bounding box.
+         * Returns an array containing all 8 corner vertices of this bounding box.
          *
-         * @return a list of vertices
+         * @return an array of vertices
          */
-        typename vec<T,S>::List vertices() const {
-            typename vec<T,S>::List result;
-            result.reserve(8);
-            forEachVertex([&](const vec<T,S>& v){ result.push_back(v); });
+        std::array<vec<T,S>,8> vertices() const {
+            std::array<vec<T,S>,8> result;
+            size_t i = 0;
+            forEachVertex([&](const vec<T,S>& v){ result[i++] = v; });
             return result;
         }
     };

@@ -78,7 +78,7 @@ namespace TrenchBroom {
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
             
-            void renderHandles(const vm::vec3f::List& positions);
+            void renderHandles(const std::vector<vm::vec3f>& positions);
             void renderHandle(const vm::vec3f& position);
             void renderHandleHighlight(const vm::vec3f& position);
             
@@ -91,12 +91,12 @@ namespace TrenchBroom {
             void renderHandleHighlight(const vm::polygon3f& position);
 
             void renderLine(const vm::vec3f& start, const vm::vec3f& end);
-            void renderLines(const vm::vec3f::List& positions);
-            void renderLineStrip(const vm::vec3f::List& positions);
+            void renderLines(const std::vector<vm::vec3f>& positions);
+            void renderLineStrip(const std::vector<vm::vec3f>& positions);
             void renderCoordinateSystem(const vm::bbox3f& bounds);
             
-            void renderPolygonOutline(const vm::vec3f::List& positions);
-            void renderFilledPolygon(const vm::vec3f::List& positions);
+            void renderPolygonOutline(const std::vector<vm::vec3f>& positions);
+            void renderFilledPolygon(const std::vector<vm::vec3f>& positions);
             
             void renderBounds(const vm::bbox3f& bounds);
             

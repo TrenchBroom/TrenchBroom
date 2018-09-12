@@ -65,14 +65,14 @@ namespace TrenchBroom {
                 bool canClip() const;
                 bool hasPoints() const;
                 bool canAddPoint(const vm::vec3& point) const;
-                void addPoint(const vm::vec3& point, const vm::vec3::List& helpVectors);
+                void addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors);
                 bool canRemoveLastPoint() const;
                 void removeLastPoint();
                 
                 bool canDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const;
                 void beginDragPoint(const Model::PickResult& pickResult);
                 void beginDragLastPoint();
-                bool dragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors);
+                bool dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors);
                 void endDragPoint();
                 void cancelDragPoint();
                 
@@ -90,14 +90,14 @@ namespace TrenchBroom {
                 virtual bool doCanClip() const = 0;
                 virtual bool doHasPoints() const = 0;
                 virtual bool doCanAddPoint(const vm::vec3& point) const = 0;
-                virtual void doAddPoint(const vm::vec3& point, const vm::vec3::List& helpVectors) = 0;
+                virtual void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) = 0;
                 virtual bool doCanRemoveLastPoint() const = 0;
                 virtual void doRemoveLastPoint() = 0;
                 
                 virtual bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const = 0;
                 virtual void doBeginDragPoint(const Model::PickResult& pickResult) = 0;
                 virtual void doBeginDragLastPoint() = 0;
-                virtual bool doDragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors) = 0;
+                virtual bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) = 0;
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
                 
@@ -150,13 +150,13 @@ namespace TrenchBroom {
 
             bool canAddPoint(const vm::vec3& point) const;
             bool hasPoints() const;
-            void addPoint(const vm::vec3& point, const vm::vec3::List& helpVectors);
+            void addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors);
             bool canRemoveLastPoint() const;
             bool removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition);
             void beginDragLastPoint();
-            bool dragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors);
+            bool dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors);
             void endDragPoint();
             void cancelDragPoint();
             

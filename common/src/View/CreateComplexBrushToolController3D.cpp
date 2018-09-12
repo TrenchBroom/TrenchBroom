@@ -282,7 +282,7 @@ namespace TrenchBroom {
                     if (hit.isMatch()) {
                         const auto* face = polyhedron.faces().front();
                         const auto pos3 = face->vertexPositions();
-                        vm::vec3f::List pos3f(pos3.size());
+                        std::vector<vm::vec3f> pos3f(pos3.size());
                         for (size_t i = 0; i < pos3.size(); ++i) {
                             pos3f[i] = vm::vec3f(pos3[i]);
                         }

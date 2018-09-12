@@ -37,7 +37,7 @@ namespace vm {
         using List = std::vector<polygon<T,S>>;
         using float_type = polygon<float, S>;
     private:
-        typename vec<T,S>::List m_vertices;
+        std::vector<vec<T,S>> m_vertices;
     public:
         /**
          * Creates a new empty polygon.
@@ -59,7 +59,7 @@ namespace vm {
          *
          * @param i_vertices the vertices
          */
-        explicit polygon(const typename vec<T,S>::List& i_vertices) :
+        explicit polygon(const std::vector<vec<T,S>>& i_vertices) :
         m_vertices(i_vertices) {
             rotateMinToFront();
         }
@@ -69,7 +69,7 @@ namespace vm {
          *
          * @param i_vertices the vertices
          */
-        explicit polygon(typename vec<T,S>::List&& i_vertices) :
+        explicit polygon(std::vector<vec<T,S>>&& i_vertices) :
         m_vertices(i_vertices) {
             rotateMinToFront();
         }
@@ -130,7 +130,7 @@ namespace vm {
          *
          * @return an iterator to the beginning of the vertices
          */
-        typename vec<T,3>::List::const_iterator begin() const {
+        typename std::vector<vec<T,3>>::const_iterator begin() const {
             return std::begin(m_vertices);
         }
 
@@ -139,7 +139,7 @@ namespace vm {
          *
          * @return an iterator to the end of the vertices
          */
-        typename vec<T,3>::List::const_iterator end() const {
+        typename std::vector<vec<T,3>>::const_iterator end() const {
             return std::end(m_vertices);
         }
 
@@ -148,7 +148,7 @@ namespace vm {
          *
          * @return the vertices
          */
-        const typename vec<T,S>::List& vertices() const {
+        const std::vector<vec<T,S>>& vertices() const {
             return m_vertices;
         }
 

@@ -42,7 +42,7 @@ namespace TrenchBroom {
         const size_t TextRenderer::RectCornerSegments = 3;
         const float TextRenderer::RectCornerRadius = 3.0f;
         
-        TextRenderer::Entry::Entry(vm::vec2f::List& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
+        TextRenderer::Entry::Entry(std::vector<vm::vec2f>& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
         size(i_size),
         offset(i_offset),
         textColor(i_textColor),
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
 
-            vm::vec2f::List vertices = font.quads(string, true);
+            std::vector<vm::vec2f> vertices = font.quads(string, true);
             const float alphaFactor = computeAlphaFactor(renderContext, distance, onTop);
             const vm::vec2f size = font.measure(string);
             const vm::vec3f offset = position.offset(camera, size);
@@ -168,7 +168,7 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
-            const vm::vec2f::List& stringVertices = entry.vertices;
+            const std::vector<vm::vec2f>& stringVertices = entry.vertices;
             const vm::vec2f& stringSize = entry.size;
             
             const vm::vec3f& offset = entry.offset;
@@ -182,7 +182,7 @@ namespace TrenchBroom {
                 textVertices.push_back(TextVertex(vm::vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor));
             }
 
-            const vm::vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+            const std::vector<vm::vec2f> rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
             for (size_t i = 0; i < rect.size(); ++i) {
                 const vm::vec2f& vertex = rect[i];
                 rectVertices.push_back(RectVertex(vm::vec3f(vertex + offset.xy() + stringSize / 2.0f, -offset.z()), rectColor));

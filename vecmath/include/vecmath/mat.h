@@ -603,8 +603,8 @@ namespace vm {
      * @return a list of the the products of the given vectors and the given matrix
      */
     template <typename T, size_t R, size_t C>
-    typename vec<T,R>::List operator*(const typename vec<T,R>::List& lhs, const mat<T,R,C>& rhs) {
-        typename vec<T,R>::List result;
+    std::vector<vec<T,R>> operator*(const std::vector<vec<T,R>>& lhs, const mat<T,R,C>& rhs) {
+        std::vector<vec<T,R>> result;
         result.reserve(lhs.size());
         std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R>& elem) { return elem * rhs; });
         return result;
@@ -621,8 +621,8 @@ namespace vm {
      * @return a list of the the products of the given vectors and the given matrix
      */
     template <typename T, size_t R, size_t C>
-    typename vec<T,R-1>::List operator*(const typename vec<T,R-1>::List& lhs, const mat<T,R,C>& rhs) {
-        typename vec<T,R-1>::List result;
+    std::vector<vec<T,R-1>> operator*(const std::vector<vec<T,R-1>>& lhs, const mat<T,R,C>& rhs) {
+        std::vector<vec<T,R-1>> result;
         result.reserve(lhs.size());
         std::transform(std::begin(lhs), std::end(lhs), std::back_inserter(result), [rhs](const vec<T,R-1>& elem) { return elem * rhs; });
         return result;
@@ -639,8 +639,8 @@ namespace vm {
      * @return a list of the the products of the given vectors and the given matrix
      */
     template <typename T, size_t R, size_t C>
-    typename vec<T,C>::List operator*(const mat<T,R,C>& lhs, const typename vec<T,C>::List& rhs) {
-        typename vec<T,C>::List result;
+    std::vector<vec<T,C>> operator*(const mat<T,R,C>& lhs, const std::vector<vec<T,C>>& rhs) {
+        std::vector<vec<T,C>> result;
         result.reserve(rhs.size());
         std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C>& elem) { return lhs * elem; });
         return result;
@@ -657,8 +657,8 @@ namespace vm {
      * @return a list of the the products of the given vectors and the given matrix
      */
     template <typename T, size_t R, size_t C>
-    typename vec<T,C-1>::List operator*(const mat<T,R,C>& lhs, const typename vec<T,C-1>::List& rhs) {
-        typename vec<T,C-1>::List result;
+    std::vector<vec<T,C-1>> operator*(const mat<T,R,C>& lhs, const std::vector<vec<T,C-1>>& rhs) {
+        std::vector<vec<T,C-1>> result;
         result.reserve(rhs.size());
         std::transform(std::begin(rhs), std::end(rhs), std::back_inserter(result), [lhs](const vec<T,C-1>& elem) { return lhs * elem; });
         return result;

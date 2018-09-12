@@ -45,7 +45,7 @@ namespace TrenchBroom {
             Brush* createCuboid(const vm::bbox3& bounds, const String& textureName) const;
             Brush* createCuboid(const vm::bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const;
 
-            Brush* createBrush(const vm::vec3::List& points, const String& textureName) const;
+            Brush* createBrush(const std::vector<vm::vec3>& points, const String& textureName) const;
             Brush* createBrush(const Polyhedron3& polyhedron, const String& textureName) const;
         };
     }

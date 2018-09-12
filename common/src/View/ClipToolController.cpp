@@ -253,8 +253,8 @@ namespace TrenchBroom {
                 return new AbsoluteDragSnapper(m_tool->grid());
             }
             
-            vm::vec3::List getHelpVectors(const InputState& inputState) const override {
-                return vm::vec3::List(1, vm::vec3(inputState.camera().direction()));
+            std::vector<vm::vec3> getHelpVectors(const InputState& inputState) const override {
+                return std::vector<vm::vec3>(1, vm::vec3(inputState.camera().direction()));
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
@@ -280,10 +280,10 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
         
-        vm::vec3::List ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint) {
             ensure(face != nullptr, "face is null");
             
-            vm::vec3::List result;
+            std::vector<vm::vec3> result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
                 const vm::vec3& normal = incidentFace->boundary().normal;
                 result.push_back(firstAxis(normal));
@@ -345,7 +345,7 @@ namespace TrenchBroom {
                 return snapper;
             }
             
-            vm::vec3::List getHelpVectors(const InputState& inputState) const override {
+            std::vector<vm::vec3> getHelpVectors(const InputState& inputState) const override {
                 const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
                 ensure(hit.isMatch(), "hit is not a match");
                 

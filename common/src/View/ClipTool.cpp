@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return doCanAddPoint(point);
         }
         
-        void ClipTool::ClipStrategy::addPoint(const vm::vec3& point, const vm::vec3::List& helpVectors) {
+        void ClipTool::ClipStrategy::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) {
             assert(canAddPoint(point));
             return doAddPoint(point, helpVectors);
         }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             doBeginDragLastPoint();
         }
 
-        bool ClipTool::ClipStrategy::dragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors) {
+        bool ClipTool::ClipStrategy::dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) {
             return doDragPoint(newPosition, helpVectors);
         }
         
@@ -123,11 +123,11 @@ namespace TrenchBroom {
         private:
             struct ClipPoint {
                 vm::vec3 point;
-                vm::vec3::List helpVectors;
+                std::vector<vm::vec3> helpVectors;
                 
                 ClipPoint() {}
                 
-                ClipPoint(const vm::vec3& i_point, const vm::vec3::List& i_helpVectors) :
+                ClipPoint(const vm::vec3& i_point, const std::vector<vm::vec3>& i_helpVectors) :
                 point(i_point),
                 helpVectors(i_helpVectors) {}
             };
@@ -197,10 +197,10 @@ namespace TrenchBroom {
                 }
             }
             
-            vm::vec3::List combineHelpVectors() const {
-                vm::vec3::List result;
+            std::vector<vm::vec3> combineHelpVectors() const {
+                std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
-                    const vm::vec3::List& helpVectors = m_points[i].helpVectors;
+                    const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
                     VectorUtils::append(result, helpVectors);
                 }
                 
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            void doAddPoint(const vm::vec3& point, const vm::vec3::List& helpVectors) override {
+            void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {
                 m_points[m_numPoints] = ClipPoint(point, helpVectors);
                 ++m_numPoints;
             }
@@ -268,7 +268,7 @@ namespace TrenchBroom {
                 m_originalPoint = m_points[m_dragIndex];
             }
 
-            bool doDragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors) override {
+            bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override {
                 ensure(m_dragIndex < m_numPoints, "drag index out of range");
                 
                 if (m_numPoints == 2 && colinear(m_points[0].point, m_points[1].point, newPosition))
@@ -406,7 +406,7 @@ namespace TrenchBroom {
                     
                     const auto vertices = m_face->vertices();
                     
-                    vm::vec3f::List positions;
+                    std::vector<vm::vec3f> positions;
                     positions.reserve(vertices.size());
                     
                     for (const Model::BrushVertex* vertex : vertices) {
@@ -430,14 +430,14 @@ namespace TrenchBroom {
             bool doCanClip() const override { return m_face != nullptr; }
             bool doHasPoints() const override { return false; }
             bool doCanAddPoint(const vm::vec3& point) const override { return false; }
-            void doAddPoint(const vm::vec3& point, const vm::vec3::List& helpVectors) override {}
+            void doAddPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override {}
             bool doCanRemoveLastPoint() const override { return false; }
             void doRemoveLastPoint() override {}
             
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override { return false; }
             void doBeginDragPoint(const Model::PickResult& pickResult) override {}
             void doBeginDragLastPoint() override {}
-            bool doDragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors) override { return false; }
+            bool doDragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override { return false; }
             void doEndDragPoint() override {}
             void doCancelDragPoint() override {}
             
@@ -608,7 +608,7 @@ namespace TrenchBroom {
             return m_strategy != nullptr && m_strategy->hasPoints();
         }
 
-        void ClipTool::addPoint(const vm::vec3& point, const vm::vec3::List& helpVectors) {
+        void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) {
             assert(canAddPoint(point));
             if (m_strategy == nullptr) {
                 m_strategy = new PointClipStrategy();
@@ -649,7 +649,7 @@ namespace TrenchBroom {
             m_dragging = true;
         }
 
-        bool ClipTool::dragPoint(const vm::vec3& newPosition, const vm::vec3::List& helpVectors) {
+        bool ClipTool::dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) {
             assert(m_dragging);
             ensure(m_strategy != nullptr, "strategy is null");
             if (!m_strategy->dragPoint(newPosition, helpVectors))

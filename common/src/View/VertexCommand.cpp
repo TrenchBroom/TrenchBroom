@@ -40,7 +40,7 @@ namespace TrenchBroom {
                 deleteSnapshot();
         }
         
-        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, vm::vec3::List& vertexPositions) {
+        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions) {
             extract(vertices, brushes, brushVertices, vertexPositions);
         }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const vm::segment3::List& edgeList = entry.second;
                 
-                vm::vec3::List vertices;
+                std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::getVertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = entry.first;
                 const vm::polygon3::List& faceList = entry.second;
 
-                vm::vec3::List vertices;
+                std::vector<vm::vec3> vertices;
                 vm::polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 Model::Brush* brush = entry.first;
-                const vm::vec3::List& vertices = entry.second;
+                const std::vector<vm::vec3>& vertices = entry.second;
                 if (!brush->canRemoveVertices(worldBounds, vertices))
                     return false;
             }

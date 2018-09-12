@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 
                 virtual DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const = 0;
                 virtual DragSnapper* createDragSnapper(const InputState& inputState) const = 0;
-                virtual vm::vec3::List getHelpVectors(const InputState& inputState) const = 0;
+                virtual std::vector<vm::vec3> getHelpVectors(const InputState& inputState) const = 0;
                 
                 void renderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             private:
@@ -129,7 +129,7 @@ namespace TrenchBroom {
         
         class ClipToolController3D : public ClipToolController {
         private:
-            static vm::vec3::List selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint);
+            static std::vector<vm::vec3> selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint);
             static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint);
         private:
             class Callback3D;

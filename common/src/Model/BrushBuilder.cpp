@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return m_factory->createBrush(m_worldBounds, faces);
         }
  
-        Brush* BrushBuilder::createBrush(const vm::vec3::List& points, const String& textureName) const {
+        Brush* BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const String& textureName) const {
             return createBrush(Polyhedron3(points), textureName);
         }
 

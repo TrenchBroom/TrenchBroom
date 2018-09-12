@@ -331,10 +331,10 @@ namespace TrenchBroom {
             }
 
             if (anchorType == AnchorPos::Center) {
-                const auto points = vm::vec3::List{ anchor - (newCorner - anchor), newCorner };
+                const auto points = std::vector<vm::vec3>{ anchor - (newCorner - anchor), newCorner };
                 return vm::bbox3::mergeAll(std::begin(points), std::end(points));
             } else {
-                const auto points = vm::vec3::List{ oppositePoint, newCorner };
+                const auto points = std::vector<vm::vec3>{ oppositePoint, newCorner };
                 return vm::bbox3::mergeAll(std::begin(points), std::end(points));
             }
         }
@@ -552,7 +552,7 @@ namespace TrenchBroom {
                 // in 2d views, only use edges that are parallel to the camera
                 if (parallel(points.direction(), vm::vec3(camera.direction()))) {
                     // could figure out which endpoint is closer to camera, or just test both.
-                    for (const vm::vec3& point : vm::vec3::List{points.start(), points.end()}) {
+                    for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()}) {
                         const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
                         if (!vm::isNan(dist)) {
                             localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
@@ -815,12 +815,12 @@ namespace TrenchBroom {
             return m_bboxAtDragStart;
         }
 
-        vm::vec3::List ScaleObjectsTool::cornerHandles() const {
+        std::vector<vm::vec3> ScaleObjectsTool::cornerHandles() const {
             if (bounds().empty()) {
                 return {};
             }
 
-            vm::vec3::List result;
+            std::vector<vm::vec3> result;
             result.reserve(8);
             auto op = [&](const vm::vec3& point) {
                 result.push_back(point);

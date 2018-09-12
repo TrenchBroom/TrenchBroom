@@ -38,7 +38,7 @@ namespace TrenchBroom {
         
         class PointHandleRenderer : public DirectRenderable {
         private:
-            typedef std::map<Color, vm::vec3f::List> HandleMap;
+            typedef std::map<Color, std::vector<vm::vec3f>> HandleMap;
             
             HandleMap m_pointHandles;
             HandleMap m_highlights;

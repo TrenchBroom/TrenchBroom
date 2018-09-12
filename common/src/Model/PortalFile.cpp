@@ -83,7 +83,7 @@ namespace TrenchBroom {
                     throw FileFormatException("Error reading portal");
                 }
                 
-                vm::vec3f::List verts;
+                std::vector<vm::vec3f> verts;
                 size_t ptr = 3;
                 const int numPoints = std::stoi(components.at(0));
                 for (int j = 0; j < numPoints; ++j) {

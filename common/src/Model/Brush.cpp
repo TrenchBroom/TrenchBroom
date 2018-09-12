@@ -147,7 +147,7 @@ namespace TrenchBroom {
         public:
             template <typename I>
             MoveVerticesCallback(const BrushGeometry* geometry, I cur, I end, const vm::vec3& delta) {
-                const auto vertices = Brush::createVertexSet(vm::vec3::List(cur, end));
+                const auto vertices = Brush::createVertexSet(std::vector<vm::vec3>(cur, end));
                 buildIncidences(geometry, vertices, delta);
             }
 
@@ -602,7 +602,7 @@ namespace TrenchBroom {
             return VertexList(m_geometry->vertices());
         }
 
-        const vm::vec3::List Brush::vertexPositions() const {
+        const std::vector<vm::vec3> Brush::vertexPositions() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->vertexPositions();
         }
@@ -612,7 +612,7 @@ namespace TrenchBroom {
             return m_geometry->findVertexByPosition(position, nullptr, epsilon) != nullptr;
         }
 
-        bool Brush::hasVertices(const vm::vec3::List positions, const FloatType epsilon) const {
+        bool Brush::hasVertices(const std::vector<vm::vec3> positions, const FloatType epsilon) const {
             ensure(m_geometry != nullptr, "geometry is null");
             for (const auto& position : positions) {
                 if (!m_geometry->hasVertex(position, epsilon)) {
@@ -707,15 +707,15 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertices, const vm::vec3& delta) const {
+        bool Brush::canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const {
             return doCanMoveVertices(worldBounds, vertices, delta, true).success;
         }
 
-        vm::vec3::List Brush::moveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta) {
+        std::vector<vm::vec3> Brush::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
             doMoveVertices(worldBounds, vertexPositions, delta);
 
             // Collect the exact new positions of the moved vertices
-            vm::vec3::List result;
+            std::vector<vm::vec3> result;
             result.reserve(vertexPositions.size());
 
             for (const auto& position : vertexPositions) {
@@ -748,7 +748,7 @@ namespace TrenchBroom {
         }
 
 
-        bool Brush::canRemoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions) const {
+        bool Brush::canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
 
@@ -766,7 +766,7 @@ namespace TrenchBroom {
             return testGeometry.polyhedron();
         }
 
-        void Brush::removeVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions) {
+        void Brush::removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canRemoveVertices(worldBounds, vertexPositions));
@@ -826,7 +826,7 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!edgePositions.empty(), "no edge positions");
 
-            vm::vec3::List vertexPositions;
+            std::vector<vm::vec3> vertexPositions;
             vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
             const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
@@ -847,7 +847,7 @@ namespace TrenchBroom {
         vm::segment3::List Brush::moveEdges(const vm::bbox3& worldBounds, const vm::segment3::List& edgePositions, const vm::vec3& delta) {
             assert(canMoveEdges(worldBounds, edgePositions, delta));
 
-            vm::vec3::List vertexPositions;
+            std::vector<vm::vec3> vertexPositions;
             vm::segment3::getVertices(std::begin(edgePositions), std::end(edgePositions),
                                   std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
@@ -869,7 +869,7 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!facePositions.empty(), "no face positions");
 
-            vm::vec3::List vertexPositions;
+            std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
 
@@ -889,7 +889,7 @@ namespace TrenchBroom {
         vm::polygon3::List Brush::moveFaces(const vm::bbox3& worldBounds, const vm::polygon3::List& facePositions, const vm::vec3& delta) {
             assert(canMoveFaces(worldBounds, facePositions, delta));
 
-            vm::vec3::List vertexPositions;
+            std::vector<vm::vec3> vertexPositions;
             vm::polygon3::getVertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             doMoveVertices(worldBounds, vertexPositions, delta);
 
@@ -942,7 +942,7 @@ namespace TrenchBroom {
          If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
          
          */
-        Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, vm::vec3 delta, const bool allowVertexRemoval) const {
+        Brush::CanMoveVerticesResult Brush::doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, const bool allowVertexRemoval) const {
             // Should never occur, takes care of the first row.
             if (vertexPositions.empty() || isZero(delta)) {
                 return CanMoveVerticesResult::rejectVertexMove();
@@ -1030,7 +1030,7 @@ namespace TrenchBroom {
             return CanMoveVerticesResult::acceptVertexMove(result);
         }
 
-        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const vm::vec3::List& vertexPositions, const vm::vec3& delta) {
+        void Brush::doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
@@ -1076,7 +1076,7 @@ namespace TrenchBroom {
             nodeBoundsDidChange(oldBounds);
         }
 
-        Brush::VertexSet Brush::createVertexSet(const vm::vec3::List& vertices) {
+        Brush::VertexSet Brush::createVertexSet(const std::vector<vm::vec3>& vertices) {
             return VertexSet(std::begin(vertices), std::end(vertices));
         }
 

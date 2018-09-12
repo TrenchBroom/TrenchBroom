@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return assertTexture(expected, brush, VectorUtils::create<vm::vec3d>(v1, v2, v3, v4));
         }
         
-        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d::List& vertices) {
+        void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices) {
             return assertTexture(expected, brush, vm::polygon3d(vertices));
         }
 

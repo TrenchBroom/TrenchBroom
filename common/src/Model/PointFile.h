@@ -24,6 +24,7 @@
 #include <vecmath/vec.h>
 
 #include <cstddef>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
     namespace Model {
         class PointFile {
         private:
-            vm::vec3f::List m_points;
+            std::vector<vm::vec3f> m_points;
             size_t m_current;
         public:
             PointFile();
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             bool hasNextPoint() const;
             bool hasPreviousPoint() const;
             
-            const vm::vec3f::List& points() const;
+            const std::vector<vm::vec3f>& points() const;
             const vm::vec3f& currentPoint() const;
             const vm::vec3f currentDirection() const;
             void advance();

@@ -180,7 +180,7 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             EdgeList edges() const;
             VertexList vertices() const;
-            vm::vec3::List vertexPositions() const;
+            std::vector<vm::vec3> vertexPositions() const;
             
             bool hasVertices(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             vm::polygon3 polygon() const;

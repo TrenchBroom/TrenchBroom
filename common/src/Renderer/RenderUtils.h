@@ -28,6 +28,7 @@
 #include <vecmath/utils.h>
 
 #include <utility>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -57,23 +58,23 @@ namespace TrenchBroom {
             void after(const Assets::Texture* texture) override;
         };
 
-        vm::vec2f::List circle2D(float radius, size_t segments);
-        vm::vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);
-        vm::vec3f::List circle2D(float radius, vm::axis::type axis, float startAngle, float angleLength, size_t segments);
+        std::vector<vm::vec2f> circle2D(float radius, size_t segments);
+        std::vector<vm::vec2f> circle2D(float radius, float startAngle, float angleLength, size_t segments);
+        std::vector<vm::vec3f> circle2D(float radius, vm::axis::type axis, float startAngle, float angleLength, size_t segments);
         std::pair<float, float> startAngleAndLength(vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
-        vm::vec2f::List roundedRect2D(const vm::vec2f& size, float cornerRadius, size_t cornerSegments);
-        vm::vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
+        std::vector<vm::vec2f> roundedRect2D(const vm::vec2f& size, float cornerRadius, size_t cornerSegments);
+        std::vector<vm::vec2f> roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
         
         struct VertsAndNormals {
-            vm::vec3f::List vertices;
-            vm::vec3f::List normals;
+            std::vector<vm::vec3f> vertices;
+            std::vector<vm::vec3f> normals;
             
             explicit VertsAndNormals(size_t vertexCount);
         };
         
-        vm::vec3f::List sphere3D(float radius, size_t iterations);
+        std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
         VertsAndNormals circle3D(float radius, size_t segments);
         VertsAndNormals cylinder3D(float radius, float length, size_t segments);
         VertsAndNormals cone3D(float radius, float length, size_t segments);

@@ -37,7 +37,7 @@ namespace TrenchBroom {
         
         void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
         void assertTexture(const String& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
-        void assertTexture(const String& expected, const Brush* brush, const vm::vec3d::List& vertices);
+        void assertTexture(const String& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
         void assertTexture(const String& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
 }

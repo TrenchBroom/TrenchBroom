@@ -72,10 +72,10 @@ namespace vm {
             }
         };
 
-        typename vec<T,3>::List m_points;
+        std::vector<vec<T,3>> m_points;
         bool m_hasResult;
     public:
-        ConvexHull2D(const typename vec<T,3>::List& points) :
+        ConvexHull2D(const std::vector<vec<T,3>>& points) :
         m_points(points),
         m_hasResult(m_points.size() > 2) {
             if (m_hasResult) {
@@ -102,7 +102,7 @@ namespace vm {
             return m_hasResult;
         }
 
-        const typename vec<T,3>::List& result() const {
+        const std::vector<vec<T,3>>& result() const {
             assert(m_hasResult);
             return m_points;
         }
@@ -121,7 +121,7 @@ namespace vm {
         }
 
         void swizzle(const axis::type axis) {
-            auto points = typename vec<T,3>::List();
+            auto points = std::vector<vec<T,3>>();
             points.reserve(m_points.size());
 
             std::transform(
@@ -132,7 +132,7 @@ namespace vm {
         }
 
         void unswizzle(const axis::type axis) {
-            auto points = typename vec<T,3>::List();
+            auto points = std::vector<vec<T,3>>();
             points.reserve(m_points.size());
 
             std::transform(
@@ -178,7 +178,7 @@ namespace vm {
         }
 
         void buildHull() {
-            auto stack = typename vec<T,3>::List();
+            auto stack = std::vector<vec<T,3>>();
             stack.reserve(m_points.size());
             stack.push_back(m_points[0]);
             stack.push_back(m_points[1]);
@@ -193,7 +193,7 @@ namespace vm {
             assert(m_points.size() > 2);
         }
 
-        void popStalePoints(typename vec<T,3>::List& stack, const vec<T,3>& p) {
+        void popStalePoints(std::vector<vec<T,3>>& stack, const vec<T,3>& p) {
             if (stack.size() > 1) {
                 const auto& t1 = stack[stack.size() - 2];
                 const auto& t2 = stack[stack.size() - 1];
@@ -216,11 +216,11 @@ namespace vm {
      * @return the convex hull of the points, or an empty list if no convex hull exists
      */
     template <typename T>
-    typename vec<T,3>::List convexHull2D(const typename vec<T,3>::List& points) {
+    std::vector<vec<T,3>> convexHull2D(const std::vector<vec<T,3>>& points) {
         // see http://geomalgorithms.com/a10-_hull-1.html
         const ConvexHull2D<T> hull(points);
         if (!hull.hasResult()) {
-            return vec<T,3>::EmptyList;
+            return std::vector<vec<T,3>>(0);
         } else {
             return hull.result();
         }

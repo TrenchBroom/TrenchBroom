@@ -1015,7 +1015,7 @@ namespace TrenchBroom {
             return submitAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
         }
         
-        bool MapDocument::createBrush(const vm::vec3::List& points) {
+        bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
             Model::BrushBuilder builder(m_world, m_worldBounds);
             Model::Brush* brush = builder.createBrush(points, currentTextureName());
             if (!brush->fullySpecified()) {

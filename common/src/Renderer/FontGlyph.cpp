@@ -31,7 +31,7 @@ namespace TrenchBroom {
         m_h(static_cast<float>(h)),
         m_a(static_cast<int>(a)) {}
         
-        void FontGlyph::appendVertices(vm::vec2f::List& vertices, const int xOffset, const int yOffset, const size_t textureSize, const bool clockwise) const {
+        void FontGlyph::appendVertices(std::vector<vm::vec2f>& vertices, const int xOffset, const int yOffset, const size_t textureSize, const bool clockwise) const {
             const auto fxOffset = static_cast<float>(xOffset);
             const auto fyOffset = static_cast<float>(yOffset);
             const auto ftextureSize = static_cast<float>(textureSize);

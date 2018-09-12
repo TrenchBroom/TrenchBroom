@@ -33,10 +33,10 @@
 namespace vm {
     bool lineOnPlane(const plane3f& plane, const line3f& line);
 
-    bool containsPoint(const vec3d::List& vertices, const vec3d& point);
+    bool containsPoint(const std::vector<vec3d>& vertices, const vec3d& point);
 
-    vec3d::List square();
-    vec3d::List triangle();
+    std::vector<vec3d> square();
+    std::vector<vec3d> triangle();
 
     TEST(IntersectionTest, intersectRayAndPlane) {
         const ray3f ray(vec3f::zero, vec3f::pos_z);
@@ -208,12 +208,12 @@ namespace vm {
         ASSERT_FALSE(containsPoint(triangle(), vec3d(+1.0, +1.0, 0.0)));
     }
 
-    bool containsPoint(const vec3d::List& vertices, const vec3d& point) {
+    bool containsPoint(const std::vector<vec3d>& vertices, const vec3d& point) {
         return contains(point, std::begin(vertices), std::end(vertices));
     }
 
-    vec3d::List square() {
-        return vec3d::List {
+    std::vector<vec3d> square() {
+        return std::vector<vec3d> {
                 vec3d(-1.0, -1.0, 0.0),
                 vec3d(-1.0, +1.0, 0.0),
                 vec3d(+1.0, +1.0, 0.0),
@@ -221,8 +221,8 @@ namespace vm {
         };
     }
 
-    vec3d::List triangle() {
-        return vec3d::List {
+    std::vector<vec3d> triangle() {
+        return std::vector<vec3d> {
                 vec3d(-1.0, +1.0, 0.0), // top
                 vec3d(-1.0, -1.0, 0.0), // left bottom
                 vec3d(+1.0, -1.0, 0.0), // right bottom

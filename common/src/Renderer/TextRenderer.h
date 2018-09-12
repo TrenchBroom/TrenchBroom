@@ -48,13 +48,13 @@ namespace TrenchBroom {
             static const float RectCornerRadius;
             
             struct Entry {
-                vm::vec2f::List vertices;
+                std::vector<vm::vec2f> vertices;
                 vm::vec2f size;
                 vm::vec3f offset;
                 Color textColor;
                 Color backgroundColor;
 
-                Entry(vm::vec2f::List& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
+                Entry(std::vector<vm::vec2f>& i_vertices, const vm::vec2f& i_size, const vm::vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
             typedef std::vector<Entry> EntryList;

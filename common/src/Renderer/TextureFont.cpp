@@ -74,12 +74,12 @@ namespace TrenchBroom {
         class MeasureLines : public AttrString::LineFunc {
         private:
             TextureFont& m_font;
-            vm::vec2f::List m_sizes;
+            std::vector<vm::vec2f> m_sizes;
         public:
             MeasureLines(TextureFont& font) :
             m_font(font) {}
             
-            const vm::vec2f::List& sizes() const {
+            const std::vector<vm::vec2f>& sizes() const {
                 return m_sizes;
             }
         private:
@@ -107,14 +107,14 @@ namespace TrenchBroom {
             bool m_clockwise;
             vm::vec2f m_offset;
             
-            const vm::vec2f::List& m_sizes;
+            const std::vector<vm::vec2f>& m_sizes;
             vm::vec2f m_maxSize;
             
             size_t m_index;
             float m_y;
-            vm::vec2f::List m_vertices;
+            std::vector<vm::vec2f> m_vertices;
         public:
-            MakeQuads(TextureFont& font, const bool clockwise, const vm::vec2f& offset, const vm::vec2f::List& sizes) :
+            MakeQuads(TextureFont& font, const bool clockwise, const vm::vec2f& offset, const std::vector<vm::vec2f>& sizes) :
             m_font(font),
             m_clockwise(clockwise),
             m_offset(offset),
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 m_y -= m_sizes.back().y();
             }
             
-            const vm::vec2f::List& vertices() const {
+            const std::vector<vm::vec2f>& vertices() const {
                 return m_vertices;
             }
         private:
@@ -155,7 +155,7 @@ namespace TrenchBroom {
             }
         };
         
-        vm::vec2f::List TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) {
+        std::vector<vm::vec2f> TextureFont::quads(const AttrString& string, const bool clockwise, const vm::vec2f& offset) {
             MeasureLines measureLines(*this);
             string.lines(measureLines);
             const auto& sizes = measureLines.sizes();
@@ -171,8 +171,8 @@ namespace TrenchBroom {
             return measureString.size();
         }
 
-        vm::vec2f::List TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) {
-            vm::vec2f::List result;
+        std::vector<vm::vec2f> TextureFont::quads(const String& string, const bool clockwise, const vm::vec2f& offset) {
+            std::vector<vm::vec2f> result;
             result.reserve(string.length() * 4 * 2);
             
             auto x = static_cast<int>(vm::round(offset.x()));

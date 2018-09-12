@@ -1389,7 +1389,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                vm::vec3::List positions;
+                std::vector<vm::vec3> positions;
                 vm::vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
@@ -1403,8 +1403,9 @@ namespace TrenchBroom {
                 const auto str = dialog.GetValue();
                 double size; str.ToDouble(&size);
                 const vm::bbox3 bounds(size / 2.0);
-                const auto positions = bounds.vertices();
-                m_document->createBrush(positions);
+                const auto posArray = bounds.vertices();
+                const auto posList = std::vector<vm::vec3>(std::begin(posArray), std::end(posArray));
+                m_document->createBrush(posList);
             }
         }
         
@@ -1414,7 +1415,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                vm::vec3::List points;
+                std::vector<vm::vec3> points;
                 vm::vec3::parseAll(str.ToStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);

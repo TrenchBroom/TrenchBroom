@@ -50,10 +50,10 @@ namespace TrenchBroom {
             m_axis->SetSelection(static_cast<int>(axis));
         }
 
-        void RotateObjectsToolPage::setRecentlyUsedCenters(const vm::vec3::List& centers) {
+        void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers) {
             m_recentlyUsedCentersList->Clear();
             
-            vm::vec3::List::const_reverse_iterator it, end;
+            std::vector<vm::vec3>::const_reverse_iterator it, end;
             for (it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
                 const vm::vec3& center = *it;
                 m_recentlyUsedCentersList->Append(StringUtils::toString(center));
