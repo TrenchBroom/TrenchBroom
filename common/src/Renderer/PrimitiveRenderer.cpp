@@ -29,7 +29,8 @@ namespace TrenchBroom {
         PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy) :
         m_color(color),
         m_lineWidth(lineWidth),
-        m_occlusionPolicy(occlusionPolicy) {}
+        m_occlusionPolicy(occlusionPolicy),
+        m_cullingPolicy(CP_ShowBackfaces) {}
         
         
 
@@ -155,11 +156,11 @@ namespace TrenchBroom {
         }
         
         void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(Vertex::fromLists(positions, positions.size()));
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(Vertex::toList(std::begin(positions), positions.size()));
         }
 
         void PrimitiveRenderer::renderLineStrip(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::fromLists(positions, positions.size()));
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::toList(std::begin(positions), positions.size()));
         }
 
         void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
@@ -206,11 +207,11 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::vec3f::List& positions) {
-            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::fromLists(positions, positions.size()));
+            m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::toList(std::begin(positions), positions.size()));
         }
 
         void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f::List& positions) {
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleFan(Vertex::fromLists(std::begin(positions), positions.size()));
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleFan(Vertex::toList(std::begin(positions), positions.size()));
         }
 
         void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end) {
@@ -228,7 +229,7 @@ namespace TrenchBroom {
             const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
             const vm::vec3f::List vertices = transform * cylinder.vertices;
             
-            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::fromLists(vertices, vertices.size()));
+            m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::toList(std::begin(vertices), vertices.size()));
         }
 
         void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {

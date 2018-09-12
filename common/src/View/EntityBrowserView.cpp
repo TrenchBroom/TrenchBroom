@@ -389,7 +389,7 @@ namespace TrenchBroom {
             Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
-            const Color::List textColor(1, pref(Preferences::BrowserTextColor));
+            const Color::List textColor{ pref(Preferences::BrowserTextColor) };
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
@@ -397,12 +397,12 @@ namespace TrenchBroom {
                 if (group.intersectsY(y, height)) {
                     const String& title = group.item();
                     if (!title.empty()) {
-                        const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const vm::vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
+                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
-                        Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const vm::vec2f::List quads = font.quads(title, false, offset);
-                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        auto& font = fontManager().font(defaultDescriptor);
+                        const auto quads = font.quads(title, false, offset);
+                        const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
                         VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
                     
@@ -410,13 +410,13 @@ namespace TrenchBroom {
                         const Layout::Group::Row& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                const LayoutBounds titleBounds = cell.titleBounds();
-                                const vm::vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                const auto& cell = row[k];
+                                const auto titleBounds = cell.titleBounds();
+                                const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const vm::vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
-                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                const auto quads = font.quads(cell.item().entityDefinition->name(), false, offset);
+                                const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
                                 VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }

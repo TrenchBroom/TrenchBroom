@@ -76,24 +76,24 @@ namespace TrenchBroom {
         }
         
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {
-            typedef VertexSpecs::P2::Vertex Vertex;
+            using Vertex = VertexSpecs::P2::Vertex;
 
-            vm::vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
+            auto positions = circle2D(radius, startAngle, angleLength, segments);
             if (m_filled) {
                 positions.push_back(vm::vec2f::zero);
             }
-            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            auto vertices = Vertex::toList(std::begin(positions), positions.size());
             m_array = VertexArray::swap(vertices);
         }
         
         void Circle::init3D(const float radius, const size_t segments, const vm::axis::type axis, const float startAngle, const float angleLength) {
-            typedef VertexSpecs::P3::Vertex Vertex;
+            using Vertex = VertexSpecs::P3::Vertex;
             
-            vm::vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (m_filled) {
                 positions.push_back(vm::vec3f::zero);
             }
-            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            auto vertices = Vertex::toList(std::begin(positions), positions.size());
             m_array = VertexArray::swap(vertices);
         }
     }

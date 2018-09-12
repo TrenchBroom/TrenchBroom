@@ -55,7 +55,7 @@ namespace TrenchBroom {
             makeBackground();
         }
         
-        Compass::~Compass() {}
+        Compass::~Compass() = default;
         
         void Compass::render(RenderBatch& renderBatch) {
             renderBatch.add(this);
@@ -119,10 +119,10 @@ namespace TrenchBroom {
             }
             
             typedef VertexSpecs::P3N::Vertex Vertex;
-            Vertex::List shaftVertices    = Vertex::fromLists(shaft.vertices, shaft.normals, shaft.vertices.size());
-            Vertex::List headVertices     = Vertex::fromLists(head.vertices,  head.normals,  head.vertices.size());
-            Vertex::List shaftCapVertices = Vertex::fromLists(shaftCap.vertices, shaftCap.normals, shaftCap.vertices.size());
-            Vertex::List headCapVertices  = Vertex::fromLists(headCap.vertices,  headCap.normals,  headCap.vertices.size());
+            Vertex::List shaftVertices    = Vertex::toList(std::begin(shaft.vertices), std::begin(shaft.normals), shaft.vertices.size());
+            Vertex::List headVertices     = Vertex::toList(std::begin(head.vertices),  std::begin(head.normals),  head.vertices.size());
+            Vertex::List shaftCapVertices = Vertex::toList(std::begin(shaftCap.vertices), std::begin(shaftCap.normals), shaftCap.vertices.size());
+            Vertex::List headCapVertices  = Vertex::toList(std::begin(headCap.vertices),  std::begin(headCap.normals),  headCap.vertices.size());
 
             const size_t vertexCount = shaftVertices.size() + headVertices.size() + shaftCapVertices.size() + headCapVertices.size();
             IndexRangeMap::Size indexArraySize;
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         void Compass::makeBackground() {
             typedef VertexSpecs::P2::Vertex Vertex;
             vm::vec2f::List circ = circle2D((m_shaftLength + m_headLength) / 2.0f + 5.0f, 0.0f, vm::Cf::twoPi(), m_segments);
-            Vertex::List verts = Vertex::fromLists(circ, circ.size());
+            Vertex::List verts = Vertex::toList(std::begin(circ), circ.size());
             
             IndexRangeMap::Size backgroundSize;
             backgroundSize.inc(GL_TRIANGLE_FAN);
