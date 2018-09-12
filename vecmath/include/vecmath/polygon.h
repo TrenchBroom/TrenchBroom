@@ -21,6 +21,7 @@
 #define TRENCHBROOM_POLYGON_DECL_H
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_ext.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
