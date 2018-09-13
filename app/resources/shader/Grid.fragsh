@@ -46,7 +46,7 @@ float getSoftStripes(float value, float gridSize, float stripeSize) {
  * @param gridBlend the fraction of the two grids to draw, between 0 and 1, 
  *                  where 0.0 means 100% of grid one, and 1.0 means 100% of grid two.
  */
-float gridLinesSoft(vm::vec2 inCoords, float gridRatio, float gridRatio2, float lineWidth, float gridBlend) {
+float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float lineWidth, float gridBlend) {
     float stripeRatio = lineWidth * gridRatio;
     float stripeRatio2 = lineWidth * gridRatio2;
     float stripeSize = 1.0 - stripeRatio;
@@ -90,7 +90,7 @@ float gridFloor(float size) {
  *
  * @return opacity of the grid line to draw on this fragment, in [0..1]
  */
-float grid(vm::vec3 coords, vm::vec3 normal, float gridSize, float minGridSize, float lineWidthFactor) {
+float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor) {
     float lineWidth = (gridSize < 1.0 ? (1.0 / 32.0)
                        : (gridSize < 4.0 ? 0.25 : 0.5)) * lineWidthFactor;
 
@@ -109,7 +109,7 @@ float grid(vm::vec3 coords, vm::vec3 normal, float gridSize, float minGridSize, 
     float gridRatio = 1.0 / baseGridSize;
     float gridRatio2 = 1.0 / nextGridSize;
     
-    vm::vec2 baseCoords; // coordinates used for overlay creation
+    vec2 baseCoords; // coordinates used for overlay creation
     
     if (abs(normal.x) > abs(normal.y)) {
         if (abs(normal.x) > abs(normal.z))

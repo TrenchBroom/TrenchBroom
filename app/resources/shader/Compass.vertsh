@@ -19,29 +19,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vm::vec3 CameraPosition;
-uniform vm::vec3 LightDirection;
-uniform vm::vec4 LightDiffuse;
-uniform vm::vec4 LightSpecular;
-uniform vm::vec4 MaterialDiffuse;
-uniform vm::vec4 MaterialAmbient;
-uniform vm::vec4 MaterialSpecular;
+uniform vec3 CameraPosition;
+uniform vec3 LightDirection;
+uniform vec4 LightDiffuse;
+uniform vec4 LightSpecular;
+uniform vec4 MaterialDiffuse;
+uniform vec4 MaterialAmbient;
+uniform vec4 MaterialSpecular;
 uniform float MaterialShininess;
-uniform vm::vec4 GlobalAmbient;
+uniform vec4 GlobalAmbient;
 
 void main(void) {
 	gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     
-    vm::vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
+    vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
     float NdotL = max(dot(normal, LightDirection), 0.0); // cosine of normal and light direction
 
-    vm::vec4 diffuse = NdotL * LightDiffuse * MaterialDiffuse;
-    vm::vec4 ambient = GlobalAmbient * MaterialAmbient;
+    vec4 diffuse = NdotL * LightDiffuse * MaterialDiffuse;
+    vec4 ambient = GlobalAmbient * MaterialAmbient;
 
-    vm::vec3 eyeVector = normalize(CameraPosition - gl_Vertex.xyz);
-    vm::vec3 halfVector = normalize(eyeVector - LightDirection);
+    vec3 eyeVector = normalize(CameraPosition - gl_Vertex.xyz);
+    vec3 halfVector = normalize(eyeVector - LightDirection);
     float NdotHV = max(-dot(normal, halfVector), 0.0);
-    vm::vec4 specular = MaterialSpecular * LightSpecular * pow(NdotHV, MaterialShininess);
+    vec4 specular = MaterialSpecular * LightSpecular * pow(NdotHV, MaterialShininess);
 
-	gl_FrontColor = vm::vec4((diffuse + ambient + specular).xyz, 1.0);
+	gl_FrontColor = vec4((diffuse + ambient + specular).xyz, 1.0);
 }

@@ -22,11 +22,11 @@
 uniform float Brightness;
 uniform sampler2D Texture;
 uniform bool ApplyTinting;
-uniform vm::vec4 TintColor;
+uniform vec4 TintColor;
 uniform bool GrayScale;
 
 void main() {
-    vm::vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
+    vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
 
     // Assume alpha masked or opaque.
     // TODO: Make this optional if we gain support for translucent textures
@@ -34,16 +34,16 @@ void main() {
         discard;
     }
 
-    gl_FragColor = vm::vec4(vm::vec3(Brightness / 2.0 * texel), texel.a);
+    gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
     gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
     
     if (GrayScale) {
-        float gray = dot(gl_FragColor.rgb, vm::vec3(0.299, 0.587, 0.114));
-        gl_FragColor = vm::vec4(gray, gray, gray, gl_FragColor.a);
+        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
     }
     
     if (ApplyTinting) {
-        gl_FragColor = vm::vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
 }

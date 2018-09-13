@@ -19,13 +19,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vm::vec4 Color;
-uniform vm::vec3 CameraPosition;
-uniform vm::vec4 Position;
+uniform vec4 Color;
+uniform vec3 CameraPosition;
+uniform vec4 Position;
 uniform float ScalingFactor;
 uniform float MaximumDistance;
 
-varying vm::vec4 vertexColor;
+varying vec4 vertexColor;
 
 void main(void) {
     vertexColor = Color;

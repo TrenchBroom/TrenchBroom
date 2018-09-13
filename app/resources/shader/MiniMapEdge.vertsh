@@ -19,7 +19,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-varying vm::vec4 vertexWorldPosition;
+varying vec4 vertexWorldPosition;
 
 void main(void) {
     vertexWorldPosition = gl_Vertex;

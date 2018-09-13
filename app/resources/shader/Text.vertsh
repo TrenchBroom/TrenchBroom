@@ -19,9 +19,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vm::vec4 Color;
+uniform vec4 Color;
 
-varying vm::vec4 vertexColor;
+varying vec4 vertexColor;
 
 void main(void) {
     vertexColor = Color;

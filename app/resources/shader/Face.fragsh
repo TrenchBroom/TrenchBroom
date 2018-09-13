@@ -24,7 +24,7 @@ uniform float Alpha;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
 uniform bool ApplyTinting;
-uniform vm::vec4 TintColor;
+uniform vec4 TintColor;
 uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
@@ -32,12 +32,12 @@ uniform float GridAlpha;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
-varying vm::vec4 modelCoordinates;
-varying vm::vec3 modelNormal;
-varying vm::vec4 faceColor;
-varying vm::vec3 viewVector;
+varying vec4 modelCoordinates;
+varying vec3 modelNormal;
+varying vec4 faceColor;
+varying vec3 viewVector;
 
-float grid(vm::vec3 coords, vm::vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
+float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 
 void main() {
 	if (ApplyTexture)
@@ -51,17 +51,17 @@ void main() {
         discard;
     }
 
-    gl_FragColor = vm::vec4(vm::vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
+    gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
     gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     gl_FragColor.a = Alpha;
 
     if (GrayScale) {
-        float gray = dot(gl_FragColor.rgb, vm::vec3(0.299, 0.587, 0.114));
-        gl_FragColor = vm::vec4(gray, gray, gray, gl_FragColor.a);
+        float gray = dot(gl_FragColor.rgb, vec3(0.299, 0.587, 0.114));
+        gl_FragColor = vec4(gray, gray, gray, gl_FragColor.a);
     }
 
     if (ApplyTinting) {
-        gl_FragColor = vm::vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb * TintColor.a, gl_FragColor.a);
         float brightnessCorrection = 1.0 / max(max(abs(TintColor.r), abs(TintColor.g)), abs(TintColor.b));
         gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
     }
@@ -79,7 +79,7 @@ void main() {
         float distance = length(viewVector);
 
 		// TODO: make view options
-		vm::vec3 fogColor = vm::vec3(0.5, 0.5, 0.5);
+		vec3 fogColor = vec3(0.5, 0.5, 0.5);
 		float maxFogAmount = 0.15;
 		float fogBias = 0.0;
         float fogScale = 0.00075;
@@ -92,7 +92,7 @@ void main() {
 	}
 
 	if (RenderGrid && GridAlpha > 0.0) {
-        vm::vec3 coords = modelCoordinates.xyz;
+        vec3 coords = modelCoordinates.xyz;
 
         // get the maximum distance in world space between this and the neighbouring fragments
         float maxWorldSpaceChange = max(length(dFdx(coords)), length(dFdy(coords)));
@@ -101,6 +101,6 @@ void main() {
         float minGridSize = 2.0 * maxWorldSpaceChange;
 
         float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, vm::vec3(1.0), gridValue * GridAlpha);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
 	}
 }
