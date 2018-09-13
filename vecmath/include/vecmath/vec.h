@@ -998,6 +998,78 @@ namespace vm {
     /* ========== arithmetic functions ========== */
 
     /**
+     * Returns a vector where each component is the minimum of the corresponding components of the given vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first vector
+     * @param rhs the second vector
+     * @return the component wise minimum of the given vectors
+     */
+    template <typename T, size_t S>
+    vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = min(lhs[i], rhs[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector where each component is the maximum of the corresponding components of the given vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first vector
+     * @param rhs the second vector
+     * @return the component wise maximum of the given vectors
+     */
+    template <typename T, size_t S>
+    vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = max(lhs[i], rhs[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector where each component is the absolute minimum of the corresponding components of the given vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first vector
+     * @param rhs the second vector
+     * @return the component wise absolute minimum of the given vectors
+     */
+    template <typename T, size_t S>
+    vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = absMin(lhs[i], rhs[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector where each component is the absolute maximum of the corresponding components of the given vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first vector
+     * @param rhs the second vector
+     * @return the component wise absolute maximum of the given vectors
+     */
+    template <typename T, size_t S>
+    vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = absMax(lhs[i], rhs[i]);
+        }
+        return result;
+    }
+
+    /**
      * Returns a vector where each component is the absolute value of the corresponding component of the the
      * given vector.
      *

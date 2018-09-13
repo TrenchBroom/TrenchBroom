@@ -395,6 +395,34 @@ namespace vm {
 
     /* ========== arithmetic functions ========== */
 
+    TEST(VecTest, min) {
+        ASSERT_EQ(vec3f(+2, +2, +2), min(vec3f(+2, +2, +2), vec3f(+3, +3, +3)));
+        ASSERT_EQ(vec3f(-2, -2, -2), min(vec3f(-2, -2, -2), vec3f(-1, -1, -1)));
+        ASSERT_EQ(vec3f(+1, +2, +1), min(vec3f(+2, +2, +2), vec3f(+1, +3, +1)));
+        ASSERT_EQ(vec3f(-2, -3, -2), min(vec3f(-2, -2, -2), vec3f(-1, -3, -1)));
+    }
+
+    TEST(VecTest, max) {
+        ASSERT_EQ(vec3f(+3, +3, +3), max(vec3f(+2, +2, +2), vec3f(+3, +3, +3)));
+        ASSERT_EQ(vec3f(-1, -1, -1), max(vec3f(-2, -2, -2), vec3f(-1, -1, -1)));
+        ASSERT_EQ(vec3f(+2, +3, +2), max(vec3f(+2, +2, +2), vec3f(+1, +3, +1)));
+        ASSERT_EQ(vec3f(-1, -2, -1), max(vec3f(-2, -2, -2), vec3f(-1, -3, -1)));
+    }
+
+    TEST(VecTest, absMin) {
+        ASSERT_EQ(vec3f(+2, +2, +2), absMin(vec3f(+2, +2, +2), vec3f(+3, +3, +3)));
+        ASSERT_EQ(vec3f(-1, -1, -1), absMin(vec3f(-2, -2, -2), vec3f(-1, -1, -1)));
+        ASSERT_EQ(vec3f(+1, +2, +1), absMin(vec3f(+2, +2, +2), vec3f(+1, +3, +1)));
+        ASSERT_EQ(vec3f(-1, -2, -1), absMin(vec3f(-2, -2, -2), vec3f(-1, -3, -1)));
+    }
+
+    TEST(VecTest, absMax) {
+        ASSERT_EQ(vec3f(+3, +3, +3), absMax(vec3f(+2, +2, +2), vec3f(+3, +3, +3)));
+        ASSERT_EQ(vec3f(-2, -2, -2), absMax(vec3f(-2, -2, -2), vec3f(-1, -1, -1)));
+        ASSERT_EQ(vec3f(+2, +3, +2), absMax(vec3f(+2, +2, +2), vec3f(+1, +3, +1)));
+        ASSERT_EQ(vec3f(-2, -3, -2), absMax(vec3f(-2, -2, -2), vec3f(-1, -3, -1)));
+    }
+
     TEST(VecTest, abs) {
         ASSERT_EQ(vec3f(1, 2, 3), abs(vec3f(1, -2, -3)));
         ASSERT_EQ(vec3f(0, 2, 3), abs(vec3f(0, -2, -3)));
