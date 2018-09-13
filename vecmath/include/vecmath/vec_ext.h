@@ -72,7 +72,7 @@ namespace vm {
         std::vector<vec<T,S>> result;
         result.reserve(lhs.size());
         for (const auto& vec : lhs) {
-            result.push_back(vec + rhs);
+            result.push_back(vec * rhs);
         }
         return result;
     }

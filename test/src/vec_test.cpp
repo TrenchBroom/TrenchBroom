@@ -20,10 +20,12 @@
 #include <gtest/gtest.h>
 
 #include <vecmath/vec.h>
-#include <vecmath/scalar.h>
+#include <vecmath/vec_ext.h>
+
 #include "TestUtils.h"
 
 #include <limits>
+#include <vector>
 
 // TODO 2201: write more tests
 
@@ -631,5 +633,20 @@ namespace vm {
         ASSERT_FLOAT_EQ(measureAngle(vec3f::neg_x, vec3f::pos_x, vec3f::pos_z), Cf::pi());
         ASSERT_FLOAT_EQ(measureAngle(vec3f::neg_y, vec3f::pos_x, vec3f::pos_z), 3.0f * Cf::piOverTwo());
     }
-    
+
+    /* ========== operations on vectors of vectors ========== */
+
+    TEST(VecTest, addList) {
+        const auto in  = std::vector<vec3f>{ vec3f(1, 2, 3), vec3f(2, 3, 4) };
+        const auto exp = std::vector<vec3f>{ vec3f(0, 3, 1), vec3f(1, 4, 2) };
+        ASSERT_EQ(exp, in + vec3f(-1, +1, -2));
+        ASSERT_EQ(exp, vec3f(-1, +1, -2) + in);
+    }
+
+    TEST(VecTest, scalarMultiplyList) {
+        const auto in  = std::vector<vec3f>{ vec3f(1, 2, 3), vec3f(2, 3, 4) };
+        const auto exp = std::vector<vec3f>{ vec3f(3, 6, 9), vec3f(6, 9, 12) };
+        ASSERT_EQ(exp, in * 3.0f);
+        ASSERT_EQ(exp, 3.0f * in);
+    }
 }
