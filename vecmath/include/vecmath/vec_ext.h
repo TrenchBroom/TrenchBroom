@@ -26,14 +26,14 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace vm {
     /**
- * Adds the given vector to each of the vectors in the given range.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the range of vectors
- * @param rhs the right hand vector
- * @return a range containing the sum of each of the vectors in the given range with the right hand vector
- */
+     * Adds the given vector to each of the vectors in the given range.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the range of vectors
+     * @param rhs the right hand vector
+     * @return a range containing the sum of each of the vectors in the given range with the right hand vector
+     */
     template <typename T, size_t S>
     std::vector<vec<T,S>> operator+(const std::vector<vec<T,S>>& lhs, const vec<T,S>& rhs) {
         std::vector<vec<T,S>> result;

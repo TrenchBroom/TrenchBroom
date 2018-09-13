@@ -810,6 +810,16 @@ namespace vm {
     /* ========== arithmetic operators ========== */
 
     /**
+     * Returns a copy of this vector.
+     *
+     * @return the copy
+     */
+    template <typename T, size_t S>
+    vec<T,S> operator+(const vec<T,S>& vector) {
+        return vector;
+    }
+
+    /**
      * Returns an inverted copy of this vector. The copy is inverted by negating every component.
      *
      * @return the inverted copy
@@ -1006,78 +1016,6 @@ namespace vm {
     }
 
     /**
-     * Returns a vector where each component is the minimum of the corresponding components of the given vectors.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param lhs the first vector
-     * @param rhs the second vector
-     * @return the component wise minimum of the given vectors
-     */
-    template <typename T, size_t S>
-    vec<T,S> min(const vec<T,S>& lhs, const vec<T,S>& rhs) {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = min(lhs[i], rhs[i]);
-        }
-        return result;
-    }
-
-    /**
-     * Returns a vector where each component is the maximum of the corresponding components of the given vectors.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param lhs the first vector
-     * @param rhs the second vector
-     * @return the component wise maximum of the given vectors
-     */
-    template <typename T, size_t S>
-    vec<T,S> max(const vec<T,S>& lhs, const vec<T,S>& rhs) {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = max(lhs[i], rhs[i]);
-        }
-        return result;
-    }
-
-    /**
-     * Returns a vector where each component is the absolute minimum of the corresponding components of the given vectors.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param lhs the first vector
-     * @param rhs the second vector
-     * @return the component wise absolute minimum of the given vectors
-     */
-    template <typename T, size_t S>
-    vec<T,S> absMin(const vec<T,S>& lhs, const vec<T,S>& rhs) {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = absMin(lhs[i], rhs[i]);
-        }
-        return result;
-    }
-
-    /**
-     * Returns a vector where each component is the absolute maximum of the corresponding components of the given vectors.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param lhs the first vector
-     * @param rhs the second vector
-     * @return the component wise absolute maximum of the given vectors
-     */
-    template <typename T, size_t S>
-    vec<T,S> absMax(const vec<T,S>& lhs, const vec<T,S>& rhs) {
-        vec<T,S> result;
-        for (size_t i = 0; i < S; ++i) {
-            result[i] = absMax(lhs[i], rhs[i]);
-        }
-        return result;
-    }
-
-    /**
      * Returns the dot product (also called inner product) of the two given vectors.
      *
      * @tparam T the component type
@@ -1261,7 +1199,7 @@ namespace vm {
     template <typename T, size_t S>
     bool isIntegral(const vec<T,S>& v, const T epsilon = static_cast<T>(0.0)) {
         for (size_t i = 0; i < S; ++i) {
-            if (std::abs(v[i] - round(v[i])) >= epsilon) {
+            if (std::abs(v[i] - round(v[i])) > epsilon) {
                 return false;
             }
         }
@@ -1518,15 +1456,17 @@ namespace vm {
      * @param get the transformation function, defaults to identity
      * @return the average of the vectors obtained from the given range of elements
      */
-     template <typename I, typename G>
-     auto average(I cur, I end, const G& get) -> typename std::remove_reference<decltype(get(*cur))>::type {
+     template <typename I, typename G = Identity>
+     auto average(I cur, I end, const G& get = G()) -> typename std::remove_reference<decltype(get(*cur))>::type {
          assert(cur != end);
 
+         using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
+
          auto result = get(*cur++);
-         auto count = 1.0;
+         auto count = T(1.0);
          while (cur != end) {
              result = result + get(*cur++);
-             count = count + 1.0;
+             count = count + T(1.0);
          }
          return result / count;
      }

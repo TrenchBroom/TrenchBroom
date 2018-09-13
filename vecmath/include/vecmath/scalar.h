@@ -119,7 +119,11 @@ namespace vm {
      */
     template <typename T>
     T min(const T lhs, const T rhs) {
-        return std::min(lhs, rhs);
+        if (lhs < rhs) {
+            return lhs;
+        } else {
+            return rhs;
+        }
     }
 
     /**
@@ -132,7 +136,11 @@ namespace vm {
      */
     template <typename T>
     T max(const T lhs, const T rhs) {
-        return std::max(lhs, rhs);
+        if (lhs > rhs) {
+            return lhs;
+        } else {
+            return rhs;
+        }
     }
 
     /**
@@ -278,7 +286,7 @@ namespace vm {
     }
 
     /**
-     * Rounds the given value towards 0. Given a positive value, this function returns the largester integer not
+     * Rounds the given value towards 0. Given a positive value, this function returns the largest integer not
      * greater than the given value, and given a negative value, this function returns the smallest integer not less
      * than the given value.
      *

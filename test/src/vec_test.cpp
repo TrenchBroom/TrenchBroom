@@ -400,22 +400,6 @@ namespace vm {
         ASSERT_EQ(vec3f(0, 2, 3), abs(vec3f(0, -2, -3)));
     }
 
-    TEST(VecTest, min) {
-        // TODO 2201: add test
-    }
-
-    TEST(VecTest, max) {
-        // TODO 2201: add test
-    }
-
-    TEST(VecTest, absMin) {
-        // TODO 2201: add test
-    }
-
-    TEST(VecTest, absMax) {
-        // TODO 2201: add test
-    }
-
     TEST(VecTest, dot) {
         ASSERT_FLOAT_EQ(-748013.6097f, dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f(4.333f, -2.0f, 322.0f)));
         ASSERT_FLOAT_EQ(0.0f, dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f::zero));
@@ -472,7 +456,15 @@ namespace vm {
     }
 
     TEST(VecTest, isUnit) {
-        // TODO 2201: add test
+        ASSERT_TRUE(isUnit(vec3f::pos_x));
+        ASSERT_TRUE(isUnit(vec3f::pos_y));
+        ASSERT_TRUE(isUnit(vec3f::pos_z));
+        ASSERT_TRUE(isUnit(vec3f::neg_x));
+        ASSERT_TRUE(isUnit(vec3f::neg_y));
+        ASSERT_TRUE(isUnit(vec3f::neg_z));
+        ASSERT_TRUE(isUnit(normalize(vec3f::one)));
+        ASSERT_FALSE(isUnit(vec3f::one));
+        ASSERT_FALSE(isUnit(vec3f::zero));
     }
 
     TEST(VecTest, isZero) {
@@ -481,11 +473,20 @@ namespace vm {
     }
 
     TEST(VecTest, isNaN) {
-        // TODO 2201: add test
+        ASSERT_TRUE(isNaN(vec3f::NaN));
+        ASSERT_FALSE(isNaN(vec3f::pos_x));
     }
 
     TEST(VecTest, isIntegral) {
-        // TODO 2201: add test
+        ASSERT_TRUE(isIntegral(vec3f::pos_x));
+        ASSERT_TRUE(isIntegral(vec3f::pos_y));
+        ASSERT_TRUE(isIntegral(vec3f::pos_z));
+        ASSERT_TRUE(isIntegral(vec3f::neg_x));
+        ASSERT_TRUE(isIntegral(vec3f::neg_y));
+        ASSERT_TRUE(isIntegral(vec3f::neg_z));
+        ASSERT_TRUE(isIntegral(vec3f::one));
+        ASSERT_TRUE(isIntegral(vec3f::zero));
+        ASSERT_FALSE(isIntegral(normalize(vec3f::one)));
     }
 
     TEST(VecTest, mix) {
@@ -511,7 +512,7 @@ namespace vm {
     }
 
     TEST(VecTest, toHomogeneousCoordinates) {
-        // TODO 2201: add test
+        ASSERT_EQ(vec4f(1, 2, 3, 1), toHomogeneousCoords(vec3f(1, 2, 3)));
     }
 
     TEST(VecTest, toCartesianCoords) {
@@ -528,21 +529,47 @@ namespace vm {
     }
 
     TEST(VecTest, parallel) {
-        // TODO 2201: add test
+        ASSERT_FALSE(parallel(vec3f::zero, vec3f::zero));
+        ASSERT_TRUE(parallel(vec3f::pos_x, vec3f::pos_x));
+        ASSERT_TRUE(parallel(vec3f::pos_x, vec3f::neg_x));
+        ASSERT_TRUE(parallel(vec3f::one, vec3f::one));
+        ASSERT_TRUE(parallel(vec3f::one, normalize(vec3f::one)));
     }
 
     /* ========== rounding and error correction ========== */
 
     TEST(VecTest, round) {
-        // TODO 2201: add test
+        ASSERT_EQ(vec3f::pos_x, round(vec3f::pos_x));
+        ASSERT_EQ(vec3f::one, round(vec3f::one));
+        ASSERT_EQ(vec3f::zero, round(vec3f::zero));
+        ASSERT_EQ(vec3f::one, round(normalize(vec3f::one)));
+        ASSERT_EQ(vec3f::zero, round(vec3f(0.4, 0.4, 0.4)));
+        ASSERT_EQ(vec3f(0, 1, 0), round(vec3f(0.4, 0.5, 0.4)));
+        ASSERT_EQ(vec3f(0, -1, 0), round(vec3f(-0.4, -0.5, -0.4)));
     }
 
     TEST(VecTest, snapDown) {
-        // TODO 2201: add test
+        ASSERT_EQ( vec3f::zero, snapDown(vec3f::zero, vec3f::one));
+        ASSERT_EQ( vec3f::zero, snapDown(vec3f(+0.4, +0.5, +0.6), vec3f::one));
+        ASSERT_EQ( vec3f::zero, snapDown(vec3f(-0.4, -0.5, -0.6), vec3f::one));
+        ASSERT_EQ(+vec3f::one,  snapDown(vec3f(+1.4, +1.5, +1.6), vec3f::one));
+        ASSERT_EQ(-vec3f::one,  snapDown(vec3f(-1.4, -1.5, -1.6), vec3f::one));
+        ASSERT_EQ( vec3f::zero, snapDown(vec3f(+1.4, +1.5, +1.6), vec3f(2, 2, 2)));
+        ASSERT_EQ( vec3f::zero, snapDown(vec3f(-1.4, -1.5, -1.6), vec3f(2, 2, 2)));
+        ASSERT_EQ( vec3f(0, +1, +1), snapDown(vec3f(+1.4, +1.5, +1.6), vec3f(2, 1, 1)));
+        ASSERT_EQ( vec3f(0, -1, -1), snapDown(vec3f(-1.4, -1.5, -1.6), vec3f(2, 1, 1)));
     }
 
     TEST(VecTest, snapUp) {
-        // TODO 2201: add test
+        ASSERT_EQ( vec3f::zero, snapUp(vec3f::zero, vec3f::one));
+        ASSERT_EQ(+vec3f::one,  snapUp(vec3f(+0.4, +0.5, +0.6), vec3f::one));
+        ASSERT_EQ(-vec3f::one,  snapUp(vec3f(-0.4, -0.5, -0.6), vec3f::one));
+        ASSERT_EQ(+vec3f(+2, +2, +2), snapUp(vec3f(+1.4, +1.5, +1.6), vec3f::one));
+        ASSERT_EQ(-vec3f(+2, +2, +2), snapUp(vec3f(-1.4, -1.5, -1.6), vec3f::one));
+        ASSERT_EQ( vec3f(+3, +3, +3), snapUp(vec3f(+1.4, +1.5, +1.6), vec3f(3, 3, 3)));
+        ASSERT_EQ( vec3f(-3, -3, -3), snapUp(vec3f(-1.4, -1.5, -1.6), vec3f(3, 3, 3)));
+        ASSERT_EQ( vec3f(+3, +2, +2), snapUp(vec3f(+1.4, +1.5, +1.6), vec3f(3, 1, 1)));
+        ASSERT_EQ( vec3f(-3, -2, -2), snapUp(vec3f(-1.4, -1.5, -1.6), vec3f(3, 1, 1)));
     }
 
     TEST(VecTest, snap) {
@@ -552,15 +579,22 @@ namespace vm {
     }
 
     TEST(VecTest, correct) {
-        // TODO 2201: add test
+        ASSERT_EQ(vec3f(1.1, 2.2, 3.3), correct(vec3f(1.1, 2.2, 3.3)));
+        ASSERT_EQ(vec3f(1, 2, 3), correct(vec3f(1.1, 2.2, 3.3), 0, 0.4f));
+        ASSERT_EQ(vec3f(1.1, 2.2, 3.3), correct(vec3f(1.1, 2.2, 3.3), 1, 0.4f));
     }
 
     TEST(VecTest, between) {
-        // TODO 2201: add test
+        ASSERT_TRUE(between(vec3f(1, 0, 0), vec3f(0, 0, 0), vec3f(2, 0, 0)));
+        ASSERT_TRUE(between(vec3f(1, 0, 0), vec3f(2, 0, 0), vec3f(0, 0, 0)));
+        ASSERT_TRUE(between(vec3f(1, 0, 0), vec3f(1, 0, 0), vec3f(0, 0, 0)));
+        ASSERT_TRUE(between(vec3f(0, 0, 0), vec3f(1, 0, 0), vec3f(0, 0, 0)));
+        ASSERT_FALSE(between(vec3f(2, 0, 0), vec3f(1, 0, 0), vec3f(0, 0, 0)));
     }
 
     TEST(VecTest, average) {
-        // TODO 2201: add test
+        const auto vecs = std::vector<vec3f>{ vec3f(1, 1, 1), vec3f(1, 1, 1), vec3f(2, 2, 2) };
+        ASSERT_EQ(vec3f(4.0 / 3.0, 4.0 / 3.0, 4.0 / 3.0), average(std::begin(vecs), std::end(vecs)));
     }
 
     TEST(VecTest, measureAngle) {
