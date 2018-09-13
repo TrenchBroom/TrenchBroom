@@ -953,10 +953,29 @@ namespace vm {
         return result;
     }
 
+    /**
+     * Returns the division of the given vector and scalar factor, which is computed by dividing the factor by each
+     * component.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the scalar
+     * @param rhs the vector
+     * @return the scalar division of the given factor with the given vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> operator/(const T lhs, const vec<T,S>& rhs) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = lhs / rhs[i];
+        }
+        return result;
+    }
+
     /* ========== stream operators ========== */
 
     template <typename T, size_t S>
-    std::ostream& operator<< (std::ostream& stream, const vec<T,S>& vec) {
+    std::ostream& operator<<(std::ostream& stream, const vec<T,S>& vec) {
         if (S > 0) {
             stream << vec[0];
             for (size_t i = 1; i < S; ++i) {
