@@ -393,6 +393,17 @@ namespace vm {
     }
 
     /**
+     * Returns a copy of the given matrix.
+     *
+     * @param m the matrix
+     * @return a copy of the given matrix
+     */
+    template <typename T, size_t R, size_t C>
+    mat<T,R,C> operator+(const mat<T,R,C>& m) {
+        return m;
+    }
+
+    /**
      * Returns a matrix with the negated components of the given matrix.
      *
      * @param m the matrix to negate

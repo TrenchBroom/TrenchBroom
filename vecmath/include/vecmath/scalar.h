@@ -376,6 +376,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the first given value is greater than the sum of the secon value and the epsilon value, and false otherwise
      */
+     // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 1.0 > 0.95 being false with an epsilon of 0.1.
     template <typename T>
     bool gt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return lhs > rhs + epsilon;
@@ -390,6 +391,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the first given value is less than the sum of the secon value and the negated epsilon value, and false otherwise
      */
+    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
     template <typename T>
     bool lt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return lhs < rhs - epsilon;
@@ -404,6 +406,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the first given value is greater than or equal to the sum of the secon value and the epsilon value, and false otherwise
      */
+     // TODO: likewise, is this correct at all?
     template <typename T>
     bool gte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return !lt(lhs, rhs, epsilon);
@@ -418,6 +421,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the first given value is less than or equal to the sum of the secon value and the negated epsilon value, and false otherwise
      */
+    // TODO: likewise, is this correct at all?
     template <typename T>
     bool lte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
         return !gt(lhs, rhs, epsilon);
