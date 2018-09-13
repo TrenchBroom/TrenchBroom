@@ -771,4 +771,17 @@ namespace vm {
         ASSERT_EQ(vec3d::neg_y + vec3d::one, m * vec3d::pos_y);
         ASSERT_EQ(vec3d::neg_z + vec3d::one, m * vec3d::pos_z);
     }
+
+    TEST(MatTest, planeProjectionMatrix) {
+        // I really don't know how to write a test for this right now.
+    }
+
+    TEST(MatTest, shearMatrix) {
+        ASSERT_EQ(vec3d(1, 1, 1), shearMatrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d::pos_z);
+        ASSERT_EQ(vec3d(0, 0, 0), shearMatrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d::zero);
+        ASSERT_EQ(vec3d(1, 1, 1), shearMatrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d::pos_y);
+        ASSERT_EQ(vec3d(0, 0, 0), shearMatrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d::zero);
+        ASSERT_EQ(vec3d(1, 1, 1), shearMatrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d::pos_x);
+        ASSERT_EQ(vec3d(0, 0, 0), shearMatrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d::zero);
+    }
 }

@@ -1124,9 +1124,9 @@ namespace vm {
         const auto  yAxis = normalize(cross(normal, xAxis));
         const auto& zAxis = direction;
 
-        assert(isEqual(length(xAxis), 1.0));
-        assert(isEqual(length(yAxis), 1.0));
-        assert(isEqual(length(zAxis), 1.0));
+        assert(isUnit(xAxis));
+        assert(isUnit(yAxis));
+        assert(isUnit(zAxis));
 
         return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
     }
