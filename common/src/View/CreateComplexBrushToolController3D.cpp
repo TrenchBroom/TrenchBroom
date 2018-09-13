@@ -36,6 +36,7 @@
 #include "View/MapDocument.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_ext.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 
