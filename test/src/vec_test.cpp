@@ -23,22 +23,90 @@
 #include <vecmath/scalar.h>
 #include "TestUtils.h"
 
+#include <limits>
+
 // TODO 2201: write more tests
 
 namespace vm {
-    TEST(VecTest, parseVec3fWithValidString) {
+    TEST(VecTest, checkStatics) {
+        ASSERT_EQ(vec3f(+1,  0,  0), vec3f::pos_x);
+        ASSERT_EQ(vec3f( 0, +1,  0), vec3f::pos_y);
+        ASSERT_EQ(vec3f( 0,  0, +1), vec3f::pos_z);
+        ASSERT_EQ(vec3f(-1,  0,  0), vec3f::neg_x);
+        ASSERT_EQ(vec3f( 0, -1,  0), vec3f::neg_y);
+        ASSERT_EQ(vec3f( 0,  0, -1), vec3f::neg_z);
+        ASSERT_EQ(vec3f( 0,  0,  0), vec3f::zero);
+        ASSERT_EQ(vec3f( 1,  1,  1), vec3f::one);
+
+        for (size_t i = 0; i < 3; ++i) {
+            ASSERT_FLOAT_EQ(std::numeric_limits<float>::min(), vec3f::min[i]);
+            ASSERT_FLOAT_EQ(std::numeric_limits<float>::max(), vec3f::max[i]);
+            ASSERT_TRUE(std::isnan(vec3f::NaN[i]));
+        }
+    }
+
+    TEST(VecTest, axis) {
+        ASSERT_EQ(vec3f::pos_x, vec3f::axis(0));
+        ASSERT_EQ(vec3f::pos_y, vec3f::axis(1));
+        ASSERT_EQ(vec3f::pos_z, vec3f::axis(2));
+    }
+
+    TEST(VecTest, fill) {
+        ASSERT_EQ(vec3f( 2,  2,  2), vec3f::fill( 2));
+        ASSERT_EQ(vec3f( 0,  0,  0), vec3f::fill( 0));
+        ASSERT_EQ(vec3f(-2, -2, -2), vec3f::fill(-2));
+    }
+
+    TEST(VecTest, parseValidString) {
         ASSERT_EQ(vec3f(1.0f, 3.0f, 3.5f), vec3f::parse("1.0 3 3.5"));
     }
     
-    TEST(VecTest, parseVec3fWithShortString) {
+    TEST(VecTest, parseShortString) {
         ASSERT_EQ(vec3f(1.0f, 3.0f, 0.0f), vec3f::parse("1.0 3"));
     }
-    
-    TEST(VecTest, constructVec3fWithInvalidString) {
+
+    TEST(VecTest, parseAll) {
+        std::vector<vec3f> result;
+
+        vec3f::parseAll("", std::back_inserter(result));
+        ASSERT_TRUE(result.empty());
+
+        result.clear();
+        vec3f::parseAll("1.0 3 3.5 2.0 2.0 2.0", std::back_inserter(result));
+        ASSERT_EQ(std::vector<vec3f>({ vec3f(1, 3, 3.5), vec3f(2, 2, 2) }), result);
+
+        result.clear();
+        vec3f::parseAll("(1.0 3 3.5) (2.0 2.0 2.0)", std::back_inserter(result));
+        ASSERT_EQ(std::vector<vec3f>({ vec3f(1, 3, 3.5), vec3f(2, 2, 2) }), result);
+
+        result.clear();
+        vec3f::parseAll("(1.0 3 3.5), (2.0 2.0 2.0)", std::back_inserter(result));
+        ASSERT_EQ(std::vector<vec3f>({ vec3f(1, 3, 3.5), vec3f(2, 2, 2) }), result);
+
+        result.clear();
+        vec3f::parseAll("(1.0 3 3.5); (2.0 2.0 2.0)", std::back_inserter(result));
+        ASSERT_EQ(std::vector<vec3f>({ vec3f(1, 3, 3.5), vec3f(2, 2, 2) }), result);
+
+        result.clear();
+        vec3f::parseAll("1.0 3 3.5, 2.0 2.0 2.0", std::back_inserter(result));
+        ASSERT_EQ(std::vector<vec3f>({ vec3f(1, 3, 3.5), vec3f(2, 2, 2) }), result);
+    }
+
+    TEST(VecTest, constructDefault) {
+        ASSERT_EQ(vec3f::zero, vec3f());
+    }
+
+    TEST(VecTest, constructWithInitializerList) {
+        ASSERT_EQ(vec3f(1, 2, 3), vec3f({ 1, 2, 3 }));
+        ASSERT_EQ(vec3f(1, 2, 3), vec3f({ 1, 2, 3, 4 }));
+        ASSERT_EQ(vec3f(1, 2, 0), vec3f({ 1, 2 }));
+    }
+
+    TEST(VecTest, constructWithInvalidString) {
         ASSERT_EQ(vec3f::zero, vec3f::parse("asdf"));
     }
     
-    TEST(VecTest, constructVec3fFrom2Floats) {
+    TEST(VecTest, constructFrom2Floats) {
         ASSERT_EQ(vec3f(1.0f, 2.0f, 0.0f), vec3f(1.0f, 2.0f));
     }
     
@@ -50,12 +118,12 @@ namespace vm {
         ASSERT_EQ(vec4f(1.0f, 2.0f, 3.0f, 0.0f), vec4f(1.0f, 2.0f, 3.0f));
     }
     
-    TEST(VecTest, constructvec2fFromvec2f) {
+    TEST(VecTest, constructvec2fFromVec2f) {
         const vec2f v(2.0f, 3.0f);
         ASSERT_EQ(v, vec2f(v));
     }
     
-    TEST(VecTest, constructvec2fFromVec3f) {
+    TEST(VecTest, constructVec2fFromVec3f) {
         const vec3f v(3.0f, 5.0f, 78.0f);
         ASSERT_EQ(vec2f(v[0], v[1]), vec2f(v));
     }
@@ -100,34 +168,7 @@ namespace vm {
         vec3f v;
         ASSERT_EQ(vec3f(t), (v = t));
     }
-    
-    TEST(VecTest, invertVec3f) {
-        ASSERT_EQ( vec3f(-1.0f, -2.0f, -3.0f),
-                  -vec3f( 1.0f,  2.0f,  3.0f));
-    }
-    
-    TEST(VecTest, addVec3f) {
-        ASSERT_EQ(vec3f(4.0f, 4.0f, 4.0f),
-                  vec3f(1.0f, 2.0f, 3.0f) +
-                  vec3f(3.0f, 2.0f, 1.0f));
-    }
-    
-    TEST(VecTest, subtractVec3f) {
-        ASSERT_EQ(vec3f(1.0f, 1.0f, -1.0f),
-                  vec3f(2.0f, 3.0f, 1.0f) -
-                  vec3f(1.0f, 2.0f, 2.0f));
-    }
-    
-    TEST(VecTest, multiplyVec3fWithScalar) {
-        ASSERT_EQ(vec3f(6.0f, 9.0f, 3.0f),
-                  vec3f(2.0f, 3.0f, 1.0f) * 3.0f);
-    }
-    
-    TEST(VecTest, divideVec3fByScalar) {
-        ASSERT_EQ(vec3f(1.0f, 18.0f, 2.0f),
-                  vec3f(2.0f, 36.0f, 4.0f) / 2.0f);
-    }
-    
+
     TEST(VecTest, subscriptAccess) {
         vec4f v(1.0f, 2.0f, 3.0f, 4.0f);
         ASSERT_EQ(1.0f, v[0]);
@@ -146,8 +187,92 @@ namespace vm {
         ASSERT_EQ(vec3f(1.0f, 2.0f, 3.0f), v.xyz());
         ASSERT_EQ(v, v.xyzw());
     }
-    
-    TEST(VecTest, vec4fOverLast) {
+
+    TEST(VecTest, compare) {
+        ASSERT_EQ( 0, compare(vec2f::zero, vec2f::zero));
+
+        ASSERT_EQ(-1, compare(vec2f::zero, vec2f::one));
+        ASSERT_EQ(-1, compare(vec2f::one,  vec2f(2, 1, 1)));
+        ASSERT_EQ(-1, compare(vec2f::one,  vec2f(1, 2, 1)));
+        ASSERT_EQ(-1, compare(vec2f::one,  vec2f(1, 1, 2)));
+        ASSERT_EQ(-1, compare(vec2f::one,  vec2f(2, 0, 0)));
+        ASSERT_EQ(-1, compare(vec2f::one,  vec2f(1, 2, 0)));
+
+        ASSERT_EQ(+1, compare(vec2f::one,     vec2f::zero));
+        ASSERT_EQ(+1, compare(vec2f(2, 1, 1), vec2f::one));
+        ASSERT_EQ(+1, compare(vec2f(1, 2, 1), vec2f::one));
+        ASSERT_EQ(+1, compare(vec2f(1, 1, 2), vec2f::one));
+        ASSERT_EQ(+1, compare(vec2f(2, 0, 0), vec2f::one));
+        ASSERT_EQ(+1, compare(vec2f(1, 2, 0), vec2f::one));
+    }
+
+    TEST(VecTest, compareRanges) {
+        const auto r1 = std::vector<vec3f>{ vec3f(1, 2, 3), vec3f(1, 2, 3) };
+        const auto r2 = std::vector<vec3f>{ vec3f(1, 2, 3), vec3f(2, 2, 3) };
+        const auto r3 = std::vector<vec3f>{ vec3f(2, 2, 3) };
+
+        // same length
+        ASSERT_EQ( 0, compare(std::begin(r1), std::end(r1), std::begin(r1), std::end(r1)));
+        ASSERT_EQ(-1, compare(std::begin(r1), std::end(r1), std::begin(r2), std::end(r2)));
+        ASSERT_EQ(+1, compare(std::begin(r2), std::end(r2), std::begin(r1), std::end(r1)));
+
+        // prefix
+        ASSERT_EQ(-1, compare(std::begin(r1), std::next(std::begin(r1)), std::begin(r1), std::end(r1)));
+        ASSERT_EQ(+1, compare(std::begin(r1), std::end(r1), std::begin(r1), std::next(std::begin(r1))));
+
+        // different length and not prefix
+        ASSERT_EQ(-1, compare(std::begin(r1), std::end(r1), std::begin(r3), std::end(r3)));
+        ASSERT_EQ(+1, compare(std::begin(r3), std::end(r3), std::begin(r1), std::end(r1)));
+    }
+
+    TEST(VecTest, isEqual) {
+        ASSERT_TRUE(isEqual(vec2f::zero, vec2f::zero, 0.0f));
+        ASSERT_FALSE(isEqual(vec2f::zero, vec2f::one, 0.0f));
+        ASSERT_TRUE(isEqual(vec2f::zero, vec2f::one, 2.0f));
+    }
+
+
+    TEST(VecTest, invertVec3f) {
+        ASSERT_EQ( vec3f(-1.0f, -2.0f, -3.0f),
+                   -vec3f( 1.0f,  2.0f,  3.0f));
+    }
+
+    TEST(VecTest, addVec3f) {
+        ASSERT_EQ(vec3f(4.0f, 4.0f, 4.0f),
+                  vec3f(1.0f, 2.0f, 3.0f) +
+                  vec3f(3.0f, 2.0f, 1.0f));
+    }
+
+    TEST(VecTest, subtractVec3f) {
+        ASSERT_EQ(vec3f(1.0f, 1.0f, -1.0f),
+                  vec3f(2.0f, 3.0f, 1.0f) -
+                  vec3f(1.0f, 2.0f, 2.0f));
+    }
+
+    TEST(VecTest, multiplyVec3fWithScalar) {
+        ASSERT_EQ(vec3f(6.0f, 9.0f, 3.0f),
+                  vec3f(2.0f, 3.0f, 1.0f) * 3.0f);
+    }
+
+    TEST(VecTest, divideVec3fByScalar) {
+        ASSERT_EQ(vec3f(1.0f, 18.0f, 2.0f),
+                  vec3f(2.0f, 36.0f, 4.0f) / 2.0f);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    TEST(VecTest, toCartesianCoords) {
         vec4f v(2.0f, 4.0f, 8.0f, 2.0f);
         ASSERT_EQ(vec3f(1.0f, 2.0f, 4.0f), toCartesianCoords(v));
     }
@@ -208,11 +333,7 @@ namespace vm {
         ASSERT_TRUE(isZero(vec3f::zero));
         ASSERT_FALSE(isZero(vec3f::pos_x));
     }
-    
-    TEST(VecTest, vec3fFill) {
-        ASSERT_EQ(vec3f(2.0f, 2.0, 2.0f), vec3f::fill(2.0f));
-    }
-    
+
     TEST(VecTest, vec3fMajorComponent) {
         ASSERT_EQ(axis::x, majorComponent(vec3f::pos_x, 0));
         ASSERT_EQ(axis::x, majorComponent(vec3f::neg_x, 0));

@@ -381,6 +381,7 @@ namespace vm {
      * @param epsilon the epsilon value
      * @return true if all columsn of the given matrix are zero
      */
+    // TODO 2201: Remove the default value
     template <typename T, size_t R, size_t C>
     bool isZero(const mat<T,R,C>& m, const T epsilon = constants<T>::almostZero()) {
         for (size_t c = 0; c < C; ++c) {

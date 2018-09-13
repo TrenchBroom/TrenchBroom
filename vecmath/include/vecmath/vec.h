@@ -124,6 +124,7 @@ namespace vm {
                     ++out;
                 }
                 pos = str.find_first_of(blank, pos);
+                pos = str.find_first_not_of(blank, pos);
             }
         }
     private:
@@ -137,7 +138,9 @@ namespace vm {
                 }
                 result[i] = static_cast<T>(std::atof(cstr + pos));
                 if ((pos = str.find_first_of(blank, pos)) == std::string::npos) {
-                    return false;
+                    if (i < S-1) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -493,6 +496,8 @@ namespace vm {
     /**
      * Performs a pairwise lexicographical comparison of the pairs of vectors given by the two ranges. This function iterates over
      * both ranges in a parallel fashion, and compares the two current elements lexicagraphically until one range ends.
+     * If the end of a range is reached, that range is considered less if the end of the other range has not yet been
+     * reached. Otherwise, the two ranges of the same length, and are considered to be identical.
      *
      * @tparam I the range iterator type
      * @param lhsCur the beginning of the left hand range
@@ -509,14 +514,19 @@ namespace vm {
             if (cmp < 0) {
                 return -1;
             } else if (cmp > 0) {
-                return 1;
+                return +1;
             }
             ++lhsCur;
             ++rhsCur;
         }
 
-        assert(lhsCur == lhsEnd && rhsCur == rhsEnd);
-        return 0;
+        if (rhsCur != rhsEnd) {
+            return -1;
+        } else if (lhsCur != lhsEnd) {
+            return +1;
+        } else {
+           return 0;
+        }
     }
 
     /**
@@ -1242,6 +1252,7 @@ namespace vm {
      * @param epsilon the epsilon value
      * @return true if the given vector has a length of 1 and false otherwise
      */
+    // TODO 2201: Remove the default value
     template <typename T, size_t S>
     bool isUnit(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
         return isEqual(length(v), T(1.0), epsilon);
@@ -1256,6 +1267,7 @@ namespace vm {
      * @param epsilon the epsilon value
      * @return true if the given vector has a length of 0 and false otherwise
      */
+    // TODO 2201: Remove the default value
     template <typename T, size_t S>
     bool isZero(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
         for (size_t i = 0; i < S; ++i) {
