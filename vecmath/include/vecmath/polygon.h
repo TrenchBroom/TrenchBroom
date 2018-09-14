@@ -131,7 +131,7 @@ namespace vm {
          *
          * @return an iterator to the beginning of the vertices
          */
-        typename std::vector<vec<T,3>>::const_iterator begin() const {
+        auto begin() const {
             return std::begin(m_vertices);
         }
 
@@ -140,7 +140,25 @@ namespace vm {
          *
          * @return an iterator to the end of the vertices
          */
-        typename std::vector<vec<T,3>>::const_iterator end() const {
+        auto end() const {
+            return std::end(m_vertices);
+        }
+
+        /**
+         * Returns an iterator to the beginning of the vertices.
+         *
+         * @return an iterator to the beginning of the vertices
+         */
+        auto rbegin() const {
+            return std::begin(m_vertices);
+        }
+
+        /**
+         * Returns an iterator to the end of the vertices.
+         *
+         * @return an iterator to the end of the vertices
+         */
+        auto rend() const {
             return std::end(m_vertices);
         }
 
@@ -236,14 +254,26 @@ namespace vm {
         const auto& lhsVerts = lhs.vertices();
         const auto& rhsVerts = rhs.vertices();
 
-        if (lhsVerts.size() < rhsVerts.size()) {
-            return -1;
-        } else if (lhsVerts.size() > rhsVerts.size()) {
-            return 1;
-        } else {
-            return compare(std::begin(lhsVerts), std::end(lhsVerts),
-                           std::begin(rhsVerts), std::end(rhsVerts), epsilon);
-        }
+        return compare(
+            std::begin(lhsVerts), std::end(lhsVerts),
+            std::begin(rhsVerts), std::end(rhsVerts),
+            epsilon
+        );
+    }
+
+    /**
+     * Checks whether the first given polygon is equal to the second polygon using the given epsilon value.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param lhs the first polygon
+     * @param rhs the second polygon
+     * @param epsilon an epsilon value
+     * @return true if the polygons are equal and false otherwise
+     */
+    template <typename T, size_t S>
+    bool isEqual(const polygon<T,S>& lhs, const polygon<T,S>& rhs, const T epsilon) {
+        return compare(lhs, rhs, epsilon) == 0;
     }
 
     /**
