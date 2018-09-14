@@ -26,6 +26,7 @@
 #include "util.h"
 
 #include <cassert>
+#include <tuple>
 
 namespace vm {
     template <typename T, size_t R, size_t C>
