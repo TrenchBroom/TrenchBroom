@@ -135,7 +135,7 @@ namespace vm {
          * @return the transformed segment
          */
         segment<T,S> transform(const mat<T,S+1,S+1>& transform) const {
-            return segment<T,S>(m_start * transform, m_end * transform);
+            return segment<T,S>(transform * m_start, transform * m_end);
         }
 
         /**

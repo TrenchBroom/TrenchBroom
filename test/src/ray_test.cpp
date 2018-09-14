@@ -57,8 +57,8 @@ namespace vm {
 
         const auto rt = r.transform(rm * tm);
         ASSERT_TRUE(isUnit(r.direction));
-        ASSERT_VEC_EQ(r.origin * rm * tm, rt.origin);
-        ASSERT_VEC_EQ(r.direction * rm, rt.direction);
+        ASSERT_VEC_EQ(rm * tm * r.origin, rt.origin);
+        ASSERT_VEC_EQ(rm * r.direction, rt.direction);
     }
 
     TEST(RayTest, pointStatus) {

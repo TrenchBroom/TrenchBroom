@@ -87,7 +87,7 @@ namespace vm {
          * @return the transformed line
          */
         line<T,S> transform(const mat<T,S+1,S+1>& transform) const {
-            return line<T,S>(point * transform, direction * stripTranslation(transform));
+            return line<T,S>(transform * point, normalize(stripTranslation(transform) * direction));
         }
 
         /**

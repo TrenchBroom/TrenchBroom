@@ -24,6 +24,7 @@
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
 
+#include "Macros.h"
 #include "TestUtils.h"
 
 #include <array>
@@ -31,7 +32,7 @@
 // TODO 2201: write more tests
 
 namespace vm {
-    TEST(PlaneTest, constructDefault) {
+    TEST(PlaneTest, defaultConstructor) {
         const plane3f p;
         ASSERT_EQ(0.0f, p.distance);
         ASSERT_EQ(vec3f::zero, p.normal);
@@ -53,52 +54,19 @@ namespace vm {
         ASSERT_VEC_EQ(n, p.normal);
     }
     
-    TEST(PlaneTest, constructPlaneContainingVector) {
-    }
-    
     TEST(PlaneTest, anchor) {
         const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
         const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
         const plane3f p(a, n);
         ASSERT_VEC_EQ(p.distance * n, p.anchor());
     }
-    
-    TEST(PlaneTest, intersectWithRay) {
-    }
-    
-    
-    TEST(PlaneTest, pointStatus) {
-        const plane3f p(10.0f, vec3f::pos_z);
-        ASSERT_EQ(point_status::above, p.pointStatus(vec3f(0.0f, 0.0f, 11.0f)));
-        ASSERT_EQ(point_status::below, p.pointStatus(vec3f(0.0f, 0.0f, 9.0f)));
-        ASSERT_EQ(point_status::inside, p.pointStatus(vec3f(0.0f, 0.0f, 10.0f)));
-    }
-    
-    TEST(PlaneTest, pointDistance) {
-        const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
-        const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
-        const plane3f p(a, n);
-        const vec3f point(1.0f, -32.37873f, 32.0f);
-        ASSERT_EQ(dot(point, p.normal) - p.distance, p.pointDistance(point));
-    }
-    
-    TEST(PlaneTest, valueAtParallelPlanes) {
-        const plane3f p1(10.0f, vec3f::pos_x);
-        
-        ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(2.0f, 1.0f), axis::x));
-        ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(22.0f, -34322.0232f), axis::x));
-        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(2.0f, 1.0f), axis::y));
-        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(22.0f, -34322.0232f), axis::y));
-        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(2.0f, 1.0f), axis::z));
-        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(22.0f, -34322.0232f), axis::z));
-    }
-    
-    TEST(PlaneTest, valueAt) {
+
+    TEST(PlaneTest, at) {
         const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
         const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
         const plane3f p(a, n);
         const vec2f point1(27.022f, -12.0123223f);
-        
+
         ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[axis::x],
                         p.at(point1, axis::x));
         ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[axis::y],
@@ -106,18 +74,78 @@ namespace vm {
         ASSERT_FLOAT_EQ((p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[axis::z],
                         p.at(point1, axis::z));
     }
-    
-    TEST(PlaneTest, xYZValueAt) {
+
+    TEST(PlaneTest, at_parallelPlanes) {
+        const plane3f p1(10.0f, vec3f::pos_x);
+
+        ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(2.0f, 1.0f), axis::x));
+        ASSERT_FLOAT_EQ(p1.distance, p1.at(vec2f(22.0f, -34322.0232f), axis::x));
+        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(2.0f, 1.0f), axis::y));
+        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(22.0f, -34322.0232f), axis::y));
+        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(2.0f, 1.0f), axis::z));
+        ASSERT_FLOAT_EQ(0.0f, p1.at(vec2f(22.0f, -34322.0232f), axis::z));
+    }
+
+    TEST(PlaneTest, xyzAt) {
         const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
         const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
         const plane3f p(a, n);
         const vec2f point1(27.022f, -12.0123223f);
-        
+
         ASSERT_FLOAT_EQ(p.at(point1, axis::x), p.xAt(point1));
         ASSERT_FLOAT_EQ(p.at(point1, axis::y), p.yAt(point1));
         ASSERT_FLOAT_EQ(p.at(point1, axis::z), p.zAt(point1));
     }
-    
+
+    TEST(PlaneTest, pointDistance) {
+        const vec3f a = vec3f(-2038.034f, 0.0023f, 32.0f);
+        const vec3f n = normalize(vec3f(9.734f, -3.393f, 2.033f));
+        const plane3f p(a, n);
+        const vec3f point(1.0f, -32.37873f, 32.0f);
+        ASSERT_EQ(dot(point, p.normal) - p.distance, p.pointDistance(point));
+    }
+
+    TEST(PlaneTest, pointStatus) {
+        const plane3f p(10.0f, vec3f::pos_z);
+        ASSERT_EQ(point_status::above, p.pointStatus(vec3f(0.0f, 0.0f, 11.0f)));
+        ASSERT_EQ(point_status::below, p.pointStatus(vec3f(0.0f, 0.0f, 9.0f)));
+        ASSERT_EQ(point_status::inside, p.pointStatus(vec3f(0.0f, 0.0f, 10.0f)));
+    }
+
+    TEST(PlaneTest, transform) {
+        const auto p = plane3d(vec3d::one, vec3d::pos_z);
+        const auto rm = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0));
+        const auto tm = translationMatrix(vec3d::one);
+
+        const auto pt = p.transform(rm * tm);
+        ASSERT_TRUE(isUnit(p.normal));
+        ASSERT_EQ(point_status::inside, pt.pointStatus(rm * tm * p.anchor()));
+        ASSERT_VEC_EQ(rm * p.normal, pt.normal);
+    }
+
+    TEST(PlaneTest, projectPoint) {
+        ASSERT_VEC_EQ(vec3d(0, 0, 0), plane3d(0.0, vec3d::pos_z).projectPoint(vec3d(0, 0, 10)));
+        ASSERT_VEC_EQ(vec3d(1, 2, 0), plane3d(0.0, vec3d::pos_z).projectPoint(vec3d(1, 2, 10)));
+        ASSERT_VEC_EQ(vec3d(0, 0, 0), plane3d(0.0, normalize(vec3d(1, 1, 1))).projectPoint(vec3d(10, 10, 10)));
+    }
+
+    TEST(PlaneTest, projectPoint_direction) {
+        ASSERT_VEC_EQ(vec3d(0, 0, 0), plane3d(0.0, vec3d::pos_z).projectPoint(vec3d(0, 0, 10), vec3d::pos_z));
+        ASSERT_VEC_EQ(vec3d(1, 2, 0), plane3d(0.0, vec3d::pos_z).projectPoint(vec3d(1, 2, 10), vec3d::pos_z));
+        ASSERT_VEC_EQ(vec3d(0, 0, 0), plane3d(0.0, vec3d::pos_z).projectPoint(vec3d(10, 10, 10), normalize(vec3d(1, 1, 1))));
+    }
+
+    TEST(PlaneTest, projectVector) {
+        ASSERT_VEC_EQ(vec3d(1, 1, 0), plane3d(0.0, vec3d::pos_z).projectVector(vec3d(1, 1, 1)));
+        ASSERT_VEC_EQ(vec3d(1, 1, 0), plane3d(1.0, vec3d::pos_z).projectVector(vec3d(1, 1, 1)));
+    }
+
+    TEST(PlaneTest, projectVector_direction) {
+        ASSERT_VEC_EQ(vec3d(1, 1, 0), plane3d(0.0, vec3d::pos_z).projectVector(vec3d(1, 1, 1), vec3d::pos_z));
+        ASSERT_VEC_EQ(vec3d(1, 1, 0), plane3d(1.0, vec3d::pos_z).projectVector(vec3d(1, 1, 1), vec3d::pos_z));
+        ASSERT_VEC_EQ(vec3d(2, 2, 0), plane3d(0.0, vec3d::pos_z).projectVector(vec3d(1, 1, 1), normalize(vec3d(1, 1, -1))));
+    }
+
     TEST(PlaneTest, isEqual) {
         ASSERT_TRUE(isEqual(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::pos_x), constants<float>::almostZero()));
         ASSERT_TRUE(isEqual(plane3f(0.0f, vec3f::pos_y), plane3f(0.0f, vec3f::pos_y), constants<float>::almostZero()));
@@ -125,18 +153,46 @@ namespace vm {
         ASSERT_FALSE(isEqual(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::neg_x), constants<float>::almostZero()));
         ASSERT_FALSE(isEqual(plane3f(0.0f, vec3f::pos_x), plane3f(0.0f, vec3f::pos_y), constants<float>::almostZero()));
     }
-    
-    TEST(PlaneTest, transform) {
+
+    TEST(PlaneTest, equal) {
+        ASSERT_TRUE (plane3d() == plane3d());
+        ASSERT_TRUE (plane3d(10.0, vec3d::pos_z) == plane3d(10.0, vec3d::pos_z));
+        ASSERT_FALSE(plane3d(20.0, vec3d::pos_z) == plane3d(10.0, vec3d::pos_z));
+        ASSERT_FALSE(plane3d(10.0, vec3d::neg_z) == plane3d(10.0, vec3d::pos_z));
+        ASSERT_FALSE(plane3d(10.0, normalize(vec3d::one)) == plane3d(10.0, vec3d::pos_z));
     }
-    
-    TEST(PlaneTest, transformed) {
+
+    TEST(PlaneTest, notEqual) {
+        ASSERT_FALSE(plane3d() != plane3d());
+        ASSERT_FALSE(plane3d(10.0, vec3d::pos_z) != plane3d(10.0, vec3d::pos_z));
+        ASSERT_TRUE (plane3d(20.0, vec3d::pos_z) != plane3d(10.0, vec3d::pos_z));
+        ASSERT_TRUE (plane3d(10.0, vec3d::neg_z) != plane3d(10.0, vec3d::pos_z));
+        ASSERT_TRUE (plane3d(10.0, normalize(vec3d::one)) != plane3d(10.0, vec3d::pos_z));
     }
-    
-    TEST(PlaneTest, project) {
-        ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 0.0f), plane3f(0.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
-        ASSERT_VEC_EQ(vec3f(1.0f, 2.0f, 2.0f), plane3f(2.0f, vec3f::pos_z).projectPoint(vec3f(1.0f, 2.0f, 3.0f)));
+
+    template <typename T>
+    void assertValidPlaneNormal(const vec<T,3>& expected, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
+        const auto [valid, normal] = planeNormal(p1, p2, p3);
+        ASSERT_TRUE(valid);
+        ASSERT_VEC_EQ(expected, normal);
     }
-    
+
+    template <typename T>
+    void assertInvalidPlaneNormal(const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3) {
+        const auto [valid, normal] = planeNormal(p1, p2, p3);
+        ASSERT_FALSE(valid);
+        unused(normal);
+    }
+
+    TEST(PlaneTest, planeNormal) {
+        assertValidPlaneNormal(vec3d::pos_z, vec3d::zero, vec3d::pos_y, vec3d::pos_x);
+        assertValidPlaneNormal(vec3d::pos_z, vec3d::zero, normalize(vec3d(1, 1, 0)), vec3d::pos_x);
+        assertInvalidPlaneNormal(vec3d::zero, vec3d::zero, vec3d::pos_x);
+        assertInvalidPlaneNormal(vec3d::zero, vec3d::pos_x, vec3d::pos_x);
+        assertInvalidPlaneNormal(vec3d::zero, vec3d::neg_x, vec3d::pos_x);
+        assertInvalidPlaneNormal(vec3d::zero, vec3d::zero, vec3d::pos_x);
+    }
+
     TEST(PlaneTest, fromPoints) {
         bool valid;
         plane3f plane;

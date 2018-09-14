@@ -94,8 +94,8 @@ namespace vm {
          * @return the transformed ray
          */
         ray<T,S> transform(const mat<T,S+1,S+1>& transform) const {
-            const auto newOrigin = origin * transform;
-            const auto newDirection = direction * stripTranslation(transform);
+            const auto newOrigin = transform * origin;
+            const auto newDirection = normalize(stripTranslation(transform) * direction);
             return ray<T,S>(newOrigin, newDirection);
         }
 

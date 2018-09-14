@@ -388,10 +388,10 @@ namespace vm {
          */
         bbox<T,S> transform(const mat<T,S+1,S+1>& transform) const {
             const auto vertices = this->vertices();
-            const auto first = vertices[0] * transform;
+            const auto first = transform * vertices[0];
             auto result = bbox<T,3>(first, first);
             for (size_t i = 1; i < vertices.size(); ++i) {
-                result = merge(result, vertices[i] * transform);
+                result = merge(result, transform * vertices[i]);
             }
             return result;
         }

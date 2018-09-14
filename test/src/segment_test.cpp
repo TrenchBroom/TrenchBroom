@@ -91,8 +91,8 @@ namespace vm {
         const auto s = segment3d(vec3d(0, 0, 0), vec3d(4, 0, 0));
         const auto t = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0)) * translationMatrix(vec3d::one);
         const auto st = s.transform(t);
-        ASSERT_VEC_EQ(s.start() * t, st.start());
-        ASSERT_VEC_EQ(s.end() * t, st.end());
+        ASSERT_VEC_EQ(t * s.start(), st.start());
+        ASSERT_VEC_EQ(t * s.end(), st.end());
     }
 
     TEST(SegmentTest, translate) {

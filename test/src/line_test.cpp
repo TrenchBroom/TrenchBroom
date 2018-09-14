@@ -57,8 +57,8 @@ namespace vm {
 
         const auto lt = l.transform(rm * tm);
         ASSERT_TRUE(isUnit(l.direction));
-        ASSERT_VEC_EQ(l.point * rm * tm, lt.point);
-        ASSERT_VEC_EQ(l.direction * rm, lt.direction);
+        ASSERT_VEC_EQ(rm * tm * l.point, lt.point);
+        ASSERT_VEC_EQ(rm * l.direction, lt.direction);
     }
 
     TEST(LineTest, makeCanonical) {

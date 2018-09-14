@@ -194,7 +194,7 @@ namespace vm {
         const auto bounds = bbox3d(-2.0, +10.0);
         const auto transform = rotationMatrix(radians(10.0), radians(77.0), radians(227.0));
         const auto points = bounds.vertices();
-        const auto transformedPoints = std::vector<vec3d>(std::begin(points), std::end(points)) * transform;
+        const auto transformedPoints = transform * std::vector<vec3d>(std::begin(points), std::end(points));
         const auto transformed = bbox3d::mergeAll(std::begin(transformedPoints), std::end(transformedPoints));
         ASSERT_VEC_EQ(transformed.min, bounds.transform(transform).min);
         ASSERT_VEC_EQ(transformed.max, bounds.transform(transform).max);

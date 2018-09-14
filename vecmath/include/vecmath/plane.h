@@ -183,9 +183,7 @@ namespace vm {
          * @return the transformed plane
          */
         plane<T,S> transform(const mat<T,S+1,S+1>& transform) const {
-            const auto newNormal   = normalize(stripTranslation(transform) * normal);
-            const auto newDistance = dot(transform * anchor(), newNormal);
-            return plane<T,S>(newDistance, newNormal);
+            return plane<T,S>(transform * anchor(), normalize(stripTranslation(transform) * normal));
         }
 
         /**
