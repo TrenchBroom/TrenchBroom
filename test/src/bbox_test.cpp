@@ -28,8 +28,6 @@
 
 #include <vector>
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(BBoxTest, defaultConstructor) {
         const bbox3f bounds;

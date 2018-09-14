@@ -27,8 +27,6 @@
 #include <limits>
 #include <vector>
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(VecTest, checkStatics) {
         ASSERT_EQ(vec3f(+1,  0,  0), vec3f::pos_x);

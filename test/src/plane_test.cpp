@@ -29,8 +29,6 @@
 
 #include <array>
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(PlaneTest, defaultConstructor) {
         const plane3f p;

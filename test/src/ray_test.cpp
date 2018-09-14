@@ -25,8 +25,6 @@
 
 #include "TestUtils.h"
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(RayTest, defaultConstructor) {
         const auto r = ray3d();

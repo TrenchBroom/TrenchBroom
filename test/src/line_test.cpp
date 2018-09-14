@@ -23,8 +23,6 @@
 #include <vecmath/scalar.h>
 #include "TestUtils.h"
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(LineTest, defaultConstructor) {
         const line3f p;
