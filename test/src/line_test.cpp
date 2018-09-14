@@ -26,7 +26,7 @@
 // TODO 2201: write more tests
 
 namespace vm {
-    TEST(LineTest, constructDefault) {
+    TEST(LineTest, defaultConstructor) {
         const line3f p;
         ASSERT_EQ(vec3f::zero, p.point);
         ASSERT_EQ(vec3f::zero, p.direction);
@@ -39,7 +39,34 @@ namespace vm {
         ASSERT_VEC_EQ(p, l.point);
         ASSERT_VEC_EQ(n, l.direction);
     }
-    
+
+    TEST(LineTest, getOrigin) {
+        const auto l = line3d(vec3d::one, vec3d::pos_z);
+        ASSERT_VEC_EQ(l.point, l.getOrigin());
+    }
+
+    TEST(LineTest, getDirection) {
+        const auto l = line3d(vec3d::one, vec3d::pos_z);
+        ASSERT_VEC_EQ(l.direction, l.getDirection());
+    }
+
+    TEST(LineTest, transform) {
+        const auto l = line3d(vec3d::one, vec3d::pos_z);
+        const auto rm = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0));
+        const auto tm = translationMatrix(vec3d::one);
+
+        const auto lt = l.transform(rm * tm);
+        ASSERT_TRUE(isUnit(l.direction));
+        ASSERT_VEC_EQ(l.point * rm * tm, lt.point);
+        ASSERT_VEC_EQ(l.direction * rm, lt.direction);
+    }
+
+    TEST(LineTest, makeCanonical) {
+        const auto l1 = line3d(vec3d(-10, 0, 10), vec3d::pos_x);
+        const auto l2 = line3d(vec3d(+10, 0, 10), vec3d::pos_x);
+        ASSERT_EQ(l1.makeCanonical(), l2.makeCanonical());
+    }
+
     TEST(LineTest, distanceToProjectedPoint) {
         const line3f l(vec3f(10,0,0), vec3f::pos_z);
         ASSERT_FLOAT_EQ(0.0f, l.distanceToProjectedPoint(vec3f(10,0,0)));
@@ -50,5 +77,24 @@ namespace vm {
     TEST(LineTest, projectPoint) {
         const line3f l(vec3f(10,0,0), vec3f::pos_z);
         ASSERT_VEC_EQ(vec3f(10,0,5), l.projectPoint(vec3f(100,100,5)));
+    }
+
+    TEST(LineTest, isEqual) {
+        ASSERT_TRUE(isEqual(line3d(), line3d(), 0.0));
+        ASSERT_TRUE(isEqual(line3d(vec3d::zero, vec3d::pos_z), line3d(vec3d::zero, vec3d::pos_z), 0.0));
+        ASSERT_FALSE(isEqual(line3d(vec3d(0, 0, 0), vec3d(0, 0, 1)), line3d(vec3d(1, 0, 0), vec3d(0, 0, 1)), 0.0));
+        ASSERT_TRUE(isEqual(line3d(vec3d(0, 0, 0), vec3d(0, 0, 1)), line3d(vec3d(1, 0, 0), vec3d(0, 0, 1)), 2.0));
+    }
+
+    TEST(LineTest, equal) {
+        ASSERT_TRUE(line3d() == line3d());
+        ASSERT_TRUE(line3d(vec3d::zero, vec3d::pos_z) == line3d(vec3d::zero, vec3d::pos_z));
+        ASSERT_FALSE(line3d(vec3d(0, 0, 0), vec3d(0, 0, 1)) == line3d(vec3d(1, 0, 0), vec3d(0, 0, 1)));
+    }
+
+    TEST(LineTest, notEqual) {
+        ASSERT_FALSE(line3d() != line3d());
+        ASSERT_FALSE(line3d(vec3d::zero, vec3d::pos_z) != line3d(vec3d::zero, vec3d::pos_z));
+        ASSERT_TRUE(line3d(vec3d(0, 0, 0), vec3d(0, 0, 1)) != line3d(vec3d(1, 0, 0), vec3d(0, 0, 1)));
     }
 }

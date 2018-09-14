@@ -68,6 +68,11 @@ namespace vm {
         ASSERT_EQ(point_status::below, ray.pointStatus(vec3f(0.0f, 0.0f, -1.0f)));
     }
 
+    TEST(RayTest, pointAtDistance) {
+        const ray3f ray(vec3f::zero, vec3f::pos_x);
+        ASSERT_VEC_EQ(vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
+    }
+
     TEST(RayTest, isEqual) {
         ASSERT_TRUE(isEqual(ray3d(), ray3d(), 0.0));
         ASSERT_TRUE(isEqual(ray3d(vec3d::zero, vec3d::pos_z), ray3d(vec3d::zero, vec3d::pos_z), 0.0));
@@ -85,10 +90,5 @@ namespace vm {
         ASSERT_FALSE(ray3d() != ray3d());
         ASSERT_FALSE(ray3d(vec3d::zero, vec3d::pos_z) != ray3d(vec3d::zero, vec3d::pos_z));
         ASSERT_TRUE(ray3d(vec3d(0, 0, 0), vec3d(0, 0, 1)) != ray3d(vec3d(1, 0, 0), vec3d(0, 0, 1)));
-    }
-
-    TEST(RayTest, pointAtDistance) {
-        const ray3f ray(vec3f::zero, vec3f::pos_x);
-        ASSERT_VEC_EQ(vec3f(5.0f, 0.0f, 0.0f), ray.pointAtDistance(5.0f));
     }
 }

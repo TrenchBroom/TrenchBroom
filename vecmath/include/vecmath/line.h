@@ -87,8 +87,7 @@ namespace vm {
          * @return the transformed line
          */
         line<T,S> transform(const mat<T,S+1,S+1>& transform) const {
-            const auto newPoint = point * transform;
-            const auto newDirection = point * stripTranslation(transform);
+            return line<T,S>(point * transform, direction * stripTranslation(transform));
         }
 
         /**
@@ -101,7 +100,7 @@ namespace vm {
         line<T,S> makeCanonical() const {
             // choose the point such that its support vector is orthogonal to
             // the direction of this line
-            const auto distance = point.dot(direction);
+            const auto distance = dot(point, direction);
             const auto newPoint = (point - distance * direction);
 
             // make sure the first nonzero component of the direction is positive
