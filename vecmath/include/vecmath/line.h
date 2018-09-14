@@ -131,7 +131,7 @@ namespace vm {
      */
     template <typename T, size_t S>
     bool isEqual(const line<T,S>& lhs, const line<T,S>& rhs, const T epsilon) {
-        return isEqual(lhs.point, rhs.point, epsilon) && isEquallhs.direction, rhs.direction, epsilon);
+        return isEqual(lhs.point, rhs.point, epsilon) && isEqual(lhs.direction, rhs.direction, epsilon);
     }
 
     /**

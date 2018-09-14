@@ -131,7 +131,7 @@ namespace TrenchBroom {
             assert(isUnit(newNormal));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (isEqualnewNormal, oldNormal, 0.01)) {
+            if (isEqual(newNormal, oldNormal, 0.01)) {
                 newNormal = oldNormal;
             }
 
