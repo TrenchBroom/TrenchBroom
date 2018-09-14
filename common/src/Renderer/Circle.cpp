@@ -23,6 +23,11 @@
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/constants.h>
+#include <vecmath/vec.h>
+#include <vecmath/util.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -31,7 +36,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(radius, segments, 0.0f, Math::Cf::twoPi());
+            init2D(radius, segments, 0.0f, vm::Cf::twoPi());
         }
         
         Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) :
@@ -41,7 +46,7 @@ namespace TrenchBroom {
             init2D(radius, segments, startAngle, angleLength);
         }
         
-        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) :
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) :
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
@@ -50,7 +55,7 @@ namespace TrenchBroom {
             init3D(radius, segments, axis, angles.first, angles.second);
         }
         
-        Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) :
+        Circle::Circle(const float radius, const size_t segments, const bool filled, const vm::axis::type axis, const float startAngle, const float angleLength) :
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
@@ -71,22 +76,24 @@ namespace TrenchBroom {
         }
         
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {
-            typedef VertexSpecs::P2::Vertex Vertex;
+            using Vertex = VertexSpecs::P2::Vertex;
 
-            Vec2f::List positions = circle2D(radius, startAngle, angleLength, segments);
-            if (m_filled)
-                positions.push_back(Vec2f::Null);
-            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            auto positions = circle2D(radius, startAngle, angleLength, segments);
+            if (m_filled) {
+                positions.push_back(vm::vec2f::zero);
+            }
+            auto vertices = Vertex::toList(std::begin(positions), positions.size());
             m_array = VertexArray::swap(vertices);
         }
         
-        void Circle::init3D(const float radius, const size_t segments, const Math::Axis::Type axis, const float startAngle, const float angleLength) {
-            typedef VertexSpecs::P3::Vertex Vertex;
+        void Circle::init3D(const float radius, const size_t segments, const vm::axis::type axis, const float startAngle, const float angleLength) {
+            using Vertex = VertexSpecs::P3::Vertex;
             
-            Vec3f::List positions = circle2D(radius, axis, startAngle, angleLength, segments);
-            if (m_filled)
-                positions.push_back(Vec3f::Null);
-            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
+            if (m_filled) {
+                positions.push_back(vm::vec3f::zero);
+            }
+            auto vertices = Vertex::toList(std::begin(positions), positions.size());
             m_array = VertexArray::swap(vertices);
         }
     }

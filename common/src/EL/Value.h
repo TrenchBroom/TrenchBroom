@@ -103,6 +103,7 @@ namespace TrenchBroom {
         
         class NumberValueHolder : public ValueHolder {
         private:
+            static constexpr auto RoundingThreshold = 0.00001;
             NumberType m_value;
         public:
             NumberValueHolder(const NumberType& value);

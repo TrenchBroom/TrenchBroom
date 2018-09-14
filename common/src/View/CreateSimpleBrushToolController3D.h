@@ -21,10 +21,11 @@
 #define TrenchBroom_CreateBrushToolController3D
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Polyhedron.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
 
 #include <vector>
 
@@ -38,7 +39,7 @@ namespace TrenchBroom {
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
             
-            Vec3 m_initialPoint;
+            vm::vec3 m_initialPoint;
         public:
             CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             void doModifierKeyChange(const InputState& inputState) override;
 
             DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
             void doCancelDrag() override;
 
@@ -56,7 +57,7 @@ namespace TrenchBroom {
 
             bool doCancel() override;
         private:
-            void updateBounds(const Vec3& point, Vec3 cameraPosition);
+            void updateBounds(const vm::vec3& point, vm::vec3 cameraPosition);
         };
     }
 }

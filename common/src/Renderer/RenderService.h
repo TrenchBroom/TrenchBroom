@@ -22,10 +22,15 @@
 
 #include "AttrString.h"
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
-#include "Edge.h"
 #include "Renderer/PrimitiveRenderer.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/util.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     
@@ -71,37 +76,37 @@ namespace TrenchBroom {
             void setShowBackfaces();
             void setCullBackfaces();
             
-            void renderString(const AttrString& string, const Vec3f& position);
+            void renderString(const AttrString& string, const vm::vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
             
-            void renderHandles(const Vec3f::List& positions);
-            void renderHandle(const Vec3f& position);
-            void renderHandleHighlight(const Vec3f& position);
+            void renderHandles(const std::vector<vm::vec3f>& positions);
+            void renderHandle(const vm::vec3f& position);
+            void renderHandleHighlight(const vm::vec3f& position);
             
-            void renderHandles(const Edge3f::List& positions);
-            void renderHandle(const Edge3f& position);
-            void renderHandleHighlight(const Edge3f& position);
+            void renderHandles(const std::vector<vm::segment3f>& positions);
+            void renderHandle(const vm::segment3f& position);
+            void renderHandleHighlight(const vm::segment3f& position);
             
-            void renderHandles(const Polygon3f::List& positions);
-            void renderHandle(const Polygon3f& position);
-            void renderHandleHighlight(const Polygon3f& position);
+            void renderHandles(const std::vector<vm::polygon3f>& positions);
+            void renderHandle(const vm::polygon3f& position);
+            void renderHandleHighlight(const vm::polygon3f& position);
 
-            void renderLine(const Vec3f& start, const Vec3f& end);
-            void renderLines(const Vec3f::List& positions);
-            void renderLineStrip(const Vec3f::List& positions);
-            void renderCoordinateSystem(const BBox3f& bounds);
+            void renderLine(const vm::vec3f& start, const vm::vec3f& end);
+            void renderLines(const std::vector<vm::vec3f>& positions);
+            void renderLineStrip(const std::vector<vm::vec3f>& positions);
+            void renderCoordinateSystem(const vm::bbox3f& bounds);
             
-            void renderPolygonOutline(const Vec3f::List& positions);
-            void renderFilledPolygon(const Vec3f::List& positions);
+            void renderPolygonOutline(const std::vector<vm::vec3f>& positions);
+            void renderFilledPolygon(const std::vector<vm::vec3f>& positions);
             
-            void renderBounds(const BBox3f& bounds);
+            void renderBounds(const vm::bbox3f& bounds);
             
-            void renderCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+            void renderCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
             
-            void renderFilledCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderFilledCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderFilledCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+            void renderFilledCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
         private:
             void flush();
         };

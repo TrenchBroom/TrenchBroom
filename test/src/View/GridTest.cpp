@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        static const BBox3 worldBounds(8192.0);
+        static const vm::bbox3 worldBounds(8192.0);
 
         TEST(GridTest, size) {
             for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
@@ -115,53 +115,53 @@ namespace TrenchBroom {
         }
 
         TEST(GridTest, snapOnLine) {
-            const Line3d X(Vec3d(5.0, 0.0, 0.0), Vec3d::PosX);
+            const vm::line3d X(vm::vec3d(5.0, 0.0, 0.0), vm::vec3d::pos_x);
 
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, X));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), X));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 1.0, 0.0), X));
-            ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 0.0), X));
-            ASSERT_VEC_EQ(Vec3d(4.0, 0.0, 0.0), Grid(2u).snap(Vec3(3.0, 1.0, 2.0), X));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, X));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 1.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vm::vec3(3.0, 1.0, 0.0), X));
+            ASSERT_VEC_EQ(vm::vec3d(4.0, 0.0, 0.0), Grid(2u).snap(vm::vec3(3.0, 1.0, 2.0), X));
 
-            const Line3d L(Vec3d::Null, Vec3d(1.0, 2.0, 0.0).normalized());
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, L));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), L));
-            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), L));
-            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), L));
+            const vm::line3d L(vm::vec3d::zero, normalize(vm::vec3d(1.0, 2.0, 0.0)));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, L));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(10.0, 0.0, 0.0), L));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), L));
         }
 
         TEST(GridTest, snapOnEdge) {
-            const Edge3d E(Vec3d::Null, Vec3d(1.0, 2.0, 0.0) * 2.0);
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d::Null, E));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3(1.0, 0.0, 0.0), E));
-            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(10.0, 0.0, 0.0), E));
-            ASSERT_VEC_EQ(Vec3d(2.0, 4.0, 0.0), Grid(2u).snap(Vec3(7.5, 0.0, 0.0), E));
-            ASSERT_TRUE(Grid(2u).snap(Vec3(20.0, 0.0, 0.0), E).nan());
-            ASSERT_TRUE(Grid(2u).snap(Vec3(-10.0, 0.0, 0.0), E).nan());
+            const vm::segment3d E(vm::vec3d::zero, vm::vec3d(1.0, 2.0, 0.0) * 2.0);
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d::zero, E));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(10.0, 0.0, 0.0), E));
+            ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), E));
+            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(20.0, 0.0, 0.0), E)));
+            ASSERT_TRUE(isNaN(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
         }
 
         TEST(GridTest, snapOnQuad) {
-            const Polygon3d quad {
-                    Vec3d(-9.0, -9.0, 0.0),
-                    Vec3d(+9.0, -9.0, 0.0),
-                    Vec3d(+9.0, +9.0, 0.0),
-                    Vec3d(-9.0, +9.0, 0.0)
+            const vm::polygon3d quad {
+                    vm::vec3d(-9.0, -9.0, 0.0),
+                    vm::vec3d(+9.0, -9.0, 0.0),
+                    vm::vec3d(+9.0, +9.0, 0.0),
+                    vm::vec3d(-9.0, +9.0, 0.0)
             };
 
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(0.0, 0.0, 0.0), quad, Vec3d::PosZ));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(1.0, 1.0, 0.0), quad, Vec3d::PosZ));
-            ASSERT_VEC_EQ(Vec3d::Null, Grid(2u).snap(Vec3d(1.0, 1.0, 1.0), quad, Vec3d::PosZ));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d(0.0, 0.0, 0.0), quad, vm::vec3d::pos_z));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d(1.0, 1.0, 0.0), quad, vm::vec3d::pos_z));
+            ASSERT_VEC_EQ(vm::vec3d::zero, Grid(2u).snap(vm::vec3d(1.0, 1.0, 1.0), quad, vm::vec3d::pos_z));
 
-            ASSERT_VEC_EQ(Vec3d(9.0, 4.0, 0.0), Grid(2u).snap(Vec3d(10.0, 3.0, 1.0), quad, Vec3d::PosZ));
-            ASSERT_VEC_EQ(Vec3d(9.0, -4.0, 0.0), Grid(2u).snap(Vec3d(10.0, -2.0, 1.0), quad, Vec3d::PosZ));
+            ASSERT_VEC_EQ(vm::vec3d(9.0, 4.0, 0.0), Grid(2u).snap(vm::vec3d(10.0, 3.0, 1.0), quad, vm::vec3d::pos_z));
+            ASSERT_VEC_EQ(vm::vec3d(9.0, -4.0, 0.0), Grid(2u).snap(vm::vec3d(10.0, -2.0, 1.0), quad, vm::vec3d::pos_z));
         }
 
         TEST(GridTest, moveDeltaForPoint) {
             const auto grid16 = Grid(4);
 
-            const auto pointOffGrid = Vec3d(17, 17, 17);
-            const auto inputDelta = Vec3d(1, 1, 7); // moves point to (18, 18, 24)
-            const auto pointOnGrid = Vec3d(17, 17, 32);
+            const auto pointOffGrid = vm::vec3d(17, 17, 17);
+            const auto inputDelta = vm::vec3d(1, 1, 7); // moves point to (18, 18, 24)
+            const auto pointOnGrid = vm::vec3d(17, 17, 32);
 
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid16.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
         }
@@ -169,9 +169,9 @@ namespace TrenchBroom {
         TEST(GridTest, moveDeltaForPoint_SubInteger) {
             const auto grid05 = Grid(-1);
 
-            const auto pointOffGrid = Vec3d(0.51, 0.51, 0.51);
-            const auto inputDelta = Vec3d(0.01, 0.01, 0.30); // moves point to (0.52, 0.52, 0.81)
-            const auto pointOnGrid = Vec3d(0.51, 0.51, 1.0);
+            const auto pointOffGrid = vm::vec3d(0.51, 0.51, 0.51);
+            const auto inputDelta = vm::vec3d(0.01, 0.01, 0.30); // moves point to (0.52, 0.52, 0.81)
+            const auto pointOnGrid = vm::vec3d(0.51, 0.51, 1.0);
 
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
         }
@@ -179,9 +179,9 @@ namespace TrenchBroom {
         TEST(GridTest, moveDeltaForPoint_SubInteger2) {
             const auto grid05 = Grid(-1);
 
-            const auto pointOffGrid = Vec3d(0.51, 0.51, 0.51);
-            const auto inputDelta = Vec3d(0.01, 0.01, 1.30); // moves point to (0.52, 0.52, 1.81)
-            const auto pointOnGrid = Vec3d(0.51, 0.51, 2.0);
+            const auto pointOffGrid = vm::vec3d(0.51, 0.51, 0.51);
+            const auto inputDelta = vm::vec3d(0.01, 0.01, 1.30); // moves point to (0.52, 0.52, 1.81)
+            const auto pointOnGrid = vm::vec3d(0.51, 0.51, 2.0);
 
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, worldBounds, inputDelta));
         }
@@ -198,14 +198,14 @@ namespace TrenchBroom {
             const auto grid16 = Grid(4);
 
             Model::Brush* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(Vec3::PosZ);
+            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
-            ASSERT_EQ(Vec3(0,0,48), grid16.moveDelta(topFace, Vec3(0, 0, 63)));
-            ASSERT_EQ(Vec3(0,0,64), grid16.moveDelta(topFace, Vec3(0, 0, 64)));
-            ASSERT_EQ(Vec3(0,0,64), grid16.moveDelta(topFace, Vec3(0, 0, 65)));
+            ASSERT_EQ(vm::vec3(0,0,48), grid16.moveDelta(topFace, vm::vec3(0, 0, 63)));
+            ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 64)));
+            ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 65)));
 
             delete cube;
         }
@@ -214,14 +214,14 @@ namespace TrenchBroom {
             const auto grid05 = Grid(-1);
 
             Model::Brush* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(Vec3::PosZ);
+            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
-            ASSERT_EQ(Vec3(0,0,1.5), grid05.moveDelta(topFace, Vec3(0, 0, 1.9)));
-            ASSERT_EQ(Vec3(0,0,2), grid05.moveDelta(topFace, Vec3(0, 0, 2)));
-            ASSERT_EQ(Vec3(0,0,2), grid05.moveDelta(topFace, Vec3(0, 0, 2.1)));
+            ASSERT_EQ(vm::vec3(0,0,1.5), grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)));
+            ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2)));
+            ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)));
 
             delete cube;
         }

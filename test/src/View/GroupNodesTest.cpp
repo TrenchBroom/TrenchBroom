@@ -164,7 +164,7 @@ namespace TrenchBroom {
             Model::Group* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
             
-            ASSERT_TRUE(document->translateObjects(Vec3(16,0,0)));
+            ASSERT_TRUE(document->translateObjects(vm::vec3(16,0,0)));
             
             ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
             
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(group->selected());
             
             EXPECT_FALSE(entity->hasAttribute("origin"));
-            ASSERT_TRUE(document->rotateObjects(Vec3::Null, Vec3::PosZ, 10.0f));
+            ASSERT_TRUE(document->rotateObjects(vm::vec3::zero, vm::vec3::pos_z, 10.0f));
             EXPECT_FALSE(entity->hasAttribute("origin"));
             
             document->undoLastCommand();

@@ -55,19 +55,19 @@ namespace TrenchBroom {
             virtual ~Node();
         public: // getters
             const String& name() const;
-            const BBox3& bounds() const;
+            const vm::bbox3& bounds() const;
         public: // cloning and snapshots
-            Node* clone(const BBox3& worldBounds) const;
-            Node* cloneRecursively(const BBox3& worldBounds) const;
+            Node* clone(const vm::bbox3& worldBounds) const;
+            Node* cloneRecursively(const vm::bbox3& worldBounds) const;
             NodeSnapshot* takeSnapshot();
         protected:
             void cloneAttributes(Node* node) const;
             
-            static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
-            static NodeList cloneRecursively(const BBox3& worldBounds, const NodeList& nodes);
+            static NodeList clone(const vm::bbox3& worldBounds, const NodeList& nodes);
+            static NodeList cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes);
             
             template <typename I, typename O>
-            static void clone(const BBox3& worldBounds, I cur, I end, O result) {
+            static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
                     result = node->clone(worldBounds);
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             }
             
             template <typename I, typename O>
-            static void cloneRecursively(const BBox3& worldBounds, I cur, I end, O result) {
+            static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
                     result = node->cloneRecursively(worldBounds);
@@ -191,20 +191,20 @@ namespace TrenchBroom {
             class NotifyNodeBoundsChange {
             private:
                 Node* m_node;
-                const BBox3 m_oldBounds;
+                const vm::bbox3 m_oldBounds;
             public:
                 NotifyNodeBoundsChange(Node* node);
                 ~NotifyNodeBoundsChange();
             };
-            void nodeBoundsDidChange(BBox3 oldBounds);
+            void nodeBoundsDidChange(vm::bbox3 oldBounds);
         private:
             void childWillChange(Node* node);
             void childDidChange(Node* node);
             void descendantWillChange(Node* node);
             void descendantDidChange(Node* node);
             
-            void childBoundsDidChange(Node* node, const BBox3& oldBounds);
-            void descendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth);
+            void childBoundsDidChange(Node* node, const vm::bbox3& oldBounds);
+            void descendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth);
         public: // selection
             bool selected() const;
             void select();
@@ -251,9 +251,9 @@ namespace TrenchBroom {
             LockState lockState() const;
             bool setLockState(LockState lockState);
         public: // picking
-            void pick(const Ray3& ray, PickResult& result) const;
-            void findNodesContaining(const Vec3& point, NodeList& result);
-            FloatType intersectWithRay(const Ray3& ray) const;
+            void pick(const vm::ray3& ray, PickResult& result) const;
+            void findNodesContaining(const vm::vec3& point, NodeList& result);
+            FloatType intersectWithRay(const vm::ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
@@ -406,10 +406,10 @@ namespace TrenchBroom {
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
             virtual const String& doGetName() const = 0;
-            virtual const BBox3& doGetBounds() const = 0;
+            virtual const vm::bbox3& doGetBounds() const = 0;
             
-            virtual Node* doClone(const BBox3& worldBounds) const = 0;
-            virtual Node* doCloneRecursively(const BBox3& worldBounds) const;
+            virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
+            virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
             virtual NodeSnapshot* doTakeSnapshot();
             
             virtual bool doCanAddChild(const Node* child) const = 0;
@@ -432,9 +432,9 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
             
-            virtual void doNodeBoundsDidChange(const BBox3& oldBounds);
-            virtual void doChildBoundsDidChange(Node* node, const BBox3& oldBounds);
-            virtual void doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, size_t depth);
+            virtual void doNodeBoundsDidChange(const vm::bbox3& oldBounds);
+            virtual void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds);
+            virtual void doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth);
             
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);
@@ -443,9 +443,9 @@ namespace TrenchBroom {
             
             virtual bool doSelectable() const = 0;
             
-            virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
-            virtual void doFindNodesContaining(const Vec3& point, NodeList& result) = 0;
-            virtual FloatType doIntersectWithRay(const Ray3& ray) const = 0;
+            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
+            virtual void doFindNodesContaining(const vm::vec3& point, NodeList& result) = 0;
+            virtual FloatType doIntersectWithRay(const vm::ray3& ray) const = 0;
             
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
             

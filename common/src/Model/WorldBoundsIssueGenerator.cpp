@@ -25,6 +25,8 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
+#include <vecmath/bbox.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -59,7 +61,7 @@ namespace TrenchBroom {
 
         const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
         
-        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const BBox3& bounds) :
+        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const vm::bbox3& bounds) :
         IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds"),
         m_bounds(bounds) {
             addQuickFix(new WorldBoundsIssueQuickFix());

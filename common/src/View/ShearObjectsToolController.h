@@ -53,14 +53,14 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
-            virtual void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
+            virtual void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) = 0;
             
             void doModifierKeyChange(const InputState& inputState) override;
             void doMouseMove(const InputState& inputState) override;
 
             // RestrictedDragPolicy
             DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
             void doCancelDrag() override;
 
@@ -75,14 +75,14 @@ namespace TrenchBroom {
         public:
             explicit ShearObjectsToolController2D(ShearObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
+            void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
         
         class ShearObjectsToolController3D : public ShearObjectsToolController {
         public:
             explicit ShearObjectsToolController3D(ShearObjectsTool* tool, MapDocumentWPtr document);
         private:
-            void doPick(const Ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
+            void doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera, Model::PickResult &pickResult) override;
         };
     }
 }

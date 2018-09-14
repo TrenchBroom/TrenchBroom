@@ -21,8 +21,9 @@
 #define ObjSerializer_h
 
 #include "IO/NodeSerializer.h"
-#include "VecMath.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
 
 #include <cstdio>
 #include <list>
@@ -76,9 +77,9 @@ namespace TrenchBroom {
             
             FILE* m_stream;
 
-            IndexMap<Vec3> m_vertices;
-            IndexMap<Vec2f> m_texCoords;
-            IndexMap<Vec3> m_normals;
+            IndexMap<vm::vec3> m_vertices;
+            IndexMap<vm::vec2f> m_texCoords;
+            IndexMap<vm::vec3> m_normals;
 
             Object m_currentObject;
             ObjectList m_objects;

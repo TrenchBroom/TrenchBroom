@@ -19,23 +19,30 @@
 
 #include "OrthographicCamera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/ray.h>
+#include <vecmath/plane.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         OrthographicCamera::OrthographicCamera() :
         Camera() {}
         
-        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
+        OrthographicCamera::OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up) :
         Camera(nearPlane, farPlane, viewport, position, direction, up) {}
         
-        Vec3::List OrthographicCamera::viewportVertices() const {
-            const float w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
-            const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+        std::vector<vm::vec3> OrthographicCamera::viewportVertices() const {
+            const auto w2 = static_cast<float>(zoomedViewport().width)  / 2.0f;
+            const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            Vec3::List result(4);
-            result[0] = Vec3(position() - w2 * right() + h2 * up());
-            result[1] = Vec3(position() + w2 * right() + h2 * up());
-            result[2] = Vec3(position() + w2 * right() - h2 * up());
-            result[3] = Vec3(position() - w2 * right() - h2 * up());
+            std::vector<vm::vec3> result(4);
+            result[0] = vm::vec3(position() - w2 * right() + h2 * up());
+            result[1] = vm::vec3(position() + w2 * right() + h2 * up());
+            result[2] = vm::vec3(position() + w2 * right() - h2 * up());
+            result[3] = vm::vec3(position() - w2 * right() - h2 * up());
             return result;
         }
 
@@ -43,40 +50,40 @@ namespace TrenchBroom {
             return Projection_Orthographic;
         }
 
-        void OrthographicCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
-            const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+        void OrthographicCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
+            const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
+            const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            projectionMatrix = orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-            viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
+            projectionMatrix = vm::orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
+            viewMatrix = vm::viewMatrix(direction(), up()) * vm::translationMatrix(-position());
         }
         
-        Ray3f OrthographicCamera::doGetPickRay(const Vec3f& point) const {
-            const Vec3f v = point - position();
-            const float d = v.dot(direction());
-            const Vec3f o = point - d * direction();
-            return Ray3f(o, direction());
+        vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {
+            const auto v = point - position();
+            const auto d = dot(v, direction());
+            const auto o = point - d * direction();
+            return vm::ray3f(o, direction());
         }
         
-        void OrthographicCamera::doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const {
-            const float w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
-            const float h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
+        void OrthographicCamera::doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const {
+            const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
+            const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
-            const Vec3f& center = position();
-            topPlane    = Plane3f(center + h2 * up(), up());
-            rightPlane  = Plane3f(center + w2 * right(), right());
-            bottomPlane = Plane3f(center - h2 * up(), -up());
-            leftPlane   = Plane3f(center - w2 * right(), -right());
+            const auto& center = position();
+            topPlane    = vm::plane3f(center + h2 * up(), up());
+            rightPlane  = vm::plane3f(center + w2 * right(), right());
+            bottomPlane = vm::plane3f(center - h2 * up(), -up());
+            leftPlane   = vm::plane3f(center - w2 * right(), -right());
         }
         
         void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
         }
         
-        float OrthographicCamera::doPickFrustum(const float size, const Ray3f& ray) const {
-            return Math::nan<float>();
+        float OrthographicCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {
+            return vm::nan<float>();
         }
 
-        float OrthographicCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
+        float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const {
             return 1.0f / zoom();
         }
     }

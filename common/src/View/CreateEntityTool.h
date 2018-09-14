@@ -21,10 +21,11 @@
 #define TrenchBroom_CreateEntityTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             Model::Entity* m_entity;
-            BBox3 m_referenceBounds;
+            vm::bbox3 m_referenceBounds;
         public:
             CreateEntityTool(MapDocumentWPtr document);
             
@@ -45,8 +46,8 @@ namespace TrenchBroom {
             void removeEntity();
             void commitEntity();
             
-            void updateEntityPosition2D(const Ray3& pickRay);
-            void updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult);
+            void updateEntityPosition2D(const vm::ray3& pickRay);
+            void updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         };
     }
 }

@@ -25,8 +25,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        IntersectNodeWithRayVisitor::IntersectNodeWithRayVisitor(const Ray3& ray) :
-        NodeQuery(Math::nan<FloatType>()),
+        IntersectNodeWithRayVisitor::IntersectNodeWithRayVisitor(const vm::ray3& ray) :
+        NodeQuery(vm::nan<FloatType>()),
         m_ray(ray) {}
 
         void IntersectNodeWithRayVisitor::doVisit(World* world)   {}
@@ -36,11 +36,13 @@ namespace TrenchBroom {
         void IntersectNodeWithRayVisitor::doVisit(Brush* brush)   { setResult(brush->intersectWithRay(m_ray)); }
 
         FloatType IntersectNodeWithRayVisitor::doCombineResults(FloatType oldDistance, FloatType newDistance) const {
-            if (Math::isnan(oldDistance))
+            if (vm::isNan(oldDistance)) {
                 return newDistance;
-            if (Math::isnan(newDistance))
+            } else if (vm::isNan(newDistance)) {
                 return oldDistance;
-            return Math::min(oldDistance, newDistance);
+            } else {
+                return vm::min(oldDistance, newDistance);
+            }
         }
     }
 }

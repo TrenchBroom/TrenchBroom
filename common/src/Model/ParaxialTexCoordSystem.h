@@ -21,8 +21,9 @@
 #define TrenchBroom_ParaxialTexCoordSystem
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/TexCoordSystem.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,48 +31,48 @@ namespace TrenchBroom {
 
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
-            static const Vec3 BaseAxes[];
+            static const vm::vec3 BaseAxes[];
             
             size_t m_index;
-            Vec3 m_xAxis;
-            Vec3 m_yAxis;
+            vm::vec3 m_xAxis;
+            vm::vec3 m_yAxis;
         public:
-            ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs);
-            ParaxialTexCoordSystem(const Vec3& normal, const BrushFaceAttributes& attribs);
+            ParaxialTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
+            ParaxialTexCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
 
-            static size_t planeNormalIndex(const Vec3& normal);
-            static void axes(size_t index, Vec3& xAxis, Vec3& yAxis);
-            static void axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis);
+            static size_t planeNormalIndex(const vm::vec3& normal);
+            static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis);
+            static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis, vm::vec3& projectionAxis);
         private:
-            ParaxialTexCoordSystem(size_t index, const Vec3& xAxis, const Vec3& yAxis);
+            ParaxialTexCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
         private:
             TexCoordSystem* doClone() const override;
             TexCoordSystemSnapshot* doTakeSnapshot() override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
 
-            Vec3 getXAxis() const override;
-            Vec3 getYAxis() const override;
-            Vec3 getZAxis() const override;
+            vm::vec3 getXAxis() const override;
+            vm::vec3 getYAxis() const override;
+            vm::vec3 getZAxis() const override;
 
-            void doResetCache(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) override;
-            void doResetTextureAxes(const Vec3& normal) override;
-            void doResetTextureAxesToParaxial(const Vec3& normal, float angle) override;
-            void doResetTextureAxesToParallel(const Vec3& normal, float angle) override;
+            void doResetCache(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) override;
+            void doResetTextureAxes(const vm::vec3& normal) override;
+            void doResetTextureAxesToParaxial(const vm::vec3& normal, float angle) override;
+            void doResetTextureAxesToParallel(const vm::vec3& normal, float angle) override;
 
-            bool isRotationInverted(const Vec3& normal) const override;
-            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const override;
+            bool isRotationInverted(const vm::vec3& normal) const override;
+            vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const override;
             
-            void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) override;
-            void doTransform(const Plane3& oldBoundary, const Plane3& newBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) override;
+            void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
+            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
             
-            void doUpdateNormalWithProjection(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) override;
-            void doUpdateNormalWithRotation(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) override;
+            void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
+            void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
 
-            void doShearTexture(const Vec3& normal, const Vec2f& factors) override;
+            void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) override;
             
-            float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const override;
+            float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
         private:
-            void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
+            void rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
         private:
             ParaxialTexCoordSystem(const ParaxialTexCoordSystem& other);
             ParaxialTexCoordSystem& operator=(const ParaxialTexCoordSystem& other);

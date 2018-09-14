@@ -25,11 +25,13 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 
+#include <vecmath/ray.h>
+
 namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
         private: // implement Node interface
-            Node* doClone(const BBox3& worldBounds) const override {
+            Node* doClone(const vm::bbox3& worldBounds) const override {
                 return new MockNode();
             }
             
@@ -38,8 +40,8 @@ namespace TrenchBroom {
                 return name;
             }
             
-            const BBox3& doGetBounds() const override {
-                static const BBox3 bounds;
+            const vm::bbox3& doGetBounds() const override {
+                static const vm::bbox3 bounds;
                 return bounds;
             }
             
@@ -75,15 +77,15 @@ namespace TrenchBroom {
                 mockDoAncestorDidChange();
             }
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override {
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override {
                 mockDoPick(ray, pickResult);
             }
             
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override {
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override {
                 mockDoFindNodesContaining(point, result);
             }
 
-            FloatType doIntersectWithRay(const Ray3& ray) const override {
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override {
                 return mockDoIntersectWithRay(ray);
             }
 
@@ -106,9 +108,9 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoAncestorWillChange, void());
             MOCK_METHOD0(mockDoAncestorDidChange, void());
             
-            MOCK_CONST_METHOD2(mockDoPick, void(const Ray3&, PickResult&));
-            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const Vec3&, NodeList&));
-            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const Ray3&));
+            MOCK_CONST_METHOD2(mockDoPick, void(const vm::ray3&, PickResult&));
+            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vm::vec3&, NodeList&));
+            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const vm::ray3&));
             
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
             MOCK_CONST_METHOD1(mockDoAccept, void(ConstNodeVisitor&));
@@ -116,7 +118,7 @@ namespace TrenchBroom {
         
         class TestNode : public Node {
         private: // implement Node interface
-            Node* doClone(const BBox3& worldBounds) const override {
+            Node* doClone(const vm::bbox3& worldBounds) const override {
                 return new TestNode();
             }
             
@@ -125,8 +127,8 @@ namespace TrenchBroom {
                 return name;
             }
             
-            const BBox3& doGetBounds() const override {
-                static const BBox3 bounds;
+            const vm::bbox3& doGetBounds() const override {
+                static const vm::bbox3 bounds;
                 return bounds;
             }
             
@@ -151,9 +153,9 @@ namespace TrenchBroom {
             void doAncestorWillChange() override {}
             void doAncestorDidChange() override {}
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override {}
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override {}
-            FloatType doIntersectWithRay(const Ray3& ray) const override { return Math::nan<FloatType>(); }
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override {}
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override {}
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override { return vm::nan<FloatType>(); }
 
             void doAccept(NodeVisitor& visitor) override {}
             void doAccept(ConstNodeVisitor& visitor) const override {}

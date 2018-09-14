@@ -64,7 +64,7 @@ namespace TrenchBroom {
         void MoveObjectsToolPage::OnApply(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            const Vec3 delta = Vec3::parse(m_offset->GetValue().ToStdString());
+            const vm::vec3 delta = vm::vec3::parse(m_offset->GetValue().ToStdString());
 
             MapDocumentSPtr document = lock(m_document);
             document->translateObjects(delta);

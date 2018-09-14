@@ -21,11 +21,13 @@
 #define TrenchBroom_ClipToolController
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/InputState.h"
 #include "View/ToolController.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -54,16 +56,16 @@ namespace TrenchBroom {
                 virtual ~Callback();
                 ClipTool* tool() const;
                 
-                bool addClipPoint(const InputState& inputState, Vec3& position);
+                bool addClipPoint(const InputState& inputState, vm::vec3& position);
                 bool setClipFace(const InputState& inputState);
                 
-                virtual DragRestricter* createDragRestricter(const InputState& inputState, const Vec3& initialPoint) const = 0;
+                virtual DragRestricter* createDragRestricter(const InputState& inputState, const vm::vec3& initialPoint) const = 0;
                 virtual DragSnapper* createDragSnapper(const InputState& inputState) const = 0;
-                virtual Vec3::List getHelpVectors(const InputState& inputState) const = 0;
+                virtual std::vector<vm::vec3> getHelpVectors(const InputState& inputState) const = 0;
                 
                 void renderFeedback(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             private:
-                virtual bool doGetNewClipPointPosition(const InputState& inputState, Vec3& position) const = 0;
+                virtual bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const = 0;
             };
             
             class PartBase {
@@ -84,7 +86,7 @@ namespace TrenchBroom {
                 bool doMouseClick(const InputState& inputState) override;
                 bool doMouseDoubleClick(const InputState& inputState) override;
                 DragInfo doStartDrag(const InputState& inputState) override;
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+                DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
                 void doEndDrag(const InputState& inputState) override;
                 void doCancelDrag() override;
                 void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
@@ -97,7 +99,7 @@ namespace TrenchBroom {
             private:
                 Tool* doGetTool() override;
                 DragInfo doStartDrag(const InputState& inputState) override;
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+                DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
                 void doEndDrag(const InputState& inputState) override;
                 void doCancelDrag() override;
                 bool doCancel() override;
@@ -127,8 +129,8 @@ namespace TrenchBroom {
         
         class ClipToolController3D : public ClipToolController {
         private:
-            static Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint);
-            static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint);
+            static std::vector<vm::vec3> selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint);
+            static Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint);
         private:
             class Callback3D;
         public:

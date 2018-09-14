@@ -22,6 +22,10 @@
 #include "Exceptions.h"
 #include "Renderer/Shader.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         ShaderProgram::ShaderProgram(const String& name) :
@@ -95,32 +99,32 @@ namespace TrenchBroom {
             set(name, static_cast<float>(value));
         }
         
-        void ShaderProgram::set(const String& name, const Vec2f& value) {
+        void ShaderProgram::set(const String& name, const vm::vec2f& value) {
             assert(checkActive());
             glAssert(glUniform2f(findUniformLocation(name), value.x(), value.y()));
         }
 
-        void ShaderProgram::set(const String& name, const Vec3f& value) {
+        void ShaderProgram::set(const String& name, const vm::vec3f& value) {
             assert(checkActive());
             glAssert(glUniform3f(findUniformLocation(name), value.x(), value.y(), value.z()));
         }
 
-        void ShaderProgram::set(const String& name, const Vec4f& value) {
+        void ShaderProgram::set(const String& name, const vm::vec4f& value) {
             assert(checkActive());
             glAssert(glUniform4f(findUniformLocation(name), value.x(), value.y(), value.z(), value.w()));
         }
 
-        void ShaderProgram::set(const String& name, const Mat2x2f& value) {
+        void ShaderProgram::set(const String& name, const vm::mat2x2f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix2fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const Mat3x3f& value) {
+        void ShaderProgram::set(const String& name, const vm::mat3x3f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix3fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }
 
-        void ShaderProgram::set(const String& name, const Mat4x4f& value) {
+        void ShaderProgram::set(const String& name, const vm::mat4x4f& value) {
             assert(checkActive());
             glAssert(glUniformMatrix4fv(findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
         }

@@ -142,14 +142,14 @@ namespace TrenchBroom {
             return m_rotateObjectsTool->angle();
         }
         
-        const Vec3 MapViewToolBox::rotateToolCenter() const {
+        vm::vec3 MapViewToolBox::rotateToolCenter() const {
             assert(rotateObjectsToolActive());
             return m_rotateObjectsTool->rotationCenter();
         }
 
-        void MapViewToolBox::moveRotationCenter(const Vec3& delta) {
+        void MapViewToolBox::moveRotationCenter(const vm::vec3& delta) {
             assert(rotateObjectsToolActive());
-            const Vec3 center = m_rotateObjectsTool->rotationCenter();
+            const vm::vec3 center = m_rotateObjectsTool->rotationCenter();
             m_rotateObjectsTool->setRotationCenter(center + delta);
         }
 
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             return toolActive(faceTool());
         }
 
-        void MapViewToolBox::moveVertices(const Vec3& delta) {
+        void MapViewToolBox::moveVertices(const vm::vec3& delta) {
             assert(anyVertexToolActive());
             if (vertexToolActive())
                 vertexTool()->moveSelection(delta);

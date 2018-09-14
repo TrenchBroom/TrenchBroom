@@ -47,12 +47,12 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        World* ModelFactoryImpl::doCreateWorld(const BBox3& worldBounds) const {
+        World* ModelFactoryImpl::doCreateWorld(const vm::bbox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
             return new World(m_format, m_brushContentTypeBuilder, worldBounds);
         }
 
-        Layer* ModelFactoryImpl::doCreateLayer(const String& name, const BBox3& worldBounds) const {
+        Layer* ModelFactoryImpl::doCreateLayer(const String& name, const vm::bbox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
             return new Layer(name, worldBounds);
         }
@@ -67,14 +67,14 @@ namespace TrenchBroom {
             return new Entity();
         }
         
-        Brush* ModelFactoryImpl::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
             assert(m_format != MapFormat::Unknown);
             Brush* brush = new Brush(worldBounds, faces);
             brush->setContentTypeBuilder(m_brushContentTypeBuilder);
             return brush;
         }
 
-        BrushFace* ModelFactoryImpl::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const {
+        BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             }
         }
 
-        BrushFace* ModelFactoryImpl::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const {
+        BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:

@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_Bsp29Model
 #define TrenchBroom_Bsp29Model
 
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/AssetTypes.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <vector>
 
@@ -34,14 +36,14 @@ namespace TrenchBroom {
         public:
             class Face {
             public:
-                typedef Renderer::VertexSpecs::P3T2::Vertex Vertex;
-                typedef Vertex::List VertexList;
+                using Vertex = Renderer::VertexSpecs::P3T2::Vertex;
+                using VertexList = Vertex::List;
             private:
                 Texture* m_texture;
                 VertexList m_vertices;
             public:
                 Face(Texture* texture, size_t vertexCount);
-                void addVertex(const Vec3f& vertex, const Vec2f& texCoord);
+                void addVertex(const vm::vec3f& vertex, const vm::vec2f& texCoord);
                 
                 Texture* texture() const;
                 const VertexList& vertices() const;
@@ -50,10 +52,10 @@ namespace TrenchBroom {
         private:
             struct SubModel {
                 FaceList faces;
-                BBox3f bounds;
-                SubModel(const FaceList& i_faces, const BBox3f& i_bounds);
+                vm::bbox3f bounds;
+                SubModel(const FaceList& i_faces, const vm::bbox3f& i_bounds);
                 
-                BBox3f transformedBounds(const Mat4x4f& transformation) const;
+                vm::bbox3f transformedBounds(const vm::mat4x4f& transformation) const;
             };
 
             typedef std::vector<SubModel> SubModelList;
@@ -64,11 +66,11 @@ namespace TrenchBroom {
             Bsp29Model(const String& name, TextureCollection* textureCollection);
             ~Bsp29Model() override;
             
-            void addModel(const FaceList& faces, const BBox3f& bounds);
+            void addModel(const FaceList& faces, const vm::bbox3f& bounds);
         private:
             Renderer::TexturedIndexRangeRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
-            BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const override;
+            vm::bbox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const override;
+            vm::bbox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const vm::mat4x4f& transformation) const override;
             void doPrepare(int minFilter, int magFilter) override;
             void doSetTextureMode(int minFilter, int magFilter) override;
         };

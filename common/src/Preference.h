@@ -159,7 +159,7 @@ namespace TrenchBroom {
         }
         
         bool write(wxConfigBase* config, const IO::Path& path, const Color& value) const {
-            return config->Write(path.asString('/'), wxString(value.asString()));
+            return config->Write(path.asString('/'), wxString(StringUtils::toString(value)));
         }
     };
     

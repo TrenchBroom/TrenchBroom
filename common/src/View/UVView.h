@@ -21,7 +21,6 @@
 #define TrenchBroom_UVView
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/Hit.h"
 #include "Model/PickResult.h"
 #include "Model/ModelTypes.h"
@@ -73,7 +72,7 @@ namespace TrenchBroom {
             UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             ~UVView() override;
             
-            void setSubDivisions(const Vec2i& subDivisions);
+            void setSubDivisions(const vm::vec2i& subDivisions);
         private:
             void createTools();
             
@@ -102,7 +101,7 @@ namespace TrenchBroom {
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             PickRequest doGetPickRequest(int x, int y) const override;
-            Model::PickResult doPick(const Ray3& pickRay) const override;
+            Model::PickResult doPick(const vm::ray3& pickRay) const override;
         };
     }
 }

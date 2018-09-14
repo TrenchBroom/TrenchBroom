@@ -19,23 +19,31 @@
 
 #include "ToolController.h"
 
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "View/Grid.h"
 #include "View/Tool.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+#include <vecmath/distance.h>
+#include <vecmath/intersection.h>
+
+
 namespace TrenchBroom {
     namespace View {
-        PickingPolicy::~PickingPolicy() {}
+        PickingPolicy::~PickingPolicy() = default;
 
-        NoPickingPolicy::~NoPickingPolicy() {}
+        NoPickingPolicy::~NoPickingPolicy() = default;
         void NoPickingPolicy::doPick(const InputState& inputState, Model::PickResult& pickResult) {}
 
-        KeyPolicy::~KeyPolicy() {}
+        KeyPolicy::~KeyPolicy() = default;
 
-        NoKeyPolicy::~NoKeyPolicy() {}
+        NoKeyPolicy::~NoKeyPolicy() = default;
         void NoKeyPolicy::doModifierKeyChange(const InputState& inputState) {}
         
-        MousePolicy::~MousePolicy() {}
+        MousePolicy::~MousePolicy() = default;
 
         void MousePolicy::doMouseDown(const InputState& inputState) {}
         void MousePolicy::doMouseUp(const InputState& inputState) {}
@@ -44,60 +52,65 @@ namespace TrenchBroom {
         void MousePolicy::doMouseMove(const InputState& inputState) {}
         void MousePolicy::doMouseScroll(const InputState& inputState) {}
 
-        MouseDragPolicy::~MouseDragPolicy() {}
+        MouseDragPolicy::~MouseDragPolicy() = default;
 
-        NoMouseDragPolicy::~NoMouseDragPolicy() {}
+        NoMouseDragPolicy::~NoMouseDragPolicy() = default;
 
         bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
         bool NoMouseDragPolicy::doMouseDrag(const InputState& inputState) { return false; }
         void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
         void NoMouseDragPolicy::doCancelMouseDrag() {}
         
-        DragRestricter::~DragRestricter() {}
+        DragRestricter::~DragRestricter() = default;
 
-        bool DragRestricter::hitPoint(const InputState& inputState, Vec3& point) const {
+        bool DragRestricter::hitPoint(const InputState& inputState, vm::vec3& point) const {
             return doComputeHitPoint(inputState, point);
         }
 
-        PlaneDragRestricter::PlaneDragRestricter(const Plane3& plane) :
+        PlaneDragRestricter::PlaneDragRestricter(const vm::plane3& plane) :
         m_plane(plane) {}
         
-        bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
-            const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+        bool PlaneDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
+            const auto distance = vm::intersect(inputState.pickRay(), m_plane);
+            if (vm::isNan(distance)) {
                 return false;
-            point = inputState.pickRay().pointAtDistance(distance);
-            return true;
+            } else {
+                point = inputState.pickRay().pointAtDistance(distance);
+                return true;
+            }
         }
 
-        LineDragRestricter::LineDragRestricter(const Line3& line) :
+        LineDragRestricter::LineDragRestricter(const vm::line3& line) :
         m_line(line) {}
 
-        bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
-            const Ray3::LineDistance lineDist = inputState.pickRay().distanceToLine(m_line.point, m_line.direction);
-            if (lineDist.parallel)
+        bool LineDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
+            const auto dist = vm::distance(inputState.pickRay(), m_line);
+            if (dist.parallel) {
                 return false;
-            point = m_line.point + m_line.direction * lineDist.lineDistance;
-            return true;
+            } else {
+                point = m_line.point + m_line.direction * dist.position2;
+                return true;
+            }
         }
         
-        CircleDragRestricter::CircleDragRestricter(const Vec3& center, const Vec3& normal, const FloatType radius) :
+        CircleDragRestricter::CircleDragRestricter(const vm::vec3& center, const vm::vec3& normal, const FloatType radius) :
         m_center(center),
         m_normal(normal),
         m_radius(radius) {
             assert(m_radius > 0.0);
         }
         
-        bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
-            const Plane3 plane(m_center, m_normal);
-            const FloatType distance = plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
+        bool CircleDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
+            const auto plane = vm::plane3(m_center, m_normal);
+            const auto distance = vm::intersect(inputState.pickRay(), plane);
+            if (vm::isNan(distance)) {
                 return false;
-            
-            const Vec3 hitPoint = inputState.pickRay().pointAtDistance(distance);
-            const Vec3 direction = (hitPoint - m_center).normalized();
-            point = m_center + m_radius * direction;
-            return true;
+            } else {
+                const auto hitPoint = inputState.pickRay().pointAtDistance(distance);
+                const auto direction = normalize(hitPoint - m_center);
+                point = m_center + m_radius * direction;
+                return true;
+            }
         }
 
         SurfaceDragHelper::SurfaceDragHelper() :
@@ -107,7 +120,7 @@ namespace TrenchBroom {
         m_pickable(false),
         m_selected(false) {}
         
-        SurfaceDragHelper::~SurfaceDragHelper() {}
+        SurfaceDragHelper::~SurfaceDragHelper() = default;
 
         void SurfaceDragHelper::setPickable(const bool pickable) {
             m_pickable = pickable;
@@ -147,7 +160,7 @@ namespace TrenchBroom {
             return query;
         }
 
-        bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, Vec3& point) const {
+        bool SurfaceDragRestricter::doComputeHitPoint(const InputState& inputState, vm::vec3& point) const {
             const Model::Hit& hit = query(inputState).first();
             if (!hit.isMatch())
                 return false;
@@ -155,25 +168,25 @@ namespace TrenchBroom {
             return true;
         }
 
-        DragSnapper::~DragSnapper() {}
+        DragSnapper::~DragSnapper() = default;
         
-        bool DragSnapper::snap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool DragSnapper::snap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             return doSnap(inputState, initialPoint, lastPoint, curPoint);
         }
         
         void MultiDragSnapper::addDelegates() {}
 
-        bool MultiDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& originalCurPoint) const {
+        bool MultiDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& originalCurPoint) const {
             if (m_delegates.empty())
                 return false;
             
-            Vec3 bestPoint;
+            vm::vec3 bestPoint;
             bool anySnapped = false;
             for (const std::unique_ptr<DragSnapper>& delegate : m_delegates) {
-                Vec3 curPoint = originalCurPoint;
+                vm::vec3 curPoint = originalCurPoint;
                 if (delegate->snap(inputState, initialPoint, lastPoint, curPoint)) {
                     if (anySnapped) {
-                        if (curPoint.squaredDistanceTo(originalCurPoint) < bestPoint.squaredDistanceTo(originalCurPoint)) {
+                        if (squaredDistance(curPoint, originalCurPoint) < squaredDistance(bestPoint, originalCurPoint)) {
                             bestPoint = curPoint;
                         }
                     } else {
@@ -189,15 +202,15 @@ namespace TrenchBroom {
             return anySnapped;
         }
 
-        bool NoDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool NoDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             return true;
         }
 
-        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid, const Vec3& offset) :
+        AbsoluteDragSnapper::AbsoluteDragSnapper(const Grid& grid, const vm::vec3& offset) :
         m_grid(grid),
         m_offset(offset) {}
 
-        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool AbsoluteDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             curPoint = m_grid.snap(curPoint) - m_offset;
             return true;
         }
@@ -205,42 +218,42 @@ namespace TrenchBroom {
         DeltaDragSnapper::DeltaDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool DeltaDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool DeltaDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             curPoint = initialPoint + m_grid.snap(curPoint - initialPoint);
             return true;
         }
 
-        LineDragSnapper::LineDragSnapper(const Grid& grid, const Line3& line) :
+        LineDragSnapper::LineDragSnapper(const Grid& grid, const vm::line3& line) :
         m_grid(grid),
         m_line(line) {}
 
-        bool LineDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool LineDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             curPoint = m_grid.snap(curPoint, m_line);
             return true;
         }
 
-        CircleDragSnapper::CircleDragSnapper(const Grid& grid, const Vec3& start, const Vec3& center, const Vec3& normal, const FloatType radius) :
+        CircleDragSnapper::CircleDragSnapper(const Grid& grid, const vm::vec3& start, const vm::vec3& center, const vm::vec3& normal, const FloatType radius) :
         m_grid(grid),
         m_start(start),
         m_center(center),
         m_normal(normal),
         m_radius(radius) {
             assert(m_start != m_center);
-            assert(m_normal.isNormalized());
+            assert(isUnit(m_normal));
             assert(m_radius > 0.0);
         }
 
-        bool CircleDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool CircleDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             if (curPoint == m_center)
                 return false;
             
-            const Vec3 ref = (m_start - m_center).normalized();
-            const Vec3 vec = (curPoint - m_center).normalized();
-            const FloatType angle = angleBetween(vec, ref, m_normal);
+            const vm::vec3 ref = normalize(m_start - m_center);
+            const vm::vec3 vec = normalize(curPoint - m_center);
+            const FloatType angle = measureAngle(vec, ref, m_normal);
             const FloatType snapped = m_grid.snapAngle(angle);
-            const FloatType canonical = snapped - Math::roundDownToMultiple(snapped, Math::C::twoPi());
-            const Quat3 rotation(m_normal, canonical);
-            const Vec3 rot = rotation * ref;
+            const FloatType canonical = snapped - vm::snapDown(snapped, vm::C::twoPi());
+            const vm::quat3 rotation(m_normal, canonical);
+            const vm::vec3 rot = rotation * ref;
             curPoint = m_center + m_radius * rot;
             return true;
         }
@@ -248,12 +261,12 @@ namespace TrenchBroom {
         SurfaceDragSnapper::SurfaceDragSnapper(const Grid& grid) :
         m_grid(grid) {}
 
-        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const Vec3& initialPoint, const Vec3& lastPoint, Vec3& curPoint) const {
+        bool SurfaceDragSnapper::doSnap(const InputState& inputState, const vm::vec3& initialPoint, const vm::vec3& lastPoint, vm::vec3& curPoint) const {
             const Model::Hit& hit = query(inputState).first();
             if (!hit.isMatch())
                 return false;
 
-            const Plane3& plane = doGetPlane(inputState, hit);
+            const vm::plane3& plane = doGetPlane(inputState, hit);
             curPoint = m_grid.snap(hit.hitPoint(), plane);
             return true;
         }
@@ -269,7 +282,7 @@ namespace TrenchBroom {
             ensure(snapper != nullptr, "snapper is null");
         }
         
-        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const Vec3& i_initialHandlePosition) :
+        RestrictedDragPolicy::DragInfo::DragInfo(DragRestricter* i_restricter, DragSnapper* i_snapper, const vm::vec3& i_initialHandlePosition) :
         restricter(i_restricter),
         snapper(i_snapper),
         initialHandlePosition(i_initialHandlePosition),
@@ -306,28 +319,28 @@ namespace TrenchBroom {
             m_snapper = nullptr;
         }
 
-        const Vec3& RestrictedDragPolicy::initialHandlePosition() const {
+        const vm::vec3& RestrictedDragPolicy::initialHandlePosition() const {
             assert(dragging());
             return m_initialHandlePosition;
         }
         
-        const Vec3& RestrictedDragPolicy::currentHandlePosition() const {
+        const vm::vec3& RestrictedDragPolicy::currentHandlePosition() const {
             assert(dragging());
             return m_currentHandlePosition;
         }
         
-        const Vec3& RestrictedDragPolicy::initialMousePosition() const {
+        const vm::vec3& RestrictedDragPolicy::initialMousePosition() const {
             assert(dragging());
             return m_initialMousePosition;
             
         }
         
-        const Vec3& RestrictedDragPolicy::currentMousePosition() const {
+        const vm::vec3& RestrictedDragPolicy::currentMousePosition() const {
             assert(dragging());
             return m_currentMousePosition;
         }
 
-        bool RestrictedDragPolicy::hitPoint(const InputState& inputState, Vec3& result) const {
+        bool RestrictedDragPolicy::hitPoint(const InputState& inputState, vm::vec3& result) const {
             assert(dragging());
             return m_restricter->hitPoint(inputState, result);
         }
@@ -357,14 +370,14 @@ namespace TrenchBroom {
         bool RestrictedDragPolicy::doMouseDrag(const InputState& inputState) {
             ensure(m_restricter != nullptr, "restricter is null");
 
-            Vec3 newMousePosition;
+            vm::vec3 newMousePosition;
             if (!hitPoint(inputState, newMousePosition))
                 return true;
 
             m_currentMousePosition = newMousePosition;
             
-            Vec3 newHandlePosition = m_currentMousePosition;
-            if (!snapPoint(inputState, newHandlePosition) || newHandlePosition.equals(m_currentHandlePosition))
+            vm::vec3 newHandlePosition = m_currentMousePosition;
+            if (!snapPoint(inputState, newHandlePosition) || newHandlePosition == m_currentHandlePosition)
                 return true;
             
             const DragResult result = doDrag(inputState, m_currentHandlePosition, newHandlePosition);
@@ -412,7 +425,7 @@ namespace TrenchBroom {
             m_snapper = snapper;
 
             if (resetCurrentHandlePosition) {
-                Vec3 newHandlePosition = m_currentMousePosition;
+                vm::vec3 newHandlePosition = m_currentMousePosition;
                 assertResult(snapPoint(inputState, newHandlePosition));
                 m_currentHandlePosition = newHandlePosition;
             }
@@ -420,7 +433,7 @@ namespace TrenchBroom {
             doMouseDrag(inputState);
         }
 
-        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, Vec3& point) const {
+        bool RestrictedDragPolicy::snapPoint(const InputState& inputState, vm::vec3& point) const {
             assert(dragging());
             return m_snapper->snap(inputState, m_initialHandlePosition, m_currentHandlePosition, point);
         }
@@ -433,20 +446,20 @@ namespace TrenchBroom {
             m_currentHandlePosition = m_initialHandlePosition;
         }
 
-        RenderPolicy::~RenderPolicy() {}
+        RenderPolicy::~RenderPolicy() = default;
         void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
-        DropPolicy::~DropPolicy() {}
+        DropPolicy::~DropPolicy() = default;
         
-        NoDropPolicy::~NoDropPolicy() {}
+        NoDropPolicy::~NoDropPolicy() = default;
 
         bool NoDropPolicy::doDragEnter(const InputState& inputState, const String& payload) { return false; }
         bool NoDropPolicy::doDragMove(const InputState& inputState) { return false; }
         void NoDropPolicy::doDragLeave(const InputState& inputState) {}
         bool NoDropPolicy::doDragDrop(const InputState& inputState) { return false; }
 
-        ToolController::~ToolController() {}
+        ToolController::~ToolController() = default;
         Tool* ToolController::tool() { return doGetTool(); }
         bool ToolController::toolActive() { return tool()->active(); }
         void ToolController::refreshViews() { tool()->refreshViews(); }
@@ -455,7 +468,7 @@ namespace TrenchBroom {
         m_dragReceiver(nullptr),
         m_dropReceiver(nullptr) {}
         
-        ToolControllerGroup::~ToolControllerGroup() {}
+        ToolControllerGroup::~ToolControllerGroup() = default;
 
         void ToolControllerGroup::addController(ToolController* controller) {
             ensure(controller != nullptr, "controller is null");

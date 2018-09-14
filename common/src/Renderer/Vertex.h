@@ -20,6 +20,9 @@
 #ifndef TrenchBroom_Vertex_h
 #define TrenchBroom_Vertex_h
 
+#include <cstddef>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         template <typename A1>
@@ -70,14 +73,8 @@ namespace TrenchBroom {
                 return v1 == other.v1;
             }
 
-            static List fromLists(const std::vector<typename A1::ElementType>& list,
-                                  const size_t count,
-                                  const size_t offset1 = 0, const size_t stride1 = 1) {
-                return fromLists(std::begin(list), count, offset1, stride1);
-            }
-
             template <typename I1>
-            static List fromLists(I1 cur1,
+            static List toList(I1 cur1,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1) {
                 List result;
@@ -115,16 +112,8 @@ namespace TrenchBroom {
                         v2 == other.v2);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const size_t count,
-                                  const size_t offset1 = 0, const size_t stride1 = 1,
-                                  const size_t offset2 = 0, const size_t stride2 = 1) {
-                return fromLists(std::begin(list1), std::begin(list2), count, offset1, stride1, offset2, stride2);
-            }
-
             template <typename I1, typename I2>
-            static List fromLists(I1 cur1, I2 cur2,
+            static List toList(I1 cur1, I2 cur2,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1) {
@@ -169,18 +158,8 @@ namespace TrenchBroom {
                         v3 == other.v3);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
-                                  const size_t count,
-                                  const size_t offset1 = 0, const size_t stride1 = 1,
-                                  const size_t offset2 = 0, const size_t stride2 = 1,
-                                  const size_t offset3 = 0, const size_t stride3 = 1) {
-                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), count, offset1, stride1, offset2, stride2, offset3, stride3);
-            }
-
             template <typename I1, typename I2, typename I3>
-            static List fromLists(I1 cur1, I2 cur2, I3 cur3,
+            static List toList(I1 cur1, I2 cur2, I3 cur3,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
@@ -232,20 +211,8 @@ namespace TrenchBroom {
                         v4 == other.v4);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
-                                  const std::vector<typename A4::ElementType>& list4,
-                                  const size_t count,
-                                  const size_t offset1 = 0, const size_t stride1 = 1,
-                                  const size_t offset2 = 0, const size_t stride2 = 1,
-                                  const size_t offset3 = 0, const size_t stride3 = 1,
-                                  const size_t offset4 = 0, const size_t stride4 = 1) {
-                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), std::begin(list4), count, offset1, stride1, offset2, stride2, offset3, stride3, offset4, stride4);
-            }
-            
             template <typename I1, typename I2, typename I3, typename I4>
-            static List fromLists(I1 cur1, I2 cur2, I3 cur3, I4 cur4,
+            static List toList(I1 cur1, I2 cur2, I3 cur3, I4 cur4,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,
@@ -304,22 +271,8 @@ namespace TrenchBroom {
                         v5 == other.v5);
             }
             
-            static List fromLists(const std::vector<typename A1::ElementType>& list1,
-                                  const std::vector<typename A2::ElementType>& list2,
-                                  const std::vector<typename A3::ElementType>& list3,
-                                  const std::vector<typename A4::ElementType>& list4,
-                                  const std::vector<typename A5::ElementType>& list5,
-                                  const size_t count,
-                                  const size_t offset1 = 0, const size_t stride1 = 1,
-                                  const size_t offset2 = 0, const size_t stride2 = 1,
-                                  const size_t offset3 = 0, const size_t stride3 = 1,
-                                  const size_t offset4 = 0, const size_t stride4 = 1,
-                                  const size_t offset5 = 0, const size_t stride5 = 1) {
-                return fromLists(std::begin(list1), std::begin(list2), std::begin(list3), std::begin(list4), std::begin(list5), count, offset1, stride1, offset2, stride2, offset3, stride3, offset4, stride4, offset5, stride5);
-            }
-            
             template <typename I1, typename I2, typename I3, typename I4, typename I5>
-            static List fromLists(I1 cur1, I2 cur2, I3 cur3, I4 cur4, I5 cur5,
+            static List toList(I1 cur1, I2 cur2, I3 cur3, I4 cur4, I5 cur5,
                                   const size_t count,
                                   const size_t offset1 = 0, const size_t stride1 = 1,
                                   const size_t offset2 = 0, const size_t stride2 = 1,

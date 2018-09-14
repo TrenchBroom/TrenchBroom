@@ -21,12 +21,14 @@
 #define TrenchBroom_EntityDefinition
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "Notifier.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -86,13 +88,13 @@ namespace TrenchBroom {
         
         class PointEntityDefinition : public EntityDefinition {
         private:
-            BBox3 m_bounds;
+            vm::bbox3 m_bounds;
             ModelDefinition m_modelDefinition;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
+            PointEntityDefinition(const String& name, const Color& color, const vm::bbox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
             
             Type type() const override;
-            const BBox3& bounds() const;
+            const vm::bbox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
             const ModelDefinition& modelDefinition() const;

@@ -22,11 +22,13 @@
 #define TrenchBroom_ShearObjectsTool
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ScaleObjectsTool.h"
-#include "BBox.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,9 +48,9 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             bool m_resizing;
             bool m_constrainVertical;
-            BBox3 m_bboxAtDragStart;
+            vm::bbox3 m_bboxAtDragStart;
             Model::Hit m_dragStartHit;
-            Vec3 m_dragCumulativeDelta;
+            vm::vec3 m_dragCumulativeDelta;
 
         public:
             explicit ShearObjectsTool(MapDocumentWPtr document);
@@ -56,31 +58,31 @@ namespace TrenchBroom {
             
             bool applies() const;
 
-            void pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
-            void pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+            void pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
 
         public:
-            BBox3 bounds() const;
+            vm::bbox3 bounds() const;
 
             bool hasDragPolygon() const;
-            Polygon3f dragPolygon() const;
+            vm::polygon3f dragPolygon() const;
             
             /**
              * If inside a drag, returns the bbox at the start of the drag.
              * Otherwise, returns the current bounds(). for rendering sheared bbox.
              */
-            BBox3 bboxAtDragStart() const;
+            vm::bbox3 bboxAtDragStart() const;
 
             void startShearWithHit(const Model::Hit& hit);
             void commitShear();
             void cancelShear();
-            void shearByDelta(const Vec3 &delta);
+            void shearByDelta(const vm::vec3 &delta);
 
             const Model::Hit& dragStartHit() const;
 
-            Mat4x4 bboxShearMatrix() const;
-            Polygon3f shearHandle() const;
+            vm::mat4x4 bboxShearMatrix() const;
+            vm::polygon3f shearHandle() const;
 
             void updatePickedSide(const Model::PickResult& pickResult);
 

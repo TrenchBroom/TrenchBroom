@@ -21,13 +21,15 @@
 #define TrenchBroom_PrimitiveRenderer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/scalar.h>
 
 #include <vector>
 
@@ -89,19 +91,19 @@ namespace TrenchBroom {
             typedef std::map<TriangleRenderAttributes, IndexRangeRenderer> TriangleMeshRendererMap;
             TriangleMeshRendererMap m_triangleMeshRenderers;
         public:
-            void renderLine(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f& start, const Vec3f& end);
-            void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
-            void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
+            void renderLine(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::vec3f& start, const vm::vec3f& end);
+            void renderLines(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions);
+            void renderLineStrip(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions);
             
-            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
-            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const BBox3f& bounds);
+            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds);
+            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds);
+            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds);
+            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds);
             
-            void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const Vec3f::List& positions);
-            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f::List& positions);
+            void renderPolygon(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions);
+            void renderFilledPolygon(const Color& color, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const std::vector<vm::vec3f>& positions);
             
-            void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const Vec3f& start, const Vec3f& end);
+            void renderCylinder(const Color& color, float radius, size_t segments, OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void prepareLines(Vbo& vertexVbo);

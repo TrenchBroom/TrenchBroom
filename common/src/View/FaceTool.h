@@ -21,7 +21,6 @@
 #define FaceTool_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
@@ -35,22 +34,22 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FaceTool : public VertexToolBase<Polygon3> {
+        class FaceTool : public VertexToolBase<vm::polygon3> {
         private:
             FaceHandleManager m_faceHandles;
         public:
             FaceTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
+            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
         public:
             FaceHandleManager& handleManager() override;
             const FaceHandleManager& handleManager() const override;
         public:
-            MoveResult move(const Vec3& delta) override;
+            MoveResult move(const vm::vec3& delta) override;
             
             String actionName() const override;
             

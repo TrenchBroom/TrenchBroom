@@ -27,11 +27,11 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        World* ModelFactory::createWorld(const BBox3& worldBounds) const {
+        World* ModelFactory::createWorld(const vm::bbox3& worldBounds) const {
             return doCreateWorld(worldBounds);
         }
         
-        Layer* ModelFactory::createLayer(const String& name, const BBox3& worldBounds) const {
+        Layer* ModelFactory::createLayer(const String& name, const vm::bbox3& worldBounds) const {
             return doCreateLayer(name, worldBounds);
         }
         
@@ -43,15 +43,15 @@ namespace TrenchBroom {
             return doCreateEntity();
         }
         
-        Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+        Brush* ModelFactory::createBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
             return doCreateBrush(worldBounds, faces);
         }
         
-        BrushFace* ModelFactory::createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const {
+        BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return doCreateFace(point1, point2, point3, attribs);
         }
         
-        BrushFace* ModelFactory::createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const {
+        BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return doCreateFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
     }

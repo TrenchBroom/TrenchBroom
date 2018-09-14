@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_MapView3D
 #define TrenchBroom_MapView3D
 
-#include "MathUtils.h"
+#include <vecmath/scalar.h>
 #include "Model/ModelTypes.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             void OnRotateTexturesCCW(wxCommandEvent& event);
 
             float moveTextureDistance() const;
-            void moveTextures(const Vec2f& offset);
+            void moveTextures(const vm::vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         private: // tool mode events
@@ -86,11 +86,11 @@ namespace TrenchBroom {
             void OnActivateFrame(wxActivateEvent& event);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const override;
-            Model::PickResult doPick(const Ray3& pickRay) const override;
+            Model::PickResult doPick(const vm::ray3& pickRay) const override;
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height) override;
         private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
+            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
 
             bool doCanSelectTall() override;
             void doSelectTall() override;
@@ -99,15 +99,15 @@ namespace TrenchBroom {
             
             class ComputeCameraCenterPositionVisitor;
             class ComputeCameraCenterOffsetVisitor;
-            Vec3f focusCameraOnObjectsPosition(const Model::NodeList& nodes);
+            vm::vec3 focusCameraOnObjectsPosition(const Model::NodeList& nodes);
 
-            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
+            void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
+            void animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint() override;
         private: // implement MapViewBase interface
-            Vec3 doGetMoveDirection(Math::Direction direction) const override;
-            Vec3 doComputePointEntityPosition(const BBox3& bounds) const override;
+            vm::vec3 doGetMoveDirection(vm::direction direction) const override;
+            vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const override;
             
             ActionContext doGetActionContext() const override;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const override;
