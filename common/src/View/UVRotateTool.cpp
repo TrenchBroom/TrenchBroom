@@ -42,6 +42,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/intersection.h>
 
 namespace TrenchBroom {
@@ -242,7 +243,7 @@ namespace TrenchBroom {
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 {
-                    const auto translation = translationMatrix(vm::vec3(originPosition));
+                    const auto translation = vm::translationMatrix(vm::vec3(originPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);

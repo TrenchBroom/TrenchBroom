@@ -32,6 +32,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 #include <algorithm>
 
@@ -84,7 +85,7 @@ namespace TrenchBroom {
                 
                 for (const vm::vec3f& position : entry.second) {
                     const vm::vec3f offset = camera.project(position);
-                    MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
+                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
                     circle.render();
                 }
             }

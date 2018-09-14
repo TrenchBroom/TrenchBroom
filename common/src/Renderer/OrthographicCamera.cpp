@@ -21,6 +21,8 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
 
@@ -53,7 +55,7 @@ namespace TrenchBroom {
             const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
             
             projectionMatrix = vm::orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-            viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());
+            viewMatrix = vm::viewMatrix(direction(), up()) * vm::translationMatrix(-position());
         }
         
         vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {

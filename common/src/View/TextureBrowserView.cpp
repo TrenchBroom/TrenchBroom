@@ -31,6 +31,10 @@
 #include "Renderer/VertexArray.h"
 #include "View/TextureSelectedCommand.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+
 namespace TrenchBroom {
     namespace View {
         TextureCellData::TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor) :

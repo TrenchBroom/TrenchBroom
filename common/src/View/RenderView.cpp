@@ -31,6 +31,10 @@
 #include <wx/dcclient.h>
 #include <wx/settings.h>
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+
 #include <iostream>
 
 namespace TrenchBroom {

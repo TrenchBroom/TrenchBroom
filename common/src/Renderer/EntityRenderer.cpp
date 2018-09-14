@@ -42,6 +42,8 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -262,7 +264,7 @@ namespace TrenchBroom {
 
                 const auto rotZ = rotation * vm::vec3f::pos_z;
                 const auto angle = -measureAngle(rotZ, onPlane, direction);
-                const auto matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * vm::vec3f::pos_x);
+                const auto matrix = vm::translationMatrix(center) * vm::rotationMatrix(direction, angle) * rotation * vm::translationMatrix(16.0f * vm::vec3f::pos_x);
                 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];

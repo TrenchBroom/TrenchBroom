@@ -280,12 +280,12 @@ namespace TrenchBroom {
         vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
-            const auto transform = coordinateSystemMatrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
+            const auto transform = vm::coordinateSystemMatrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
 
             vm::bbox3 result;
-            const Model::BrushFace::VertexList vertices = m_face->vertices();
-            Model::BrushFace::VertexList::const_iterator it = std::begin(vertices);
-            Model::BrushFace::VertexList::const_iterator end = std::end(vertices);
+            const auto vertices = m_face->vertices();
+            auto it = std::begin(vertices);
+            auto end = std::end(vertices);
             
             result.min = result.max = transform * (*it++)->position();
             while (it != end) {

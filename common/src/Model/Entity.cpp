@@ -36,6 +36,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/intersection.h>
 #include <vecmath/util.h>
 
@@ -319,7 +320,7 @@ namespace TrenchBroom {
                 
                 // applying rotation has side effects (e.g. normalizing "angles")
                 // so only do it if there is actually some rotation.
-                const auto rotation = stripTranslation(transformation);
+                const auto rotation = vm::stripTranslation(transformation);
                 if (rotation != vm::mat4x4::identity) {
                     applyRotation(rotation);
                 }

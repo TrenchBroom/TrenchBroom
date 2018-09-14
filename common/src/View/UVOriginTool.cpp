@@ -40,6 +40,7 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/line.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
@@ -286,7 +287,7 @@ namespace TrenchBroom {
                 const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
-                const auto translation = translationMatrix(vm::vec3(originPosition));
+                const auto translation = vm::translationMatrix(vm::vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);

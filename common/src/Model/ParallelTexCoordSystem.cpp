@@ -25,6 +25,8 @@
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 #include <cstddef>
 
@@ -197,7 +199,7 @@ namespace TrenchBroom {
         }
 
         float ParallelTexCoordSystem::computeTextureAngle(const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const {
-            const vm::mat4x4& rotationScale = stripTranslation(transformation);
+            const vm::mat4x4& rotationScale = vm::stripTranslation(transformation);
             const vm::vec3& oldNormal = oldBoundary.normal;
             const vm::vec3  newNormal = vm::normalize(rotationScale * oldNormal);
 

@@ -24,6 +24,8 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/plane.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
@@ -34,8 +36,8 @@ namespace TrenchBroom {
         Lasso::Lasso(const Renderer::Camera& camera, const FloatType distance, const vm::vec3& point) :
         m_camera(camera),
         m_distance(distance),
-        m_transform(coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(),
-                                           m_camera.defaultPoint(static_cast<float>(m_distance)))),
+        m_transform(vm::coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(),
+                                               m_camera.defaultPoint(static_cast<float>(m_distance)))),
         m_start(point),
         m_cur(m_start) {}
         

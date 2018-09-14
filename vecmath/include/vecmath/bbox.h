@@ -88,20 +88,6 @@ namespace vm {
         }
 
         /**
-         * Creates a new bounding box with the coordinate system origin at its center by setting the min point to
-         * the negated given value, and the max point to the given value.
-         *
-         * The value is assumed to be correct, that is, none of its components must have a negative value.
-         *
-         * @param i_minMax the min and max point
-         */
-        explicit bbox(T i_minMax) :
-        min(vec<T,S>::fill(-i_minMax)),
-        max(vec<T,S>::fill(+i_minMax)) {
-            assert(valid());
-        }
-
-        /**
          * Creates a new bounding box by setting each component of the min point to the given min value, and each component of
          * the max point to the given max value. This constructor assumes that the given min value does not exceed the given
          * max value.
@@ -109,9 +95,23 @@ namespace vm {
          * @param i_min the min point of the bounding box
          * @param i_max the max point of the bounding box
          */
-        bbox(T i_min, T i_max) :
-        min(vec<T,S>::fill(i_min)),
-        max(vec<T,S>::fill(i_max)) {
+        bbox(const T i_min, const T i_max) :
+            min(vec<T,S>::fill(i_min)),
+            max(vec<T,S>::fill(i_max)) {
+            assert(valid());
+        }
+
+        /**
+         * Creates a new bounding box with the coordinate system origin at its center by setting the min point to
+         * the negated given value, and the max point to the given value.
+         *
+         * The value is assumed to be correct, that is, none of its components must have a negative value.
+         *
+         * @param i_minMax the min and max point
+         */
+        explicit bbox(const T i_minMax) :
+        min(vec<T,S>::fill(-i_minMax)),
+        max(vec<T,S>::fill(+i_minMax)) {
             assert(valid());
         }
     public:
@@ -580,61 +580,6 @@ namespace vm {
         } else {
             return bbox<T,S>(vec<T,S>::zero, vec<T,S>::zero);
         }
-    }
-
-    // TODO 2201: move special purpose functions elsewhere
-    template <typename T>
-    mat<T,4,4> scaleBBoxMatrix(const bbox<T,3>& oldBBox, const bbox<T,3>& newBBox) {
-        const auto scaleFactors = newBBox.size() / oldBBox.size();
-        return translationMatrix(newBBox.min) * scalingMatrix(scaleFactors) * translationMatrix(-oldBBox.min);
-    }
-
-    template <typename T>
-    mat<T,4,4> scaleBBoxMatrixWithAnchor(const bbox<T,3>& oldBBox, const vec<T,3>& newSize, const vec<T,3>& anchorPoint) {
-        const auto scaleFactors = newSize / oldBBox.size();
-        return translationMatrix(anchorPoint) * scalingMatrix(scaleFactors) * translationMatrix(-anchorPoint);
-    }
-
-    template <typename T>
-    mat<T,4,4> shearBBoxMatrix(const bbox<T,3>& box, const vec<T,3>& sideToShear, const vec<T,3>& delta) {
-        const auto oldSize = box.size();
-
-        // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T Szy) {
-        mat<T,4,4> shearMat;
-        if (sideToShear == vec<T,3>::pos_x) {
-            const auto relativeDelta = delta / oldSize.x();
-            shearMat = shearMatrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
-        } else if (sideToShear == vec<T,3>::neg_x) {
-            const auto relativeDelta = delta / oldSize.x();
-            shearMat = shearMatrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
-        } else if (sideToShear == vec<T,3>::pos_y) {
-            const auto relativeDelta = delta / oldSize.y();
-            shearMat = shearMatrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
-        } else if (sideToShear == vec<T,3>::neg_y) {
-            const auto relativeDelta = delta / oldSize.y();
-            shearMat = shearMatrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
-        } else if (sideToShear == vec<T,3>::pos_z) {
-            const auto relativeDelta = delta / oldSize.z();
-            shearMat = shearMatrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
-        } else if (sideToShear == vec<T,3>::neg_z) {
-            const auto relativeDelta = delta / oldSize.z();
-            shearMat = shearMatrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());
-        }
-
-        // grab any vertex on side that is opposite the one being sheared.
-        const auto sideOppositeToShearSide = -sideToShear;
-        vec<T,3> vertOnOppositeSide;
-        bool didGrab = false;
-        auto visitor = [&](const vec<T,3>& p0, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T,3>& p3, const vec<T,3>& n){
-            if (n == sideOppositeToShearSide) {
-                vertOnOppositeSide = p0;
-                didGrab = true;
-            }
-        };
-        box.forEachFace(visitor);
-        assert(didGrab);
-
-        return translationMatrix(vertOnOppositeSide) * shearMat * translationMatrix(-vertOnOppositeSide);
     }
 }
 

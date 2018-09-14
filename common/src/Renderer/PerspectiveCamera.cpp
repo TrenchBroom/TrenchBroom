@@ -29,6 +29,8 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
 #include <vecmath/intersection.h>

@@ -21,9 +21,11 @@
 
 #include "Model/BrushFace.h"
 
+#include <vecmath/mat.h>
+
 namespace TrenchBroom {
     namespace Model {
-        TexCoordSystemSnapshot::~TexCoordSystemSnapshot() {}
+        TexCoordSystemSnapshot::~TexCoordSystemSnapshot() = default;
 
         void TexCoordSystemSnapshot::restore(TexCoordSystem* coordSystem) const {
             coordSystem->doRestoreSnapshot(*this);
@@ -33,9 +35,9 @@ namespace TrenchBroom {
             return doClone();
         }
         
-        TexCoordSystem::TexCoordSystem() {}
+        TexCoordSystem::TexCoordSystem() = default;
 
-        TexCoordSystem::~TexCoordSystem() {}
+        TexCoordSystem::~TexCoordSystem() = default;
         
         TexCoordSystem* TexCoordSystem::clone() const {
             return doClone();
@@ -189,14 +191,6 @@ namespace TrenchBroom {
                           y[0], y[1], y[2], o[1],
                           z[0], z[1], z[2],  0.0,
                            0.0,  0.0,  0.0,  1.0);
-/*
-            const vm::vec3 xAxis(getXAxis() * scale.x());
-            const vm::vec3 yAxis(getYAxis() * scale.y());
-            const vm::vec3 zAxis(getZAxis());
-            const vm::vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
-            
-            return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
- */
         }
 
         vm::mat4x4 TexCoordSystem::fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const {

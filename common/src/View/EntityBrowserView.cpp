@@ -43,6 +43,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
 #include <vecmath/bbox.h>
 
@@ -436,12 +437,12 @@ namespace TrenchBroom {
             const auto rotationOffset = vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
             const auto boundsCenter = vm::vec3f(definition->bounds().center());
             
-            return (translationMatrix(offset) *
-                    scalingMatrix(vm::vec3f::fill(scaling)) *
-                    translationMatrix(rotationOffset) *
-                    translationMatrix(boundsCenter) *
-                    rotationMatrix(m_rotation) *
-                    translationMatrix(-boundsCenter));
+            return (vm::translationMatrix(offset) *
+                    vm::scalingMatrix(vm::vec3f::fill(scaling)) *
+                    vm::translationMatrix(rotationOffset) *
+                    vm::translationMatrix(boundsCenter) *
+                    vm::rotationMatrix(m_rotation) *
+                    vm::translationMatrix(-boundsCenter));
         }
         
         wxString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {

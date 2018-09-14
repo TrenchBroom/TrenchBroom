@@ -226,11 +226,11 @@ namespace TrenchBroom {
             assert(segments > 2);
             
             const vm::vec3f vec = end - start;
-            const float len = length(vec);
+            const float len = vm::length(vec);
             const vm::vec3f dir = vec / len;
             
-            const vm::mat4x4f translation = translationMatrix(start);
-            const vm::mat4x4f rotation    = rotationMatrix(vm::vec3f::pos_z, dir);
+            const vm::mat4x4f translation = vm::translationMatrix(start);
+            const vm::mat4x4f rotation    = vm::rotationMatrix(vm::vec3f::pos_z, dir);
             const vm::mat4x4f transform   = translation * rotation;
             
             const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
