@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         class BoundsIntersectsNodeVisitor : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            const vm::bbox3& m_bounds;
+            const vm::bbox3 m_bounds;
         public:
             BoundsIntersectsNodeVisitor(const vm::bbox3& bounds);
         private:

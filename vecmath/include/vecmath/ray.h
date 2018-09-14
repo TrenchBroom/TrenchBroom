@@ -135,7 +135,7 @@ namespace vm {
      */
     template <typename T, size_t S>
     bool isEqual(const ray<T,S>& lhs, const ray<T,S>& rhs, const T epsilon) {
-        return isEqual(lhs.origin, rhs.origin, epsilon) && isEqual(lhs.direction, rhs.direction, epsilon);
+        return isEqual(lhs.origin, rhs.origin, epsilon) && isEquallhs.direction, rhs.direction, epsilon);
     }
 
     /**

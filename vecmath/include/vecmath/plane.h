@@ -248,7 +248,7 @@ namespace vm {
      */
     template <typename T, size_t S>
     bool isEqual(const plane<T,S>& lhs, const plane<T,S>& rhs, const T epsilon) {
-        return isEqual(lhs.distance, rhs.distance, epsilon) && isEqual(lhs.normal, rhs.normal, epsilon);
+        return isEqual(lhs.distance, rhs.distance, epsilon) && isEquallhs.normal, rhs.normal, epsilon);
     }
 
     /**

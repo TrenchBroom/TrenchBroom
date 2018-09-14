@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         class BoundsContainsNodeVisitor : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            const vm::bbox3& m_bounds;
+            const vm::bbox3 m_bounds;
         public:
             BoundsContainsNodeVisitor(const vm::bbox3& bounds);
         private:
