@@ -43,7 +43,7 @@ namespace vm {
          * Creates a new quaternion initialized to 0.
          */
         quat() :
-        r(static_cast<T>(0.0)),
+        r(T(0.0)),
         v(vec<T,3>::zero) {}
 
         // Copy and move constructors
@@ -62,7 +62,7 @@ namespace vm {
          */
         template <typename U>
         quat(const quat<U>& other) :
-        r(static_cast<T>(other.r)),
+        r(T(other.r)),
         v(other.v) {}
 
         /**
@@ -101,7 +101,7 @@ namespace vm {
             const auto cos = dot(from, to);
             if (isEqual(+cos, T(1.0))) {
                 // `from` and `to` are equal.
-                setRotation(vec<T,3>::pos_z, static_cast<T>(0.0));
+                setRotation(vec<T,3>::pos_z, T(0.0));
             } else if (isEqual(-cos, T(1.0))) {
                 // `from` and `to` are opposite.
                 // We need to find a rotation axis that is perpendicular to `from`.
@@ -109,7 +109,7 @@ namespace vm {
                 if (isZero(squaredLength(axis))) {
                     axis = cross(from, vec<T,3>::pos_x);
                 }
-                setRotation(normalize(axis), radians(static_cast<T>(180)));
+                setRotation(normalize(axis), radians(T(180)));
             } else {
                 const auto axis = normalize(cross(from, to));
                 const auto angle = std::acos(cos);
@@ -119,8 +119,8 @@ namespace vm {
     private:
         void setRotation(const vec<T,3>& axis, const T angle) {
             assert(isUnit(axis));
-            r = std::cos(angle / static_cast<T>(2.0));
-            v = axis * std::sin(angle / static_cast<T>(2.0));
+            r = std::cos(angle / T(2.0));
+            v = axis * std::sin(angle / T(2.0));
         }
     public:
         /**
@@ -129,7 +129,7 @@ namespace vm {
          * @return the rotation angle in radians
          */
         T angle() const {
-            return static_cast<T>(2.0) * std::acos(r);
+            return T(2.0) * std::acos(r);
         }
 
         /**
@@ -141,7 +141,7 @@ namespace vm {
             if (isZero(v)) {
                 return v;
             } else {
-                return v / std::sin(angle() / static_cast<T>(2.0));
+                return v / std::sin(std::acos(r));
             }
         }
 
@@ -221,7 +221,7 @@ namespace vm {
      */
     template <typename T>
     vec<T,3> operator*(const quat<T>& lhs, const vec<T,3>& rhs) {
-        return (lhs * quat<T>(static_cast<T>(0.0), rhs) * lhs.conjugate()).v;
+        return (lhs * quat<T>(T(0.0), rhs) * lhs.conjugate()).v;
     }
 }
 

@@ -19,12 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include <vecmath/scalar.h>
+#include <vecmath/forward.h>
 #include <vecmath/quat.h>
 #include <vecmath/vec.h>
+#include <vecmath/scalar.h>
 #include "TestUtils.h"
-
-// TODO 2201: write more tests
 
 namespace vm {
     TEST(QuatTest, defaultConstructor) {
@@ -32,7 +31,7 @@ namespace vm {
         ASSERT_FLOAT_EQ(0.0f, q.r);
         ASSERT_TRUE(isZero(q.v));
     }
-    
+
     TEST(QuatTest, rotationConstructor) {
         const float angle(radians(15.0f));
         const vec3f axis(normalize(vec3f(1.0f, 2.0f, 3.0f)));
@@ -76,8 +75,31 @@ namespace vm {
             EXPECT_VEC_EQ(to, q * from);
         }
     }
-    
-    TEST(QuatTest, negation) {
+
+    TEST(QuatTest, angle) {
+        const auto angle = radians(15.0f);
+        const auto q = quatf(vec3f::pos_z, angle);
+
+        ASSERT_NEAR(angle, q.angle(), 0.001f);
+    }
+
+    TEST(QuatTest, axis) {
+        ASSERT_VEC_EQ(vec3d::zero, quatd().axis());
+        ASSERT_VEC_EQ(vec3d::pos_z, quatd(vec3d::pos_z, radians(45.0)).axis());
+        ASSERT_VEC_EQ(normalize(vec3d(1, 1, 0)), quatd(normalize(vec3d(1, 1, 0)), radians(25.0)).axis());
+    }
+
+    TEST(QuatTest, conjugate) {
+        const vec3f axis = vec3f::pos_z;
+        const float angle = radians(15.0f);
+        const quatf q(axis, angle);
+        quatf p = q;
+        p = p.conjugate();
+
+        ASSERT_VEC_EQ(-q.v, p.v);
+    }
+
+    TEST(QuatTest, negate) {
         const quatf q(vec3f::pos_x, radians(15.0f));
         const quatf nq = -q;
         
@@ -85,19 +107,19 @@ namespace vm {
         ASSERT_VEC_EQ(q.v, nq.v);
     }
     
-    TEST(QuatTest, scalarRightMultiplication) {
+    TEST(QuatTest, scalarMultiply_right) {
         const quatf q(vec3f::pos_x, radians(15.0f));
         const quatf p = q * 2.0f;
         ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
     }
     
-    TEST(QuatTest, scalarLeftMultiplication) {
+    TEST(QuatTest, scalarMultiply_left) {
         const quatf q(vec3f::pos_x, radians(15.0f));
         const quatf p = 2.0f * q;
         ASSERT_FLOAT_EQ(q.r * 2.0f, p.r);
     }
     
-    TEST(QuatTest, multiplication) {
+    TEST(QuatTest, multiply) {
         const float angle1 = radians(15.0f);
         const quatf q1(vec3f::pos_z, angle1);
         const float angle2 = radians(10.0f);
@@ -109,7 +131,7 @@ namespace vm {
         ASSERT_VEC_EQ(vec3f(std::cos(angle1 + angle2), std::sin(angle1 + angle2), 0.0f), w);
     }
     
-    TEST(QuatTest, vectorMultiplication) {
+    TEST(QuatTest, vectorMultiply) {
         const float angle = radians(15.0f);
         const quatf q(vec3f::pos_z, angle);
         const vec3f v = vec3f::pos_x;
@@ -117,30 +139,5 @@ namespace vm {
         
         ASSERT_VEC_EQ(vec3f(std::cos(angle), std::sin(angle), 0.0f), w);
     }
-    
-    TEST(QuatTest, angle) {
-        const float angle = radians(15.0f);
-        const quatf q(vec3f::pos_z, angle);
-        
-        ASSERT_NEAR(angle, q.angle(), 0.001f);
-    }
-    
-    TEST(QuatTest, axis) {
-        const vec3f axis = vec3f::pos_z;
-        const float angle = radians(15.0f);
-        const quatf q(axis, angle);
-        
-        ASSERT_VEC_EQ(axis, q.axis());
-    }
-    
-    TEST(QuatTest, conjugate) {
-        const vec3f axis = vec3f::pos_z;
-        const float angle = radians(15.0f);
-        const quatf q(axis, angle);
-        quatf p = q;
-        p = p.conjugate();
-        
-        ASSERT_VEC_EQ(-q.v, p.v);
-    }
-    
+
 }
