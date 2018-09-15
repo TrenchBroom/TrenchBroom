@@ -327,7 +327,17 @@ namespace vm {
     }
 
     TEST(ScalarTest, correct) {
+        ASSERT_DOUBLE_EQ(+1.1, correct(+1.1));
 
+        ASSERT_DOUBLE_EQ(+1.0, correct(+1.1, 0, 0.4));
+        ASSERT_DOUBLE_EQ(-1.0, correct(-1.1, 0, 0.4));
+        ASSERT_DOUBLE_EQ(+1.0, correct(+1.3, 0, 0.4));
+        ASSERT_DOUBLE_EQ(+1.4, correct(+1.4, 0, 0.3));
+
+        ASSERT_DOUBLE_EQ(+1.1, correct(+1.1, 1, 0.4));
+        ASSERT_DOUBLE_EQ(-1.1, correct(-1.1, 1, 0.4));
+        ASSERT_DOUBLE_EQ(+1.3, correct(+1.3, 1, 0.4));
+        ASSERT_DOUBLE_EQ(+1.4, correct(+1.4, 1, 0.3));
     }
 
     TEST(ScalarTest, gt) {
