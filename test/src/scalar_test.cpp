@@ -340,14 +340,6 @@ namespace vm {
         ASSERT_DOUBLE_EQ(+1.4, correct(+1.4, 1, 0.3));
     }
 
-    TEST(ScalarTest, gt) {
-
-    }
-
-    TEST(ScalarTest, lt) {
-
-    }
-
     TEST(ScalarTest, gte) {
 
     }

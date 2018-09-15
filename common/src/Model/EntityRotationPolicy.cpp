@@ -229,7 +229,7 @@ namespace TrenchBroom {
             direction = normalize(direction);
 
             auto angle = vm::round(vm::degrees(std::acos(direction.x())));
-            if (vm::isNegative(direction.y())) {
+            if (direction.y() < FloatType(0.0)) {
                 angle = 360.0 - angle;
             }
             angle = vm::normalizeDegrees(angle);

@@ -479,16 +479,16 @@ namespace vm {
      * @tparam S the number of components
      * @param lhs the left hand vector
      * @param rhs the right hand vector
-     * @param epsilon the epsilon for component wise comparison
      * @return -1 if the left hand size is less than the right hand size, +1 if the left hand size is greater than the right hand size, and 0 if both sides are equal
      */
     template <typename T, size_t S>
-    int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+    int compare(const vec<T,S>& lhs, const vec<T,S>& rhs, const T epsilon = T(0.0)) {
         for (size_t i = 0; i < S; ++i) {
-            if (lt(lhs[i], rhs[i], epsilon))
+            if (lhs[i] < rhs[i] - epsilon) {
                 return -1;
-            if (gt(lhs[i], rhs[i], epsilon))
+            } else if (lhs[i] > rhs[i] + epsilon) {
                 return 1;
+            }
         }
         return 0;
     }
@@ -1684,11 +1684,16 @@ namespace vm {
     template <typename T, size_t S>
     bool between(const vec<T,S>& p, const vec<T,S>& start, const vec<T,S>& end) {
         assert(colinear(p, start, end));
-        const vec<T,S> toStart = start - p;
-        const vec<T,S> toEnd   =   end - p;
 
-        const T d = dot(toEnd, normalize(toStart));
-        return !isPositive(d);
+        if (p == start || p == end) {
+            return true;
+        } else {
+            const auto toStart = start - p;
+            const auto toEnd   =   end - p;
+
+            const auto d = dot(toEnd, normalize(toStart));
+            return d < T(0.0);
+        }
     }
 
     /**
@@ -1736,7 +1741,7 @@ namespace vm {
             return constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);
-            if (!isNegative(dot(perp, up))) {
+            if (dot(perp, up) >= T(0.0)) {
                 return std::acos(cos);
             } else {
                 return constants<T>::twoPi() - std::acos(cos);

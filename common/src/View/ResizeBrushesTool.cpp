@@ -308,9 +308,10 @@ namespace TrenchBroom {
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-                            [&delta](const Model::BrushFace* face) { return vm::isPositive(
-                                    dot(face->boundary().normal, delta)); }))
+                            [&delta](const Model::BrushFace* face) {
+                return dot(face->boundary().normal, delta) > FloatType(0.0); })) {
                 return false;
+            }
 
             Model::BrushList newBrushes;
             Model::BrushFaceList newDragFaces;

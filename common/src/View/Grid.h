@@ -158,9 +158,9 @@ namespace TrenchBroom {
                 }
                 vm::vec3 result;
                 for (size_t i = 0; i < S; ++i) {
-                    if (vm::isPositive(d[i])) {
+                    if (d[i] > T(0.0)) {
                         result[i] = snapUp(p[i], skip);
-                    } else if(vm::isNegative(d[i])) {
+                    } else if(d[i] < T(0.0)) {
                         result[i] = snapDown(p[i], skip);
                     } else {
                         result[i] = snap(p[i]);

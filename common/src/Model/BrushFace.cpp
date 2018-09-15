@@ -631,7 +631,7 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);
-            if (!vm::isNegative(cos)) {
+            if (cos >= FloatType(0.0)) {
                 return vm::nan<FloatType>();
             } else {
                 return vm::intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());

@@ -49,10 +49,10 @@ namespace TrenchBroom {
                 xAxis = vm::vec<T,3>::pos_x;
                 yAxis = vm::vec<T,3>::pos_y;
             } else {
-                xAxis = vm::isPositive(viewDir.x()) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
-                yAxis = vm::isPositive(viewDir.y()) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
+                xAxis = viewDir.x() > T(0.0) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
+                yAxis = viewDir.y() > T(0.0) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
             }
-            zAxis = vm::isPositive(viewDir.z()) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
+            zAxis = viewDir.z() > T(0.0) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
         }
 
         const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();

@@ -142,7 +142,7 @@ namespace vm {
         }
 
         const auto s = dot(p.anchor() - r.origin, p.normal) / d;
-        if (isNegative(s)) {
+        if (s < T(0.0)) {
             return nan<T>();
         }
 
@@ -177,21 +177,21 @@ namespace vm {
         const auto  q  = cross(t, e1);
 
         const auto  u = dot(q, e2) / a;
-        if (isNegative(u)) {
+        if (u < T(0.0)) {
             return nan<T>();
         }
 
         const auto  v = dot(p, t) / a;
-        if (isNegative(v)) {
+        if (v < T(0.0)) {
             return nan<T>();
         }
 
         const auto  w = dot(q, d) / a;
-        if (isNegative(w)) {
+        if (w < T(0.0)) {
             return nan<T>();
         }
 
-        if (gt(v+w, static_cast<T>(1.0))) {
+        if (v+w > T(1.0)) {
             return nan<T>();
         }
 
@@ -229,20 +229,20 @@ namespace vm {
          */
 
         // Does Y segment covered by the given edge touch the X axis at all?
-        if ((isPositive(v0.y()) && isPositive(v1.y())) ||
-            (isNegative(v0.y()) && isNegative(v1.y())) ||
-            (isZero(v0.y()) && isZero(v1.y()))) {
+        if ((isZero(v0.y()) && isZero(v1.y())) ||
+            (v0.y() > T(0.0) && v1.y() > T(0.0)) ||
+            (v0.y() < T(0.0) && v1.y() < T(0.0))) {
             return 0;
         }
 
 
         // Is segment entirely on the positive side of the X axis?
-        if (isPositive(v0.x()) && isPositive(v1.x())) {
+        if (v0.x() > T(0.0) && v1.x() > T(0.0)) {
             return 1;
         }
 
         // Is segment entirely on the negative side of the X axis?
-        if (isNegative(v0.x()) && isNegative(v1.x())) {
+        if (v0.x() < T(0.0) && v1.x() < T(0.0)) {
             return 0;
         }
 
@@ -255,7 +255,7 @@ namespace vm {
         }
 
         // Is the point of intersection on the positive X axis?
-        if (isPositive(x)) {
+        if (x > T(0.0)) {
             return 1;
         }
 

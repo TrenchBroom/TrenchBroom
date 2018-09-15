@@ -422,66 +422,6 @@ namespace vm {
     }
 
     /**
-     * Checks whether the first given value is greater than the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is greater than the sum of the secon value and the epsilon value, and false otherwise
-     */
-     // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 1.0 > 0.95 being false with an epsilon of 0.1.
-    template <typename T>
-    bool gt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return lhs > rhs + epsilon;
-    }
-
-    /**
-     * Checks whether the first given value is less than the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is less than the sum of the secon value and the negated epsilon value, and false otherwise
-     */
-    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
-    template <typename T>
-    bool lt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return lhs < rhs - epsilon;
-    }
-
-    /**
-     * Checks whether the first given value is greater than or equal to the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is greater than or equal to the sum of the secon value and the epsilon value, and false otherwise
-     */
-     // TODO: likewise, is this correct at all?
-    template <typename T>
-    bool gte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return !lt(lhs, rhs, epsilon);
-    }
-
-    /**
-     * Checks whether the first given value is less than or equal to the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is less than or equal to the sum of the secon value and the negated epsilon value, and false otherwise
-     */
-    // TODO: likewise, is this correct at all?
-    template <typename T>
-    bool lte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return !gt(lhs, rhs, epsilon);
-    }
-
-    /**
      * Checks whether the given values are equal.
      *
      * @tparam T the argument type
@@ -510,36 +450,6 @@ namespace vm {
     }
 
     /**
-     * Checks whether the given argument is positive using the given epsilon.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value to check
-     * @param epsilon an epsilon value
-     * @return true if the given argument is greater than or equal to the given epsilon
-     */
-    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
-    template <typename T>
-    bool isPositive(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return gt(v, static_cast<T>(0.0), epsilon);
-    }
-
-    /**
-     * Checks whether the given argument is negative using the given epsilon.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value to check
-     * @param epsilon an epsilon value
-     * @return true if the given argument is less than or equal to the negated given epsilon
-     */
-    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
-    template <typename T>
-    bool isNegative(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return lt(v, static_cast<T>(0.0), epsilon);
-    }
-
-    /**
      * Checks whether the given value is integral. To be considered integral, the distance of the given value to the
      * nearest integer must be less than the given epsilon value.
      *
@@ -562,15 +472,14 @@ namespace vm {
      * @param v the value to check
      * @param s the interval start
      * @param e the interval end
-     * @param epsilon an epsilon value
      * @return true if the given value is in the given interval and false otherwise
      */
     template <typename T>
-    bool contains(const T v, const T s, const T e, const T epsilon = constants<T>::almostZero()) {
+    bool contains(const T v, const T s, const T e) {
         if (s < e) {
-            return gte(v, s, epsilon) && lte(v, e, epsilon);
+            return v >= s && v <= e;
         } else {
-            return gte(v, e, epsilon) && lte(v, s, epsilon);
+            return v >= e && v <= s;
         }
     }
 
