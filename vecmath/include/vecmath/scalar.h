@@ -289,6 +289,22 @@ namespace vm {
     }
 
     /**
+     * Returns the fractional part of the given value.
+     *
+     * @tparam T argument type
+     * @param v the value
+     * @return the fractional part
+     */
+    template <typename T>
+    T fract(const T v) {
+        if (v > T(0)) {
+            return v - floor(v);
+        } else {
+            return v - ceil(v);
+        }
+    }
+
+    /**
      * Computes the offset to the nearest integer value.
      *
      * @tparam T the argument type, which must be a floating point type

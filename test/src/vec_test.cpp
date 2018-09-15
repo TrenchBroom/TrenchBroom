@@ -529,12 +529,19 @@ namespace vm {
         ASSERT_EQ(vec3d::one / 2.0, mix(vec3d::zero, vec3d::one, vec3d::one / 2.0));
     }
 
-    TEST(VecTecTest, clamp) {
+    TEST(VecTest, clamp) {
         ASSERT_EQ(vec3d::one, clamp(vec3d::one, vec3d::zero, vec3d(2, 2, 2)));
         ASSERT_EQ(vec3d::one, clamp(vec3d::one, vec3d::zero, vec3d::one));
         ASSERT_EQ(vec3d::zero, clamp(vec3d::zero, vec3d::zero, vec3d::one));
         ASSERT_EQ(vec3d(1, 0, 0), clamp(vec3d(2, 0, -1), vec3d::zero, vec3d::one));
         ASSERT_EQ(vec3d(2, 0, -1), clamp(vec3d(2, 0, -1), vec3d(1, 0, -2), vec3d(3, 1, 1)));
+    }
+
+    TEST(VecTest, fract) {
+        ASSERT_VEC_EQ(vec3d::zero, fract(vec3d::zero));
+        ASSERT_VEC_EQ(vec3d(0.1, 0.7, 0.99999), fract(vec3d(0.1, 0.7, 0.99999)));
+        ASSERT_VEC_EQ(vec3d(-0.1, 0.7, -0.99999), fract(vec3d(-0.1, 0.7, -0.99999)));
+        ASSERT_VEC_EQ(vec3d(-0.3, 0.7, 0.99999), fract(vec3d(-1.3, 0.7, 1.99999)));
     }
 
     TEST(VecTest, squaredDistance) {

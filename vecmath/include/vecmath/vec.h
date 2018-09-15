@@ -1335,6 +1335,27 @@ namespace vm {
     }
 
     /**
+     * Returns a vector with each component set to the fractional part of the corresponding component of the given
+     * vector.
+     *
+     * Note that this function differs from GLSL's fract, which behaves wrongly for negative values. Return 0.9 for
+     * fract(-0.1). This function will correctly return -0.1 in this case.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v the vector
+     * @return the fractional vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> fract(const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = fract(v[i]);
+        }
+        return result;
+    }
+
+    /**
      * Computes the distance between two given points.
      *
      * @tparam T the component type
