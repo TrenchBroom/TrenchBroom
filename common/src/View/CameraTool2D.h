@@ -20,10 +20,12 @@
 #ifndef TrenchBroom_CameraTool2D
 #define TrenchBroom_CameraTool2D
 
-#include "VecMath.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -34,7 +36,7 @@ namespace TrenchBroom {
         class CameraTool2D : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
-            Vec2f m_lastMousePos;
+            vm::vec2f m_lastMousePos;
         public:
             CameraTool2D(Renderer::OrthographicCamera& camera);
         private:
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             
             bool dragZoom(const InputState& inputState) const;
             
-            void zoom(const InputState& inputState, const Vec2f& mousePos, float factor);
+            void zoom(const InputState& inputState, const vm::vec2f& mousePos, float factor);
             
             bool doCancel() override;
         };

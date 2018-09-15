@@ -29,13 +29,13 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushBuilderTest, createCube) {
-            const BBox3 worldBounds(8192.0);
+            const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard, nullptr, worldBounds);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush* cube = builder.createCube(128.0, "someName");
             ASSERT_TRUE(cube != nullptr);
-            ASSERT_EQ(BBox3d(-64.0, +64.0), cube->bounds());
+            ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube->bounds());
             
             const BrushFaceList& faces = cube->faces();
             ASSERT_EQ(6u, faces.size());

@@ -43,13 +43,13 @@ namespace TrenchBroom {
             CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
             
-            World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const override;
-            World* doLoadMap(MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const override;
+            World* doNewMap(MapFormat::Type format, const vm::bbox3& worldBounds) const override;
+            World* doLoadMap(MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const override;
             void doWriteMap(World* world, const IO::Path& path) const override;
             void doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const override;
             
-            NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const override;
-            BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const override;
+            NodeList doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const override;
+            BrushFaceList doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const override;
             void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const override;
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const override;
             

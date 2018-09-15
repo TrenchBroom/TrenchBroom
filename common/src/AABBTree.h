@@ -22,9 +22,10 @@
 
 #include "NodeTree.h"
 #include "Exceptions.h"
-#include "BBox.h"
-#include "Ray.h"
-#include "MathUtils.h"
+#include <vecmath/scalar.h>
+#include <vecmath/bbox.h>
+#include <vecmath/ray.h>
+#include <vecmath/intersection.h>
 
 #include <algorithm>
 #include <cassert>
@@ -181,11 +182,7 @@ private:
          * @param str the stream to append to
          */
         void appendBounds(std::ostream& str) const {
-            str << "[ (";
-            m_bounds.min.write(str);
-            str << ") (";
-            m_bounds.max.write(str);
-            str << ") ]";
+            str << "[ ( " << m_bounds.min << " ) ( " << m_bounds.max  << " ) ]";
         }
     };
 
@@ -200,7 +197,7 @@ private:
         size_t m_height;
     public:
         InnerNode(Node* left, Node* right) :
-        Node(left->bounds().mergedWith(right->bounds())),
+        Node(merge(left->bounds(), right->bounds())),
         m_left(left),
         m_right(right),
         m_height(0) {
@@ -267,11 +264,11 @@ private:
          */
         std::pair<Node*, bool> doRemove(const Box& bounds, const U& data, Node*& child, Node*& sibling) {
             if (child->bounds().contains(bounds)) {
-                const auto&[newChild, result] = child->remove(bounds, data);
+                auto [newChild, result] = child->remove(bounds, data);
                 if (result) {
                     if (newChild == nullptr) {
                         // child is a leaf, and it represents the node to remove; return sibling to the caller
-                        auto *newChild = sibling;
+                        newChild = sibling;
                         // prevent the sibling to get deleted when this node gets deleted by the parent
                         sibling = nullptr;
                         // child will be deleted when this node gets deleted by the caller
@@ -309,8 +306,8 @@ private:
          */
         template <typename TT>
         static TT*& selectLeastIncreaser(TT*& node1, TT*& node2, const Box& bounds) {
-            const auto new1 = node1->bounds().mergedWith(bounds);
-            const auto new2 = node2->bounds().mergedWith(bounds);
+            const auto new1 = merge(node1->bounds(), bounds);
+            const auto new2 = merge(node2->bounds(), bounds);
             const auto vol1 = node1->bounds().volume();
             const auto vol2 = node2->bounds().volume();
             const auto diff1 = new1.volume() - vol1;
@@ -335,7 +332,7 @@ private:
         }
 
         void updateBounds() {
-            this->setBounds(m_left->bounds().mergedWith(m_right->bounds()));
+            this->setBounds(merge(m_left->bounds(), m_right->bounds()));
         }
 
         void updateHeight() {
@@ -498,7 +495,7 @@ public:
     void update(const Box& oldBounds, const Box& newBounds, const U& data) override {
         if (!remove(oldBounds, data)) {
             NodeTreeException ex;
-            ex << "AABB node not found with oldBounds [ (" << oldBounds.min.asString(S) << ") (" << oldBounds.max.asString(S) << ") ]: " << data;
+            ex << "AABB node not found with oldBounds [ ( " << oldBounds.min << " ) ( " << oldBounds.max << " ) ]: " << data;
             throw ex;
         }
         insert(newBounds, data);
@@ -516,7 +513,7 @@ public:
     }
 
     const Box& bounds() const override {
-        static const auto EmptyBox = Box(Vec<T,S>::NaN, Vec<T,S>::NaN);
+        static const auto EmptyBox = Box(vm::vec<T,S>::NaN, vm::vec<T,S>::NaN);
 
         assert(!empty());
         if (empty()) {
@@ -526,7 +523,7 @@ public:
         }
     }
 
-    List findIntersectors(const Ray<T,S>& ray) const override {
+    List findIntersectors(const vm::ray<T,S>& ray) const override {
         List result;
         findIntersectors(ray, std::back_inserter(result));
         return std::move(result);
@@ -541,14 +538,15 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findIntersectors(const Ray<T,S>& ray, O out) const {
+    void findIntersectors(const vm::ray<T,S>& ray, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {
-                        return innerNode->bounds().contains(ray.origin) || !Math::isnan(innerNode->bounds().intersectWithRay(ray));
+                        return innerNode->bounds().contains(ray.origin) || !vm::isNan(
+                                intersect(ray, innerNode->bounds()));
                     },
                     [&](const LeafNode* leaf) {
-                        if (leaf->bounds().contains(ray.origin) || !Math::isnan(leaf->bounds().intersectWithRay(ray))) {
+                        if (leaf->bounds().contains(ray.origin) || !vm::isNan(intersect(ray, leaf->bounds()))) {
                             out = leaf->data();
                             ++out;
                         }
@@ -558,7 +556,7 @@ public:
         }
     }
 
-     List findContainers(const Vec<T,S>& point) const override {
+     List findContainers(const vm::vec<T,S>& point) const override {
          List result;
          findContainers(point, std::back_inserter(result));
          return std::move(result);
@@ -573,7 +571,7 @@ public:
      * @param out the output iterator to append to
      */
     template <typename O>
-    void findContainers(const Vec<T,S>& point, O out) const {
+    void findContainers(const vm::vec<T,S>& point, O out) const {
         if (!empty()) {
             LambdaVisitor visitor(
                     [&](const InnerNode* innerNode) {

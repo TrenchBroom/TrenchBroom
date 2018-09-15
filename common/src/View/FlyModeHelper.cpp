@@ -26,6 +26,8 @@
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
 
+#include <vecmath/vec.h>
+
 #include <wx/time.h>
 #include <wx/window.h>
 #include <wx/app.h>
@@ -38,18 +40,18 @@ namespace TrenchBroom {
         private:
             FlyModeHelper& m_helper;
             Renderer::Camera& m_camera;
-            Vec3f m_moveDelta;
-            Vec2f m_rotateAngles;
+            vm::vec3f m_moveDelta;
+            vm::vec2f m_rotateAngles;
         public:
             CameraEvent(FlyModeHelper& helper, Renderer::Camera& camera) :
             m_helper(helper),
             m_camera(camera) {}
 
-            void setMoveDelta(const Vec3f& moveDelta) {
+            void setMoveDelta(const vm::vec3f& moveDelta) {
                 m_moveDelta = moveDelta;
             }
 
-            void setRotateAngles(const Vec2f& rotateAngles) {
+            void setRotateAngles(const vm::vec2f& rotateAngles) {
                 m_rotateAngles = rotateAngles;
             }
         private:
@@ -217,10 +219,10 @@ namespace TrenchBroom {
 
         wxThread::ExitCode FlyModeHelper::Entry() {
             while (!TestDestroy()) {
-                const Vec3f delta = moveDelta();
-                const Vec2f angles = lookDelta();
+                const vm::vec3f delta = moveDelta();
+                const vm::vec2f angles = lookDelta();
 
-                if (!delta.null() || !angles.null()) {
+                if (!isZero(delta) || !isZero(angles)) {
                     if (!TestDestroy() && wxTheApp != nullptr) {
                         CameraEvent* event = new CameraEvent(*this, m_camera);
                         event->setMoveDelta(delta);
@@ -236,7 +238,7 @@ namespace TrenchBroom {
             return static_cast<ExitCode>(nullptr);
         }
 
-        Vec3f FlyModeHelper::moveDelta() {
+        vm::vec3f FlyModeHelper::moveDelta() {
             wxCriticalSectionLocker lock(m_critical);
 
             const wxLongLong currentTime = ::wxGetLocalTimeMillis();
@@ -245,40 +247,47 @@ namespace TrenchBroom {
 
             const float dist = moveSpeed() * time;
 
-            Vec3f delta;
-            if (m_forward)
-                delta += m_camera.direction() * dist;
-            if (m_backward)
-                delta -= m_camera.direction() * dist;
-            if (m_left)
-                delta -= m_camera.right() * dist;
-            if (m_right)
-                delta += m_camera.right() * dist;
-            if (m_up)
-                delta += Vec3f::PosZ * dist;
-            if (m_down)
-                delta += Vec3f::NegZ * dist;
+            vm::vec3f delta;
+            if (m_forward) {
+                delta = delta + m_camera.direction() * dist;
+            }
+            if (m_backward) {
+                delta = delta - m_camera.direction() * dist;
+            }
+            if (m_left) {
+                delta = delta - m_camera.right() * dist;
+            }
+            if (m_right) {
+                delta = delta + m_camera.right() * dist;
+            }
+            if (m_up) {
+                delta = delta + vm::vec3f::pos_z * dist;
+            }
+            if (m_down) {
+                delta = delta - vm::vec3f::pos_z * dist;
+            }
             return delta;
         }
 
-        Vec2f FlyModeHelper::lookDelta() {
+        vm::vec2f FlyModeHelper::lookDelta() {
             if (!m_enabled)
-                return Vec2f::Null;
+                return vm::vec2f::zero;
 
             wxCriticalSectionLocker lock(m_critical);
 
-            const Vec2f speed = lookSpeed();
+            const vm::vec2f speed = lookSpeed();
             const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
             const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
             m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
-            return Vec2f(hAngle, vAngle);
+            return vm::vec2f(hAngle, vAngle);
         }
 
-        Vec2f FlyModeHelper::lookSpeed() const {
-            Vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
-            speed /= -50.0f;
-            if (pref(Preferences::CameraFlyInvertV))
+        vm::vec2f FlyModeHelper::lookSpeed() const {
+            vm::vec2f speed(pref(Preferences::CameraFlyLookSpeed), pref(Preferences::CameraFlyLookSpeed));
+            speed = speed / -50.0f;
+            if (pref(Preferences::CameraFlyInvertV)) {
                 speed[1] *= -1.0f;
+            }
             return speed;
         }
 

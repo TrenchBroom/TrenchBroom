@@ -21,11 +21,12 @@
 #define TrenchBroom_PointGuideRenderer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -39,13 +40,13 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             Color m_color;
-            Vec3 m_position;
+            vm::vec3 m_position;
             SpikeGuideRenderer m_spikeRenderer;
         public:
             PointGuideRenderer(View::MapDocumentWPtr document);
             
             void setColor(const Color& color);
-            void setPosition(const Vec3& position);
+            void setPosition(const vm::vec3& position);
         private:
             void doPrepareVertices(Vbo& vertexVbo) override;
             void doRender(RenderContext& renderContext) override;

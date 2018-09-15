@@ -21,9 +21,10 @@
 #define TrenchBroom_Compass
 
 #include "Color.h"
-#include "VecMath.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             bool m_prepared;
         public:
             Compass();
-            virtual ~Compass() override;
+            ~Compass() override;
             
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
@@ -56,14 +57,14 @@ namespace TrenchBroom {
             void makeArrows();
             void makeBackground();
             
-            Mat4x4f cameraRotationMatrix(const Camera& camera) const;
+            vm::mat4x4f cameraRotationMatrix(const Camera& camera) const;
         protected:
             void renderBackground(RenderContext& renderContext);
-            void renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
-            void renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
-            void renderAxis(RenderContext& renderContext, const Mat4x4f& transformation);
+            void renderSolidAxis(RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color);
+            void renderAxisOutline(RenderContext& renderContext, const vm::mat4x4f& transformation, const Color& color);
+            void renderAxis(RenderContext& renderContext, const vm::mat4x4f& transformation);
         private:
-            virtual void doRenderCompass(RenderContext& renderContext, const Mat4x4f& cameraTransformation) = 0;
+            virtual void doRenderCompass(RenderContext& renderContext, const vm::mat4x4f& cameraTransformation) = 0;
         };
     }
 }

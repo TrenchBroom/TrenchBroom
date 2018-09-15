@@ -52,30 +52,32 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeVertices() {
             std::fprintf(m_stream, "# vertices\n");
-            for (const Vec3& elem : m_vertices.list())
+            for (const vm::vec3& elem : m_vertices.list())
                 std::fprintf(m_stream, "v %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
         }
         
         void ObjFileSerializer::writeTexCoords() {
             std::fprintf(m_stream, "# texture coordinates\n");
-            for (const Vec2f& elem : m_texCoords.list())
+            for (const vm::vec2f& elem : m_texCoords.list()) {
                 std::fprintf(m_stream, "vt %.17g %.17g\n", elem.x(), elem.y());
+            }
         }
         
         void ObjFileSerializer::writeNormals() {
             std::fprintf(m_stream, "# face normals\n");
-            for (const Vec3& elem : m_normals.list())
+            for (const vm::vec3& elem : m_normals.list()) {
                 std::fprintf(m_stream, "vn %.17g %.17g %.17g\n", elem.x(), elem.z(), -elem.y()); // no idea why I have to switch Y and Z
+            }
         }
-        
+
         void ObjFileSerializer::writeObjects() {
             std::fprintf(m_stream, "# objects\n");
             for (const Object& object : m_objects) {
-            ObjectList::const_iterator fIt, fEnd;
-                std::fprintf(m_stream, "o entity%u_brush%u\n",
+                ObjectList::const_iterator fIt, fEnd;
+                std::fprintf(m_stream, "o entity%lu_brush%lu\n",
                              static_cast<unsigned long>(object.entityNo),
                              static_cast<unsigned long>(object.brushNo));
-                
+
                 writeFaces(object.faces);
                 std::fprintf(m_stream, "\n");
             }
@@ -85,7 +87,7 @@ namespace TrenchBroom {
             for (const IndexedVertexList& face : faces) {
                 std::fprintf(m_stream, "f");
                 for (const IndexedVertex& vertex : face) {
-                    std::fprintf(m_stream, " %u/%u/%u",
+                    std::fprintf(m_stream, " %lu/%lu/%lu",
                                  static_cast<unsigned long>(vertex.vertex) + 1,
                                  static_cast<unsigned long>(vertex.texCoords) + 1,
                                  static_cast<unsigned long>(vertex.normal) + 1);
@@ -94,32 +96,32 @@ namespace TrenchBroom {
             }
         }
 
-        void ObjFileSerializer::doBeginEntity(const Model::Node* node) {}
-        void ObjFileSerializer::doEndEntity(Model::Node* node) {}
+        void ObjFileSerializer::doBeginEntity(const Model::Node* /* node */) {}
+        void ObjFileSerializer::doEndEntity(Model::Node* /* node */) {}
         void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {}
-        
-        void ObjFileSerializer::doBeginBrush(const Model::Brush* brush) {
+
+        void ObjFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
             m_currentObject.entityNo = entityNo();
             m_currentObject.brushNo = brushNo();
         }
-        
-        void ObjFileSerializer::doEndBrush(Model::Brush* brush) {
+
+        void ObjFileSerializer::doEndBrush(Model::Brush* /* brush */) {
             m_objects.push_back(m_currentObject);
             m_currentObject.faces.clear();
         }
-        
+
         void ObjFileSerializer::doBrushFace(Model::BrushFace* face) {
-            const Vec3& normal = face->boundary().normal;
+            const vm::vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
-            
+
             const Model::BrushFace::VertexList vertices = face->vertices();
             IndexedVertexList indexedVertices;
             indexedVertices.reserve(vertices.size());
-            
+
             for (const Model::BrushVertex* vertex : vertices) {
-            Model::BrushFace::VertexList::const_iterator it, end;
-                const Vec3& position = vertex->position();
-                const Vec2f texCoords = face->textureCoords(position);
+                Model::BrushFace::VertexList::const_iterator it, end;
+                const vm::vec3& position = vertex->position();
+                const vm::vec2f texCoords = face->textureCoords(position);
                 
                 const size_t vertexIndex = m_vertices.index(position);
                 const size_t texCoordsIndex = m_texCoords.index(texCoords);

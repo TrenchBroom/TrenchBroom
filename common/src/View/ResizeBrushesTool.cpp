@@ -19,6 +19,7 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
@@ -33,6 +34,13 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
+#include <vecmath/distance.h>
+#include <vecmath/scalar.h>
 
 #include <algorithm>
 #include <iterator>
@@ -59,7 +67,7 @@ namespace TrenchBroom {
             return document->selectedNodes().hasBrushes();
         }
         
-        Model::Hit ResizeBrushesTool::pick2D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
@@ -67,7 +75,7 @@ namespace TrenchBroom {
             return pickProximateFace(ResizeHit2D, pickRay);
         }
         
-        Model::Hit ResizeBrushesTool::pick3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
@@ -78,10 +86,10 @@ namespace TrenchBroom {
         class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
             const Model::Hit::HitType m_hitType;
-            const Ray3& m_pickRay;
+            const vm::ray3& m_pickRay;
             FloatType m_closest;
         public:
-            PickProximateFace(const Model::Hit::HitType hitType, const Ray3& pickRay) :
+            PickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) :
             NodeQuery(Model::Hit::NoHit),
             m_hitType(hitType),
             m_pickRay(pickRay),
@@ -97,48 +105,52 @@ namespace TrenchBroom {
             }
             
             void visitEdge(Model::BrushEdge* edge) {
-                Model::BrushFace* left = edge->firstFace()->payload();
-                Model::BrushFace* right = edge->secondFace()->payload();
-                const double leftDot = left->boundary().normal.dot(m_pickRay.direction);
-                const double rightDot = right->boundary().normal.dot(m_pickRay.direction);
+                auto* left = edge->firstFace()->payload();
+                auto* right = edge->secondFace()->payload();
+                const auto leftDot  = dot(left->boundary().normal,  m_pickRay.direction);
+                const auto rightDot = dot(right->boundary().normal, m_pickRay.direction);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->firstVertex()->position(), edge->secondVertex()->position());
-                    if (!Math::isnan(result.distance) && result.distance < m_closest) {
+                    const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                    if (!vm::isNan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
-                        const Vec3 hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
+                        const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (Math::zero(leftDot)) {
+                            if (vm::isZero(leftDot)) {
                                 faces.push_back(left);
-                            } else if (Math::zero(rightDot)) {
+                            } else if (vm::isZero(rightDot)) {
                                 faces.push_back(right);
                             } else {
-                                if (Math::abs(leftDot) < 1.0)
+                                if (vm::abs(leftDot) < 1.0) {
                                     faces.push_back(left);
-                                if (Math::abs(rightDot) < 1.0)
+                                }
+                                if (vm::abs(rightDot) < 1.0) {
                                     faces.push_back(right);
+                                }
                             }
-                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, faces));
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, faces));
                         } else {
-                            Model::BrushFace* face = leftDot > rightDot ? left : right;
-                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, face));
+                            auto* face = leftDot > rightDot ? left : right;
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, face));
                         }
                     }
                 }
             }
         };
         
-        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const Ray3& pickRay) const {
+        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const vm::ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
             
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            auto document = lock(m_document);
+            const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             
-            if (!visitor.hasResult())
+            if (!visitor.hasResult()) {
                 return Model::Hit::NoHit;
-            return visitor.result();
+            } else {
+                return visitor.result();
+            }
         }
 
         bool ResizeBrushesTool::hasDragFaces() const {
@@ -173,7 +185,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && face->boundary().equals(m_reference->boundary());
+                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::constants<FloatType>::almostZero());
             }
         };
         
@@ -213,7 +225,7 @@ namespace TrenchBroom {
                 return false;
             
             m_dragOrigin = hit.hitPoint();
-            m_totalDelta = Vec3::Null;
+            m_totalDelta = vm::vec3::zero;
             m_splitBrushes = split;
 
             MapDocumentSPtr document = lock(m_document);
@@ -222,58 +234,61 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ResizeBrushesTool::resize(const Ray3& pickRay, const Renderer::Camera& camera) {
+        bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             assert(!m_dragFaces.empty());
             
-            Model::BrushFace* dragFace = m_dragFaces.front();
-            const Vec3& faceNormal = dragFace->boundary().normal;
-            
-            const Ray3::LineDistance distance = pickRay.distanceToLine(m_dragOrigin, faceNormal);
-            if (distance.parallel)
+            auto* dragFace = m_dragFaces.front();
+            const auto& faceNormal = dragFace->boundary().normal;
+
+            const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
+            if (dist.parallel) {
                 return true;
+            }
+
+            const auto dragDist = dist.position2;
             
-            const FloatType dragDist = distance.lineDistance;
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
+            const auto relativeFaceDelta = grid.snap(dragDist) * faceNormal;
+            const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
             
-            MapDocumentSPtr document = lock(m_document);
-            const View::Grid& grid = document->grid();
-            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal;
-            const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
-            
-            const Vec3 faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (faceDelta.null())
+            const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
+            if (isZero(faceDelta)) {
                 return true;
-            
+            }
+
             if (m_splitBrushes) {
                 if (splitBrushes(faceDelta)) {
-                    m_totalDelta += faceDelta;
-                    m_dragOrigin += faceDelta;
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
                     m_splitBrushes = false;
                 }
             } else {
                 if (document->resizeBrushes(dragFaceDescriptors(), faceDelta)) {
-                    m_totalDelta += faceDelta;
-                    m_dragOrigin += faceDelta;
+                    m_totalDelta = m_totalDelta + faceDelta;
+                    m_dragOrigin = m_dragOrigin + faceDelta;
                 }
             }
             
             return true;
         }
         
-        Vec3 ResizeBrushesTool::selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, const FloatType mouseDistance) const {
+        vm::vec3 ResizeBrushesTool::selectDelta(const vm::vec3& relativeDelta, const vm::vec3& absoluteDelta, const FloatType mouseDistance) const {
             // select the delta that is closest to the actual delta indicated by the mouse cursor
             const FloatType mouseDistance2 = mouseDistance * mouseDistance;
-            return (std::abs(relativeDelta.squaredLength() - mouseDistance2) <
-                    std::abs(absoluteDelta.squaredLength() - mouseDistance2) ?
+            return (vm::abs(squaredLength(relativeDelta) - mouseDistance2) <
+                    vm::abs(squaredLength(absoluteDelta) - mouseDistance2) ?
                     relativeDelta :
                     absoluteDelta);
         }
 
         void ResizeBrushesTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
-            if (m_totalDelta.null())
+            if (isZero(m_totalDelta)) {
                 document->cancelTransaction();
-            else
+            } else {
                 document->commitTransaction();
+            }
             m_dragFaces.clear();
             m_resizing = false;
         }
@@ -285,15 +300,16 @@ namespace TrenchBroom {
             m_resizing = false;
         }
 
-        bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
+        bool ResizeBrushesTool::splitBrushes(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             const bool lockTextures = pref(Preferences::TextureLock);
             
             // First ensure that the drag can be applied at all. For this, check whether each drag faces is moved
             // "up" along its normal.
             if (!std::all_of(std::begin(m_dragFaces), std::end(m_dragFaces),
-                            [&delta](const Model::BrushFace* face) { return Math::pos(face->boundary().normal.dot(delta)); }))
+                            [&delta](const Model::BrushFace* face) { return vm::isPositive(
+                                    dot(face->boundary().normal, delta)); }))
                 return false;
 
             Model::BrushList newBrushes;
@@ -346,8 +362,8 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        Polygon3::List ResizeBrushesTool::dragFaceDescriptors() const {
-            Polygon3::List result;
+        std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {
+            std::vector<vm::polygon3> result;
             result.reserve(m_dragFaces.size());
             std::transform(std::begin(m_dragFaces), std::end(m_dragFaces), std::back_inserter(result), [](const Model::BrushFace* face) { return face->polygon(); });
             return result;

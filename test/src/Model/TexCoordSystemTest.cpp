@@ -21,13 +21,14 @@
 
 #include "TrenchBroom.h"
 #include "Exceptions.h"
-#include "VecMath.h"
 #include "TestUtils.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/TexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/vec.h>
 
 #include "Assets/Texture.h"
 
@@ -42,10 +43,10 @@ namespace TrenchBroom {
         TEST(TexCoordSystemTest, testSnapshotTypeSafety) {
             BrushFaceAttributes attribs("");
             
-            ParaxialTexCoordSystem paraxial(Vec3::PosZ, attribs);
+            ParaxialTexCoordSystem paraxial(vm::vec3::pos_z, attribs);
             ASSERT_EQ(nullptr, paraxial.takeSnapshot());
             
-            ParallelTexCoordSystem parallel(Vec3::PosY, Vec3::PosX);
+            ParallelTexCoordSystem parallel(vm::vec3::pos_y, vm::vec3::pos_x);
             TexCoordSystemSnapshot *parallelSnapshot = parallel.takeSnapshot();
             ASSERT_NE(nullptr, parallelSnapshot);
             

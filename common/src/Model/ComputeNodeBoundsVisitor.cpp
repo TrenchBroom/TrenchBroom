@@ -25,11 +25,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BBox3& defaultBounds) :
+        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds) :
         m_initialized(false),
         m_bounds(defaultBounds) {}
         
-        const BBox3& ComputeNodeBoundsVisitor::bounds() const {
+        const vm::bbox3& ComputeNodeBoundsVisitor::bounds() const {
             return m_bounds;
         }
 
@@ -48,16 +48,16 @@ namespace TrenchBroom {
             mergeWith(brush->bounds());
         }
 
-        void ComputeNodeBoundsVisitor::mergeWith(const BBox3& bounds) {
+        void ComputeNodeBoundsVisitor::mergeWith(const vm::bbox3& bounds) {
             if (!m_initialized) {
                 m_bounds = bounds;
                 m_initialized = true;
             } else {
-                m_bounds.mergeWith(bounds);
+                m_bounds = merge(m_bounds, bounds);
             }
         }
 
-        BBox3 computeBounds(const Model::NodeList& nodes) {
+        vm::bbox3 computeBounds(const Model::NodeList& nodes) {
             return computeBounds(std::begin(nodes), std::end(nodes));
         }
     }

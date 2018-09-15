@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_MapViewToolBox
 #define TrenchBroom_MapViewToolBox
 
+#include "TrenchBroom.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
@@ -94,8 +95,8 @@ namespace TrenchBroom {
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
             double rotateToolAngle() const;
-            const Vec3 rotateToolCenter() const;
-            void moveRotationCenter(const Vec3& delta);
+            vm::vec3 rotateToolCenter() const;
+            void moveRotationCenter(const vm::vec3& delta);
             
             void toggleScaleObjectsTool();
             bool scaleObjectsToolActive() const;
@@ -114,7 +115,7 @@ namespace TrenchBroom {
             void toggleFaceTool();
             bool faceToolActive() const;
 
-            void moveVertices(const Vec3& delta);
+            void moveVertices(const vm::vec3& delta);
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
         private: // notification

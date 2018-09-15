@@ -23,13 +23,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class EdgeToolController::SelectEdgePart : public SelectPartBase<Edge3> {
+        class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3> {
         public:
             SelectEdgePart(EdgeTool* tool) :
             SelectPartBase(tool, EdgeHandleManager::HandleHit) {}
         private:
-            bool equalHandles(const Edge3& lhs, const Edge3& rhs) const override {
-                return lhs.squaredDistanceTo(rhs) < MaxHandleDistance * MaxHandleDistance;
+            bool equalHandles(const vm::segment3& lhs, const vm::segment3& rhs) const override {
+                return compare(lhs, rhs, MaxHandleDistance) == 0;
             }
         };
         

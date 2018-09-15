@@ -40,7 +40,7 @@ private:
     const Callback& m_callback;
     List m_fragments;
     
-    typedef std::list<Plane<T,3>> PlaneList;
+    typedef std::list<vm::plane<T,3>> PlaneList;
     typedef typename PlaneList::const_iterator PlaneIt;
 public:
     Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
@@ -71,7 +71,7 @@ private:
         Face* first = m_minuend.faces().front();
         Face* current = first;
         do {
-            const ClipResult result = m_subtrahend.clip(m_callback.plane(current));
+            const ClipResult result = m_subtrahend.clip(m_callback.getPlane(current));
             if (result.empty())
                 return false;
             current = current->next();
@@ -92,7 +92,7 @@ private:
         const Face* firstFace = m_subtrahend.faces().front();
         const Face* currentFace = firstFace;
         do {
-            const Plane<T,3> plane = m_callback.plane(currentFace);
+            const vm::plane<T,3> plane = m_callback.getPlane(currentFace);
             result.push_back(plane);
             currentFace = currentFace->next();
         } while (currentFace != firstFace);
@@ -101,17 +101,17 @@ private:
     }
     
     static PlaneList sortPlanes(PlaneList planes) {
-        using VList = typename V::List;
+        using VList = std::vector<V>;
 
         auto it = std::begin(planes);
-        it = sortPlanes(it, std::end(planes), VList({ V::PosX, V::PosY, V::PosZ }));
-        it = sortPlanes(it, std::end(planes), VList({ V::PosY, V::PosX, V::PosZ }));
-        it = sortPlanes(it, std::end(planes), VList({ V::PosZ, V::PosX, V::PosY }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_x, V::pos_y, V::pos_z }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_y, V::pos_x, V::pos_z }));
+        it = sortPlanes(it, std::end(planes), VList({ V::pos_z, V::pos_x, V::pos_y }));
         
         return planes;
     }
 
-    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
+    static typename PlaneList::iterator sortPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<V>& axes) {
         if (begin == end)
             return end;
         
@@ -126,18 +126,18 @@ private:
         return it;
     }
     
-    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const typename Vec<T,3>::List& axes) {
+    static typename PlaneList::iterator selectPlanes(typename PlaneList::iterator begin, typename PlaneList::iterator end, const std::vector<V>& axes) {
         assert(begin != end);
         assert(!axes.empty());
         
-        Vec<T,3> axis = axes.front();
+        vm::vec<T,3> axis = axes.front();
         auto bestIt = end;
         for (auto it = begin; it != end; ++it) {
             auto newBestIt = selectPlane(it, bestIt, end, axis);
             
             // Resolve ambiguities if necessary.
             for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes); newBestIt == end && axIt != axEnd; ++axIt) {
-                const Vec<T,3>& altAxis = *axIt;
+                const vm::vec<T,3>& altAxis = *axIt;
                 newBestIt = selectPlane(it, bestIt, end, altAxis);
                 if (newBestIt != end)
                     break;
@@ -150,7 +150,7 @@ private:
         if (bestIt == end)
             return end;
 
-        if (Math::abs(bestIt->normal.dot(axis)) < 0.5)
+        if (vm::abs(dot(bestIt->normal, axis)) < 0.5)
             return begin;
         
         assert(bestIt != end);
@@ -159,8 +159,8 @@ private:
         
         bestIt = end;
         for (auto it = begin; it != end; ++it) {
-            const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
-            const T curDot  = it->normal.dot(axis);
+            const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
+            const T curDot  = dot(it->normal, axis);
             
             if (curDot > bestDot)
                 bestIt = it;
@@ -173,18 +173,18 @@ private:
         return begin;
     }
     
-    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const Vec<T,3>& axis) {
-        const T curDot = curIt->normal.dot(axis);
+    static typename PlaneList::iterator selectPlane(typename PlaneList::iterator curIt, typename PlaneList::iterator bestIt, typename PlaneList::iterator end, const vm::vec<T,3>& axis) {
+        const T curDot = dot(curIt->normal, axis);
         if (curDot == 0.0)
             return bestIt;
         if (curDot == 1.0)
             return curIt;
 
-        const T bestDot = bestIt != end ? bestIt->normal.dot(axis) : 0.0;
-        if (Math::abs(curDot) > Math::abs(bestDot))
+        const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
+        if (vm::abs(curDot) > vm::abs(bestDot))
             return curIt;
         
-        if (Math::abs(curDot) == Math::abs(bestDot)) {
+        if (vm::abs(curDot) == vm::abs(bestDot)) {
             // Resolve ambiguities.
             
             assert(bestIt != end); // Because curDot != 0.0, the same is true for bestDot!
@@ -197,7 +197,7 @@ private:
             return end;
         }
         
-        // Math::abs(curDot) < Math::abs(bestDot)
+        // vm::abs(curDot) < vm::abs(bestDot)
         return bestIt;
     }
     
@@ -208,8 +208,8 @@ private:
             return;
         }
         
-        const Plane<T,3> curPlane = *curPlaneIt;
-        const Plane<T,3> curPlaneInv = curPlane.flipped();
+        const auto curPlane = *curPlaneIt;
+        const auto curPlaneInv = curPlane.flip();
         
         // clip the list of minutendFragments into a list of those in front of the
         // currentPlane, and those behind

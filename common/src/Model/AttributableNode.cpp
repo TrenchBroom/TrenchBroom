@@ -281,7 +281,7 @@ namespace TrenchBroom {
 
         void AttributableNode::attributesWillChange() {}
 
-        void AttributableNode::attributesDidChange(const BBox3& oldBounds) {
+        void AttributableNode::attributesDidChange(const vm::bbox3& oldBounds) {
             updateClassname();
             doAttributesDidChange(oldBounds);
         }
@@ -371,11 +371,11 @@ namespace TrenchBroom {
             return m_killTargets;
         }
         
-        Vec3 AttributableNode::linkSourceAnchor() const {
+        vm::vec3 AttributableNode::linkSourceAnchor() const {
             return doGetLinkSourceAnchor();
         }
         
-        Vec3 AttributableNode::linkTargetAnchor() const {
+        vm::vec3 AttributableNode::linkTargetAnchor() const {
             return doGetLinkTargetAnchor();
         }
 

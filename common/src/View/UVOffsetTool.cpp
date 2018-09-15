@@ -26,6 +26,11 @@
 #include "View/MapDocument.h"
 #include "View/UVView.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/intersection.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -44,12 +49,13 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
-            
+            }
+
             m_lastPoint = computeHitPoint(inputState.pickRay());
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction("Move Texture");
             return true;
         }
@@ -57,59 +63,61 @@ namespace TrenchBroom {
         bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            const Vec2f curPoint = computeHitPoint(inputState.pickRay());
-            const Vec2f delta    = curPoint - m_lastPoint;
-            const Vec2f snapped  = snapDelta(delta);
+            const auto curPoint = computeHitPoint(inputState.pickRay());
+            const auto delta    = curPoint - m_lastPoint;
+            const auto snapped  = snapDelta(delta);
 
-            const Model::BrushFace* face = m_helper.face();
-            const Vec2f corrected = (face->offset() - snapped).corrected(4, 0.0f);
+            const auto* face = m_helper.face();
+            const auto corrected = correct(face->offset() - snapped, 4, 0.0f);
             
-            if (corrected == face->offset())
+            if (corrected == face->offset()) {
                 return true;
-            
+            }
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(corrected);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->setFaceAttributes(request);
             
-            m_lastPoint += snapped;
+            m_lastPoint = m_lastPoint + snapped;
             return true;
         }
         
         void UVOffsetTool::doEndMouseDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
         }
         
         void UVOffsetTool::doCancelMouseDrag() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
 
-        Vec2f UVOffsetTool::computeHitPoint(const Ray3& ray) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType distance = boundary.intersectWithRay(ray);
-            const Vec3 hitPoint = ray.pointAtDistance(distance);
+        vm::vec2f UVOffsetTool::computeHitPoint(const vm::ray3& ray) const {
+            const auto* face = m_helper.face();
+            const auto& boundary = face->boundary();
+            const auto distance = vm::intersect(ray, boundary);
+            const auto hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true);
-            return Vec2f(transform * hitPoint);
+            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true);
+            return vm::vec2f(transform * hitPoint);
         }
 
-        Vec2f UVOffsetTool::snapDelta(const Vec2f& delta) const {
-            const Model::BrushFace* face = m_helper.face();
+        vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
+            const auto* face = m_helper.face();
             ensure(face != nullptr, "face is null");
             
-            const Assets::Texture* texture = face->texture();
-            if (texture == nullptr)
-                return delta.rounded();
+            const auto* texture = face->texture();
+            if (texture == nullptr) {
+                return round(delta);
+            }
+
+            const auto transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
-            
-            Vec2f distance = Vec2f::Max;
+            auto distance = vm::vec2f::max;
             for (const Model::BrushVertex* vertex : face->vertices()) {
-                const Vec2f temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
+                const auto temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
                 distance = absMin(distance, temp);
             }
             

@@ -21,14 +21,13 @@
 #define TrenchBroom_PlanePointFinder_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
         class PlanePointFinder {
         public:
-            static void findPoints(const Plane3& plane, BrushFace::Points& points, size_t numPoints);
+            static void findPoints(const vm::plane3& plane, BrushFace::Points& points, size_t numPoints);
         };
     }
 }

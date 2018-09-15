@@ -66,6 +66,8 @@
 #include "View/VertexToolController.h"
 #include "View/wxUtils.h"
 
+#include <vecmath/util.h>
+
 #include <wx/frame.h>
 
 namespace TrenchBroom {
@@ -87,8 +89,8 @@ namespace TrenchBroom {
         }
         
         void MapView3D::initializeCamera() {
-            m_camera.moveTo(Vec3f(-80.0f, -128.0f, 96.0f));
-            m_camera.lookAt(Vec3::Null, Vec3::PosZ);
+            m_camera.moveTo(vm::vec3f(-80.0f, -128.0f, 96.0f));
+            m_camera.lookAt(vm::vec3f::zero, vm::vec3f::pos_z);
         }
 
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
@@ -192,25 +194,25 @@ namespace TrenchBroom {
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveTextures(Vec2f(0.0f, moveTextureDistance()));
+            moveTextures(vm::vec2f(0.0f, moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveTextures(Vec2f(0.0f, -moveTextureDistance()));
+            moveTextures(vm::vec2f(0.0f, -moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveTextures(Vec2f(-moveTextureDistance(), 0.0f));
+            moveTextures(vm::vec2f(-moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnMoveTexturesRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveTextures(Vec2f(moveTextureDistance(), 0.0f));
+            moveTextures(vm::vec2f(moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnRotateTexturesCW(wxCommandEvent& event) {
@@ -240,7 +242,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MapView3D::moveTextures(const Vec2f& offset) {
+        void MapView3D::moveTextures(const vm::vec2f& offset) {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedBrushFaces())
                 document->moveTextures(m_camera.up(), m_camera.right(), offset);
@@ -248,7 +250,7 @@ namespace TrenchBroom {
         
         float MapView3D::rotateTextureAngle(const bool clockwise) const {
             const Grid& grid = lock(m_document)->grid();
-            const float gridAngle = static_cast<float>(Math::degrees(grid.angle()));
+            const float gridAngle = static_cast<float>(vm::degrees(grid.angle()));
             float angle = 0.0f;
             
             const wxMouseState mouseState = wxGetMouseState();
@@ -300,10 +302,10 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
 
-        Model::PickResult MapView3D::doPick(const Ray3& pickRay) const {
+        Model::PickResult MapView3D::doPick(const vm::ray3& pickRay) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
@@ -316,36 +318,36 @@ namespace TrenchBroom {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
 
-        Vec3 MapView3D::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
+        vm::vec3 MapView3D::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
             
-            const wxMouseState mouseState = wxGetMouseState();
-            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
+            const auto mouseState = wxGetMouseState();
+            const auto clientCoords = ScreenToClient(mouseState.GetPosition());
             
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
+                const auto pickRay = vm::ray3(m_camera.pickRay(clientCoords.x, clientCoords.y));
                 
-                const Model::EditorContext& editorContext = document->editorContext();
-                Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
+                const auto& editorContext = document->editorContext();
+                auto pickResult = Model::PickResult::byDistance(editorContext);
 
-                document->pick(Ray3(pickRay), pickResult);
-                const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
+                document->pick(pickRay, pickResult);
+                const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
                 
                 if (hit.isMatch()) {
-                    const Model::BrushFace* face = Model::hitToFace(hit);
-                    const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                    const auto* face = Model::hitToFace(hit);
+                    const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, hit.hitPoint());
                 } else {
-                    const Vec3 point = grid.snap(m_camera.defaultPoint(pickRay));
-                    const Plane3 dragPlane = alignedOrthogonalDragPlane(point, -Vec3(m_camera.direction().firstAxis()));
+                    const auto point = vm::vec3(grid.snap(m_camera.defaultPoint(pickRay)));
+                    const auto dragPlane = alignedOrthogonalPlane(point, -vm::vec3(firstAxis(m_camera.direction())));
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, point);
                 }
             } else {
-                const Vec3 oldMin = bounds.min;
-                const Vec3 oldCenter = bounds.center();
-                const Vec3 newCenter = m_camera.defaultPoint();
-                const Vec3 newMin = oldMin + (newCenter - oldCenter);
+                const auto oldMin = bounds.min;
+                const auto oldCenter = bounds.center();
+                const auto newCenter = vm::vec3(m_camera.defaultPoint());
+                const auto newMin = oldMin + (newCenter - oldCenter);
                 return grid.snap(newMin);
             }
         }
@@ -357,29 +359,29 @@ namespace TrenchBroom {
         void MapView3D::doSelectTall() {}
 
         void MapView3D::doFocusCameraOnSelection(const bool animate) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            auto document = lock(m_document);
+            const auto& nodes = document->selectedNodes().nodes();
             if (!nodes.empty()) {
-                const Vec3 newPosition = focusCameraOnObjectsPosition(nodes);
+                const auto newPosition = focusCameraOnObjectsPosition(nodes);
                 moveCameraToPosition(newPosition, animate);
             }
         }
         
         class MapView3D::ComputeCameraCenterPositionVisitor : public Model::ConstNodeVisitor {
         private:
-            const Vec3 m_cameraPosition;
-            const Vec3 m_cameraDirection;
+            const vm::vec3 m_cameraPosition;
+            const vm::vec3 m_cameraDirection;
             FloatType m_minDist;
-            Vec3 m_center;
+            vm::vec3 m_center;
             size_t m_count;
         public:
-            ComputeCameraCenterPositionVisitor(const Vec3& cameraPosition, const Vec3& cameraDirection) :
+            ComputeCameraCenterPositionVisitor(const vm::vec3& cameraPosition, const vm::vec3& cameraDirection) :
             m_cameraPosition(cameraPosition),
             m_cameraDirection(cameraDirection),
             m_minDist(std::numeric_limits<FloatType>::max()),
             m_count(0) {}
             
-            Vec3 position() const {
+            vm::vec3 position() const {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
@@ -389,33 +391,33 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i)
-                        addPoint(vertices[i]);
+                    const auto& bounds = entity->bounds();
+                    bounds.forEachVertex([&](const vm::vec3& v) { addPoint(v); });
                 }
             }
             
             void doVisit(const Model::Brush* brush) override   {
-                for (const Model::BrushVertex* vertex : brush->vertices())
+                for (const Model::BrushVertex* vertex : brush->vertices()) {
                     addPoint(vertex->position());
+                }
             }
             
-            void addPoint(const Vec3& point) {
-                const Vec3 toPosition = point - m_cameraPosition;
-                m_minDist = std::min(m_minDist, toPosition.dot(m_cameraDirection));
-                m_center += point;
+            void addPoint(const vm::vec3& point) {
+                const vm::vec3 toPosition = point - m_cameraPosition;
+                m_minDist = vm::min(m_minDist, dot(toPosition, m_cameraDirection));
+                m_center = m_center + point;
                 ++m_count;
             }
         };
 
         class MapView3D::ComputeCameraCenterOffsetVisitor : public Model::ConstNodeVisitor {
         private:
-            const Vec3f m_cameraPosition;
-            const Vec3f m_cameraDirection;
-            Plane3f m_frustumPlanes[4];
+            const vm::vec3f m_cameraPosition;
+            const vm::vec3f m_cameraDirection;
+            vm::plane3f m_frustumPlanes[4];
             float m_offset;
         public:
-            ComputeCameraCenterOffsetVisitor(const Vec3f& cameraPosition, const Vec3f& cameraDirection, const Plane3f frustumPlanes[4]) :
+            ComputeCameraCenterOffsetVisitor(const vm::vec3f& cameraPosition, const vm::vec3f& cameraDirection, const vm::plane3f frustumPlanes[4]) :
             m_cameraPosition(cameraPosition),
             m_cameraDirection(cameraDirection),
             m_offset(std::numeric_limits<float>::min()) {
@@ -433,41 +435,44 @@ namespace TrenchBroom {
             
             void doVisit(const Model::Entity* entity) override {
                 if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i) {
-                        for (size_t j = 0; j < 4; ++j)
-                            addPoint(vertices[i], m_frustumPlanes[j]);
-                    }
+                    const auto& bounds = entity->bounds();
+                    bounds.forEachVertex([&](const vm::vec3& v) {
+                        for (size_t j = 0; j < 4; ++j) {
+                            addPoint(vm::vec3f(v), m_frustumPlanes[j]);
+                        }
+                    });
                 }
             }
             
             void doVisit(const Model::Brush* brush) override   {
-                for (const Model::BrushVertex* vertex : brush->vertices()) {
-                    for (size_t j = 0; j < 4; ++j)
-                        addPoint(vertex->position(), m_frustumPlanes[j]);
+                for (const auto* vertex : brush->vertices()) {
+                    for (size_t j = 0; j < 4; ++j) {
+                        addPoint(vm::vec3f(vertex->position()), m_frustumPlanes[j]);
+                    }
                 }
             }
             
-            void addPoint(const Vec3f point, const Plane3f& plane) {
-                const Ray3f ray(m_cameraPosition, -m_cameraDirection);
-                const Plane3f newPlane(point + 64.0f * plane.normal, plane.normal);
-                const float dist = newPlane.intersectWithRay(ray);
-                if (!Math::isnan(dist) && dist > 0.0f)
+            void addPoint(const vm::vec3f point, const vm::plane3f& plane) {
+                const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
+                const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
+                const auto dist = intersect(ray, newPlane);;
+                if (!vm::isNan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
+                }
             }
         };
 
-        Vec3f MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
-            ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
+        vm::vec3 MapView3D::focusCameraOnObjectsPosition(const Model::NodeList& nodes) {
+            ComputeCameraCenterPositionVisitor center(vm::vec3(m_camera.position()), vm::vec3(m_camera.direction()));
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), center);
 
-            const Vec3 newPosition = center.position();
+            const auto newPosition = center.position();
             
             // act as if the camera were there already:
-            const Vec3f oldPosition = m_camera.position();
-            m_camera.moveTo(Vec3f(newPosition));
+            const auto oldPosition = m_camera.position();
+            m_camera.moveTo(vm::vec3f(newPosition));
             
-            Plane3f frustumPlanes[4];
+            vm::plane3f frustumPlanes[4];
             m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
             ComputeCameraCenterOffsetVisitor offset(m_camera.position(), m_camera.direction(), frustumPlanes);
@@ -475,17 +480,18 @@ namespace TrenchBroom {
             
             // jump back
             m_camera.moveTo(oldPosition);
-            return newPosition - m_camera.direction() * offset.offset();
+            return newPosition - vm::vec3(m_camera.direction() * offset.offset());
         }
         
-        void MapView3D::doMoveCameraToPosition(const Vec3& position, const bool animate) {
-            if (animate)
-                animateCamera(position, m_camera.direction(), m_camera.up());
-            else
-                m_camera.moveTo(position);
+        void MapView3D::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
+            if (animate) {
+                animateCamera(vm::vec3f(position), m_camera.direction(), m_camera.up());
+            } else {
+                m_camera.moveTo(vm::vec3f(position));
+            }
         }
         
-        void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+        void MapView3D::animateCamera(const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up, const wxLongLong duration) {
             CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
         }
@@ -497,66 +503,70 @@ namespace TrenchBroom {
             Model::PointFile* pointFile = document->pointFile();
             assert(pointFile->hasNextPoint());
             
-            const Vec3f position = pointFile->currentPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile->currentDirection();
-            animateCamera(position, direction, Vec3f::PosZ);
+            const vm::vec3f position = pointFile->currentPoint() + vm::vec3f(0.0f, 0.0f, 16.0f);
+            const vm::vec3f direction = pointFile->currentDirection();
+            animateCamera(position, direction, vm::vec3f::pos_z);
         }
 
-        Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
+        vm::vec3 MapView3D::doGetMoveDirection(const vm::direction direction) const {
             switch (direction) {
-                case Math::Direction_Forward: {
-                    const Plane3 plane(m_camera.position(), Vec3::PosZ);
-                    const Vec3 projectedDirection = plane.projectVector(m_camera.direction());
-                    if (projectedDirection.null()) {
+                case vm::direction::forward: {
+                    const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
+                    const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
+                    if (isZero(projectedDirection)) {
                         // camera is looking straight down or up
-                        if (m_camera.direction().z() < 0.0)
-                            return m_camera.up().firstAxis();
-                        else
-                            return -m_camera.up().firstAxis();
+                        if (m_camera.direction().z() < 0.0) {
+                            return vm::vec3(firstAxis(m_camera.up()));
+                        } else {
+                            return vm::vec3(-firstAxis(m_camera.up()));
+                        }
                     }
-                    return projectedDirection.firstAxis();
+                    return firstAxis(projectedDirection);
                 }
-                case Math::Direction_Backward:
-                    return -doGetMoveDirection(Math::Direction_Forward);
-                case Math::Direction_Left:
-                    return -doGetMoveDirection(Math::Direction_Right);
-                case Math::Direction_Right: {
-                    Vec3 dir = m_camera.right().firstAxis();
-                    if (dir == doGetMoveDirection(Math::Direction_Forward))
-                        dir = crossed(dir, Vec3::PosZ);
+                case vm::direction::backward:
+                    return -doGetMoveDirection(vm::direction::forward);
+                case vm::direction::left:
+                    return -doGetMoveDirection(vm::direction::right);
+                case vm::direction::right: {
+                    auto dir = vm::vec3(firstAxis(m_camera.right()));
+                    if (dir == doGetMoveDirection(vm::direction::forward)) {
+                        dir = cross(dir, vm::vec3::pos_z);
+                    }
                     return dir;
                 }
-                case Math::Direction_Up:
-                    return Vec3::PosZ;
-                case Math::Direction_Down:
-                    return Vec3::NegZ;
-                    switchDefault()
+                case vm::direction::up:
+                    return vm::vec3::pos_z;
+                case vm::direction::down:
+                    return vm::vec3::neg_z;
+                switchDefault()
             }
         }
 
-        Vec3 MapView3D::doComputePointEntityPosition(const BBox3& bounds) const {
-            MapDocumentSPtr document = lock(m_document);
+        vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
+            auto document = lock(m_document);
             
-            Vec3 delta;
-            View::Grid& grid = document->grid();
+            vm::vec3 delta;
+            auto& grid = document->grid();
             
-            const BBox3& worldBounds = document->worldBounds();
+            const auto& worldBounds = document->worldBounds();
             
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
+                const auto* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
             } else {
-                const Vec3 newPosition = Renderer::Camera::defaultPoint(pickRay());
-                const Vec3 defCenter = bounds.center();
+                const auto newPosition = Renderer::Camera::defaultPoint(pickRay());
+                const auto defCenter = bounds.center();
                 return grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
             }
         }
 
         ActionContext MapView3D::doGetActionContext() const {
-            if (cameraFlyModeActive())
+            if (cameraFlyModeActive()) {
                 return ActionContext_FlyMode;
-            return ActionContext_Default;
+            } else {
+                return ActionContext_Default;
+            }
         }
         
         wxAcceleratorTable MapView3D::doCreateAccelerationTable(ActionContext context) const {
@@ -587,7 +597,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             if (renderContext.showSelectionGuide() && document->hasSelectedNodes()) {
-                const BBox3& bounds = document->selectionBounds();
+                const vm::bbox3& bounds = document->selectionBounds();
                 Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
                 boundsRenderer.render(renderContext, renderBatch);
                 

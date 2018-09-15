@@ -21,7 +21,6 @@
 #define TrenchBroom_InputState
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 
@@ -104,9 +103,9 @@ namespace TrenchBroom {
             bool anyToolDragging() const;
             void setAnyToolDragging(bool anyToolDragging);
             
-            const Ray3& pickRay() const;
-            const Vec3 defaultPoint() const;
-            const Vec3 defaultPointUnderMouse() const;
+            const vm::ray3& pickRay() const;
+            const vm::vec3 defaultPoint() const;
+            const vm::vec3 defaultPointUnderMouse() const;
             const Renderer::Camera& camera() const;
             void setPickRequest(const PickRequest& pickRequest);
 

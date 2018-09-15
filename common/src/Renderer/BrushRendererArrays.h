@@ -26,6 +26,8 @@
 #include "Renderer/GL.h"
 #include "Renderer/VboBlock.h"
 
+#include <vecmath/vec.h>
+
 #include <algorithm>
 #include <vector>
 #include <cassert>

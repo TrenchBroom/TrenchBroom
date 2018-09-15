@@ -269,9 +269,9 @@ namespace TrenchBroom {
         
         void MapRenderer::renderTutorialMessages(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.render3D()) {
-                View::MapDocumentSPtr document = lock(m_document);
-                const Assets::EntityDefinition* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
-                const Model::NodeList nodes = document->findNodesContaining(renderContext.camera().position());
+                auto document = lock(m_document);
+                const auto* definition = document->entityDefinitionManager().definition(Model::Tutorial::Classname);
+                const auto nodes = document->findNodesContaining(vm::vec3(renderContext.camera().position()));
                 if (!nodes.empty()) {
                     RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::TutorialOverlayTextColor));
@@ -280,11 +280,12 @@ namespace TrenchBroom {
                     CollectTutorialEntitiesVisitor collect(definition);
                     Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
 
-                    for (const Model::Node* node : collect.nodes()) {
-                        const Model::Entity* entity = static_cast<const Model::Entity*>(node);
-                        const Model::AttributeValue& message = entity->attribute(Model::Tutorial::Message);
-                        if (!message.empty())
+                    for (const auto* node : collect.nodes()) {
+                        const auto* entity = static_cast<const Model::Entity*>(node);
+                        const auto& message = entity->attribute(Model::Tutorial::Message);
+                        if (!message.empty()) {
                             renderService.renderHeadsUp(message);
+                        }
                     }
                 }
             }

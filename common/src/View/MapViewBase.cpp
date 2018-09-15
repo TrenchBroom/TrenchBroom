@@ -19,6 +19,7 @@
 
 #include "MapViewBase.h"
 
+#include "TrenchBroom.h"
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -60,6 +61,9 @@
 #include "View/ToolBoxDropTarget.h"
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
+
+#include <vecmath/polygon.h>
+#include <vecmath/util.h>
 
 #include <wx/frame.h>
 #include <wx/menu.h>
@@ -323,124 +327,124 @@ namespace TrenchBroom {
         void MapViewBase::OnMoveObjectsForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Forward);
+            moveObjects(vm::direction::forward);
         }
 
         void MapViewBase::OnMoveObjectsBackward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Backward);
+            moveObjects(vm::direction::backward);
         }
 
         void MapViewBase::OnMoveObjectsLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Left);
+            moveObjects(vm::direction::left);
         }
 
         void MapViewBase::OnMoveObjectsRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Right);
+            moveObjects(vm::direction::right);
         }
 
         void MapViewBase::OnMoveObjectsUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Up);
+            moveObjects(vm::direction::up);
         }
 
         void MapViewBase::OnMoveObjectsDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveObjects(Math::Direction_Down);
+            moveObjects(vm::direction::down);
         }
 
         void MapViewBase::OnDuplicateObjectsForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Forward);
+            duplicateAndMoveObjects(vm::direction::forward);
         }
 
         void MapViewBase::OnDuplicateObjectsBackward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Backward);
+            duplicateAndMoveObjects(vm::direction::backward);
         }
 
         void MapViewBase::OnDuplicateObjectsLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Left);
+            duplicateAndMoveObjects(vm::direction::left);
         }
 
         void MapViewBase::OnDuplicateObjectsRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Right);
+            duplicateAndMoveObjects(vm::direction::right);
         }
 
         void MapViewBase::OnDuplicateObjectsUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Up);
+            duplicateAndMoveObjects(vm::direction::up);
         }
 
         void MapViewBase::OnDuplicateObjectsDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            duplicateAndMoveObjects(Math::Direction_Down);
+            duplicateAndMoveObjects(vm::direction::down);
         }
 
         void MapViewBase::OnRollObjectsCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Roll, true);
+            rotateObjects(vm::rotation_axis::roll, true);
         }
 
         void MapViewBase::OnRollObjectsCCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Roll, false);
+            rotateObjects(vm::rotation_axis::roll, false);
         }
 
         void MapViewBase::OnPitchObjectsCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Pitch, true);
+            rotateObjects(vm::rotation_axis::pitch, true);
         }
 
         void MapViewBase::OnPitchObjectsCCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Pitch, false);
+            rotateObjects(vm::rotation_axis::pitch, false);
         }
 
         void MapViewBase::OnYawObjectsCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Yaw, true);
+            rotateObjects(vm::rotation_axis::yaw, true);
         }
 
         void MapViewBase::OnYawObjectsCCW(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            rotateObjects(Math::RotationAxis_Yaw, false);
+            rotateObjects(vm::rotation_axis::yaw, false);
         }
 
         void MapViewBase::OnFlipObjectsH(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            flipObjects(Math::Direction_Left);
+            flipObjects(vm::direction::left);
         }
 
         void MapViewBase::OnFlipObjectsV(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            flipObjects(Math::Direction_Up);
+            flipObjects(vm::direction::up);
         }
 
-        void MapViewBase::duplicateAndMoveObjects(const Math::Direction direction) {
+        void MapViewBase::duplicateAndMoveObjects(const vm::direction direction) {
             Transaction transaction(m_document);
             duplicateObjects();
             moveObjects(direction);
@@ -454,45 +458,45 @@ namespace TrenchBroom {
             document->duplicateObjects();
         }
 
-        void MapViewBase::moveObjects(const Math::Direction direction) {
+        void MapViewBase::moveObjects(const vm::direction direction) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
             const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             document->translateObjects(delta);
         }
 
-        Vec3 MapViewBase::moveDirection(const Math::Direction direction) const {
+        vm::vec3 MapViewBase::moveDirection(const vm::direction direction) const {
             return doGetMoveDirection(direction);
         }
 
-        void MapViewBase::rotateObjects(const Math::RotationAxis axisSpec, const bool clockwise) {
+        void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
-            const Vec3 axis = rotationAxis(axisSpec, clockwise);
-            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : Math::C::piOverTwo();
+            const vm::vec3 axis = rotationAxis(axisSpec, clockwise);
+            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : vm::C::piOverTwo();
 
             const Grid& grid = document->grid();
-            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
+            const vm::vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
 
             document->rotateObjects(center, axis, angle);
         }
 
-        Vec3 MapViewBase::rotationAxis(const Math::RotationAxis axisSpec, const bool clockwise) const {
-            Vec3 axis;
+        vm::vec3 MapViewBase::rotationAxis(const vm::rotation_axis axisSpec, const bool clockwise) const {
+            vm::vec3 axis;
             switch (axisSpec) {
-                case Math::RotationAxis_Roll:
-                    axis = -moveDirection(Math::Direction_Forward);
+                case vm::rotation_axis::roll:
+                    axis = -moveDirection(vm::direction::forward);
                     break;
-                case Math::RotationAxis_Pitch:
-                    axis = moveDirection(Math::Direction_Right);
+                case vm::rotation_axis::pitch:
+                    axis = moveDirection(vm::direction::right);
                     break;
-                case Math::RotationAxis_Yaw:
-                    axis = moveDirection(Math::Direction_Up);
+                case vm::rotation_axis::yaw:
+                    axis = moveDirection(vm::direction::up);
                     break;
                     switchDefault()
             }
@@ -523,43 +527,43 @@ namespace TrenchBroom {
         void MapViewBase::OnMoveRotationCenterForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Forward);
+            moveRotationCenter(vm::direction::forward);
         }
 
         void MapViewBase::OnMoveRotationCenterBackward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Backward);
+            moveRotationCenter(vm::direction::backward);
         }
 
         void MapViewBase::OnMoveRotationCenterLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Left);
+            moveRotationCenter(vm::direction::left);
         }
 
         void MapViewBase::OnMoveRotationCenterRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Right);
+            moveRotationCenter(vm::direction::right);
         }
 
         void MapViewBase::OnMoveRotationCenterUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Up);
+            moveRotationCenter(vm::direction::up);
         }
 
         void MapViewBase::OnMoveRotationCenterDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveRotationCenter(Math::Direction_Down);
+            moveRotationCenter(vm::direction::down);
         }
 
-        void MapViewBase::moveRotationCenter(const Math::Direction direction) {
+        void MapViewBase::moveRotationCenter(const vm::direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
             Refresh();
         }
@@ -579,43 +583,43 @@ namespace TrenchBroom {
         void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Forward);
+            moveVertices(vm::direction::forward);
         }
         
         void MapViewBase::OnMoveVerticesBackward(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Backward);
+            moveVertices(vm::direction::backward);
         }
         
         void MapViewBase::OnMoveVerticesLeft(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Left);
+            moveVertices(vm::direction::left);
         }
         
         void MapViewBase::OnMoveVerticesRight(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Right);
+            moveVertices(vm::direction::right);
         }
         
         void MapViewBase::OnMoveVerticesUp(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Up);
+            moveVertices(vm::direction::up);
         }
         
         void MapViewBase::OnMoveVerticesDown(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            moveVertices(Math::Direction_Down);
+            moveVertices(vm::direction::down);
         }
 
-        void MapViewBase::moveVertices(const Math::Direction direction) {
+        void MapViewBase::moveVertices(const vm::direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            const vm::vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveVertices(delta);
         }
 
@@ -808,8 +812,8 @@ namespace TrenchBroom {
             return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
         }
 
-        void MapViewBase::doFlipObjects(const Math::Direction direction) {
-            MapDocumentSPtr document = lock(m_document);
+        void MapViewBase::doFlipObjects(const vm::direction direction) {
+            auto document = lock(m_document);
             if (!document->hasSelectedNodes())
                 return;
 
@@ -820,8 +824,8 @@ namespace TrenchBroom {
             Grid halfGrid(document->grid().size());
             halfGrid.decSize();
             
-            const Vec3 center = halfGrid.referencePoint(document->selectionBounds());
-            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
+            const auto center = halfGrid.referencePoint(document->selectionBounds());
+            const auto axis = firstComponent(moveDirection(direction));
             
             document->flipObjects(center, axis);
         }
@@ -904,10 +908,10 @@ namespace TrenchBroom {
         void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (pref(Preferences::ShowAxes)) {
                 MapDocumentSPtr document = lock(m_document);
-                const BBox3& worldBounds = document->worldBounds();
+                const vm::bbox3& worldBounds = document->worldBounds();
                 
                 Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.renderCoordinateSystem(worldBounds);
+                renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
             }
         }
 

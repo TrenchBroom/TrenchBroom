@@ -21,7 +21,6 @@
 #define EdgeTool_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
 
@@ -35,22 +34,22 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class EdgeTool : public VertexToolBase<Edge3> {
+        class EdgeTool : public VertexToolBase<vm::segment3> {
         private:
             EdgeHandleManager m_edgeHandles;
         public:
             EdgeTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
+            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
         public:
             EdgeHandleManager& handleManager() override;
             const EdgeHandleManager& handleManager() const override;
         public:
-            MoveResult move(const Vec3& delta) override;
+            MoveResult move(const vm::vec3& delta) override;
 
             String actionName() const override;
 

@@ -21,29 +21,32 @@
 
 #include "Renderer/Camera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         TextAnchor::~TextAnchor() {}
         
         TextAnchor3D::~TextAnchor3D() {}
         
-        Vec3f TextAnchor3D::offset(const Camera& camera, const Vec2f& size) const {
-            const Vec2f halfSize = size / 2.0f;
+        vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) const {
+            const vm::vec2f halfSize = size / 2.0f;
             const TextAlignment::Type a = alignment();
-            const Vec2f factors = alignmentFactors(a);
-            const Vec2f extra = extraOffsets(a, size);
-            Vec3f offset = camera.project(basePosition());
+            const vm::vec2f factors = alignmentFactors(a);
+            const vm::vec2f extra = extraOffsets(a, size);
+            vm::vec3f offset = camera.project(basePosition());
             for (size_t i = 0; i < 2; i++)
-                offset[i] = Math::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
+                offset[i] = vm::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
             return offset;
         }
         
-        Vec3f TextAnchor3D::position(const Camera& camera) const {
+        vm::vec3f TextAnchor3D::position(const Camera& camera) const {
             return basePosition();
         }
         
-        Vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const {
-            Vec2f factors;
+        vm::vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const {
+            vm::vec2f factors;
             if ((a & TextAlignment::Left))
                 factors[0] = +0.5f;
             else if ((a & TextAlignment::Right))
@@ -55,11 +58,11 @@ namespace TrenchBroom {
             return factors;
         }
         
-        Vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type a, const Vec2f& size) const {
-            return Vec2f::Null;
+        vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type a, const vm::vec2f& size) const {
+            return vm::vec2f::zero;
         }
         
-        Vec3f SimpleTextAnchor::basePosition() const {
+        vm::vec3f SimpleTextAnchor::basePosition() const {
             return m_position;
         }
         
@@ -67,11 +70,11 @@ namespace TrenchBroom {
             return m_alignment;
         }
         
-        Vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type a, const Vec2f& size) const {
+        vm::vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type a, const vm::vec2f& size) const {
             return m_extraOffsets;
         }
         
-        SimpleTextAnchor::SimpleTextAnchor(const Vec3f& position, const TextAlignment::Type alignment, const Vec2f& extraOffsets) :
+        SimpleTextAnchor::SimpleTextAnchor(const vm::vec3f& position, const TextAlignment::Type alignment, const vm::vec2f& extraOffsets) :
         m_position(position),
         m_alignment(alignment),
         m_extraOffsets(extraOffsets) {}

@@ -20,18 +20,20 @@
 #include "Sphere.h"
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         Sphere::Sphere(const float radius, const size_t iterations) {
-            typedef VertexSpecs::P3::Vertex Vertex;
+            using Vertex = VertexSpecs::P3::Vertex;
             
-            const Vec3f::List positions = sphere3D(radius, iterations);
-            Vertex::List vertices = Vertex::fromLists(positions, positions.size());
+            const auto positions = sphere3D(radius, iterations);
+            auto vertices = Vertex::toList(std::begin(positions), positions.size());
             m_array = VertexArray::swap(vertices);
         }
         

@@ -132,12 +132,12 @@ namespace TrenchBroom {
             void OnFlipObjectsH(wxCommandEvent& event);
             void OnFlipObjectsV(wxCommandEvent& event);
             
-            void duplicateAndMoveObjects(Math::Direction direction);
+            void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
-            void moveObjects(Math::Direction direction);
-            Vec3 moveDirection(Math::Direction direction) const;
-            void rotateObjects(Math::RotationAxis axis, bool clockwise);
-            Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
+            void moveObjects(vm::direction direction);
+            vm::vec3 moveDirection(vm::direction direction) const;
+            void rotateObjects(vm::rotation_axis axis, bool clockwise);
+            vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
         private: // tool mode events
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
             void OnMoveRotationCenterForward(wxCommandEvent& event);
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             void OnMoveRotationCenterRight(wxCommandEvent& event);
             void OnMoveRotationCenterUp(wxCommandEvent& event);
             void OnMoveRotationCenterDown(wxCommandEvent& event);
-            void moveRotationCenter(Math::Direction direction);
+            void moveRotationCenter(vm::direction direction);
             
             void OnToggleScaleObjectsTool(wxCommandEvent& event);
             void OnToggleShearObjectsTool(wxCommandEvent& event);
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             void OnMoveVerticesRight(wxCommandEvent& event);
             void OnMoveVerticesUp(wxCommandEvent& event);
             void OnMoveVerticesDown(wxCommandEvent& event);
-            void moveVertices(Math::Direction direction);
+            void moveVertices(vm::direction direction);
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
@@ -209,7 +209,7 @@ namespace TrenchBroom {
             void doSetToolBoxDropTarget() override;
             void doClearDropTarget() override;
             bool doCanFlipObjects() const override;
-            void doFlipObjects(Math::Direction direction) override;
+            void doFlipObjects(vm::direction direction) override;
             bool doCancelMouseDrag() override;
         private: // implement RenderView interface
             void doInitializeGL(bool firstInitialization) override;
@@ -236,8 +236,8 @@ namespace TrenchBroom {
             void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
-            virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
-            virtual Vec3 doComputePointEntityPosition(const BBox3& bounds) const = 0;
+            virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
+            virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;

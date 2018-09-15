@@ -19,16 +19,18 @@
 
 #include "EdgeTool.h"
 
+#include "TrenchBroom.h"
+
 namespace TrenchBroom {
     namespace View {
         EdgeTool::EdgeTool(MapDocumentWPtr document) :
         VertexToolBase(document) {}
         
-        Model::BrushSet EdgeTool::findIncidentBrushes(const Edge3& handle) const {
+        Model::BrushSet EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
 
-        void EdgeTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void EdgeTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             m_edgeHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         
@@ -40,7 +42,7 @@ namespace TrenchBroom {
             return m_edgeHandles;
         }
 
-        EdgeTool::MoveResult EdgeTool::move(const Vec3& delta) {
+        EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
 
             const auto handles = m_edgeHandles.selectedHandles();

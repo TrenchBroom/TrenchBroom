@@ -71,18 +71,18 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
         }
 
-        void MapReader::readEntities(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
             resolveNodes(status);
         }
         
-        void MapReader::readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
         }
         
-        void MapReader::readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status) {
+        void MapReader::readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushFaces(format, status);
         }
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             createBrush(startLine, lineCount, extraAttributes, status);
         }
         
-        void MapReader::onBrushFace(const size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status) {
+        void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
             Model::BrushFace* face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
             onBrushFace(face, status);
         }

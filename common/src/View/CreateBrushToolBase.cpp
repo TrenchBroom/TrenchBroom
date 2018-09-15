@@ -18,13 +18,9 @@
  */
 
 #include "CreateBrushToolBase.h"
-#include "Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/SelectionBoundsRenderer.h"

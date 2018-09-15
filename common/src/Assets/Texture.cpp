@@ -176,11 +176,11 @@ namespace TrenchBroom {
             }
 
             /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
-            const size_t potWidth = Math::nextPOT(m_width);
-            const size_t potHeight = Math::nextPOT(m_height);
+            const size_t potWidth = vm::nextPOT(m_width);
+            const size_t potHeight = vm::nextPOT(m_height);
             
             if (potWidth != m_width || potHeight != m_height)
-                resizeMips(m_buffers, Vec2s(m_width, m_height), Vec2s(potWidth, potHeight));
+                resizeMips(m_buffers, vec2s(m_width, m_height), vec2s(potWidth, potHeight));
             */
             
             size_t mipWidth = m_width; //potWidth;

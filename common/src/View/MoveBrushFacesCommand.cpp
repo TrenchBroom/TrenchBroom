@@ -29,28 +29,28 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
-        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const Vec3& delta) {
+        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) {
             Model::BrushList brushes;
             Model::BrushFacesMap brushFaces;
-            Polygon3::List facePositions;
+            std::vector<vm::polygon3> facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
             
             return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
         }
 
-        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta) :
+        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
         m_delta(delta) {
-            assert(!m_delta.null());
+            assert(!isZero(m_delta));
         }
         
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const BBox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& faces = entry.second;
+                const std::vector<vm::polygon3>& faces = entry.second;
                 if (!brush->canMoveFaces(worldBounds, faces, m_delta))
                     return false;
             }
@@ -69,17 +69,17 @@ namespace TrenchBroom {
                 return false;
 
             m_newFacePositions = other->m_newFacePositions;
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
 
             return true;
         }
 
 
-        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+        void MoveBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
         }
         
-        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+        void MoveBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
     }

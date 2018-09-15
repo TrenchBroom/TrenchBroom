@@ -21,6 +21,11 @@
 
 #include "IO/Path.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
+#include <cstring>
+
 namespace TrenchBroom {
     namespace IO {
         OpenFile::OpenFile(const Path& path, const bool write) :
@@ -78,36 +83,38 @@ namespace TrenchBroom {
             std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
         }
 
-        Vec3f readVec3f(const char*& cursor) {
-            Vec3f value;
-            for (size_t i = 0; i < 3; i++)
+        vm::vec3f readVec3f(const char*& cursor) {
+            vm::vec3f value;
+            for (size_t i = 0; i < 3; i++) {
                 value[i] = readFloat<float>(cursor);
+            }
             return value;
         }
         
-        Vec3f readVec3f(const char* const& cursor) {
-            Vec3f value;
-            for (size_t i = 0; i < 3; i++)
+        vm::vec3f readVec3f(const char* const& cursor) {
+            vm::vec3f value;
+            for (size_t i = 0; i < 3; i++) {
                 value[i] = readFloat<float>(cursor);
+            }
             return value;
         }
         
         void readBytes(const char*& cursor, char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
+            std::memcpy(buffer, cursor, n);
             cursor += n;
         }
         
         void readBytes(const char* const& cursor, char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
+            std::memcpy(buffer, cursor, n);
         }
         
         void readBytes(const char*& cursor, unsigned char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
+            std::memcpy(buffer, cursor, n);
             cursor += n;
         }
         
         void readBytes(const char* const& cursor, unsigned char* buffer, size_t n) {
-            memcpy(buffer, cursor, n);
+            std::memcpy(buffer, cursor, n);
         }
     }
 }

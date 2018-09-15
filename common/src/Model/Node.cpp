@@ -49,15 +49,15 @@ namespace TrenchBroom {
             return doGetName();
         }
 
-        const BBox3& Node::bounds() const {
+        const vm::bbox3& Node::bounds() const {
             return doGetBounds();
         }
 
-        Node* Node::clone(const BBox3& worldBounds) const {
+        Node* Node::clone(const vm::bbox3& worldBounds) const {
             return doClone(worldBounds);
         }
 
-        Node* Node::cloneRecursively(const BBox3& worldBounds) const {
+        Node* Node::cloneRecursively(const vm::bbox3& worldBounds) const {
             return doCloneRecursively(worldBounds);
         }
 
@@ -70,14 +70,14 @@ namespace TrenchBroom {
             node->setLockState(m_lockState);
         }
         
-        NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
+        NodeList Node::clone(const vm::bbox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
             clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
-        NodeList Node::cloneRecursively(const BBox3& worldBounds, const NodeList& nodes) {
+        NodeList Node::cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
             cloneRecursively(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
@@ -336,7 +336,7 @@ namespace TrenchBroom {
         }
 
         // notice that we take a copy here so that we can safely propagate the old bounds up
-        void Node::nodeBoundsDidChange(const BBox3 oldBounds) {
+        void Node::nodeBoundsDidChange(const vm::bbox3 oldBounds) {
             doNodeBoundsDidChange(oldBounds);
             if (m_parent != nullptr)
                 m_parent->childBoundsDidChange(this, oldBounds);
@@ -368,8 +368,8 @@ namespace TrenchBroom {
             invalidateIssues();
         }
 
-        void Node::childBoundsDidChange(Node* node, const BBox3& oldBounds) {
-            const BBox3 myOldBounds = bounds();
+        void Node::childBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+            const vm::bbox3 myOldBounds = bounds();
             if (!myOldBounds.encloses(oldBounds) && !myOldBounds.encloses(node->bounds())) {
                 // Our bounds will change only if the child's bounds potentially contributed to our own bounds.
                 nodeBoundsDidChange(myOldBounds);
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             descendantBoundsDidChange(node, oldBounds, 1);
         }
 
-        void Node::descendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {
+        void Node::descendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
             doDescendantBoundsDidChange(node, oldBounds, depth);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
                 m_parent->descendantBoundsDidChange(node, oldBounds, depth + 1);
@@ -552,15 +552,15 @@ namespace TrenchBroom {
             
         }
 
-        void Node::pick(const Ray3& ray, PickResult& pickResult) const {
+        void Node::pick(const vm::ray3& ray, PickResult& pickResult) const {
             doPick(ray, pickResult);
         }
         
-        void Node::findNodesContaining(const Vec3& point, NodeList& result) {
+        void Node::findNodesContaining(const vm::vec3& point, NodeList& result) {
             doFindNodesContaining(point, result);
         }
 
-        FloatType Node::intersectWithRay(const Ray3& ray) const {
+        FloatType Node::intersectWithRay(const vm::ray3& ray) const {
             return doIntersectWithRay(ray);
         }
 
@@ -625,7 +625,7 @@ namespace TrenchBroom {
             doRemoveFromIndex(attributable, name, value);
         }
 
-        Node* Node::doCloneRecursively(const BBox3& worldBounds) const {
+        Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const {
             Node* clone = Node::clone(worldBounds);
             clone->addChildren(Node::cloneRecursively(worldBounds, children()));
             return clone;
@@ -651,9 +651,9 @@ namespace TrenchBroom {
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doNodeBoundsDidChange(const BBox3& oldBounds) {}
-        void Node::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {}
-        void Node::doDescendantBoundsDidChange(Node* node, const BBox3& oldBounds, const size_t depth) {}
+        void Node::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {}
+        void Node::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {}
+        void Node::doDescendantBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {}
 
         void Node::doChildWillChange(Node* node) {}
         void Node::doChildDidChange(Node* node) {}
