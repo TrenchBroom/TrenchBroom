@@ -31,6 +31,10 @@
 #include "Renderer/VertexArray.h"
 #include "View/TextureSelectedCommand.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+
 namespace TrenchBroom {
     namespace View {
         TextureCellData::TextureCellData(Assets::Texture* i_texture, const Renderer::FontDescriptor& i_fontDescriptor) :
@@ -137,11 +141,11 @@ namespace TrenchBroom {
         void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
             const float maxCellWidth = layout.maxCellWidth();
             const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
-            const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
+            const vm::vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
             
             const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
-            const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
-            const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
+            const size_t scaledTextureWidth = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->width())));
+            const size_t scaledTextureHeight = static_cast<size_t>(vm::round(scaleFactor * static_cast<float>(texture->height())));
             
             layout.addItem(TextureCellData(texture, actualFont),
                            scaledTextureWidth,
@@ -241,8 +245,8 @@ namespace TrenchBroom {
             const float viewRight     = static_cast<float>(GetClientRect().GetRight());
             const float viewBottom    = static_cast<float>(GetClientRect().GetTop());
             
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
-            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, 0.1f));
+            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom);
+            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y) * translationMatrix(vm::vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
             
             Renderer::ActivateVbo activate(vertexVbo());
@@ -274,10 +278,10 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cell.item().texture;
                                 const Color& color = textureColor(*texture);
-                                vertices.push_back(BoundsVertex(Vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(Vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(Vec2f(bounds.right() + 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
-                                vertices.push_back(BoundsVertex(Vec2f(bounds.right() + 2.0f, height - (bounds.top() - 2.0f - y)), color));
+                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)), color));
+                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.left() - 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
+                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.right() + 2.0f, height - (bounds.bottom() + 2.0f - y)), color));
+                                vertices.push_back(BoundsVertex(vm::vec2f(bounds.right() + 2.0f, height - (bounds.top() - 2.0f - y)), color));
                             }
                         }
                     }
@@ -324,10 +328,10 @@ namespace TrenchBroom {
                                 const LayoutBounds& bounds = cell.itemBounds();
                                 const Assets::Texture* texture = cell.item().texture;
                                 
-                                vertices[0] = TextureVertex(Vec2f(bounds.left(),  height - (bounds.top() - y)),    Vec2f(0.0f, 0.0f));
-                                vertices[1] = TextureVertex(Vec2f(bounds.left(),  height - (bounds.bottom() - y)), Vec2f(0.0f, 1.0f));
-                                vertices[2] = TextureVertex(Vec2f(bounds.right(), height - (bounds.bottom() - y)), Vec2f(1.0f, 1.0f));
-                                vertices[3] = TextureVertex(Vec2f(bounds.right(), height - (bounds.top() - y)),    Vec2f(1.0f, 0.0f));
+                                vertices[0] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f));
+                                vertices[1] = TextureVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f));
+                                vertices[2] = TextureVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f));
+                                vertices[3] = TextureVertex(vm::vec2f(bounds.right(), height - (bounds.top() - y)),    vm::vec2f(1.0f, 0.0f));
 
                                 Renderer::VertexArray vertexArray = Renderer::VertexArray::copy(vertices);
 
@@ -358,10 +362,10 @@ namespace TrenchBroom {
                 const Layout::Group& group = layout[i];
                 if (group.intersectsY(y, height)) {
                     const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                    vertices.push_back(Vertex(Vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.left(), height - (titleBounds.bottom() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.right(), height - (titleBounds.bottom() - y))));
-                    vertices.push_back(Vertex(Vec2f(titleBounds.right(), height - (titleBounds.top() - y))));
+                    vertices.push_back(Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
+                    vertices.push_back(Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.bottom() - y))));
+                    vertices.push_back(Vertex(vm::vec2f(titleBounds.right(), height - (titleBounds.bottom() - y))));
+                    vertices.push_back(Vertex(vm::vec2f(titleBounds.right(), height - (titleBounds.top() - y))));
                 }
             }
             
@@ -376,14 +380,14 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserView::renderStrings(Layout& layout, const float y, const float height) {
-            typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
+            using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
             StringRendererMap stringRenderers;
             
             Renderer::ActivateVbo activate(vertexVbo());
 
             for (const auto& entry : collectStringVertices(layout, y, height)) {
-                const Renderer::FontDescriptor& descriptor = entry.first;
-                const TextVertex::List& vertices = entry.second;
+                const auto& descriptor = entry.first;
+                const auto& vertices = entry.second;
                 stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
                 stringRenderers[descriptor].prepare(vertexVbo());
             }
@@ -392,10 +396,10 @@ namespace TrenchBroom {
             shader.set("Texture", 0);
 
             for (auto& entry : stringRenderers) {
-                const Renderer::FontDescriptor& descriptor = entry.first;
-                Renderer::VertexArray& vertexArray = entry.second;
+                const auto& descriptor = entry.first;
+                auto& vertexArray = entry.second;
                 
-                Renderer::TextureFont& font = fontManager().font(descriptor);
+                auto& font = fontManager().font(descriptor);
                 font.activate();
                 vertexArray.render(GL_QUADS);
                 font.deactivate();
@@ -406,36 +410,36 @@ namespace TrenchBroom {
             Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
-            const Color::List textColor(1, pref(Preferences::BrowserTextColor));
+            const std::vector<Color> textColor{ pref(Preferences::BrowserTextColor) };
 
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
-                const Layout::Group& group = layout[i];
+                const auto& group = layout[i];
                 if (group.intersectsY(y, height)) {
-                    const String& title = group.item();
+                    const auto& title = group.item();
                     if (!title.empty()) {
-                        const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-                        const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
+                        const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
+                        const auto offset = vm::vec2f(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
-                        Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
-                        const Vec2f::List quads = font.quads(title, false, offset);
-                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                        TextVertex::List& vertices = stringVertices[defaultDescriptor];
+                        auto& font = fontManager().font(defaultDescriptor);
+                        const auto quads = font.quads(title, false, offset);
+                        const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        auto& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                     }
                     
                     for (size_t j = 0; j < group.size(); ++j) {
-                        const Layout::Group::Row& row = group[j];
+                        const auto& row = group[j];
                         if (row.intersectsY(y, height)) {
                             for (unsigned int k = 0; k < row.size(); k++) {
-                                const Layout::Group::Row::Cell& cell = row[k];
-                                const LayoutBounds titleBounds = cell.titleBounds();
-                                const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
+                                const auto& cell = row[k];
+                                const auto titleBounds = cell.titleBounds();
+                                const auto offset = vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
-                                const Vec2f::List quads = font.quads(cell.item().texture->name(), false, offset);
-                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
-                                TextVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
+                                auto& font = fontManager().font(cell.item().fontDescriptor);
+                                const auto quads = font.quads(cell.item().texture->name(), false, offset);
+                                const auto titleVertices = TextVertex::toList(std::begin(quads), std::begin(quads), std::begin(textColor), quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                auto& vertices = stringVertices[cell.item().fontDescriptor];
                                 vertices.insert(std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
                             }
                         }
@@ -450,7 +454,7 @@ namespace TrenchBroom {
             const Layout::Group::Row::Cell* result = nullptr;
             if (layout.cellAt(x, y, &result)) {
                 if (!result->item().texture->overridden()) {
-                    Assets::Texture* texture = result->item().texture;
+                    auto* texture = result->item().texture;
                     
                     TextureSelectedCommand command;
                     command.SetEventObject(this);

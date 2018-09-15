@@ -21,7 +21,6 @@
 #define TrenchBroom_DefParser
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
@@ -30,6 +29,9 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -88,8 +90,8 @@ namespace TrenchBroom {
             
             String parseDescription();
 
-            Vec3 parseVector(ParserStatus& status);
-            BBox3 parseBounds(ParserStatus& status);
+            vm::vec3 parseVector(ParserStatus& status);
+            vm::bbox3 parseBounds(ParserStatus& status);
             Color parseColor(ParserStatus& status);
             
             Token nextTokenIgnoringNewlines();

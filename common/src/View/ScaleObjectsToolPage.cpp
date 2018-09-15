@@ -19,12 +19,15 @@
 
 #include "ScaleObjectsToolPage.h"
 
+#include "TrenchBroom.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
+
+#include <vecmath/vec.h>
 
 #include <wx/button.h>
 #include <wx/choice.h>
@@ -68,9 +71,9 @@ namespace TrenchBroom {
         void ScaleObjectsToolPage::OnApply(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
             
-            const Vec3 scaleFactors = Vec3::parse(m_scaleFactors->GetValue().ToStdString());
-            
-            MapDocumentSPtr document = lock(m_document);
+            const auto scaleFactors = vm::vec3::parse(m_scaleFactors->GetValue().ToStdString());
+
+            auto document = lock(m_document);
             const auto box = document->selectionBounds();
 
             document->scaleObjects(box.center(), scaleFactors);

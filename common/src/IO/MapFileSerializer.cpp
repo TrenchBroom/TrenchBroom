@@ -170,8 +170,8 @@ namespace TrenchBroom {
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) override {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
-                const Vec3 xAxis = face->textureXAxis();
-                const Vec3 yAxis = face->textureYAxis();
+                const vm::vec3 xAxis = face->textureXAxis();
+                const vm::vec3 yAxis = face->textureYAxis();
                 const Model::BrushFace::Points& points = face->points();
                 
                 std::fprintf(stream, FaceFormat.c_str(),

@@ -21,11 +21,14 @@
 
 #include "Renderer/Camera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
         
-        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, const wxLongLong duration) :
+        CameraAnimation::CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, const wxLongLong duration) :
         Animation(AnimationType, Curve_EaseInEaseOut, duration),
         m_camera(camera),
         m_startPosition(m_camera.position()),
@@ -36,10 +39,10 @@ namespace TrenchBroom {
         m_targetUp(targetUp) {}
 
         void CameraAnimation::doUpdate(const double progress) {
-            const float fltProgress = static_cast<float>(progress);
-            const Vec3f position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
-            const Vec3f direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
-            const Vec3f up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
+            const auto fltProgress = float(progress);
+            const auto position = m_startPosition + (m_targetPosition - m_startPosition) * fltProgress;
+            const auto direction = m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
+            const auto up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
 
             m_camera.moveTo(position);
             m_camera.setDirection(direction, up);

@@ -22,15 +22,17 @@
 #include "Model/BrushFace.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <vecmath/vec.h>
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
 
-        MoveTexturesCommand::Ptr MoveTexturesCommand::move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
+        MoveTexturesCommand::Ptr MoveTexturesCommand::move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
             return Ptr(new MoveTexturesCommand(cameraUp, cameraRight, delta));
         }
 
-        MoveTexturesCommand::MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) :
+        MoveTexturesCommand::MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) :
         DocumentCommand(Type, "Move Textures"),
         m_cameraUp(cameraUp),
         m_cameraRight(cameraRight),
@@ -46,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveTexturesCommand::moveTextures(MapDocumentCommandFacade* document, const Vec2f& delta) const {
+        void MoveTexturesCommand::moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const {
             document->performMoveTextures(m_cameraUp, m_cameraRight, delta);
         }
 
@@ -65,7 +67,7 @@ namespace TrenchBroom {
                 other->m_cameraRight != m_cameraRight)
                 return false;
             
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
             return true;
         }
     }

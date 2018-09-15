@@ -42,19 +42,19 @@ namespace TrenchBroom {
         m_mode(Mode_Move),
         m_guideRenderer(document) {}
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const Vec3& handle) const {
+        Model::BrushSet VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
             return findIncidentBrushes(m_vertexHandles, handle);
         }
 
-        Model::BrushSet VertexTool::findIncidentBrushes(const Edge3& handle) const {
+        Model::BrushSet VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(m_edgeHandles, handle);
         }
         
-        Model::BrushSet VertexTool::findIncidentBrushes(const Polygon3& handle) const {
+        Model::BrushSet VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
 
-        void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void VertexTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             }
         }
         
-        VertexTool::MoveResult VertexTool::move(const Vec3& delta) {
+        VertexTool::MoveResult VertexTool::move(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             
             if (m_mode == Mode_Move) {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 					if (!result.hasRemainingVertices) {
 						return MR_Cancel;
 					} else {
-						m_dragHandlePosition += delta;
+						m_dragHandlePosition = m_dragHandlePosition + delta;
 						return MR_Continue;
 					}
 				} else {
@@ -127,13 +127,13 @@ namespace TrenchBroom {
                 Model::BrushSet brushes;
                 if (m_mode == Mode_Split_Edge) {
                     if (m_edgeHandles.selectedHandleCount() == 1) {
-                        const Edge3 handle = m_edgeHandles.selectedHandles().front();
+                        const vm::segment3 handle = m_edgeHandles.selectedHandles().front();
                         brushes = findIncidentBrushes(handle);
                     }
                 } else {
                     assert(m_mode == Mode_Split_Face);
                     if (m_faceHandles.selectedHandleCount() == 1) {
-                        const Polygon3 handle = m_faceHandles.selectedHandles().front();
+                        const vm::polygon3 handle = m_faceHandles.selectedHandles().front();
                         brushes = findIncidentBrushes(handle);
                     }
                 }
@@ -144,7 +144,7 @@ namespace TrenchBroom {
                         m_mode = Mode_Move;
                         m_edgeHandles.deselectAll();
                         m_faceHandles.deselectAll();
-                        m_dragHandlePosition += delta;
+                        m_dragHandlePosition = m_dragHandlePosition + delta;
                         m_vertexHandles.select(m_dragHandlePosition);
                     }
                     return MR_Continue;
@@ -168,12 +168,12 @@ namespace TrenchBroom {
             m_mode = Mode_Move;
         }
 
-        const Vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
+        const vm::vec3& VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
             
             if (hit.hasType(VertexHandleManager::HandleHit)) {
-                return hit.target<Vec3>();
+                return hit.target<vm::vec3>();
             } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
                 return std::get<1>(hit.target<EdgeHandleManager::HitType>());
             } else {
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             lock(m_document)->removeVertices(brushMap);
         }
 
-        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {
+        void VertexTool::renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));
             renderBatch.add(&m_guideRenderer);
@@ -232,24 +232,24 @@ namespace TrenchBroom {
         }
 
         void VertexTool::addHandles(const Model::NodeList& nodes) {
-            AddHandles<Vec3> addVertexHandles(m_vertexHandles);
+            AddHandles<vm::vec3> addVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
 
-            AddHandles<Edge3> addEdgeHandles(m_edgeHandles);
+            AddHandles<vm::segment3> addEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
             
-            AddHandles<Polygon3> addFaceHandles(m_faceHandles);
+            AddHandles<vm::polygon3> addFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
         }
         
         void VertexTool::removeHandles(const Model::NodeList& nodes) {
-            RemoveHandles<Vec3> removeVertexHandles(m_vertexHandles);
+            RemoveHandles<vm::vec3> removeVertexHandles(m_vertexHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
             
-            RemoveHandles<Edge3> removeEdgeHandles(m_edgeHandles);
+            RemoveHandles<vm::segment3> removeEdgeHandles(m_edgeHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
             
-            RemoveHandles<Polygon3> removeFaceHandles(m_faceHandles);
+            RemoveHandles<vm::polygon3> removeFaceHandles(m_faceHandles);
             Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
         }
 

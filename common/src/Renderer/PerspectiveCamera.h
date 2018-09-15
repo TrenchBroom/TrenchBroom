@@ -21,8 +21,9 @@
 #define TrenchBroom_PerspectiveCamera
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Renderer/Camera.h"
+
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,24 +32,24 @@ namespace TrenchBroom {
             float m_fov;
         public:
             PerspectiveCamera();
-            PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
+            PerspectiveCamera(float fov, float nearPlane, float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up);
             
             float fov() const;
             void setFov(float fov);
         private:
             ProjectionType doGetProjectionType() const override;
 
-            void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const override;
-            Ray3f doGetPickRay(const Vec3f& point) const override;
-            void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const override;
+            void doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const override;
+            vm::ray3f doGetPickRay(const vm::vec3f& point) const override;
+            void doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const override;
             
             void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const override;
-            float doPickFrustum(float size, const Ray3f& ray) const override;
+            float doPickFrustum(float size, const vm::ray3f& ray) const override;
             
-            void getFrustumVertices(float size, Vec3f (&verts)[4]) const;
-            Vec2f getFrustum() const;
+            void getFrustumVertices(float size, vm::vec3f (&verts)[4]) const;
+            vm::vec2f getFrustum() const;
 
-            float doGetPerspectiveScalingFactor(const Vec3f& position) const override;
+            float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
             float viewportFrustumDistance() const;
         };
     }

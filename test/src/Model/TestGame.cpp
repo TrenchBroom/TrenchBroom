@@ -55,24 +55,24 @@ namespace TrenchBroom {
             return 1024;
         }
         
-        World* TestGame::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
+        World* TestGame::doNewMap(const MapFormat::Type format, const vm::bbox3& worldBounds) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
-        World* TestGame::doLoadMap(const MapFormat::Type format, const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+        World* TestGame::doLoadMap(const MapFormat::Type format, const vm::bbox3& worldBounds, const IO::Path& path, Logger* logger) const {
             return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
         void TestGame::doWriteMap(World* world, const IO::Path& path) const {}
         void TestGame::doExportMap(World* world, Model::ExportFormat format, const IO::Path& path) const {}
         
-        NodeList TestGame::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        NodeList TestGame::doParseNodes(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
         
-        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+        BrushFaceList TestGame::doParseBrushFaces(const String& str, World* world, const vm::bbox3& worldBounds, Logger* logger) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);

@@ -19,6 +19,7 @@
 
 #include "MoveObjectsTool.h"
 
+#include "TrenchBroom.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Entity.h"
@@ -31,6 +32,8 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MoveObjectsToolPage.h"
+
+#include <vecmath/bbox.h>
 
 #include <cassert>
 
@@ -46,37 +49,41 @@ namespace TrenchBroom {
         }
 
         bool MoveObjectsTool::startMove(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }
         
-        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const Vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
-            const BBox3 bounds = document->selectionBounds();
-            if (!worldBounds.contains(bounds.translated(delta)))
+        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const vm::vec3& delta) {
+            auto document = lock(m_document);
+            const auto& worldBounds = document->worldBounds();
+            const auto bounds = document->selectionBounds();
+            if (!worldBounds.contains(bounds.translate(delta))) {
                 return MR_Deny;
-            
+            }
+
             if (m_duplicateObjects) {
                 m_duplicateObjects = false;
-                if (!document->duplicateObjects())
+                if (!document->duplicateObjects()) {
                     return MR_Cancel;
+                }
             }
             
-            if (!document->translateObjects(delta))
+            if (!document->translateObjects(delta)) {
                 return MR_Deny;
-            return MR_Continue;
+            } else {
+                return MR_Continue;
+            }
         }
         
         void MoveObjectsTool::endMove(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
         }
         
         void MoveObjectsTool::cancelMove() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
 

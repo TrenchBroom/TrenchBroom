@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_IOUtils_h
 #define TrenchBroom_IOUtils_h
 
-#include "VecMath.h"
 #include "Exceptions.h"
 #include "ByteBuffer.h"
 #include "Macros.h"
 #include "StringUtils.h"
+
+#include <vecmath/forward.h>
 
 #include <cassert>
 #include <cstdio>
@@ -140,8 +141,8 @@ namespace TrenchBroom {
             return static_cast<float>(read<T>(cursor));
         }
         
-        Vec3f readVec3f(const char*& cursor);
-        Vec3f readVec3f(const char* const& cursor);
+        vm::vec3f readVec3f(const char*& cursor);
+        vm::vec3f readVec3f(const char* const& cursor);
         void readBytes(const char*& cursor, char* buffer, size_t n);
         void readBytes(const char* const& cursor, char* buffer, size_t n);
         void readBytes(const char*& cursor, unsigned char* buffer, size_t n);

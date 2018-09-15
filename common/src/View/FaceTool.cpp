@@ -19,16 +19,18 @@
 
 #include "FaceTool.h"
 
+#include "TrenchBroom.h"
+
 namespace TrenchBroom {
     namespace View {
         FaceTool::FaceTool(MapDocumentWPtr document) :
         VertexToolBase(document) {}
         
-        Model::BrushSet FaceTool::findIncidentBrushes(const Polygon3& handle) const {
+        Model::BrushSet FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(m_faceHandles, handle);
         }
         
-        void FaceTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+        void FaceTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
             m_faceHandles.pickCenterHandle(pickRay, camera, pickResult);
         }
         
@@ -40,13 +42,13 @@ namespace TrenchBroom {
             return m_faceHandles;
         }
         
-        FaceTool::MoveResult FaceTool::move(const Vec3& delta) {
+        FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
             MapDocumentSPtr document = lock(m_document);
             
             const auto handles = m_faceHandles.selectedHandles();
             const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
             if (document->moveFaces(brushMap, delta)) {
-                m_dragHandlePosition = translate(m_dragHandlePosition, delta);
+                m_dragHandlePosition = m_dragHandlePosition.translate(delta);
                 return MR_Continue;
             }
             return MR_Deny;

@@ -20,6 +20,12 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
+#include <vecmath/segment.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
+#include <vecmath/constants.h>
+#include <vecmath/util.h>
+
 #include <list>
 
 template <typename T, typename FP, typename VP>
@@ -114,8 +120,9 @@ public:
     }
     
     void print() const {
-        for (const Edge* edge : m_edges)
-            std::cout << edge->secondVertex()->position().asString(3) << " -> " << edge->firstVertex()->position().asString(3) << std::endl;
+        for (const Edge* edge : m_edges) {
+            std::cout << "(" << edge->secondVertex()->position() << ") -> (" << edge->firstVertex()->position() << ")" << std::endl;
+        }
     }
     
     bool hasMultipleLoops() const {
@@ -156,12 +163,12 @@ private:
 };
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points) {
+void Polyhedron<T,FP,VP>::addPoints(const std::vector<V>& points) {
     addPoints(std::begin(points), std::end(points));
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::addPoints(const typename V::List& points, Callback& callback) {
+void Polyhedron<T,FP,VP>::addPoints(const std::vector<V>& points, Callback& callback) {
     addPoints(std::begin(points), std::end(points), callback);
 }
 
@@ -195,21 +202,23 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const V& pos
             break;
         case 1:
             result = addSecondPoint(position, callback);
-            m_bounds.mergeWith(position);
+            m_bounds = vm::merge(m_bounds, position);
             break;
         case 2:
             result = addThirdPoint(position, callback);
-            m_bounds.mergeWith(position);
+            m_bounds = vm::merge(m_bounds, position);
             break;
         default:
             result = addFurtherPoint(position, callback);
-            if (result != nullptr)
-                m_bounds.mergeWith(position);
+            if (result != nullptr) {
+                m_bounds = vm::merge(m_bounds, position);
+            }
             break;
     }
     assert(checkInvariant());
-    if (result != nullptr)
+    if (result != nullptr) {
         callback.vertexWasAdded(result);
+    }
     return result;
 }
 
@@ -304,40 +313,42 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const V
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
     
-    if (linearlyDependent(v1->position(), v2->position(), position))
-        return addLinearlyDependentThirdPoint(position, callback);
-    else
-        return addLinearlyIndependentThirdPoint(position, callback);
+    if (colinear(v1->position(), v2->position(), position)) {
+        return addColinearThirdPoint(position, callback);
+    } else {
+        return addNonColinearThirdPoint(position, callback);
+    }
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyDependentThirdPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint(const V& position, Callback& callback) {
     assert(edge());
     
-    Vertex* v1 = m_vertices.front();
-    Vertex* v2 = v1->next();
-    assert(linearlyDependent(v1->position(), v2->position(), position));
-    
-    if (position.containedWithinSegment(v1->position(), v2->position()))
+    auto* v1 = m_vertices.front();
+    auto* v2 = v1->next();
+    assert(colinear(v1->position(), v2->position(), position));
+
+    if (vm::segment<T,3>(v1->position(), v2->position()).contains(position, vm::constants<T>::almostZero())) {
         return nullptr;
-    
-    if (v1->position().containedWithinSegment(position, v2->position())) {
+    }
+
+    if (vm::segment<T,3>(position, v2->position()).contains(v1->position(), vm::constants<T>::almostZero())) {
         v1->setPosition(position);
         return v1;
     }
 
-    assert(v2->position().containedWithinSegment(position, v1->position()));
+    assert((vm::segment<T,3>(position, v1->position()).contains(v2->position(), vm::constants<T>::almostZero())));
     v2->setPosition(position);
     return v2;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addLinearlyIndependentThirdPoint(const V& position, Callback& callback) {
+typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPoint(const V& position, Callback& callback) {
     assert(edge());
 
     Vertex* v1 = m_vertices.front();
     Vertex* v2 = v1->next();
-    assert(!linearlyDependent(v1->position(), v2->position(), position));
+    assert(!colinear(v1->position(), v2->position(), position));
     
     HalfEdge* h1 = v1->leaving();
     HalfEdge* h2 = v2->leaving();
@@ -390,15 +401,15 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const V& position, Callback& callback) {
     Face* face = m_faces.front();
-    const Math::PointStatus::Type status = face->pointStatus(position);
+    const vm::point_status status = face->pointStatus(position);
     switch (status) {
-        case Math::PointStatus::PSInside:
+        case vm::point_status::inside:
             return addPointToPolygon(position, callback);
-        case Math::PointStatus::PSAbove:
+        case vm::point_status::above:
             face->flip();
             callback.faceWasFlipped(face);
             switchFallthrough();
-        case Math::PointStatus::PSBelow:
+        case vm::point_status::below:
             return makePolyhedron(position, callback);
     }
     // will never be reached
@@ -411,7 +422,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     assert(polygon());
     
     Face* face = m_faces.front();
-    Plane<T,3> facePlane = callback.plane(face);
+    vm::plane<T,3> facePlane = callback.getPlane(face);
     
     HalfEdge* firstVisibleEdge = nullptr;
     HalfEdge* lastVisibleEdge = nullptr;
@@ -421,27 +432,32 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
     do {
         HalfEdge* prevEdge = curEdge->previous();
         HalfEdge* nextEdge = curEdge->next();
-        const Math::PointStatus::Type prevStatus = prevEdge->pointStatus(facePlane.normal, position);
-        const Math::PointStatus::Type  curStatus =  curEdge->pointStatus(facePlane.normal, position);
-        const Math::PointStatus::Type nextStatus = nextEdge->pointStatus(facePlane.normal, position);
+        const vm::point_status prevStatus = prevEdge->pointStatus(facePlane.normal, position);
+        const vm::point_status  curStatus =  curEdge->pointStatus(facePlane.normal, position);
+        const vm::point_status nextStatus = nextEdge->pointStatus(facePlane.normal, position);
         
         // If the current edge contains the point, it will not be added anyway.
-        if (curStatus == Math::PointStatus::PSInside && position.containedWithinSegment(curEdge->origin()->position(), curEdge->destination()->position()))
+        if (curStatus == vm::point_status::inside &&
+            vm::segment<T,3>(curEdge->origin()->position(), curEdge->destination()->position()).contains(position, vm::constants<T>::almostZero())) {
             return nullptr;
-        
-        if (prevStatus == Math::PointStatus::PSBelow &&  curStatus != Math::PointStatus::PSBelow)
+        }
+
+        if (prevStatus == vm::point_status::below &&  curStatus != vm::point_status::below) {
             firstVisibleEdge = curEdge;
-        
-        if ( curStatus != Math::PointStatus::PSBelow && nextStatus == Math::PointStatus::PSBelow)
+        }
+
+        if ( curStatus != vm::point_status::below && nextStatus == vm::point_status::below) {
             lastVisibleEdge = curEdge;
-        
+        }
+
         curEdge = curEdge->next();
     } while (curEdge != firstEdge && (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr));
     
     // Is the point contained in the polygon?
-    if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr)
+    if (firstVisibleEdge == nullptr || lastVisibleEdge == nullptr) {
         return nullptr;
-    
+    }
+
     // Now we know which edges are visible from the point. These will have to be replaced with two new edges.
     Vertex* newVertex = new Vertex(position);
     HalfEdge* h1 = new HalfEdge(firstVisibleEdge->origin());
@@ -488,7 +504,7 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(con
 // this polyhedron is empty and that the given point list contains at least three
 // non-colinear points.
 template <typename T, typename FP, typename VP>
-void Polyhedron<T,FP,VP>::makePolygon(const typename V::List& positions, Callback& callback) {
+void Polyhedron<T,FP,VP>::makePolygon(const std::vector<V>& positions, Callback& callback) {
     assert(empty());
     assert(positions.size() > 2);
     
@@ -793,29 +809,32 @@ template <typename T, typename FP, typename VP>
 class Polyhedron<T,FP,VP>::ShiftSeamForSealing {
 public:
     bool operator()(const Seam& seam) const {
-        const Edge* first = seam.first();
-        const Edge* second = seam.second();
+        const auto* first = seam.first();
+        const auto* second = seam.second();
         
-        if (first->firstFace() == second->firstFace())
+        if (first->firstFace() == second->firstFace()) {
             return false;
-        
-        const Vertex* v1 = first->firstVertex();
-        const Vertex* v2 = first->secondVertex();
-        const Vertex* v3 = second->firstVertex();
-        
-        Plane<T,3> plane;
-        if (!setPlanePoints(plane, v1->position(), v2->position(), v3->position()))
+        }
+
+        const auto* v1 = first->firstVertex();
+        const auto* v2 = first->secondVertex();
+        const auto* v3 = second->firstVertex();
+
+        const auto [valid, plane] = fromPoints(v1->position(), v2->position(), v3->position());
+        if (!valid) {
             return false;
-        
-        const Edge* last = seam.last();
-        const Vertex* v4 = last->secondVertex();
-        if (plane.pointStatus(v4->position()) != Math::PointStatus::PSBelow)
+        }
+
+        const auto* last = seam.last();
+        const auto* v4 = last->secondVertex();
+        if (plane.pointStatus(v4->position()) != vm::point_status::below) {
             return false;
-        
+        }
+
         return checkRemainingPoints(plane, seam);
     }
 private:
-    bool checkRemainingPoints(const Plane<T,3>& plane, const Seam& seam) const {
+    bool checkRemainingPoints(const vm::plane<T,3>& plane, const Seam& seam) const {
         if (seam.size() < 5)
             return true;
         
@@ -828,7 +847,7 @@ private:
         while (it != end) {
             const Edge* edge = *it;
             const Vertex* vertex = edge->firstVertex();
-            if (plane.pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
+            if (plane.pointStatus(vertex->position()) == vm::point_status::above)
                 return false;
             ++it;
         }
@@ -873,21 +892,22 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
     while (!seam.empty()) {
         assert(seam.size() >= 3);
         
-        if (seam.size() > 3)
+        if (seam.size() > 3) {
             seam.shift(ShiftSeamForSealing());
+        }
 
         HalfEdgeList boundary;
 
-        typename Seam::List::iterator firstIt = std::begin(seam);
-        typename Seam::List::iterator endIt = firstIt;
-        Edge* firstEdge = *endIt;
+        auto firstIt = std::begin(seam);
+        auto endIt = firstIt;
+        auto* firstEdge = *endIt;
         ++endIt;
         
-        Edge* secondEdge = *endIt;
+        auto* secondEdge = *endIt;
         ++endIt;
         
-        HalfEdge* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
-        HalfEdge* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
+        auto* firstBoundaryEdge = new HalfEdge(firstEdge->secondVertex());
+        auto* secondBoundaryEdge = new HalfEdge(secondEdge->secondVertex());
         
         boundary.append(firstBoundaryEdge, 1);
         boundary.append(secondBoundaryEdge, 1);
@@ -898,19 +918,19 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         // try to add more points as long as they all lie on the same plane
         // as the first three points
         
-        Vertex* v1 = firstEdge->firstVertex();
-        Vertex* v2 = firstEdge->secondVertex();
-        Vertex* v3 = secondEdge->firstVertex();
-        
-        Plane<T,3> plane;
-        assertResult(setPlanePoints(plane, v1->position(), v2->position(), v3->position()));
+        auto* v1 = firstEdge->firstVertex();
+        auto* v2 = firstEdge->secondVertex();
+        auto* v3 = secondEdge->firstVertex();
 
-        Vertex* lastVertex = v3;
-        while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == Math::PointStatus::PSInside) {
-            Edge* curEdge = *endIt;
+        const auto [valid, plane] = fromPoints(v1->position(), v2->position(), v3->position());
+        assert(valid); unused(valid);
+
+        auto* lastVertex = v3;
+        while (endIt != std::end(seam) && plane.pointStatus((*endIt)->firstVertex()->position()) == vm::point_status::inside) {
+            auto* curEdge = *endIt;
             ++endIt;
             
-            HalfEdge* curBoundaryEdge = new HalfEdge(curEdge->secondVertex());
+            auto* curBoundaryEdge = new HalfEdge(curEdge->secondVertex());
             boundary.append(curBoundaryEdge, 1);
             curEdge->setSecondEdge(curBoundaryEdge);
             
@@ -918,17 +938,17 @@ void Polyhedron<T,FP,VP>::sealWithMultiplePolygons(Seam seam, Callback& callback
         }
         
         if (endIt != std::end(seam)) {
-            HalfEdge* lastBoundaryEdge = new HalfEdge(lastVertex);
+            auto* lastBoundaryEdge = new HalfEdge(lastVertex);
             boundary.append(lastBoundaryEdge, 1);
 
-            Edge* newEdge = new Edge(lastBoundaryEdge);
+            auto* newEdge = new Edge(lastBoundaryEdge);
             m_edges.append(newEdge, 1);
             seam.replace(firstIt, endIt, newEdge);
         } else {
             seam.clear();
         }
         
-        Face* newFace = new Face(boundary);
+        auto* newFace = new Face(boundary);
         callback.faceWasCreated(newFace);
         m_faces.append(newFace, 1);
     }
@@ -944,20 +964,20 @@ public:
     ShiftSeamForWeaving(const V& position) : m_position(position) {}
 public:
     bool operator()(const Seam& seam) const {
-        const Edge* last = seam.last();
-        const Edge* first = seam.first();
+        const auto* last = seam.last();
+        const auto* first = seam.first();
         
-        const Vertex* v1 = last->firstVertex();
-        const Vertex* v2 = last->secondVertex();
-        const Vertex* v3 = first->firstVertex();
+        const auto* v1 = last->firstVertex();
+        const auto* v2 = last->secondVertex();
+        const auto* v3 = first->firstVertex();
         assert(v3 != v1);
         assert(v3 != v2);
-        
-        Plane<T,3> lastPlane;
-        assertResult(setPlanePoints(lastPlane, m_position, v1->position(), v2->position()));
-        
-        const Math::PointStatus::Type status = lastPlane.pointStatus(v3->position());
-        return status == Math::PointStatus::PSBelow;
+
+        const auto [valid, lastPlane] = fromPoints(m_position, v1->position(), v2->position());
+        assert(valid); unused(valid);
+
+        const auto status = lastPlane.pointStatus(v3->position());
+        return status == vm::point_status::below;
     }
 };
 
@@ -971,24 +991,23 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
     assert(!seam.hasMultipleLoops());
     assertResult(seam.shift(ShiftSeamForWeaving(position)));
     
-    Plane<T,3> plane;
-    Vertex* top = new Vertex(position);
+    auto* top = new Vertex(position);
     
     HalfEdge* first = nullptr;
     HalfEdge* last = nullptr;
     
     typename Seam::const_iterator it = std::begin(seam);
     while (it != std::end(seam)) {
-        Edge* edge = *it++;
+        auto* edge = *it++;
         
         assert(!edge->fullySpecified());
-        Vertex* v1 = edge->secondVertex();
-        Vertex* v2 = edge->firstVertex();
+        auto* v1 = edge->secondVertex();
+        auto* v2 = edge->firstVertex();
 
-        HalfEdge* h1 = new HalfEdge(top);
-        HalfEdge* h2 = new HalfEdge(v1);
-        HalfEdge* h3 = new HalfEdge(v2);
-        HalfEdge* h = h3;
+        auto* h1 = new HalfEdge(top);
+        auto* h2 = new HalfEdge(v1);
+        auto* h3 = new HalfEdge(v2);
+        auto* h = h3;
         
         HalfEdgeList boundary;
         boundary.append(h1, 1);
@@ -997,19 +1016,22 @@ typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, cons
         edge->setSecondEdge(h2);
         
         if (it != std::end(seam)) {
-            assertResult(setPlanePoints(plane, top->position(), v2->position(), v1->position()));
-            Edge* next = *it;
+            const auto [valid, plane] = fromPoints(top->position(), v2->position(), v1->position());
+            assert(valid); unused(valid);
+
+            auto* next = *it;
             
             // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-            while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == Math::PointStatus::PSInside) {
+            while (it != std::end(seam) && plane.pointStatus(next->firstVertex()->position()) == vm::point_status::inside) {
                 next->setSecondEdge(h);
 
-                Vertex* v = next->firstVertex();
+                auto* v = next->firstVertex();
                 h = new HalfEdge(v);
                 boundary.append(h, 1);
                 
-				if (++it != std::end(seam))
-					next = *it;
+				if (++it != std::end(seam)) {
+                    next = *it;
+                }
             }
         }
         
@@ -1130,7 +1152,7 @@ public:
     m_point(point) {}
 private:
     bool doMatches(const Face* face) const override {
-        return face->pointStatus(m_point) == Math::PointStatus::PSBelow;
+        return face->pointStatus(m_point) == vm::point_status::below;
     }
 };
 

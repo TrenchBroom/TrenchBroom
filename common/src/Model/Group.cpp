@@ -19,6 +19,7 @@
 
 #include "Group.h"
 
+#include "TrenchBroom.h"
 #include "Hit.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
@@ -34,6 +35,9 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TransformObjectVisitor.h"
+
+#include <vecmath/ray.h>
+#include <vecmath/intersection.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -99,14 +103,14 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const BBox3& Group::doGetBounds() const {
+        const vm::bbox3& Group::doGetBounds() const {
             if (!m_boundsValid) {
                 validateBounds();
             }
             return m_bounds;
         }
         
-        Node* Group::doClone(const BBox3& worldBounds) const {
+        Node* Group::doClone(const vm::bbox3& worldBounds) const {
             Group* group = new Group(m_name);
             cloneAttributes(group);
             return group;
@@ -147,12 +151,12 @@ namespace TrenchBroom {
             nodeBoundsDidChange(bounds());
         }
 
-        void Group::doNodeBoundsDidChange(const BBox3& oldBounds) {
+        void Group::doNodeBoundsDidChange(const vm::bbox3& oldBounds) {
             invalidateBounds();
         }
 
-        void Group::doChildBoundsDidChange(Node* node, const BBox3& oldBounds) {
-            const BBox3 myOldBounds = bounds();
+        void Group::doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {
+            const vm::bbox3 myOldBounds = bounds();
             invalidateBounds();
             if (bounds() != myOldBounds) {
                 nodeBoundsDidChange(myOldBounds);
@@ -163,37 +167,42 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
+        void Group::doPick(const vm::ray3& ray, PickResult& pickResult) const {
             // A group can only be picked if and only if all of the following conditions are met
             // * it is closed or has no open descendant
             // * it is top level or has an open parent
             if ((!opened() && !hasOpenedDescendant()) && groupOpened()) {
-                const FloatType distance = intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                const auto distance = intersectWithRay(ray);
+                if (!vm::isNan(distance)) {
+                    const auto hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
             }
         }
         
-        void Group::doFindNodesContaining(const Vec3& point, NodeList& result) {
-            if (bounds().contains(point))
+        void Group::doFindNodesContaining(const vm::vec3& point, NodeList& result) {
+            if (bounds().contains(point)) {
                 result.push_back(this);
-            
-            for (Node* child : Node::children())
+            }
+
+            for (auto* child : Node::children()) {
                 child->findNodesContaining(point, result);
+            }
         }
 
-        FloatType Group::doIntersectWithRay(const Ray3& ray) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
-                return Math::nan<FloatType>();
-            
+        FloatType Group::doIntersectWithRay(const vm::ray3& ray) const {
+            const auto& myBounds = bounds();
+            if (!myBounds.contains(ray.origin) && vm::isNan(vm::intersect(ray, myBounds))) {
+                return vm::nan<FloatType>();
+            }
+
             IntersectNodeWithRayVisitor visitor(ray);
             iterate(visitor);
-            if (!visitor.hasResult())
-                return Math::nan<FloatType>();
-            return visitor.result();
+            if (!visitor.hasResult()) {
+                return vm::nan<FloatType>();
+            } else {
+                return visitor.result();
+            }
         }
         
         void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
@@ -226,7 +235,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        void Group::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
             TransformObjectVisitor visitor(transformation, lockTextures, worldBounds);
             iterate(visitor);
         }
@@ -250,7 +259,7 @@ namespace TrenchBroom {
         }
         
         void Group::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(BBox3(0.0));
+            ComputeNodeBoundsVisitor visitor(vm::bbox3(0.0));
             iterate(visitor);
             m_bounds = visitor.bounds();
             m_boundsValid = true;

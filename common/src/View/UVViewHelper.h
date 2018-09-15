@@ -21,8 +21,9 @@
 #define TrenchBroom_UVViewHelper
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/Hit.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -49,12 +50,12 @@ namespace TrenchBroom {
             
             Model::BrushFace* m_face;
 
-            Vec2i m_subDivisions;
+            vm::vec2i m_subDivisions;
             
             /**
              The position of the scaling origin / rotation center handle in world coords.
              */
-            Vec3 m_origin;
+            vm::vec3 m_origin;
         public:
             UVViewHelper(Renderer::OrthographicCamera& camera);
             
@@ -64,34 +65,34 @@ namespace TrenchBroom {
             void setFace(Model::BrushFace* face);
             void cameraViewportChanged();
 
-            const Vec2i& subDivisions() const;
-            Vec2 stripeSize() const;
-            void setSubDivisions(const Vec2i& subDivisions);
+            const vm::vec2i& subDivisions() const;
+            vm::vec2 stripeSize() const;
+            void setSubDivisions(const vm::vec2i& subDivisions);
             
-            const Vec3 origin() const;
-            const Vec2f originInFaceCoords() const;
-            const Vec2f originInTexCoords() const;
-            void setOriginInFaceCoords(const Vec2f& originInFaceCoords);
+            const vm::vec3 origin() const;
+            const vm::vec2f originInFaceCoords() const;
+            const vm::vec2f originInTexCoords() const;
+            void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
             const Renderer::Camera& camera() const;
             float cameraZoom() const;
 
-            void pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
+            void pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
-            Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
-            Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
+            vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
+            vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
 
-            void computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
-            void computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
-            void computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
+            void computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
+            void computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
+            void computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const;
         private:
             void resetOrigin();
             void resetCamera();
             void resetZoom();
             
-            BBox3 computeFaceBoundsInCameraCoords() const;
-            Vec3 transformToCamera(const Vec3& point) const;
-            Vec3 transformFromCamera(const Vec3& point) const;
+            vm::bbox3 computeFaceBoundsInCameraCoords() const;
+            vm::vec3 transformToCamera(const vm::vec3& point) const;
+            vm::vec3 transformFromCamera(const vm::vec3& point) const;
         };
     }
 }

@@ -19,10 +19,10 @@
 
 #include "ModelDefinition.h"
 
-#include <cassert>
-
-#include "MathUtils.h"
 #include "Model/EntityAttributesVariableStore.h"
+
+#include <cassert>
+#include <cmath>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -43,15 +43,15 @@ namespace TrenchBroom {
         bool ModelSpecification::operator>(const ModelSpecification& rhs) const {
             return compare(rhs) > 0;
         }
-        
+
         bool ModelSpecification::operator<=(const ModelSpecification& rhs) const {
             return compare(rhs) <= 0;
         }
-        
+
         bool ModelSpecification::operator>=(const ModelSpecification& rhs) const {
             return compare(rhs) >= 0;
         }
-        
+
         bool ModelSpecification::operator==(const ModelSpecification& rhs) const {
             return compare(rhs) == 0;
         }
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         bool ModelSpecification::operator!=(const ModelSpecification& rhs) const {
             return compare(rhs) != 0;
         }
-        
+
         int ModelSpecification::compare(const ModelSpecification& other) const {
             const int pathCmp = path.compare(other.path);
             if (pathCmp != 0)
@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
         ModelDefinition::ModelDefinition(const EL::Expression& expression) :
         m_expression(expression) {}
-        
+
         void ModelDefinition::append(const ModelDefinition& other) {
             EL::ExpressionBase::List cases;
             cases.push_back(m_expression.clone());
@@ -129,7 +129,7 @@ namespace TrenchBroom {
                 case EL::Type_Undefined:
                     break;
             }
-            
+
             return ModelSpecification();
         }
 
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             if (!value.convertibleTo(EL::Type_Number))
                 return 0;
             const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
-            return static_cast<size_t>(Math::max(0l, intValue));
+            return static_cast<size_t>(std::max(0l, intValue));
         }
     }
 }

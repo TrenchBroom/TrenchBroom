@@ -18,6 +18,8 @@
  */
 
 #include "UVView.h"
+
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
@@ -68,7 +70,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void UVView::setSubDivisions(const Vec2i& subDivisions) {
+        void UVView::setSubDivisions(const vm::vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
             Refresh();
         }
@@ -206,30 +208,30 @@ namespace TrenchBroom {
             }
         private:
             Vertex::List getVertices() {
-                const Model::BrushFace* face = m_helper.face();
-                const Vec3& normal = face->boundary().normal;
+                const auto* face = m_helper.face();
+                const auto normal = vm::vec3f(face->boundary().normal);
                 
                 Vertex::List vertices;
                 vertices.reserve(4);
                 
-                const Renderer::Camera& camera = m_helper.camera();
-                const Renderer::Camera::Viewport& v = camera.zoomedViewport();
-                const float w2 = static_cast<float>(v.width) / 2.0f;
-                const float h2 = static_cast<float>(v.height) / 2.0f;
+                const auto& camera = m_helper.camera();
+                const auto& v = camera.zoomedViewport();
+                const auto w2 = static_cast<float>(v.width) / 2.0f;
+                const auto h2 = static_cast<float>(v.height) / 2.0f;
                 
-                const Vec3f& p = camera.position();
-                const Vec3f& r = camera.right();
-                const Vec3f& u = camera.up();
+                const auto& p = camera.position();
+                const auto& r = camera.right();
+                const auto& u = camera.up();
                 
-                const Vec3f pos1 = -w2 * r +h2 * u + p;
-                const Vec3f pos2 = +w2 * r +h2 * u + p;
-                const Vec3f pos3 = +w2 * r -h2 * u + p;
-                const Vec3f pos4 = -w2 * r -h2 * u + p;
+                const auto pos1 = -w2 * r +h2 * u + p;
+                const auto pos2 = +w2 * r +h2 * u + p;
+                const auto pos3 = +w2 * r -h2 * u + p;
+                const auto pos4 = -w2 * r -h2 * u + p;
                 
-                vertices.push_back(Vertex(pos1, normal, face->textureCoords(pos1)));
-                vertices.push_back(Vertex(pos2, normal, face->textureCoords(pos2)));
-                vertices.push_back(Vertex(pos3, normal, face->textureCoords(pos3)));
-                vertices.push_back(Vertex(pos4, normal, face->textureCoords(pos4)));
+                vertices.push_back(Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))));
+                vertices.push_back(Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))));
+                vertices.push_back(Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))));
+                vertices.push_back(Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4))));
                 
                 return vertices;
             }
@@ -239,12 +241,12 @@ namespace TrenchBroom {
             }
             
             void doRender(Renderer::RenderContext& renderContext) override {
-                const Model::BrushFace* face = m_helper.face();
-                const Vec2f& offset = face->offset();
-                const Vec2f& scale = face->scale();
-                const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
+                const auto* face = m_helper.face();
+                const auto& offset = face->offset();
+                const auto& scale = face->scale();
+                const auto toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
-                const Assets::Texture* texture = face->texture();
+                const auto* texture = face->texture();
                 ensure(texture != nullptr, "texture is null");
 
                 texture->activate();
@@ -254,11 +256,11 @@ namespace TrenchBroom {
                 shader.set("Color", texture->averageColor());
                 shader.set("Brightness", pref(Preferences::Brightness));
                 shader.set("RenderGrid", true);
-                shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
+                shader.set("GridSizes", vm::vec2f(texture->width(), texture->height()));
                 shader.set("GridColor", Color(0.6f, 0.6f, 0.6f, 1.0f)); // TODO: make this a preference
                 shader.set("GridScales", scale);
-                shader.set("GridMatrix", toTex);
-                shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
+                shader.set("GridMatrix", vm::mat4x4f(toTex));
+                shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
@@ -280,15 +282,15 @@ namespace TrenchBroom {
         void UVView::renderFace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid()); 
             
-            const Model::BrushFace* face = m_helper.face();
-            const Model::BrushFace::VertexList faceVertices = face->vertices();
+            const auto* face = m_helper.face();
+            const auto faceVertices = face->vertices();
             
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3::Vertex;
             Vertex::List edgeVertices;
             edgeVertices.reserve(faceVertices.size());
             
             std::transform(std::begin(faceVertices), std::end(faceVertices), std::back_inserter(edgeVertices),
-                           [](const Model::BrushVertex* vertex) { return Vertex(vertex->position()); });
+                           [](const Model::BrushVertex* vertex) { return Vertex(vm::vec3f(vertex->position())); });
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 1.0f); // TODO: make this a preference
             
@@ -299,18 +301,18 @@ namespace TrenchBroom {
         void UVView::renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
             
-            const Model::BrushFace* face = m_helper.face();
-            const Vec3& normal = face->boundary().normal;
+            const auto* face = m_helper.face();
+            const auto& normal = face->boundary().normal;
             
-            const Vec3 xAxis = face->textureXAxis() - face->textureXAxis().dot(normal) * normal;
-            const Vec3 yAxis = face->textureYAxis() - face->textureYAxis().dot(normal) * normal;
-            const Vec3 center = face->boundsCenter();
+            const auto xAxis  = vm::vec3f(face->textureXAxis() - dot(face->textureXAxis(), normal) * normal);
+            const auto yAxis  = vm::vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
+            const auto center = vm::vec3f(face->boundsCenter());
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
             vertices.reserve(4);
             
-            const FloatType length = 32.0 / FloatType(m_helper.cameraZoom());
+            const auto length = 32.0f / m_helper.cameraZoom();
             
             vertices.push_back(Vertex(center, pref(Preferences::XAxisColor)));
             vertices.push_back(Vertex(center + length * xAxis, pref(Preferences::XAxisColor)));
@@ -326,18 +328,18 @@ namespace TrenchBroom {
         }
 
         PickRequest UVView::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
+            return PickRequest(vm::ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
-        Model::PickResult UVView::doPick(const Ray3& pickRay) const {
+        Model::PickResult UVView::doPick(const vm::ray3& pickRay) const {
             Model::PickResult pickResult = Model::PickResult::byDistance(lock(m_document)->editorContext());
             if (!m_helper.valid())
                 return pickResult;
             
             Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
-            if (!Math::isnan(distance)) {
-                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            if (!vm::isNan(distance)) {
+                const vm::vec3 hitPoint = pickRay.pointAtDistance(distance);
                 pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
             }
             return pickResult;

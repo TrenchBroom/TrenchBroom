@@ -21,12 +21,15 @@
 #define TrenchBroom_Entity
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -36,8 +39,8 @@ namespace TrenchBroom {
         public:
             static const Hit::HitType EntityHit;
         private:
-            static const BBox3 DefaultBounds;
-            mutable BBox3 m_bounds;
+            static const vm::bbox3 DefaultBounds;
+            mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
             Vec3 m_cachedOrigin;
             Mat4x4 m_cachedRotation;
@@ -51,19 +54,19 @@ namespace TrenchBroom {
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
 
-            const Vec3& origin() const;
-            const Mat4x4& rotation() const;
-            FloatType area(Math::Axis::Type axis) const;
+            const vm::vec3& origin() const;
+            const vm::mat4x4& rotation() const;
+            FloatType area(vm::axis::type axis) const;
         private:
             void cacheAttributes();
-            void setOrigin(const Vec3& origin);
-            void applyRotation(const Mat4x4& transformation);
+            void setOrigin(const vm::vec3& origin);
+            void applyRotation(const vm::mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
         private: // implement Node interface
-            const BBox3& doGetBounds() const override;
+            const vm::bbox3& doGetBounds() const override;
 
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const vm::bbox3& worldBounds) const override;
             NodeSnapshot* doTakeSnapshot() override;
             
             bool doCanAddChild(const Node* child) const override;
@@ -73,14 +76,14 @@ namespace TrenchBroom {
             void doChildWasAdded(Node* node) override;
             void doChildWasRemoved(Node* node) override;
 
-            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
-            void doChildBoundsDidChange(Node* node, const BBox3& oldBounds) override;
+            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
+            void doChildBoundsDidChange(Node* node, const vm::bbox3& oldBounds) override;
 
             bool doSelectable() const override;
             
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
-            FloatType doIntersectWithRay(const Ray3& ray) const override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
@@ -88,17 +91,17 @@ namespace TrenchBroom {
             
             NodeList nodesRequiredForViewSelection() override;
         private: // implement AttributableNode interface
-            void doAttributesDidChange(const BBox3& oldBounds) override;
+            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
             bool doIsAttributeNameMutable(const AttributeName& name) const override;
             bool doIsAttributeValueMutable(const AttributeName& name) const override;
-            Vec3 doGetLinkSourceAnchor() const override;
-            Vec3 doGetLinkTargetAnchor() const override;
+            vm::vec3 doGetLinkSourceAnchor() const override;
+            vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface
             Node* doGetContainer() const override;
             Layer* doGetLayer() const override;
             Group* doGetGroup() const override;
             
-            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) override;
+            void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

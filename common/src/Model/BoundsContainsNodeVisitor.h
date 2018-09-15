@@ -21,7 +21,6 @@
 #define TrenchBroom_BoundsContainsNodeVisitor
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
 
@@ -29,9 +28,9 @@ namespace TrenchBroom {
     namespace Model {
         class BoundsContainsNodeVisitor : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            const BBox3& m_bounds;
+            const vm::bbox3 m_bounds;
         public:
-            BoundsContainsNodeVisitor(const BBox3& bounds);
+            BoundsContainsNodeVisitor(const vm::bbox3& bounds);
         private:
             void doVisit(const World* world) override;
             void doVisit(const Layer* layer) override;

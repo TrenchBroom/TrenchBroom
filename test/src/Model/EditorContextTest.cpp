@@ -31,12 +31,12 @@ namespace TrenchBroom {
     namespace Model {
         class EditorContextTest : public ::testing::Test {
         protected:
-            BBox3d worldBounds;
+            vm::bbox3d worldBounds;
             World* world;
             EditorContext context;
 
             void SetUp() override {
-                worldBounds = BBox3d(8192.0);
+                worldBounds = vm::bbox3d(8192.0);
                 world = new World(MapFormat::Standard, nullptr, worldBounds);
             }
 

@@ -40,9 +40,9 @@ namespace TrenchBroom {
             MapView* currentMapView() const;
         private: // implement MapView interface
             bool doCanFlipObjects() const override;
-            void doFlipObjects(Math::Direction direction) override;
+            void doFlipObjects(vm::direction direction) override;
 
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
+            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
         private: // subclassing interface
             virtual bool doCanMaximizeCurrentView() const = 0;
             virtual bool doCurrentViewMaximized() const = 0;

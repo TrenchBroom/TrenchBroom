@@ -32,15 +32,15 @@ namespace TrenchBroom {
         private:
             CreateSimpleBrushTool* m_tool;
             MapDocumentWPtr m_document;
-            Vec3 m_initialPoint;
-            BBox3 m_bounds;
+            vm::vec3 m_initialPoint;
+            vm::bbox3 m_bounds;
         public:
             CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
         private:
             Tool* doGetTool() override;
             
             DragInfo doStartDrag(const InputState& inputState) override;
-            DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override;
+            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override;
             void doEndDrag(const InputState& inputState) override;
             void doCancelDrag() override;
 
@@ -49,8 +49,8 @@ namespace TrenchBroom {
             
             bool doCancel() override;
         private:
-            bool updateBounds(const InputState& inputState, const Vec3& currentPoint);
-            void snapBounds(const InputState& inputState, BBox3& bounds);
+            bool updateBounds(const InputState& inputState, const vm::vec3& currentPoint);
+            void snapBounds(const InputState& inputState, vm::bbox3& bounds);
         };
     }
 }

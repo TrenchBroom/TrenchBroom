@@ -21,10 +21,11 @@
 #define TrenchBroom_SwitchableMapViewContainer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/MapViewLayout.h"
 #include "View/MapView.h"
 #include "View/ViewTypes.h"
+
+#include <vecmath/scalar.h>
 
 #include <wx/panel.h>
 
@@ -129,10 +130,10 @@ namespace TrenchBroom {
             bool doCanSelectTall() override;
             void doSelectTall() override;
             bool doCanFlipObjects() const override;
-            void doFlipObjects(Math::Direction direction) override;
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const override;
+            void doFlipObjects(vm::direction direction) override;
+            vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
             void doFocusCameraOnSelection(bool animate) override;
-            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
+            void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
         private: // implement ViewEffectsService interface

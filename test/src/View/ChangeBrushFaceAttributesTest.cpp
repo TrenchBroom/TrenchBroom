@@ -43,8 +43,8 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             
             Model::BrushFace* face = brush->faces().front();
-            const Vec3 initialX = face->textureXAxis();
-            const Vec3 initialY = face->textureYAxis();
+            const vm::vec3 initialX = face->textureXAxis();
+            const vm::vec3 initialY = face->textureYAxis();
             
             document->select(face);
             

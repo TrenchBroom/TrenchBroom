@@ -49,7 +49,7 @@ namespace TrenchBroom {
             for (Model::BrushFace* face : brush->faces())
                 ASSERT_EQ(texture, face->texture());
             
-            document->translateObjects(Vec3(1, 1, 1));
+            document->translateObjects(vm::vec3(1, 1, 1));
             ASSERT_EQ(6u, texture->usageCount());
             
             document->undoLastCommand();

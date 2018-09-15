@@ -19,32 +19,34 @@
 
 #include "ImageUtils.h"
 
+#include <vecmath/vec.h>
+
 #include <FreeImage.h>
 
 namespace TrenchBroom {
     namespace Assets {
-        void resizeMips(TextureBuffer::List& buffers, const Vec2s& oldSize, const Vec2s& newSize) {
+        void resizeMips(TextureBuffer::List& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize) {
             if (oldSize == newSize)
                 return;
-            
+
             for (size_t i = 0; i < buffers.size(); ++i) {
-                const size_t div = 1 << i;
-                const int oldWidth = static_cast<int>(oldSize.x() / div);
-                const int oldHeight = static_cast<int>(oldSize.y() / div);
-                const int oldPitch = oldWidth * 3;
-                unsigned char* oldPtr = buffers[i].ptr();
+                const auto div = size_t(1) << i;
+                const auto oldWidth = static_cast<int>(oldSize.x() / div);
+                const auto oldHeight = static_cast<int>(oldSize.y() / div);
+                const auto oldPitch = oldWidth * 3;
+                auto* oldPtr = buffers[i].ptr();
                 
-                FIBITMAP* oldBitmap = FreeImage_ConvertFromRawBits(oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
+                auto* oldBitmap = FreeImage_ConvertFromRawBits(oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
                 ensure(oldBitmap != nullptr, "oldBitmap is null");
                 
-                const int newWidth = static_cast<int>(newSize.x() / div);
-                const int newHeight = static_cast<int>(newSize.y() / div);
-                const int newPitch = newWidth * 3;
-                FIBITMAP* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
+                const auto newWidth = static_cast<int>(newSize.x() / div);
+                const auto newHeight = static_cast<int>(newSize.y() / div);
+                const auto newPitch = newWidth * 3;
+                auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
                 ensure(newBitmap != nullptr, "newBitmap is null");
                 
                 buffers[i] = TextureBuffer(3 * newSize.x() * newSize.y());
-                unsigned char* newPtr = buffers[i].ptr();
+                auto* newPtr = buffers[i].ptr();
                 
                 FreeImage_ConvertToRawBits(newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
                 FreeImage_Unload(oldBitmap);

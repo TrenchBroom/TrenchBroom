@@ -20,7 +20,6 @@
 #include "EntityRenderer.h"
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "CollectionUtils.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
@@ -41,6 +40,11 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D {
@@ -50,8 +54,8 @@ namespace TrenchBroom {
             EntityClassnameAnchor(const Model::Entity* entity) :
             m_entity(entity) {}
         private:
-            Vec3f basePosition() const override {
-                Vec3f position = m_entity->bounds().center();
+            vm::vec3f basePosition() const override {
+                auto position = vm::vec3f(m_entity->bounds().center());
                 position[2] = float(m_entity->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -225,51 +229,56 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_showAngles)
+            if (!m_showAngles) {
                 return;
-            
-            static const float maxDistance2 = 500.0f * 500.0f;
-            const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
+            }
+
+            static const auto maxDistance2 = 500.0f * 500.0f;
+            const auto arrow = arrowHead(9.0f, 6.0f);
             
             RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjectsTransparent();
             renderService.setForegroundColor(m_angleColor);
             
-            Vec3f::List vertices(3);
-            for (const Model::Entity* entity : m_entities) {
-                if (!m_showHiddenEntities && !m_editorContext.visible(entity))
+            std::vector<vm::vec3f> vertices(3);
+            for (const auto* entity : m_entities) {
+                if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
                     continue;
-                
-                const Mat4x4f rotation(entity->rotation());
-                const Vec3f direction = rotation * Vec3f::PosX;
-                const Vec3f center(entity->bounds().center());
-                
-                const Vec3f toCam = renderContext.camera().position() - center;
-                if (toCam.squaredLength() > maxDistance2)
-                    continue;
+                }
 
-                Vec3f onPlane = toCam - toCam.dot(direction) * direction;
-                if (onPlane.null())
+                const auto rotation = vm::mat4x4f(entity->rotation());
+                const auto direction = rotation * vm::vec3f::pos_x;
+                const auto center = vm::vec3f(entity->bounds().center());
+                
+                const auto toCam = renderContext.camera().position() - center;
+                if (squaredLength(toCam) > maxDistance2) {
                     continue;
+                }
+
+                auto onPlane = toCam - dot(toCam, direction) * direction;
+                if (isZero(onPlane)) {
+                    continue;
+                }
+
+                onPlane = normalize(onPlane);
+
+                const auto rotZ = rotation * vm::vec3f::pos_z;
+                const auto angle = -measureAngle(rotZ, onPlane, direction);
+                const auto matrix = vm::translationMatrix(center) * vm::rotationMatrix(direction, angle) * rotation * vm::translationMatrix(16.0f * vm::vec3f::pos_x);
                 
-                onPlane.normalize();
-                
-                const Vec3f rotZ = rotation * Vec3f::PosZ;
-                const float angle = -angleBetween(rotZ, onPlane, direction);
-                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
-                
-                for (size_t i = 0; i < 3; ++i)
+                for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];
+                }
                 renderService.renderPolygonOutline(vertices);
             }
         }
 
-        Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
+        std::vector<vm::vec3f> EntityRenderer::arrowHead(const float length, const float width) const {
             // clockwise winding
-            Vec3f::List result(3);
-            result[0] = Vec3f(0.0f,    width / 2.0f, 0.0f);
-            result[1] = Vec3f(length,          0.0f, 0.0f);
-            result[2] = Vec3f(0.0f,   -width / 2.0f, 0.0f);
+            std::vector<vm::vec3f> result(3);
+            result[0] = vm::vec3f(0.0f,    width / 2.0f, 0.0f);
+            result[1] = vm::vec3f(length,          0.0f, 0.0f);
+            result[2] = vm::vec3f(0.0f,   -width / 2.0f, 0.0f);
             return result;
         }
 
@@ -281,11 +290,11 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2, const Vec3& v3, const Vec3& v4, const Vec3& n) {
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v1, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v2, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v3, n, color));
-                vertices.push_back(VertexSpecs::P3NC4::Vertex(v4, n, color));
+            void operator()(const vm::vec3& v1, const vm::vec3& v2, const vm::vec3& v3, const vm::vec3& v4, const vm::vec3& n) {
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v1), vm::vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v2), vm::vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v3), vm::vec3f(n), color));
+                vertices.push_back(VertexSpecs::P3NC4::Vertex(vm::vec3f(v4), vm::vec3f(n), color));
             }
         };
 
@@ -297,9 +306,9 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
             }
         };
         
@@ -309,9 +318,9 @@ namespace TrenchBroom {
             BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
-                vertices.push_back(VertexSpecs::P3::Vertex(v1));
-                vertices.push_back(VertexSpecs::P3::Vertex(v2));
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
             }
         };
         
@@ -337,11 +346,11 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
-                        eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+                        entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
 
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            eachBBoxFace(entity->bounds(), solidBoundsBuilder);
+                            entity->bounds().forEachFace(solidBoundsBuilder);
                         }
                     }
                 }
@@ -361,12 +370,12 @@ namespace TrenchBroom {
 
                         if (!entity->hasChildren() && !m_entityModelManager.hasModel(entity)) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            eachBBoxFace(entity->bounds(), solidBoundsBuilder);
+                            entity->bounds().forEachFace(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
-                            eachBBoxEdge(entity->bounds(), pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
+                            entity->bounds().forEachEdge(pointEntity ? pointEntityWireframeBoundsBuilder : brushEntityWireframeBoundsBuilder);
                         }
                     }
                 }
@@ -392,9 +401,11 @@ namespace TrenchBroom {
 
         const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition == nullptr)
+            if (definition == nullptr) {
                 return m_boundsColor;
-            return definition->color();
+            } else {
+                return definition->color();
+            }
         }
     }
 }

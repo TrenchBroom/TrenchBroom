@@ -21,7 +21,6 @@
 #define TrenchBroom_CyclingMapView
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
@@ -78,7 +77,7 @@ namespace TrenchBroom {
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
-            void doMoveCameraToPosition(const Vec3& position, bool animate) override;
+            void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCanMaximizeCurrentView() const override;
             bool doCurrentViewMaximized() const override;

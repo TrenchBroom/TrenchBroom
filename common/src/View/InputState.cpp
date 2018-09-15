@@ -19,8 +19,11 @@
 
 #include "InputState.h"
 
+#include "TrenchBroom.h"
 #include "Macros.h"
 #include "Renderer/Camera.h"
+
+#include <vecmath/vec.h>
 
 #include <wx/utils.h>
 
@@ -173,16 +176,16 @@ namespace TrenchBroom {
             m_anyToolDragging = anyToolDragging;
         }
 
-        const Ray3& InputState::pickRay() const {
+        const vm::ray3& InputState::pickRay() const {
             return m_pickRequest.pickRay();
         }
         
-        const Vec3 InputState::defaultPoint() const {
-            return camera().defaultPoint();
+        const vm::vec3 InputState::defaultPoint() const {
+            return vm::vec3(camera().defaultPoint());
         }
 
-        const Vec3 InputState::defaultPointUnderMouse() const {
-            return camera().defaultPoint(pickRay());
+        const vm::vec3 InputState::defaultPointUnderMouse() const {
+            return vm::vec3(camera().defaultPoint(pickRay()));
         }
 
         const Renderer::Camera& InputState::camera() const {

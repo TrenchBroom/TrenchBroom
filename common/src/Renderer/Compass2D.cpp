@@ -26,17 +26,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void Compass2D::doRenderCompass(RenderContext& renderContext, const Mat4x4f& transform) {
-            const Renderer::Camera& camera = renderContext.camera();
-            const Math::Axis::Type axis = camera.direction().firstComponent();
+        void Compass2D::doRenderCompass(RenderContext& renderContext, const vm::mat4x4f& transform) {
+            const auto& camera = renderContext.camera();
+            const auto axis = firstComponent(camera.direction());
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-            if (axis != Math::Axis::AZ)
-                renderSolidAxis(renderContext, transform,                        prefs.get(Preferences::ZAxisColor));
-            if (axis != Math::Axis::AX)
-                renderSolidAxis(renderContext, transform * Mat4x4f::Rot90YCCW,   prefs.get(Preferences::XAxisColor));
-            if (axis != Math::Axis::AY)
-                renderSolidAxis(renderContext, transform * Mat4x4f::Rot90XCW,    prefs.get(Preferences::YAxisColor));
+            auto& prefs = PreferenceManager::instance();
+            if (axis != vm::axis::z) {
+                renderSolidAxis(renderContext, transform,                               prefs.get(Preferences::ZAxisColor));
+            }
+            if (axis != vm::axis::x) {
+                renderSolidAxis(renderContext, transform * vm::mat4x4f::rot_90_y_ccw,   prefs.get(Preferences::XAxisColor));
+            }
+            if (axis != vm::axis::y) {
+                renderSolidAxis(renderContext, transform * vm::mat4x4f::rot_90_x_cw,    prefs.get(Preferences::YAxisColor));
+            }
         }
     }
 }

@@ -23,6 +23,8 @@
 #include "View/ActionContext.h"
 #include "View/CommandIds.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), View::MapViewLayout_1Pane);
@@ -37,13 +39,13 @@ namespace TrenchBroom {
         Preference<Color> PortalFileBorderColor(IO::Path("Renderer/Colors/Portal file border"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> PortalFileFillColor(IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
         
-        Preference<Color>& axisColor(Math::Axis::Type axis) {
+        Preference<Color>& axisColor(vm::axis::type axis) {
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::axis::x:
                     return Preferences::XAxisColor;
-                case Math::Axis::AY:
+                case vm::axis::y:
                     return Preferences::YAxisColor;
-                case Math::Axis::AZ:
+                case vm::axis::z:
                 default:
                     return Preferences::ZAxisColor;
             }

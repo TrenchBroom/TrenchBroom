@@ -21,7 +21,6 @@
 #define TrenchBroom_Snapshot
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -45,7 +44,7 @@ namespace TrenchBroom {
             
             ~Snapshot();
             
-            void restoreNodes(const BBox3& worldBounds);
+            void restoreNodes(const vm::bbox3& worldBounds);
             void restoreBrushFaces();
         private:
             void takeSnapshot(Node* node);

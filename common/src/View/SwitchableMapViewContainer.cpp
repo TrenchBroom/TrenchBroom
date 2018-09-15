@@ -19,6 +19,8 @@
 
 #include "SwitchableMapViewContainer.h"
 
+#include "TrenchBroom.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/PointFile.h"
@@ -33,6 +35,8 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
+
+#include <vecmath/scalar.h>
 
 #include <wx/sizer.h>
 
@@ -313,11 +317,11 @@ namespace TrenchBroom {
             return m_mapView->canFlipObjects();
         }
         
-        void SwitchableMapViewContainer::doFlipObjects(const Math::Direction direction) {
+        void SwitchableMapViewContainer::doFlipObjects(const vm::direction direction) {
             m_mapView->flipObjects(direction);
         }
         
-        Vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const {
+        vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const {
             return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         }
         
@@ -325,7 +329,7 @@ namespace TrenchBroom {
             m_mapView->focusCameraOnSelection(animate);
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToPosition(const Vec3& position, const bool animate) {
+        void SwitchableMapViewContainer::doMoveCameraToPosition(const vm::vec3& position, const bool animate) {
             m_mapView->moveCameraToPosition(position, animate);
         }
         

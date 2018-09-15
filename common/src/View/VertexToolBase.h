@@ -21,7 +21,6 @@
 #define VertexToolBase_h
 
 #include "Disjunction.h"
-#include "VecMath.h"
 #include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -43,6 +42,9 @@
 #include "View/VertexHandleManager.h"
 #include "View/ViewTypes.h"
 #include "AddBrushVerticesCommand.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 #include <algorithm>
 #include <cassert>
@@ -126,7 +128,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            virtual void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
+            virtual void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
         public: // Handle selection
             bool select(const Model::Hit::List& hits, const bool addToSelection) {
                 assert(!hits.empty());
@@ -214,7 +216,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            virtual MoveResult move(const Vec3& delta) = 0;
+            virtual MoveResult move(const vm::vec3& delta) = 0;
             
             virtual void endMove() {
                 MapDocumentSPtr document = lock(m_document);
@@ -238,7 +240,7 @@ namespace TrenchBroom {
             
             virtual String actionName() const = 0;
         public:
-            void moveSelection(const Vec3& delta) {
+            void moveSelection(const vm::vec3& delta) {
                 const Disjunction::TemporarilySetLiteral ignoreChangeNotifications(m_ignoreChangeNotifications);
 
                 Transaction transaction(m_document, actionName());
@@ -279,37 +281,37 @@ namespace TrenchBroom {
             template <typename HH>
             void renderHandles(const std::vector<HH>& handles, Renderer::RenderService& renderService, const Color& color) const {
                 renderService.setForegroundColor(color);
-                renderService.renderHandles(VectorUtils::cast<typename HH::FloatType>(handles));
+                renderService.renderHandles(VectorUtils::cast<typename HH::float_type>(handles));
             }
             
             template <typename HH>
             void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle, const Color& color) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(color);
-                renderService.renderHandle(handle);
+                renderService.renderHandle(typename HH::float_type(handle));
             }
             
             template <typename HH>
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(handle);
+                renderService.renderHandleHighlight(typename HH::float_type(handle));
             }
             
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& handle) const {
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& handle) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-                renderService.renderHandleHighlight(handle);
+                renderService.renderHandleHighlight(vm::vec3f(handle));
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(handle.asString(), handle);
+                renderService.renderString(StringUtils::toString(handle), vm::vec3f(handle));
             }
 
             template <typename HH>
             void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HH& position) const {}
             
-            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const {}
+            virtual void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {}
         protected: // Tool interface
             virtual bool doActivate() override {
                 m_changeCount = 0;

@@ -28,28 +28,28 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
         
-        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const Vec3& delta) {
+        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) {
             Model::BrushList brushes;
             Model::BrushEdgesMap brushEdges;
-            Edge3::List edgePositions;
+            std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
             
             return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
         }
 
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const Edge3::List& edgePositions, const Vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
         m_delta(delta) {
-            assert(!m_delta.null());
+            assert(!isZero(m_delta));
         }
         
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const BBox3& worldBounds = document->worldBounds();
+            const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edges = entry.second;
+                const std::vector<vm::segment3>& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;
             }
@@ -68,16 +68,16 @@ namespace TrenchBroom {
                 return false;
 
             m_newEdgePositions = other->m_newEdgePositions;
-            m_delta += other->m_delta;
+            m_delta = m_delta + other->m_delta;
 
             return true;
         }
 
-        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void MoveBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
         }
         
-        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void MoveBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
     }

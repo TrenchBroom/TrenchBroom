@@ -21,7 +21,8 @@
 #define TrenchBroom_Lasso
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+
+#include <vecmath/plane.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,18 +36,18 @@ namespace TrenchBroom {
         private:
             const Renderer::Camera& m_camera;
             const FloatType m_distance;
-            const Mat4x4 m_transform;
-            const Vec3 m_start;
-            Vec3 m_cur;
+            const vm::mat4x4 m_transform;
+            const vm::vec3 m_start;
+            vm::vec3 m_cur;
         public:
-            Lasso(const Renderer::Camera& camera, FloatType distance, const Vec3& point);
+            Lasso(const Renderer::Camera& camera, FloatType distance, const vm::vec3& point);
             
-            void update(const Vec3& point);
+            void update(const vm::vec3& point);
             
             template <typename I, typename O>
             void selected(I cur, I end, O out) const {
-                const Plane3 plane = this->plane();
-                const BBox2 box = this->box();
+                const vm::plane3 plane = this->plane();
+                const vm::bbox2 box = this->box();
                 while (cur != end) {
                     if (selects(*cur, plane, box))
                         out = *cur;
@@ -59,15 +60,15 @@ namespace TrenchBroom {
                 return selects(h, plane(), box());
             }
         private:
-            bool selects(const Vec3& point, const Plane3& plane, const BBox2& box) const;
-            bool selects(const Edge3& edge, const Plane3& plane, const BBox2& box) const;
-            bool selects(const Polygon3& polygon, const Plane3& plane, const BBox2& box) const;
-            Vec3 project(const Vec3& point, const Plane3& plane) const;
+            bool selects(const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const;
+            bool selects(const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const;
+            bool selects(const vm::polygon3& polygon, const vm::plane3& plane, const vm::bbox2& box) const;
+            vm::vec3 project(const vm::vec3& point, const vm::plane3& plane) const;
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
         private:
-            Plane3 plane() const;
-            BBox2 box() const;
+            vm::plane3 plane() const;
+            vm::bbox2 box() const;
         };
     }
 }
