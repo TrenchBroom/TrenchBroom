@@ -21,10 +21,12 @@
 #define TrenchBroom_ModelTypes_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
 #include "Model/BrushGeometry.h"
+
+#include <vecmath/segment.h>
+#include <vecmath/polygon.h>
 
 #include <map>
 #include <set>
@@ -32,30 +34,32 @@
 
 namespace TrenchBroom {
     namespace Model {
-        typedef size_t IdType;
+        using IdType = size_t;
 
         class Node;
-        typedef std::set<Node*> NodeSet;
-        typedef std::vector<Node*> NodeList;
+        using NodeSet = std::set<Node*>;
+        using NodeList = std::vector<Node*>;
         static const NodeList EmptyNodeList(0);
         
-        typedef std::map<Node*, Node*> NodeMap;
-        typedef std::map<Node*, NodeList> ParentChildrenMap;
-        
+        using NodeMap = std::map<Node*, Node*>;
+        using ParentChildrenMap = std::map<Node*, NodeList>;
+
+        // TODO: replace with class based enum
         typedef enum {
             Visibility_Inherited = 1,
             Visibility_Hidden    = 2,
             Visibility_Shown     = 4
         } VisibilityState;
-        
+
+        // TODO: replace with class based enum
         typedef enum {
             Lock_Inherited = 1,
             Lock_Locked    = 2,
             Lock_Unlocked  = 4
         } LockState;
 
-        typedef std::map<Node*, VisibilityState> VisibilityMap;
-        typedef std::map<Node*, LockState> LockStateMap;
+        using VisibilityMap = std::map<Node*, VisibilityState>;
+        using LockStateMap = std::map<Node*, LockState>;
 
         class NodeVisitor;
         class ConstNodeVisitor;
@@ -63,82 +67,83 @@ namespace TrenchBroom {
         class World;
         
         class AttributableNode;
-        typedef std::set<AttributableNode*> AttributableNodeSet;
+        using AttributableNodeSet = std::set<AttributableNode*>;
         static const AttributableNodeSet EmptyAttributableNodeSet;
-        typedef std::vector<AttributableNode*> AttributableNodeList;
+        using AttributableNodeList = std::vector<AttributableNode*>;
         static const AttributableNodeList EmptyAttributableNodeList(0);
         
         class Layer;
-        typedef std::vector<Layer*> LayerList;
+        using LayerList = std::vector<Layer*>;
         static const LayerList EmptyLayerList(0);
         
         class Group;
-        typedef std::vector<Group*> GroupList;
+        using GroupList = std::vector<Group*>;
         static const GroupList EmptyGroupList(0);
-        typedef std::set<Group*> GroupSet;
-        typedef std::map<Group*, String> GroupNameMap;
+        using GroupSet = std::set<Group*>;
+        using GroupNameMap = std::map<Group*, String>;
         
         class Entity;
-        typedef std::vector<Entity*> EntityList;
+        using EntityList = std::vector<Entity*>;
         static const EntityList EmptyEntityList(0);
-        typedef std::set<Entity*> EntitySet;
+        using EntitySet = std::set<Entity*>;
         
         class Brush;
-        typedef std::vector<Brush*> BrushList;
+        using BrushList = std::vector<Brush*>;
         static const BrushList EmptyBrushList(0);
-        typedef std::set<Brush*> BrushSet;
+        using BrushSet = std::set<Brush*>;
         static const BrushSet EmptyBrushSet;
         
         class Object;
         
         class BrushFace;
-        typedef std::set<BrushFace*> BrushFaceSet;
+        using BrushFaceSet = std::set<BrushFace*>;
         static const BrushFaceSet EmptyBrushFaceSet;
-        typedef std::vector<BrushFace*> BrushFaceList;
+        using BrushFaceList = std::vector<BrushFace*>;
         static const BrushFaceList EmptyBrushFaceList(0);
         
-        typedef String AttributeName;
-        typedef std::vector<AttributeName> AttributeNameList;
-        typedef std::set<AttributeName> AttributeNameSet;
-        typedef String AttributeValue;
-        typedef std::vector<AttributeValue> AttributeValueList;
+        using AttributeName = String;
+        using AttributeNameList = std::vector<AttributeName>;
+        using AttributeNameSet = std::set<AttributeName>;
+        using AttributeValue = String;
+        using AttributeValueList = std::vector<AttributeValue>;
         
-        typedef std::set<BrushEdge*> BrushEdgeSet;
+        using BrushEdgeSet = std::set<BrushEdge*>;
         static const BrushEdgeSet EmptyBrushEdgeSet;
         
-        typedef std::map<Vec3, BrushSet> VertexToBrushesMap;
-        typedef std::map<Edge3, BrushSet> EdgeToBrushesMap;
-        typedef std::map<Polygon3, BrushSet> FaceToBrushesMap;
-        typedef std::map<Vec3, BrushEdgeSet> VertexToEdgesMap;
-        typedef std::map<Vec3, BrushFaceSet> VertexToFacesMap;
-        typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
-        typedef std::map<Model::Brush*, Edge3::List> BrushEdgesMap;
-        typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;
+        using VertexToBrushesMap = std::map<vm::vec3, BrushSet>;
+        using EdgeToBrushesMap = std::map<vm::segment3, BrushSet>;
+        using FaceToBrushesMap = std::map<vm::polygon3, BrushSet>;
+        using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
+        using VertexToFacesMap = std::map<vm::vec3, BrushFaceSet>;
+        using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
+        using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
+        using BrushFacesMap = std::map<Model::Brush*, std::vector<vm::polygon3>>;
 
         class BrushFaceSnapshot;
-        typedef std::vector<BrushFaceSnapshot*> BrushFaceSnapshotList;
+        using BrushFaceSnapshotList = std::vector<BrushFaceSnapshot*>;
         
         class NodeSnapshot;
-        typedef std::vector<NodeSnapshot*> NodeSnapshotList;
+        using NodeSnapshotList = std::vector<NodeSnapshot*>;
         
-        typedef int IssueType;
+        using IssueType = int;
 
         class Issue;
-        typedef std::vector<Issue*> IssueList;
+        using IssueList = std::vector<Issue*>;
         static const IssueList EmptyIssueList(0);
 
         class IssueQuickFix;
-        typedef std::vector<IssueQuickFix*> IssueQuickFixList;
+        using IssueQuickFixList = std::vector<IssueQuickFix*>;
         
         class IssueGenerator;
-        typedef std::vector<IssueGenerator*> IssueGeneratorList;
+        using IssueGeneratorList = std::vector<IssueGenerator*>;
         
         class Game;
-        typedef std::shared_ptr<Game> GameSPtr;
-        typedef std::weak_ptr<Game> GameWPtr;
-        
+        using GameSPtr = std::shared_ptr<Game>;
+        using GameWPtr = std::weak_ptr<Game>;
+
+        // TODO: replace with class based enum
         typedef enum {
-            EF_WavefrontObj
+            WavefrontObj
         } ExportFormat;
     }
 }

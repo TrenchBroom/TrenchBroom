@@ -21,10 +21,12 @@
 #define TrenchBroom_ResizeBrushesCommand
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "SharedPointer.h"
 #include "Model/ModelTypes.h"
 #include "View/SnapshotCommand.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -33,13 +35,13 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
-            Polygon3::List m_faces;
-            Polygon3::List m_newFaces;
-            Vec3 m_delta;
+            std::vector<vm::polygon3> m_faces;
+            std::vector<vm::polygon3> m_newFaces;
+            vm::vec3 m_delta;
         public:
-            static Ptr resize(const Polygon3::List& faces, const Vec3& delta);
+            static Ptr resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
         private:
-            ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta);
+            ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta);
             
             bool doPerformDo(MapDocumentCommandFacade* document) override;
 

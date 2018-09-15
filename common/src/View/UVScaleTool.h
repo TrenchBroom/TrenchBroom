@@ -53,9 +53,9 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             UVViewHelper& m_helper;
             
-            Vec2i m_handle;
-            Vec2b m_selector;
-            Vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
+            vm::vec2i m_handle;
+            vm::vec2b m_selector;
+            vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         public:
             UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
@@ -63,17 +63,17 @@ namespace TrenchBroom {
             
             void doPick(const InputState& inputState, Model::PickResult& pickResult) override;
             
-            Vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
-            Vec2f getHitPoint(const Ray3& pickRay) const;
+            vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
+            vm::vec2f getHitPoint(const vm::ray3& pickRay) const;
             
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
             
-            Vec2f getScaledTranslatedHandlePos() const;
-            Vec2f getHandlePos() const;
-            Vec2f snap(const Vec2f& position) const;
+            vm::vec2f getScaledTranslatedHandlePos() const;
+            vm::vec2f getHandlePos() const;
+            vm::vec2f snap(const vm::vec2f& position) const;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
             EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;

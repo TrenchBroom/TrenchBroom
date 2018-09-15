@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_CameraAnimation
 #define TrenchBroom_CameraAnimation
 
-#include "VecMath.h"
 #include "View/Animation.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,14 +37,14 @@ namespace TrenchBroom {
 
             Renderer::Camera& m_camera;
             
-            const Vec3f m_startPosition;
-            const Vec3f m_startDirection;
-            const Vec3f m_startUp;
-            const Vec3f m_targetPosition;
-            const Vec3f m_targetDirection;
-            const Vec3f m_targetUp;
+            const vm::vec3f m_startPosition;
+            const vm::vec3f m_startDirection;
+            const vm::vec3f m_startUp;
+            const vm::vec3f m_targetPosition;
+            const vm::vec3f m_targetDirection;
+            const vm::vec3f m_targetUp;
         public:
-            CameraAnimation(Renderer::Camera& camera, const Vec3f& targetPosition, const Vec3f& targetDirection, const Vec3f& targetUp, wxLongLong duration);
+            CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, wxLongLong duration);
         private:
             void doUpdate(double progress) override;
         };

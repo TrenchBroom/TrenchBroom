@@ -21,6 +21,7 @@
 #define TrenchBroom_wxUtils
 
 #include "Color.h"
+#include "StringUtils.h"
 
 #include <vector>
 

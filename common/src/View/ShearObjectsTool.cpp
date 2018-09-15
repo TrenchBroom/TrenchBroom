@@ -20,6 +20,7 @@
 
 #include "ShearObjectsTool.h"
 
+#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "ScaleObjectsTool.h"
@@ -35,6 +36,12 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/polygon.h>
+#include <vecmath/intersection.h>
 
 #include <algorithm>
 #include <iterator>
@@ -58,20 +65,20 @@ namespace TrenchBroom {
             return !document->selectedNodes().empty();
         }
 
-        void ShearObjectsTool::pickBackSides(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+        void ShearObjectsTool::pickBackSides(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
             // select back sides. Used for both 2D and 3D.
             if (pickResult.empty()) {
                 const auto result = pickBackSideOfBox(pickRay, camera, bounds());
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != Vec3::Null);
+                assert(result.pickedSideNormal != vm::vec3::zero);
                 pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
-        void ShearObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const BBox3& myBounds = bounds();
+        void ShearObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            const vm::bbox3& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -89,8 +96,8 @@ namespace TrenchBroom {
             }
         }
 
-        void ShearObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
-            const BBox3& myBounds = bounds();
+        void ShearObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            const auto& myBounds = bounds();
 
             // origin in bbox
             if (myBounds.contains(pickRay.origin)) {
@@ -103,11 +110,11 @@ namespace TrenchBroom {
             assert(camera.perspectiveProjection());
 
             // sides
-            for (const BBoxSide& side : allSides()) {
+            for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const FloatType dist = intersectPolygonWithRay(pickRay, poly.begin(), poly.end());
-                if (!Math::isnan(dist)) {
+                const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
+                if (!vm::isNan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }
@@ -122,8 +129,8 @@ namespace TrenchBroom {
         }
 
 
-        BBox3 ShearObjectsTool::bounds() const {
-            MapDocumentSPtr document = lock(m_document);
+        vm::bbox3 ShearObjectsTool::bounds() const {
+            auto document = lock(m_document);
             return document->selectionBounds();
         }
         
@@ -133,17 +140,17 @@ namespace TrenchBroom {
             return dragPolygon().vertexCount() > 0;
         }
 
-        Polygon3f ShearObjectsTool::dragPolygon() const {
+        vm::polygon3f ShearObjectsTool::dragPolygon() const {
             if (m_dragStartHit.type() == ShearToolSideHit) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
-                return Polygon3f(polygonForBBoxSide(bounds(), side));
+                return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
                                                             
-            return Polygon3f();
+            return vm::polygon3f();
         }
 
         // for rendering sheared bbox
-        BBox3 ShearObjectsTool::bboxAtDragStart() const {
+        vm::bbox3 ShearObjectsTool::bboxAtDragStart() const {
             if (m_resizing) {
                 return m_bboxAtDragStart;
             } else {
@@ -158,7 +165,7 @@ namespace TrenchBroom {
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = Vec3::Null;
+            m_dragCumulativeDelta = vm::vec3::zero;
 
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction("Shear Objects");
@@ -169,7 +176,7 @@ namespace TrenchBroom {
             ensure(m_resizing, "must be resizing already");
 
             MapDocumentSPtr document = lock(m_document);
-            if (m_dragCumulativeDelta.null()) {
+            if (isZero(m_dragCumulativeDelta)) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -186,14 +193,14 @@ namespace TrenchBroom {
             m_resizing = false;
         }
 
-        void ShearObjectsTool::shearByDelta(const Vec3 &delta) {
+        void ShearObjectsTool::shearByDelta(const vm::vec3 &delta) {
             ensure(m_resizing, "must be resizing already");
 
-            m_dragCumulativeDelta += delta;
+            m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
             MapDocumentSPtr document = lock(m_document);
 
-            if (!delta.null()) {
+            if (!isZero(delta)) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
 
                 if (document->shearObjects(bounds(), side.normal, delta)) {
@@ -206,14 +213,14 @@ namespace TrenchBroom {
             return m_dragStartHit;
         }
 
-        Mat4x4 ShearObjectsTool::bboxShearMatrix() const {
+        vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return Mat4x4::Identity;
+                return vm::mat4x4::identity;
             }
 
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return Mat4x4::Identity;
+                return vm::mat4x4::identity;
             }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
@@ -223,18 +230,18 @@ namespace TrenchBroom {
                                    m_dragCumulativeDelta);
         }
 
-        Polygon3f ShearObjectsTool::shearHandle() const {
+        vm::polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
             if (m_dragStartHit.type() != ShearToolSideHit) {
-                return Polygon3f();
+                return vm::polygon3f();
             }
             
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
             // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a drag.
-            const Polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
+            const vm::polygon3 polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
             
-            const Polygon3 handle = polyAtDragStart.transformed(bboxShearMatrix());
-            return Polygon3f(handle);
+            const vm::polygon3 handle = polyAtDragStart.transform(bboxShearMatrix());
+            return vm::polygon3f(handle);
         }
 
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {

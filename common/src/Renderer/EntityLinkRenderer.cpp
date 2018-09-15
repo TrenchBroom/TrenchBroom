@@ -33,6 +33,8 @@
 #include "Renderer/Shaders.h"
 #include "View/MapDocument.h"
 
+#include <vecmath/vec.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -130,7 +132,7 @@ namespace TrenchBroom {
                 const auto& endVertex = links[i + 1];
 
                 const auto lineVec = (endVertex.v1 - startVertex.v1);
-                const auto lineLength = lineVec.length();
+                const auto lineLength = length(lineVec);
                 const auto lineDir = lineVec / lineLength;
                 const auto color = startVertex.v2;
 
@@ -155,12 +157,12 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const Vec4f& color, const Vec3f& arrowPosition, const Vec3f& lineDir) {
-            arrows.emplace_back(Vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
+            arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
 
-            arrows.emplace_back(Vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-            arrows.emplace_back(Vec3f{0,-3, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+            arrows.emplace_back(vm::vec3f{0,-3, 0}, color, arrowPosition, lineDir);
         }
 
         class EntityLinkRenderer::MatchEntities {
@@ -198,12 +200,12 @@ namespace TrenchBroom {
             virtual void visitEntity(Model::Entity* entity) = 0;
         protected:
             void addLink(const Model::AttributableNode* source, const Model::AttributableNode* target) {
-                const bool anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
-                const Color& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
-                Color targetColor = anySelected ? m_selectedColor : m_defaultColor;
+                const auto anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
+                const auto& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
+                const auto targetColor = anySelected ? m_selectedColor : m_defaultColor;
                 
-                m_links.push_back(Vertex(source->linkSourceAnchor(), sourceColor));
-                m_links.push_back(Vertex(target->linkTargetAnchor(), targetColor));
+                m_links.push_back(Vertex(vm::vec3f(source->linkSourceAnchor()), sourceColor));
+                m_links.push_back(Vertex(vm::vec3f(target->linkTargetAnchor()), targetColor));
             }
         };
         

@@ -42,14 +42,14 @@ namespace TrenchBroom {
             };
         protected:
             EntityRotationPolicy();
-            static Mat4x4 getRotation(const Entity* entity);
-            static void applyRotation(Entity* entity, const Mat4x4& transformation);
+            static vm::mat4x4 getRotation(const Entity* entity);
+            static void applyRotation(Entity* entity, const vm::mat4x4& transformation);
             static AttributeName getAttribute(const Entity* entity);
         private:
             static RotationInfo rotationInfo(const Entity* entity);
-            static void setAngle(Entity* entity, const AttributeName& attribute, const Vec3& direction);
-            static FloatType getAngle(Vec3 direction);
-            static Vec3 getYawPitchRoll(const Mat4x4& transformation, const Mat4x4& rotation);
+            static void setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction);
+            static FloatType getAngle(vm::vec3 direction);
+            static vm::vec3 getYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
         };
     }
 }

@@ -26,6 +26,10 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/bbox.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -55,7 +59,7 @@ namespace TrenchBroom {
 
         MdlBaseFrame::~MdlBaseFrame() {}
 
-        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const BBox3f& bounds) :
+        MdlFrame::MdlFrame(const String& name, const VertexList& triangles, const vm::bbox3f& bounds) :
         m_name(name),
         m_triangles(triangles),
         m_bounds(bounds) {}
@@ -68,23 +72,24 @@ namespace TrenchBroom {
             return m_triangles;
         }
 
-        BBox3f MdlFrame::bounds() const {
+        vm::bbox3f MdlFrame::bounds() const {
             return m_bounds;
         }
 
-        BBox3f MdlFrame::transformedBounds(const Mat4x4f& transformation) const {
-            if (m_triangles.empty())
-                return BBox3f(-8.0f, 8.0f);
+        vm::bbox3f MdlFrame::transformedBounds(const vm::mat4x4f& transformation) const {
+            if (m_triangles.empty()) {
+                return vm::bbox3f(-8.0f, 8.0f);
+            }
+
+            auto it = std::begin(m_triangles);
+            auto end = std::end(m_triangles);
             
-            VertexList::const_iterator it = std::begin(m_triangles);
-            VertexList::const_iterator end = std::end(m_triangles);
-            
-            BBox3f bounds;
+            vm::bbox3f bounds;
             bounds.min = bounds.max = transformation * it->v1;
             ++it;
             
             while (it != end) {
-                bounds.mergeWith(transformation * it->v1);
+                bounds = merge(bounds, transformation * it->v1);
                 ++it;
             }
             
@@ -96,9 +101,11 @@ namespace TrenchBroom {
         }
         
         const MdlFrame* MdlFrameGroup::firstFrame() const {
-            if (m_frames.empty())
+            if (m_frames.empty()) {
                 return nullptr;
-            return m_frames[0]->firstFrame();
+            } else {
+                return m_frames[0]->firstFrame();
+            }
         }
         
         void MdlFrameGroup::addFrame(MdlFrame* frame, const float time) {
@@ -123,47 +130,55 @@ namespace TrenchBroom {
         }
 
         Renderer::TexturedIndexRangeRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            if (skinIndex >= m_skins.size())
+            if (skinIndex >= m_skins.size()) {
                 return nullptr;
-            if (frameIndex >= m_frames.size())
+            }
+            if (frameIndex >= m_frames.size()) {
                 return nullptr;
-            
-            const MdlSkin* skin = m_skins[skinIndex];
-            const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
+            }
 
-            const Assets::Texture* texture = skin->firstPicture();
-            const MdlFrame::VertexList& vertices = frame->triangles();
-            const size_t vertexCount = vertices.size();
+            const auto* skin = m_skins[skinIndex];
+            const auto* frame = m_frames[frameIndex]->firstFrame();
+
+            const auto* texture = skin->firstPicture();
+            const auto& vertices = frame->triangles();
+            const auto vertexCount = vertices.size();
             
-            const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
+            const auto vertexArray = Renderer::VertexArray::ref(vertices);
             const Renderer::TexturedIndexRangeMap indexArray(texture, GL_TRIANGLES, 0, vertexCount);
             
             return new Renderer::TexturedIndexRangeRenderer(vertexArray, indexArray);
         }
 
-        BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
-            if (frameIndex >= m_frames.size())
-                return BBox3f(-8.0f, 8.0f);
-            const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
-            return frame->bounds();
+        vm::bbox3f MdlModel::doGetBounds(const size_t /* skinIndex */, const size_t frameIndex) const {
+            if (frameIndex >= m_frames.size()) {
+                return vm::bbox3f(-8.0f, 8.0f);
+            } else {
+                const auto* frame = m_frames[frameIndex]->firstFrame();
+                return frame->bounds();
+            }
         }
 
-        BBox3f MdlModel::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
-            if (frameIndex >= m_frames.size())
-                return BBox3f(-8.0f, 8.0f);
-            const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
-            return frame->transformedBounds(transformation);
+        vm::bbox3f MdlModel::doGetTransformedBounds(const size_t /* skinIndex */, const size_t frameIndex, const vm::mat4x4f& transformation) const {
+            if (frameIndex >= m_frames.size()) {
+                return vm::bbox3f(-8.0f, 8.0f);
+            } else {
+                const auto* frame = m_frames[frameIndex]->firstFrame();
+                return frame->transformedBounds(transformation);
+            };
         }
 
         
         void MdlModel::doPrepare(const int minFilter, const int magFilter) {
-            for (size_t i = 0; i < m_skins.size(); ++i)
+            for (size_t i = 0; i < m_skins.size(); ++i) {
                 m_skins[i]->prepare(minFilter, magFilter);
+            }
         }
 
         void MdlModel::doSetTextureMode(const int minFilter, const int magFilter) {
-            for (size_t i = 0; i < m_skins.size(); ++i)
+            for (size_t i = 0; i < m_skins.size(); ++i) {
                 m_skins[i]->setTextureMode(minFilter, magFilter);
+            }
         }
     }
 }

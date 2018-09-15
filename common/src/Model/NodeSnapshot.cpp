@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         NodeSnapshot::~NodeSnapshot() {}
         
-        void NodeSnapshot::restore(const BBox3& worldBounds) {
+        void NodeSnapshot::restore(const vm::bbox3& worldBounds) {
             doRestore(worldBounds);
         }
     }

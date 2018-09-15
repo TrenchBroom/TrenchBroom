@@ -38,8 +38,8 @@ namespace TrenchBroom {
             GroupNameAnchor(const Model::Group* group) :
             m_group(group) {}
         private:
-            Vec3f basePosition() const override {
-                Vec3f position = m_group->bounds().center();
+            vm::vec3f basePosition() const override {
+                auto position = vm::vec3f(m_group->bounds().center());
                 position[2] = float(m_group->bounds().max.z());
                 position[2] += 2.0f;
                 return position;
@@ -131,10 +131,11 @@ namespace TrenchBroom {
                 for (const auto* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         const GroupNameAnchor anchor(group);
-                        if (m_showOccludedOverlays)
+                        if (m_showOccludedOverlays) {
                             renderService.setShowOccludedObjects();
-                        else
+                        } else {
                             renderService.setHideOccludedObjects();
+                        }
                         renderService.renderString(groupString(group), anchor);
                     }
                 }
@@ -153,9 +154,9 @@ namespace TrenchBroom {
             vertices(i_vertices),
             color(i_color) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v1, color));
-                vertices.push_back(VertexSpecs::P3C4::Vertex(v2, color));
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v1), color));
+                vertices.push_back(VertexSpecs::P3C4::Vertex(vm::vec3f(v2), color));
             }
         };
         
@@ -165,9 +166,9 @@ namespace TrenchBroom {
             BuildBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
             vertices(i_vertices) {}
             
-            void operator()(const Vec3& v1, const Vec3& v2) {
-                vertices.push_back(VertexSpecs::P3::Vertex(v1));
-                vertices.push_back(VertexSpecs::P3::Vertex(v2));
+            void operator()(const vm::vec3& v1, const vm::vec3& v2) {
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v1)));
+                vertices.push_back(VertexSpecs::P3::Vertex(vm::vec3f(v2)));
             }
         };
         
@@ -179,7 +180,7 @@ namespace TrenchBroom {
                 BuildBoundsVertices boundsBuilder(vertices);
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
-                        eachBBoxEdge(group->bounds(), boundsBuilder);
+                        group->bounds().forEachEdge(boundsBuilder);
                     }
                 }
                 
@@ -191,7 +192,7 @@ namespace TrenchBroom {
                 for (const Model::Group* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
-                        eachBBoxEdge(group->bounds(), boundsBuilder);
+                        group->bounds().forEachEdge(boundsBuilder);
                     }
                 }
                 

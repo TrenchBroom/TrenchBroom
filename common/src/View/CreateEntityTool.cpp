@@ -19,6 +19,7 @@
 
 #include "CreateEntityTool.h"
 
+#include "TrenchBroom.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinition.h"
@@ -37,6 +38,8 @@
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/bbox.h>
 
 #include <cassert>
 
@@ -85,53 +88,52 @@ namespace TrenchBroom {
             m_entity = nullptr;
         }
         
-        void CreateEntityTool::updateEntityPosition2D(const Ray3& pickRay) {
+        void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay) {
             ensure(m_entity != nullptr, "entity is null");
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
 
-            const Vec3 toMin = m_referenceBounds.min - pickRay.origin;
-            const Vec3 toMax = m_referenceBounds.max - pickRay.origin;
-            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
-            const Plane3 dragPlane(anchor, -pickRay.direction);
+            const auto toMin = m_referenceBounds.min - pickRay.origin;
+            const auto toMax = m_referenceBounds.max - pickRay.origin;
+            const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction) ? m_referenceBounds.min : m_referenceBounds.max;
+            const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
             
-            const FloatType distance = dragPlane.intersectWithRay(pickRay);
-            if (Math::isnan(distance))
+            const auto distance = intersect(pickRay, dragPlane);
+            if (vm::isNan(distance)) {
                 return;
+            }
+
+            const auto hitPoint = pickRay.pointAtDistance(distance);
             
-            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const auto& grid = document->grid();
+            const auto delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
             
-            const Grid& grid = document->grid();
-            const Vec3 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
-            
-            if (delta.null())
-                return;
-            
-            document->translateObjects(delta);
+            if (!isZero(delta)) {
+                document->translateObjects(delta);
+            }
         }
 
-        void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        void CreateEntityTool::updateEntityPosition3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             ensure(m_entity != nullptr, "entity is null");
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             
-            Vec3 delta;
-            const Grid& grid = document->grid();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            vm::vec3 delta;
+            const auto& grid = document->grid();
+            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);
+                const auto* face = Model::hitToFace(hit);
+                const auto dragPlane = alignedOrthogonalPlane(hit.hitPoint(), face->boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hit.hitPoint());
             } else {
-                const Vec3 newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
-                const Vec3 center = m_entity->bounds().center();
-                delta = grid.moveDeltaForPoint(center, document->worldBounds(), newPosition - center);
+                const auto newPosition = pickRay.pointAtDistance(Renderer::Camera::DefaultPointDistance);
+                const auto boundsCenter = m_entity->bounds().center();
+                delta = grid.moveDeltaForPoint(boundsCenter, document->worldBounds(), newPosition - boundsCenter);
             }
             
-            if (delta.null())
-                return;
-            
-            document->translateObjects(delta);
+            if (!isZero(delta)) {
+                document->translateObjects(delta);
+            }
         }
     }
 }

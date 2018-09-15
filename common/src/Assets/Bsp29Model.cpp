@@ -26,6 +26,9 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -36,7 +39,7 @@ namespace TrenchBroom {
             m_vertices.reserve(vertexCount);
         }
         
-        void Bsp29Model::Face::addVertex(const Vec3f& vertex, const Vec2f& texCoord) {
+        void Bsp29Model::Face::addVertex(const vm::vec3f& vertex, const vm::vec2f& texCoord) {
             m_vertices.push_back(Vertex(vertex, texCoord));
         }
 
@@ -48,17 +51,18 @@ namespace TrenchBroom {
             return m_vertices;
         }
 
-        Bsp29Model::SubModel::SubModel(const FaceList& i_faces, const BBox3f& i_bounds) :
+        Bsp29Model::SubModel::SubModel(const FaceList& i_faces, const vm::bbox3f& i_bounds) :
         faces(i_faces),
         bounds(i_bounds) {}
 
-        BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
-            BBox3f result;
+        vm::bbox3f Bsp29Model::SubModel::transformedBounds(const vm::mat4x4f& transformation) const {
+            vm::bbox3f result;
             result.min = result.max = faces.front().vertices().front().v1;
             
             for (const Face& face : faces) {
-                for (const Face::Vertex& vertex : face.vertices())
-                    result.mergeWith(vertex.v1);
+                for (const Face::Vertex& vertex : face.vertices()) {
+                    result = merge(result, vertex.v1);
+                }
             }
             
             return result;
@@ -75,7 +79,7 @@ namespace TrenchBroom {
             m_textureCollection = nullptr;
         }
         
-        void Bsp29Model::addModel(const FaceList& faces, const BBox3f& bounds) {
+        void Bsp29Model::addModel(const FaceList& faces, const vm::bbox3f& bounds) {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
@@ -100,12 +104,12 @@ namespace TrenchBroom {
             return new Renderer::TexturedIndexRangeRenderer(vertexArray, indexArray);
         }
 
-        BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
+        vm::bbox3f Bsp29Model::doGetBounds(const size_t /* skinIndex */, const size_t /* frameIndex */) const {
             const SubModel& model = m_subModels.front();
             return model.bounds;
         }
 
-        BBox3f Bsp29Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        vm::bbox3f Bsp29Model::doGetTransformedBounds(const size_t /* skinIndex */, const size_t /* frameIndex */, const vm::mat4x4f& transformation) const {
             const SubModel& model = m_subModels.front();
             return model.transformedBounds(transformation);
         }

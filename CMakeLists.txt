@@ -50,9 +50,11 @@ INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
 INCLUDE(cmake/FreeImage.cmake)
 
+# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
 INCLUDE(cmake/GTest.cmake)
 INCLUDE(cmake/GMock.cmake)
 INCLUDE(cmake/Glew.cmake)
+INCLUDE(cmake/vecmath.cmake)
 INCLUDE(cmake/Common.cmake)
 INCLUDE(cmake/StackWalker.cmake)
 

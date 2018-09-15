@@ -22,9 +22,11 @@
 
 #include "Assets/Texture.h"
 
+#include <vecmath/forward.h>
+
 namespace TrenchBroom {
     namespace Assets {
-        void resizeMips(TextureBuffer::List& buffers, const Vec2s& oldSize, const Vec2s& newSize);
+        void resizeMips(TextureBuffer::List& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
     }
 }
 

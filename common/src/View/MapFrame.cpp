@@ -62,6 +62,8 @@
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
+#include <vecmath/util.h>
+
 #include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/filedlg.h>
@@ -77,6 +79,7 @@
 #include <wx/statusbr.h>
 
 #include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -299,7 +302,7 @@ namespace TrenchBroom {
             if (saveDialog.ShowModal() == wxID_CANCEL)
                 return false;
             
-            return exportDocument(Model::EF_WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
+            return exportDocument(Model::WavefrontObj, IO::Path(saveDialog.GetPath().ToStdString()));
         }
 
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
@@ -938,11 +941,11 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (canPaste()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                const BBox3 referenceBounds = m_document->referenceBounds();
+                const vm::bbox3 referenceBounds = m_document->referenceBounds();
                 Transaction transaction(m_document);
                 if (paste() == PT_Node && m_document->hasSelectedNodes()) {
-                    const BBox3 bounds = m_document->selectionBounds();
-                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+                    const vm::bbox3 bounds = m_document->selectionBounds();
+                    const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
                     m_document->translateObjects(delta);
                 }
             }
@@ -1275,7 +1278,7 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3 position = Vec3::parse(str.ToStdString());
+                const vm::vec3 position = vm::vec3::parse(str.ToStdString());
                 m_mapView->moveCameraToPosition(position, true);
             }
         }
@@ -1388,7 +1391,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter a list of at least 4 points (x y z) (x y z) ...", "Create Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3::List positions = Vec3::parseList(str.ToStdString());
+                std::vector<vm::vec3> positions;
+                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(positions));
                 m_document->createBrush(positions);
             }
         }
@@ -1398,11 +1402,12 @@ namespace TrenchBroom {
             
             wxTextEntryDialog dialog(this, "Enter bounding box size", "Create Cube", "");
             if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
+                const auto str = dialog.GetValue();
                 double size; str.ToDouble(&size);
-                const BBox3 bounds(size / 2.0);
-                const Vec3::List positions = bBoxVertices(bounds);
-                m_document->createBrush(positions);
+                const vm::bbox3 bounds(size / 2.0);
+                const auto posArray = bounds.vertices();
+                const auto posList = std::vector<vm::vec3>(std::begin(posArray), std::end(posArray));
+                m_document->createBrush(posList);
             }
         }
         
@@ -1412,7 +1417,8 @@ namespace TrenchBroom {
             wxTextEntryDialog dialog(this, "Enter face points ( x y z ) ( x y z ) ( x y z )", "Clip Brush", "");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
-                const Vec3::List points = Vec3::parseList(str.ToStdString());
+                std::vector<vm::vec3> points;
+                vm::vec3::parseAll(str.ToStdString(), std::back_inserter(points));
                 assert(points.size() == 3);
                 m_document->clipBrushes(points[0], points[1], points[2]);
             }
@@ -1472,8 +1478,8 @@ namespace TrenchBroom {
         void MapFrame::OnDebugSetWindowSize(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter Size (W H)", "Window Size", "1920 1080");
             if (dialog.ShowModal() == wxID_OK) {
-                const wxString str = dialog.GetValue();
-                const Vec2i size = Vec2i::parse(str.ToStdString());
+                const auto str = dialog.GetValue();
+                const auto size = vm::vec2i::parse(str.ToStdString());
                 SetSize(size.x(), size.y());
             }
         }
@@ -1482,7 +1488,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_mapView->flipObjects(Math::Direction_Left);
+                m_mapView->flipObjects(vm::direction::left);
             }
         }
 
@@ -1490,7 +1496,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             if (m_mapView->canFlipObjects()) { // on gtk, menu shortcuts remain enabled even if the menu item is disabled
-                m_mapView->flipObjects(Math::Direction_Up);
+                m_mapView->flipObjects(vm::direction::up);
             }
         }
 

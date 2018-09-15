@@ -26,6 +26,8 @@
 #include "Model/Group.h"
 #include "Model/HitAdapter.h"
 
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Model {
         CompareHits::~CompareHits() {}
@@ -73,7 +75,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        CompareHitsBySize::CompareHitsBySize(const Math::Axis::Type axis) : m_axis(axis) {}
+        CompareHitsBySize::CompareHitsBySize(const vm::axis::type axis) : m_axis(axis) {}
         
         int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const {
             const FloatType lhsSize = getSize(lhs);

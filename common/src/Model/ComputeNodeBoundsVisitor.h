@@ -21,9 +21,10 @@
 #define TrenchBroom_ComputeNodeBoundsVisitor
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Node.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,22 +32,22 @@ namespace TrenchBroom {
         private:
             bool m_initialized;
         public:
-            BBox3 m_bounds;
-            ComputeNodeBoundsVisitor(const BBox3& defaultBounds = BBox3());
-            const BBox3& bounds() const;
+            vm::bbox3 m_bounds;
+            ComputeNodeBoundsVisitor(const vm::bbox3& defaultBounds = vm::bbox3());
+            const vm::bbox3& bounds() const;
         private:
             void doVisit(const World* world) override;
             void doVisit(const Layer* layer) override;
             void doVisit(const Group* group) override;
             void doVisit(const Entity* entity) override;
             void doVisit(const Brush* brush) override;
-            void mergeWith(const BBox3& bounds);
+            void mergeWith(const vm::bbox3& bounds);
         };
         
-        BBox3 computeBounds(const Model::NodeList& nodes);
+        vm::bbox3 computeBounds(const Model::NodeList& nodes);
         
         template <typename I>
-        BBox3 computeBounds(I cur, I end) {
+        vm::bbox3 computeBounds(I cur, I end) {
             ComputeNodeBoundsVisitor visitor;
             Node::accept(cur, end, visitor);
             return visitor.bounds();

@@ -26,6 +26,10 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/bbox.h>
+
 #include <cassert>
 #include <algorithm>
 
@@ -34,17 +38,18 @@ namespace TrenchBroom {
         Md2Model::Frame::Frame(const VertexList& vertices, const Renderer::IndexRangeMap& indices) :
         m_vertices(vertices),
         m_indices(indices),
-        m_bounds(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1()) {}
+        m_bounds(vm::bbox3f::mergeAll(std::begin(m_vertices), std::end(m_vertices), Renderer::GetVertexComponent1())) {}
 
-        BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
-            BBox3f transformedBounds;
+        vm::bbox3f Md2Model::Frame::transformedBounds(const vm::mat4x4f& transformation) const {
+            vm::bbox3f transformedBounds;
             
-            VertexList::const_iterator it = std::begin(m_vertices);
-            VertexList::const_iterator end = std::end(m_vertices);
+            auto it = std::begin(m_vertices);
+            auto end = std::end(m_vertices);
             
             transformedBounds.min = transformedBounds.max = transformation * it->v1;
-            while (++it != end)
-                transformedBounds.mergeWith(transformation * it->v1);
+            while (++it != end) {
+                transformedBounds = merge(transformedBounds, transformation * it->v1);
+            }
             return transformedBounds;
         }
 
@@ -56,7 +61,7 @@ namespace TrenchBroom {
             return m_indices;
         }
         
-        const BBox3f& Md2Model::Frame::bounds() const {
+        const vm::bbox3f& Md2Model::Frame::bounds() const {
             return m_bounds;
         }
 
@@ -72,36 +77,36 @@ namespace TrenchBroom {
         }
 
         Renderer::TexturedIndexRangeRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            const TextureList& textures = m_skins->textures();
+            const auto& textures = m_skins->textures();
             
             ensure(skinIndex < textures.size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
 
-            const Assets::Texture* skin = textures[skinIndex];
-            const Frame* frame = m_frames[frameIndex];
+            const auto* skin = textures[skinIndex];
+            const auto* frame = m_frames[frameIndex];
             
-            const VertexList& vertices = frame->vertices();
-            const Renderer::IndexRangeMap& indices = frame->indices();
+            const auto& vertices = frame->vertices();
+            const auto& indices = frame->indices();
             
-            const Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(vertices);
+            const auto vertexArray = Renderer::VertexArray::ref(vertices);
             const Renderer::TexturedIndexRangeMap texturedIndices(skin, indices);
             
             return new Renderer::TexturedIndexRangeRenderer(vertexArray, texturedIndices);
         }
         
-        BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
+        vm::bbox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {
             ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
             
-            const Frame* frame = m_frames[frameIndex];
+            const auto* frame = m_frames[frameIndex];
             return frame->bounds();
         }
         
-        BBox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        vm::bbox3f Md2Model::doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const vm::mat4x4f& transformation) const {
             ensure(skinIndex < m_skins->textures().size(), "skin index out of range");
             ensure(frameIndex < m_frames.size(), "frame index out of range");
             
-            const Frame* frame = m_frames[frameIndex];
+            const auto* frame = m_frames[frameIndex];
             return frame->transformedBounds(transformation);
         }
 

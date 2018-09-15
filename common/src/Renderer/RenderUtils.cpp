@@ -22,6 +22,11 @@
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/util.h>
+
 namespace TrenchBroom {
     namespace Renderer {
         static const float EdgeOffset = 0.0001f;
@@ -34,22 +39,22 @@ namespace TrenchBroom {
             glAssert(glDepthRange(EdgeOffset, 1.0f));
         }
         
-        void coordinateSystemVerticesX(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
-            const Vec3f center = bounds.center();
-            start = Vec3f(bounds.min.x(), center.y(),     center.z());
-            end   = Vec3f(bounds.max.x(), center.y(),     center.z());
+        void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end) {
+            const auto center = bounds.center();
+            start = vm::vec3f(bounds.min.x(), center.y(),     center.z());
+            end   = vm::vec3f(bounds.max.x(), center.y(),     center.z());
         }
         
-        void coordinateSystemVerticesY(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
-            const Vec3f center = bounds.center();
-            start = Vec3f(center.x(),     bounds.min.y(), center.z());
-            end   = Vec3f(center.x(),     bounds.max.y(), center.z());
+        void coordinateSystemVerticesY(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end) {
+            const auto center = bounds.center();
+            start = vm::vec3f(center.x(),     bounds.min.y(), center.z());
+            end   = vm::vec3f(center.x(),     bounds.max.y(), center.z());
         }
         
-        void coordinateSystemVerticesZ(const BBox3f& bounds, Vec3f& start, Vec3f& end) {
-            const Vec3f center = bounds.center();
-            start = Vec3f(center.x(),     center.y(),     bounds.min.z());
-            end   = Vec3f(center.x(),     center.y(),     bounds.max.z());
+        void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end) {
+            const auto center = bounds.center();
+            start = vm::vec3f(center.x(),     center.y(),     bounds.min.z());
+            end   = vm::vec3f(center.x(),     center.y(),     bounds.max.z());
         }
 
         TextureRenderFunc::~TextureRenderFunc() {}
@@ -66,19 +71,19 @@ namespace TrenchBroom {
                 texture->deactivate();
         }
 
-        Vec2f::List circle2D(const float radius, const size_t segments) {
-            Vec2f::List vertices = circle2D(radius, 0.0f, Math::Cf::twoPi(), segments);
-            vertices.push_back(Vec2f::Null);
+        std::vector<vm::vec2f> circle2D(const float radius, const size_t segments) {
+            std::vector<vm::vec2f> vertices = circle2D(radius, 0.0f, vm::Cf::twoPi(), segments);
+            vertices.push_back(vm::vec2f::zero);
             return vertices;
         }
 
-        Vec2f::List circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
+        std::vector<vm::vec2f> circle2D(const float radius, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
-                return Vec2f::List();
+                return std::vector<vm::vec2f>();
             
-            Vec2f::List vertices(segments + 1);
+            std::vector<vm::vec2f> vertices(segments + 1);
             
             const float d = angleLength / segments;
             float a = startAngle;
@@ -91,20 +96,20 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        Vec3f::List circle2D(const float radius, const Math::Axis::Type axis, const float startAngle, const float angleLength, const size_t segments) {
+        std::vector<vm::vec3f> circle2D(const float radius, const vm::axis::type axis, const float startAngle, const float angleLength, const size_t segments) {
             assert(radius > 0.0f);
             assert(segments > 0);
             if (angleLength == 0.0f)
-                return Vec3f::List();
+                return std::vector<vm::vec3f>();
             
-            Vec3f::List vertices(segments + 1);
+            std::vector<vm::vec3f> vertices(segments + 1);
             
             size_t x,y,z;
             switch (axis) {
-                case Math::Axis::AX:
+                case vm::axis::x:
                     x = 1; y = 2; z = 0;
                     break;
-                case Math::Axis::AY:
+                case vm::axis::y:
                     x = 2; y = 0; z = 1;
                     break;
                 default:
@@ -124,28 +129,31 @@ namespace TrenchBroom {
             return vertices;
         }
 
-        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) {
+        std::pair<float, float> startAngleAndLength(const vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis) {
             float angle1, angle2, angleLength;
             switch (axis) {
-                case Math::Axis::AX:
-                    angle1 = angleBetween(startAxis, Vec3f::PosY, Vec3f::PosX);
-                    angle2 = angleBetween(endAxis, Vec3f::PosY, Vec3f::PosX);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosX), angleBetween(endAxis, startAxis, Vec3f::PosX));
+                case vm::axis::x:
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_y, vm::vec3f::pos_x);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_x),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_x));
                     break;
-                case Math::Axis::AY:
-                    angle1 = angleBetween(startAxis, Vec3f::PosZ, Vec3f::PosY);
-                    angle2 = angleBetween(endAxis, Vec3f::PosZ, Vec3f::PosY);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosY), angleBetween(endAxis, startAxis, Vec3f::PosY));
+                case vm::axis::y:
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_z, vm::vec3f::pos_y);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_y),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_y));
                     break;
                 default:
-                    angle1 = angleBetween(startAxis, Vec3f::PosX, Vec3f::PosZ);
-                    angle2 = angleBetween(endAxis, Vec3f::PosX, Vec3f::PosZ);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosZ), angleBetween(endAxis, startAxis, Vec3f::PosZ));
+                    angle1 = measureAngle(startAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
+                    angle2 = measureAngle(endAxis, vm::vec3f::pos_x, vm::vec3f::pos_z);
+                    angleLength = std::min(measureAngle(startAxis, endAxis, vm::vec3f::pos_z),
+                                           measureAngle(endAxis, startAxis, vm::vec3f::pos_z));
                     break;
             }
             const float minAngle = std::min(angle1, angle2);
             const float maxAngle = std::max(angle1, angle2);
-            const float startAngle = (maxAngle - minAngle <= Math::Cf::pi() ? minAngle : maxAngle);
+            const float startAngle = (maxAngle - minAngle <= vm::Cf::pi() ? minAngle : maxAngle);
             return std::make_pair(startAngle, angleLength);
         }
 
@@ -153,98 +161,98 @@ namespace TrenchBroom {
             return 4 * (3 * cornerSegments + 3);
         }
 
-        Vec2f::List roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments) {
+        std::vector<vm::vec2f> roundedRect2D(const vm::vec2f& size, const float cornerRadius, const size_t cornerSegments) {
             return roundedRect2D(size.x(), size.y(), cornerRadius, cornerSegments);
         }
         
-        Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
+        std::vector<vm::vec2f> roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
-            Vec2f::List vertices;
+            std::vector<vm::vec2f> vertices;
             vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
             
-            const float angle = Math::Cf::piOverTwo() / cornerSegments;
-            Vec2f center(0.0f, 0.0f);
-            Vec2f translation;
+            const float angle = vm::Cf::piOverTwo() / cornerSegments;
+            vm::vec2f center(0.0f, 0.0f);
+            vm::vec2f translation;
             
             float curAngle = 0.0f;
             float x = std::cos(curAngle) * cornerRadius;
             float y = std::sin(curAngle) * cornerRadius;
             
             // lower right corner
-            translation = Vec2f( (width  / 2.0f - cornerRadius),
+            translation = vm::vec2f( (width  / 2.0f - cornerRadius),
                                 -(height / 2.0f - cornerRadius));
             for (size_t i = 0; i < cornerSegments; ++i) {
                 vertices[vertexIndex++] = center;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
                 
                 curAngle -= angle;
                 x = std::cos(curAngle) * cornerRadius;
                 y = std::sin(curAngle) * cornerRadius;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
             }
             
             // lower left corner
-            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+            translation = vm::vec2f(-(width  / 2.0f - cornerRadius),
                                 -(height / 2.0f - cornerRadius));
             for (size_t i = 0; i < cornerSegments; ++i) {
                 vertices[vertexIndex++] = center;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
                 
                 curAngle -= angle;
                 x = std::cos(curAngle) * cornerRadius;
                 y = std::sin(curAngle) * cornerRadius;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
             }
             
             // upper left corner
-            translation = Vec2f(-(width  / 2.0f - cornerRadius),
+            translation = vm::vec2f(-(width  / 2.0f - cornerRadius),
                                 (height / 2.0f - cornerRadius));
             for (size_t i = 0; i < cornerSegments; ++i) {
                 vertices[vertexIndex++] = center;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
                 
                 curAngle -= angle;
                 x = std::cos(curAngle) * cornerRadius;
                 y = std::sin(curAngle) * cornerRadius;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
             }
             
             // upper right corner
-            translation = Vec2f( (width  / 2.0f - cornerRadius),
+            translation = vm::vec2f( (width  / 2.0f - cornerRadius),
                                 (height / 2.0f - cornerRadius));
             for (size_t i = 0; i < cornerSegments; ++i) {
                 vertices[vertexIndex++] = center;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
                 
                 curAngle -= angle;
                 x = std::cos(curAngle) * cornerRadius;
                 y = std::sin(curAngle) * cornerRadius;
-                vertices[vertexIndex++] = translation + Vec2f(x, y);
+                vertices[vertexIndex++] = translation + vm::vec2f(x, y);
             }
             
             // upper body triangle
             vertices[vertexIndex++] = center;
-            vertices[vertexIndex++] = Vec2f(-(width / 2.0f - cornerRadius), height / 2.0f);
-            vertices[vertexIndex++] = Vec2f( (width / 2.0f - cornerRadius), height / 2.0f);
+            vertices[vertexIndex++] = vm::vec2f(-(width / 2.0f - cornerRadius), height / 2.0f);
+            vertices[vertexIndex++] = vm::vec2f( (width / 2.0f - cornerRadius), height / 2.0f);
             
             // right body triangle
             vertices[vertexIndex++] = center;
-            vertices[vertexIndex++] = Vec2f(width / 2.0f,  (height / 2.0f - cornerRadius));
-            vertices[vertexIndex++] = Vec2f(width / 2.0f, -(height / 2.0f - cornerRadius));
+            vertices[vertexIndex++] = vm::vec2f(width / 2.0f,  (height / 2.0f - cornerRadius));
+            vertices[vertexIndex++] = vm::vec2f(width / 2.0f, -(height / 2.0f - cornerRadius));
             
             // lower body triangle
             vertices[vertexIndex++] = center;
-            vertices[vertexIndex++] = Vec2f( (width / 2.0f - cornerRadius), -height / 2.0f);
-            vertices[vertexIndex++] = Vec2f(-(width / 2.0f - cornerRadius), -height / 2.0f);
+            vertices[vertexIndex++] = vm::vec2f( (width / 2.0f - cornerRadius), -height / 2.0f);
+            vertices[vertexIndex++] = vm::vec2f(-(width / 2.0f - cornerRadius), -height / 2.0f);
             
             // left body triangle
             vertices[vertexIndex++] = center;
-            vertices[vertexIndex++] = Vec2f(-width / 2.0f, -(height / 2.0f - cornerRadius));
-            vertices[vertexIndex++] = Vec2f(-width / 2.0f,  (height / 2.0f - cornerRadius));
+            vertices[vertexIndex++] = vm::vec2f(-width / 2.0f, -(height / 2.0f - cornerRadius));
+            vertices[vertexIndex++] = vm::vec2f(-width / 2.0f,  (height / 2.0f - cornerRadius));
             
             return vertices;
         }
@@ -285,15 +293,15 @@ namespace TrenchBroom {
             };
             
             typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
-            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
+            size_t midPoint(std::vector<vm::vec3f>& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
             
-            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
+            size_t midPoint(std::vector<vm::vec3f>& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));
                 if (it == std::end(cache)) {
-                    const Vec3f& vertex1 = vertices[index1];
-                    const Vec3f& vertex2 = vertices[index2];
-                    Vec3f midPoint = (vertex1 + vertex2) / 2.0f;
-                    vertices.push_back(midPoint.normalize());
+                    const vm::vec3f& vertex1 = vertices[index1];
+                    const vm::vec3f& vertex2 = vertices[index2];
+                    vm::vec3f midPoint = (vertex1 + vertex2) / 2.0f;
+                    vertices.push_back(normalize(midPoint));
                     size_t midPointIndex = vertices.size() - 1;
                     cache[MidPointIndex(index1, index2)] = midPointIndex;
                     cache[MidPointIndex(index2, index1)] = midPointIndex;
@@ -303,31 +311,31 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3f::List sphere3D(const float radius, const size_t iterations) {
+        std::vector<vm::vec3f> sphere3D(const float radius, const size_t iterations) {
             assert(radius > 0.0f);
             assert(iterations > 0);
             
             typedef std::vector<SphereBuilder::Triangle> TriangleList;
             
-            Vec3f::List vertices;
+            std::vector<vm::vec3f> vertices;
             TriangleList triangles;
             
             // build initial icosahedron
             const float t = static_cast<float>((1.0 + std::sqrt(5.0)) / 2.0);
-            vertices.push_back(Vec3f(-1.0f,     t,  0.0f).normalize());
-            vertices.push_back(Vec3f( 1.0f,     t,  0.0f).normalize());
-            vertices.push_back(Vec3f(-1.0f,    -t,  0.0f).normalize());
-            vertices.push_back(Vec3f( 1.0f,    -t,  0.0f).normalize());
+            vertices.push_back(normalize(vm::vec3f(-1.0f,     t,  0.0f)));
+            vertices.push_back(normalize(vm::vec3f( 1.0f,     t,  0.0f)));
+            vertices.push_back(normalize(vm::vec3f(-1.0f,    -t,  0.0f)));
+            vertices.push_back(normalize(vm::vec3f( 1.0f,    -t,  0.0f)));
             
-            vertices.push_back(Vec3f( 0.0f, -1.0f,     t).normalize());
-            vertices.push_back(Vec3f( 0.0f,  1.0f,     t).normalize());
-            vertices.push_back(Vec3f( 0.0f, -1.0f,    -t).normalize());
-            vertices.push_back(Vec3f( 0.0f,  1.0f,    -t).normalize());
+            vertices.push_back(normalize(vm::vec3f( 0.0f, -1.0f,     t)));
+            vertices.push_back(normalize(vm::vec3f( 0.0f,  1.0f,     t)));
+            vertices.push_back(normalize(vm::vec3f( 0.0f, -1.0f,    -t)));
+            vertices.push_back(normalize(vm::vec3f( 0.0f,  1.0f,    -t)));
             
-            vertices.push_back(Vec3f(    t,  0.0f, -1.0f).normalize());
-            vertices.push_back(Vec3f(    t,  0.0f,  1.0f).normalize());
-            vertices.push_back(Vec3f(   -t,  0.0f, -1.0f).normalize());
-            vertices.push_back(Vec3f(   -t,  0.0f,  1.0f).normalize());
+            vertices.push_back(normalize(vm::vec3f(    t,  0.0f, -1.0f)));
+            vertices.push_back(normalize(vm::vec3f(    t,  0.0f,  1.0f)));
+            vertices.push_back(normalize(vm::vec3f(   -t,  0.0f, -1.0f)));
+            vertices.push_back(normalize(vm::vec3f(   -t,  0.0f,  1.0f)));
             
             // 5 triangles around point 0
             triangles.push_back(SphereBuilder::Triangle( 0,  5, 11));
@@ -373,7 +381,7 @@ namespace TrenchBroom {
                 triangles = newTriangles;
             }
             
-            Vec3f::List allVertices;
+            std::vector<vm::vec3f> allVertices;
             allVertices.reserve(3 * triangles.size());
             
             for (SphereBuilder::Triangle& triangle : triangles) {
@@ -395,10 +403,10 @@ namespace TrenchBroom {
             VertsAndNormals result(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             for (size_t i = 0; i < segments; i++) {
-                result.vertices[i] = Vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
-                result.normals[i] = Vec3f::PosZ;
+                result.vertices[i] = vm::vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
+                result.normals[i] = vm::vec3f::pos_z;
                 a += d;
             }
             return result;
@@ -412,15 +420,15 @@ namespace TrenchBroom {
             VertsAndNormals result(2 * (segments + 1));
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             for (size_t i = 0; i <= segments; ++i) {
                 const float s = std::sin(a);
                 const float c = std::cos(a);
                 const float x = radius * s;
                 const float y = radius * c;
-                result.vertices[2*i+0] = Vec3f(x, y, length);
-                result.vertices[2*i+1] = Vec3f(x, y, 0.0f);
-                result.normals[2*i+0] = result.normals[2*i+1] = Vec3f(s, c, 0.0f);
+                result.vertices[2*i+0] = vm::vec3f(x, y, length);
+                result.vertices[2*i+1] = vm::vec3f(x, y, 0.0f);
+                result.normals[2*i+0] = result.normals[2*i+1] = vm::vec3f(s, c, 0.0f);
                 a += d;
             }
             return result;
@@ -434,10 +442,10 @@ namespace TrenchBroom {
             VertsAndNormals result(3 * (segments + 1));
             
             const float t = std::atan(length / radius);
-            const float n = std::cos(Math::Cf::piOverTwo() - t);
+            const float n = std::cos(vm::Cf::piOverTwo() - t);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Cf::pi() / static_cast<float>(segments);
+            const float d = 2.0f * vm::Cf::pi() / static_cast<float>(segments);
             float lastS = std::sin(a);
             float lastC = std::cos(a);
             a += d;
@@ -446,13 +454,13 @@ namespace TrenchBroom {
                 const float s = std::sin(a);
                 const float c = std::cos(a);
                 
-                result.vertices[3*i+0] = Vec3f(0.0f, 0.0f, length);
-                result.vertices[3*i+1] = Vec3f(radius * lastS, radius * lastC, 0.0f);
-                result.vertices[3*i+2] = Vec3f(radius * s, radius * c, 0.0f);
+                result.vertices[3*i+0] = vm::vec3f(0.0f, 0.0f, length);
+                result.vertices[3*i+1] = vm::vec3f(radius * lastS, radius * lastC, 0.0f);
+                result.vertices[3*i+2] = vm::vec3f(radius * s, radius * c, 0.0f);
                 
-                result.normals[3*i+0] = Vec3f(std::sin(a - d / 2.0f), std::cos(a - d / 2.0f), n).normalize();
-                result.normals[3*i+1] = Vec3f(lastS, lastC, n).normalize();
-                result.normals[3*i+2] = Vec3f(s, c, n).normalize();
+                result.normals[3*i+0] = normalize(vm::vec3f(std::sin(a - d / 2.0f), std::cos(a - d / 2.0f), n));
+                result.normals[3*i+1] = normalize(vm::vec3f(lastS, lastC, n));
+                result.normals[3*i+2] = normalize(vm::vec3f(s, c, n));
                 
                 lastS = s;
                 lastC = c;

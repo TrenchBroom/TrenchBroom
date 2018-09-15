@@ -36,21 +36,21 @@ namespace TrenchBroom {
             typedef std::shared_ptr<MoveBrushFacesCommand> Ptr;
         private:
             Model::BrushFacesMap m_faces;
-            Polygon3::List m_oldFacePositions;
-            Polygon3::List m_newFacePositions;
-            Vec3 m_delta;
+            std::vector<vm::polygon3> m_oldFacePositions;
+            std::vector<vm::polygon3> m_newFacePositions;
+            vm::vec3 m_delta;
         public:
-            static Ptr move(const Model::FaceToBrushesMap& faces, const Vec3& delta);
+            static Ptr move(const Model::FaceToBrushesMap& faces, const vm::vec3& delta);
         private:
-            MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
+            MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
             bool doCollateWith(UndoableCommand::Ptr command) override;
 
-            void doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
-            void doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const override;
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
         };
     }
 }

@@ -31,7 +31,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_brushFaceSnapshots);
         }
 
-        void Snapshot::restoreNodes(const BBox3& worldBounds) {
+        void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {
             for (NodeSnapshot* snapshot : m_nodeSnapshots)
                 snapshot->restore(worldBounds);
         }

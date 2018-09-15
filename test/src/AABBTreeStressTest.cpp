@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "AABBTree.h"
-#include "BBox.h"
+#include <vecmath/bbox.h>
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class TreeBuilder : public NodeVisitor {
         private:
             AABB& m_tree;
-            BBox3 m_bounds;
+            vm::bbox3 m_bounds;
         public:
             TreeBuilder(AABB& tree) : m_tree(tree) {}
         private:
@@ -58,11 +58,11 @@ namespace TrenchBroom {
                     const auto oldBounds = m_tree.bounds();
 
                     m_tree.insert(node->bounds(), node);
-                    m_bounds.mergeWith(node->bounds());
+                    m_bounds = merge(m_bounds, node->bounds());
 
                     if (!m_tree.bounds().contains(oldBounds)) {
                         cancel();
-                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds.asString() << " -> " << m_tree.bounds().asString();
+                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds();
                     }
                 } else {
                     m_tree.insert(node->bounds(), node);
@@ -72,7 +72,7 @@ namespace TrenchBroom {
                 if (!m_tree.contains(node->bounds(), node)) {
                     cancel();
                     m_tree.print(std::cout);
-                    ASSERT_TRUE(m_tree.contains(node->bounds(), node)) << "Node " << node << " with bounds " << node->bounds().asString() << " at line " << node->lineNumber() << " not found in tree after insertion";
+                    ASSERT_TRUE(m_tree.contains(node->bounds(), node)) << "Node " << node << " with bounds " << node->bounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
                 }
 
                 if (m_bounds != m_tree.bounds()) {
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             IO::TestParserStatus status;
             IO::WorldReader reader(file->begin(), file->end(), nullptr);
 
-            const BBox3 worldBounds(8192);
+            const vm::bbox3 worldBounds(8192);
             auto* world = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;

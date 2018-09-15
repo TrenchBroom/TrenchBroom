@@ -37,11 +37,11 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             UVViewHelper& m_helper;
             
-            Vec2b m_selector;
-            Vec3 m_xAxis;
-            Vec3 m_yAxis;
-            Vec2f m_initialHit;
-            Vec2f m_lastHit;
+            vm::vec2b m_selector;
+            vm::vec3 m_xAxis;
+            vm::vec3 m_yAxis;
+            vm::vec2f m_initialHit;
+            vm::vec2f m_lastHit;
         public:
             UVShearTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState) override;
             void doCancelMouseDrag() override;
             
-            Vec2f getHit(const Ray3& pickRay) const;
+            vm::vec2f getHit(const vm::ray3& pickRay) const;
             
             bool doCancel() override;
         };

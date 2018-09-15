@@ -21,16 +21,16 @@
 #define TrenchBroom_IntersectNodeWithRayVisitor
 
 #include "TrenchBroom.h"
-#include "Ray.h"
+#include <vecmath/forward.h>
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
         class IntersectNodeWithRayVisitor : public NodeVisitor, public NodeQuery<FloatType> {
         private:
-            const Ray3& m_ray;
+            const vm::ray3& m_ray;
         public:
-            IntersectNodeWithRayVisitor(const Ray3& ray);
+            IntersectNodeWithRayVisitor(const vm::ray3& ray);
         private:
             void doVisit(World* world) override;
             void doVisit(Layer* layer) override;

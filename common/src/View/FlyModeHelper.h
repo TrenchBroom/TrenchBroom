@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_FlyModeHelper
 #define TrenchBroom_FlyModeHelper
 
-#include "VecMath.h"
+#include <vecmath/forward.h>
 
 #include <iostream>
 
@@ -83,9 +83,9 @@ namespace TrenchBroom {
             wxPoint windowCenter() const;
         private:
             ExitCode Entry() override;
-            Vec3f moveDelta();
-            Vec2f lookDelta();
-            Vec2f lookSpeed() const;
+            vm::vec3f moveDelta();
+            vm::vec2f lookDelta();
+            vm::vec2f lookSpeed() const;
             float moveSpeed() const;
         };
     }

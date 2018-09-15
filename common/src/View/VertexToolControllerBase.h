@@ -28,6 +28,8 @@
 #include "View/MoveToolController.h"
 #include "View/ToolController.h"
 
+#include <vecmath/intersection.h>
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -141,14 +143,14 @@ namespace TrenchBroom {
 
                     const auto& camera = inputState.camera();
                     const auto distance = 64.0f;
-                    const auto plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
-                    const auto initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
+                    const auto plane = orthogonalPlane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
+                    const auto initialPoint = inputState.pickRay().pointAtDistance(vm::intersect(inputState.pickRay(), plane));
                     
                     m_lasso = new Lasso(camera, distance, initialPoint);
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
                 }
                 
-                DragResult doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+                DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     m_lasso->update(nextHandlePosition);
                     return DR_Continue;
@@ -273,7 +275,7 @@ namespace TrenchBroom {
                             ));
                 }
 
-                DragResult doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) override {
+                DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                         case T::MR_Continue:
                             return DR_Continue;
