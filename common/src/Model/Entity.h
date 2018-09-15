@@ -42,8 +42,8 @@ namespace TrenchBroom {
             static const vm::bbox3 DefaultBounds;
             mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
-            vm::vec3 m_cachedOrigin;
-            vm::mat4x4 m_cachedRotation;
+            mutable vm::vec3 m_cachedOrigin;
+            mutable vm::mat4x4 m_cachedRotation;
         public:
             Entity();
             
