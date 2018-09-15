@@ -21,7 +21,6 @@
 #define TrenchBroom_Pickable_h
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,9 +29,9 @@ namespace TrenchBroom {
         class Pickable {
         public:
             virtual ~Pickable() {}
-            virtual const BBox3& bounds() const = 0;
-            virtual void pick(const Ray3& ray, PickResult& pickResult) const = 0;
-            virtual FloatType intersectWithRay(const Ray3& ray) const = 0;
+            virtual const vm::bbox3& bounds() const = 0;
+            virtual void pick(const vm::ray3& ray, PickResult& pickResult) const = 0;
+            virtual FloatType intersectWithRay(const vm::ray3& ray) const = 0;
         };
     }
 }

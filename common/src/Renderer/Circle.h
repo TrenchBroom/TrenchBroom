@@ -20,9 +20,10 @@
 #ifndef TrenchBroom_Circle
 #define TrenchBroom_Circle
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Renderer/VertexArray.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,14 +36,14 @@ namespace TrenchBroom {
         public:
             Circle(float radius, size_t segments, bool filled);
             Circle(float radius, size_t segments, bool filled, float startAngle, float angleLength);
-            Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
-            Circle(float radius, size_t segments, bool filled, Math::Axis::Type axis, float startAngle, float angleLength);
+            Circle(float radius, size_t segments, bool filled, vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+            Circle(float radius, size_t segments, bool filled, vm::axis::type axis, float startAngle, float angleLength);
             
             bool prepared() const;
             void prepare(Vbo& vbo);
             void render();
         private:
-            void init3D(float radius, size_t segments, Math::Axis::Type axis, float startAngle, float angleLength);
+            void init3D(float radius, size_t segments, vm::axis::type axis, float startAngle, float angleLength);
             void init2D(float radius, size_t segments, float startAngle, float angleLength);
         };
     }

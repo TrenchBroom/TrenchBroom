@@ -26,6 +26,8 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexTool.h"
 
+#include <iterator>
+
 namespace TrenchBroom {
     namespace View {
         VertexCommand::VertexCommand(const CommandType type, const String& name, const Model::BrushList& brushes) :
@@ -38,27 +40,27 @@ namespace TrenchBroom {
                 deleteSnapshot();
         }
         
-        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, Vec3::List& vertexPositions) {
+        void VertexCommand::extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions) {
             extract(vertices, brushes, brushVertices, vertexPositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
             extract(edges, brushes, brushEdges, edgePositions);
         }
 
-        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
-        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
+        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
             
             for (const auto& entry : edges) {
                 const Model::BrushEdgeSet& mappedEdges = entry.second;
                 for (Model::BrushEdge* edge : mappedEdges) {
                     Model::Brush* brush = edge->firstFace()->payload()->brush();
-                    const Edge3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
+                    const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
                     
-                    const auto result = brushEdges.insert(std::make_pair(brush, Edge3::List()));
+                    const auto result = brushEdges.insert(std::make_pair(brush, std::vector<vm::segment3>()));
                     if (result.second)
                         brushes.push_back(brush);
                     result.first->second.push_back(edgePosition);
@@ -70,17 +72,18 @@ namespace TrenchBroom {
             assert(brushes.size() == brushEdges.size());
         }
 
-        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
 
             for (const auto& entry : faces) {
                 const Model::BrushFaceSet& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
                     Model::Brush* brush = face->brush();
-                    const Polygon3 facePosition(Vec3::asList(face->vertices().begin(), face->vertices().end(), Model::BrushGeometry::GetVertexPosition()));
-                    
-                    const auto result = brushFaces.insert(std::make_pair(brush, Polygon3::List()));
-                    if (result.second)
+                    const auto result = brushFaces.insert(std::make_pair(brush, std::vector<vm::polygon3>()));
+                    if (result.second) {
                         brushes.push_back(brush);
+                    }
+
+                    const vm::polygon3 facePosition = face->polygon();
                     result.first->second.push_back(facePosition);
                     facePositions.push_back(facePosition);
                 }
@@ -96,9 +99,11 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : edges) {
                 Model::Brush* brush = entry.first;
-                const Edge3::List& edgeList = entry.second;
+                const std::vector<vm::segment3>& edgeList = entry.second;
                 
-                Vec3::List vertices = Edge3::asVertexList(edgeList);
+                std::vector<vm::vec3> vertices;
+                vertices.reserve(2 * edgeList.size());
+                vm::segment3::getVertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
@@ -109,9 +114,10 @@ namespace TrenchBroom {
             Model::BrushVerticesMap result;
             for (const auto& entry : faces) {
                 Model::Brush* brush = entry.first;
-                const Polygon3::List& faceList = entry.second;
-                
-                Vec3::List vertices = Polygon3::asVertexList(faceList);
+                const std::vector<vm::polygon3>& faceList = entry.second;
+
+                std::vector<vm::vec3> vertices;
+                vm::polygon3::getVertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
                 VectorUtils::sortAndRemoveDuplicates(vertices);
                 result.insert(std::make_pair(brush, vertices));
             }
@@ -176,35 +182,35 @@ namespace TrenchBroom {
             manager.addHandles(std::begin(m_brushes), std::end(m_brushes));
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
         
-        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+        void VertexCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             doSelectNewHandlePositions(manager);
         }
         
-        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {
+        void VertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             doSelectOldHandlePositions(manager);
         }
 
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Vec3>& manager) const {}
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Edge3>& manager) const {}
-        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {}
-        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<Polygon3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {}
+        void VertexCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {}
+        void VertexCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {}
     }
 }

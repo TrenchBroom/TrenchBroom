@@ -32,6 +32,11 @@
 #include "View/MapDocument.h"
 #include "Renderer/PerspectiveCamera.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/plane.h>
+#include <vecmath/intersection.h>
+
 #include <iostream>
 #include <algorithm>
 
@@ -45,23 +50,26 @@ namespace TrenchBroom {
         m_orbit(false) {}
         
         void CameraTool3D::fly(int dx, int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
+            static const auto speed = 256.0f / 1000.0f; // 64 units per second
+            const auto dist  = speed * time;
             
-            static const float speed = 256.0f / 1000.0f; // 64 units per second
-            const float dist  = speed * time;
-            
-            Vec3 delta;
-            if (forward)
-                delta += m_camera.direction() * dist;
-            if (backward)
-                delta -= m_camera.direction() * dist;
-            if (left)
-                delta -= m_camera.right() * dist;
-            if (right)
-                delta += m_camera.right() * dist;
+            vm::vec3f delta;
+            if (forward) {
+                delta = delta + m_camera.direction() * dist;
+            }
+            if (backward) {
+                delta = delta - m_camera.direction() * dist;
+            }
+            if (left) {
+                delta = delta - m_camera.right() * dist;
+            }
+            if (right) {
+                delta = delta + m_camera.right() * dist;
+            }
             m_camera.moveBy(delta);
             
-            const float hAngle = static_cast<float>(dx) * lookSpeedH();
-            const float vAngle = static_cast<float>(dy) * lookSpeedV();
+            const auto hAngle = static_cast<float>(dx) * lookSpeedH();
+            const auto vAngle = static_cast<float>(dy) * lookSpeedV();
             m_camera.rotate(hAngle, vAngle);
         }
         
@@ -70,26 +78,27 @@ namespace TrenchBroom {
         }
         
         void CameraTool3D::doMouseScroll(const InputState& inputState) {
-            const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
+            const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;;
             if (m_orbit) {
-                const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
-                const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
-                const float distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
+                const auto orbitPlane = vm::plane3f(m_orbitCenter, m_camera.direction());
+                const auto maxDistance = std::max(vm::intersect(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
+                const auto distance = std::min(factor * inputState.scrollY() * moveSpeed(false), maxDistance);
                 m_camera.moveBy(distance * m_camera.direction());
             } else if (move(inputState)) {
-                const Vec3f moveDirection = pref(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
-                const float distance = inputState.scrollY() * moveSpeed(false);
+                const auto moveDirection = pref(Preferences::CameraMoveInCursorDir) ? vm::vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const auto distance = inputState.scrollY() * moveSpeed(false);
                 m_camera.moveBy(factor * distance * moveDirection);
             }
         }
         
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
-                if (hit.isMatch())
-                    m_orbitCenter = hit.hitPoint();
-                else
-                    m_orbitCenter = inputState.camera().defaultPoint(inputState.pickRay());
+                const auto& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).occluded().minDistance(3.0).first();
+                if (hit.isMatch()) {
+                    m_orbitCenter = vm::vec3f(hit.hitPoint());
+                } else {
+                    m_orbitCenter = vm::vec3f(Renderer::Camera::defaultPoint(inputState.pickRay()));
+                }
                 m_orbit = true;
                 return true;
             } else if (look(inputState)) {
@@ -102,24 +111,24 @@ namespace TrenchBroom {
         
         bool CameraTool3D::doMouseDrag(const InputState& inputState) {
             if (m_orbit) {
-                const float hAngle = inputState.mouseDX() * lookSpeedH();
-                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = inputState.mouseDX() * lookSpeedH();
+                const auto vAngle = inputState.mouseDY() * lookSpeedV();
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
-                const float hAngle = inputState.mouseDX() * lookSpeedH();
-                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                const auto hAngle = inputState.mouseDX() * lookSpeedH();
+                const auto vAngle = inputState.mouseDY() * lookSpeedV();
                 m_camera.rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
-                const bool altMove = pref(Preferences::CameraEnableAltMove);
-                Vec3f delta;
+                const auto altMove = pref(Preferences::CameraEnableAltMove);
+                vm::vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
+                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
+                    delta = delta + inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
                 } else {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * panSpeedV() * m_camera.up();
+                    delta = delta + inputState.mouseDX() * panSpeedH() * m_camera.right();
+                    delta = delta + inputState.mouseDY() * panSpeedV() * m_camera.up();
                 }
                 m_camera.moveBy(delta);
                 return true;

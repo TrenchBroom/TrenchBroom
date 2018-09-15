@@ -20,7 +20,10 @@
 #ifndef BrushFaceReference_h
 #define BrushFaceReference_h
 
+#include "TrenchBroom.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/plane.h>
 
 #include <list>
 
@@ -30,7 +33,7 @@ namespace TrenchBroom {
         public:
             typedef std::list<BrushFaceReference> List;
         private:
-            Plane3 m_facePlane;
+            vm::plane3 m_facePlane;
             Model::Brush* m_brush;
         public:
             BrushFaceReference(Model::BrushFace* face);

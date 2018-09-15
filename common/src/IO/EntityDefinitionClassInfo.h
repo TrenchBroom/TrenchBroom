@@ -21,11 +21,12 @@
 #define TrenchBroom_EntityDefinitionClassInfo
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "StringUtils.h"
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/ModelDefinition.h"
+
+#include <vecmath/bbox.h>
 
 #include <map>
 
@@ -43,14 +44,14 @@ namespace TrenchBroom {
             bool m_hasDescription;
             Color m_color;
             bool m_hasColor;
-            BBox3 m_size;
+            vm::bbox3 m_size;
             bool m_hasSize;
             Assets::AttributeDefinitionMap m_attributes;
             Assets::ModelDefinition m_modelDefinition;
             bool m_hasModelDefinition;
         public:
             EntityDefinitionClassInfo();
-            EntityDefinitionClassInfo(const size_t line, const size_t column, const Color& defaultColor);
+            EntityDefinitionClassInfo(size_t line, size_t column, const Color& defaultColor);
             
             size_t line() const;
             size_t column() const;
@@ -59,7 +60,7 @@ namespace TrenchBroom {
             bool hasDescription() const;
             const Color& color() const;
             bool hasColor() const;
-            const BBox3& size() const;
+            const vm::bbox3& size() const;
             bool hasSize() const;
             Assets::AttributeDefinitionList attributeList() const;
             const Assets::AttributeDefinitionMap& attributeMap() const;
@@ -69,7 +70,7 @@ namespace TrenchBroom {
             void setName(const String& name);
             void setDescription(const String& description);
             void setColor(const Color& color);
-            void setSize(const BBox3& size);
+            void setSize(const vm::bbox3& size);
             void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
             void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
             void setModelDefinition(const Assets::ModelDefinition& modelDefinition);

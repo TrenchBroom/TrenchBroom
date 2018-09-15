@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <array>
 #include <cstdarg>
 #include <iterator>
 #include <limits>
@@ -31,6 +32,7 @@
 #include "SharedPointer.h"
 #include "Macros.h"
 
+// TODO: Clean up, split up, and reduce the number of system headers.
 namespace Utils {
     template <typename T>
     struct Deleter {
@@ -114,29 +116,6 @@ namespace CollectionUtils {
             else
                 ++cur;
         }
-    }
-    
-    template <typename I, typename Cmp = std::less<typename I::value_type>>
-    void rotateMinToFront(I begin, I end, const Cmp& cmp = Cmp()) {
-        if (begin < end) {
-            const auto smallest = std::min_element(begin, end);
-            std::rotate(begin, smallest, end);
-        }
-    }
-    
-    template <typename Col, typename Cmp = std::less<typename Col::value_type>>
-    Col& rotateMinToFront(Col& col, const Cmp& cmp = Cmp()) {
-        if (col.size() <= 1)
-            return col;
-
-        rotateMinToFront(std::begin(col), std::end(col), cmp);
-        return col;
-    }
-    
-    template <typename Col, typename Cmp = std::less<typename Col::value_type>>
-    Col minRotatedToFront(const Col& col, const Cmp& cmp = Cmp()) {
-        Col copy = col;
-        return rotateMinToFront(copy);
     }
 
     template <typename Col, typename Cmp>
@@ -802,7 +781,19 @@ namespace SetUtils {
             return subset(lhs, rhs);
         }
     };
-    
+
+    template <typename T, size_t S>
+    void makeSet(const std::array<T, S>& arr, std::set<T>& result) {
+        result.insert(std::begin(arr), std::end(arr));
+    }
+
+    template <typename T, size_t S>
+    std::set<T> makeSet(const std::array<T, S>& arr) {
+        std::set<T> result;
+        makeSet(arr, result);
+        return result;
+    }
+
     template <typename T>
     void makeSet(const std::vector<T>& vec, std::set<T>& result) {
         result.insert(std::begin(vec), std::end(vec));

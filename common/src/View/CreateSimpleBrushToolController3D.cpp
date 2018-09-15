@@ -19,6 +19,8 @@
 
 #include "CreateSimpleBrushToolController3D.h"
 
+#include "TrenchBroom.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -33,6 +35,11 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+
+#include <vecmath/vec.h>
+#include <vecmath/line.h>
+#include <vecmath/plane.h>
+#include <vecmath/bbox.h>
 
 #include <cassert>
 
@@ -51,40 +58,44 @@ namespace TrenchBroom {
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                    setRestricter(inputState, new LineDragRestricter(Line3(currentHandlePosition(), Vec3::PosZ)), true);
+                    setRestricter(inputState, new LineDragRestricter(vm::line3(currentHandlePosition(), vm::vec3::pos_z)), true);
                 } else {
-                    setRestricter(inputState, new PlaneDragRestricter(horizontalDragPlane(currentHandlePosition())), true);
+                    setRestricter(inputState, new PlaneDragRestricter(horizontalPlane(currentHandlePosition())), true);
                 }
             }
         }
 
         RestrictedDragPolicy::DragInfo CreateSimpleBrushToolController3D::doStartDrag(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return DragInfo();
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+            }
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
                 return DragInfo();
-            
+            }
+
             MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelection())
+            if (document->hasSelection()) {
                 return DragInfo();
-            
+            }
+
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch())
+            if (hit.isMatch()) {
                 m_initialPoint = hit.hitPoint();
-            else
+            } else {
                 m_initialPoint = inputState.defaultPointUnderMouse();
-            
-            updateBounds(m_initialPoint, Vec3(inputState.camera().position()));
+            }
+
+            updateBounds(m_initialPoint, vm::vec3(inputState.camera().position()));
             refreshViews();
                 
             
-            const Plane3 plane = Plane3(m_initialPoint, Vec3::PosZ);
+            const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z);
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
         
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
-            updateBounds(nextHandlePosition, Vec3(inputState.camera().position()));
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+            updateBounds(nextHandlePosition, vm::vec3(inputState.camera().position()));
             refreshViews();
             return DR_Continue;
         }
@@ -107,33 +118,36 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CreateSimpleBrushToolController3D::updateBounds(const Vec3& point, const Vec3 cameraPosition) {
-            BBox3 bounds;
+        void CreateSimpleBrushToolController3D::updateBounds(const vm::vec3& point, const vm::vec3 cameraPosition) {
+            vm::bbox3 bounds;
             
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
             
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
+            auto document = lock(m_document);
+            const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
-            bounds.min.correct();
-            bounds.max.correct();
+            bounds.min = correct(bounds.min);
+            bounds.max = correct(bounds.max);
             
             bounds.min = grid.snapDown(bounds.min);
             bounds.max = grid.snapUp(bounds.max);
             
             for (size_t i = 0; i < 3; i++) {
-                if (Math::lte(bounds.max[i], bounds.min[i])) {
-                    if (bounds.min[i] < cameraPosition[i])
+                if (vm::lte(bounds.max[i], bounds.min[i])) {
+                    if (bounds.min[i] < cameraPosition[i]) {
                         bounds.max[i] = bounds.min[i] + grid.actualSize();
-                    else
+                    } else {
                         bounds.min[i] = bounds.max[i] - grid.actualSize();
+                    }
                 }
             }
 
-            bounds.intersectWith(document->worldBounds());
-            m_tool->update(bounds);
+            bounds = intersect(bounds, document->worldBounds());
+            if (!bounds.empty()) {
+                m_tool->update(bounds);
+            }
         }
     }
 }

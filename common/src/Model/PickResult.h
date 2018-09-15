@@ -20,10 +20,11 @@
 #ifndef TrenchBroom_PickResult
 #define TrenchBroom_PickResult
 
-#include "MathUtils.h"
 #include "Model/CompareHits.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
+
+#include <vecmath/util.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             PickResult();
 
             static PickResult byDistance(const EditorContext& editorContext);
-            static PickResult bySize(const EditorContext& editorContext, Math::Axis::Type axis);
+            static PickResult bySize(const EditorContext& editorContext, vm::axis::type axis);
 
             bool empty() const;
             size_t size() const;

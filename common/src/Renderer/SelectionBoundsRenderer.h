@@ -21,7 +21,8 @@
 #define TrenchBroom_SelectionBoundsRenderer
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -30,13 +31,13 @@ namespace TrenchBroom {
         
         class SelectionBoundsRenderer {
         private:
-            const BBox3 m_bounds;
+            const vm::bbox3 m_bounds;
             
             class SizeTextAnchor2D;
             class SizeTextAnchor3D;
             class MinMaxTextAnchor3D;
         public:
-            SelectionBoundsRenderer(const BBox3& bounds);
+            SelectionBoundsRenderer(const vm::bbox3& bounds);
             
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:

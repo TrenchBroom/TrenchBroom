@@ -20,45 +20,34 @@
 #ifndef TrenchBroom_TrenchBroom_h
 #define TrenchBroom_TrenchBroom_h
 
-#include "VecMath.h"
-
-typedef double FloatType;
-typedef BBox<FloatType, 2> BBox2;
-typedef BBox<FloatType, 3> BBox3;
-typedef Vec<FloatType, 3> Vec3;
-typedef Vec<FloatType, 2> Vec2;
-typedef Plane<FloatType, 3> Plane3;
-typedef Quat<FloatType> Quat3;
-typedef Mat<FloatType, 4, 4> Mat4x4;
-typedef Mat<FloatType, 3, 3> Mat3x3;
-typedef Mat<FloatType, 2, 2> Mat2x2;
-typedef Line<FloatType, 3> Line3;
-typedef Ray<FloatType, 3> Ray3;
-typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
+#include <vecmath/forward.h>
 
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
+
+using FloatType = double;
+
+namespace vm {
+    using vec3 = vm::vec<FloatType,3>;
+    using vec2 = vm::vec<FloatType,2>;
+    using mat4x4 = vm::mat<FloatType,4,4>;
+    using quat3 = vm::quat<FloatType>;
+    using line3 = vm::line<FloatType,3>;
+    using ray3 = vm::ray<FloatType,3>;
+    using segment3 = vm::segment<FloatType,3>;
+    using plane3 = vm::plane<FloatType,3>;
+    using polygon3 = vm::polygon<FloatType,3>;
+    using bbox3 = vm::bbox<FloatType,3>;
+    using bbox2 = vm::bbox<FloatType,2>;
+
+    using C = constants<FloatType>;
+}
+
+
 #include "Polyhedron_Instantiation.h"
 
 template<typename T, typename FP, typename VB> class Polyhedron;
-typedef Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload> Polyhedron3;
-
-namespace TrenchBroom {
-    typedef Edge<FloatType, 3> Edge3;
-    typedef Edge<FloatType, 2> Edge2;
-    typedef Polygon<FloatType, 3> Polygon3;
-    typedef Polygon<FloatType, 2> Polygon2;
-}
-
-namespace Math {
-    typedef Constants<FloatType> C;
-}
-
-template <typename T>
-void safeDelete(T*& p) {
-    delete p;
-    p = nullptr;
-}
+using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
 #endif

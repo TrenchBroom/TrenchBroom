@@ -24,6 +24,12 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/vec.h>
+#include <vecmath/bbox.h>
+#include <vecmath/bbox.h>
+#include <vecmath/scalar.h>
+
 namespace TrenchBroom {
     namespace View {
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document) :
@@ -31,7 +37,7 @@ namespace TrenchBroom {
         m_document(document),
         m_toolPage(nullptr),
         m_handle(),
-        m_angle(Math::radians(15.0)) {}
+        m_angle(vm::radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
             resetRotationCenter();
@@ -43,12 +49,13 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            if (area == RotateObjectsHandle::HitArea_XAxis)
-                m_toolPage->setAxis(Math::Axis::AX);
-            else if (area == RotateObjectsHandle::HitArea_YAxis)
-                m_toolPage->setAxis(Math::Axis::AY);
-            else if (area == RotateObjectsHandle::HitArea_ZAxis)
-                m_toolPage->setAxis(Math::Axis::AZ);
+            if (area == RotateObjectsHandle::HitArea_XAxis) {
+                m_toolPage->setAxis(vm::axis::x);
+            } else if (area == RotateObjectsHandle::HitArea_YAxis) {
+                m_toolPage->setAxis(vm::axis::y);
+            } else if (area == RotateObjectsHandle::HitArea_ZAxis) {
+                m_toolPage->setAxis(vm::axis::z);
+            }
         }
         
         double RotateObjectsTool::angle() const {
@@ -59,20 +66,20 @@ namespace TrenchBroom {
             m_angle = angle;
         }
         
-        Vec3 RotateObjectsTool::rotationCenter() const {
+        vm::vec3 RotateObjectsTool::rotationCenter() const {
             return m_handle.position();
         }
         
-        void RotateObjectsTool::setRotationCenter(const Vec3& position) {
+        void RotateObjectsTool::setRotationCenter(const vm::vec3& position) {
             m_handle.setPosition(position);
             m_toolPage->setCurrentCenter(position);
             refreshViews();
         }
         
         void RotateObjectsTool::resetRotationCenter() {
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& bounds = document->selectionBounds();
-            const Vec3 position = document->grid().snap(bounds.center());
+            auto document = lock(m_document);
+            const auto& bounds = document->selectionBounds();
+            const auto position = document->grid().snap(bounds.center());
             setRotationCenter(position);
         }
         
@@ -101,25 +108,25 @@ namespace TrenchBroom {
             return document->grid().snapAngle(angle);
         }
         
-        void RotateObjectsTool::applyRotation(const Vec3& center, const Vec3& axis, const FloatType angle) {
+        void RotateObjectsTool::applyRotation(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
             MapDocumentSPtr document = lock(m_document);
             document->rollbackTransaction();
             document->rotateObjects(center, axis, angle);
         }
         
-        Model::Hit RotateObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) {
+        Model::Hit RotateObjectsTool::pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             return m_handle.pick2D(pickRay, camera);
         }
         
-        Model::Hit RotateObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) {
+        Model::Hit RotateObjectsTool::pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) {
             return m_handle.pick3D(pickRay, camera);
         }
         
-        Vec3 RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const {
+        vm::vec3 RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const {
             return m_handle.rotationAxis(area);
         }
         
-        Vec3 RotateObjectsTool::rotationAxisHandle(const RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const {
+        vm::vec3 RotateObjectsTool::rotationAxisHandle(const RotateObjectsHandle::HitArea area, const vm::vec3& cameraPos) const {
             return m_handle.pointHandlePosition(area, cameraPos);
         }
         
@@ -138,7 +145,7 @@ namespace TrenchBroom {
             m_handle.renderHighlight3D(renderContext, renderBatch, area);
         }
 
-        void RotateObjectsTool::updateRecentlyUsedCenters(const Vec3& center) {
+        void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center) {
             VectorUtils::erase(m_recentlyUsedCenters, center);
             m_recentlyUsedCenters.push_back(center);
             m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);

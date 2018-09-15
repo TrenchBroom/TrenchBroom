@@ -42,7 +42,7 @@ namespace TrenchBroom {
         class Lasso;
         class Selection;
         
-        class VertexTool : public VertexToolBase<Vec3> {
+        class VertexTool : public VertexToolBase<vm::vec3> {
         private:
             typedef enum {
                 Mode_Move,
@@ -60,13 +60,13 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
         public:
-            Model::BrushSet findIncidentBrushes(const Vec3& handle) const;
-            Model::BrushSet findIncidentBrushes(const Edge3& handle) const;
-            Model::BrushSet findIncidentBrushes(const Polygon3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::vec3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
+            Model::BrushSet findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
+            void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const override;
         public: // Handle selection
             bool deselectAll() override;
         public:
@@ -74,16 +74,16 @@ namespace TrenchBroom {
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
             bool startMove(const Model::Hit::List& hits) override;
-            MoveResult move(const Vec3& delta) override;
+            MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
 
-            const Vec3& getHandlePosition(const Model::Hit& hit) const override;
+            const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
             String actionName() const override;
             
             void removeSelection();
         public: // Rendering
-            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) const override;
+            void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const override;
         private: // Tool interface
             bool doActivate() override;
             bool doDeactivate() override;

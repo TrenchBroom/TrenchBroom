@@ -26,6 +26,9 @@
 #include "View/MapDocument.h"
 #include "View/UVViewHelper.h"
 
+#include <vecmath/vec.h>
+#include <vecmath/intersection.h>
+
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType UVShearTool::XHandleHit = Model::Hit::freeHitType();
@@ -61,7 +64,7 @@ namespace TrenchBroom {
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;
             
-            m_selector = Vec2b(xHit.isMatch(), yHit.isMatch());
+            m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
 
             const Model::BrushFace* face = m_helper.face();
             m_xAxis = face->textureXAxis();
@@ -70,8 +73,8 @@ namespace TrenchBroom {
             
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
             // the shear handle to be dragged is very close to one of the texture axes.
-            if (Math::zero(m_initialHit.x(), 6.0f) ||
-                Math::zero(m_initialHit.y(), 6.0f))
+            if (vm::isZero(m_initialHit.x(), 6.0f) ||
+                vm::isZero(m_initialHit.y(), 6.0f))
                 return false;
             
             MapDocumentSPtr document = lock(m_document);
@@ -80,26 +83,28 @@ namespace TrenchBroom {
         }
         
         bool UVShearTool::doMouseDrag(const InputState& inputState) {
-            const Vec2f currentHit = getHit(inputState.pickRay());
-            const Vec2f delta = currentHit - m_lastHit;
+            const auto currentHit = getHit(inputState.pickRay());
+            const auto delta = currentHit - m_lastHit;
 
-            Model::BrushFace* face = m_helper.face();
-            const Vec3 origin = m_helper.origin();
-            const Vec2f oldCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
+            auto* face = m_helper.face();
+            const auto origin = m_helper.origin();
+            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
             
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             if (m_selector[0]) {
-                const Vec2f factors = Vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                if (!factors.null())
+                const vm::vec2f factors = vm::vec2f(-delta.y() / m_initialHit.x(), 0.0f);
+                if (!isZero(factors)) {
                     document->shearTextures(factors);
+                }
             } else if (m_selector[1]) {
-                const Vec2f factors = Vec2f(0.0f, -delta.x() / m_initialHit.y());
-                if (!factors.null())
+                const vm::vec2f factors = vm::vec2f(0.0f, -delta.x() / m_initialHit.y());
+                if (!isZero(factors)) {
                     document->shearTextures(factors);
+                }
             }
             
-            const Vec2f newCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
-            const Vec2f newOffset = face->offset() + oldCoords - newCoords;
+            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero, face->scale(), true) * origin);
+            const auto newOffset = face->offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);
@@ -110,24 +115,24 @@ namespace TrenchBroom {
         }
         
         void UVShearTool::doEndMouseDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->commitTransaction();
         }
         
         void UVShearTool::doCancelMouseDrag() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = lock(m_document);
             document->cancelTransaction();
         }
 
-        Vec2f UVShearTool::getHit(const Ray3& pickRay) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType hitPointDist = boundary.intersectWithRay(pickRay);
-            const Vec3 hitPoint = pickRay.pointAtDistance(hitPointDist);
-            const Vec3 hitVec = hitPoint - m_helper.origin();
+        vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
+            const auto* face = m_helper.face();
+            const auto& boundary = face->boundary();
+            const auto hitPointDist = vm::intersect(pickRay, boundary);
+            const auto hitPoint = pickRay.pointAtDistance(hitPointDist);
+            const auto hitVec = hitPoint - m_helper.origin();
             
-            return Vec2f(hitVec.dot(m_xAxis),
-                         hitVec.dot(m_yAxis));
+            return vm::vec2f(dot(hitVec, m_xAxis),
+                         dot(hitVec, m_yAxis));
         }
         
         bool UVShearTool::doCancel() {

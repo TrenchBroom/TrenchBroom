@@ -19,6 +19,9 @@
 
 #include "EntityModel.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+
 namespace TrenchBroom {
     namespace Assets {
         EntityModel::EntityModel() :
@@ -30,11 +33,11 @@ namespace TrenchBroom {
             return doBuildRenderer(skinIndex, frameIndex);
         }
 
-        BBox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
+        vm::bbox3f EntityModel::bounds(const size_t skinIndex, const size_t frameIndex) const {
             return doGetBounds(skinIndex, frameIndex);
         }
 
-        BBox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
+        vm::bbox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const vm::mat4x4f& transformation) const {
             return doGetTransformedBounds(skinIndex, frameIndex, transformation);
         }
 

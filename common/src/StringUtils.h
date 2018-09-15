@@ -281,6 +281,13 @@ namespace StringUtils {
     String escapeIfNecessary(const String& str, const String& chars, char esc = '\\');
     String unescape(const String& str, const String& chars, char esc = '\\');
 
+    template <typename T>
+    String toString(const T& t) {
+        StringStream str;
+        str << t;
+        return str.str();
+    }
+
     int stringToInt(const String& str);
     long stringToLong(const String& str);
     double stringToDouble(const String& str);

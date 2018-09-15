@@ -87,8 +87,8 @@ namespace TrenchBroom {
             }
             
             template <typename T, size_t S>
-            void addOrUpdateAttribute(const AttributeName& name, const Vec<T,S>& value) {
-                addOrUpdateAttribute(name, value.asString());
+            void addOrUpdateAttribute(const AttributeName& name, const vm::vec<T,S>& value) {
+                addOrUpdateAttribute(name, StringUtils::toString(value));
             }
             
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
@@ -116,14 +116,14 @@ namespace TrenchBroom {
             private:
                 NotifyNodeChange m_nodeChange;
                 AttributableNode* m_node;
-                BBox3 m_oldBounds;
+                vm::bbox3 m_oldBounds;
             public:
                 NotifyAttributeChange(AttributableNode* node);
                 ~NotifyAttributeChange();
             };
             
             void attributesWillChange();
-            void attributesDidChange(const BBox3& oldBounds);
+            void attributesDidChange(const vm::bbox3& oldBounds);
             
             void updateClassname();
         private: // search index management
@@ -140,8 +140,8 @@ namespace TrenchBroom {
             const AttributableNodeList& killSources() const;
             const AttributableNodeList& killTargets() const;
             
-            Vec3 linkSourceAnchor() const;
-            Vec3 linkTargetAnchor() const;
+            vm::vec3 linkSourceAnchor() const;
+            vm::vec3 linkTargetAnchor() const;
             
             bool hasMissingSources() const;
             AttributeNameList findMissingLinkTargets() const;
@@ -193,11 +193,11 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange() override;
             virtual void doAncestorDidChange() override;
         private: // subclassing interface
-            virtual void doAttributesDidChange(const BBox3& oldBounds) = 0;
+            virtual void doAttributesDidChange(const vm::bbox3& oldBounds) = 0;
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
             virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
-            virtual Vec3 doGetLinkSourceAnchor() const = 0;
-            virtual Vec3 doGetLinkTargetAnchor() const = 0;
+            virtual vm::vec3 doGetLinkSourceAnchor() const = 0;
+            virtual vm::vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator
             AttributableNode(const AttributableNode&);
             AttributableNode& operator=(const AttributableNode&);

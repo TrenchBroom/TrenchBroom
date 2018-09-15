@@ -21,17 +21,21 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
+#include "TrenchBroom.h"
+#include <vecmath/vec.h>
+#include <vecmath/polygon.h>
+
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ResizeBrushesCommand::Type = Command::freeType();
 
-        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const Polygon3::List& faces, const Vec3& delta) {
+        ResizeBrushesCommand::Ptr ResizeBrushesCommand::resize(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             return Ptr(new ResizeBrushesCommand(faces, delta));
         }
 
-        ResizeBrushesCommand::ResizeBrushesCommand(const Polygon3::List& faces, const Vec3& delta) :
+        ResizeBrushesCommand::ResizeBrushesCommand(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) :
         SnapshotCommand(Type, "Resize Brushes"),
         m_faces(faces),
         m_delta(delta) {}
@@ -50,7 +54,7 @@ namespace TrenchBroom {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command.get());
             if (other->m_faces == m_newFaces) {
                 m_newFaces = other->m_newFaces;
-                m_delta += other->m_delta;
+                m_delta = m_delta + other->m_delta;
                 return true;
             } else {
                 return false;

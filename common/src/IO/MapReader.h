@@ -21,9 +21,11 @@
 #define TrenchBroom_MapReader
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "IO/StandardMapParser.h"
 #include "Model/ModelTypes.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -69,7 +71,7 @@ namespace TrenchBroom {
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
             typedef std::vector<NodeParentPair> NodeParentList;
             
-            BBox3 m_worldBounds;
+            vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;
             
             Model::Node* m_brushParent;
@@ -83,9 +85,9 @@ namespace TrenchBroom {
             MapReader(const char* begin, const char* end);
             MapReader(const String& str);
             
-            void readEntities(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
-            void readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
-            void readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds, ParserStatus& status);
+            void readEntities(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushes(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
+            void readBrushFaces(Model::MapFormat::Type format, const vm::bbox3& worldBounds, ParserStatus& status);
         public:
             virtual ~MapReader() override;
         private: // implement MapParser interface
@@ -94,7 +96,7 @@ namespace TrenchBroom {
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
             void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
-            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY, ParserStatus& status) override;
+            void onBrushFace(size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
         private: // helper methods
             void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
@@ -113,7 +115,7 @@ namespace TrenchBroom {
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds) = 0;
+            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const vm::bbox3& worldBounds) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;

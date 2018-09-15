@@ -21,7 +21,6 @@
 #define TrenchBroom_NodeSnapshot
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,9 +31,9 @@ namespace TrenchBroom {
         class NodeSnapshot {
         public:
             virtual ~NodeSnapshot();
-            void restore(const BBox3& worldBounds);
+            void restore(const vm::bbox3& worldBounds);
         private:
-            virtual void doRestore(const BBox3& worldBounds) = 0;
+            virtual void doRestore(const vm::bbox3& worldBounds) = 0;
         };
     }
 }

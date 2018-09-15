@@ -29,6 +29,11 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -37,11 +42,11 @@ namespace TrenchBroom {
         m_handle(pref(Preferences::HandleRadius), 16, true),
         m_highlight(2.0f * pref(Preferences::HandleRadius), 16, false) {}
         
-        void PointHandleRenderer::addPoint(const Color& color, const Vec3f& position) {
+        void PointHandleRenderer::addPoint(const Color& color, const vm::vec3f& position) {
             m_pointHandles[color].push_back(position);
         }
 
-        void PointHandleRenderer::addHighlight(const Color& color, const Vec3f& position) {
+        void PointHandleRenderer::addHighlight(const Color& color, const vm::vec3f& position) {
             m_highlights[color].push_back(position);
         }
         
@@ -54,12 +59,12 @@ namespace TrenchBroom {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.unzoomedViewport();
             
-            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f,
-                                                   static_cast<float>(viewport.x),
-                                                   static_cast<float>(viewport.height),
-                                                   static_cast<float>(viewport.width),
-                                                   static_cast<float>(viewport.y));
-            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            const vm::mat4x4f projection = vm::orthoMatrix(-1.0f, 1.0f,
+                                                           static_cast<float>(viewport.x),
+                                                           static_cast<float>(viewport.height),
+                                                           static_cast<float>(viewport.width),
+                                                           static_cast<float>(viewport.y));
+            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             glAssert(glDisable(GL_DEPTH_TEST));
@@ -78,9 +83,9 @@ namespace TrenchBroom {
                 const Color& color = entry.first;
                 shader.set("Color", color);
                 
-                for (const Vec3f& position : entry.second) {
-                    const Vec3f offset = camera.project(position);
-                    MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
+                for (const vm::vec3f& position : entry.second) {
+                    const vm::vec3f offset = camera.project(position);
+                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
                     circle.render();
                 }
             }

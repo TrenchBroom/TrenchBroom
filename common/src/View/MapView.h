@@ -21,8 +21,9 @@
 #define TrenchBroom_MapView
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/ViewEffectsService.h"
+
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -40,12 +41,12 @@ namespace TrenchBroom {
             void selectTall();
 
             bool canFlipObjects() const;
-            void flipObjects(Math::Direction direction);
+            void flipObjects(vm::direction direction);
             
-            Vec3 pasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const;
+            vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
             
             void focusCameraOnSelection(bool animate);
-            void moveCameraToPosition(const Vec3& position, bool animate);
+            void moveCameraToPosition(const vm::vec3& position, bool animate);
             
             void moveCameraToCurrentTracePoint();
 
@@ -60,12 +61,12 @@ namespace TrenchBroom {
             virtual void doSelectTall() = 0;
 
             virtual bool doCanFlipObjects() const = 0;
-            virtual void doFlipObjects(Math::Direction direction) = 0;
+            virtual void doFlipObjects(vm::direction direction) = 0;
             
-            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds, const BBox3& referenceBounds) const = 0;
+            virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
             virtual void doFocusCameraOnSelection(bool animate) = 0;
-            virtual void doMoveCameraToPosition(const Vec3& position, bool animate) = 0;
+            virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;
             
             virtual void doMoveCameraToCurrentTracePoint() = 0;
 

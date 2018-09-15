@@ -21,7 +21,6 @@
 #define TrenchBroom_MapDocumentCommandFacade
 
 #include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Node.h"
@@ -80,7 +79,7 @@ namespace TrenchBroom {
              * @return true if the transform was applied, false if can't be applied
              *         to everything in the selection (in which case nothing is modified).
              */
-            bool performTransform(const Mat4x4& transform, bool lockTextures);
+            bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes
             Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
@@ -89,19 +88,19 @@ namespace TrenchBroom {
             Model::EntityAttributeSnapshot::Map performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
-            Polygon3::List performResizeBrushes(const Polygon3::List& polygons, const Vec3& delta);
+            std::vector<vm::polygon3> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
         public: // brush face attributes
-            void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
-            void performShearTextures(const Vec2f& factors);
-            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const Plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
+            void performShearTextures(const vm::vec2f& factors);
+            void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot* coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
-            Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
-            Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
-            Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
+            std::vector<vm::vec3> performMoveVertices(const Model::BrushVerticesMap& vertices, const vm::vec3& delta);
+            std::vector<vm::segment3> performMoveEdges(const Model::BrushEdgesMap& edges, const vm::vec3& delta);
+            std::vector<vm::polygon3> performMoveFaces(const Model::BrushFacesMap& faces, const vm::vec3& delta);
             void performAddVertices(const Model::VertexToBrushesMap& vertices);
             void performRemoveVertices(const Model::BrushVerticesMap& vertices);
         private: // implement MapDocument operations

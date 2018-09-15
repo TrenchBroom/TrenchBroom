@@ -30,31 +30,31 @@ namespace TrenchBroom {
         private:
             String m_name;
 
-            mutable BBox3 m_bounds;
+            mutable vm::bbox3 m_bounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const String& name, const BBox3& worldBounds);
+            Layer(const String& name, const vm::bbox3& worldBounds);
             
             void setName(const String& name);
         private: // implement Node interface
             const String& doGetName() const override;
-            const BBox3& doGetBounds() const override;
+            const vm::bbox3& doGetBounds() const override;
             
-            Node* doClone(const BBox3& worldBounds) const override;
+            Node* doClone(const vm::bbox3& worldBounds) const override;
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
             bool doRemoveIfEmpty() const override;
-            void doNodeBoundsDidChange(const BBox3& oldBounds) override;
+            void doNodeBoundsDidChange(const vm::bbox3& oldBounds) override;
             bool doSelectable() const override;
 
-            void doPick(const Ray3& ray, PickResult& pickResult) const override;
-            void doFindNodesContaining(const Vec3& point, NodeList& result) override;
+            void doPick(const vm::ray3& ray, PickResult& pickResult) const override;
+            void doFindNodesContaining(const vm::vec3& point, NodeList& result) override;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
 
-            FloatType doIntersectWithRay(const Ray3& ray) const override;
+            FloatType doIntersectWithRay(const vm::ray3& ray) const override;
         private:
             void invalidateBounds();
             void validateBounds() const;

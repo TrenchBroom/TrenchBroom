@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return MoveInfo(hit.hitPoint());
         }
         
-        RestrictedDragPolicy::DragResult MoveObjectsToolController::doMove(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult MoveObjectsToolController::doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             switch (m_tool->move(inputState, nextHandlePosition - lastHandlePosition)) {
                 case MoveObjectsTool::MR_Continue:
                     return DR_Continue;

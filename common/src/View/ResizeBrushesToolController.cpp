@@ -105,13 +105,13 @@ namespace TrenchBroom {
         }
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
+            using Vertex = Renderer::VertexSpecs::P3::Vertex;
             Vertex::List vertices;
             
-            for (const Model::BrushFace* face : m_tool->dragFaces()) {
-                for (const Model::BrushEdge* edge : face->edges()) {
-                    vertices.push_back(Vertex(edge->firstVertex()->position()));
-                    vertices.push_back(Vertex(edge->secondVertex()->position()));
+            for (const auto* face : m_tool->dragFaces()) {
+                for (const auto* edge : face->edges()) {
+                    vertices.push_back(Vertex(vm::vec3f(edge->firstVertex()->position())));
+                    vertices.push_back(Vertex(vm::vec3f(edge->secondVertex()->position())));
                 }
             }
             
@@ -131,14 +131,14 @@ namespace TrenchBroom {
         ResizeBrushesToolController2D::ResizeBrushesToolController2D(ResizeBrushesTool* tool) :
         ResizeBrushesToolController(tool) {}
 
-        Model::Hit ResizeBrushesToolController2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController2D::doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick2D(pickRay, pickResult);
         }
         
         ResizeBrushesToolController3D::ResizeBrushesToolController3D(ResizeBrushesTool* tool) :
         ResizeBrushesToolController(tool) {}
         
-        Model::Hit ResizeBrushesToolController3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+        Model::Hit ResizeBrushesToolController3D::doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             return m_tool->pick3D(pickRay, pickResult);
         }
     }

@@ -56,11 +56,11 @@ namespace TrenchBroom {
             }
         }
 
-        static std::tuple<DragRestricter*, DragSnapper*, Vec3>
+        static std::tuple<DragRestricter*, DragSnapper*, vm::vec3>
         getDragRestricterSnapperAndInitialPoint(const InputState& inputState,
                                                 const Grid& grid,
                                                 const Model::Hit& dragStartHit,
-                                                const BBox3& bboxAtDragStart) {
+                                                const vm::bbox3& bboxAtDragStart) {
             const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
 
             DragRestricter* restricter = nullptr;
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
-                const Plane3 plane(dragStartHit.hitPoint(), inputState.camera().direction() * -1.0);
+                const vm::plane3 plane(dragStartHit.hitPoint(), vm::vec3(inputState.camera().direction()) * -1.0);
 
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
@@ -79,17 +79,17 @@ namespace TrenchBroom {
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
                        || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
 
-                const Line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+                const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
                 restricter = new LineDragRestricter(handleLine);
                 snapper = new LineDragSnapper(grid, handleLine);
             }
 
             // Snap the initial point
-            const Vec3 initialPoint = [&]() {
-                Vec3 p = dragStartHit.hitPoint();
+            const vm::vec3 initialPoint = [&]() {
+                vm::vec3 p = dragStartHit.hitPoint();
                 restricter->hitPoint(inputState, p);
-                snapper->snap(inputState, Vec3::Null, Vec3::Null, p);
+                snapper->snap(inputState, vm::vec3::zero, vm::vec3::zero, p);
                 return p;
             }();
 
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 const auto& camera = inputState.camera();
                 if (camera.orthographicProjection()) {
                     // special case for 2D: don't scale along the axis of the camera
-                    const size_t cameraComponent = camera.direction().firstComponent();
+                    const size_t cameraComponent = firstComponent(camera.direction());
                     scaleAllAxes.setAxisProportional(cameraComponent, false);
                 }
             }
@@ -183,7 +183,7 @@ namespace TrenchBroom {
                             std::get<2>(tuple));
         }
 
-        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const Vec3& lastHandlePosition, const Vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult ScaleObjectsToolController::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
             const auto delta = nextHandlePosition - lastHandlePosition;
             m_tool->scaleByDelta(delta);
 
@@ -215,12 +215,12 @@ namespace TrenchBroom {
                 {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-                    renderService.renderBounds(m_tool->bounds());
+                    renderService.renderBounds(vm::bbox3f(m_tool->bounds()));
                 }
 
                 // corner handles
-                for (const Vec3 &corner : m_tool->cornerHandles()) {
-                    const auto ray = renderContext.camera().pickRay(corner);
+                for (const auto& corner : m_tool->cornerHandles()) {
+                    const auto ray = vm::ray3(renderContext.camera().pickRay(vm::vec3f(corner)));
 
                     if (renderContext.camera().perspectiveProjection()) {
                         Model::PickResult pr;
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-                    renderService.renderHandle(corner);
+                    renderService.renderHandle(vm::vec3f(corner));
                 }
             }
 
@@ -273,7 +273,7 @@ namespace TrenchBroom {
                 const auto line = m_tool->dragEdge();
 
                 if (camera.orthographicProjection()
-                    && line.direction().parallelTo(camera.direction())) {
+                    && parallel(line.direction(), camera.direction())) {
                     // for the 2D view, for drag edges that are parallel to the camera,
                     // render the highlight with a ring around the handle
                     Renderer::RenderService renderService(renderContext, renderBatch);
@@ -320,7 +320,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController2D::ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
-        void ScaleObjectsToolController2D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+        void ScaleObjectsToolController2D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick2D(pickRay, camera, pickResult);
         }
@@ -330,7 +330,7 @@ namespace TrenchBroom {
         ScaleObjectsToolController3D::ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document) :
         ScaleObjectsToolController(tool, document) {}
         
-        void ScaleObjectsToolController3D::doPick(const Ray3 &pickRay, const Renderer::Camera &camera,
+        void ScaleObjectsToolController3D::doPick(const vm::ray3 &pickRay, const Renderer::Camera &camera,
                                                   Model::PickResult &pickResult) {
             m_tool->pick3D(pickRay, camera, pickResult);
         }
