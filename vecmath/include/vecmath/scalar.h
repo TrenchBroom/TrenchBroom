@@ -96,6 +96,24 @@ namespace vm {
     }
 
     /**
+     * Returns a value indicating the sign of the given value.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @return -1 if the given value is less then 0, +1 if the value is greater than 0, and 0 if the given value is 0
+     */
+    template <typename T>
+    T sign(const T v) {
+        if (v < T(0)) {
+            return T(-1);
+        } else if (v > T(0)) {
+            return T(+1);
+        } else {
+            return T(0);
+        }
+    }
+
+    /**
      * Returns the floating point remainder of x/y.
      *
      * @tparam T the argument type, which must be a floating point type
@@ -245,6 +263,19 @@ namespace vm {
     }
 
     /**
+     * Returns the nearest integer value not greater in magnitude than the given value, i.e., the given value is rounded
+     * towards 0.
+     *
+     * @tparam T the argument type
+     * @param v the value to truncate
+     * @return the truncated value
+     */
+    template <typename T>
+    T trunc(const T v) {
+        return std::trunc(v);
+    }
+
+    /**
      * Rounds the given value to the nearest integer value.
      *
      * @tparam T the argument type, which must be a floating point type
@@ -297,6 +328,8 @@ namespace vm {
     template <typename T>
     T roundDown(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        // this is equivalent to calling trunc
+        // we keep this function for consistency because there is no equivalent function to roundUp
         return v > 0.0 ? floor(v) : ceil(v);
     }
 

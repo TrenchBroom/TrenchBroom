@@ -1088,6 +1088,28 @@ namespace vm {
     }
 
     /**
+     * Returns a vector where each component indicates the sign of the corresponding components of the given vector.
+     *
+     * For each component, the returned vector has a value of
+     * - -1 if the corresponding component of the given vector is less than 0
+     * - +1 if the corresponding component of the given vector is greater than 0
+     * -  0 if the corresponding component of the given vector is equal to 0
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v a vector
+     * @return a vector indicating the signs of the components of the given vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> sign(const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = sign(v[i]);
+        }
+        return result;
+    }
+
+    /**
      * Returns the dot product (also called inner product) of the two given vectors.
      *
      * @tparam T the component type
@@ -1297,6 +1319,22 @@ namespace vm {
     }
 
     /**
+     * Returns a vector with each component clamped to the ranges defined in by the corresponding components of the
+     * given minimum and maximum vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v the value to clamp
+     * @param minVal the minimum values
+     * @param maxVal the maximum values
+     * @return the clamped vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> clamp(const vec<T,S>& v, const vec<T,S>& minVal, const vec<T,S>& maxVal) {
+        return min(max(v, minVal), maxVal);
+    }
+
+    /**
      * Computes the distance between two given points.
      *
      * @tparam T the component type
@@ -1403,6 +1441,62 @@ namespace vm {
     }
 
     /* ========== rounding and error correction ========== */
+
+    /**
+     * Returns a vector with each component set to the largest integer value not greater than the value of the
+     * corresponding component of the given vector.
+     *
+     * @tparam T the component type, which must be a floating point type
+     * @tparam S the number of components
+     * @param v the value
+     * @return a vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> floor(const vec<T,S>& v) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = floor(v[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector with each component set to the smallest integer value not less than the value of the
+     * corresponding component of the given vector.
+     *
+     * @tparam T the component type, which must be a floating point type
+     * @tparam S the number of components
+     * @param v the value
+     * @return a vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> ceil(const vec<T,S>& v) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = ceil(v[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector with each component set to the nearest integer which is not greater in magnitude than the
+     * corresponding component of the given vector.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v the vector to truncate
+     * @return the truncated vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> trunc(const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = trunc(v[i]);
+        }
+        return result;
+    }
 
     /**
      * Returns a vector where each component is the rounded value of the corresponding component of the given
