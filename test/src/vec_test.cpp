@@ -434,6 +434,24 @@ namespace vm {
         ASSERT_EQ(vec3d(-1, -1, -1), sign(-vec3d::one));
     }
 
+    TEST(VecTest, step) {
+        ASSERT_VEC_EQ(vec3d(0, 0, 0), step(+vec3d::one, vec3d::zero));
+        ASSERT_VEC_EQ(vec3d(1, 1, 1), step(+vec3d::one, vec3d::one));
+        ASSERT_VEC_EQ(vec3d(0, 0, 1), step(+vec3d::one, vec3d(-1, 0, 1)));
+        ASSERT_VEC_EQ(vec3d(1, 1, 1), step(-vec3d::one, vec3d(-1, 0, 1)));
+        ASSERT_VEC_EQ(vec3d(0, 1, 1), step(-vec3d::one, vec3d(-2, 0, 1)));
+    }
+
+    TEST(VecTest, smoothstep) {
+        ASSERT_VEC_EQ(vec3d(0.0,     0.0, 0.0),     smoothstep(vec3d::zero, vec3d::one, vec3d(-1.0 , -1.0, -1.0)));
+        ASSERT_VEC_EQ(vec3d(0.0,     0.0, 0.0),     smoothstep(vec3d::zero, vec3d::one, vec3d( 0.0 ,  0.0,  0.0)));
+        ASSERT_VEC_EQ(vec3d(1.0,     1.0, 1.0),     smoothstep(vec3d::zero, vec3d::one, vec3d(+1.0 , +1.0, +1.0)));
+        ASSERT_VEC_EQ(vec3d(1.0,     1.0, 1.0),     smoothstep(vec3d::zero, vec3d::one, vec3d(+2.0 , +2.0, +2.0)));
+        ASSERT_VEC_EQ(vec3d(0.0,     0.0, 1.0),     smoothstep(vec3d::zero, vec3d::one, vec3d(-1.0 ,  0.0, +2.0)));
+        ASSERT_VEC_EQ(vec3d(0.0,     0.5, 1.0),     smoothstep(vec3d::zero, vec3d::one, vec3d( 0.0 , +0.5, +1.0)));
+        ASSERT_VEC_EQ(vec3d(0.15625, 0.5, 0.84375), smoothstep(vec3d::zero, vec3d::one, vec3d(+0.25, +0.5, +0.75)));
+    }
+
     TEST(VecTest, dot) {
         ASSERT_FLOAT_EQ(-748013.6097f, dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f(4.333f, -2.0f, 322.0f)));
         ASSERT_FLOAT_EQ(0.0f, dot(vec3f(2.3f, 8.7878f, -2323.0f), vec3f::zero));
@@ -542,6 +560,12 @@ namespace vm {
         ASSERT_VEC_EQ(vec3d(0.1, 0.7, 0.99999), fract(vec3d(0.1, 0.7, 0.99999)));
         ASSERT_VEC_EQ(vec3d(-0.1, 0.7, -0.99999), fract(vec3d(-0.1, 0.7, -0.99999)));
         ASSERT_VEC_EQ(vec3d(-0.3, 0.7, 0.99999), fract(vec3d(-1.3, 0.7, 1.99999)));
+    }
+
+    TEST(VecTest, mod) {
+        ASSERT_VEC_EQ(vec3d::zero, mod(vec3d::one, vec3d::one));
+        ASSERT_VEC_EQ(vec3d::zero, mod(vec3d(2, -1, 0), vec3d::one));
+        ASSERT_VEC_EQ(vec3d(0.5, -0.5, 0.5), mod(vec3d(6.5, -6.5, 6.5), vec3d(2, 2, -2)));
     }
 
     TEST(VecTest, squaredDistance) {

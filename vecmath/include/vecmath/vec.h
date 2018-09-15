@@ -1070,6 +1070,22 @@ namespace vm {
     }
 
     /**
+     * Returns a vector with each component clamped to the ranges defined in by the corresponding components of the
+     * given minimum and maximum vectors.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v the value to clamp
+     * @param minVal the minimum values
+     * @param maxVal the maximum values
+     * @return the clamped vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> clamp(const vec<T,S>& v, const vec<T,S>& minVal, const vec<T,S>& maxVal) {
+        return min(max(v, minVal), maxVal);
+    }
+
+    /**
      * Returns a vector where each component is the absolute value of the corresponding component of the the
      * given vector.
      *
@@ -1105,6 +1121,45 @@ namespace vm {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
             result[i] = sign(v[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector where each component is set to 0 if the corresponding component of the given vector is less than
+     * the corresponding component of the given edge vector, and 1 otherwise.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v a vector
+     * @param e the edge vector
+     * @return a vector indicating whether the given value is less than the given edge value or not
+     */
+    template <typename T, size_t S>
+    vec<T,S> step(const vec<T,S>& e, const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = step(e[i], v[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Performs performs smooth Hermite interpolation for each component x of the given vector between 0 and 1 when
+     * e0[i] < v[i] < e1[i].
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param e0 the lower edge values
+     * @param e1 the upper edge values
+     * @param v the vector to interpolate
+     * @return the interpolated vector
+     */
+    template <typename T, size_t S>
+    vec<T,S> smoothstep(const vec<T,S>& e0, const vec<T,S>& e1, const vec<T,S>& v) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = smoothstep(e0[i], e1[i], v[i]);
         }
         return result;
     }
@@ -1319,22 +1374,6 @@ namespace vm {
     }
 
     /**
-     * Returns a vector with each component clamped to the ranges defined in by the corresponding components of the
-     * given minimum and maximum vectors.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param v the value to clamp
-     * @param minVal the minimum values
-     * @param maxVal the maximum values
-     * @return the clamped vector
-     */
-    template <typename T, size_t S>
-    vec<T,S> clamp(const vec<T,S>& v, const vec<T,S>& minVal, const vec<T,S>& maxVal) {
-        return min(max(v, minVal), maxVal);
-    }
-
-    /**
      * Returns a vector with each component set to the fractional part of the corresponding component of the given
      * vector.
      *
@@ -1351,6 +1390,25 @@ namespace vm {
         vec<T,S> result;
         for (size_t i = 0; i < S; ++i) {
             result[i] = fract(v[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Returns a vector with each component set to the floating point remainder of the division of v over f. So for each
+     * component i, it holds that result[i] = mod(v[i], f[i]).
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param v the dividend
+     * @param f the divisor
+     * @return the fractional remainder
+     */
+    template <typename T, size_t S>
+    vec<T,S> mod(const vec<T,S>& v, const vec<T,S>& f) {
+        vec<T,S> result;
+        for (size_t i = 0; i < S; ++i) {
+            result[i] = mod(v[i], f[i]);
         }
         return result;
     }

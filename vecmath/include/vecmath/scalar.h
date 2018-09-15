@@ -84,50 +84,6 @@ namespace vm {
     }
 
     /**
-     * Returns the absolute of the given value.
-     *
-     * @tparam T the argument type
-     * @param v the value
-     * @return the absolute of the given value
-     */
-    template <typename T>
-    T abs(const T v) {
-        return std::abs(v);
-    }
-
-    /**
-     * Returns a value indicating the sign of the given value.
-     *
-     * @tparam T the argument type
-     * @param v the value
-     * @return -1 if the given value is less then 0, +1 if the value is greater than 0, and 0 if the given value is 0
-     */
-    template <typename T>
-    T sign(const T v) {
-        if (v < T(0)) {
-            return T(-1);
-        } else if (v > T(0)) {
-            return T(+1);
-        } else {
-            return T(0);
-        }
-    }
-
-    /**
-     * Returns the floating point remainder of x/y.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param x the dividend
-     * @param y the divisor
-     * @return the remainder of x/y
-     */
-    template <typename T>
-    T mod(const T x, const T y) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return std::fmod(x, y);
-    }
-
-    /**
      * Returns the minimum of the given values.
      *
      * @tparam T the argument type
@@ -208,6 +164,93 @@ namespace vm {
     template <typename T>
     T absDifference(const T lhs, const T rhs) {
         return abs(abs(lhs) - abs(rhs));
+    }
+
+    /**
+     * Clamps the given value to the given interval.
+     *
+     * @tparam T the argument type
+     * @param v the value to clamp
+     * @param minV the minimal value
+     * @param maxV the maximal value
+     * @return the clamped value
+     */
+    template <typename T>
+    T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
+        return max(min(v, maxV), minV);
+    }
+
+    /**
+     * Returns the absolute of the given value.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @return the absolute of the given value
+     */
+    template <typename T>
+    T abs(const T v) {
+        return std::abs(v);
+    }
+
+    /**
+     * Returns a value indicating the sign of the given value.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @return -1 if the given value is less then 0, +1 if the value is greater than 0, and 0 if the given value is 0
+     */
+    template <typename T>
+    T sign(const T v) {
+        if (v < T(0)) {
+            return T(-1);
+        } else if (v > T(0)) {
+            return T(+1);
+        } else {
+            return T(0);
+        }
+    }
+
+    /**
+     * Returns 0 if the given value is less than the given edge value, and 1 otherwise.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @param e the edge value
+     * @return 0 or 1 depending on whether the given value is less than the given edge value or not
+     */
+    template <typename T>
+    T step(const T e, const T v) {
+        return v < e ? T(0) : T(1);
+    }
+
+    /**
+     * Performs performs smooth Hermite interpolation between 0 and 1 when e0 < v < e1.
+     *
+     * @tparam T the argument type
+     * @param e0 the lower edge value
+     * @param e1 the upper edge value
+     * @param v the value to interpolate
+     * @return the interpolated value
+     */
+    template <typename T>
+    T smoothstep(const T e0, const T e1, const T v) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        const auto t = clamp((v - e0) / (e1 - e0), T(0), T(1));
+        return t * t * (T(3) - T(2) * t);
+    }
+
+    /**
+     * Returns the floating point remainder of x/y.
+     *
+     * @tparam T the argument type, which must be a floating point type
+     * @param x the dividend
+     * @param y the divisor
+     * @return the remainder of x/y
+     */
+    template <typename T>
+    T mod(const T x, const T y) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        return std::fmod(x, y);
     }
 
     /**
@@ -565,20 +608,6 @@ namespace vm {
         } else {
             return gte(v, e, epsilon) && lte(v, s, epsilon);
         }
-    }
-
-    /**
-     * Clamps the given value to the given interval.
-     *
-     * @tparam T the argument type
-     * @param v the value to clamp
-     * @param minV the minimal value
-     * @param maxV the maximal value
-     * @return the clamped value
-     */
-    template <typename T>
-    T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
-        return max(min(v, maxV), minV);
     }
 
     /**
