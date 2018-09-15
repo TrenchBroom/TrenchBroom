@@ -47,6 +47,7 @@ namespace vm {
      * @param f the float to check
      * @return bool if the given float is NaN and false otherwise
      */
+     // TODO 2201: rename to isNaN.
     template <typename T>
     bool isNan(const T f) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
@@ -254,32 +255,6 @@ namespace vm {
     }
 
     /**
-     * Converts the given angle to radians.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param d the angle to convert, in degrees
-     * @return the converted angle in radians
-     */
-    template <typename T>
-    T radians(const T d) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return d * constants<T>::piOverStraightAngle();
-    }
-
-    /**
-     * Converts the given angle to degrees.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param r the angle to convert, in radians
-     * @return the converted angle in degrees
-     */
-    template <typename T>
-    T degrees(const T r) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return r * constants<T>::straightAngleOverPi();
-    }
-
-    /**
      * Computes the largest integer value not greater than the given value.
      *
      * @tparam T the argument type, which must be a floating point type
@@ -319,19 +294,6 @@ namespace vm {
     }
 
     /**
-     * Rounds the given value to the nearest integer value.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value
-     * @return the nearest integer value to the given value
-     */
-    template <typename T>
-    T round(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
-    }
-
-    /**
      * Returns the fractional part of the given value.
      *
      * @tparam T argument type
@@ -348,16 +310,16 @@ namespace vm {
     }
 
     /**
-     * Computes the offset to the nearest integer value.
+     * Rounds the given value to the nearest integer value.
      *
      * @tparam T the argument type, which must be a floating point type
      * @param v the value
-     * @return the offset to the nearest integer value
+     * @return the nearest integer value to the given value
      */
     template <typename T>
-    T integerOffset(const T v) {
+    T round(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return v - round(v);
+        return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
 
     /**
@@ -555,6 +517,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the given argument is greater than or equal to the given epsilon
      */
+    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
     template <typename T>
     bool isPositive(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
@@ -569,6 +532,7 @@ namespace vm {
      * @param epsilon an epsilon value
      * @return true if the given argument is less than or equal to the negated given epsilon
      */
+    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
     template <typename T>
     bool isNegative(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
@@ -629,6 +593,32 @@ namespace vm {
         } else {
             return min(lhs, rhs);
         }
+    }
+
+    /**
+     * Converts the given angle to radians.
+     *
+     * @tparam T the argument type, which must be a floating point type
+     * @param d the angle to convert, in degrees
+     * @return the converted angle in radians
+     */
+    template <typename T>
+    T radians(const T d) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        return d * constants<T>::piOverStraightAngle();
+    }
+
+    /**
+     * Converts the given angle to degrees.
+     *
+     * @tparam T the argument type, which must be a floating point type
+     * @param r the angle to convert, in radians
+     * @return the converted angle in degrees
+     */
+    template <typename T>
+    T degrees(const T r) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        return r * constants<T>::straightAngleOverPi();
     }
 
     /**
