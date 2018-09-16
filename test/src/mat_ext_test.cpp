@@ -114,22 +114,22 @@ namespace vm {
     }
 
     TEST(MatTest, rotationMatrixWithEulerAngles) {
-        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(radians(90.0), 0.0, 0.0));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(0.0, radians(90.0), 0.0));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(0.0, 0.0, radians(90.0)));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(toRadians(90.0), 0.0, 0.0));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(0.0, toRadians(90.0), 0.0));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(0.0, 0.0, toRadians(90.0)));
     }
 
     TEST(MatTest, rotationMatrixWithAngleAndAxis) {
-        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(vec3d::pos_x, radians(90.0)));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(vec3d::pos_y, radians(90.0)));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(vec3d::pos_z, radians(90.0)));
-        ASSERT_VEC_EQ(vec3d::pos_y, rotationMatrix(vec3d::pos_z, radians(90.0)) * vec3d::pos_x);
+        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(vec3d::pos_x, toRadians(90.0)));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(vec3d::pos_y, toRadians(90.0)));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(vec3d::pos_z, toRadians(90.0)));
+        ASSERT_VEC_EQ(vec3d::pos_y, rotationMatrix(vec3d::pos_z, toRadians(90.0)) * vec3d::pos_x);
     }
 
     TEST(MatTest, rotationMatrixWithQuaternion) {
-        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(quatd(vec3d::pos_x, radians(90.0))));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(quatd(vec3d::pos_y, radians(90.0))));
-        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(quatd(vec3d::pos_z, radians(90.0))));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_x_ccw, rotationMatrix(quatd(vec3d::pos_x, toRadians(90.0))));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_y_ccw, rotationMatrix(quatd(vec3d::pos_y, toRadians(90.0))));
+        ASSERT_MAT_EQ(mat4x4d::rot_90_z_ccw, rotationMatrix(quatd(vec3d::pos_z, toRadians(90.0))));
 
         std::srand(static_cast<unsigned int>(std::time(nullptr)));
         for (size_t i = 0; i < 10; ++i) {

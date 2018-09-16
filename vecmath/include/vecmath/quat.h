@@ -109,7 +109,7 @@ namespace vm {
                 if (isZero(squaredLength(axis))) {
                     axis = cross(from, vec<T,3>::pos_x);
                 }
-                setRotation(normalize(axis), radians(T(180)));
+                setRotation(normalize(axis), toRadians(T(180)));
             } else {
                 const auto axis = normalize(cross(from, to));
                 const auto angle = std::acos(cos);

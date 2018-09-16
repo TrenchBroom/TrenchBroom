@@ -432,7 +432,7 @@ namespace vm {
      */
     template <typename T>
     bool isEqual(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return abs(lhs - rhs) < epsilon;
+        return abs(lhs - rhs) <= epsilon;
     }
 
     /**
@@ -447,21 +447,6 @@ namespace vm {
     bool isZero(const T v, const T epsilon = constants<T>::almostZero()) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return abs(v) <= epsilon;
-    }
-
-    /**
-     * Checks whether the given value is integral. To be considered integral, the distance of the given value to the
-     * nearest integer must be less than the given epsilon value.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value
-     * @param epsilon an epsilon value
-     * @return true if the given value is integer and false otherwise
-     */
-    template <typename T>
-    bool isInteger(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return isEqual(v, round(v), epsilon);
     }
 
     /**
@@ -484,27 +469,6 @@ namespace vm {
     }
 
     /**
-     * Selects the minimum of the given values. If the first value is NaN, the second value is returned. Conversely, if
-     * the second value is NaN, the first is returned. Otherwise, the minimum of the values is returned.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @return the minimum of the given values, or NaN if both values are NaN
-     */
-    template <typename T>
-    T selectMin(const T lhs, const T rhs) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        if (isNan(lhs)) {
-            return rhs;
-        } else if (isNan(rhs)) {
-            return lhs;
-        } else {
-            return min(lhs, rhs);
-        }
-    }
-
-    /**
      * Converts the given angle to radians.
      *
      * @tparam T the argument type, which must be a floating point type
@@ -512,7 +476,7 @@ namespace vm {
      * @return the converted angle in radians
      */
     template <typename T>
-    T radians(const T d) {
+    T toRadians(const T d) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return d * constants<T>::piOverStraightAngle();
     }
@@ -525,7 +489,7 @@ namespace vm {
      * @return the converted angle in degrees
      */
     template <typename T>
-    T degrees(const T r) {
+    T toDegrees(const T r) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return r * constants<T>::straightAngleOverPi();
     }
@@ -573,14 +537,14 @@ namespace vm {
      * @tparam U the argument type of count, which must be integral
      * @param index the index to increase
      * @param count the maximum value
-     * @param offset the offset by which to increase the index
+     * @param stride the offset by which to increase the index
      * @return the succeeding value
      */
     template <typename T, typename U>
-    T succ(const T index, const U count, const T offset = static_cast<T>(1)) {
+    T succ(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
-        return (index + offset) % static_cast<T>(count);
+        return (index + stride) % static_cast<T>(count);
     }
 
     /**
@@ -590,15 +554,15 @@ namespace vm {
      * @tparam U the argument type of count, which must be integral
      * @param index the index to decrease
      * @param count the maximum value
-     * @param offset the offset by which to decrease the index
+     * @param stride the offset by which to decrease the index
      * @return the preceeding value
      */
     template <typename T, typename U>
-    T pred(const T index, const U count, const T offset = static_cast<T>(1)) {
+    T pred(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
         const auto c = static_cast<T>(count);
-        return ((index + c) - (offset % c)) % c;
+        return ((index + c) - (stride % c)) % c;
     }
 
     /**

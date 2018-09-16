@@ -155,7 +155,7 @@ namespace vm {
             vec3d(-1, -1, 0),
             vec3d(-1, +1, 0)
         });
-        const auto t = rotationMatrix(radians(14.0), radians(13.0), radians(44.0)) * translationMatrix(vec3d(1,2,3));
+        const auto t = rotationMatrix(toRadians(14.0), toRadians(13.0), toRadians(44.0)) * translationMatrix(vec3d(1,2,3));
         const auto exp = polygon3d(t * p.vertices());
         ASSERT_EQ(exp.vertices(), p.transform(t).vertices());
     }

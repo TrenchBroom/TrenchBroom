@@ -123,7 +123,7 @@ namespace vm {
      */
     template <typename T>
     mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPlane, const int width, const int height) {
-        const auto vFrustum = std::tan(radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
+        const auto vFrustum = std::tan(toRadians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
         const auto hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
         const auto depth = farPlane - nearPlane;
 

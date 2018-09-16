@@ -250,7 +250,7 @@ namespace TrenchBroom {
         
         float MapView3D::rotateTextureAngle(const bool clockwise) const {
             const Grid& grid = lock(m_document)->grid();
-            const float gridAngle = static_cast<float>(vm::degrees(grid.angle()));
+            const float gridAngle = static_cast<float>(vm::toDegrees(grid.angle()));
             float angle = 0.0f;
             
             const wxMouseState mouseState = wxGetMouseState();

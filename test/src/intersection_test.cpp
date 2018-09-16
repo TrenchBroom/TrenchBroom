@@ -215,7 +215,7 @@ namespace vm {
 
         const vec3f anchor(100,100,100);
         const plane3f p1(anchor, vec3f::pos_x);
-        const plane3f p2(anchor, quatf(vec3f::neg_y, radians(0.5f)) * vec3f::pos_x); // p1 rotated by 0.5 degrees
+        const plane3f p2(anchor, quatf(vec3f::neg_y, toRadians(0.5f)) * vec3f::pos_x); // p1 rotated by 0.5 degrees
         const line3f line = intersect(p1, p2);;
 
         ASSERT_TRUE(lineOnPlane(p1, line));
@@ -225,7 +225,7 @@ namespace vm {
     TEST(IntersectionTest, intersectPlaneAndPlane_too_similar) {
         const vec3f anchor(100,100,100);
         const plane3f p1(anchor, vec3f::pos_x);
-        const plane3f p2(anchor, quatf(vec3f::neg_y, radians(0.0001f)) * vec3f::pos_x); // p1 rotated by 0.0001 degrees
+        const plane3f p2(anchor, quatf(vec3f::neg_y, toRadians(0.0001f)) * vec3f::pos_x); // p1 rotated by 0.0001 degrees
         const line3f line = intersect(p1, p2);;
 
         ASSERT_EQ(vec3f::zero, line.direction);

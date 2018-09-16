@@ -175,7 +175,7 @@ namespace TrenchBroom {
                 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(angleString(vm::degrees(m_angle)), vm::vec3f(m_center));
+                renderService.renderString(angleString(vm::toDegrees(m_angle)), vm::vec3f(m_center));
             }
 
             String angleString(const FloatType angle) const {

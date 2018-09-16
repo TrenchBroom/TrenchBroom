@@ -340,67 +340,95 @@ namespace vm {
         ASSERT_DOUBLE_EQ(+1.4, correct(+1.4, 1, 0.3));
     }
 
-    TEST(ScalarTest, gte) {
-
-    }
-
-    TEST(ScalarTest, lte) {
-
-    }
-
     TEST(ScalarTest, isEqual) {
+        ASSERT_TRUE(isEqual(+1.0, +1.0, 0.0));
+        ASSERT_TRUE(isEqual(-1.0, -1.0, 0.0));
+        ASSERT_TRUE(isEqual(-1.001, -1.001, 0.0));
+        ASSERT_TRUE(isEqual(+1.0, +1.001, 0.1));
+        ASSERT_TRUE(isEqual(+1.0, +1.0999, 0.1));
 
+        ASSERT_FALSE(isEqual(+1.0, +1.11, 0.1));
+        ASSERT_FALSE(isEqual(+1.0, +1.1, 0.09));
+        ASSERT_FALSE(isEqual(-1.0, +1.11, 0.1));
+        ASSERT_FALSE(isEqual(+1.0, +1.1, 0.0));
     }
 
     TEST(ScalarTest, isZero) {
-
-    }
-
-    TEST(ScalarTest, isPositive) {
-
-    }
-
-    TEST(ScalarTest, isNegative) {
-
-    }
-
-    TEST(ScalarTest, isInteger) {
-
+        ASSERT_TRUE(isZero(0.0, 0.0));
+        ASSERT_TRUE(isZero(0.0, 0.1));
+        ASSERT_TRUE(isZero(0.099, 0.1));
+        ASSERT_TRUE(isZero(-0.099, 0.1));
+        ASSERT_FALSE(isZero(0.099, 0.0));
+        ASSERT_FALSE(isZero(-1.0, 0.0));
     }
 
     TEST(ScalarTest, contains) {
+        ASSERT_TRUE(contains(0.0, 0.0, 1.0));
+        ASSERT_TRUE(contains(1.0, 0.0, 1.0));
+        ASSERT_TRUE(contains(0.0, 1.0, 0.0));
+        ASSERT_TRUE(contains(1.0, 1.0, 0.0));
 
+        ASSERT_FALSE(contains(+1.1, 0.0, 1.0));
+        ASSERT_FALSE(contains(+1.1, 1.0, 0.0));
+        ASSERT_FALSE(contains(-0.1, 0.0, 1.0));
+        ASSERT_FALSE(contains(-0.1, 1.0, 0.0));
     }
 
-    TEST(ScalarTest, selectMin) {
-
+    TEST(ScalarTest, toRadians) {
+        using c = constants<double>;
+        ASSERT_EQ(0.0, toRadians(0.0));
+        ASSERT_EQ(c::piOverTwo(), toRadians(90.0));
+        ASSERT_EQ(c::pi(), toRadians(180.0));
+        ASSERT_EQ(c::twoPi(), toRadians(360.0));
+        ASSERT_EQ(-c::pi(), toRadians(-180.0));
+        ASSERT_EQ(-c::twoPi(), toRadians(-360.0));
     }
 
-    TEST(ScalarTest, radians) {
-
-    }
-
-    TEST(ScalarTest, degrees) {
-
+    TEST(ScalarTest, toDegrees) {
+        using c = constants<double>;
+        ASSERT_EQ(0.0, toDegrees(0.0));
+        ASSERT_EQ(90.0, toDegrees(c::piOverTwo()));
+        ASSERT_EQ(180.0, toDegrees(c::pi()));
+        ASSERT_EQ(360.0, toDegrees(c::twoPi()));
+        ASSERT_EQ(-180.0, toDegrees(-c::pi()));
+        ASSERT_EQ(-360.0, toDegrees(-c::twoPi()));
     }
 
     TEST(ScalarTest, normalizeRadians) {
-
+        using c = constants<double>;
+        ASSERT_EQ(0.0, normalizeRadians(0.0));
+        ASSERT_EQ(0.0, normalizeRadians(c::twoPi()));
+        ASSERT_EQ(c::piOverTwo(), normalizeRadians(c::piOverTwo()));
+        ASSERT_EQ(c::threePiOverTwo(), normalizeRadians(-c::piOverTwo()));
+        ASSERT_EQ(c::piOverTwo(), normalizeRadians(c::piOverTwo() + c::twoPi()));
     }
 
     TEST(ScalarTest, normalizeDegrees) {
-
+        ASSERT_EQ(0.0, normalizeDegrees(0.0));
+        ASSERT_EQ(0.0, normalizeDegrees(360.0));
+        ASSERT_EQ(90.0, normalizeDegrees(90.0));
+        ASSERT_EQ(270.0, normalizeDegrees(-90.0));
+        ASSERT_EQ(90.0, normalizeDegrees(360.0 + 90.0));
     }
 
     TEST(ScalarTest, succ) {
-
+        ASSERT_EQ(0u, succ(0u, 1u));
+        ASSERT_EQ(1u, succ(0u, 2u));
+        ASSERT_EQ(0u, succ(1u, 2u));
+        ASSERT_EQ(2u, succ(0u, 3u, 2u));
+        ASSERT_EQ(1u, succ(2u, 3u, 2u));
     }
 
     TEST(ScalarTest, pred) {
-
+        ASSERT_EQ(0u, pred(0u, 1u));
+        ASSERT_EQ(1u, pred(0u, 2u));
+        ASSERT_EQ(0u, pred(1u, 2u));
+        ASSERT_EQ(1u, pred(0u, 3u, 2u));
+        ASSERT_EQ(0u, pred(2u, 3u, 2u));
     }
 
     TEST(ScalarTest, nextgreater) {
-
+        ASSERT_TRUE(+1.0 < nextgreater(+1.0));
+        ASSERT_TRUE(-1.0 < nextgreater(-1.0));
     }
 }
