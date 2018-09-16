@@ -263,10 +263,10 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     const auto lhsRay = vm::ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
     
     const auto dist = rhsFace->intersectWithRay(lhsRay, vm::side::both);
-    if (vm::isNan(dist)) {
+    if (vm::isnan(dist)) {
         const auto& edgeDir = lhsRay.direction;
         const auto faceNorm = rhsFace->normal();
-        if (vm::isZero(dot(faceNorm, edgeDir))) {
+        if (vm::isZero(dot(faceNorm, edgeDir), vm::constants<T>::almostZero())) {
             // ray and face are parallel, intersect with edges
 
             static const auto MaxDistance = vm::constants<T>::almostZero() * vm::constants<T>::almostZero();
@@ -396,7 +396,7 @@ bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, 
             const auto rhsEdgeVec = rhsCurrentEdge->vector();
             const auto direction = cross(lhsEdgeVec, rhsEdgeVec);
             
-            if (!isZero(direction)) {
+            if (!isZero(direction, vm::constants<T>::almostZero())) {
                 const auto plane = vm::plane<T,3>(lhsEdgeOrigin, direction);
                 
                 const auto lhsStatus = pointStatus(plane, lhs.m_vertices.front());

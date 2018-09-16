@@ -127,7 +127,7 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const vm::plane3& plane, BrushFace::Points& points);
 
         FloatType computePlaneFrequency(const vm::plane3& plane) {
-            static const auto c = FloatType(1.0) - std::sin(vm::constants<FloatType>::pi() / FloatType(4.0));
+            static const auto c = FloatType(1.0) - std::sin(vm::C::pi() / FloatType(4.0));
             
             const auto& axis = firstAxis(plane.normal);
             const auto cos = dot(plane.normal, axis);
@@ -214,7 +214,7 @@ namespace TrenchBroom {
                 cos = dot(v1, v2);
                 multiplier *= FloatType(1.5);
                 ++count;
-            } while (vm::isNan(cos) || std::abs(cos) > FloatType(0.9));
+            } while (vm::isnan(cos) || std::abs(cos) > FloatType(0.9));
             
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > FloatType(0.0))) {

@@ -144,7 +144,7 @@ namespace TrenchBroom {
             const vm::vec2f delta = curPoint - m_lastPoint;
             
             const vm::vec2f snapped = snapDelta(delta * m_selector);
-            if (isZero(snapped)) {
+            if (isZero(snapped, vm::Cf::almostZero())) {
                 return true;
             } else {
                 m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVOriginTool::snapDelta(const vm::vec2f& delta) const {
-            if (isZero(delta)) {
+            if (isZero(delta, vm::Cf::almostZero())) {
                 return delta;
             }
 

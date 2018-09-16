@@ -89,7 +89,7 @@ namespace vm {
 
     TEST(SegmentTest, transform) {
         const auto s = segment3d(vec3d(0, 0, 0), vec3d(4, 0, 0));
-        const auto t = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0)) * translationMatrix(vec3d::one);
+        const auto t = rotationMatrix(toRadians(15.0), toRadians(20.0), toRadians(-12.0)) * translationMatrix(vec3d::one);
         const auto st = s.transform(t);
         ASSERT_VEC_EQ(t * s.start(), st.start());
         ASSERT_VEC_EQ(t * s.end(), st.end());

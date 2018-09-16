@@ -37,6 +37,7 @@
 #include "View/InputState.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/scalar.h>
 
 #include <cassert>
 
@@ -45,14 +46,14 @@ namespace TrenchBroom {
         template <typename T>
         void computeAxes(const vm::vec3& handlePos, const vm::vec<T,3>& cameraPos, vm::vec<T,3>& xAxis, vm::vec<T,3>& yAxis, vm::vec<T,3>& zAxis) {
             const auto viewDir = vm::vec<T,3>(vm::normalize(vm::vec<T,3>(handlePos) - cameraPos));
-            if (vm::isEqual(std::abs(viewDir.z()), static_cast<T>(1.0))) {
+            if (vm::isEqual(std::abs(viewDir.z()), T(1.0), vm::constants<T>::almostZero())) {
                 xAxis = vm::vec<T,3>::pos_x;
                 yAxis = vm::vec<T,3>::pos_y;
             } else {
-                xAxis = vm::isPositive(viewDir.x()) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
-                yAxis = vm::isPositive(viewDir.y()) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
+                xAxis = viewDir.x() > T(0.0) ? vm::vec<T,3>::neg_x : vm::vec<T,3>::pos_x;
+                yAxis = viewDir.y() > T(0.0) ? vm::vec<T,3>::neg_y : vm::vec<T,3>::pos_y;
             }
-            zAxis = vm::isPositive(viewDir.z()) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
+            zAxis = viewDir.z() > T(0.0) ? vm::vec<T,3>::neg_z : vm::vec<T,3>::pos_z;
         }
 
         const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();
@@ -319,7 +320,7 @@ namespace TrenchBroom {
         
         Model::Hit RotateObjectsHandle::pickPointHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
-            if (vm::isNan(distance))
+            if (vm::isnan(distance))
                 return Model::Hit::NoHit;
             return Model::Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
         }

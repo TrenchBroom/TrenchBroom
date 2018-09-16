@@ -143,7 +143,7 @@ namespace TrenchBroom {
             vm::vec3f bbLook, bbUp, bbRight;
             bbLook = -m_direction;
             bbLook[2] = 0.0f;
-            if (isZero(bbLook)) {
+            if (isZero(bbLook, vm::Cf::almostZero())) {
                 bbLook = -m_up;
                 bbLook[2] = 0.0f;
             }
@@ -262,7 +262,7 @@ namespace TrenchBroom {
         }
         
         void Camera::moveBy(const vm::vec3f& delta) {
-            if (isZero(delta))
+            if (isZero(delta, vm::Cf::almostZero()))
                 return;
             m_position = m_position + delta;
             m_valid = false;
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             m_direction = direction;
             
             const vm::vec3f rightUnnormalized = cross(m_direction, up);
-            if (isZero(rightUnnormalized)) {
+            if (isZero(rightUnnormalized, vm::Cf::almostZero())) {
                 // `direction` and `up` were colinear.
                 const auto axis = thirdAxis(m_direction);
                 m_right = normalize(cross(m_direction, axis));
@@ -333,7 +333,7 @@ namespace TrenchBroom {
                 // correct rounding errors
                 const auto cos = vm::clamp(dot(m_direction, newDirection), -1.0f, 1.0f);
                 const auto angle = acosf(cos);
-                if (!vm::isZero(angle)) {
+                if (!vm::isZero(angle, vm::Cf::almostZero())) {
                     const auto axis = normalize(cross(m_direction, newDirection));
                     rotation = vm::quatf(axis, angle);
                     offset = rotation * offset;
@@ -390,8 +390,8 @@ namespace TrenchBroom {
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
             assert(m_farPlane > m_nearPlane);
-            assert(isUnit(direction));
-            assert(isUnit(up));
+            assert(isUnit(direction, vm::Cf::almostZero()));
+            assert(isUnit(up, vm::Cf::almostZero()));
             setDirection(direction, up);
             updateZoomedViewport();
         }
