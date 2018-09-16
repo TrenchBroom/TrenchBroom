@@ -31,6 +31,15 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
 FIND_PACKAGE(wxWidgetsTB REQUIRED)
 INCLUDE("${wxWidgets_USE_FILE}")
 
+# Check version
+message(STATUS "wxWidgets ${wxWidgets_VERSION_MAJOR}.${wxWidgets_VERSION_MINOR}.${wxWidgets_VERSION_PATCH} found.")
+
+IF ((${wxWidgets_VERSION_MAJOR} LESS ${TB_MIN_wxWidgets_VERSION_MAJOR}) OR
+(${wxWidgets_VERSION_MAJOR} EQUAL ${TB_MIN_wxWidgets_VERSION_MAJOR} AND ${wxWidgets_VERSION_MINOR} LESS ${TB_MIN_wxWidgets_VERSION_MINOR}) OR
+(${wxWidgets_VERSION_MAJOR} EQUAL ${TB_MIN_wxWidgets_VERSION_MAJOR} AND ${wxWidgets_VERSION_MINOR} EQUAL ${TB_MIN_wxWidgets_VERSION_MINOR} AND ${wxWidgets_VERSION_PATCH} LESS ${TB_MIN_wxWidgets_VERSION_PATCH}))
+    message(FATAL_ERROR "wxWidgets ${TB_MIN_wxWidgets_VERSION_MAJOR}.${TB_MIN_wxWidgets_VERSION_MINOR}.${TB_MIN_wxWidgets_VERSION_PATCH} required.")
+ENDIF()
+
 # Remove QuickTime framework on OS X; it's not needed and produces a linker warning
 STRING(REPLACE "-framework QuickTime;" "" wxWidgets_LIBRARIES "${wxWidgets_LIBRARIES}")
 

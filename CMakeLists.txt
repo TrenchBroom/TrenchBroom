@@ -41,6 +41,11 @@ SET(LIB_BIN_DIR "${LIB_DIR}/bin")
 SET(LIB_INCLUDE_DIR "${LIB_DIR}/include")
 SET(LIB_SOURCE_DIR "${LIB_DIR}/src")
 
+# Required wxWidgets version
+SET(TB_MIN_wxWidgets_VERSION_MAJOR 3)
+SET(TB_MIN_wxWidgets_VERSION_MINOR 1)
+SET(TB_MIN_wxWidgets_VERSION_PATCH 1)
+
 INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
 INCLUDE(cmake/FreeImage.cmake)
