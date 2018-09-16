@@ -36,9 +36,9 @@ namespace TrenchBroom {
         void IntersectNodeWithRayVisitor::doVisit(Brush* brush)   { setResult(brush->intersectWithRay(m_ray)); }
 
         FloatType IntersectNodeWithRayVisitor::doCombineResults(FloatType oldDistance, FloatType newDistance) const {
-            if (vm::isNan(oldDistance)) {
+            if (vm::isnan(oldDistance)) {
                 return newDistance;
-            } else if (vm::isNan(newDistance)) {
+            } else if (vm::isnan(newDistance)) {
                 return oldDistance;
             } else {
                 return vm::min(oldDistance, newDistance);

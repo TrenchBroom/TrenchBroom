@@ -23,8 +23,6 @@
 #include <vecmath/scalar.h>
 #include "TestUtils.h"
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(LineTest, defaultConstructor) {
         const line3f p;
@@ -52,11 +50,11 @@ namespace vm {
 
     TEST(LineTest, transform) {
         const auto l = line3d(vec3d::one, vec3d::pos_z);
-        const auto rm = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0));
+        const auto rm = rotationMatrix(toRadians(15.0), toRadians(20.0), toRadians(-12.0));
         const auto tm = translationMatrix(vec3d::one);
 
         const auto lt = l.transform(rm * tm);
-        ASSERT_TRUE(isUnit(l.direction));
+        ASSERT_TRUE(isUnit(l.direction, vm::Cd::almostZero()));
         ASSERT_VEC_EQ(rm * tm * l.point, lt.point);
         ASSERT_VEC_EQ(rm * l.direction, lt.direction);
     }

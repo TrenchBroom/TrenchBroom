@@ -93,12 +93,12 @@ namespace TrenchBroom {
             auto document = lock(m_document);
             if (m_selector[0]) {
                 const vm::vec2f factors = vm::vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                if (!isZero(factors)) {
+                if (!isZero(factors, vm::Cf::almostZero())) {
                     document->shearTextures(factors);
                 }
             } else if (m_selector[1]) {
                 const vm::vec2f factors = vm::vec2f(0.0f, -delta.x() / m_initialHit.y());
-                if (!isZero(factors)) {
+                if (!isZero(factors, vm::Cf::almostZero())) {
                     document->shearTextures(factors);
                 }
             }

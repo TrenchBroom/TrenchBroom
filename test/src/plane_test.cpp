@@ -29,8 +29,6 @@
 
 #include <array>
 
-// TODO 2201: write more tests
-
 namespace vm {
     TEST(PlaneTest, defaultConstructor) {
         const plane3f p;
@@ -114,11 +112,11 @@ namespace vm {
 
     TEST(PlaneTest, transform) {
         const auto p = plane3d(vec3d::one, vec3d::pos_z);
-        const auto rm = rotationMatrix(radians(15.0), radians(20.0), radians(-12.0));
+        const auto rm = rotationMatrix(toRadians(15.0), toRadians(20.0), toRadians(-12.0));
         const auto tm = translationMatrix(vec3d::one);
 
         const auto pt = p.transform(rm * tm);
-        ASSERT_TRUE(isUnit(p.normal));
+        ASSERT_TRUE(isUnit(p.normal, vm::Cd::almostZero()));
         ASSERT_EQ(point_status::inside, pt.pointStatus(rm * tm * p.anchor()));
         ASSERT_VEC_EQ(rm * p.normal, pt.normal);
     }

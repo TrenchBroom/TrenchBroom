@@ -32,145 +32,6 @@
 
 namespace vm {
     /**
-     * Computes the point of intersection between the given ray and the given plane, and returns the distance
-     * on the given ray from the ray's origin to that point.
-     *
-     * @tparam T the component type
-     * @tparam S the number of components
-     * @param r the ray
-     * @param p the plane
-     * @return the distance to the intersection point, or NaN if the ray does not intersect the plane
-     */
-    template <typename T, size_t S>
-    T intersect(const ray<T,S>& r, const plane<T,S>& p) {
-        const auto d = dot(r.direction, p.normal);
-        if (isZero(d)) {
-            return nan<T>();
-        }
-
-        const auto s = dot(p.anchor() - r.origin, p.normal) / d;
-        if (isNegative(s)) {
-            return nan<T>();
-        }
-
-        return s;
-    }
-
-    /**
-     * Compute the point of intersection of the given ray and a triangle with the given points as vertices.
-     *
-     * @tparam T the component type
-     * @param r the ray
-     * @param p1 the first point
-     * @param p2 the second point
-     * @param p3 the third point
-     * @return the distance to the point of intersection or NaN if the given ray does not intersect the given triangle
-     */
-    template <typename T>
-    T intersect(const ray<T,3>& r, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T, 3>& p3) {
-        // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
-
-        const auto& o  = r.origin;
-        const auto& d  = r.direction;
-        const auto  e1 = p2 - p1;
-        const auto  e2 = p3 - p1;
-        const auto  p  = cross(d, e2);
-        const auto  a  = dot(p, e1);
-        if (isZero(a)) {
-            return nan<T>();
-        }
-
-        const auto  t  = o - p1;
-        const auto  q  = cross(t, e1);
-
-        const auto  u = dot(q, e2) / a;
-        if (isNegative(u)) {
-            return nan<T>();
-        }
-
-        const auto  v = dot(p, t) / a;
-        if (isNegative(v)) {
-            return nan<T>();
-        }
-
-        const auto  w = dot(q, d) / a;
-        if (isNegative(w)) {
-            return nan<T>();
-        }
-
-        if (gt(v+w, static_cast<T>(1.0))) {
-            return nan<T>();
-        }
-
-        return u;
-    }
-
-    /**
-     * Checks whether the given segment line intersects the positive X axis.
-     *
-     * @tparam T the component type
-     * @param v0 the first segment vertex
-     * @param v1 the second segment vertex
-     * @return -1 if either segment vertex is identical to the origin, +1 if the segment intersects the positve
-     * X axis, and 0 if it does not
-     */
-    template <typename T>
-    int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
-        if (isZero(v0)) {
-            // the point is identical to a polygon vertex, cancel search
-            return -1;
-        }
-
-        /*
-         * A polygon edge intersects with the positive X axis if the
-         * following conditions are met: The Y coordinates of its
-         * vertices must have different signs (we assign a negative sign
-         * to 0 here in order to count it as a negative number) and one
-         * of the following two conditions must be met: Either the X
-         * coordinates of the vertices are both positive or the X
-         * coordinates of the edge have different signs (again, we
-         * assign a negative sign to 0 here). In the latter case, we
-         * must calculate the point of intersection between the edge and
-         * the X axis and determine whether its X coordinate is positive
-         * or zero.
-         */
-
-        // Does Y segment covered by the given edge touch the X axis at all?
-        if ((isPositive(v0.y()) && isPositive(v1.y())) ||
-            (isNegative(v0.y()) && isNegative(v1.y())) ||
-            (isZero(v0.y()) && isZero(v1.y()))) {
-            return 0;
-        }
-
-
-        // Is segment entirely on the positive side of the X axis?
-        if (isPositive(v0.x()) && isPositive(v1.x())) {
-            return 1;
-        }
-
-        // Is segment entirely on the negative side of the X axis?
-        if (isNegative(v0.x()) && isNegative(v1.x())) {
-            return 0;
-        }
-
-        // Calculate the point of intersection between the edge and the X axis.
-        const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
-
-        // Is the point of intersection on the given edge?
-        if (isZero(x)) {
-            return -1;
-        }
-
-        // Is the point of intersection on the positive X axis?
-        if (isPositive(x)) {
-            return 1;
-        }
-
-        // The point of intersection is on the negative X axis.
-        return 0;
-    }
-
-    /**
      * Checks whether the given point is contained in the polygon formed by the given range of vertices.
      *
      * This function assumes that the point is in the same plane as the polygon, but this is not checked or asserted.
@@ -264,6 +125,145 @@ namespace vm {
     }
 
     /**
+     * Computes the point of intersection between the given ray and the given plane, and returns the distance
+     * on the given ray from the ray's origin to that point.
+     *
+     * @tparam T the component type
+     * @tparam S the number of components
+     * @param r the ray
+     * @param p the plane
+     * @return the distance to the intersection point, or NaN if the ray does not intersect the plane
+     */
+    template <typename T, size_t S>
+    T intersect(const ray<T,S>& r, const plane<T,S>& p) {
+        const auto d = dot(r.direction, p.normal);
+        if (isZero(d, constants<T>::almostZero())) {
+            return nan<T>();
+        }
+
+        const auto s = dot(p.anchor() - r.origin, p.normal) / d;
+        if (s < T(0.0)) {
+            return nan<T>();
+        }
+
+        return s;
+    }
+
+    /**
+     * Compute the point of intersection of the given ray and a triangle with the given points as vertices.
+     *
+     * @tparam T the component type
+     * @param r the ray
+     * @param p1 the first point
+     * @param p2 the second point
+     * @param p3 the third point
+     * @return the distance to the point of intersection or NaN if the given ray does not intersect the given triangle
+     */
+    template <typename T>
+    T intersect(const ray<T,3>& r, const vec<T,3>& p1, const vec<T,3>& p2, const vec<T, 3>& p3) {
+        // see http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+
+        const auto& o  = r.origin;
+        const auto& d  = r.direction;
+        const auto  e1 = p2 - p1;
+        const auto  e2 = p3 - p1;
+        const auto  p  = cross(d, e2);
+        const auto  a  = dot(p, e1);
+        if (isZero(a, constants<T>::almostZero())) {
+            return nan<T>();
+        }
+
+        const auto  t  = o - p1;
+        const auto  q  = cross(t, e1);
+
+        const auto  u = dot(q, e2) / a;
+        if (u < T(0.0)) {
+            return nan<T>();
+        }
+
+        const auto  v = dot(p, t) / a;
+        if (v < T(0.0)) {
+            return nan<T>();
+        }
+
+        const auto  w = dot(q, d) / a;
+        if (w < T(0.0)) {
+            return nan<T>();
+        }
+
+        if (v+w > T(1.0)) {
+            return nan<T>();
+        }
+
+        return u;
+    }
+
+    /**
+     * Checks whether the given segment line intersects the positive X axis.
+     *
+     * @tparam T the component type
+     * @param v0 the first segment vertex
+     * @param v1 the second segment vertex
+     * @return -1 if either segment vertex is identical to the origin, +1 if the segment intersects the positve
+     * X axis, and 0 if it does not
+     */
+    template <typename T>
+    int handlePolygonEdgeIntersection(const vec<T,3>& v0, const vec<T,3>& v1) {
+        if (isZero(v0, constants<T>::almostZero())) {
+            // the point is identical to a polygon vertex, cancel search
+            return -1;
+        }
+
+        /*
+         * A polygon edge intersects with the positive X axis if the
+         * following conditions are met: The Y coordinates of its
+         * vertices must have different signs (we assign a negative sign
+         * to 0 here in order to count it as a negative number) and one
+         * of the following two conditions must be met: Either the X
+         * coordinates of the vertices are both positive or the X
+         * coordinates of the edge have different signs (again, we
+         * assign a negative sign to 0 here). In the latter case, we
+         * must calculate the point of intersection between the edge and
+         * the X axis and determine whether its X coordinate is positive
+         * or zero.
+         */
+
+        // Does Y segment covered by the given edge touch the X axis at all?
+        if ((isZero(v0.y(), constants<T>::almostZero()) && isZero(v1.y(), constants<T>::almostZero())) ||
+            (v0.y() > T(0.0) && v1.y() > T(0.0)) ||
+            (v0.y() < T(0.0) && v1.y() < T(0.0))) {
+            return 0;
+        }
+
+
+        // Is segment entirely on the positive side of the X axis?
+        if (v0.x() > T(0.0) && v1.x() > T(0.0)) {
+            return 1;
+        }
+
+        // Is segment entirely on the negative side of the X axis?
+        if (v0.x() < T(0.0) && v1.x() < T(0.0)) {
+            return 0;
+        }
+
+        // Calculate the point of intersection between the edge and the X axis.
+        const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
+
+        // Is the point of intersection on the given edge?
+        if (isZero(x, constants<T>::almostZero())) {
+            return -1;
+        }
+
+        // Is the point of intersection on the positive X axis?
+        if (x > T(0.0)) {
+            return 1;
+        }
+
+        // The point of intersection is on the negative X axis.
+        return 0;
+    }
+
+    /**
      * Computes the point of intersection of the given ray and the polygon with the given vertices.
      *
      * @tparam T the component type
@@ -280,7 +280,7 @@ namespace vm {
     template <typename T, typename I, typename G = Identity>
     T intersect(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
         const auto distance = intersect(r, p);
-        if (isNan(distance)) {
+        if (isnan(distance)) {
             return distance;
         }
 
@@ -446,7 +446,7 @@ namespace vm {
     template <typename T, size_t S>
     T intersect(const line<T,S>& l, const plane<T,3>& p) {
         const auto f = dot(l.direction, p.normal);
-        if (isZero(f)) {
+        if (isZero(f, constants<T>::almostZero())) {
             return nan<T>();
         } else {
             return dot(p.distance * p.normal - l.point, p.normal) / f;

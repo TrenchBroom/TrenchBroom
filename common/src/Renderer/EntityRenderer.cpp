@@ -44,6 +44,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+#include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -256,7 +257,7 @@ namespace TrenchBroom {
                 }
 
                 auto onPlane = toCam - dot(toCam, direction) * direction;
-                if (isZero(onPlane)) {
+                if (vm::isZero(onPlane, vm::Cf::almostZero())) {
                     continue;
                 }
 

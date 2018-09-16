@@ -2374,7 +2374,7 @@ TEST(PolyhedronTest, intersection_edge_polyhedron) {
     };
     
     assertIntersects(Polyhedron3d { vm::vec3d( 0.0,  0.0,  1.0), vm::vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // one shared point
-    assertIntersects(Polyhedron3d { vm::vec3d( 0.0, -1.0,  0.0), vm::vec3d( 0.0, -2.0,  0.0) }, tetrahedron); // edge point on polyhedron edge
+    assertIntersects(Polyhedron3d { vm::vec3d( 0.0, -0.9999,  0.0), vm::vec3d( 0.0, -2.0,  0.0) }, tetrahedron); // edge point on polyhedron edge
     assertIntersects(Polyhedron3d { vm::vec3d( 0.0,  0.0,  0.0), vm::vec3d( 0.0,  0.0, -1.0) }, tetrahedron); // edge point on polyhedron face
     assertIntersects(Polyhedron3d { vm::vec3d(-1.0, -1.0,  0.0), vm::vec3d(+1.0, -1.0,  0.0) }, tetrahedron); // shared edge
     assertIntersects(Polyhedron3d { vm::vec3d( 0.0,  0.0,  0.5), vm::vec3d( 0.0,  0.0,  2.0) }, tetrahedron); // polyhedron contains one edge point
@@ -2713,11 +2713,15 @@ bool hasPolygonOf(const Polyhedron3d& p, const vm::vec3d& p1, const vm::vec3d& p
 
 
 void assertIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-    ASSERT_TRUE(lhs.intersects(rhs));
-    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+    const auto b1 = lhs.intersects(rhs);
+    const auto b2 = rhs.intersects(lhs);
+    ASSERT_TRUE(b1);
+    ASSERT_TRUE(b2);
 }
 
 void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs) {
-    ASSERT_FALSE(lhs.intersects(rhs));
-    ASSERT_TRUE(lhs.intersects(rhs) == rhs.intersects(lhs));
+    const auto b1 = lhs.intersects(rhs);
+    const auto b2 = rhs.intersects(lhs);
+    ASSERT_FALSE(b1);
+    ASSERT_FALSE(b2);
 }

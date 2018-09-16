@@ -48,7 +48,7 @@ namespace vm {
      * @return bool if the given float is NaN and false otherwise
      */
     template <typename T>
-    bool isNan(const T f) {
+    bool isnan(const T f) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
 #ifdef _MSC_VER
         return _isnan(f) != 0;
@@ -81,32 +81,6 @@ namespace vm {
     T nan() {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return std::numeric_limits<T>::quiet_NaN();
-    }
-
-    /**
-     * Returns the absolute of the given value.
-     *
-     * @tparam T the argument type
-     * @param v the value
-     * @return the absolute of the given value
-     */
-    template <typename T>
-    T abs(const T v) {
-        return std::abs(v);
-    }
-
-    /**
-     * Returns the floating point remainder of x/y.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param x the dividend
-     * @param y the divisor
-     * @return the remainder of x/y
-     */
-    template <typename T>
-    T mod(const T x, const T y) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return std::fmod(x, y);
     }
 
     /**
@@ -193,29 +167,90 @@ namespace vm {
     }
 
     /**
-     * Converts the given angle to radians.
+     * Clamps the given value to the given interval.
      *
-     * @tparam T the argument type, which must be a floating point type
-     * @param d the angle to convert, in degrees
-     * @return the converted angle in radians
+     * @tparam T the argument type
+     * @param v the value to clamp
+     * @param minV the minimal value
+     * @param maxV the maximal value
+     * @return the clamped value
      */
     template <typename T>
-    T radians(const T d) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return d * constants<T>::piOverStraightAngle();
+    T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
+        return max(min(v, maxV), minV);
     }
 
     /**
-     * Converts the given angle to degrees.
+     * Returns the absolute of the given value.
      *
-     * @tparam T the argument type, which must be a floating point type
-     * @param r the angle to convert, in radians
-     * @return the converted angle in degrees
+     * @tparam T the argument type
+     * @param v the value
+     * @return the absolute of the given value
      */
     template <typename T>
-    T degrees(const T r) {
+    T abs(const T v) {
+        return std::abs(v);
+    }
+
+    /**
+     * Returns a value indicating the sign of the given value.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @return -1 if the given value is less then 0, +1 if the value is greater than 0, and 0 if the given value is 0
+     */
+    template <typename T>
+    T sign(const T v) {
+        if (v < T(0)) {
+            return T(-1);
+        } else if (v > T(0)) {
+            return T(+1);
+        } else {
+            return T(0);
+        }
+    }
+
+    /**
+     * Returns 0 if the given value is less than the given edge value, and 1 otherwise.
+     *
+     * @tparam T the argument type
+     * @param v the value
+     * @param e the edge value
+     * @return 0 or 1 depending on whether the given value is less than the given edge value or not
+     */
+    template <typename T>
+    T step(const T e, const T v) {
+        return v < e ? T(0) : T(1);
+    }
+
+    /**
+     * Performs performs smooth Hermite interpolation between 0 and 1 when e0 < v < e1.
+     *
+     * @tparam T the argument type
+     * @param e0 the lower edge value
+     * @param e1 the upper edge value
+     * @param v the value to interpolate
+     * @return the interpolated value
+     */
+    template <typename T>
+    T smoothstep(const T e0, const T e1, const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return r * constants<T>::straightAngleOverPi();
+        const auto t = clamp((v - e0) / (e1 - e0), T(0), T(1));
+        return t * t * (T(3) - T(2) * t);
+    }
+
+    /**
+     * Returns the floating point remainder of x/y.
+     *
+     * @tparam T the argument type, which must be a floating point type
+     * @param x the dividend
+     * @param y the divisor
+     * @return the remainder of x/y
+     */
+    template <typename T>
+    T mod(const T x, const T y) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        return std::fmod(x, y);
     }
 
     /**
@@ -245,6 +280,35 @@ namespace vm {
     }
 
     /**
+     * Returns the nearest integer value not greater in magnitude than the given value, i.e., the given value is rounded
+     * towards 0.
+     *
+     * @tparam T the argument type
+     * @param v the value to truncate
+     * @return the truncated value
+     */
+    template <typename T>
+    T trunc(const T v) {
+        return std::trunc(v);
+    }
+
+    /**
+     * Returns the fractional part of the given value.
+     *
+     * @tparam T argument type
+     * @param v the value
+     * @return the fractional part
+     */
+    template <typename T>
+    T fract(const T v) {
+        if (v > T(0)) {
+            return v - floor(v);
+        } else {
+            return v - ceil(v);
+        }
+    }
+
+    /**
      * Rounds the given value to the nearest integer value.
      *
      * @tparam T the argument type, which must be a floating point type
@@ -255,19 +319,6 @@ namespace vm {
     T round(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
-    }
-
-    /**
-     * Computes the offset to the nearest integer value.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value
-     * @return the offset to the nearest integer value
-     */
-    template <typename T>
-    T integerOffset(const T v) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return v - round(v);
     }
 
     /**
@@ -297,6 +348,8 @@ namespace vm {
     template <typename T>
     T roundDown(const T v) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        // this is equivalent to calling trunc
+        // we keep this function for consistency because there is no equivalent function to roundUp
         return v > 0.0 ? floor(v) : ceil(v);
     }
 
@@ -368,66 +421,6 @@ namespace vm {
     }
 
     /**
-     * Checks whether the first given value is greater than the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is greater than the sum of the secon value and the epsilon value, and false otherwise
-     */
-     // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 1.0 > 0.95 being false with an epsilon of 0.1.
-    template <typename T>
-    bool gt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return lhs > rhs + epsilon;
-    }
-
-    /**
-     * Checks whether the first given value is less than the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is less than the sum of the secon value and the negated epsilon value, and false otherwise
-     */
-    // TODO: The more I think about this, the more I wonder if it's even correct, because it amounts to 0.95 < 1.0 being false with an epsilon of 0.1.
-    template <typename T>
-    bool lt(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return lhs < rhs - epsilon;
-    }
-
-    /**
-     * Checks whether the first given value is greater than or equal to the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is greater than or equal to the sum of the secon value and the epsilon value, and false otherwise
-     */
-     // TODO: likewise, is this correct at all?
-    template <typename T>
-    bool gte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return !lt(lhs, rhs, epsilon);
-    }
-
-    /**
-     * Checks whether the first given value is less than or equal to the second given value.
-     *
-     * @tparam T the argument type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @param epsilon an epsilon value
-     * @return true if the first given value is less than or equal to the sum of the secon value and the negated epsilon value, and false otherwise
-     */
-    // TODO: likewise, is this correct at all?
-    template <typename T>
-    bool lte(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return !gt(lhs, rhs, epsilon);
-    }
-
-    /**
      * Checks whether the given values are equal.
      *
      * @tparam T the argument type
@@ -437,8 +430,8 @@ namespace vm {
      * @return true if the distance of the given values is less than the given epsilon and false otherwise
      */
     template <typename T>
-    bool isEqual(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
-        return abs(lhs - rhs) < epsilon;
+    bool isEqual(const T lhs, const T rhs, const T epsilon) {
+        return abs(lhs - rhs) <= epsilon;
     }
 
     /**
@@ -450,52 +443,9 @@ namespace vm {
      * @return true if the distance of the given argument to 0 is less than the given epsilon
      */
     template <typename T>
-    bool isZero(const T v, const T epsilon = constants<T>::almostZero()) {
+    bool isZero(const T v, const T epsilon) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return abs(v) <= epsilon;
-    }
-
-    /**
-     * Checks whether the given argument is positive using the given epsilon.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value to check
-     * @param epsilon an epsilon value
-     * @return true if the given argument is greater than or equal to the given epsilon
-     */
-    template <typename T>
-    bool isPositive(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return gt(v, static_cast<T>(0.0), epsilon);
-    }
-
-    /**
-     * Checks whether the given argument is negative using the given epsilon.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value to check
-     * @param epsilon an epsilon value
-     * @return true if the given argument is less than or equal to the negated given epsilon
-     */
-    template <typename T>
-    bool isNegative(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return lt(v, static_cast<T>(0.0), epsilon);
-    }
-
-    /**
-     * Checks whether the given value is integral. To be considered integral, the distance of the given value to the
-     * nearest integer must be less than the given epsilon value.
-     *
-     * @tparam T the argument type, which must be a floating point type
-     * @param v the value
-     * @param epsilon an epsilon value
-     * @return true if the given value is integer and false otherwise
-     */
-    template <typename T>
-    bool isInteger(const T v, const T epsilon = constants<T>::almostZero()) {
-        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        return isEqual(v, round(v), epsilon);
     }
 
     /**
@@ -506,51 +456,41 @@ namespace vm {
      * @param v the value to check
      * @param s the interval start
      * @param e the interval end
-     * @param epsilon an epsilon value
      * @return true if the given value is in the given interval and false otherwise
      */
     template <typename T>
-    bool contains(const T v, const T s, const T e, const T epsilon = constants<T>::almostZero()) {
+    bool contains(const T v, const T s, const T e) {
         if (s < e) {
-            return gte(v, s, epsilon) && lte(v, e, epsilon);
+            return v >= s && v <= e;
         } else {
-            return gte(v, e, epsilon) && lte(v, s, epsilon);
+            return v >= e && v <= s;
         }
     }
 
     /**
-     * Clamps the given value to the given interval.
-     *
-     * @tparam T the argument type
-     * @param v the value to clamp
-     * @param minV the minimal value
-     * @param maxV the maximal value
-     * @return the clamped value
-     */
-    template <typename T>
-    T clamp(const T v, const T minV = static_cast<T>(0.0), const T maxV = static_cast<T>(1.0)) {
-        return max(min(v, maxV), minV);
-    }
-
-    /**
-     * Selects the minimum of the given values. If the first value is NaN, the second value is returned. Conversely, if
-     * the second value is NaN, the first is returned. Otherwise, the minimum of the values is returned.
+     * Converts the given angle to radians.
      *
      * @tparam T the argument type, which must be a floating point type
-     * @param lhs the first value
-     * @param rhs the second value
-     * @return the minimum of the given values, or NaN if both values are NaN
+     * @param d the angle to convert, in degrees
+     * @return the converted angle in radians
      */
     template <typename T>
-    T selectMin(const T lhs, const T rhs) {
+    T toRadians(const T d) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
-        if (isNan(lhs)) {
-            return rhs;
-        } else if (isNan(rhs)) {
-            return lhs;
-        } else {
-            return min(lhs, rhs);
-        }
+        return d * constants<T>::piOverStraightAngle();
+    }
+
+    /**
+     * Converts the given angle to degrees.
+     *
+     * @tparam T the argument type, which must be a floating point type
+     * @param r the angle to convert, in radians
+     * @return the converted angle in degrees
+     */
+    template <typename T>
+    T toDegrees(const T r) {
+        static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+        return r * constants<T>::straightAngleOverPi();
     }
 
     /**
@@ -596,14 +536,14 @@ namespace vm {
      * @tparam U the argument type of count, which must be integral
      * @param index the index to increase
      * @param count the maximum value
-     * @param offset the offset by which to increase the index
+     * @param stride the offset by which to increase the index
      * @return the succeeding value
      */
     template <typename T, typename U>
-    T succ(const T index, const U count, const T offset = static_cast<T>(1)) {
+    T succ(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
-        return (index + offset) % static_cast<T>(count);
+        return (index + stride) % static_cast<T>(count);
     }
 
     /**
@@ -613,15 +553,15 @@ namespace vm {
      * @tparam U the argument type of count, which must be integral
      * @param index the index to decrease
      * @param count the maximum value
-     * @param offset the offset by which to decrease the index
+     * @param stride the offset by which to decrease the index
      * @return the preceeding value
      */
     template <typename T, typename U>
-    T pred(const T index, const U count, const T offset = static_cast<T>(1)) {
+    T pred(const T index, const U count, const T stride = static_cast<T>(1)) {
         static_assert(std::is_integral<T>::value, "T must be an integer type");
         static_assert(std::is_integral<U>::value, "U must be an integer type");
         const auto c = static_cast<T>(count);
-        return ((index + c) - (offset % c)) % c;
+        return ((index + c) - (stride % c)) % c;
     }
 
     /**

@@ -21,7 +21,6 @@
 
 #include <vecmath/scalar.h>
 
-#include <cmath>
 #include <gmock/gmock.h>
 
 #include "CollectionUtils.h"
@@ -31,10 +30,10 @@
 namespace TrenchBroom {
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2) {
         for (size_t i = 0; i < 2; ++i) {
-            const float dist = fabsf(tc1[i] - tc2[i]);
-            const float distRemainder = dist - floorf(dist);
+            const float dist = vm::abs(tc1[i] - tc2[i]);
+            const float distRemainder = dist - vm::floor(dist);
             
-            if (!(vm::isEqual(0.0f, distRemainder) || vm::isEqual(1.0f, distRemainder)))
+            if (!(vm::isEqual(distRemainder, 0.0f, vm::Cf::almostZero()) || vm::isEqual(distRemainder, 1.0f, vm::Cf::almostZero())))
                 return false;
         }
         return true;

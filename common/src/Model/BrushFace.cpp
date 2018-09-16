@@ -157,7 +157,7 @@ namespace TrenchBroom {
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
             
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-            if (!isZero(seam.direction)) {
+            if (!isZero(seam.direction, vm::C::almostZero())) {
                 const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
                 m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
@@ -497,7 +497,7 @@ namespace TrenchBroom {
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
             const auto seam = vm::intersect(oldPlane, m_boundary);
-            if (!isZero(seam.direction)) {
+            if (!isZero(seam.direction, vm::C::almostZero())) {
                 const auto refPoint = seam.projectPoint(center());
                 
                 // Get the texcoords at the refPoint using the old face's attribs and tex coord system
@@ -631,7 +631,7 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const FloatType cos = dot(m_boundary.normal, ray.direction);
-            if (!vm::isNegative(cos)) {
+            if (cos >= FloatType(0.0)) {
                 return vm::nan<FloatType>();
             } else {
                 return vm::intersect(ray, m_boundary, m_geometry->boundary().begin(), m_geometry->boundary().end(), BrushGeometry::GetVertexPosition());

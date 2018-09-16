@@ -119,8 +119,8 @@ namespace vm {
          */
         bool contains(const vec<T,S>& point, const T maxDistance) const {
             const auto f = this->distanceToProjectedPoint(point);
-            if (lt(f, T(0.0), maxDistance) ||
-                gt(f * f, squaredLength(), maxDistance * maxDistance)) {
+            if (f < -maxDistance ||
+                f * f > squaredLength() + maxDistance * maxDistance) {
                 return false;
             } else {
                 const auto proj = this->pointAtDistance(f);

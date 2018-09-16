@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
         
         void PointFile::load(const IO::Path& pointFilePath) {
-            static const float Threshold = vm::radians(15.0f);
+            static const float Threshold = vm::toRadians(15.0f);
             
             std::fstream stream(pointFilePath.asString().c_str(), std::ios::in);
             assert(stream.is_open());
