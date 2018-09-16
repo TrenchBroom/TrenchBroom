@@ -496,7 +496,7 @@ private:
     RayIntersection(const Type type, const T distance) :
     m_type(type),
     m_distance(distance) {
-        assert(!vm::isNan(m_distance) || m_type == Type_None);
+        assert(!vm::isnan(m_distance) || m_type == Type_None);
     }
 public:
     static RayIntersection Front(const T distance) {
@@ -538,7 +538,7 @@ typename Polyhedron<T,FP,VP>::Face::RayIntersection Polyhedron<T,FP,VP>::Face::i
     }
 
     const auto distance = vm::intersect(ray, plane, std::begin(m_boundary), std::end(m_boundary), GetVertexPosition());
-    if (vm::isNan(distance)) {
+    if (vm::isnan(distance)) {
         return RayIntersection::None();
     } else if (cos < 0.0) {
         return RayIntersection::Front(distance);

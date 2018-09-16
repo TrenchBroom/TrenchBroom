@@ -263,7 +263,7 @@ bool Polyhedron<T,FP,VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* rh
     const auto lhsRay = vm::ray<T,3>(lhsStart, normalize(lhsEnd - lhsStart));
     
     const auto dist = rhsFace->intersectWithRay(lhsRay, vm::side::both);
-    if (vm::isNan(dist)) {
+    if (vm::isnan(dist)) {
         const auto& edgeDir = lhsRay.direction;
         const auto faceNorm = rhsFace->normal();
         if (vm::isZero(dot(faceNorm, edgeDir), vm::constants<T>::almostZero())) {

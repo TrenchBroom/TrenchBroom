@@ -175,8 +175,8 @@ namespace TrenchBroom {
             // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
             float cosX = static_cast<float>(dot(newBaseXAxis, normalizedXAxis));
             float cosY = static_cast<float>(dot(newBaseYAxis, normalizedYAxis));
-            assert(!vm::isNan(cosX));
-            assert(!vm::isNan(cosY));
+            assert(!vm::isnan(cosX));
+            assert(!vm::isnan(cosY));
 
             float radX = std::acos(cosX);
             if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
-            assert(!vm::isNan(newRotation));
+            assert(!vm::isnan(newRotation));
             assert(!vm::isZero(newScale.x(), vm::Cf::almostZero()));
             assert(!vm::isZero(newScale.y(), vm::Cf::almostZero()));
             

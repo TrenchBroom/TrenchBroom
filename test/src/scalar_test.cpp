@@ -31,11 +31,11 @@ namespace vm {
         ASSERT_DOUBLE_EQ(1.234, id(1.234));
     }
 
-    TEST(ScalarTest, isNan) {
-        ASSERT_TRUE(isNan(std::numeric_limits<double>::quiet_NaN()));
-        ASSERT_TRUE(isNan(std::numeric_limits<float>::quiet_NaN()));
-        ASSERT_FALSE(isNan(1.0));
-        ASSERT_FALSE(isNan(1.0f));
+    TEST(ScalarTest, isnan) {
+        ASSERT_TRUE(isnan(std::numeric_limits<double>::quiet_NaN()));
+        ASSERT_TRUE(isnan(std::numeric_limits<float>::quiet_NaN()));
+        ASSERT_FALSE(isnan(1.0));
+        ASSERT_FALSE(isnan(1.0f));
     }
 
     TEST(ScalarTest, isInf) {
@@ -48,8 +48,8 @@ namespace vm {
     }
 
     TEST(ScalarTest, nan) {
-        ASSERT_TRUE(isNan(nan<double>()));
-        ASSERT_TRUE(isNan(nan<float>()));
+        ASSERT_TRUE(isnan(nan<double>()));
+        ASSERT_TRUE(isnan(nan<float>()));
     }
 
     TEST(ScalarTest, min) {

@@ -47,9 +47,8 @@ namespace vm {
      * @param f the float to check
      * @return bool if the given float is NaN and false otherwise
      */
-     // TODO 2201: rename to isNaN.
     template <typename T>
-    bool isNan(const T f) {
+    bool isnan(const T f) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
 #ifdef _MSC_VER
         return _isnan(f) != 0;

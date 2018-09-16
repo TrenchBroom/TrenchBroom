@@ -137,7 +137,7 @@ namespace TrenchBroom {
             auto minDistance = std::numeric_limits<float>::max();
             for (size_t i = 0; i < 4; ++i) {
                 const auto distance = vm::intersect(ray, position(), verts[i], verts[vm::succ(i, 4)]);
-                if (!vm::isNan(distance)) {
+                if (!vm::isnan(distance)) {
                     minDistance = vm::min(distance, minDistance);
                 }
             }

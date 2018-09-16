@@ -1327,7 +1327,7 @@ namespace vm {
     template <typename T, size_t S>
     bool isNaN(const vec<T,S>& v) {
         for (size_t i = 0; i < S; ++i) {
-            if (isNan(v[i])) {
+            if (isnan(v[i])) {
                 return true;
             }
         }

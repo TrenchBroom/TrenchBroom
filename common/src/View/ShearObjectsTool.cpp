@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
                 const auto dist = vm::intersect(pickRay, poly.begin(), poly.end());
-                if (!vm::isNan(dist)) {
+                if (!vm::isnan(dist)) {
                     localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
                 }
             }

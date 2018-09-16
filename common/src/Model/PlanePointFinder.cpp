@@ -214,7 +214,7 @@ namespace TrenchBroom {
                 cos = dot(v1, v2);
                 multiplier *= FloatType(1.5);
                 ++count;
-            } while (vm::isNan(cos) || std::abs(cos) > FloatType(0.9));
+            } while (vm::isnan(cos) || std::abs(cos) > FloatType(0.9));
             
             v1 = cross(v1, v2);
             if ((v1.z() > 0.0) != (swizzledPlane.normal.z() > FloatType(0.0))) {

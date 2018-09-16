@@ -280,7 +280,7 @@ namespace vm {
     template <typename T, typename I, typename G = Identity>
     T intersect(const ray<T,3>& r, const plane<T,3>& p, I cur, I end, const G& get = G()) {
         const auto distance = intersect(r, p);
-        if (isNan(distance)) {
+        if (isnan(distance)) {
             return distance;
         }
 

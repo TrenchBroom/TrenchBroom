@@ -456,7 +456,7 @@ namespace TrenchBroom {
                 const auto ray = vm::ray3f(m_cameraPosition, -m_cameraDirection);
                 const auto newPlane = vm::plane3f(point + 64.0f * plane.normal, plane.normal);
                 const auto dist = intersect(ray, newPlane);;
-                if (!vm::isNan(dist) && dist > 0.0f) {
+                if (!vm::isnan(dist) && dist > 0.0f) {
                     m_offset = std::max(m_offset, dist);
                 }
             }

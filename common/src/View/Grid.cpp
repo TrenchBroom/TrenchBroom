@@ -106,10 +106,10 @@ namespace TrenchBroom {
             const auto distZ = vm::intersect(ray, vm::plane3(planeAnchor, vm::vec3::pos_z));
             
             auto dist = distX;
-            if (!vm::isNan(distY) && (vm::isNan(dist) || std::abs(distY) < std::abs(dist))) {
+            if (!vm::isnan(distY) && (vm::isnan(dist) || std::abs(distY) < std::abs(dist))) {
                 dist = distY;
             }
-            if (!vm::isNan(distZ) && (vm::isNan(dist) || std::abs(distZ) < std::abs(dist))) {
+            if (!vm::isnan(distZ) && (vm::isnan(dist) || std::abs(distZ) < std::abs(dist))) {
                 dist = distZ;
             }
             return dist;

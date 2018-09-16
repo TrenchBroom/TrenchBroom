@@ -327,7 +327,7 @@ namespace vm {
         // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector perpendicular to A and B) gives
         // sin_theta below.
         const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
-        if (isNan(sin_theta) ||
+        if (isnan(sin_theta) ||
             isInf(sin_theta) ||
             sin_theta < epsilon) {
             return std::make_tuple(false, vec<T,3>::zero);
