@@ -386,8 +386,8 @@ namespace vm {
     }
 
     TEST(MatTest, isZero) {
-        ASSERT_TRUE(isZero(mat4x4d::zero));
-        ASSERT_FALSE(isZero(mat4x4d::identity));
+        ASSERT_TRUE(isZero(mat4x4d::zero, vm::Cd::almostZero()));
+        ASSERT_FALSE(isZero(mat4x4d::identity, vm::Cd::almostZero()));
     }
 
     TEST(MatTest, negate) {

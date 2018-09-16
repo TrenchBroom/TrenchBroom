@@ -29,7 +29,7 @@ namespace vm {
     TEST(QuatTest, defaultConstructor) {
         const quatf q;
         ASSERT_FLOAT_EQ(0.0f, q.r);
-        ASSERT_TRUE(isZero(q.v));
+        ASSERT_TRUE(isZero(q.v, vm::Cf::almostZero()));
     }
 
     TEST(QuatTest, rotationConstructor) {

@@ -140,7 +140,7 @@ namespace TrenchBroom {
             
             auto newMinPos = newPos;
             for (size_t i = 0; i < 3; ++i) {
-                if (vm::isZero(offset[i])) {
+                if (vm::isZero(offset[i], vm::C::almostZero())) {
                     if (normal[i] < 0.0) {
                         newMinPos[i] -= size[i];
                     }
@@ -157,7 +157,7 @@ namespace TrenchBroom {
         vm::vec3 Grid::moveDelta(const vm::bbox3& bounds, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
             auto actualDelta = vm::vec3::zero;
             for (size_t i = 0; i < 3; ++i) {
-                if (!vm::isZero(delta[i])) {
+                if (!vm::isZero(delta[i], vm::C::almostZero())) {
                     const auto low  = snap(bounds.min[i] + delta[i]) - bounds.min[i];
                     const auto high = snap(bounds.max[i] + delta[i]) - bounds.max[i];
                     
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         vm::vec3 Grid::moveDelta(const vm::vec3& point, const vm::bbox3& worldBounds, const vm::vec3& delta) const {
             auto actualDelta = vm::vec3::zero;
             for (size_t i = 0; i < 3; ++i) {
-                if (!vm::isZero(delta[i])) {
+                if (!vm::isZero(delta[i], vm::C::almostZero())) {
                     actualDelta[i] = snap(point[i] + delta[i]) - point[i];
                 }
             }
@@ -197,7 +197,7 @@ namespace TrenchBroom {
         vm::vec3 Grid::moveDelta(const vm::vec3& delta) const {
             auto actualDelta = vm::vec3::zero;
             for (unsigned int i = 0; i < 3; i++) {
-                if (!vm::isZero(delta[i])) {
+                if (!vm::isZero(delta[i], vm::C::almostZero())) {
                     actualDelta[i] = snap(delta[i]);
                 }
             }
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         
         vm::vec3 Grid::moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const {
             const auto dist = dot(delta, face->boundary().normal);
-            if (vm::isZero(dist)) {
+            if (vm::isZero(dist, vm::C::almostZero())) {
                 return vm::vec3::zero;
             }
 

@@ -1292,9 +1292,8 @@ namespace vm {
      * @param epsilon the epsilon value
      * @return true if the given vector has a length of 1 and false otherwise
      */
-    // TODO 2201: Remove the default value
     template <typename T, size_t S>
-    bool isUnit(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
+    bool isUnit(const vec<T,S>& v, const T epsilon) {
         return isEqual(length(v), T(1.0), epsilon);
     }
 
@@ -1307,9 +1306,8 @@ namespace vm {
      * @param epsilon the epsilon value
      * @return true if the given vector has a length of 0 and false otherwise
      */
-    // TODO 2201: Remove the default value
     template <typename T, size_t S>
-    bool isZero(const vec<T,S>& v, const T epsilon = constants<T>::almostZero()) {
+    bool isZero(const vec<T,S>& v, const T epsilon) {
         for (size_t i = 0; i < S; ++i) {
             if (!isZero(v[i], epsilon)) {
                 return false;
@@ -1735,9 +1733,9 @@ namespace vm {
     template <typename T>
     T measureAngle(const vec<T, 3> &v, const vec<T, 3> &axis, const vec<T, 3> &up) {
         const auto cos = dot(v, axis);
-        if (isEqual(+cos, T(1.0))) {
+        if (isEqual(+cos, T(1.0), vm::constants<T>::almostZero())) {
             return static_cast<T>(0.0);
-        } else if (isEqual(-cos, T(1.0))) {
+        } else if (isEqual(-cos, T(1.0), vm::constants<T>::almostZero())) {
             return constants<T>::pi();
         } else {
             const auto perp = cross(axis, v);

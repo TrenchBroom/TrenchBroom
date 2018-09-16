@@ -108,7 +108,7 @@ namespace TrenchBroom {
             const auto& grid = document->grid();
             const auto delta = grid.moveDeltaForBounds(dragPlane, m_entity->bounds(), document->worldBounds(), pickRay, hitPoint);
             
-            if (!isZero(delta)) {
+            if (!isZero(delta, vm::C::almostZero())) {
                 document->translateObjects(delta);
             }
         }
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                 delta = grid.moveDeltaForPoint(boundsCenter, document->worldBounds(), newPosition - boundsCenter);
             }
             
-            if (!isZero(delta)) {
+            if (!isZero(delta, vm::C::almostZero())) {
                 document->translateObjects(delta);
             }
         }

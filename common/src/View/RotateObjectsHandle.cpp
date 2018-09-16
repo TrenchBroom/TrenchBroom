@@ -37,6 +37,7 @@
 #include "View/InputState.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/scalar.h>
 
 #include <cassert>
 
@@ -45,7 +46,7 @@ namespace TrenchBroom {
         template <typename T>
         void computeAxes(const vm::vec3& handlePos, const vm::vec<T,3>& cameraPos, vm::vec<T,3>& xAxis, vm::vec<T,3>& yAxis, vm::vec<T,3>& zAxis) {
             const auto viewDir = vm::vec<T,3>(vm::normalize(vm::vec<T,3>(handlePos) - cameraPos));
-            if (vm::isEqual(std::abs(viewDir.z()), static_cast<T>(1.0))) {
+            if (vm::isEqual(std::abs(viewDir.z()), T(1.0), vm::constants<T>::almostZero())) {
                 xAxis = vm::vec<T,3>::pos_x;
                 yAxis = vm::vec<T,3>::pos_y;
             } else {

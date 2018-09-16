@@ -116,7 +116,7 @@ namespace vm {
         const auto tm = translationMatrix(vec3d::one);
 
         const auto pt = p.transform(rm * tm);
-        ASSERT_TRUE(isUnit(p.normal));
+        ASSERT_TRUE(isUnit(p.normal, vm::Cd::almostZero()));
         ASSERT_EQ(point_status::inside, pt.pointStatus(rm * tm * p.anchor()));
         ASSERT_VEC_EQ(rm * p.normal, pt.normal);
     }

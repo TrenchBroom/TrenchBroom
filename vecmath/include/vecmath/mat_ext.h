@@ -445,9 +445,9 @@ namespace vm {
         const auto  yAxis = normalize(cross(normal, xAxis));
         const auto& zAxis = direction;
 
-        assert(isUnit(xAxis));
-        assert(isUnit(yAxis));
-        assert(isUnit(zAxis));
+        assert(isUnit(xAxis, constants<T>::almostZero()));
+        assert(isUnit(yAxis, constants<T>::almostZero()));
+        assert(isUnit(zAxis, constants<T>::almostZero()));
 
         return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
     }

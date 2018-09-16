@@ -117,9 +117,9 @@ namespace TrenchBroom {
                         const auto hitPoint = m_pickRay.pointAtDistance(result.position1);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
-                            if (vm::isZero(leftDot)) {
+                            if (vm::isZero(leftDot, vm::C::almostZero())) {
                                 faces.push_back(left);
-                            } else if (vm::isZero(rightDot)) {
+                            } else if (vm::isZero(rightDot, vm::C::almostZero())) {
                                 faces.push_back(right);
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             }
             
             bool operator()(Model::BrushFace* face) const {
-                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::constants<FloatType>::almostZero());
+                return face != m_reference && isEqual(face->boundary(), m_reference->boundary(), vm::C::almostZero());
             }
         };
         
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
             
             const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
-            if (isZero(faceDelta)) {
+            if (isZero(faceDelta, vm::C::almostZero())) {
                 return true;
             }
 
@@ -284,7 +284,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_totalDelta)) {
+            if (isZero(m_totalDelta, vm::C::almostZero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();

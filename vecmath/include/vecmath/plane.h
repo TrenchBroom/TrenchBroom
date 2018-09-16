@@ -24,6 +24,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mat.h"
 #include "scalar.h"
 #include "util.h"
+#include "constants.h"
 
 #include <tuple>
 #include <type_traits>
@@ -45,7 +46,7 @@ namespace vm {
          * Creates a new plane by setting all components to 0.
          */
         plane() :
-        distance(static_cast<T>(0.0)),
+        distance(T(0.0)),
         normal(vec<T,S>::zero) {}
 
         // Copy and move constructors
@@ -64,7 +65,7 @@ namespace vm {
          */
         template <typename U>
         explicit plane(const plane<U,S>& other) :
-        distance(static_cast<T>(other.distance)),
+        distance(T(other.distance)),
         normal(other.normal) {}
 
         /**
@@ -110,7 +111,7 @@ namespace vm {
          * @return the missing component to transform the given point to the point of intersection
          */
         T at(const vec<T,S-1>& point, const axis::type axis) const {
-            if (isZero(normal[axis])) {
+            if (isZero(normal[axis], constants<T>::almostZero())) {
                 return static_cast<T>(0.0);
             }
 
@@ -205,7 +206,7 @@ namespace vm {
          */
         vec<T,S> projectPoint(const vec<T,S>& point, const vec<T,S>& direction) const {
             const auto cos = dot(direction, normal);
-            if (isZero(cos)) {
+            if (isZero(cos, constants<T>::almostZero())) {
                 return vec<T,S>::NaN;
             }
             const auto d = dot(distance * normal - point, normal) / cos;

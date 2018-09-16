@@ -31,8 +31,6 @@
 #include <vecmath/util.h>
 #include <vecmath/intersection.h>
 
-// TODO 2201: write more tests
-
 namespace vm {
     bool lineOnPlane(const plane3f& plane, const line3f& line);
 

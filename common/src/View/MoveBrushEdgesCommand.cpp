@@ -42,7 +42,7 @@ namespace TrenchBroom {
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
         m_delta(delta) {
-            assert(!isZero(m_delta));
+            assert(!isZero(m_delta, vm::C::almostZero()));
         }
         
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {

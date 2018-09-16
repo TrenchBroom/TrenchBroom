@@ -54,7 +54,7 @@ namespace vm {
         const auto tm = translationMatrix(vec3d::one);
 
         const auto lt = l.transform(rm * tm);
-        ASSERT_TRUE(isUnit(l.direction));
+        ASSERT_TRUE(isUnit(l.direction, vm::Cd::almostZero()));
         ASSERT_VEC_EQ(rm * tm * l.point, lt.point);
         ASSERT_VEC_EQ(rm * l.direction, lt.direction);
     }

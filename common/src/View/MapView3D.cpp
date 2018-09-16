@@ -513,7 +513,7 @@ namespace TrenchBroom {
                 case vm::direction::forward: {
                     const auto plane = vm::plane3(vm::vec3(m_camera.position()), vm::vec3::pos_z);
                     const auto projectedDirection = plane.projectVector(vm::vec3(m_camera.direction()));
-                    if (isZero(projectedDirection)) {
+                    if (isZero(projectedDirection, vm::C::almostZero())) {
                         // camera is looking straight down or up
                         if (m_camera.direction().z() < 0.0) {
                             return vm::vec3(firstAxis(m_camera.up()));

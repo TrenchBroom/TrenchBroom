@@ -431,7 +431,7 @@ namespace vm {
      * @return true if the distance of the given values is less than the given epsilon and false otherwise
      */
     template <typename T>
-    bool isEqual(const T lhs, const T rhs, const T epsilon = constants<T>::almostZero()) {
+    bool isEqual(const T lhs, const T rhs, const T epsilon) {
         return abs(lhs - rhs) <= epsilon;
     }
 
@@ -444,7 +444,7 @@ namespace vm {
      * @return true if the distance of the given argument to 0 is less than the given epsilon
      */
     template <typename T>
-    bool isZero(const T v, const T epsilon = constants<T>::almostZero()) {
+    bool isZero(const T v, const T epsilon) {
         static_assert(std::is_floating_point<T>::value, "T must be a float point type");
         return abs(v) <= epsilon;
     }

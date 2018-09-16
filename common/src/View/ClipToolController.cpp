@@ -294,7 +294,7 @@ namespace TrenchBroom {
         
         Model::BrushFaceList ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint) {
             for (const Model::BrushVertex* vertex : face->vertices()) {
-                if (isEqual(vertex->position(), hitPoint, vm::constants<FloatType>::almostZero())) {
+                if (isEqual(vertex->position(), hitPoint, vm::C::almostZero())) {
                     const Model::Brush* brush = face->brush();
                     return brush->incidentFaces(vertex);
                 }

@@ -508,20 +508,20 @@ namespace vm {
     }
 
     TEST(VecTest, isUnit) {
-        ASSERT_TRUE(isUnit(vec3f::pos_x));
-        ASSERT_TRUE(isUnit(vec3f::pos_y));
-        ASSERT_TRUE(isUnit(vec3f::pos_z));
-        ASSERT_TRUE(isUnit(vec3f::neg_x));
-        ASSERT_TRUE(isUnit(vec3f::neg_y));
-        ASSERT_TRUE(isUnit(vec3f::neg_z));
-        ASSERT_TRUE(isUnit(normalize(vec3f::one)));
-        ASSERT_FALSE(isUnit(vec3f::one));
-        ASSERT_FALSE(isUnit(vec3f::zero));
+        ASSERT_TRUE(isUnit(vec3f::pos_x, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(vec3f::pos_y, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(vec3f::pos_z, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(vec3f::neg_x, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(vec3f::neg_y, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(vec3f::neg_z, vm::Cf::almostZero()));
+        ASSERT_TRUE(isUnit(normalize(vec3f::one), vm::Cf::almostZero()));
+        ASSERT_FALSE(isUnit(vec3f::one, vm::Cf::almostZero()));
+        ASSERT_FALSE(isUnit(vec3f::zero, vm::Cf::almostZero()));
     }
 
     TEST(VecTest, isZero) {
-        ASSERT_TRUE(isZero(vec3f::zero));
-        ASSERT_FALSE(isZero(vec3f::pos_x));
+        ASSERT_TRUE(isZero(vec3f::zero, vm::Cf::almostZero()));
+        ASSERT_FALSE(isZero(vec3f::pos_x, vm::Cf::almostZero()));
     }
 
     TEST(VecTest, isNaN) {

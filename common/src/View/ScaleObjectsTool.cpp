@@ -902,7 +902,7 @@ namespace TrenchBroom {
 
         void ScaleObjectsTool::commitScale() {
             MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta)) {
+            if (isZero(m_dragCumulativeDelta, vm::C::almostZero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();

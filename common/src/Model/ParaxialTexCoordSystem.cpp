@@ -128,7 +128,7 @@ namespace TrenchBroom {
             const vm::vec3 offset     = transformation * vm::vec3::zero;
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;
-            assert(isUnit(newNormal));
+            assert(isUnit(newNormal, vm::C::almostZero()));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (isEqual(newNormal, oldNormal, 0.01)) {
@@ -220,8 +220,8 @@ namespace TrenchBroom {
             assert(!isNaN(newOffset));
             assert(!isNaN(newScale));
             assert(!vm::isNan(newRotation));
-            assert(!vm::isZero(newScale.x()));
-            assert(!vm::isZero(newScale.y()));
+            assert(!vm::isZero(newScale.x(), vm::Cf::almostZero()));
+            assert(!vm::isZero(newScale.y(), vm::Cf::almostZero()));
             
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);

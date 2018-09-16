@@ -45,7 +45,7 @@ namespace TrenchBroom {
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
         m_delta(delta) {
-            assert(!isZero(m_delta));
+            assert(!isZero(m_delta, vm::C::almostZero()));
         }
 
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {

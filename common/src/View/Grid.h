@@ -107,11 +107,11 @@ namespace TrenchBroom {
                         return vm::snap(f, actSize);
                     case SnapDir_Up: {
                         const T s = actSize * std::ceil(f / actSize);
-                        return (skip && vm::isEqual(s, f)) ? s + static_cast<T>(actualSize()) : s;
+                        return (skip && vm::isEqual(s, f, vm::constants<T>::almostZero())) ? s + static_cast<T>(actualSize()) : s;
                     }
                     case SnapDir_Down: {
                         const T s = actSize * std::floor(f / actSize);
-                        return (skip && vm::isEqual(s, f)) ? s - static_cast<T>(actualSize()) : s;
+                        return (skip && vm::isEqual(s, f, vm::constants<T>::almostZero())) ? s - static_cast<T>(actualSize()) : s;
                     }
 					switchDefault()
                 }

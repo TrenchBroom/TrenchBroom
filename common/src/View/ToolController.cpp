@@ -239,7 +239,7 @@ namespace TrenchBroom {
         m_normal(normal),
         m_radius(radius) {
             assert(m_start != m_center);
-            assert(isUnit(m_normal));
+            assert(isUnit(m_normal, vm::C::almostZero()));
             assert(m_radius > 0.0);
         }
 

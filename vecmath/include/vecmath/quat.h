@@ -95,18 +95,18 @@ namespace vm {
          * @param to the vector to rotate onto
          */
         quat(const vec<T,3>& from, const vec<T,3>& to) {
-            assert(isUnit(from));
-            assert(isUnit(to));
+            assert(isUnit(from, constants<T>::almostZero()));
+            assert(isUnit(to, constants<T>::almostZero()));
 
             const auto cos = dot(from, to);
-            if (isEqual(+cos, T(1.0))) {
+            if (isEqual(+cos, T(1.0), constants<T>::almostZero())) {
                 // `from` and `to` are equal.
                 setRotation(vec<T,3>::pos_z, T(0.0));
-            } else if (isEqual(-cos, T(1.0))) {
+            } else if (isEqual(-cos, T(1.0), constants<T>::almostZero())) {
                 // `from` and `to` are opposite.
                 // We need to find a rotation axis that is perpendicular to `from`.
                 auto axis = cross(from, vec<T,3>::pos_z);
-                if (isZero(squaredLength(axis))) {
+                if (isZero(squaredLength(axis), constants<T>::almostZero())) {
                     axis = cross(from, vec<T,3>::pos_x);
                 }
                 setRotation(normalize(axis), toRadians(T(180)));
@@ -118,7 +118,7 @@ namespace vm {
         }
     private:
         void setRotation(const vec<T,3>& axis, const T angle) {
-            assert(isUnit(axis));
+            assert(isUnit(axis, constants<T>::almostZero()));
             r = std::cos(angle / T(2.0));
             v = axis * std::sin(angle / T(2.0));
         }
@@ -138,7 +138,7 @@ namespace vm {
          * @return the rotation axis
          */
         vec<T,3> axis() const {
-            if (isZero(v)) {
+            if (isZero(v, constants<T>::almostZero())) {
                 return v;
             } else {
                 return v / std::sin(std::acos(r));
