@@ -17,3 +17,6 @@ Thumbs.db
 /.idea
 
 app/resources/documentation/help/index.html
+
+build/*
+.vscode/*

@@ -45,6 +45,12 @@ IF(APPLE)
     SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_QUAKE2_FILES})
     SET_SOURCE_FILES_PROPERTIES(${MACOSX_QUAKE2_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Quake2/)
 
+    FILE(GLOB_RECURSE MACOSX_NIGHTFIRE_FILES
+        "${APP_DIR}/resources/games/Nightfire/*.*"
+    )
+    SET(APP_SOURCE ${APP_SOURCE} ${MACOSX_NIGHTFIRE_FILES})
+    SET_SOURCE_FILES_PROPERTIES(${MACOSX_NIGHTFIRE_FILES} PROPERTIES  MACOSX_PACKAGE_LOCATION Resources/games/Nightfire/)
+
     FILE(GLOB_RECURSE MACOSX_HEXEN2_FILES
         "${APP_DIR}/resources/games/Hexen2/*.*"
     )
@@ -113,7 +119,7 @@ GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
 # Create the cmake script for generating the version information
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-ADD_CUSTOM_TARGET(GenerateVersion 
+ADD_CUSTOM_TARGET(GenerateVersion
     ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
 ADD_DEPENDENCIES(TrenchBroom GenerateVersion)
 
@@ -238,7 +244,7 @@ IF(WIN32)
         WX_LIB_TO_DLL(${WX_adv}  _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_adv)
         WX_LIB_TO_DLL(${WX_gl}   _${WX_LIB_DIR_PREFIX} WIN_LIB_WX_gl)
     ENDIF()
-    
+
     # Copy PDB files (msvc debug symbols)
     IF(COMPILER_IS_MSVC)
         IF(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -247,7 +253,7 @@ IF(WIN32)
             STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_base ${WIN_LIB_WX_base})
             STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_adv ${WIN_LIB_WX_adv})
             STRING(REGEX REPLACE "dll$" "pdb" WIN_PDB_WX_gl ${WIN_LIB_WX_gl})
-        
+
             INSTALL(FILES
                 "$<TARGET_FILE_DIR:TrenchBroom>/TrenchBroom.pdb"
                 ${WIN_PDB_WX_core}
