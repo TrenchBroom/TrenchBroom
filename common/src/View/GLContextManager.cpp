@@ -55,9 +55,19 @@ namespace TrenchBroom {
             return m_initialized;
         }
 
+        static void initializeGlew() {
+            glewExperimental = GL_TRUE;
+            const GLenum glewState = glewInit();
+            if (glewState != GLEW_OK) {
+                RenderException e;
+                e << "Error initializing glew: " << glewGetErrorString(glewState);
+                throw e;
+            }
+        }
+
         bool GLContextManager::initialize() {
             if (!m_initialized) {
-                glewInitialize();
+                initializeGlew();
                 m_initialized = true;
                 return true;
             }

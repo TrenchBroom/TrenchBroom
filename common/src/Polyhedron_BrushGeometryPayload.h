@@ -31,14 +31,14 @@ namespace TrenchBroom {
 }
 
 struct BrushVertexPayload {
-    typedef TrenchBroom::GLuint Type;
+    using Type = GLuint;
     static Type defaultValue() {
         return std::numeric_limits<Type>::max();
     }
 };
 
 struct BrushFacePayload {
-    typedef TrenchBroom::Model::BrushFace* Type;
+    using Type = TrenchBroom::Model::BrushFace*;
     static Type defaultValue() {
         return nullptr;
     }
