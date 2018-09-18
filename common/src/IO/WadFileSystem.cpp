@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
             reader.seekFromBegin(WadLayout::MagicOffset);
             const auto magic = reader.readString(WadLayout::MagicSize);
-            if (magic != "WAD2") {
+            if (StringUtils::toLower(magic) != "wad2" && StringUtils::toLower(magic) != "wad3") {
                 throw FileSystemException("Unknown wad file type '" + magic + "'");
             }
 
