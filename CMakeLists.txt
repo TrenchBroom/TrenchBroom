@@ -46,18 +46,6 @@ SET(TB_MIN_wxWidgets_VERSION_MAJOR 3)
 SET(TB_MIN_wxWidgets_VERSION_MINOR 1)
 SET(TB_MIN_wxWidgets_VERSION_PATCH 1)
 
-INCLUDE(cmake/wxWidgets.cmake)
-INCLUDE(cmake/FreeType.cmake)
-INCLUDE(cmake/FreeImage.cmake)
-
-# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
-INCLUDE(cmake/GTest.cmake)
-INCLUDE(cmake/GMock.cmake)
-INCLUDE(cmake/Glew.cmake)
-INCLUDE(cmake/vecmath.cmake)
-INCLUDE(cmake/Common.cmake)
-INCLUDE(cmake/StackWalker.cmake)
-
 IF(COMPILER_IS_CLANG)
     MESSAGE(STATUS "Compiler is Clang")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
@@ -110,6 +98,18 @@ ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES "Debug")
 	ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
 ENDIF()
+
+INCLUDE(cmake/wxWidgets.cmake)
+INCLUDE(cmake/FreeType.cmake)
+INCLUDE(cmake/FreeImage.cmake)
+
+# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
+INCLUDE(cmake/GTest.cmake)
+INCLUDE(cmake/GMock.cmake)
+INCLUDE(cmake/Glew.cmake)
+INCLUDE(cmake/vecmath.cmake)
+INCLUDE(cmake/Common.cmake)
+INCLUDE(cmake/StackWalker.cmake)
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)
