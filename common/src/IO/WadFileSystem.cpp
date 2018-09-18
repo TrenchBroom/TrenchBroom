@@ -27,6 +27,7 @@ namespace TrenchBroom {
         namespace WadLayout {
             static const size_t MinFileSize           = 12;
             static const size_t MagicOffset           = 0;
+            static const size_t MagicSize             = 4;
             static const size_t NumEntriesAddress     = 4;
             static const size_t DirOffsetAddress      = 8;
             static const size_t DirEntryTypeOffset    = 4;
@@ -60,6 +61,12 @@ namespace TrenchBroom {
             CharArrayReader reader(m_file->begin(), m_file->end());
             if (m_file->size() < WadLayout::MinFileSize) {
                 throw FileSystemException("File does not contain a directory.");
+            }
+
+            reader.seekFromBegin(WadLayout::MagicOffset);
+            const auto magic = reader.readString(WadLayout::MagicSize);
+            if (magic != "WAD2") {
+                throw FileSystemException("Unknown wad file type '" + magic + "'");
             }
 
             reader.seekFromBegin(WadLayout::NumEntriesAddress);
