@@ -25,11 +25,15 @@
 namespace TrenchBroom {
     namespace IO {
         namespace WadLayout {
+            static const size_t MinFileSize           = 12;
+            static const size_t MagicOffset           = 0;
+            static const size_t MagicSize             = 4;
             static const size_t NumEntriesAddress     = 4;
             static const size_t DirOffsetAddress      = 8;
             static const size_t DirEntryTypeOffset    = 4;
             static const size_t DirEntryNameOffset    = 3;
             static const size_t DirEntryNameSize      = 16;
+            static const size_t DirEntrySize          = 32;
             // static const size_t PalLength             = 256;
             // static const size_t TexWidthOffset        = 16;
             // static const size_t TexDataOffset         = 24;
@@ -55,29 +59,52 @@ namespace TrenchBroom {
 
         void WadFileSystem::doReadDirectory() {
             CharArrayReader reader(m_file->begin(), m_file->end());
+            if (m_file->size() < WadLayout::MinFileSize) {
+                throw FileSystemException("File does not contain a directory.");
+            }
+
+            reader.seekFromBegin(WadLayout::MagicOffset);
+            const auto magic = reader.readString(WadLayout::MagicSize);
+            if (StringUtils::toLower(magic) != "wad2" && StringUtils::toLower(magic) != "wad3") {
+                throw FileSystemException("Unknown wad file type '" + magic + "'");
+            }
 
             reader.seekFromBegin(WadLayout::NumEntriesAddress);
-            const size_t entryCount = reader.readSize<int32_t>();
-            
+            const auto entryCount = reader.readSize<int32_t>();
+
+            if (m_file->size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize) {
+                throw FileSystemException("File does not contain a directory");
+            }
+
             reader.seekFromBegin(WadLayout::DirOffsetAddress);
-            const size_t directoryOffset = reader.readSize<int32_t>();
+            const auto directoryOffset = reader.readSize<int32_t>();
+
+            if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize) {
+                throw FileSystemException("File directory is out of bounds.");
+            }
             
             reader.seekFromBegin(directoryOffset);
             for (size_t i = 0; i < entryCount; ++i) {
-                const size_t entryAddress = reader.readSize<int32_t>();
-                const size_t entrySize = reader.readSize<int32_t>();
-                
+                const auto entryAddress = reader.readSize<int32_t>();
+                const auto entrySize = reader.readSize<int32_t>();
+
+                if (m_file->size() < entryAddress + entrySize) {
+                    auto msg = StringStream();
+                    msg << "File entry at address " << entryAddress << " is out of bounds";
+                    throw FileSystemException(msg.str()) ;
+                }
+
                 reader.seekForward(WadLayout::DirEntryTypeOffset);
-                const char entryType = reader.readChar<char>();
+                const auto entryType = reader.readChar<char>();
                 reader.seekForward(WadLayout::DirEntryNameOffset);
-                const String entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
+                const auto entryName = reader.readString(WadLayout::DirEntryNameSize) + "." + entryType;
                 
-                const char* entryBegin = m_file->begin() + entryAddress;
-                const char* entryEnd = entryBegin + entrySize;
+                const auto* entryBegin = m_file->begin() + entryAddress;
+                const auto* entryEnd = entryBegin + entrySize;
                 assert(entryEnd <= m_file->end());
                 
-                IO::Path path(entryName);
-                MappedFile::Ptr file(new MappedFileView(m_file, path, entryBegin, entryEnd));
+                const auto path = IO::Path(entryName);
+                auto file = std::make_shared<MappedFileView>(m_file, path, entryBegin, entryEnd);
                 m_root.addFile(path, file);
             }
         }

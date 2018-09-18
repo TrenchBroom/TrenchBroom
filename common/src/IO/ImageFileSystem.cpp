@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        ImageFileSystem::File::~File() {}
+        ImageFileSystem::File::~File() = default;
         
         MappedFile::Ptr ImageFileSystem::File::open() {
             return doOpen();
@@ -54,78 +54,100 @@ namespace TrenchBroom {
 
         void ImageFileSystem::Directory::addFile(const Path& path, File* file) {
             ensure(file != nullptr, "file is null");
-            const Path filename = path.lastComponent();
+            const auto filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
                 MapUtils::insertOrReplaceAndDelete(m_files, filename, file);
             } else {
-                Directory& dir = findOrCreateDirectory(path.deleteLastComponent());
+                auto& dir = findOrCreateDirectory(path.deleteLastComponent());
                 dir.addFile(filename, file);
             }
         }
         
         bool ImageFileSystem::Directory::directoryExists(const Path& path) const {
-            if (path.isEmpty())
+            if (path.isEmpty()) {
                 return true;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
+            }
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
                 return false;
-            return it->second->directoryExists(path.deleteFirstComponent());
+            } else {
+                return it->second->directoryExists(path.deleteFirstComponent());
+            }
         }
         
         bool ImageFileSystem::Directory::fileExists(const Path& path) const {
-            if (path.length() == 1)
+            if (path.length() == 1) {
                 return m_files.count(path) > 0;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
+            }
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
                 return false;
-            return it->second->fileExists(path.deleteFirstComponent());
+            } else {
+                return it->second->fileExists(path.deleteFirstComponent());
+            }
         }
         
         const ImageFileSystem::Directory& ImageFileSystem::Directory::findDirectory(const Path& path) const {
-            if (path.isEmpty())
+            if (path.isEmpty()) {
                 return *this;
-            DirMap::const_iterator it = m_directories.find(path.firstComponent());
-            if (it == std::end(m_directories))
+            }
+
+            auto it = m_directories.find(path.firstComponent());
+            if (it == std::end(m_directories)) {
                 throw FileSystemException("Path does not exist: '" + (m_path + path).asString() + "'");
-            return it->second->findDirectory(path.deleteFirstComponent());
+            } else {
+                return it->second->findDirectory(path.deleteFirstComponent());
+            }
         }
         
         const MappedFile::Ptr ImageFileSystem::Directory::findFile(const Path& path) const {
             assert(!path.isEmpty());
             
-            const Path name = path.firstComponent();
+            const auto name = path.firstComponent();
             if (path.length() == 1) {
-                FileMap::const_iterator it = m_files.find(name);
-                if (it == std::end(m_files))
+                auto it = m_files.find(name);
+                if (it == std::end(m_files)) {
                     throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-                return it->second->open();
+                } else {
+                    return it->second->open();
+                }
+            } else {
+                auto it = m_directories.find(name);
+                if (it == std::end(m_directories)) {
+                    throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
+                } else {
+                    return it->second->findFile(path.deleteFirstComponent());
+                }
             }
-            DirMap::const_iterator it = m_directories.find(name);
-            if (it == std::end(m_directories))
-                throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-            return it->second->findFile(path.deleteFirstComponent());
         }
         
         Path::List ImageFileSystem::Directory::contents() const {
             Path::List contents;
             
-            for (const auto& entry : m_directories)
+            for (const auto& entry : m_directories) {
                 contents.push_back(Path(entry.first));
-            
-            for (const auto& entry : m_files)
+            }
+
+            for (const auto& entry : m_files) {
                 contents.push_back(Path(entry.first));
-            
+            }
+
             return contents;
         }
         
         ImageFileSystem::Directory& ImageFileSystem::Directory::findOrCreateDirectory(const Path& path) {
-            if (path.isEmpty())
+            if (path.isEmpty()) {
                 return *this;
-            const Path name = path.firstComponent();
-            DirMap::iterator it = m_directories.lower_bound(name);
-            if (it == std::end(m_directories) || name != it->first)
+            }
+
+            const auto name = path.firstComponent();
+            auto it = m_directories.lower_bound(name);
+            if (it == std::end(m_directories) || name != it->first) {
                 it = m_directories.insert(it, std::make_pair(name, new Directory(m_path + Path(name))));
+            }
             return it->second->findOrCreateDirectory(path.deleteFirstComponent());
         }
         
@@ -135,7 +157,7 @@ namespace TrenchBroom {
         m_root(Path("")) {}
         
         
-        ImageFileSystem::~ImageFileSystem() {}
+        ImageFileSystem::~ImageFileSystem() = default;
 
         void ImageFileSystem::initialize() {
             doReadDirectory();
@@ -146,23 +168,23 @@ namespace TrenchBroom {
         }
         
         bool ImageFileSystem::doDirectoryExists(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase();
             return m_root.directoryExists(searchPath);
         }
         
         bool ImageFileSystem::doFileExists(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase();
             return m_root.fileExists(searchPath);
         }
         
         Path::List ImageFileSystem::doGetDirectoryContents(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
-            const Directory& directory = m_root.findDirectory(path);
+            const auto searchPath = path.makeLowerCase();
+            const auto& directory = m_root.findDirectory(path);
             return directory.contents();
         }
         
         const MappedFile::Ptr ImageFileSystem::doOpenFile(const Path& path) const {
-            const Path searchPath = path.makeLowerCase();
+            const auto searchPath = path.makeLowerCase();
             return m_root.findFile(path);
         }
     }
