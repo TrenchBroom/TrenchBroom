@@ -1,3 +1,12 @@
+// Mark the rest of the file as a system include, for the purpose of silencing spurious warnings.
+// This is a hack around https://github.com/sakra/cotire/issues/105 (cotire fails to pass
+// the -isystem flag when it should.)
+#if defined(__clang__)
+#pragma clang system_header
+#elif defined(__GNUC__) 
+#pragma GCC system_header
+#endif
+
 // C++ standard library
 
 #include <algorithm>
