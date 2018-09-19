@@ -4,6 +4,8 @@ ELSE()
     cmake_minimum_required (VERSION 3.1)
 ENDIF()
 
+include(cmake/cotire.cmake)
+
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 INCLUDE(cmake/Utils.cmake)
