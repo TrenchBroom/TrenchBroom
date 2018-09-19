@@ -59,7 +59,6 @@ namespace TrenchBroom {
                 Color m_color;
                 float m_lineWidth;
                 OcclusionPolicy m_occlusionPolicy;
-                CullingPolicy m_cullingPolicy;
             public:
                 LineRenderAttributes(const Color& color, float lineWidth, OcclusionPolicy occlusionPolicy);
                 bool operator<(const LineRenderAttributes& other) const;
