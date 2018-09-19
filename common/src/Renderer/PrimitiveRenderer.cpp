@@ -36,8 +36,7 @@ namespace TrenchBroom {
         PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy) :
         m_color(color),
         m_lineWidth(lineWidth),
-        m_occlusionPolicy(occlusionPolicy),
-        m_cullingPolicy(CP_ShowBackfaces) {}
+        m_occlusionPolicy(occlusionPolicy) {}
         
         
 

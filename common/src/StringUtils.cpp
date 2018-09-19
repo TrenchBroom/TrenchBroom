@@ -25,7 +25,7 @@
 
 namespace StringUtils {
     String formatString(const char* format, ...) {
-        va_list(arguments);
+        va_list arguments;
         va_start(arguments, format);
         const String message = formatStringV(format, arguments);
         va_end(arguments);
@@ -355,7 +355,7 @@ namespace StringUtils {
         result.reserve(count);
         result.push_back(str1);
         
-        va_list(strs);
+        va_list strs;
         va_start(strs, str1);
         for (size_t i = 0; i < count - 1; ++i)
             result.push_back(va_arg(strs, const char*));
@@ -368,7 +368,7 @@ namespace StringUtils {
         StringSet result;
         result.insert(str1);
         
-        va_list(strs);
+        va_list strs;
         va_start(strs, str1);
         for (size_t i = 0; i < count - 1; ++i)
             result.insert(va_arg(strs, const char*));

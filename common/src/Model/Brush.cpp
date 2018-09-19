@@ -1066,8 +1066,6 @@ namespace TrenchBroom {
         }
 
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, BrushGeometry& newGeometry) {
-            const vm::bbox3 oldBounds = bounds();
-
             matcher.processRightFaces(FaceMatchingCallback());
 
             const NotifyNodeChange nodeChange(this);
@@ -1075,7 +1073,6 @@ namespace TrenchBroom {
             updateFacesFromGeometry(worldBounds, newGeometry);
             rebuildGeometry(worldBounds);
             assert(fullySpecified());
-            nodeBoundsDidChange(oldBounds);
         }
 
         Brush::VertexSet Brush::createVertexSet(const std::vector<vm::vec3>& vertices) {
