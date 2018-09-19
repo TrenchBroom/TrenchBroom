@@ -153,4 +153,9 @@
 #if defined(Always)
 #undef Always
 #endif
-
+#if defined(True)
+#undef True
+#endif
+#if defined(False)
+#undef False
+#endif
