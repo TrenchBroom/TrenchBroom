@@ -146,7 +146,11 @@
 #include <wx/window.h>
 #include <wx/wupdlock.h>
 
-// fix None macro in glx.h clashing with gtest
+// undefine some macros from glx.h that clash with TB
 #if defined(None)
 #undef None
 #endif
+#if defined(Always)
+#undef Always
+#endif
+
