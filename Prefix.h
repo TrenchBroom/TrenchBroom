@@ -162,3 +162,6 @@
 #if defined(Opposite)
 #undef Opposite
 #endif
+#if defined(Bool)
+#undef Bool
+#endif
