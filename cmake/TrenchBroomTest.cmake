@@ -10,8 +10,8 @@ FILE(GLOB_RECURSE BENCHMARK_SOURCE
 	"${BENCHMARK_SOURCE_DIR}/*.cpp"	
 )
 
-ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE})
-ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE})
+ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE} $<TARGET_OBJECTS:common>)
+ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE} $<TARGET_OBJECTS:common>)
 
 IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
 	TARGET_LINK_LIBRARIES(TrenchBroom-Test asan)
@@ -21,11 +21,20 @@ ENDIF()
 ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 ADD_TARGET_PROPERTY(TrenchBroom-Benchmark INCLUDE_DIRECTORIES "${BENCHMARK_SOURCE_DIR}")
 
-TARGET_LINK_LIBRARIES(TrenchBroom-Test common glew gtest gmock vecmath)
-TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark common glew gtest gmock vecmath)
+TARGET_LINK_LIBRARIES(TrenchBroom-Test glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark glew gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
 
 SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
+
+IF (COMPILER_IS_MSVC)
+	TARGET_LINK_LIBRARIES(TrenchBroom-Test stackwalker)
+	TARGET_LINK_LIBRARIES(TrenchBroom-Benchmark stackwalker)
+
+    # Generate a small stripped PDB for release builds so we get stack traces with symbols
+	SET_TARGET_PROPERTIES(TrenchBroom-Test PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-Test-stripped.pdb /PDBALTPATH:TrenchBroom-Test-stripped.pdb")
+	SET_TARGET_PROPERTIES(TrenchBroom-Benchmark PROPERTIES LINK_FLAGS_RELEASE "/DEBUG /PDBSTRIPPED:Release/TrenchBroom-Benchmark-stripped.pdb /PDBALTPATH:TrenchBroom-Benchmark-stripped.pdb")
+ENDIF()
 
 SET(RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Test>")
 SET(BENCHMARK_RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:TrenchBroom-Benchmark>")
