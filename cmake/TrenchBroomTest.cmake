@@ -10,10 +10,6 @@ FILE(GLOB_RECURSE BENCHMARK_SOURCE
 	"${BENCHMARK_SOURCE_DIR}/*.cpp"	
 )
 
-# Re-use some of TrenchBroom-Test (e.g. main()) in TrenchBroom-Benchmark
-LIST(APPEND BENCHMARK_SOURCE 
-	"${TEST_SOURCE_DIR}/RunAllTests.cpp")
-
 ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE})
 ADD_EXECUTABLE(TrenchBroom-Benchmark ${BENCHMARK_SOURCE})
 
