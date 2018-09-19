@@ -145,3 +145,8 @@
 #include <wx/utils.h>
 #include <wx/window.h>
 #include <wx/wupdlock.h>
+
+// fix None macro in glx.h clashing with gtest
+#if defined(None)
+#undef None
+#endif
