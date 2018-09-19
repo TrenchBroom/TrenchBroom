@@ -18,6 +18,5 @@
  */
 
 #include "Main.h"
-#include "Version.h"
 
 IMPLEMENT_APP(TrenchBroom::View::TrenchBroomApp)
