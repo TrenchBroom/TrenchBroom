@@ -159,3 +159,6 @@
 #if defined(False)
 #undef False
 #endif
+#if defined(Opposite)
+#undef Opposite
+#endif
