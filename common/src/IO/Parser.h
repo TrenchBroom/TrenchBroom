@@ -50,8 +50,9 @@ namespace TrenchBroom {
             }
             
             const Token& expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
-                if (!check(typeMask, token))
+                if (!check(typeMask, token)) {
                     expect(status, tokenName(typeMask), token);
+                }
                 return token;
             }
             
