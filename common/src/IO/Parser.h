@@ -37,7 +37,7 @@ namespace TrenchBroom {
             typedef TokenTemplate<TokenType> Token;
             mutable TokenNameMap m_tokenNames;
         public:
-            virtual ~Parser() {}
+            virtual ~Parser() = default;
         protected:
             bool check(const TokenType typeMask, const Token& token) const {
                 return token.hasType(typeMask);

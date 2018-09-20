@@ -40,7 +40,8 @@ namespace TrenchBroom {
             FileSystemHierarchy();
             virtual ~FileSystemHierarchy() override;
             
-            void addFileSystem(FileSystem* fileSystem);
+            void pushFileSystem(FileSystem* fileSystem);
+            void popFileSystem();
             virtual void clear();
         private:
             Path doMakeAbsolute(const Path& relPath) const override;
@@ -65,8 +66,8 @@ namespace TrenchBroom {
         public:
             WritableFileSystemHierarchy();
             
-            void addReadableFileSystem(FileSystem* fileSystem);
-            void addWritableFileSystem(WritableFileSystem* fileSystem);
+            void pushReadableFileSystem(FileSystem* fileSystem);
+            void pushWritableFileSystem(WritableFileSystem* fileSystem);
             void clear() override;
         private:
             void doCreateFile(const Path& path, const String& contents) override;

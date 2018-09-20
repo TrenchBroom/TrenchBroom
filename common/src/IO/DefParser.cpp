@@ -328,13 +328,13 @@ namespace TrenchBroom {
         Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {
             expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
             
-            const TokenizerState::Snapshot snapshot = m_tokenizer.snapshot();
-            const size_t line = m_tokenizer.line();
-            const size_t column = m_tokenizer.column();
+            const auto snapshot = m_tokenizer.snapshot();
+            const auto line = m_tokenizer.line();
+            const auto column = m_tokenizer.column();
             
             try {
                 ELParser parser(m_tokenizer);
-                EL::Expression expression = parser.parse();
+                auto expression = parser.parse();
                 expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
                 
                 expression.optimize();
@@ -344,7 +344,7 @@ namespace TrenchBroom {
                     m_tokenizer.restore(snapshot);
                     
                     LegacyModelDefinitionParser parser(m_tokenizer);
-                    EL::Expression expression = parser.parse(status);
+                    auto expression = parser.parse(status);
                     expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
                     
                     expression.optimize();

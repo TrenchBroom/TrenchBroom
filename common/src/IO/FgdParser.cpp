@@ -24,6 +24,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/ELParser.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
@@ -102,14 +104,17 @@ namespace TrenchBroom {
             return Token(FgdToken::Eof, nullptr, nullptr, length(), line(), column());
         }
         
-        FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor) :
+        FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path) :
         m_defaultEntityColor(defaultEntityColor),
-        m_tokenizer(FgdTokenizer(begin, end)) {}
+        m_tokenizer(FgdTokenizer(begin, end)) {
+            if (!path.isEmpty()) {
+                pushIncludePath(path);
+            }
+        }
         
-        FgdParser::FgdParser(const String& str, const Color& defaultEntityColor) :
-        m_defaultEntityColor(defaultEntityColor),
-        m_tokenizer(FgdTokenizer(str)) {}
-        
+        FgdParser::FgdParser(const String& str, const Color& defaultEntityColor, const Path& path) :
+        FgdParser(str.c_str(), str.c_str() + str.size(), defaultEntityColor, path) {}
+
         FgdParser::TokenNameMap FgdParser::tokenNames() const {
             using namespace FgdToken;
             
@@ -129,15 +134,50 @@ namespace TrenchBroom {
             return names;
         }
 
+        class FgdParser::PushIncludePath {
+        private:
+            FgdParser* m_parser;
+        public:
+            PushIncludePath(FgdParser* parser, const Path& path) :
+                m_parser(parser) {
+                m_parser->pushIncludePath(path);
+            }
+
+            ~PushIncludePath() {
+                m_parser->popIncludePath();
+            }
+        };
+
+        void FgdParser::pushIncludePath(const Path& path) {
+            ensure(path.isAbsolute(), "include path must be absolute");
+            assert(!isRecursiveInclude(path));
+
+            const auto folder = path.deleteLastComponent();
+            m_fileSystem.pushFileSystem(new DiskFileSystem(folder));
+            m_paths.push_back(path);
+        }
+
+        void FgdParser::popIncludePath() {
+            m_fileSystem.popFileSystem();
+            m_paths.pop_back();
+        }
+
+        bool FgdParser::isRecursiveInclude(const Path& path) const {
+            for (const auto& includedPath : m_paths) {
+                if (path == includedPath) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         Assets::EntityDefinitionList FgdParser::doParseDefinitions(ParserStatus& status) {
             Assets::EntityDefinitionList definitions;
             try {
-                Assets::EntityDefinition* definition = parseDefinition(status);
-                status.progress(m_tokenizer.progress());
-                while (definition != nullptr) {
-                    definitions.push_back(definition);
-                    definition = parseDefinition(status);
-                    status.progress(m_tokenizer.progress());
+                Token token = m_tokenizer.peekToken();
+                while (!token.hasType(FgdToken::Eof)) {
+                    parseDefinitionOrInclude(status, definitions);
+                    token = m_tokenizer.peekToken();
                 }
                 return definitions;
             } catch (...) {
@@ -145,12 +185,30 @@ namespace TrenchBroom {
                 throw;
             }
         }
-        
+
+        void FgdParser::parseDefinitionOrInclude(ParserStatus& status, Assets::EntityDefinitionList& definitions) {
+            Token token = m_tokenizer.peekToken();
+            expect(status, FgdToken::Eof | FgdToken::Word, token);
+            if (token.hasType(FgdToken::Eof)) {
+                return;
+            }
+
+            if (StringUtils::caseInsensitiveEqual(token.data(), "@include")) {
+                const auto includedDefinitions = parseInclude(status);
+                VectorUtils::append(definitions, includedDefinitions);
+            } else {
+                auto* definition = parseDefinition(status);
+                status.progress(m_tokenizer.progress());
+                if (definition != nullptr) {
+                    definitions.push_back(definition);
+                }
+            }
+        }
+
         Assets::EntityDefinition* FgdParser::parseDefinition(ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Eof)
-                return nullptr;
-            
+            expect(status, FgdToken::Word, token);
+
             const String classname = token.data();
             if (StringUtils::caseInsensitiveEqual(classname, "@SolidClass")) {
                 return parseSolidClass(status);
@@ -159,10 +217,10 @@ namespace TrenchBroom {
             } else if (StringUtils::caseInsensitiveEqual(classname, "@BaseClass")) {
                 const EntityDefinitionClassInfo baseClass = parseBaseClass(status);
                 m_baseClasses[baseClass.name()] = baseClass;
-                return parseDefinition(status);
+                return nullptr;
             } else if (StringUtils::caseInsensitiveEqual(classname, "@Main")) {
                 skipMainClass(status);
-                return parseDefinition(status);
+                return nullptr;
             } else {
                 const String msg = "Unknown entity definition class '" + classname + "'";
                 status.error(token.line(), token.column(), msg);
@@ -224,7 +282,7 @@ namespace TrenchBroom {
                 }
                 expect(status, FgdToken::Equality | FgdToken::Word, token = m_tokenizer.nextToken());
             }
-            
+
             expect(status, FgdToken::Word, token = m_tokenizer.nextToken());
             classInfo.setName(token.data());
 
@@ -265,17 +323,17 @@ namespace TrenchBroom {
             }
             return superClasses;
         }
-        
+
         Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status) {
             expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
             
-            const TokenizerState::Snapshot snapshot = m_tokenizer.snapshot();
-            const size_t line = m_tokenizer.line();
-            const size_t column = m_tokenizer.column();
+            const auto snapshot = m_tokenizer.snapshot();
+            const auto line = m_tokenizer.line();
+            const auto column = m_tokenizer.column();
             
             try {
                 ELParser parser(m_tokenizer);
-                EL::Expression expression = parser.parse();
+                auto expression = parser.parse();
                 expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                 expression.optimize();
@@ -285,7 +343,7 @@ namespace TrenchBroom {
                     m_tokenizer.restore(snapshot);
                     
                     LegacyModelDefinitionParser parser(m_tokenizer);
-                    EL::Expression expression = parser.parse(status);
+                    auto expression = parser.parse(status);
                     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
                     expression.optimize();
@@ -303,10 +361,11 @@ namespace TrenchBroom {
             Token token;
             do {
                 token = m_tokenizer.nextToken();
-                if (token.type() == FgdToken::OParenthesis)
+                if (token.type() == FgdToken::OParenthesis) {
                     ++depth;
-                else if (token.type() == FgdToken::CParenthesis)
+                } else if (token.type() == FgdToken::CParenthesis) {
                     --depth;
+                }
             } while (depth > 0 && token.type() != FgdToken::Eof);
         }
 
@@ -571,6 +630,44 @@ namespace TrenchBroom {
             expect(status, FgdToken::CParenthesis, token = m_tokenizer.nextToken());
             color[3] = 1.0f;
             return color;
+        }
+
+        Assets::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
+            Token token = m_tokenizer.nextToken();
+            expect(status, FgdToken::Word, token);
+            assert(StringUtils::caseInsensitiveEqual(token.data(), "@include"));
+
+            expect(status, FgdToken::String, token = m_tokenizer.nextToken());
+            const auto path = Path(token.data());
+            return handleInclude(status, path);
+        }
+
+        Assets::EntityDefinitionList FgdParser::handleInclude(ParserStatus& status, const Path& path) {
+            const auto snapshot = m_tokenizer.snapshot();
+            auto result = Assets::EntityDefinitionList(0);
+            try {
+                status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
+                const auto file = m_fileSystem.openFile(path);
+                const auto filePath = file->path();
+                status.debug(m_tokenizer.line(), "Resolved '" + path.asString() + "' to '" + filePath.asString() + "'");
+
+                if (!isRecursiveInclude(filePath)) {
+                    const PushIncludePath pushIncludePath(this, filePath);
+                    m_tokenizer.replaceState(file->begin(), file->end());
+                    result = doParseDefinitions(status);
+                } else {
+                    auto str = StringStream();
+                    str << "Skipping recursively included file: " << path.asString() << " (" << filePath << ")";
+                    status.error(m_tokenizer.line(), str.str());
+                }
+            } catch (const Exception &e) {
+                auto str = StringStream();
+                str << "Failed to parse included file: " << e.what();
+                status.error(m_tokenizer.line(), str.str());
+            }
+
+            m_tokenizer.restore(snapshot);
+            return result;
         }
     }
 }

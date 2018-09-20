@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 
+#include <iostream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -103,6 +104,8 @@ namespace TrenchBroom {
             static bool hasDriveSpec(const String& component);
             StringList resolvePath(const bool absolute, const StringList& components) const;
         };
+
+        std::ostream& operator<<(std::ostream& stream, const Path& path);
     }
 }
 
