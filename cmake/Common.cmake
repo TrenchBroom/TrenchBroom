@@ -8,12 +8,25 @@ FILE(GLOB_RECURSE COMMON_HEADER
     "${COMMON_SOURCE_DIR}/*.h"
 )
 
-# Unfortunately, Xcode still compiles OBJECT libraries as static libraries, so there's no real gain in build time.
-# But we can still use this on other platforms and in Release builds
-#IF(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-	ADD_LIBRARY(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
-	SET_XCODE_ATTRIBUTES(common)
-#ENDIF()
+# Unfortunately, Xcode still compiles OBJECT libraries as static libraries
+SET(TB_COMMON_LIBRARY_TYPE OBJECT)
+IF(CMAKE_GENERATOR STREQUAL "Xcode" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+	SET(TB_COMMON_LIBRARY_TYPE SHARED)
+ENDIF()
+MESSAGE(STATUS "Building common as ${TB_COMMON_LIBRARY_TYPE} library")
+
+ADD_LIBRARY(common ${TB_COMMON_LIBRARY_TYPE} ${COMMON_SOURCE} ${COMMON_HEADER})
+SET_XCODE_ATTRIBUTES(common)
+
+# Configure dependencies if building a shared library.
+get_target_property(common_TYPE common TYPE)
+IF(common_TYPE STREQUAL "SHARED_LIBRARY")
+	IF(COMPILER_IS_GNU AND TB_ENABLE_ASAN)
+		TARGET_LINK_LIBRARIES(common asan)
+	ENDIF()
+
+	TARGET_LINK_LIBRARIES(common glew ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES} vecmath)
+ENDIF()
 
 INCLUDE_DIRECTORIES(${COMMON_SOURCE_DIR})
 
