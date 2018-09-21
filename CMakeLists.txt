@@ -4,6 +4,11 @@ ELSE()
     cmake_minimum_required (VERSION 3.1)
 ENDIF()
 
+# Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
+if(POLICY CMP0058)
+    cmake_policy(SET CMP0058 NEW)
+endif()
+
 include(cmake/cotire.cmake)
 
 # SET(CMAKE_VERBOSE_MAKEFILE ON)

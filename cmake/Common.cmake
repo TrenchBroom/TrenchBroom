@@ -33,6 +33,13 @@ INCLUDE_DIRECTORIES(${COMMON_SOURCE_DIR})
 SET_TARGET_PROPERTIES(common PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Create the cmake script for generating the version information
+
+# Need to find git first because GenerateVersion.cmake.in accesses the GIT_EXECUTABLE variable it populates.
+FIND_PACKAGE(Git)
+IF (NOT GIT_FOUND)
+    MESSAGE(WARNING "Could not find git")
+ENDIF()
+
 CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 ADD_TARGET_PROPERTY(common INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
 ADD_CUSTOM_TARGET(GenerateVersion
