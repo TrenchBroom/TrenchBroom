@@ -22,7 +22,6 @@
 #include <clocale>
 #include <fstream>
 
-#include "GLInit.h"
 #include "Macros.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomAppTraits.h"
@@ -95,8 +94,6 @@ namespace TrenchBroom {
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
-
-            initGLFunctions();
 
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());

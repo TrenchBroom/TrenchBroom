@@ -17,9 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GLInit.h"
+// Hack to reuse the same main() function as the test suite
+#include "../../test/src/RunAllTests.cpp"
 
-namespace TrenchBroom {
-    void initGLFunctions() {
-    }
-}
