@@ -30,6 +30,8 @@
 #include "IO/TestParserStatus.h"
 #include "Model/ModelTypes.h"
 
+#include <algorithm>
+
 namespace TrenchBroom {
     namespace IO {
         TEST(FgdParserTest, parseIncludedFgdFiles) {
@@ -644,6 +646,45 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             VectorUtils::clearAndDelete(definitions);
+        }
+
+        TEST(FgdParserTest, parseInclude) {
+            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseInclude/host.fgd");
+            MappedFile::Ptr file = Disk::openFile(path);
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+
+            TestParserStatus status;
+            const auto defs = parser.parseDefinitions(status);
+            ASSERT_EQ(2u, defs.size());
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
+        }
+
+        TEST(FgdParserTest, parseNestedInclude) {
+            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseNestedInclude/host.fgd");
+            MappedFile::Ptr file = Disk::openFile(path);
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+
+            TestParserStatus status;
+            const auto defs = parser.parseDefinitions(status);
+            ASSERT_EQ(3u, defs.size());
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_start"; }));
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "info_player_coop"; }));
+        }
+
+        TEST(FgdParserTest, parseRecursiveInclude) {
+            const Path path = Disk::getCurrentWorkingDir() + Path("data/IO/Fgd/parseRecursiveInclude/host.fgd");
+            MappedFile::Ptr file = Disk::openFile(path);
+            const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
+            FgdParser parser(file->begin(), file->end(), defaultColor, file->path());
+
+            TestParserStatus status;
+            const auto defs = parser.parseDefinitions(status);
+            ASSERT_EQ(1u, defs.size());
+            ASSERT_TRUE(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) { return def->name() == "worldspawn"; }));
         }
     }
 }

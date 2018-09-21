@@ -420,5 +420,10 @@ namespace TrenchBroom {
             }
             return resolved;
         }
+
+        std::ostream& operator<<(std::ostream& stream, const Path& path) {
+            stream << path.asString();
+            return stream;
+        }
     }
 }

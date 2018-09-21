@@ -33,9 +33,15 @@ namespace TrenchBroom {
             clear();
         }
         
-        void FileSystemHierarchy::addFileSystem(FileSystem* fileSystem) {
-            ensure(fileSystem != nullptr, "fileSystem is null");
+        void FileSystemHierarchy::pushFileSystem(FileSystem* fileSystem) {
+            ensure(fileSystem != nullptr, "filesystem is null");
             m_fileSystems.push_back(fileSystem);
+        }
+
+        void FileSystemHierarchy::popFileSystem() {
+            ensure(!m_fileSystems.empty(), "filesystem hierarchy is empty");
+            delete m_fileSystems.back();
+            m_fileSystems.pop_back();
         }
 
         void FileSystemHierarchy::clear() {
@@ -43,17 +49,20 @@ namespace TrenchBroom {
         }
 
         Path FileSystemHierarchy::doMakeAbsolute(const Path& relPath) const {
-            const FileSystem* fileSystem = findFileSystemContaining(relPath);
-            if (fileSystem != nullptr)
+            const auto* fileSystem = findFileSystemContaining(relPath);
+            if (fileSystem != nullptr) {
                 return fileSystem->makeAbsolute(relPath);
-            return Path("");
+            } else {
+                return Path("");
+            }
         }
 
         bool FileSystemHierarchy::doDirectoryExists(const Path& path) const {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FileSystem* fileSystem = *it;
-                if (fileSystem->directoryExists(path))
+                const auto* fileSystem = *it;
+                if (fileSystem->directoryExists(path)) {
                     return true;
+                }
             }
             return false;
         }
@@ -64,9 +73,10 @@ namespace TrenchBroom {
         
         FileSystem* FileSystemHierarchy::findFileSystemContaining(const Path& path) const {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                FileSystem* fileSystem = *it;
-                if (fileSystem->fileExists(path))
+                auto* fileSystem = *it;
+                if (fileSystem->fileExists(path)) {
                     return fileSystem;
+                }
             }
             return nullptr;
         }
@@ -74,7 +84,7 @@ namespace TrenchBroom {
         Path::List FileSystemHierarchy::doGetDirectoryContents(const Path& path) const {
             Path::List result;
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
-                const FileSystem* fileSystem = *it;
+                const auto* fileSystem = *it;
                 if (fileSystem->directoryExists(path)) {
                     const Path::List contents = fileSystem->getDirectoryContents(path);
                     VectorUtils::append(result, contents);
@@ -89,9 +99,10 @@ namespace TrenchBroom {
             for (auto it = m_fileSystems.rbegin(), end = m_fileSystems.rend(); it != end; ++it) {
                 const FileSystem* fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
-                    const MappedFile::Ptr file = fileSystem->openFile(path);
-                    if (file.get() != nullptr)
+                    const auto file = fileSystem->openFile(path);
+                    if (file.get() != nullptr) {
                         return file;
+                    }
                 }
             }
             return MappedFile::Ptr();
@@ -100,13 +111,13 @@ namespace TrenchBroom {
         WritableFileSystemHierarchy::WritableFileSystemHierarchy() :
         m_writableFileSystem(nullptr) {}
         
-        void WritableFileSystemHierarchy::addReadableFileSystem(FileSystem* fileSystem) {
-            addFileSystem(fileSystem);
+        void WritableFileSystemHierarchy::pushReadableFileSystem(FileSystem* fileSystem) {
+            pushFileSystem(fileSystem);
         }
         
-        void WritableFileSystemHierarchy::addWritableFileSystem(WritableFileSystem* fileSystem) {
+        void WritableFileSystemHierarchy::pushWritableFileSystem(WritableFileSystem* fileSystem) {
             assert(m_writableFileSystem == nullptr);
-            addFileSystem(fileSystem);
+            pushFileSystem(fileSystem);
             m_writableFileSystem = fileSystem;
         }
         
