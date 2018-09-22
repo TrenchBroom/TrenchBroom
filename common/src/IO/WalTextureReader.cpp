@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
             Assets::setMipBufferSize(buffers, mipLevels, width, height);
-            readMips(mipLevels, offsets, width, height, reader, buffers, averageColor);
+            readMips(m_palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
 
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
         }
@@ -85,11 +85,8 @@ namespace TrenchBroom {
             reader.seekForward(32 + 2 * sizeof(uint32_t)); // animation name, flags, contents
             assert(reader.canRead(3 * 256));
 
-            if (!m_palette.initialized()) {
-                m_palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
-            }
-
-            readMips(mipLevels, offsets, width, height, reader, buffers, averageColor);
+            const auto palette = Assets::Palette::fromRaw(3 * 256, reader.cur<unsigned char>());
+            readMips(palette, mipLevels, offsets, width, height, reader, buffers, averageColor);
 
             return new Assets::Texture(textureName(name, path), width, height, averageColor, buffers);
         }
@@ -110,7 +107,7 @@ namespace TrenchBroom {
             return mipLevels;
         }
 
-        void WalTextureReader::readMips(const size_t mipLevels, const size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor) const {
+        void WalTextureReader::readMips(const Assets::Palette& palette, const size_t mipLevels, const size_t offsets[], const size_t width, const size_t height, CharArrayReader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor) {
             static Color tempColor;
 
             for (size_t i = 0; i < mipLevels; ++i) {
@@ -121,7 +118,7 @@ namespace TrenchBroom {
                 const auto size = curWidth * curHeight;
                 const auto* data = reader.cur<char>();
 
-                m_palette.indexedToRgb(data, size, buffers[i], tempColor);
+                palette.indexedToRgb(data, size, buffers[i], tempColor);
                 if (i == 0) {
                     averageColor = tempColor;
                 }
