@@ -62,7 +62,7 @@ namespace TrenchBroom {
             };
             using FaceInfoList = std::vector<FaceInfo>;
             
-            typedef std::vector<int> FaceEdgeIndexList;
+            using FaceEdgeIndexList = std::vector<int>;
 
             String m_name;
             const char* m_begin;

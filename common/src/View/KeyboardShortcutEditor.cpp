@@ -221,7 +221,7 @@ namespace TrenchBroom {
             }
             if (event.ControlDown()) {
                 m_modifiers[count++] = WXK_CONTROL;
-        }
+            }
         }
 
         void KeyboardShortcutEditor::resetKey() {
@@ -231,7 +231,7 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::resetModifiers() {
             for (size_t i = 0; i < 3; ++i) {
                 m_modifiers[i] = WXK_NONE;
+            }
         }
     }
-}
 }

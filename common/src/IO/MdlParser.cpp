@@ -355,7 +355,7 @@ namespace TrenchBroom {
                     const auto& skinVertex = skinVertices[vertexIndex];
 
                     vm::vec2f texCoords (static_cast<float>(skinVertex.s) / static_cast<float>(skinWidth),
-                                     static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
+                                         static_cast<float>(skinVertex.t) / static_cast<float>(skinHeight));
                     if (skinVertex.onseam && !triangle.front) {
                         texCoords[0] += 0.5f;
                     }

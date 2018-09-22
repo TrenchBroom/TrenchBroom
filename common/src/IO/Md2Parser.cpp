@@ -336,13 +336,13 @@ namespace TrenchBroom {
                 for (const auto& md2Mesh : meshes) {
                     if (!md2Mesh.vertices.empty()) {
                         vertexCount += md2Mesh.vertices.size();
-                    if (md2Mesh.type == Md2Mesh::Fan) {
+                        if (md2Mesh.type == Md2Mesh::Fan) {
                             builder.addTriangleFan(getVertices(frame, md2Mesh.vertices));
-                    } else {
+                        } else {
                             builder.addTriangleStrip(getVertices(frame, md2Mesh.vertices));
+                        }
                     }
                 }
-            }
 
                 model->addFrame(frame.name, builder.vertices(), builder.indexArray());
             }

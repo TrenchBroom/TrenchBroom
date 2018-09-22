@@ -414,13 +414,13 @@ namespace TrenchBroom {
                     // const int hexenValue = token.toInteger<int>();
                 }
             }
-            
+
             const vm::vec3 axis = cross(p3 - p1, p2 - p1);
             if (!isZero(axis, vm::C::almostZero())) {
                 brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY, status);
             } else {
                 status.error(line, column, "Skipping face: face points are colinear");
-        }
+            }
         }
         
         vm::vec3 StandardMapParser::parseVector() {

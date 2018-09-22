@@ -305,7 +305,7 @@ namespace TrenchBroom {
             const char* readUntil(const String& delims) {
                 if (!eof()) {
                     do {
-                    advance();
+                        advance();
                     } while (!eof() && !isAnyOf(curChar(), delims));
                 }
                 return curPos();
